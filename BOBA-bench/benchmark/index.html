@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="darkreader-lock">
+  <title>The benchmark · BOBA-Bench</title>
+  <meta name="description" content="How BOBA-Bench is built: 280 chains of 20 consecutive requests cut from the real history of 140 repositories, specified from the developers' tests, verified by a hidden grader the agent never hears from.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BOBA-Bench">
+  <meta property="og:title" content="The benchmark · BOBA-Bench">
+  <meta property="og:description" content="How BOBA-Bench is built: 280 chains of 20 consecutive requests cut from the real history of 140 repositories, specified from the developers' tests, verified by a hidden grader the agent never hears from.">
+  <meta property="og:url" content="https://amazon-agi.github.io/BOBA-bench/benchmark/">
+  <meta property="og:image" content="https://amazon-agi.github.io/BOBA-bench/static/images/og-card.32ac902186a92684.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BOBA-Bench: a cup of bubble tea next to the title Built on Broken Assumptions">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The benchmark · BOBA-Bench">
+  <meta name="twitter:description" content="How BOBA-Bench is built: 280 chains of 20 consecutive requests cut from the real history of 140 repositories, specified from the developers' tests, verified by a hidden grader the agent never hears from.">
+  <meta name="twitter:image" content="https://amazon-agi.github.io/BOBA-bench/static/images/og-card.32ac902186a92684.png">
+  <link rel="icon" type="image/x-icon" href="/BOBA-bench/static/images/favicon.c6e99d2e32c345e5.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/BOBA-bench/static/images/favicon-16.914c332cd78cf96f.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/BOBA-bench/static/images/favicon-32.5b58e6ba9121ad0c.png">
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/BOBA-bench/static/images/boba-cup.af54507acffb0559.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/BOBA-bench/static/images/favicon-192.b559d21834d6bd45.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/BOBA-bench/static/images/apple-touch-icon.577578ee990eb45d.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- web fonts load without blocking the first paint (the system fallback shows until they arrive) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="/BOBA-bench/static/css/main.f9b05527702cebdf.css">
+  <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/BOBA-bench/" class="nav-brand nav-brand-lockup" aria-label="BOBA-Bench home">
+      <span class="nav-brand-blue brand-blue">BOBA</span>
+      <img src="/BOBA-bench/static/images/boba-cup.af54507acffb0559.svg" alt="" class="nav-brand-mark">
+      <span class="nav-brand-orange brand-orange">Bench</span>
+    </a>
+    <div class="nav-links">
+      <a href="/BOBA-bench/" class="nav-link">Leaderboard</a>
+      <a href="/BOBA-bench/findings/" class="nav-link">Findings</a>
+      <a href="/BOBA-bench/failures/" class="nav-link">Failures</a>
+      <a href="/BOBA-bench/benchmark/" class="nav-link active">Benchmark</a>
+      <a href="/BOBA-bench/about/" class="nav-link">About</a>
+      <a href="https://arxiv.org/abs/2611.02207" class="nav-link" target="_blank" rel="noopener">Paper</a>
+      <a href="https://github.com/amazon-agi/BOBA-bench" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+      <a href="/BOBA-bench/team/" class="nav-link">Team</a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4M1 12h2m18 0h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<main>
+<section class="container-wide page-top">
+  <div class="section-header">
+    <h1 class="page-title">The benchmark</h1>
+    <span class="section-note">280 chains · 140 repositories · 4,404 unique requests · Updated October 2026</span>
+  </div>
+  <div class="page-lede"><p>An agent completes 20 requests in sequence on a real repository, each in a fresh conversation, with no feedback; at the end the tests of all 20 must pass.</p></div>
+  <div class="stat-strip">
+<div class="stat"><div class="stat-num">280</div><div class="stat-label">chains</div></div><div class="stat"><div class="stat-num">140</div><div class="stat-label">repositories</div></div><div class="stat"><div class="stat-num">5,600</div><div class="stat-label">requests</div></div><div class="stat"><div class="stat-num">20</div><div class="stat-label">requests per chain</div></div><div class="stat"><div class="stat-num">493 words</div><div class="stat-label">median specification</div></div><div class="stat"><div class="stat-num">2</div><div class="stat-label">median hidden tests per request</div></div></div>
+</section>
+
+<section class="container-wide" id="design">
+  <div class="pillars">
+    <article class="pillar">
+      <span class="pillar-num">01</span>
+      <h2>Twenty requests, one at a time</h2>
+      <p>Each request goes to a fresh conversation on the repository the agent left behind; the chain passes when the final repository passes the tests of all 20.</p>
+      <a href="/BOBA-bench/requests/#dependent">Requests that depend on earlier work →</a>
+    </article>
+    <article class="pillar">
+      <span class="pillar-num">02</span>
+      <h2>A hidden verifier the agent never hears from</h2>
+      <p>After every submission a grader checks the request's tests and every protected test; the agent is never told, so a wrong submission becomes the base of the next.</p>
+      <a href="/BOBA-bench/failures/">What the failures look like →</a>
+    </article>
+    <article class="pillar">
+      <span class="pillar-num">03</span>
+      <h2>Real history, specified from the tests</h2>
+      <p>Cuts fall where the developers added tests; a model writes each specification from those tests, three model families audit it, two must solve it blind, and nothing is edited to keep a chain.</p>
+      <a href="/BOBA-bench/requests/">What a request looks like →</a>
+    </article>
+  </div>
+  <div class="scoring-demo" id="scoring-benchmark" data-scoring-demo>
+  <div class="scoring-head">
+    <span class="scoring-title">How a chain is scored</span>
+    <button type="button" class="chart-replay scoring-replay" data-scoring-replay aria-label="Replay">Replay</button>
+  </div>
+  <div class="scoring-stage">
+    <div class="scoring-row scoring-row-k"><span class="scoring-label">Request</span><div class="scoring-ks"><span data-k="1">1</span><span data-k="2">2</span><span data-k="3">3</span><span data-k="4">4</span><span data-k="5">5</span><span data-k="6">6</span><span data-k="7">7</span><span data-k="8">8</span><span data-k="9">9</span><span data-k="10">10</span><span data-k="11">11</span><span data-k="12">12</span><span data-k="13">13</span><span data-k="14">14</span><span data-k="15">15</span><span data-k="16">16</span><span data-k="17">17</span><span data-k="18">18</span><span data-k="19">19</span><span data-k="20">20</span></div></div>
+    <div class="scoring-row"><span class="scoring-label" title="the request's own hidden tests, run right after its submission">Its own tests</span><div class="chain-strip scoring-strip" data-strip="own"><i class="c-none" data-k="1"></i><i class="c-none" data-k="2"></i><i class="c-none" data-k="3"></i><i class="c-none" data-k="4"></i><i class="c-none" data-k="5"></i><i class="c-none" data-k="6"></i><i class="c-none" data-k="7"></i><i class="c-none" data-k="8"></i><i class="c-none" data-k="9"></i><i class="c-none" data-k="10"></i><i class="c-none" data-k="11"></i><i class="c-none" data-k="12"></i><i class="c-none" data-k="13"></i><i class="c-none" data-k="14"></i><i class="c-none" data-k="15"></i><i class="c-none" data-k="16"></i><i class="c-none" data-k="17"></i><i class="c-none" data-k="18"></i><i class="c-none" data-k="19"></i><i class="c-none" data-k="20"></i></div></div>
+    <div class="scoring-row"><span class="scoring-label" title="every request's tests, as they stand after the latest submission: what the final repository is judged on">All tests now</span><div class="chain-strip scoring-strip" data-strip="all"><i class="c-none" data-k="1"></i><i class="c-none" data-k="2"></i><i class="c-none" data-k="3"></i><i class="c-none" data-k="4"></i><i class="c-none" data-k="5"></i><i class="c-none" data-k="6"></i><i class="c-none" data-k="7"></i><i class="c-none" data-k="8"></i><i class="c-none" data-k="9"></i><i class="c-none" data-k="10"></i><i class="c-none" data-k="11"></i><i class="c-none" data-k="12"></i><i class="c-none" data-k="13"></i><i class="c-none" data-k="14"></i><i class="c-none" data-k="15"></i><i class="c-none" data-k="16"></i><i class="c-none" data-k="17"></i><i class="c-none" data-k="18"></i><i class="c-none" data-k="19"></i><i class="c-none" data-k="20"></i></div></div>
+  </div>
+  <p class="scoring-caption" data-scoring-caption>Twenty requests, one at a time. A hidden grader runs after each; the agent is never told.</p>
+  <div class="scoring-cards">
+    <div class="scoring-card" data-card="pass1"><span class="scoring-card-label">pass@1</span><span class="scoring-card-val">·</span><span class="scoring-card-sub">every test passes at 20</span></div>
+    <div class="scoring-card" data-card="strict"><span class="scoring-card-label">strict pass@1</span><span class="scoring-card-val">·</span><span class="scoring-card-sub">every request passed on its step, nothing broke</span></div>
+    <div class="scoring-card" data-card="regression"><span class="scoring-card-label">regression</span><span class="scoring-card-val">·</span><span class="scoring-card-sub">a passing test broke</span></div>
+  </div>
+  <div class="chain-legend muted small"><i class="c-pass"></i> passes · <i class="c-miss"></i> fails · <i class="c-reg"></i> broke a protected test · <i class="c-none"></i> not yet</div>
+</div>
+</section>
+
+<section class="container-wide" id="numbers">
+  <div class="section-header">
+    <h2 class="section-label"><a class="section-label-link" href="#numbers">By the numbers</a></h2>
+    <span class="section-note">280 chains · 140 repositories · 5,600 requests</span>
+  </div>
+  <div class="chart-grid">
+    <figure class="chart-figure reveal">
+      <figcaption>What must keep passing grows along a chain</figcaption>
+      <div class="chart-block chart-block-short"><canvas id="positionsChart"></canvas></div>
+    </figure>
+    <figure class="chart-figure reveal">
+      <figcaption>Size of the developers' reference change per request</figcaption>
+      <div class="chart-block chart-block-short"><canvas id="goldHistChart"></canvas></div>
+    </figure>
+    <figure class="chart-figure reveal">
+      <figcaption>Repositories by domain</figcaption>
+      <div class="chart-block chart-block-short"><canvas id="domainsChart"></canvas></div>
+    </figure>
+    <figure class="chart-figure reveal">
+      <figcaption>Real time covered by a chain</figcaption>
+      <div class="chart-block chart-block-short"><canvas id="spanChart"></canvas></div>
+    </figure>
+  </div>
+  <p class="table-hint">Medians over the 280 chains for the position chart; the hidden tests of request k join the suite that every later request must keep passing, so by request 20 a median of 43 of the 69 tests that must keep passing were introduced inside the chain. Reference changes range from one-line fixes to rewrites of hundreds of lines; a chain covers between a few weeks and several years of a repository's history.</p>
+</section>
+
+<section class="container-wide" id="compare">
+  <div class="section-header">
+    <h2 class="section-label"><a class="section-label-link" href="#compare">Next to other benchmarks</a></h2>
+    <span class="section-note">Tables 1 and 7 of the paper. The BOBA-Bench rows restate the released population; the other benchmarks are quoted from their papers and public datasets as the manuscript cites them.</span>
+  </div>
+  <div class="compare-highlights">
+    <div class="compare-highlight reveal"><span class="compare-num">20</span><span class="compare-label">graded submissions per task</span><span class="compare-text">against 1 in SWE-bench Verified, SWE-bench Pro and DeepSWE: every request of a chain is verified, and so is every earlier one.</span></div>
+    <div class="compare-highlight reveal"><span class="compare-num">±5.8</span><span class="compare-label">points of resolution</span><span class="compare-text">280 chains give a confidence interval comparable to single-request benchmarks (SWE-bench Verified ±4.4, DeepSWE ±9.1); SWE-Chain and SWE-Milestone, the closest designs, sit at ±25–30.</span></div>
+    <div class="compare-highlight reveal"><span class="compare-num">106</span><span class="compare-label">hidden tests per chain</span><span class="compare-text">the developers&#39; own tests, against a median of 1 in SWE-bench Verified; a chain&#39;s reference changes add 2,177 lines over 25 files.</span></div>
+  </div>
+  <div class="table-wrap"><table class="lb-table lb-table-compact compare-table">
+  <thead><tr><th>Benchmark</th><th>Granularity</th><th class="col-num">Tasks</th><th class="col-num">Repos</th><th class="col-num">Graded per task</th><th class="col-num">Graded total</th><th class="col-num">95% CI (±pp)</th><th class="col-num">Spec. words</th><th class="col-num">Patch lines</th><th class="col-num">Collection</th></tr></thead>
+  <tbody>
+    <tr class="compare-group"><td colspan="10">Issue resolution</td></tr>
+    <tr>
+      <td><span class="model-name"><a href="https://openai.com/index/introducing-swe-bench-verified/" target="_blank" rel="noopener">SWE-bench Verified</a></span> <span class="muted small">(OpenAI, 2024)</span></td>
+      <td>Commit</td>
+      <td class="col-num">500</td><td class="col-num">12</td><td class="col-num">1</td><td class="col-num">500</td>
+      <td class="col-num">4.4</td><td class="col-num">189</td><td class="col-num">14</td><td>Rule-based</td>
+    </tr>
+    <tr>
+      <td><span class="model-name"><a href="https://scale.com/leaderboard/swe_bench_pro_public" target="_blank" rel="noopener">SWE-bench Pro</a></span> <span class="muted small">(Deng et al., 2025)</span></td>
+      <td>Commit</td>
+      <td class="col-num">1.9k</td><td class="col-num">41</td><td class="col-num">1</td><td class="col-num">1.9k</td>
+      <td class="col-num">2.3</td><td class="col-num">462</td><td class="col-num">170</td><td>Rule-based</td>
+    </tr>
+    <tr>
+      <td><span class="model-name">CodeThread</span> <span class="muted small">(Patel et al., 2026)</span></td>
+      <td>Commit</td>
+      <td class="col-num">1.4k</td><td class="col-num">78</td><td class="col-num">1</td><td class="col-num">1.4k</td>
+      <td class="col-num">2.6</td><td class="col-num">n/r</td><td class="col-num">n/r</td><td>Rule-based</td>
+    </tr>
+    <tr class="compare-group"><td colspan="10">Codebase generation</td></tr>
+    <tr>
+      <td><span class="model-name">FeatureBench</span> <span class="muted small">(Zhou et al., 2026)</span></td>
+      <td>Feature</td>
+      <td class="col-num">200</td><td class="col-num">24</td><td class="col-num">1</td><td class="col-num">200</td>
+      <td class="col-num">6.9</td><td class="col-num">4.8k</td><td class="col-num">790</td><td>Test-driven</td>
+    </tr>
+    <tr>
+      <td><span class="model-name">SWE-EVO</span> <span class="muted small">(Le et al., 2025)</span></td>
+      <td>Release</td>
+      <td class="col-num">48</td><td class="col-num">7</td><td class="col-num">1</td><td class="col-num">48</td>
+      <td class="col-num">13.6</td><td class="col-num">2.4k</td><td class="col-num">611</td><td>Rule-based</td>
+    </tr>
+    <tr>
+      <td><span class="model-name">Commit0</span> <span class="muted small">(Zhao et al., 2025)</span></td>
+      <td>Project</td>
+      <td class="col-num">54</td><td class="col-num">54</td><td class="col-num">1</td><td class="col-num">54</td>
+      <td class="col-num">12.9</td><td class="col-num">&gt;7k</td><td class="col-num">&gt;3k</td><td>Rule-based</td>
+    </tr>
+    <tr>
+      <td><span class="model-name"><a href="https://deepswe.datacurve.ai/" target="_blank" rel="noopener">DeepSWE</a></span> <span class="muted small">(Huang et al., 2026)</span></td>
+      <td>Feature</td>
+      <td class="col-num">113</td><td class="col-num">91</td><td class="col-num">1</td><td class="col-num">113</td>
+      <td class="col-num">9.1</td><td class="col-num">302</td><td class="col-num">701</td><td>Manual</td>
+    </tr>
+    <tr class="compare-group"><td colspan="10">Repository evolution</td></tr>
+    <tr>
+      <td><span class="model-name">SlopCodeBench</span> <span class="muted small">(Orlanski et al., 2026)</span></td>
+      <td>Checkpoint</td>
+      <td class="col-num">36</td><td class="col-num">synth.</td><td class="col-num">5.4</td><td class="col-num">196</td>
+      <td class="col-num">15.5</td><td class="col-num">4.3k</td><td class="col-num">n/r</td><td>Manual</td>
+    </tr>
+    <tr>
+      <td><span class="model-name">SWE-Chain</span> <span class="muted small">(Lam et al., 2026)</span></td>
+      <td>Release</td>
+      <td class="col-num">12</td><td class="col-num">9</td><td class="col-num">12.9</td><td class="col-num">155</td>
+      <td class="col-num">24.6</td><td class="col-num">15.5k</td><td class="col-num">8.9k</td><td>Agentic</td>
+    </tr>
+    <tr>
+      <td><span class="model-name">SWE-Milestone</span> <span class="muted small">(Deng et al., 2026)</span></td>
+      <td>Milestone</td>
+      <td class="col-num">7</td><td class="col-num">7</td><td class="col-num">14.0</td><td class="col-num">98</td>
+      <td class="col-num">29.8</td><td class="col-num">18.9k</td><td class="col-num">6.9k</td><td>Agentic</td>
+    </tr>
+    <tr class="is-ours">
+      <td><span class="model-name">BOBA-Bench</span> <span class="muted small">(ours)</span></td>
+      <td>Request</td>
+      <td class="col-num">280</td><td class="col-num">140</td><td class="col-num">20</td><td class="col-num">5.6k</td>
+      <td class="col-num">5.8</td><td class="col-num">12.1k</td><td class="col-num">8.2k</td><td>Agentic</td>
+    </tr>
+  </tbody>
+</table></div>
+  <p class="table-hint">Graded patches: how many submissions are checked per task and in total. 95% CI: half-width, in percentage points, of a 95% confidence interval on a 50% pass rate over the benchmark&#39;s tasks, that is, how finely it can separate two models. Spec. words and patch lines are per task. n/r: not reported. Issue-resolution and codebase-generation benchmarks grade one patch per task from a reference state. Repository-evolution benchmarks grade successive patches on the agent's own code; among them BOBA-Bench has the most tasks, repositories and graded patches, and the narrowest interval.</p>
+  <h3 class="compare-subheading">A request next to a SWE-bench task</h3>
+  <div class="table-wrap"><table class="lb-table lb-table-compact compare-table">
+  <thead><tr><th>Median (IQR) per instance</th><th class="col-num is-ours">BOBA-Bench request<span class="muted small cell-n">n = 5,600</span></th><th class="col-num is-ours">BOBA-Bench chain (20 requests)<span class="muted small cell-n">n = 280</span></th><th class="col-num">SWE-bench Verified<span class="muted small cell-n">n = 500</span></th><th class="col-num">SWE-bench Pro<span class="muted small cell-n">n = 731</span></th></tr></thead>
+  <tbody><tr><td>Specification words</td><td class="col-num is-ours">493 (309–780)</td><td class="col-num is-ours">11,502 (9,583–13,696)</td><td class="col-num">143 (85–234)</td><td class="col-num">418 (320–542)</td></tr><tr><td>Gold files changed</td><td class="col-num is-ours">3 (2–7)</td><td class="col-num is-ours">25 (16–45)</td><td class="col-num">1 (1–1)</td><td class="col-num">4 (2–7)</td></tr><tr><td>Gold lines added</td><td class="col-num is-ours">50 (16–146)</td><td class="col-num is-ours">2,177 (1,246–4,274)</td><td class="col-num">4 (2–10)</td><td class="col-num">63 (33–135)</td></tr><tr><td>Gold lines removed</td><td class="col-num is-ours">14 (3–51)</td><td class="col-num is-ours">775 (442–1,836)</td><td class="col-num">2 (1–4)</td><td class="col-num">20 (7–52)</td></tr><tr><td>Test lines added</td><td class="col-num is-ours">31 (12–79)</td><td class="col-num is-ours">1,197 (803–1,904)</td><td class="col-num">15 (7–27)</td><td class="col-num">46 (17–116)</td></tr><tr><td>Hidden F2P tests</td><td class="col-num is-ours">2 (1–7)</td><td class="col-num is-ours">106 (67–187)</td><td class="col-num">1 (1–2)</td><td class="col-num">3 (1–7)</td></tr><tr><td>P2P tests</td><td class="col-num is-ours">93 (22–91)</td><td class="col-num is-ours">69 at request 20, from 22 at request 1</td><td class="col-num">50 (19–111)</td><td class="col-num">0 (0–30)</td></tr></tbody>
+</table></div>
+  <p class="table-hint">Median (interquartile range) per instance, with one parser for every row. Specification = problem statement (Verified), problem statement + requirements + interface (Pro), frozen request specification (BOBA-Bench). F2P: hidden tests that must fail before the change and pass after it; P2P: tests that must keep passing. In BOBA-Bench the P2P set grows along a chain, because the hidden tests of every earlier request join the suite that must keep passing: a median of 22 tests at request 1 becomes 69 at request 20, 43 of them F2P tests of earlier requests; the request cell is therefore the mean over the twenty positions (93; median 45) with the interquartile range. One BOBA-Bench request is about the size of a SWE-bench Pro task and larger than a Verified one; a chain is twenty of them, every one graded.</p>
+</section>
+
+<section class="container" id="construction">
+  <div class="about-text">
+    <figure class="about-figure">
+      <img src="/BOBA-bench/static/figures/fig3_benchmark_construction.svg" alt="Figure 3 of the paper: a repository's commit history is mined for test-bearing changes, each change is turned into a specification from its tests, specifications are audited and certified, and the base state is sealed in an offline container.">
+      <figcaption>Constructing BOBA-Bench. History is mined for test-bearing changes, each change is specified from its tests, the specifications are audited and certified, and the base state is sealed in an offline, digest-pinned container.</figcaption>
+    </figure>
+    <figure class="chart-figure reveal">
+      <figcaption>From candidate windows to released chains: nothing is edited to keep a chain, windows that fail a check are dropped</figcaption>
+      <div class="chart-block chart-block-short"><canvas id="funnelChart"></canvas></div>
+    </figure>
+    <div class="faq-list">
+      <details class="faq-item" id="faq-construction"><summary class="faq-question">How are chains constructed?</summary><div class="faq-answer"><p>Each chain is a stretch of a real repository's history. We walk the commits of 140 Python repositories, cut the walk wherever the developers added or changed tests, and keep a cut only if its new tests fail before the developers' change and pass after it. Twenty consecutive cuts form a <em>chain</em>; each cut becomes a <em>request</em>.</p><p>A language model writes the specification of every request from the test diff, the commit messages and the linked issues, never from the developers' patch. Three model families then audit each specification against its hidden tests until all three find it sufficient, and two models must solve the released specifications blind. Specifications and tests are never edited to keep a chain: windows that fail a check are <a href="/BOBA-bench/requests/#funnel">dropped</a>. Finally, the base state of every chain is sealed in an offline container pinned by digest. See <a href="/BOBA-bench/requests/">what a request looks like</a>.</p></div></details>
+      <details class="faq-item" id="faq-input"><summary class="faq-question">What does an agent receive?</summary><div class="faq-answer"><p>One specification at a time, each in a fresh conversation, on one repository that persists across the 20 requests: at request k the agent sees the specification of request k and the repository exactly as it left it after request k−1, with no memory of the earlier conversations. It never sees the hidden tests, the specifications of later requests, a budget or a verdict, and works with a single <code>bash</code> tool through mini-swe-agent 2.4.6. All 20 requests always run.</p><p>You can find the <a href="/BOBA-bench/prompt/">full prompt here</a>.</p></div></details>
+      <details class="faq-item" id="faq-evaluation"><summary class="faq-question">How is BOBA-Bench evaluated?</summary><div class="faq-answer"><p>After every submission, a grader running in a fresh container that receives only the agent's git history checks the new state: the tests the developers added at request k (its <em>F2P</em> tests) must pass, and every <em>protected</em> test, the repository's original suite plus the hidden tests of requests 1 to k−1 (the <em>P2P</em> list), must keep passing. Tests written by the agent are discarded. The agent is never told the verdict and the chain continues to request 20 whatever happens.</p><p><strong>pass@1</strong> (the headline) is estimated from eight independent attempts per chain: the mean over the attempts of the final repository passing every test of F2P<sub>20</sub> ∪ P2P<sub>20</sub>, with a repository-clustered 95% interval; the first attempt alone is in the Details view. <strong>Regression rate</strong> and <strong>strict pass@1</strong> are means over the same attempts. <strong>pass@8</strong> counts a chain whose eight attempts include at least one pass. <strong>reached@k</strong> is the share of first attempts whose original run graded request k or later. Every number on this site is computed from the <a href="/BOBA-bench/SOURCES.json">released records</a>.</p></div></details>
+      <details class="faq-item" id="faq-strict"><summary class="faq-question">Why report strict pass@1 and the regression rate next to pass@1?</summary><div class="faq-answer"><p>pass@1 only looks at the repository after request 20. A model that ignored every request and repaired everything at request 20 would score the same pass@1 as a model that delivered each request when it was asked; a model that broke the build at request 3 and fixed it at request 19 would too. <strong>Strict pass@1</strong> exposes both: it counts only chains in which every request's own tests passed on its own step and no protected test ever broke. The difference pass@1 − strict pass@1 is reported as <em>healing</em>, the share of chains that pass at 20 only because something broken or missing earlier was repaired later. The <strong>regression rate</strong> adds how often a protected test broke at some point, healed or not, which is what a user of the agent would have experienced along the way. A handful of chains per model are strict but still fail pass@1: a pre-existing test of the original suite is failing before and after request 20 without ever having been protected; the hint under the leaderboard footnotes them.</p></div></details>
+      <details class="faq-item" id="faq-feasible"><summary class="faq-question">What requests are in the benchmark? How do you guarantee a chain is feasible?</summary><div class="faq-answer"><p>439 exact-20 windows were cut from two oracle-verified corpora; fifteen rounds of checks left the 280 chains released here. A chain is kept only if:</p><ol><li>every request's test patch applies to its base state, at least one of its tests fails before the developers' change and all pass after it (fail-to-pass), and the tests that passed before keep passing (pass-to-pass);</li><li>the developers' own patches, replayed one after another in the sealed container, pass every state's contract (the <em>gold walk</em>), twice, in two independent grader runs;</li><li>three model reviewers unanimously judge every specification sufficient to pass its hidden tests, after up to two rewrites;</li><li>the specification is solvable blind by at least one of two models, or certified as a fair but hard request;</li><li>the environment is reproducible, offline and free of test-aware logic, and the grader's verdicts are deterministic;</li><li>its contract follows from the specification: 14 chains were dropped because at one request the hidden test could only be satisfied from the developers' own implementation of the earlier requests.</li></ol><p>Nothing is repaired to pass a check: windows are dropped, never edited. The <a href="/BOBA-bench/requests/#funnel">construction funnel</a> lists every round and its reason.</p></div></details>
+      <details class="faq-item" id="faq-adequate"><summary class="faq-question">What makes a specification adequate?</summary><div class="faq-answer"><p>Because the agent is never shown the hidden tests, every request must be recoverable from its specification alone. Three independent reviewers (GLM-5.2, Claude Fable 5 and GPT-5.6-sol) each read the specification, the hidden test patch and the base repository in a sandbox and return <em>sufficient</em> or <em>insufficient</em>; a specification is accepted only when all three return <em>sufficient</em> on the same text. Dissent sends it to an author model that rewrites it from the reviewers' findings, and the new text is reviewed afresh. 74.6% of specifications were unanimous on the first pass; 1,325 of the 5,600 released request occurrences carry a GPT-5.6-sol rewrite and 49 a Fable 5 rewrite. Examples are on the <a href="/BOBA-bench/requests/">requests page</a>.</p></div></details>
+      <details class="faq-item" id="faq-other-changes"><summary class="faq-question">What about the agent&#39;s own tests and other changes?</summary><div class="faq-answer"><p>The agent may write and run any tests it likes while working; the grader discards them and applies the frozen test patch of the request in a fresh container. Only the agent's source changes are graded. Editing existing tests, grader files or git metadata is a protocol violation, and the sandbox has no network. A forensic audit of every trajectory in the release (28,212 runs, 14 detector families and a 1,504-item judge sample) found agents trying often but <strong>no defeat of the grader</strong> in the benchmark.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<section class="container-wide" id="examples">
+  <div class="section-header">
+    <h2 class="section-label"><a class="section-label-link" href="#examples">What a request looks like</a></h2>
+    <span class="section-note">three of the 5,600 · <a href="/BOBA-bench/requests/">more examples and the construction funnel</a></span>
+  </div>
+  <div class="discoverability-grid home-examples">
+    <article class="discoverability-card reveal">
+      <header class="discoverability-card-header">
+        <span class="discoverability-badge">Request 1 of 20</span>
+        <span class="discoverability-language">api client sdk</span>
+      </header>
+      <h3>The hyp3_sdk package must publicly export a class named HyP3. <span>· hyp3-sdk</span></h3>
+      <pre class="discoverability-patch"><code>## Required API
+
+- The `hyp3_sdk` package must publicly export a class named `HyP3`.
+- `HyP3` must be constructible with no arguments:
+  ```python
+  api = HyP3()
+  ```
+- Instances must expose a `url` attribute containing the API base URL.
+- Instances must provide:
+  ```python
+  api.find_jobs()
+  ```
+
+## Required `find_jobs` behavior
+
+Calling `HyP3.find_jobs()` must retrieve every page of jobs:
+
+1. Send the initial request to the `/jobs` endpoint without a `next` query parameter.
+2. Read job records from the response’s `&#34;jobs&#34;` list.
+…</code></pre>
+      <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_ASFHyP3_hyp3-sdk_r00_w002/#request-1">Full specification and the chain's other 19 requests ↗</a>
+    </article>
+    <article class="discoverability-card reveal">
+      <header class="discoverability-card-header">
+        <span class="discoverability-badge">Request 5 of 20</span>
+        <span class="discoverability-language">api client sdk</span>
+      </header>
+      <h3>Add support for issuing a firmware upgrade command to a UniFi network device via the devices controller. <span>· aiounifi</span></h3>
+      <pre class="discoverability-patch"><code># Task: Add `upgrade` command to the Devices controller
+
+## Overview
+
+Add support for issuing a firmware upgrade command to a UniFi network device via the devices controller.
+
+## Public API
+
+The devices controller (accessible as `unifi_controller.devices`) must expose a new asynchronous method:
+
+```python
+async def upgrade(self, mac: str) -&gt; ...
+```
+
+- The method is called with the device&#39;s MAC address passed as the keyword argument `mac`, e.g. `await unifi_controller.devices.upgrade(mac=&#34;80:2a:a8:00:01:02&#34;)`.
+
+## Required Behavior
+
+…</code></pre>
+      <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_Kane610_aiounifi_r00_w000/#request-5">Full specification and the chain's other 19 requests ↗</a>
+    </article>
+    <article class="discoverability-card reveal">
+      <header class="discoverability-card-header">
+        <span class="discoverability-badge">Request 13 of 20</span>
+        <span class="discoverability-language">web backend apps</span>
+      </header>
+      <h3>You need to rename a keyword parameter used by two public functions in the codebase&#39;s utilities module. <span>· mtpylon</span></h3>
+      <pre class="discoverability-patch"><code>## Overview
+
+You need to rename a keyword parameter used by two public functions in the codebase&#39;s utilities module. The parameter is currently named `for_combinator_number` and must be renamed to `for_type_number`. The parameter&#39;s behavior must remain unchanged; only its name changes.
+
+## Affected Public API
+
+The following two functions must accept a keyword argument named `for_type_number` (a boolean, defaulting to `False`):
+
+- `build_combinator_description(combinator, base_type, for_type_number=False)`
+- `build_function_description(func, for_type_number=False)`
+
+…</code></pre>
+      <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_Zapix_mtpylon_r00_w000/#request-13">Full specification and the chain's other 19 requests ↗</a>
+    </article>
+  </div>
+</section>
+
+<section class="container">
+  <div class="about-width">
+    <div class="link-tiles link-tiles-3">
+      <a href="/BOBA-bench/repositories/" class="link-tile">
+        <span class="link-tile-copy"><span class="link-tile-title">Repositories</span><span class="link-tile-description">All 140 repositories, their chains and every model's result on each.</span></span>
+        <svg class="link-tile-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/BOBA-bench/requests/" class="link-tile">
+        <span class="link-tile-copy"><span class="link-tile-title">Requests</span><span class="link-tile-description">How a stretch of history becomes twenty specifications, with the construction funnel and the dropped chains.</span></span>
+        <svg class="link-tile-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+      <a href="/BOBA-bench/prompt/" class="link-tile">
+        <span class="link-tile-copy"><span class="link-tile-title">Inference prompt</span><span class="link-tile-description">The exact mini-swe-agent templates every model ran under, and the one-bit message of the Verified setting.</span></span>
+        <svg class="link-tile-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="run">
+  <div class="about-width">
+    <h2 class="about-heading">Run BOBA-Bench and submit</h2>
+    <div class="about-text">
+      <p>The harness, the sealed task images and the grading contracts are released with the paper; every number on this site is computed from the <a href="/BOBA-bench/SOURCES.json" target="_blank" rel="noopener">released records</a>. All 10 leaderboard entries ran the stock mini-swe-agent with a single <code>bash</code> tool, one fresh conversation per request, so a new model needs nothing more than an API key. The scoring protocol (pass@1, strict pass@1, regression rate, pass@8) is spelled out in <code>handoff/SCORING.md</code> of the release. Public submissions are coming soon. Until then, run the benchmark with the released harness and open an issue with your results.</p>
+      <p><a class="button-link" href="https://github.com/amazon-agi/BOBA-bench" target="_blank" rel="noopener">GitHub repository →</a> <a class="button-link button-link-secondary" href="https://arxiv.org/abs/2611.02207">Read the paper →</a></p>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <span>Copyright © 2026 The BOBA-Bench authors</span>
+    <span class="footer-links">
+<a href="https://arxiv.org/abs/2611.02207" target="_blank" rel="noreferrer noopener">Paper</a><a href="https://github.com/amazon-agi/BOBA-bench" target="_blank" rel="noreferrer noopener">GitHub</a><a href="https://hub.docker.com/r/bobabench/boba-bench" target="_blank" rel="noreferrer noopener">Docker images</a><a href="/BOBA-bench/SOURCES.json">Sources</a>    </span>
+  </div>
+</footer>
+<script src="/BOBA-bench/static/js/main.js?v=ba4f24cd3d" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+<script>window.BOBA_BENCH = {"domains": [{"label": "api client sdk", "n": 21}, {"label": "language parsing analysis", "n": 17}, {"label": "scientific numerical", "n": 15}, {"label": "general utility", "n": 14}, {"label": "devtools testing packaging", "n": 13}, {"label": "data engineering formats", "n": 13}, {"label": "infra cloud ops", "n": 12}, {"label": "iot hardware home", "n": 10}, {"label": "web backend apps", "n": 9}, {"label": "media games graphics", "n": 6}, {"label": "security identity", "n": 4}, {"label": "text docs nlp", "n": 4}, {"label": "finance business", "n": 2}], "positions": {"k": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "p2p": [22.0, 29.0, 29.5, 33.0, 34.5, 37.0, 38.5, 39.0, 44.0, 43.5, 47.5, 50.0, 51.5, 54.0, 57.0, 58.0, 60.0, 62.5, 63.0, 68.5], "earlier_f2p": [0.0, 3.0, 6.0, 9.5, 12.0, 15.0, 17.0, 19.0, 20.0, 23.0, 24.5, 28.0, 30.0, 33.5, 35.0, 37.0, 40.5, 42.0, 43.0, 43.0], "f2p": [3.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0], "spec_words": [554.5, 508.5, 513.0, 510.5, 485.0, 525.5, 502.5, 489.0, 480.0, 462.0, 480.0, 463.5, 474.5, 504.0, 476.0, 488.0, 488.0, 512.0, 460.0, 482.5], "gold_total": [104.0, 80.0, 70.5, 65.5, 79.5, 62.5, 58.5, 59.0, 73.0, 78.5, 91.5, 62.5, 81.0, 74.0, 68.5, 85.0, 62.5, 74.0, 70.0, 68.5]}, "hists": {"gold_total": {"<10": 571, "10-29": 1063, "30-99": 1597, "100-299": 1299, "300-999": 737, ">=1000": 333}, "stars": {"<10": 20, "10-49": 51, "50-99": 20, "100-499": 31, "500-999": 8, "1000-4999": 9, ">=5000": 1}, "span": {"<1m": 54, "1-3m": 46, "3-6m": 30, "6-12m": 46, "1-2y": 57, "2-4y": 29, ">=4y": 18}}, "funnel": [{"stage": "Exact-20 windows materialised", "tasks": 439}, {"stage": "R1 abnormal gating metadata", "tasks": 437}, {"stage": "R2 provider-filtered scanner chains", "tasks": 435}, {"stage": "R3 unfinished specifications discarded (re-windowed)", "tasks": 397}, {"stage": "R4 composition", "tasks": 392}, {"stage": "R5 hygiene / test-path / env determinism", "tasks": 370}, {"stage": "R6 gold-test path overlap", "tasks": 365}, {"stage": "R7 dual certification", "tasks": 353}, {"stage": "R8 environment-manipulation audit", "tasks": 321}, {"stage": "R9 digest-bound walk reproducibility", "tasks": 319}, {"stage": "R10 gate nondeterminism", "tasks": 318}, {"stage": "R11 gate nondeterminism", "tasks": 317}, {"stage": "R12 grader v3.2.1 first-pass gate", "tasks": 297}, {"stage": "R13 verifier wall", "tasks": 295}, {"stage": "R14 grader v3.2.2 first-pass gate", "tasks": 294}, {"stage": "R15 specification issues (released benchmark)", "tasks": 280}], "spec_authors": {"GPT-5.6 Sol": 1325, "source specification (unchanged)": 4226, "Claude Fable 5": 49}};</script>
+<script src="/BOBA-bench/static/js/charts.js?v=ba4f24cd3d" defer></script>
+<script src="/BOBA-bench/static/js/scoring.js?v=ba4f24cd3d" defer></script>
+</body>
+</html>

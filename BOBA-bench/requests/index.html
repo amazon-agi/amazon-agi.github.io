@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="darkreader-lock">
+  <title>What does a request look like? · BOBA-Bench</title>
+  <meta name="description" content="How a stretch of a repository's history becomes twenty specifications that depend on one another, with examples from the benchmark and the construction funnel.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BOBA-Bench">
+  <meta property="og:title" content="What does a request look like? · BOBA-Bench">
+  <meta property="og:description" content="How a stretch of a repository's history becomes twenty specifications that depend on one another, with examples from the benchmark and the construction funnel.">
+  <meta property="og:url" content="https://amazon-agi.github.io/BOBA-bench/requests/">
+  <meta property="og:image" content="https://amazon-agi.github.io/BOBA-bench/static/images/og-card.32ac902186a92684.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="BOBA-Bench: a cup of bubble tea next to the title Built on Broken Assumptions">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="What does a request look like? · BOBA-Bench">
+  <meta name="twitter:description" content="How a stretch of a repository's history becomes twenty specifications that depend on one another, with examples from the benchmark and the construction funnel.">
+  <meta name="twitter:image" content="https://amazon-agi.github.io/BOBA-bench/static/images/og-card.32ac902186a92684.png">
+  <link rel="icon" type="image/x-icon" href="/BOBA-bench/static/images/favicon.c6e99d2e32c345e5.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/BOBA-bench/static/images/favicon-16.914c332cd78cf96f.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/BOBA-bench/static/images/favicon-32.5b58e6ba9121ad0c.png">
+  <link rel="icon" type="image/svg+xml" sizes="any" href="/BOBA-bench/static/images/boba-cup.af54507acffb0559.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/BOBA-bench/static/images/favicon-192.b559d21834d6bd45.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/BOBA-bench/static/images/apple-touch-icon.577578ee990eb45d.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- web fonts load without blocking the first paint (the system fallback shows until they arrive) -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="/BOBA-bench/static/css/main.f9b05527702cebdf.css">
+  <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="/BOBA-bench/" class="nav-brand nav-brand-lockup" aria-label="BOBA-Bench home">
+      <span class="nav-brand-blue brand-blue">BOBA</span>
+      <img src="/BOBA-bench/static/images/boba-cup.af54507acffb0559.svg" alt="" class="nav-brand-mark">
+      <span class="nav-brand-orange brand-orange">Bench</span>
+    </a>
+    <div class="nav-links">
+      <a href="/BOBA-bench/" class="nav-link">Leaderboard</a>
+      <a href="/BOBA-bench/findings/" class="nav-link">Findings</a>
+      <a href="/BOBA-bench/failures/" class="nav-link">Failures</a>
+      <a href="/BOBA-bench/benchmark/" class="nav-link active">Benchmark</a>
+      <a href="/BOBA-bench/about/" class="nav-link">About</a>
+      <a href="https://arxiv.org/abs/2611.02207" class="nav-link" target="_blank" rel="noopener">Paper</a>
+      <a href="https://github.com/amazon-agi/BOBA-bench" class="nav-link" target="_blank" rel="noopener">GitHub</a>
+      <a href="/BOBA-bench/team/" class="nav-link">Team</a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.2 4.2l1.4 1.4m12.8 12.8 1.4 1.4M1 12h2m18 0h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<main>
+<section class="container-wide page-top discoverability-page">
+  <p class="extended-link"><a href="/BOBA-bench/about/#faq-adequate">← About specifications</a></p>
+  <h1 class="page-title">What does a request look like?</h1>
+  <div class="discoverability-intro"><p>Because the agent is never shown the hidden tests, every request must be recoverable from its specification alone. A request is one cut of a repository&#39;s real history where the developers added or changed tests: the tests they added are the hidden contract, the specification is written from them, and the change the developers actually made is the gold reference. These examples are drawn from the released benchmark; the full text of every request is on its chain page.</p></div>
+
+  <section class="discoverability-section" id="from-history">
+    <h2>Requests cut from history</h2>
+    <div class="discoverability-section-description"><p>Twenty consecutive cuts of one repository&#39;s history form a chain. The agent receives them one at a time; later requests build on, extend or revise what earlier ones introduced, so the same symbols, modules and behaviours recur along a chain.</p></div>
+    <div class="discoverability-grid">
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 1 of 20</span>
+          <span class="discoverability-language">api client sdk</span>
+        </header>
+        <h3>The hyp3_sdk package must publicly export a class named HyP3. <span>· hyp3-sdk</span></h3>
+        <div class="discoverability-rationale"><p>The first request of a chain of 20 cut from 137 commits of ASFHyP3/hyp3-sdk spanning 8 mo. 172 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Required API
+
+- The `hyp3_sdk` package must publicly export a class named `HyP3`.
+- `HyP3` must be constructible with no arguments:
+  ```python
+  api = HyP3()
+  ```
+- Instances must expose a `url` attribute containing the API base URL.
+- Instances must provide:
+  ```python
+  api.find_jobs()
+  ```
+
+## Required `find_jobs` behavior
+
+Calling `HyP3.find_jobs()` must retrieve every page of jobs:
+
+1. Send the initial request to the `/jobs` endpoint without a `next` query parameter.
+2. Read job records from the response’s `&#34;jobs&#34;` list.
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_ASFHyP3_hyp3-sdk_r00_w002/#request-1">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 10 of 20</span>
+          <span class="discoverability-language">api client sdk</span>
+        </header>
+        <h3>Support job log metadata throughout Job parsing and serialization, and preserve normal empty-search behavior. <span>· hyp3-sdk</span></h3>
+        <div class="discoverability-rationale"><p>Request 10 of the same chain, written from the tests the developers added nine changes later. 326 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Required change
+
+Support job log metadata throughout `Job` parsing and serialization, and preserve normal empty-search behavior.
+
+### Public API
+
+#### `hyp3_sdk.jobs.Job`
+
+The following existing interfaces are exercised:
+
+- `Job.from_dict(job_dict)`
+- `Job.to_dict(for_resubmit=False)`
+- Instance attribute `Job.logs`
+- Class-level key collections:
+  - `Job._finished_job_keys`
+  - `Job._successful_job_keys`
+
+Required behavior:
+
+1. `Job.from_dict(...)` must accept successful and failed job dictionaries containing a `&#34;logs&#34;` field whose value is a non-empty list of URL strings.
+2. The resulting object must expose that value through `job.logs`.
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_ASFHyP3_hyp3-sdk_r00_w002/#request-10">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+    </div>
+  </section>
+  <section class="discoverability-section" id="specified-from-tests">
+    <h2>Specifications written from the tests</h2>
+    <div class="discoverability-section-description"><p>A language model drafts each specification from the test diff, the commit messages and the linked issues, never from the developers&#39; patch, and names the public behaviour, API and errors the tests exercise without quoting test identifiers or assertions. Three model families must find the text sufficient before it is released.</p></div>
+    <div class="discoverability-grid">
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 5 of 20</span>
+          <span class="discoverability-language">api client sdk</span>
+        </header>
+        <h3>Add support for issuing a firmware upgrade command to a UniFi network device via the devices controller. <span>· aiounifi</span></h3>
+        <div class="discoverability-rationale"><p>Request 5 of 20 in Kane610/aiounifi. 219 words, source specification. The agent sees this text and the repository as it left it after request 4; the hidden tests decide.</p></div>
+        <pre class="discoverability-patch"><code># Task: Add `upgrade` command to the Devices controller
+
+## Overview
+
+Add support for issuing a firmware upgrade command to a UniFi network device via the devices controller.
+
+## Public API
+
+The devices controller (accessible as `unifi_controller.devices`) must expose a new asynchronous method:
+
+```python
+async def upgrade(self, mac: str) -&gt; ...
+```
+
+- The method is called with the device&#39;s MAC address passed as the keyword argument `mac`, e.g. `await unifi_controller.devices.upgrade(mac=&#34;80:2a:a8:00:01:02&#34;)`.
+
+## Required Behavior
+
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_Kane610_aiounifi_r00_w000/#request-5">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 10 of 20</span>
+          <span class="discoverability-language">data engineering formats</span>
+        </header>
+        <h3>Local filesystem paths provided to the dataset opener and dataset writer may contain a leading tilde (~), which is a shorthand for the current user&#39;s home… <span>· nc2zarr</span></h3>
+        <div class="discoverability-rationale"><p>Request 10 of 20 in bcdev/nc2zarr. 306 words, source specification. The agent sees this text and the repository as it left it after request 9; the hidden tests decide.</p></div>
+        <pre class="discoverability-patch"><code># Task: Expand tilde (`~`) in local input and output paths
+
+## Overview
+
+Local filesystem paths provided to the dataset opener and dataset writer may contain a leading tilde (`~`), which is a shorthand for the current user&#39;s home directory. These paths must be expanded so that `~` (and `~/...`) resolves to the user&#39;s actual home directory before use.
+
+## Required Changes
+
+### 1. `DatasetOpener.resolve_input_paths`
+
+Located in the `DatasetOpener` class, the static/class method `resolve_input_paths` accepts a list of input path strings and returns a list of resolved path strings.
+
+Required behavior:
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_bcdev_nc2zarr_r00_w001/#request-10">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 2 of 20</span>
+          <span class="discoverability-language">devtools testing packaging</span>
+        </header>
+        <h3>Update the B008 default-argument call validation exposed through the existing bugbear module. <span>· flake8-bugbear</span></h3>
+        <div class="discoverability-rationale"><p>Request 2 of 20 in PyCQA/flake8-bugbear. 137 words, source specification. The agent sees this text and the repository as it left it after request 1; the hidden tests decide.</p></div>
+        <pre class="discoverability-patch"><code>## Change required
+
+Update the B008 default-argument call validation exposed through the existing `bugbear` module.
+
+### Public API
+
+The behavior is observed through:
+
+- `bugbear.BugBearChecker`
+- Construction with a source filename, e.g. `BugBearChecker(filename=path)`
+- `BugBearChecker.run()` returning the iterable of Flake8-style diagnostics
+
+### Required behavior
+
+When a function parameter default is any of the following calls, the checker must consider it acceptable and emit no B008 diagnostic for that default:
+
+```python
+import re
+
+def f(value=re.compile(&#34;foo&#34;)):
+    pass
+```
+
+```python
+import operator
+
+def f(
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_PyCQA_flake8-bugbear_r00_w002/#request-2">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 2 of 20</span>
+          <span class="discoverability-language">finance business</span>
+        </header>
+        <h3>Implement an error estimator class that computes an &#34;expected outcome&#34; error metric comparing a candidate portfolio allocation against an optimal allocation. <span>· mcos</span></h3>
+        <div class="discoverability-rationale"><p>Request 2 of 20 in enjine-com/mcos. 205 words, source specification. The agent sees this text and the repository as it left it after request 1; the hidden tests decide.</p></div>
+        <pre class="discoverability-patch"><code>## Objective
+
+Implement an error estimator class that computes an &#34;expected outcome&#34; error metric comparing a candidate portfolio allocation against an optimal allocation.
+
+## Public API
+
+Create a module importable as `mcos.error_estimator`. Within it, define a class:
+
+```python
+class ExpectedOutcomeErrorEstimator:
+    def estimate(self, allocation: np.ndarray, optimal_allocation: np.ndarray) -&gt; float:
+        ...
+```
+
+## Behavior
+
+The `estimate` method accepts two 1-dimensional NumPy arrays of equal length:
+
+- `allocation`: a candidate allocation vector (weights).
+- `optimal_allocation`: the reference/optimal allocation vector (weights).
+
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_enjine-com_mcos_r00_w000/#request-2">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+    </div>
+  </section>
+  <section class="discoverability-section" id="dependent">
+    <h2>Requests that depend on earlier work</h2>
+    <div class="discoverability-section-description"><p>Most requests touch files that earlier requests of the same chain changed, and many extend symbols that earlier requests introduced. A mistake left in place is therefore built on by what follows.</p></div>
+    <div class="discoverability-grid">
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 13 of 20</span>
+          <span class="discoverability-language">web backend apps</span>
+        </header>
+        <h3>You need to rename a keyword parameter used by two public functions in the codebase&#39;s utilities module. <span>· mtpylon</span></h3>
+        <div class="discoverability-rationale"><p>Request 13 of 20 in Zapix/mtpylon, a chain in which later requests extend symbols introduced by earlier ones to a depth of 12. 339 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Overview
+
+You need to rename a keyword parameter used by two public functions in the codebase&#39;s utilities module. The parameter is currently named `for_combinator_number` and must be renamed to `for_type_number`. The parameter&#39;s behavior must remain unchanged; only its name changes.
+
+## Affected Public API
+
+The following two functions must accept a keyword argument named `for_type_number` (a boolean, defaulting to `False`):
+
+- `build_combinator_description(combinator, base_type, for_type_number=False)`
+- `build_function_description(func, for_type_number=False)`
+
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_Zapix_mtpylon_r00_w000/#request-13">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 19 of 20</span>
+          <span class="discoverability-language">text docs nlp</span>
+        </header>
+        <h3>Add a new public method get_attributes to the TraceableItem class in the module mlx.traceable_item. <span>· sphinx-traceability-extension</span></h3>
+        <div class="discoverability-rationale"><p>Request 19 of 20 in melexis/sphinx-traceability-extension, a chain in which later requests extend symbols introduced by earlier ones to a depth of 6. 316 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Objective
+
+Add a new public method `get_attributes` to the `TraceableItem` class in the module `mlx.traceable_item`.
+
+## Context
+
+The `TraceableItem` class already supports managing attributes via existing methods, including:
+- `define_attribute(key, regex)` — a class-level method registering an allowed attribute key with a validating regex.
+- `add_attribute(key, value, overwrite=True)` — stores an attribute value for the item.
+- `get_attribute(key)` — returns the stored value for a single attribute key, or a falsy value (empty string) when the key has no value.
+
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_trainpromoted_melexis_sphinx-traceability-extension_r00_w001/#request-19">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 12 of 20</span>
+          <span class="discoverability-language">scientific numerical</span>
+        </header>
+        <h3>You must add two new element-wise hyperbolic functions to the tensor math module <span>· tensortrax</span></h3>
+        <div class="discoverability-rationale"><p>Request 12 of 20 in adtzlr/tensortrax, a chain in which later requests extend symbols introduced by earlier ones to a depth of 6. 279 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Overview
+
+You must add two new element-wise hyperbolic functions to the tensor math module: `sinh` and `cosh`. These should behave consistently with the existing element-wise math functions already present in the module (such as `sin`, `cos`, `tan`, `tanh`, `sqrt`).
+
+## Public API to Implement
+
+In the tensor math module (imported as `tm` — i.e., the top-level module that already exposes `tm.sin`, `tm.cos`, `tm.tan`, `tm.tanh`, `tm.sqrt`, and `tm.linalg`), add two functions:
+
+- `tm.sinh(x)`
+- `tm.cosh(x)`
+
+## Required Behavior
+
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_adtzlr_tensortrax_r00_w000/#request-12">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+      <article class="discoverability-card">
+        <header class="discoverability-card-header">
+          <span class="discoverability-badge">Request 20 of 20</span>
+          <span class="discoverability-language">language parsing analysis</span>
+        </header>
+        <h3>Reorganize and rename modules in the luaparser package so that AST node definitions and a shared test-support utility are available at new, specific import… <span>· py-lua-parser</span></h3>
+        <div class="discoverability-rationale"><p>Request 20 of 20 in boolangery/py-lua-parser, a chain in which later requests extend symbols introduced by earlier ones to a depth of 6. 322 words, source specification.</p></div>
+        <pre class="discoverability-patch"><code>## Overview
+
+Reorganize and rename modules in the `luaparser` package so that AST node definitions and a shared test-support utility are available at new, specific import locations.
+
+## Required Module Renames and Relocations
+
+### 1. AST nodes module rename
+
+The AST node definitions currently living in `luaparser/astNodes.py` must be available as the module **`luaparser.astnodes`** (all lowercase).
+
+- Importing with `from luaparser.astnodes import *` must expose all of the AST node names that were previously exported from the old module.
+- All AST node classes and their public behavior must remain unchanged; only the module name/path changes.
+…</code></pre>
+        <a class="discoverability-source" href="/BOBA-bench/chain/chain20_eval_boolangery_py-lua-parser_r00_w001/#request-20">Full specification and the chain's other 19 requests ↗</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="discoverability-section" id="funnel">
+    <h2>Construction funnel: windows dropped, never edited</h2>
+    <div class="discoverability-section-description"><p>No frozen specification, test patch or gold patch was edited to retain a chain. Every round of checks removed whole windows; the table lists each round, what it removed and why. The last round dropped 14 chains for specification issues: at one request of each of six repositories, the hidden test could only be satisfied from the developers&#39; own implementation of the earlier requests, so the specification did not determine the contract.</p></div>
+    <div class="table-wrap">
+      <table class="lb-table lb-table-compact funnel-table">
+        <thead><tr><th>Stage</th><th class="col-num">Chains</th><th class="col-num">Repositories</th><th class="col-num">Unique requests</th><th class="col-num">Removed</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td><span class="model-name">Source corpora considered</span></td><td class="col-num">—</td><td class="col-num muted">1866</td><td class="col-num muted">13,266</td><td class="col-num">—</td><td class="funnel-reason muted">harbor-swe-build-eval-v1.2 (4,898 oracle-verified segments, 119 repos, every repo &gt;=20 continuous segments) + harbor-swe-build-training-v2 (14,930 segments / 1,747 repos, 8,368 strict-offline-oracle-verified)</td></tr>
+          <tr><td><span class="model-name">Exact-20 windows materialised</span></td><td class="col-num">439</td><td class="col-num muted">193</td><td class="col-num muted">6,740</td><td class="col-num">—</td><td class="funnel-reason muted">runs of &gt;=20 consecutive oracle-verified segments cut into exact-20 windows; final window overlaps when run length not divisible by 20 (119 eval + 74 promoted-training repositories; eval/training repository sets disjoint)</td></tr>
+          <tr><td><span class="model-name">R1 abnormal gating metadata</span></td><td class="col-num">437</td><td class="col-num muted">192</td><td class="col-num muted">6,716</td><td class="col-num">2</td><td class="funnel-reason muted">one segment (realdiff_pymmcore-plus_useq-schema_seg6) serialised 3,557,057 bytes of gating lists (21,651 F2P nodes; next largest 247,864 bytes); both windows containing it dropped</td></tr>
+          <tr><td><span class="model-name">R2 provider-filtered scanner chains</span></td><td class="col-num">435</td><td class="col-num muted">191</td><td class="col-num muted">6,688</td><td class="col-num">2</td><td class="funnel-reason muted">Bedrock content_filtered on two google/gcp_scanner chains: no Fable Wave-1 verdict possible; excluded from the eligible denominator (provider failure is never a vote)</td></tr>
+          <tr><td><span class="model-name">R3 unfinished specifications discarded (re-windowed)</span></td><td class="col-num">397</td><td class="col-num muted">176</td><td class="col-num muted">6,066</td><td class="col-num">38</td><td class="funnel-reason muted">62 specifications not final-unanimous at the frozen snapshot discarded; runs split at each discard, fragments &lt;20 dropped (560 collateral segments), retained sub-runs deterministically re-windowed (370 existing windows kept + 27 new); 15 repositories dropped</td></tr>
+          <tr><td><span class="model-name">R4 composition</span></td><td class="col-num">392</td><td class="col-num muted">175</td><td class="col-num muted">6,026</td><td class="col-num">5</td><td class="funnel-reason muted">sequential test-patch composition unresolved after environment repair (stale-lineage test patches; recomposition v1 rolled back)</td></tr>
+          <tr><td><span class="model-name">R5 hygiene / test-path / env determinism</span></td><td class="col-num">370</td><td class="col-num muted">167</td><td class="col-num muted">5,702</td><td class="col-num">22</td><td class="funnel-reason muted">canonical-readiness validations: publication-hygiene lint (10), gold patch touches test-classified paths (10), non-reproducible repaired environment build (2)</td></tr>
+          <tr><td><span class="model-name">R6 gold-test path overlap</span></td><td class="col-num">365</td><td class="col-num muted">166</td><td class="col-num muted">5,615</td><td class="col-num">5</td><td class="funnel-reason muted">exact gold/test changed-path intersection (reviewer-verified)</td></tr>
+          <tr><td><span class="model-name">R7 dual certification</span></td><td class="col-num">353</td><td class="col-num muted">164</td><td class="col-num muted">5,490</td><td class="col-num">12</td><td class="funnel-reason muted">dual-certification failures: packaged gate failed (2), continuous walk failed (3), test-patch apply failed (2), reconciliation anchor/report failures (5)</td></tr>
+          <tr><td><span class="model-name">R8 environment-manipulation audit</span></td><td class="col-num">321</td><td class="col-num muted">153</td><td class="col-num muted">4,964</td><td class="col-num">32</td><td class="funnel-reason muted">environment manipulation in repaired-environment images (test-aware/walk-aware Dockerfile logic: git-apply shims, startup hooks, report rewriting); union of lexical (29) and behavioural (25) audits</td></tr>
+          <tr><td><span class="model-name">R9 digest-bound walk reproducibility</span></td><td class="col-num">319</td><td class="col-num muted">153</td><td class="col-num muted">4,947</td><td class="col-num">2</td><td class="funnel-reason muted">ev5 digest-bound certification walls that did not reproduce (flaky gold contract; intermittent F2P pre-pass)</td></tr>
+          <tr><td><span class="model-name">R10 gate nondeterminism</span></td><td class="col-num">318</td><td class="col-num muted">153</td><td class="col-num muted">4,927</td><td class="col-num">1</td><td class="funnel-reason muted">packaged gate v3 first execution failed, rerun passed (non-deterministic timer-driven test)</td></tr>
+          <tr><td><span class="model-name">R11 gate nondeterminism</span></td><td class="col-num">317</td><td class="col-num muted">153</td><td class="col-num muted">4,907</td><td class="col-num">1</td><td class="funnel-reason muted">packaged gate v3.1 first execution failed segment 19, pod retry passed (non-deterministic)</td></tr>
+          <tr><td><span class="model-name">R12 grader v3.2.1 first-pass gate</span></td><td class="col-num">297</td><td class="col-num muted">146</td><td class="col-num muted">4,625</td><td class="col-num">20</td><td class="funnel-reason muted">grader v3.2.1 two-container exact-digest gate did not return reward 1 on first pass (non-deterministic literal outcomes, image attestation mismatch, suites mutating protected files)</td></tr>
+          <tr><td><span class="model-name">R13 verifier wall</span></td><td class="col-num">295</td><td class="col-num muted">146</td><td class="col-num muted">4,606</td><td class="col-num">2</td><td class="funnel-reason muted">authoritative verifier exceeded the registered 1,800 s wall on the exact digest</td></tr>
+          <tr><td><span class="model-name">R14 grader v3.2.2 first-pass gate</span></td><td class="col-num">294</td><td class="col-num muted">146</td><td class="col-num muted">4,603</td><td class="col-num">1</td><td class="funnel-reason muted">grader v3.2.2 exact-digest execution failed frozen segment-19 node (sibling window already non-deterministic)</td></tr>
+          <tr class="funnel-final"><td><span class="model-name">R15 specification issues (released benchmark)</span></td><td class="col-num">280</td><td class="col-num muted">140</td><td class="col-num muted">4,404</td><td class="col-num">14</td><td class="funnel-reason muted">14 chains of six repositories dropped: at one request, every model failed the same hidden test from its own certified code and passed it from the developers&#39; code, so the contract depended on the developers&#39; implementation of the earlier requests rather than on the specification</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="discoverability-section" id="dropped">
+    <h2>Chains dropped for specification issues</h2>
+    <div class="discoverability-section-description"><p>At one request of each of these six repositories, every model that reached it from its own certified code failed the same hidden test (0–38% of attempts) and passed it from the developers&#39; code (88–100%): the contract depended on the developers&#39; implementation of the earlier requests, not on what the specification asked for. Their 14 chains are not part of the 280-chain release.</p></div>
+    <p class="discoverability-section-description mono">cantools/cantools · ecmwf/pdbufr · just-work/fffw · kk7ds/gaiagpsclient · maxfischer2781/asyncstdlib · zkbt/chromatic</p>
+  </section>
+</section>
+</main>
+<footer>
+  <div class="footer-inner">
+    <span>Copyright © 2026 The BOBA-Bench authors</span>
+    <span class="footer-links">
+<a href="https://arxiv.org/abs/2611.02207" target="_blank" rel="noreferrer noopener">Paper</a><a href="https://github.com/amazon-agi/BOBA-bench" target="_blank" rel="noreferrer noopener">GitHub</a><a href="https://hub.docker.com/r/bobabench/boba-bench" target="_blank" rel="noreferrer noopener">Docker images</a><a href="/BOBA-bench/SOURCES.json">Sources</a>    </span>
+  </div>
+</footer>
+<script src="/BOBA-bench/static/js/main.js?v=ba4f24cd3d" defer></script>
+</body>
+</html>
