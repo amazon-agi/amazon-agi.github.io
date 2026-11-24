@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/browniebroke/django-codemod/compare/2832a22102a47874853185bee3efa637e284c5a8...bc9d3dc8fe3d1896fee57c5961567987e1a44461" target="_blank" rel="noopener" class="mono">2832a22102 … bc9d3dc8fe</a> · 153 commits by 5 authors over 29 d (2020-05-14 to 2020-06-12)</dd></div>
       <div><dt>Window:</dt><dd>requests 21–40 of a run of 54 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>969 lines of code in 50 files when the chain starts · over the 20 requests the developers added 1,573 and removed 586 lines of code, plus 1,175 lines of tests (124 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.6k words · 8 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>10.4k words · 8 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,78 +144,79 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement/fix a code transformer named InlineHasAddPermissionsTransformer located in the module django_codemod.visitors.django_30.</span>
-        <span class="spec-meta muted">418 words · source specification
+        <span class="spec-title">Implement or fix a code transformer named InlineHasAddPermissionsTransformer that lives in the module django_codemod.visitors.django_30.</span>
+        <span class="spec-meta muted">472 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement/fix a code transformer named <code>InlineHasAddPermissionsTransformer</code> located in the module <code>django_codemod.visitors.django_30</code>. It must be importable as:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Implement or fix a code transformer named <code>InlineHasAddPermissionsTransformer</code> that lives in the module <code>django_codemod.visitors.django_30</code>. It must be possible to import it as:</p>
 <pre><code class="language-python">from django_codemod.visitors.django_30 import InlineHasAddPermissionsTransformer
 </code></pre>
 <h4>Background</h4>
-<p>Django admin inline classes (<code>TabularInline</code>, <code>StackedInline</code>) define a <code>has_add_permission</code> method. In newer Django versions this method signature gained a required-by-convention <code>obj</code> parameter. The transformer must update the signature of <code>has_add_permission</code> methods defined inside classes that subclass one of the recognized inline base classes.</p>
+<p>Django admin inline classes (<code>TabularInline</code>, <code>StackedInline</code>) define a <code>has_add_permission</code> method. In newer Django versions this method signature gained an <code>obj</code> parameter that is required by convention. The transformer must update the signature of <code>has_add_permission</code> methods that are defined inside classes subclassing one of the recognized inline base classes.</p>
 <h4>Required Behavior</h4>
-<p>The transformer processes Python source. It targets methods named <code>has_add_permission</code> whose signature is exactly:</p>
+<p>The transformer works on Python source. It targets methods that are named <code>has_add_permission</code> and whose signature is exactly:</p>
 <pre><code class="language-python">def has_add_permission(self, request):
 </code></pre>
-<p>When such a method is defined inside a class whose base-class list includes at least one recognized inline base class, rewrite the method signature to:</p>
+<p>When a method like this is defined within a class whose base-class list contains at least one recognized inline base class, rewrite the signature of that method to:</p>
 <pre><code class="language-python">def has_add_permission(self, request, obj = None):
 </code></pre>
-<p>The method body and everything else must remain unchanged. When the class does not qualify, the source must be left completely unmodified.</p>
+<p>The method body, as well as everything else, must remain unchanged. If the class does not qualify, the source must be left completely unmodified.</p>
 <h5>Recognized base classes</h5>
-<p>A class qualifies if any of its listed base classes is one of the following (matched by the name as written in the source):</p>
+<p>A class qualifies when any of the base classes it lists is one of the following (matched by the name as written in the source):</p>
 <ul>
 <li><code>TabularInline</code></li>
 <li><code>admin.TabularInline</code></li>
 <li><code>StackedInline</code></li>
 <li><code>admin.StackedInline</code></li>
 </ul>
-<p>Both the bare name form (e.g. <code>StackedInline</code>) and the attribute-access form (e.g. <code>admin.StackedInline</code>) must be recognized as valid.</p>
-<h5>Base-class list handling</h5>
-<p>Qualification must be based on whether <strong>any</strong> base class in the class definition matches a recognized inline base class. This includes classes with multiple base classes:</p>
+<p>The bare name form (e.g. <code>StackedInline</code>) and the attribute-access form (e.g. <code>admin.StackedInline</code>) must both be recognized as valid.</p>
+<h5>How the base-class list is handled</h5>
+<p>Qualification must be decided by whether <strong>any</strong> base class in the class definition matches a recognized inline base class. This includes classes that have multiple base classes:</p>
 <ul>
-<li>A recognized inline base class appearing as the <strong>only</strong> base class must trigger the transformation.</li>
-<li>A recognized inline base class appearing <strong>last</strong> in a multi-base-class list (e.g. <code>class Foo(SomeMixin, admin.StackedInline):</code>) must trigger the transformation.</li>
-<li>A recognized inline base class appearing <strong>first</strong> in a multi-base-class list (e.g. <code>class Foo(TabularInline, OtherBase):</code>) must trigger the transformation.</li>
+<li>When a recognized inline base class appears as the <strong>only</strong> base class, it must trigger the transformation.</li>
+<li>A recognized inline base class appearing in the <strong>last</strong> position of a multi-base-class list (e.g. <code>class Foo(SomeMixin, admin.StackedInline):</code>) must trigger the transformation.</li>
+<li>A recognized inline base class appearing in the <strong>first</strong> position of a multi-base-class list (e.g. <code>class Foo(TabularInline, OtherBase):</code>) must trigger the transformation.</li>
 </ul>
-<p>Other, non-recognized base classes present alongside a recognized one do not prevent the transformation.</p>
-<h5>Non-qualifying cases (no modification)</h5>
-<p>The source must be left unchanged when:</p>
+<p>Base classes that are not recognized, when present alongside a recognized one, do not prevent the transformation.</p>
+<h5>Cases that do not qualify (no modification)</h5>
+<p>The source must be left unchanged in these situations:</p>
 <ul>
-<li>The enclosing class's base classes contain <strong>none</strong> of the recognized inline base classes (e.g. <code>class MyAdmin(admin.ModelAdmin):</code>).</li>
-<li>The enclosing class has <strong>no</strong> base classes at all (e.g. <code>class MyCustomStuff:</code>).</li>
+<li>The base classes of the enclosing class contain <strong>none</strong> of the recognized inline base classes (e.g. <code>class MyAdmin(admin.ModelAdmin):</code>).</li>
+<li>There are <strong>no</strong> base classes at all on the enclosing class (e.g. <code>class MyCustomStuff:</code>).</li>
 </ul>
-<p>In these cases, any <code>has_add_permission(self, request)</code> method must be preserved verbatim.</p>
-<h4>Output formatting</h4>
-<p>The rewritten signature must render exactly as:</p>
+<p>In such cases, any <code>has_add_permission(self, request)</code> method must be preserved verbatim.</p>
+<h4>Output Format</h4>
+<p>The rewritten signature must render exactly as follows:</p>
 <pre><code class="language-python">def has_add_permission(self, request, obj = None):
 </code></pre>
-<p>(Note the spaces around <code>=</code> in the added <code>obj = None</code> default parameter.)</p>
-<p>The transformer is a codemod visitor consistent with the other transformers already present in <code>django_codemod.visitors.django_30</code>; it should be a class usable in the same manner as its siblings in that module.</p>
+<p>(Take note of the spaces around <code>=</code> in the <code>obj = None</code> default parameter that is added.)</p>
+<p>The transformer is a codemod visitor that is consistent with the other transformers already present in <code>django_codemod.visitors.django_30</code>; it should be a class that is usable in the same manner as its siblings in that module.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You must implement a reusable base class for LibCST-based codemod transformers that rename a function imported from one module to another (possibly…</span>
-        <span class="spec-meta muted">799 words · source specification
+        <span class="spec-title">You must implement a reusable base class for codemod transformers built on LibCST that rename a function imported from one module to another (possibly…</span>
+        <span class="spec-meta muted">862 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement a reusable base class for LibCST-based codemod transformers that rename a function imported from one module to another (possibly different) module. This base class encapsulates the logic for updating both the <code>from ... import ...</code> statement and the call sites of the renamed function.</p>
-<h4>Public API</h4>
-<p>Create a class <code>BaseSimpleFuncRenameTransformer</code> in the module <code>django_codemod.visitors.base</code>.</p>
-<p>The class is intended to be subclassed. Each concrete subclass declares two class-level string attributes:</p>
+      <div class="spec-body"><h4>Summary</h4>
+<p>You must implement a reusable base class for codemod transformers built on LibCST that rename a function imported from one module to another (possibly different) module. The base class bundles together the logic for updating both the <code>from ... import ...</code> statement and the call sites of the renamed function.</p>
+<h4>Public Interface</h4>
+<p>Add a class <code>BaseSimpleFuncRenameTransformer</code> to the module <code>django_codemod.visitors.base</code>.</p>
+<p>The class is meant to be subclassed. Each concrete subclass declares two string attributes at class level:</p>
 <ul>
-<li><code>rename_from</code>: the fully-qualified dotted path of the function being renamed (e.g. <code>&quot;django.dummy.module.func&quot;</code>). The last dotted segment is the old function name; the preceding segments form the old module path.</li>
-<li><code>rename_to</code>: the fully-qualified dotted path of the replacement function (e.g. <code>&quot;django.dummy.module.better_func&quot;</code> or <code>&quot;django.better.dummy.better_func&quot;</code>). The last dotted segment is the new function name; the preceding segments form the new module path.</li>
+<li><code>rename_from</code>: the fully-qualified dotted path of the function that is being renamed (e.g. <code>&quot;django.dummy.module.func&quot;</code>). Its last dotted segment is the old function name; the segments preceding it make up the old module path.</li>
+<li><code>rename_to</code>: the fully-qualified dotted path of the replacement function (e.g. <code>&quot;django.dummy.module.better_func&quot;</code> or <code>&quot;django.better.dummy.better_func&quot;</code>). Its last dotted segment is the new function name; the segments preceding it make up the new module path.</li>
 </ul>
-<p>The class must be a valid LibCST transformer (a context-aware visitor/transformer) that can be applied to a module's source via the standard codemod machinery, so that instances can transform Python source code.</p>
-<p>The old and new module paths may be the same or different. The old and new function names may be the same or different.</p>
-<h4>Required Behavior</h4>
-<p>Given source code being transformed, the transformer operates only on the function identified by <code>rename_from</code>. Behavior is determined by matching the imported name against the old module path and old function name.</p>
-<h5>1. Simple rename (same module)</h5>
-<p>When the function is imported directly from its module and called by name, both the import and every call site are rewritten to use the new name.</p>
+<p>The class must be a valid LibCST transformer (a context-aware visitor/transformer) that can be applied to the source of a module through the standard codemod machinery, so that its instances can transform Python source code.</p>
+<p>The old module path and the new module path may be the same, or they may differ. Likewise, the old function name and the new function name may be the same or different.</p>
+<h4>Behavior Requirements</h4>
+<p>For the source code undergoing transformation, the transformer acts only on the function identified by <code>rename_from</code>. Which behavior applies is decided by matching the imported name against the old module path and old function name.</p>
+<h5>1. Simple rename within the same module</h5>
+<p>When the function is imported directly from its module and called by name, both the import statement and every call site are rewritten so that the new name is used.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.dummy.module import func
 
@@ -226,8 +227,8 @@ result = func()
 
 result = better_func()
 </code></pre>
-<h5>2. Rename with change of module</h5>
-<p>When <code>rename_to</code> names a different module than <code>rename_from</code>, the import statement must be moved to the new module path (with the new function name) and call sites rewritten.</p>
+<h5>2. Rename that also changes the module</h5>
+<p>When the module named by <code>rename_to</code> differs from the one named by <code>rename_from</code>, the import statement must be moved to the new module path (together with the new function name), and the call sites rewritten.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.dummy.module import func
 
@@ -238,8 +239,8 @@ result = func()
 
 result = better_func()
 </code></pre>
-<h5>3. Target name already imported (same module)</h5>
-<p>When the destination function name is already present in the same import statement alongside the old name, the old name must be removed from the import list, leaving only the destination name, and call sites rewritten.</p>
+<h5>3. Destination name already imported (same module)</h5>
+<p>When the destination function name is already present in the same import statement together with the old name, the old name must be removed from the import list so that only the destination name is left, and the call sites rewritten.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.dummy.module import func, better_func
 
@@ -250,7 +251,7 @@ result = func(content)
 
 result = better_func(content)
 </code></pre>
-<p>This must work regardless of the ordering of names in the import list. In particular, when the old name is the last entry in the import list, no stray/trailing comma may remain:</p>
+<p>This must work no matter in which order the names appear in the import list. In particular, when the old name is the last entry in the import list, no stray/trailing comma may remain:</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.dummy.module import better_func, func
 
@@ -261,8 +262,8 @@ result = func(content)
 
 result = better_func(content)
 </code></pre>
-<h5>4. Target name already imported (different module)</h5>
-<p>When <code>rename_to</code> names a different module and that destination module already imports the destination function, the old import statement is removed entirely, the existing destination import remains, and call sites are rewritten.</p>
+<h5>4. Destination name already imported (different module)</h5>
+<p>When the module named by <code>rename_to</code> is a different module and that destination module already imports the destination function, the old import statement is removed in its entirety, the destination import that already exists remains, and the call sites are rewritten.</p>
 <p>Input (with <code>rename_to = &quot;django.better.dummy.better_func&quot;</code>):</p>
 <pre><code class="language-python">from django.dummy.module import func
 from django.better.dummy import better_func
@@ -274,8 +275,8 @@ result = func(content)
 
 result = better_func(content)
 </code></pre>
-<h5>5. Import with alias</h5>
-<p>When the function is imported with an alias (<code>import func as aliased_func</code>), only the imported original name is changed to the new function name; the alias binding is preserved, and call sites (which use the alias) are left unchanged. This applies for both same-module and different-module renames.</p>
+<h5>5. Aliased import</h5>
+<p>When the function is imported with an alias (<code>import func as aliased_func</code>), only the original name as imported is changed to the new function name; the binding of the alias is preserved, and the call sites (which use the alias) are left unchanged. This holds for both same-module and different-module renames.</p>
 <p>Input (same module):</p>
 <pre><code class="language-python">from django.dummy.module import func as aliased_func
 
@@ -296,8 +297,8 @@ result = aliased_func()
 
 result = aliased_func()
 </code></pre>
-<h5>6. Same name from a different module (no change)</h5>
-<p>When a function bearing the same name as the old function is imported from a module that is not the old module path, nothing must change — neither the import nor its call sites.</p>
+<h5>6. The same name imported from a different module (no change)</h5>
+<p>When a function carrying the same name as the old function is imported from a module that is not the old module path, nothing must change — neither the import nor its call sites.</p>
 <p>Input:</p>
 <pre><code class="language-python">from utils.helpers import func
 
@@ -308,8 +309,8 @@ result = func()
 
 result = func()
 </code></pre>
-<h5>7. Calls without a simple name reference (no crash, no change)</h5>
-<p>The transformer must safely handle call expressions whose callee is not a plain name, without raising errors and without modifying the code.</p>
+<h5>7. Calls lacking a simple name reference (no crash, no change)</h5>
+<p>The transformer must safely handle call expressions in which the callee is not a plain name, without raising errors and without modifying the code.</p>
 <p>Input:</p>
 <pre><code class="language-python">factory()()
 </code></pre>
@@ -324,209 +325,212 @@ result = func()
 </code></pre>
 <h4>Notes</h4>
 <ul>
-<li>Only the function specified by <code>rename_from</code> is affected. Any other imports or code must be left intact.</li>
-<li>The class must be importable and usable purely by declaring the two class attributes on a subclass; no other configuration is required.</li>
+<li>Only the function that <code>rename_from</code> specifies is affected. Any other imports or code must be left intact.</li>
+<li>The class must be importable and usable purely by declaring the two class attributes on a subclass; no configuration besides that is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You must implement a command-line interface (CLI) for a Python code-modification tool built on top of libCST, plus fix a specific edge case in an existing…</span>
-        <span class="spec-meta muted">657 words · source specification
+        <span class="spec-title">You must implement a command-line interface (CLI) for a Python code-modification tool built on top of libCST and also fix a specific edge case in an…</span>
+        <span class="spec-meta muted">682 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement a command-line interface (CLI) for a Python code-modification tool built on top of libCST, plus fix a specific edge case in an existing import-rename transformer.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>You must implement a command-line interface (CLI) for a Python code-modification tool built on top of libCST and also fix a specific edge case in an existing import-rename transformer.</p>
 <h4>Part 1: The CLI</h4>
 <h5>Module and entry point</h5>
-<p>Create a module <code>django_codemod/cli.py</code> exposing a <a href="https://click.palletsprojects.com/">Click</a> command named <code>djcodemod</code>.</p>
-<p>The command must be invokable via Click's testing machinery, i.e. <code>django_codemod.cli.djcodemod</code> must be a Click command object.</p>
-<h5>Command signature</h5>
+<p>Create a module <code>django_codemod/cli.py</code> that exposes a <a href="https://click.palletsprojects.com/">Click</a> command named <code>djcodemod</code>.</p>
+<p>The command must be invokable through Click's testing machinery; that is, <code>django_codemod.cli.djcodemod</code> must be a Click command object.</p>
+<h5>Signature of the command</h5>
 <p>The command accepts:</p>
 <ul>
-<li>A required positional argument <code>PATH</code> (a string; the path to run the codemod against).</li>
-<li>An option <code>--django</code> that takes a version string (e.g. <code>&quot;3.0&quot;</code>).</li>
+<li>A required positional argument <code>PATH</code> (a string; the path against which to run the codemod).</li>
+<li>An option <code>--django</code>, which takes a version string (e.g. <code>&quot;3.0&quot;</code>).</li>
 </ul>
 <h5>Standard Click behavior</h5>
 <ul>
-<li>Supports the <code>--help</code> option. When invoked with <code>--help</code>, it exits with code <code>0</code> and prints usage/help text that includes the string <code>--help</code> and the string <code>Show this message and exit.</code>.</li>
-<li>When invoked with <strong>no arguments</strong>, it must exit with code <code>2</code> and print an error message. The output must include the program name <code>djcodemod</code> and the text:<pre><code>Error: Missing argument &quot;PATH&quot;
+<li>The <code>--help</code> option is supported. When invoked with <code>--help</code>, the command exits with code <code>0</code> and prints usage/help text containing the string <code>--help</code> and the string <code>Show this message and exit.</code></li>
+<li>When invoked with <strong>no arguments</strong>, the command must exit with code <code>2</code> and print an error message. The output must contain the program name <code>djcodemod</code> as well as the text:<pre><code>Error: Missing argument &quot;PATH&quot;
 </code></pre>
 </li>
 </ul>
-<h5>Version validation for <code>--django</code></h5>
-<p>The version supplied to <code>--django</code> must be validated. On any validation failure the command exits with code <code>2</code> and prints an explanatory message. The following cases must be handled:</p>
+<h5>Validation of the <code>--django</code> version</h5>
+<p>The version passed to <code>--django</code> must be validated. If any validation failure occurs, the command exits with code <code>2</code> and prints an explanatory message. You must handle the following cases:</p>
 <ol>
 <li>
-<p><strong>Missing version parts</strong> — a version string that does not contain both a major and a minor part (e.g. <code>&quot;3&quot;</code>). The output must contain:</p>
+<p><strong>Missing version parts</strong> — a version string without both a major and a minor part (e.g. <code>&quot;3&quot;</code>). The output must contain:</p>
 <pre><code>missing version parts.
 </code></pre>
 </li>
 <li>
-<p><strong>Unsupported version</strong> — a syntactically valid version that is not in the set of supported versions (e.g. <code>&quot;1.0&quot;</code>). The output must contain the text:</p>
+<p><strong>Unsupported version</strong> — a version that is syntactically valid but is not in the set of supported versions (e.g. <code>&quot;1.0&quot;</code>). The output must contain the text:</p>
 <pre><code>'1.0' is not supported. Versions supported:
 </code></pre>
-<p>(The offending version string appears in quotes, followed by that phrase; the message goes on to indicate which versions are supported.)</p>
+<p>(The offending version string appears in quotes, followed by that phrase; the message then continues by indicating which versions are supported.)</p>
 </li>
 <li>
 <p><strong>Invalid version</strong> — a version string that cannot be parsed as a version at all (e.g. <code>&quot;not.a.version&quot;</code>). The output must contain:</p>
 <pre><code>'not.a.version' is not a valid version
 </code></pre>
-<p>(The offending string appears in quotes followed by that phrase.)</p>
+<p>(The offending string appears in quotes, followed by that phrase.)</p>
 </li>
 </ol>
 <h5>Successful invocation</h5>
-<p>For a supported version (e.g. <code>--django 3.0</code>) with a valid <code>PATH</code> (e.g. <code>.</code>), the command must exit with code <code>0</code>.</p>
-<p>On success, the command must resolve the requested version into a codemod command and execute it by calling a function named <code>call_command</code>, which must be importable/patchable as <code>django_codemod.cli.call_command</code>. This function must be called <strong>exactly once</strong> with <strong>two positional arguments</strong>, in this order:</p>
+<p>When a supported version is supplied (e.g. <code>--django 3.0</code>) together with a valid <code>PATH</code> (e.g. <code>.</code>), the command must exit with code <code>0</code>.</p>
+<p>On success, the command must resolve the requested version into a codemod command and run it by calling a function named <code>call_command</code>; that function must be importable/patchable as <code>django_codemod.cli.call_command</code>. The function must be called <strong>exactly once</strong> with <strong>two positional arguments</strong>, in this order:</p>
 <ol>
 <li>A codemod command instance that is an instance of <code>BaseCodemodCommand</code> (see below).</li>
-<li>The <code>PATH</code> string exactly as provided (e.g. <code>&quot;.&quot;</code>).</li>
+<li>The <code>PATH</code> string exactly as given (e.g. <code>&quot;.&quot;</code>).</li>
 </ol>
 <h4>Part 2: <code>BaseCodemodCommand</code></h4>
-<p>There must be a class <code>BaseCodemodCommand</code> importable from <code>django_codemod.commands.base</code>. The codemod command object passed as the first argument to <code>call_command</code> on a successful CLI run must be an instance of this class.</p>
-<h4>Part 3: Alias-aware import rename in the rename transformer</h4>
-<p>There is an existing transformer that renames a function/import from an old dotted path to a new name (the &quot;simple function rename&quot; transformer). It currently rewrites matching imports and their usages.</p>
-<p>You must ensure it correctly handles the case where the target import is aliased <strong>and</strong> another import in the same module has the same unaliased name coming from a different source.</p>
-<p>Given source such as:</p>
+<p>A class <code>BaseCodemodCommand</code> must exist and be importable from <code>django_codemod.commands.base</code>. The codemod command object passed as the first argument to <code>call_command</code> during a successful CLI run must be an instance of this class.</p>
+<h4>Part 3: Alias-aware import renaming in the rename transformer</h4>
+<p>An existing transformer renames a function/import from an old dotted path to a new name (the &quot;simple function rename&quot; transformer). At present, it rewrites matching imports together with their usages.</p>
+<p>You must ensure that it correctly handles the case in which the target import is aliased <strong>and</strong> another import in the same module has the same unaliased name, obtained from a different source.</p>
+<p>Given source such as the following:</p>
 <pre><code class="language-python">from django.dummy.module import func as aliased_func
 from utils.helpers import func
 
 result = func()
 aliased_func()
 </code></pre>
-<p>where the transformer targets <code>django.dummy.module.func</code> renaming it to <code>better_func</code>, the result must be:</p>
+<p>with the transformer targeting <code>django.dummy.module.func</code> and renaming it to <code>better_func</code>, the result must be:</p>
 <pre><code class="language-python">from utils.helpers import func
 from django.dummy.module import better_func as aliased_func
 
 result = func()
 aliased_func()
 </code></pre>
-<p>Required behavior:</p>
+<p>The required behavior:</p>
 <ul>
-<li>The aliased import from the targeted module is rewritten so that only the imported name changes (<code>func</code> → <code>better_func</code>), while the alias (<code>aliased_func</code>) is preserved.</li>
-<li>The unrelated <code>from utils.helpers import func</code> import is left untouched, even though it shares the plain name <code>func</code> with the renamed import.</li>
-<li>Usages keyed on the alias (<code>aliased_func()</code>) remain unchanged in name.</li>
-<li>Usages of the unrelated same-named import (<code>func()</code>) remain unchanged.</li>
+<li>The aliased import from the targeted module is rewritten such that only the imported name changes (<code>func</code> → <code>better_func</code>), while the alias (<code>aliased_func</code>) is preserved.</li>
+<li>The unrelated <code>from utils.helpers import func</code> import stays untouched, even though it shares the plain name <code>func</code> with the import being renamed.</li>
+<li>Usages keyed on the alias (<code>aliased_func()</code>) keep the same name.</li>
+<li>Usages of the unrelated import with the same name (<code>func()</code>) stay unchanged.</li>
 </ul>
-<p>(The relative ordering/placement of the resulting import statements is as shown above.)</p>
+<p>(The resulting import statements appear in the relative ordering/placement shown above.)</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Modify the command-line interface exposed by the django_codemod.cli module.</span>
-        <span class="spec-meta muted">472 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The command-line interface that the django_codemod.cli module exposes is what this task modifies.</span>
+        <span class="spec-meta muted">557 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the command-line interface exposed by the <code>django_codemod.cli</code> module. The CLI entry point is a Click command named <code>djcodemod</code>, importable as <code>django_codemod.cli.djcodemod</code>.</p>
-<h4>Required Behavior</h4>
-<h5>Command signature</h5>
-<p>The <code>djcodemod</code> command accepts:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The command-line interface that the <code>django_codemod.cli</code> module exposes is what this task modifies. A Click command called <code>djcodemod</code> serves as the entry point of that CLI, and it is importable as <code>django_codemod.cli.djcodemod</code>.</p>
+<h4>Behavior Requirements</h4>
+<h5>Signature of the command</h5>
+<p>The following are accepted by the <code>djcodemod</code> command:</p>
 <ol>
-<li>A required positional argument <code>PATH</code>.</li>
-<li>A required option named <code>--removed-in</code> that takes a version string value.</li>
+<li>A positional argument <code>PATH</code>, which is required.</li>
+<li>An option named <code>--removed-in</code>, which is required and whose value is a version string.</li>
 </ol>
-<h5>Option renaming</h5>
-<p>The option that specifies the target version must be named <code>--removed-in</code>. Any previously named option, such as <code>--django</code>, must no longer exist.</p>
-<h5>Required option enforcement</h5>
-<p>The <code>--removed-in</code> option is required.</p>
-<p>When <code>djcodemod</code> is invoked with the <code>PATH</code> argument present but without <code>--removed-in</code>, the command must exit with code <code>2</code> and its output must contain exactly the following error text:</p>
+<h5>Renaming of the option</h5>
+<p><code>--removed-in</code> must be the name of the option that specifies the target version. Any option that carried an earlier name, such as <code>--django</code>, must no longer exist.</p>
+<h5>Enforcement of the required option</h5>
+<p>Supplying the <code>--removed-in</code> option is required.</p>
+<p>If <code>djcodemod</code> is invoked in a case where the <code>PATH</code> argument is present but <code>--removed-in</code> is absent, the command must exit with code <code>2</code>, and its output must contain exactly the error text that follows:</p>
 <pre><code class="language-text">Error: Missing option &quot;--removed-in&quot;.
 </code></pre>
-<h5>Missing positional argument</h5>
-<p>When <code>djcodemod</code> is invoked with no arguments at all, the command must exit with code <code>2</code> and its output must contain exactly the following error text:</p>
+<h5>Positional argument absent</h5>
+<p>If an invocation of <code>djcodemod</code> supplies no arguments at all, the command must exit with code <code>2</code>, and its output must contain exactly the error text that follows:</p>
 <pre><code class="language-text">Error: Missing argument &quot;PATH&quot;
 </code></pre>
 <h5>Help</h5>
-<p>The <code>--help</code> option must be available and produce standard Click help output with exit code <code>0</code>.</p>
-<h5>Version validation for <code>--removed-in</code></h5>
-<p>The value passed to <code>--removed-in</code> is a version string and must be validated as follows:</p>
+<p>The <code>--help</code> option must be available, and it must produce the standard help output of Click with exit code <code>0</code>.</p>
+<h5>Validation of the <code>--removed-in</code> version</h5>
+<p>The <code>--removed-in</code> option receives a version string as its value, and that value must be validated in the following way:</p>
 <ol>
 <li>
-<p><strong>Incomplete version:</strong> If the value does not contain enough version parts, such as <code>&quot;3&quot;</code>, the command must exit with code <code>2</code> and print a message containing:</p>
+<p><strong>Incomplete version:</strong> If too few version parts are present in the value, such as <code>&quot;3&quot;</code>, the command must exit with code <code>2</code> and print a message that contains:</p>
 <pre><code class="language-text">missing version parts.
 </code></pre>
 </li>
 <li>
-<p><strong>Unsupported version:</strong> If the value is a valid, complete version but is not among the supported versions, such as <code>&quot;1.0&quot;</code>, the command must exit with code <code>2</code> and print a message containing:</p>
+<p><strong>Unsupported version:</strong> If the value is complete and valid as a version yet is not among the supported versions, such as <code>&quot;1.0&quot;</code>, the command must exit with code <code>2</code> and print a message that contains:</p>
 <pre><code class="language-text">'1.0' is not supported. Versions supported:
 </code></pre>
-<p>The message must include the offending version followed by a list of supported versions.</p>
+<p>Included in the message must be the offending version, followed by a list of supported versions.</p>
 </li>
 <li>
-<p><strong>Invalid version:</strong> If the value cannot be parsed as a version at all, such as <code>&quot;not.a.version&quot;</code>, the command must exit with code <code>2</code> and print a message containing:</p>
+<p><strong>Invalid version:</strong> If parsing the value as a version cannot be done at all, such as <code>&quot;not.a.version&quot;</code>, the command must exit with code <code>2</code> and print a message that contains:</p>
 <pre><code class="language-text">'not.a.version' is not a valid version
 </code></pre>
-<p>The message must include the offending value.</p>
+<p>The offending value must be included in the message.</p>
 </li>
 </ol>
-<h5>Valid invocation and command dispatch</h5>
-<p>When <code>djcodemod</code> is invoked with a valid, supported <code>--removed-in</code> value, such as <code>&quot;3.0&quot;</code>, and a <code>PATH</code>, such as <code>&quot;.&quot;</code>, it must exit with code <code>0</code> and call <code>django_codemod.cli.call_command</code> exactly once.</p>
-<p>The call must have exactly two positional arguments and no keyword arguments, equivalent to <code>call_command(command_instance, path)</code>:</p>
+<h5>Valid invocation and dispatch of the command</h5>
+<p>Given a valid, supported <code>--removed-in</code> value, such as <code>&quot;3.0&quot;</code>, together with a <code>PATH</code>, such as <code>&quot;.&quot;</code>, the command must exit with code <code>0</code> and must call <code>django_codemod.cli.call_command</code> exactly once.</p>
+<p>That call is required to have exactly two positional arguments and no keyword arguments, making it equivalent to <code>call_command(command_instance, path)</code>:</p>
 <ol>
-<li>The first argument must be a codemod command instance and must be an instance of <code>django_codemod.commands.base.BaseCodemodCommand</code>; it must not be a command class.</li>
-<li>The second argument must be the <code>PATH</code> string exactly as supplied by the caller, without normalization or other modification.</li>
+<li>The argument in the first position must be a codemod command instance, and it must be an instance of <code>django_codemod.commands.base.BaseCodemodCommand</code>; it must not be a command class.</li>
+<li>In the second position, the argument must be the <code>PATH</code> string exactly as the caller supplied it, without normalization or other modification.</li>
 </ol>
-<h4>Public API Surface</h4>
+<h4>Surface of the Public API</h4>
 <ul>
-<li>Module: <code>django_codemod.cli</code></li>
-<li>Command object: <code>django_codemod.cli.djcodemod</code> (a Click command)</li>
-<li>Dispatch callable: <code>django_codemod.cli.call_command</code>, which must remain referenced at that module path and be called as specified on successful invocation.</li>
-<li>Command base type: <code>django_codemod.commands.base.BaseCodemodCommand</code>, used for the command instance passed to <code>call_command</code>.</li>
+<li>The module: <code>django_codemod.cli</code></li>
+<li>The command object: <code>django_codemod.cli.djcodemod</code>, a Click command</li>
+<li>The dispatch callable: <code>django_codemod.cli.call_command</code> — a reference to it must remain at that module path, and on successful invocation it must be called as specified.</li>
+<li>The command base type: <code>django_codemod.commands.base.BaseCodemodCommand</code>, which is used for the command instance passed to <code>call_command</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You are working on django_codemod, a tool that applies automated code transformations (&#34;codemods&#34;) to Django projects.</span>
-        <span class="spec-meta muted">730 words · source specification
+        <span class="spec-title">The project you are working on is django_codemod, a tool that applies automated code transformations (&#34;codemods&#34;) to Django projects.</span>
+        <span class="spec-meta muted">807 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>django_codemod</code>, a tool that applies automated code transformations (&quot;codemods&quot;) to Django projects. This task involves two independent changes:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>The project you are working on is <code>django_codemod</code>, a tool that applies automated code transformations (&quot;codemods&quot;) to Django projects. Two independent changes are involved in this task:</p>
 <ol>
-<li>Extending the command-line interface to accept a new option for selecting codemods, and reworking how codemod selection is specified/validated.</li>
-<li>Reorganizing the visitor classes into new modules grouped by topic.</li>
+<li>Extending the command-line interface so that it accepts a new option for selecting codemods, and reworking the way codemod selection is specified/validated.</li>
+<li>Reorganizing the visitor classes into new modules that are grouped by topic.</li>
 </ol>
-<p>Both changes must preserve the existing transformation behavior.</p>
+<p>The existing transformation behavior must be preserved by both changes.</p>
 <hr />
-<h4>Part 1: CLI Changes</h4>
-<p>The CLI is exposed as a Click command object importable as <code>django_codemod.cli.djcodemod</code>. It also imports and uses a function <code>call_command</code> (referenceable as <code>django_codemod.cli.call_command</code>) that performs the actual codemod invocation.</p>
-<h5>Positional argument</h5>
-<p>The command takes a single required positional argument <code>PATH</code> (the path to operate on).</p>
+<h4>Part 1: Changes to the CLI</h4>
+<p>The CLI is exposed as a Click command object that is importable as <code>django_codemod.cli.djcodemod</code>. It also imports and uses a function <code>call_command</code> (referenceable as <code>django_codemod.cli.call_command</code>), which is what performs the actual codemod invocation.</p>
+<h5>The positional argument</h5>
+<p>The command takes one required positional argument, <code>PATH</code> — the path to operate on.</p>
 <ul>
-<li>When invoked with no arguments at all, it must exit with code <code>2</code> and print an error message containing:<pre><code>Error: Missing argument 'PATH'
+<li>When it is invoked with no arguments at all, the command must exit with code <code>2</code> and print an error message containing:<pre><code>Error: Missing argument 'PATH'
 </code></pre>
 </li>
 </ul>
-<h5>Version-selection options</h5>
-<p>The command accepts two mutually-exclusive options that determine which codemods to run:</p>
+<h5>Options for version selection</h5>
+<p>The command accepts two options, which are mutually exclusive and determine which codemods to run:</p>
 <ul>
 <li><code>--removed-in</code></li>
 <li><code>--deprecated-in</code></li>
 </ul>
-<p>Each takes a version string as its value.</p>
-<p><strong>Selection rules (all validated before running):</strong></p>
+<p>Each option takes a version string as its value.</p>
+<p><strong>Rules for selection (all validated before running):</strong></p>
 <ul>
 <li>
 <p>Exactly one of <code>--removed-in</code> or <code>--deprecated-in</code> must be supplied.</p>
 <ul>
-<li>If neither is given (e.g. only <code>PATH</code> is provided), OR</li>
-<li>If both are given at the same time,</li>
+<li>If neither option is given (e.g. only <code>PATH</code> is provided), OR</li>
+<li>if both are given at the same time,</li>
 </ul>
 <p>the command must exit with code <code>2</code> and print an error message containing:</p>
 <pre><code>Error: You must specify either '--removed-in' or '--deprecated-in' but not both.
 </code></pre>
 </li>
 </ul>
-<h5>Version value validation</h5>
-<p>For whichever of the two options is supplied, the given version string is validated:</p>
+<h5>Validation of the version value</h5>
+<p>Whichever of the two options is supplied, the version string given with it is validated:</p>
 <ul>
 <li>
-<p><strong>Malformed version</strong> (a string that is not a valid version, e.g. <code>not.a.version</code>): exit code <code>2</code>, and the output must contain:</p>
+<p><strong>Malformed version</strong> (a string that is not a valid version — e.g. <code>not.a.version</code>): exit code <code>2</code>, and the output must contain:</p>
 <pre><code>'not.a.version' is not a valid version
 </code></pre>
 </li>
@@ -539,22 +543,22 @@ aliased_func()
 <p><strong>Well-formed but unsupported version</strong>: exit code <code>2</code>, and the output must contain:</p>
 <pre><code>'&lt;version&gt;' is not supported. Versions supported:
 </code></pre>
-<p>where <code>&lt;version&gt;</code> is the exact version string passed in. This applies to both options; for example <code>--removed-in 1.0</code>, <code>--removed-in 11.0</code>, <code>--deprecated-in 1.0</code>, and <code>--deprecated-in 3.4</code> are all unsupported and must produce this error.</p>
+<p>where <code>&lt;version&gt;</code> is the exact version string that was passed in. This applies to both options; for instance, <code>--removed-in 1.0</code>, <code>--removed-in 11.0</code>, <code>--deprecated-in 1.0</code>, and <code>--deprecated-in 3.4</code> are all unsupported and must produce this error.</p>
 </li>
 </ul>
 <h5>Successful invocation</h5>
-<p>When a supported version is supplied through exactly one of the two options, the command must exit with code <code>0</code> and invoke <code>call_command</code> exactly once. Supported cases include (at minimum):</p>
+<p>Whenever a supported version is supplied through exactly one of the two options, the command must exit with code <code>0</code> and must invoke <code>call_command</code> exactly once. The supported cases include, at minimum:</p>
 <ul>
 <li><code>--removed-in 3.0</code></li>
 <li><code>--deprecated-in 2.0</code></li>
 </ul>
-<p>The set of supported versions and their mapping to codemods must be such that these succeed while the unsupported examples above fail. <code>--deprecated-in &lt;version&gt;</code> selects codemods appropriate to code being deprecated in that Django version; <code>--removed-in &lt;version&gt;</code> selects codemods appropriate to code being removed in that Django version.</p>
+<p>The set of supported versions, along with their mapping to codemods, must be such that these succeed while the unsupported examples above fail. <code>--deprecated-in &lt;version&gt;</code> selects codemods that are appropriate to code being deprecated in that Django version; <code>--removed-in &lt;version&gt;</code> selects codemods that are appropriate to code being removed in that Django version.</p>
 <h5>Help</h5>
-<p>Invoking the command with <code>--help</code> must succeed (exit code <code>0</code>) and produce help output.</p>
+<p>When the command is invoked with <code>--help</code>, it must succeed (exit code <code>0</code>) and produce help output.</p>
 <hr />
-<h4>Part 2: Visitor Module Reorganization</h4>
-<p>Certain visitor/transformer classes must be made importable from new topic-based modules. Each class must be importable from its new location with its existing name and behavior unchanged.</p>
-<p>Create the following modules and ensure the named classes are importable from them:</p>
+<h4>Part 2: Reorganization of Visitor Modules</h4>
+<p>Certain visitor/transformer classes must be made importable from new modules that are organized by topic. From its new location, each class must be importable with its existing name and with its behavior unchanged.</p>
+<p>Create the modules listed below and ensure the named classes are importable from them:</p>
 <ul>
 <li>
 <p><code>django_codemod.visitors.admin</code></p>
@@ -592,30 +596,30 @@ aliased_func()
 </ul>
 </li>
 </ul>
-<p>The transformation behavior of these classes must be identical to their prior behavior. Specifically for <code>InlineHasAddPermissionsTransformer</code>:</p>
+<p>The transformation behavior of these classes must be identical to the behavior they had previously. For <code>InlineHasAddPermissionsTransformer</code> in particular:</p>
 <ul>
-<li>It rewrites <code>has_add_permission(self, request)</code> to <code>has_add_permission(self, request, obj = None)</code> <strong>only</strong> when the enclosing class derives from a Django admin inline base class, whether referenced as a bare name (<code>TabularInline</code>, <code>StackedInline</code>) or via the <code>admin</code> module (<code>admin.TabularInline</code>, <code>admin.StackedInline</code>), and regardless of whether the inline base class appears as the first, last, or sole base class among multiple bases.</li>
-<li>It must <strong>not</strong> modify the method when the enclosing class derives from a non-matching base (e.g. <code>admin.ModelAdmin</code>) or has no base classes at all.</li>
-<li>The presence of the relevant import statements (e.g. <code>from django.contrib import admin</code> or <code>from django.contrib.admin import TabularInline</code>) in the surrounding source must be preserved unchanged.</li>
-<li>Per-class transformation context must not leak between sibling classes: after processing one class, state must be reset so an unrelated following class is evaluated independently.</li>
+<li>It rewrites <code>has_add_permission(self, request)</code> into <code>has_add_permission(self, request, obj = None)</code> <strong>only</strong> when the class enclosing it derives from a Django admin inline base class — whether that base is referenced as a bare name (<code>TabularInline</code>, <code>StackedInline</code>) or via the <code>admin</code> module (<code>admin.TabularInline</code>, <code>admin.StackedInline</code>) — and regardless of whether the inline base class appears as the first, last, or sole base class among multiple bases.</li>
+<li>When the enclosing class derives from a non-matching base (e.g. <code>admin.ModelAdmin</code>) or has no base classes at all, the method must <strong>not</strong> be modified by it.</li>
+<li>The relevant import statements (e.g. <code>from django.contrib import admin</code> or <code>from django.contrib.admin import TabularInline</code>) that are present in the surrounding source must be preserved unchanged.</li>
+<li>Transformation context must not leak between sibling classes on a per-class basis: after one class is processed, the state must be reset so that an unrelated following class is evaluated independently.</li>
 </ul>
 <hr />
-<h4>Compatibility Note</h4>
-<p>The transformer classes should remain functionally equivalent to their previous implementations; only their import locations change. The CLI's <code>call_command</code> remains the entry point used to actually run the selected codemods against <code>PATH</code>.</p>
+<h4>Note on Compatibility</h4>
+<p>The transformer classes should remain functionally equivalent to their previous implementations; what changes is only where they are imported from. <code>call_command</code> on the CLI remains the entry point used to actually run the selected codemods against <code>PATH</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Django Codemod Visitors</span>
-        <span class="spec-meta muted">584 words · source specification
+        <span class="spec-title">Codemod Visitors for Django</span>
+        <span class="spec-meta muted">618 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Django Codemod Visitors</h3>
+      <div class="spec-body"><h3>Task Specification: Codemod Visitors for Django</h3>
 <h4>Overview</h4>
-<p>You are implementing code transformers (codemods) for the <code>django_codemod</code> package. These transformers operate on Python source code using LibCST and rewrite imports and usages of deprecated Django utilities into their modern equivalents.</p>
-<h4>Public API Surface</h4>
-<p>All of the following transformer classes must be importable directly from the package <code>django_codemod.visitors</code>:</p>
+<p>Your task is to implement code transformers (codemods) for the <code>django_codemod</code> package. These transformers use LibCST to operate on Python source code, rewriting imports and usages of deprecated Django utilities into their modern equivalents.</p>
+<h4>Public API</h4>
+<p>All of the transformer classes listed below must be importable directly from the package <code>django_codemod.visitors</code>:</p>
 <pre><code class="language-python">from django_codemod.visitors import (
     InlineHasAddPermissionsTransformer,
     RenderToResponseToRenderTransformer,
@@ -633,16 +637,16 @@ aliased_func()
     HttpUrlUnQuotePlusTransformer,
 )
 </code></pre>
-<p>These must be exposed at the <code>django_codemod.visitors</code> package level (i.e. re-exported from the package's <code>__init__</code>), regardless of which submodule they are implemented in.</p>
-<p>Each transformer is a class that plugs into the existing visitor/codemod framework used by the project's test harness. A test harness invokes each transformer against a &quot;before&quot; source string and asserts the resulting output equals an &quot;after&quot; source string. The transformers must integrate with this harness in the same way as the existing transformers in this codebase.</p>
-<h4>Required Behavior</h4>
-<p>Each transformer rewrites a specific deprecated import and its call usages. In every case:</p>
+<p>They must be exposed at the <code>django_codemod.visitors</code> package level (that is, re-exported from the package's <code>__init__</code>), regardless of the submodule in which they are implemented.</p>
+<p>Every transformer is a class that plugs into the existing visitor/codemod framework that the project's test harness uses. A test harness invokes each transformer against a &quot;before&quot; source string and asserts that the resulting output equals an &quot;after&quot; source string. Integration with this harness must happen in the same way as it does for the existing transformers in this codebase.</p>
+<h4>Behavior Requirements</h4>
+<p>Every transformer rewrites one specific deprecated import and its call usages. In each case:</p>
 <ul>
-<li>The <code>import</code> statement is rewritten so the imported name comes from the new module (or, if the module is unchanged, the imported name is renamed within the same import statement).</li>
-<li>Every call to the old name is rewritten to call the new name.</li>
-<li>Formatting, arguments, and surrounding code that are not part of the substitution are preserved.</li>
+<li>The <code>import</code> statement is rewritten so that the imported name is taken from the new module (or, when the module is unchanged, the imported name is renamed inside the same import statement).</li>
+<li>All calls to the old name are rewritten so that they call the new name.</li>
+<li>Formatting, arguments, and surrounding code that are not part of the substitution remain untouched.</li>
 </ul>
-<h5>Encoding transformers (<code>django.utils.encoding</code>)</h5>
+<h5>Transformers for encoding (<code>django.utils.encoding</code>)</h5>
 <p><strong><code>ForceTextToForceStrTransformer</code></strong></p>
 <ul>
 <li><code>from django.utils.encoding import force_text</code> → <code>from django.utils.encoding import force_str</code></li>
@@ -653,7 +657,7 @@ aliased_func()
 <li><code>from django.utils.encoding import smart_text</code> → <code>from django.utils.encoding import smart_str</code></li>
 <li><code>smart_text(content)</code> → <code>smart_str(content)</code></li>
 </ul>
-<h5>HTTP URL quoting transformers (<code>django.utils.http</code> → <code>urllib.parse</code>)</h5>
+<h5>Transformers for HTTP URL quoting (<code>django.utils.http</code> → <code>urllib.parse</code>)</h5>
 <p><strong><code>HttpUrlQuoteTransformer</code></strong></p>
 <ul>
 <li><code>from django.utils.http import urlquote</code> → <code>from urllib.parse import quote</code></li>
@@ -674,22 +678,22 @@ aliased_func()
 <li><code>from django.utils.http import urlunquote_plus</code> → <code>from urllib.parse import unquote_plus</code></li>
 <li><code>urlunquote_plus(content)</code> → <code>unquote_plus(content)</code></li>
 </ul>
-<h5>Shortcuts transformer (<code>django.shortcuts</code>)</h5>
+<h5>Transformer for shortcuts (<code>django.shortcuts</code>)</h5>
 <p><strong><code>RenderToResponseToRenderTransformer</code></strong></p>
 <ul>
 <li><code>from django.shortcuts import render_to_response</code> → <code>from django.shortcuts import render</code></li>
-<li>A call such as <code>render_to_response(&quot;index.html&quot;, context={}, status=None)</code> → <code>render(None, &quot;index.html&quot;, context={}, status=None)</code>, i.e. the call is renamed to <code>render</code> and a leading positional argument <code>None</code> is prepended before the existing arguments.</li>
+<li>A call such as <code>render_to_response(&quot;index.html&quot;, context={}, status=None)</code> becomes <code>render(None, &quot;index.html&quot;, context={}, status=None)</code>, that is, the call is renamed to <code>render</code>, and a leading positional argument <code>None</code> is prepended before the existing arguments.</li>
 </ul>
-<h5>URL routing transformer</h5>
+<h5>Transformer for URL routing</h5>
 <p><strong><code>URLToRePathTransformer</code></strong></p>
 <ul>
-<li><code>from django.conf.urls import url</code> → <code>from django.urls import re_path</code> (imported name becomes <code>re_path</code>, sourced from <code>django.urls</code>).</li>
-<li>When the source already imports <code>include</code> from <code>django.urls</code> and separately imports <code>url</code> from <code>django.conf.urls</code>, the result must import both <code>re_path</code> and <code>include</code> from <code>django.urls</code> in a single import statement in the form <code>from django.urls import re_path, include</code>, and the separate <code>from django.conf.urls import url</code> import must no longer be present.</li>
-<li>Every call to <code>url(...)</code> → <code>re_path(...)</code> with all arguments preserved.</li>
-<li>No-op: if the source imports <code>include, re_path</code> from <code>django.urls</code> and only uses <code>re_path(...)</code>/<code>include(...)</code>, nothing changes.</li>
+<li><code>from django.conf.urls import url</code> → <code>from django.urls import re_path</code> (the imported name becomes <code>re_path</code>, with <code>django.urls</code> as its source).</li>
+<li>If the source already imports <code>include</code> from <code>django.urls</code> and separately imports <code>url</code> from <code>django.conf.urls</code>, the result must import both <code>re_path</code> and <code>include</code> from <code>django.urls</code> in one import statement in the form <code>from django.urls import re_path, include</code>, and the separate <code>from django.conf.urls import url</code> import must no longer be present.</li>
+<li>Every call to <code>url(...)</code> becomes <code>re_path(...)</code>, with all arguments preserved.</li>
+<li>No-op case: if the source imports <code>include, re_path</code> from <code>django.urls</code> and uses only <code>re_path(...)</code>/<code>include(...)</code>, nothing changes.</li>
 </ul>
-<h5>Translations transformers</h5>
-<p>The following transformers must exist and be importable from <code>django_codemod.visitors</code>. They rewrite the deprecated unicode-prefixed gettext functions to their non-prefixed equivalents:</p>
+<h5>Transformers for translations</h5>
+<p>The transformers listed below must exist and be importable from <code>django_codemod.visitors</code>. Their purpose is to rewrite the deprecated unicode-prefixed gettext functions to their non-prefixed equivalents:</p>
 <ul>
 <li><strong><code>UGetTextToGetTextTransformer</code></strong> — <code>ugettext</code> → <code>gettext</code></li>
 <li><strong><code>UGetTextLazyToGetTextLazyTransformer</code></strong> — <code>ugettext_lazy</code> → <code>gettext_lazy</code></li>
@@ -697,90 +701,90 @@ aliased_func()
 <li><strong><code>UNGetTextToNGetTextTransformer</code></strong> — <code>ungettext</code> → <code>ngettext</code></li>
 <li><strong><code>UNGetTextLazyToNGetTextLazyTransformer</code></strong> — <code>ungettext_lazy</code> → <code>ngettext_lazy</code></li>
 </ul>
-<h5>Admin transformer</h5>
-<p><strong><code>InlineHasAddPermissionsTransformer</code></strong> must exist and be importable from <code>django_codemod.visitors</code>.</p>
-<h4>Notes</h4>
+<h5>Transformer for admin</h5>
+<p>An <strong><code>InlineHasAddPermissionsTransformer</code></strong> must exist and be importable from <code>django_codemod.visitors</code>.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The only hard requirement affecting imports is that all listed classes are importable from the top-level <code>django_codemod.visitors</code> package. Internal submodule organization is unconstrained as long as this package-level import path works.</li>
+<li>When it comes to imports, the only hard requirement is that all of the listed classes are importable from the top-level <code>django_codemod.visitors</code> package. The internal organization into submodules is unconstrained as long as this package-level import path works.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Implement UnescapeEntitiesTransformer</span>
-        <span class="spec-meta muted">238 words · source specification
+        <span class="spec-title">Implementing UnescapeEntitiesTransformer</span>
+        <span class="spec-meta muted">260 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>UnescapeEntitiesTransformer</code></h3>
-<h4>Objective</h4>
-<p>Create a new codemod transformer that rewrites usages of the deprecated <code>django.utils.text.unescape_entities</code> (removed in Django 3.0) to use the standard library's <code>html.unescape</code> instead.</p>
-<h4>Public API</h4>
-<p>The transformer must be importable as:</p>
+      <div class="spec-body"><h3>Task Specification: Implementing <code>UnescapeEntitiesTransformer</code></h3>
+<h4>Goal</h4>
+<p>Build a new codemod transformer that rewrites uses of the deprecated <code>django.utils.text.unescape_entities</code> (which was removed in Django 3.0) so that they use the standard library's <code>html.unescape</code> instead.</p>
+<h4>Public Interface</h4>
+<p>It must be possible to import the transformer as:</p>
 <pre><code class="language-python">from django_codemod.visitors import UnescapeEntitiesTransformer
 </code></pre>
-<p><code>UnescapeEntitiesTransformer</code> must be a class exposed from the <code>django_codemod.visitors</code> package, consistent with the other existing transformer classes in that package (i.e., a LibCST-based visitor/transformer following the same base structure and registration pattern used by the other transformers in the codebase).</p>
-<h4>Required Behavior</h4>
-<p>The transformer must perform the following source-to-source transformation:</p>
-<h5>1. Import rewriting</h5>
-<p>An import of the form:</p>
+<p><code>UnescapeEntitiesTransformer</code> must be a class exposed from the <code>django_codemod.visitors</code> package, matching the other existing transformer classes in that package (that is, a LibCST-based visitor/transformer built on the same base structure and registration pattern the other transformers in the codebase use).</p>
+<h4>Required Transformation Behavior</h4>
+<p>The transformer must carry out the following source-to-source transformation:</p>
+<h5>1. Rewriting the import</h5>
+<p>An import of this form:</p>
 <pre><code class="language-python">from django.utils.text import unescape_entities
 </code></pre>
-<p>must be replaced with:</p>
+<p>must be replaced by:</p>
 <pre><code class="language-python">from html import unescape
 </code></pre>
-<h5>2. Call/reference rewriting</h5>
-<p>Any reference to the imported name <code>unescape_entities</code> (where it was brought into scope via the above import) must be renamed to <code>unescape</code>.</p>
-<p>For example:</p>
+<h5>2. Rewriting calls and references</h5>
+<p>Any reference to the imported name <code>unescape_entities</code> (the one brought into scope through the import above) must be renamed to <code>unescape</code>.</p>
+<p>For instance:</p>
 <pre><code class="language-python">result = unescape_entities(content)
 </code></pre>
-<p>becomes:</p>
+<p>turns into:</p>
 <pre><code class="language-python">result = unescape(content)
 </code></pre>
-<h4>Example</h4>
-<p>Given input:</p>
+<h4>Worked Example</h4>
+<p>When given the input:</p>
 <pre><code class="language-python">from django.utils.text import unescape_entities
 
 result = unescape_entities(content)
 </code></pre>
-<p>The transformer must produce:</p>
+<p>the transformer must output:</p>
 <pre><code class="language-python">from html import unescape
 
 result = unescape(content)
 </code></pre>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The old symbol lives at module path <code>django.utils.text</code>, name <code>unescape_entities</code>.</li>
-<li>The replacement symbol lives at module path <code>html</code>, name <code>unescape</code>.</li>
-<li>The transformer should integrate with the same infrastructure as the other transformers in <code>django_codemod.visitors</code> so that it can be applied and instantiated the same way they are.</li>
+<li>The old symbol is located at module path <code>django.utils.text</code>, with the name <code>unescape_entities</code>.</li>
+<li>The replacement symbol is located at module path <code>html</code>, with the name <code>unescape</code>.</li>
+<li>The transformer should plug into the same infrastructure as the other transformers in <code>django_codemod.visitors</code>, so that it can be applied and instantiated the same way they are.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Add a new code transformer that helps migrate Django code away from the deprecated django.utils.http.is_safe_url function, and register it in the…</span>
-        <span class="spec-meta muted">498 words · source specification
+        <span class="spec-title">Introduce a new code transformer that assists with migrating Django code away from the deprecated django.utils.http.is_safe_url function, and register it in…</span>
+        <span class="spec-meta muted">529 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>IsSafeUrlTransformer</code> to django-codemod</h3>
+      <div class="spec-body"><h3>Task: Introduce <code>IsSafeUrlTransformer</code> into django-codemod</h3>
 <h4>Overview</h4>
-<p>Add a new code transformer that helps migrate Django code away from the deprecated <code>django.utils.http.is_safe_url</code> function, and register it in the version-mapping structures so it is discoverable via the CLI's mapping.</p>
+<p>Introduce a new code transformer that assists with migrating Django code away from the deprecated <code>django.utils.http.is_safe_url</code> function, and register it in the version-mapping structures so that it is discoverable via the CLI's mapping.</p>
 <h4>Requirements</h4>
-<h5>1. New transformer: <code>IsSafeUrlTransformer</code></h5>
-<p>Create a transformer class named <code>IsSafeUrlTransformer</code> that rewrites usage of Django's <code>is_safe_url</code> function to <code>url_has_allowed_host_and_scheme</code>.</p>
+<h5>1. New transformer <code>IsSafeUrlTransformer</code></h5>
+<p>Implement a transformer class named <code>IsSafeUrlTransformer</code> that rewrites usage of Django's <code>is_safe_url</code> function to <code>url_has_allowed_host_and_scheme</code>.</p>
 <ul>
 <li>It must be importable from the <code>django_codemod.visitors</code> package:<pre><code class="language-python">from django_codemod.visitors import IsSafeUrlTransformer
 </code></pre>
 </li>
-<li>It should follow the same conventions as the other HTTP-related transformers already living in the <code>django_codemod.visitors</code> HTTP module (e.g. <code>HttpUrlQuoteTransformer</code>, <code>HttpUrlUnQuoteTransformer</code>).</li>
+<li>As with the other HTTP-related transformers already present in the <code>django_codemod.visitors</code> HTTP module (e.g. <code>HttpUrlQuoteTransformer</code>, <code>HttpUrlUnQuoteTransformer</code>), it should follow the same conventions.</li>
 </ul>
-<p><strong>Behavior:</strong> Given code that imports and uses <code>is_safe_url</code> from <code>django.utils.http</code>, the transformer must:</p>
+<p><strong>Behavior:</strong> For code that imports and uses <code>is_safe_url</code> from <code>django.utils.http</code>, the transformer must:</p>
 <ul>
-<li>Rewrite the import statement so that <code>is_safe_url</code> becomes <code>url_has_allowed_host_and_scheme</code>, still imported from <code>django.utils.http</code>.</li>
-<li>Rewrite every call to <code>is_safe_url(...)</code> into a call to <code>url_has_allowed_host_and_scheme(...)</code>, preserving the arguments unchanged.</li>
+<li>Adjust the import statement so that <code>is_safe_url</code> becomes <code>url_has_allowed_host_and_scheme</code>, still imported from <code>django.utils.http</code>.</li>
+<li>Convert every call to <code>is_safe_url(...)</code> into a call to <code>url_has_allowed_host_and_scheme(...)</code>, leaving the arguments unchanged.</li>
 </ul>
-<p>Example transformation:</p>
+<p>Example of the transformation:</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.utils.http import is_safe_url
 
@@ -791,23 +795,23 @@ result = is_safe_url('http://test.com/some-path', None)
 
 result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 </code></pre>
-<h5>2. Register the transformer in the version mappings</h5>
-<p>The CLI module <code>django_codemod.cli</code> must expose two module-level dictionaries that map Django version tuples to the lists of transformer classes associated with each version:</p>
+<h5>2. Registering the transformer in the version mappings</h5>
+<p>Two module-level dictionaries must be exposed by the CLI module <code>django_codemod.cli</code>, mapping Django version tuples to the lists of transformer classes associated with each version:</p>
 <pre><code class="language-python">from django_codemod.cli import DEPRECATED_IN, REMOVED_IN
 </code></pre>
 <ul>
-<li><code>DEPRECATED_IN</code>: maps a version tuple (e.g. <code>(3, 0)</code>) to the list of transformer classes that address deprecations introduced in that version.</li>
-<li><code>REMOVED_IN</code>: maps a version tuple (e.g. <code>(4, 0)</code>) to the list of transformer classes that address removals occurring in that version.</li>
+<li><code>DEPRECATED_IN</code>: maps a version tuple (e.g. <code>(3, 0)</code>) to the list of transformer classes that handle deprecations introduced in that version.</li>
+<li><code>REMOVED_IN</code>: maps a version tuple (e.g. <code>(4, 0)</code>) to the list of transformer classes that handle removals occurring in that version.</li>
 </ul>
-<p>The keys are <code>(major, minor)</code> integer tuples. The values are lists of transformer classes (the class objects themselves).</p>
-<p><code>IsSafeUrlTransformer</code> corresponds to a deprecation in Django 3.0 and a removal in Django 4.0, so it must be added to the <code>(3, 0)</code> entry of <code>DEPRECATED_IN</code> and the <code>(4, 0)</code> entry of <code>REMOVED_IN</code>.</p>
-<p>After the change, the mappings — expressed by the class names contained in each version's list — must be exactly as follows.</p>
+<p>Each key is a <code>(major, minor)</code> integer tuple, and each value is a list of transformer classes (the class objects themselves).</p>
+<p>Since <code>IsSafeUrlTransformer</code> corresponds to a deprecation in Django 3.0 and a removal in Django 4.0, it must be added to the <code>(3, 0)</code> entry of <code>DEPRECATED_IN</code> as well as to the <code>(4, 0)</code> entry of <code>REMOVED_IN</code>.</p>
+<p>Once the change is applied, the mappings — expressed by the class names contained in each version's list — must be exactly as follows.</p>
 <p><code>DEPRECATED_IN</code>:</p>
 <table>
 <thead>
 <tr>
 <th>Version</th>
-<th>Transformer class names (in this order)</th>
+<th>Names of the transformer classes (in this order)</th>
 </tr>
 </thead>
 <tbody>
@@ -830,7 +834,7 @@ result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 <thead>
 <tr>
 <th>Version</th>
-<th>Transformer class names (in this order)</th>
+<th>Names of the transformer classes (in this order)</th>
 </tr>
 </thead>
 <tbody>
@@ -844,34 +848,34 @@ result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 </tr>
 </tbody>
 </table>
-<p>Notes on the mapping contents:</p>
+<p>Notes about the contents of the mappings:</p>
 <ul>
-<li>The class-name ordering within each version list must match the ordering shown above exactly.</li>
-<li>All other transformer classes listed above already exist and are already referenced from these mappings; only <code>IsSafeUrlTransformer</code> is newly introduced. Ensure it is inserted in the correct alphabetical position (between <code>HttpUrlUnQuoteTransformer</code> and <code>SmartTextToForceStrTransformer</code>) in both the <code>(3, 0)</code> list of <code>DEPRECATED_IN</code> and the <code>(4, 0)</code> list of <code>REMOVED_IN</code>.</li>
+<li>The ordering of the class names within each version list must match the ordering shown above exactly.</li>
+<li>All the other transformer classes listed above already exist and are already referenced from these mappings; <code>IsSafeUrlTransformer</code> is the only one that is newly introduced. Ensure that it is placed in the correct alphabetical position (between <code>HttpUrlUnQuoteTransformer</code> and <code>SmartTextToForceStrTransformer</code>) in both the <code>(3, 0)</code> list of <code>DEPRECATED_IN</code> and the <code>(4, 0)</code> list of <code>REMOVED_IN</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Existing importable names and public API must remain intact.</li>
-<li><code>IsSafeUrlTransformer</code> must be exported both from <code>django_codemod.visitors</code> and referenced by the two CLI mappings.</li>
+<li>The existing importable names and the public API must remain intact.</li>
+<li><code>IsSafeUrlTransformer</code> must be both exported from <code>django_codemod.visitors</code> and referenced by the two CLI mappings.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Rename Transformer Classes</span>
-        <span class="spec-meta muted">339 words · source specification
+        <span class="spec-title">Transformer Class Renames</span>
+        <span class="spec-meta muted">351 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Rename Transformer Classes</h3>
-<h4>Overview</h4>
-<p>Several transformer classes in the <code>django_codemod.visitors</code> package must be renamed to shorter names. All renamed classes must remain importable directly from the <code>django_codemod.visitors</code> package (i.e., <code>from django_codemod.visitors import &lt;NewName&gt;</code>), and their behavior must be unchanged.</p>
-<h4>Required Renames</h4>
-<p>Rename the following transformer classes. The class must be accessible under its new name from <code>django_codemod.visitors</code>:</p>
+      <div class="spec-body"><h3>Task Specification: Transformer Class Renames</h3>
+<h4>Summary</h4>
+<p>Within the <code>django_codemod.visitors</code> package, multiple transformer classes must be renamed to shorter names. All renamed classes must remain directly importable from the <code>django_codemod.visitors</code> package (i.e., <code>from django_codemod.visitors import &lt;NewName&gt;</code>), and their behavior must stay unchanged.</p>
+<h4>Renames to Perform</h4>
+<p>Rename the transformer classes listed below. Under its new name, each class must be accessible from <code>django_codemod.visitors</code>:</p>
 <table>
 <thead>
 <tr>
-<th>Current Name</th>
+<th>Existing Name</th>
 <th>New Name</th>
 </tr>
 </thead>
@@ -914,14 +918,14 @@ result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 </tr>
 </tbody>
 </table>
-<h4>Constraints</h4>
+<h4>Restrictions</h4>
 <ul>
-<li>Each renamed class must retain its existing code transformation behavior exactly as before. Only the class name changes.</li>
-<li>Each renamed class must be importable via <code>from django_codemod.visitors import &lt;NewName&gt;</code>.</li>
+<li>Each renamed class must retain its existing code transformation behavior exactly as before. The class name is the only thing that changes.</li>
+<li>It must be possible to import each renamed class via <code>from django_codemod.visitors import &lt;NewName&gt;</code>.</li>
 </ul>
-<h4>Deprecation / Removal Version Mappings</h4>
-<p>There exist two mappings in the CLI module (<code>django_codemod.cli</code>), importable as <code>DEPRECATED_IN</code> and <code>REMOVED_IN</code>, that associate Django version tuples with the transformer classes relevant to that version. After the rename, these mappings must reference the transformer classes by their new names.</p>
-<p>When each mapping is reduced to a dictionary keyed by version tuple, where each value is the sorted list of class names (<code>__name__</code>) of the transformers registered for that version, the results must be exactly:</p>
+<h4>Mappings for Deprecation / Removal Versions</h4>
+<p>The CLI module (<code>django_codemod.cli</code>) has two mappings, importable as <code>DEPRECATED_IN</code> and <code>REMOVED_IN</code>, which associate Django version tuples with the transformer classes relevant to that version. After the rename, the transformer classes must be referenced by their new names in these mappings.</p>
+<p>Once each mapping has been reduced to a dictionary keyed by version tuple, where each value is the sorted list of class names (<code>__name__</code>) of the transformers registered for that version, the results must be exactly:</p>
 <h5><code>DEPRECATED_IN</code></h5>
 <ul>
 <li><code>(3, 0)</code>:
@@ -980,28 +984,29 @@ result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 </ul>
 </li>
 </ul>
-<p>The names not listed in the rename table (e.g. <code>HttpUrlQuoteTransformer</code>, <code>IsSafeUrlTransformer</code>, <code>InlineHasAddPermissionsTransformer</code>, <code>UnescapeEntitiesTransformer</code>, and the other <code>HttpUrl*</code> variants) remain unchanged and must appear exactly as shown.</p>
+<p>Names that do not appear in the rename table (e.g. <code>HttpUrlQuoteTransformer</code>, <code>IsSafeUrlTransformer</code>, <code>InlineHasAddPermissionsTransformer</code>, <code>UnescapeEntitiesTransformer</code>, and the other <code>HttpUrl*</code> variants) remain unchanged and must appear exactly as given.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Implement a new codemod transformer that migrates usage of lru_cache from Django&#39;s deprecated location to the standard library equivalent, and register it…</span>
-        <span class="spec-meta muted">283 words · source specification
+        <span class="spec-title">Implement a new codemod transformer that moves usage of lru_cache from its deprecated location in Django to the standard library equivalent, and register it…</span>
+        <span class="spec-meta muted">311 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement a new codemod transformer that migrates usage of <code>lru_cache</code> from Django's deprecated location to the standard library equivalent, and register it in the appropriate deprecation mappings.</p>
-<h4>New Transformer: <code>LRUCacheTransformer</code></h4>
-<p>Create a transformer class named <code>LRUCacheTransformer</code> that is importable from the <code>django_codemod.visitors</code> package:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Implement a new codemod transformer that moves usage of <code>lru_cache</code> from its deprecated location in Django to the standard library equivalent, and register it in the appropriate deprecation mappings.</p>
+<h4>New Transformer Class: <code>LRUCacheTransformer</code></h4>
+<p>Define a transformer class called <code>LRUCacheTransformer</code> that can be imported from the <code>django_codemod.visitors</code> package:</p>
 <pre><code class="language-python">from django_codemod.visitors import LRUCacheTransformer
 </code></pre>
-<h5>Behavior</h5>
-<p>The transformer rewrites imports of <code>lru_cache</code> from the deprecated Django utility module to the Python standard library <code>functools</code> module.</p>
-<p>Specifically:</p>
+<h5>How the Transformer Behaves</h5>
+<p>The transformer rewrites imports of <code>lru_cache</code> so that they come from the Python standard library <code>functools</code> module instead of the deprecated Django utility module.</p>
+<p>In particular:</p>
 <ul>
 <li>
-<p>An import of the form:</p>
+<p>An import written as:</p>
 <pre><code class="language-python">from django.utils.lru_cache import lru_cache
 </code></pre>
 <p>must be rewritten to:</p>
@@ -1009,105 +1014,106 @@ result = url_has_allowed_host_and_scheme('http://test.com/some-path', None)
 </code></pre>
 </li>
 <li>
-<p>Usages of the <code>lru_cache</code> name in the code (e.g. calling <code>lru_cache(...)</code>) must remain unchanged; only the import source changes.</p>
+<p>Uses of the name <code>lru_cache</code> in the code (for example, a call like <code>lru_cache(...)</code>) must stay unchanged; it is only the import source that changes.</p>
 </li>
 </ul>
-<p>The transformer must follow the same construction and invocation conventions as the other visitor/transformer classes in the codebase (i.e., it must be usable in the same way as existing transformers such that it can be instantiated and applied to source code to produce the transformed output).</p>
-<h4>Registration in Deprecation Mappings</h4>
-<p>The transformer must be associated with Django version metadata as follows:</p>
+<p>The transformer must adhere to the same construction and invocation conventions as the other visitor/transformer classes in the codebase (that is, it must be usable in the same way as the existing transformers, so that it can be instantiated and applied to source code to produce the transformed output).</p>
+<h4>Registering the Transformer in the Deprecation Mappings</h4>
+<p>The transformer must be tied to Django version metadata in the following way:</p>
 <ul>
 <li><strong>Deprecated in</strong> Django version <code>(2, 0)</code>.</li>
 <li><strong>Removed in</strong> Django version <code>(3, 0)</code>.</li>
 </ul>
 <p>These associations must be reflected in the mappings that group transformers by the Django version in which they are deprecated and by the version in which they are removed, such that:</p>
 <ul>
-<li>Under the &quot;deprecated in&quot; mapping, the entry for version <code>(2, 0)</code> includes <code>LRUCacheTransformer</code> (by class name) alongside the already-present <code>RenderToResponseTransformer</code>.</li>
-<li>Under the &quot;removed in&quot; mapping, the entry for version <code>(3, 0)</code> includes <code>LRUCacheTransformer</code> (by class name) alongside the already-present <code>InlineHasAddPermissionsTransformer</code> and <code>RenderToResponseTransformer</code>.</li>
+<li>In the &quot;deprecated in&quot; mapping, the entry for version <code>(2, 0)</code> contains <code>LRUCacheTransformer</code> (by class name) together with the already-present <code>RenderToResponseTransformer</code>.</li>
+<li>In the &quot;removed in&quot; mapping, the entry for version <code>(3, 0)</code> contains <code>LRUCacheTransformer</code> (by class name) together with the already-present <code>InlineHasAddPermissionsTransformer</code> and <code>RenderToResponseTransformer</code>.</li>
 </ul>
-<p>The names within each version group are expected to appear in alphabetical order.</p>
+<p>Within each version group, the names are expected to appear in alphabetical order.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Add AbsPathTransformer for Deprecated abspathu</span>
-        <span class="spec-meta muted">313 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Introduce AbsPathTransformer for the Deprecated abspathu</span>
+        <span class="spec-meta muted">350 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>AbsPathTransformer</code> for Deprecated <code>abspathu</code></h3>
+      <div class="spec-body"><h3>Task Specification: Introduce <code>AbsPathTransformer</code> for the Deprecated <code>abspathu</code></h3>
 <h4>Overview</h4>
-<p>Add a code transformer that rewrites uses of Django's deprecated <code>django.utils._os.abspathu()</code> helper to the standard-library equivalent <code>os.path.abspath()</code>.</p>
+<p>Add a code transformer that rewrites usages of Django's deprecated helper <code>django.utils._os.abspathu()</code> so they end up as the standard-library equivalent <code>os.path.abspath()</code>.</p>
 <h4>Public API</h4>
-<p>Create a public transformer class named <code>AbsPathTransformer</code>. It must be importable directly from the <code>django_codemod.visitors</code> package:</p>
+<p>A public transformer class called <code>AbsPathTransformer</code> must be created. It must be possible to import this class directly from the <code>django_codemod.visitors</code> package:</p>
 <pre><code class="language-python">from django_codemod.visitors import AbsPathTransformer
 </code></pre>
-<p>The class must expose the same visitor-style transformer interface as the existing transformers in <code>django_codemod.visitors</code>, so it can be instantiated and applied to source code through the package's normal codemod machinery.</p>
-<h4>Required Source Transformation</h4>
-<p>The transformer must replace this direct import:</p>
+<p>The class must expose the same visitor-style transformer interface that the transformers already present in <code>django_codemod.visitors</code> do, so that it can be instantiated and applied to source code via the package's regular codemod machinery.</p>
+<h4>Source Transformation Requirements</h4>
+<p>The transformer must turn this direct import:</p>
 <pre><code class="language-python">from django.utils._os import abspathu
 </code></pre>
-<p>with:</p>
+<p>into this:</p>
 <pre><code class="language-python">from os.path import abspath
 </code></pre>
-<p>Every corresponding direct call of the form <code>abspathu(...)</code> must become <code>abspath(...)</code>. The complete argument list must remain unchanged, including argument values, ordering, and positional or keyword form.</p>
-<p>For example, this input:</p>
+<p>Every corresponding direct call written as <code>abspathu(...)</code> must instead read <code>abspath(...)</code>. The complete argument list must remain unchanged, covering argument values, their ordering, and their positional or keyword form.</p>
+<p>As an example, given this input:</p>
 <pre><code class="language-python">from django.utils._os import abspathu
 
 result = abspathu(content)
 </code></pre>
-<p>must produce:</p>
+<p>the output must be:</p>
 <pre><code class="language-python">from os.path import abspath
 
 result = abspath(content)
 </code></pre>
-<h4>Django Version Metadata and Registration</h4>
+<h4>Registration and Django Version Metadata</h4>
 <p><code>AbsPathTransformer</code> must be associated with these exact Django version tuples:</p>
 <ul>
 <li><strong>Deprecated in:</strong> <code>(2, 0)</code></li>
 <li><strong>Removed in:</strong> <code>(3, 0)</code></li>
 </ul>
-<p>The package's version-based transformer discovery must therefore include the class in both of the following selections:</p>
+<p>As a result, the package's version-based transformer discovery must include the class in both of the following selections:</p>
 <ul>
 <li>the transformers applied for deprecations introduced in Django 2.0;</li>
 <li>the transformers applied for features removed in Django 3.0.</li>
 </ul>
-<p>Equivalently, selecting <code>--deprecated-in 2.0</code> or <code>--removed-in 3.0</code> through the existing command-line interface must include this transformation. Existing version associations for all other transformers must remain unchanged.</p>
-<h4>Ordered Version Groups</h4>
-<p>Transformer classes within every deprecation or removal version group must be ordered alphabetically by class name. With <code>AbsPathTransformer</code> registered, the relevant ordered groups must be:</p>
+<p>Put differently, picking <code>--deprecated-in 2.0</code> or <code>--removed-in 3.0</code> via the existing command-line interface must include this transformation. The version associations already in place for all other transformers must stay unchanged.</p>
+<h4>Version Groups and Their Ordering</h4>
+<p>Within every deprecation or removal version group, transformer classes must be placed in alphabetical order by class name. Once <code>AbsPathTransformer</code> is registered, the relevant groups must be ordered as follows:</p>
 <ul>
 <li>Deprecated in <code>(2, 0)</code>: <code>AbsPathTransformer</code>, <code>LRUCacheTransformer</code>, <code>RenderToResponseTransformer</code></li>
 <li>Removed in <code>(3, 0)</code>: <code>AbsPathTransformer</code>, <code>InlineHasAddPermissionsTransformer</code>, <code>LRUCacheTransformer</code>, <code>RenderToResponseTransformer</code></li>
 </ul>
-<p>Thus, <code>AbsPathTransformer</code> must be the first class in both groups. The existing entries and their alphabetical relative order must be preserved.</p>
+<p>Consequently, <code>AbsPathTransformer</code> must be the first class in both groups. The entries that already exist, together with their alphabetical relative order, must be preserved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">django-codemod provides codemod transformers for migrating Django projects.</span>
-        <span class="spec-meta muted">659 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">django-codemod offers codemod transformers for migrating Django projects.</span>
+        <span class="spec-meta muted">720 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p><code>django-codemod</code> provides codemod transformers for migrating Django projects. Remove the two obsolete Django 2.0 transformers <code>AbsPathTransformer</code> and <code>LRUCacheTransformer</code>, remove their dedicated visitor modules, and ensure that transformer discovery and version metadata contain only the transformers that remain supported.</p>
-<p>This is a complete removal, not a rename: do not add replacement classes or compatibility aliases.</p>
-<h4>1. Remove the obsolete transformers and modules</h4>
-<p>The following classes must be completely removed from the package:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p><code>django-codemod</code> offers codemod transformers for migrating Django projects. The task is to remove the two obsolete Django 2.0 transformers <code>AbsPathTransformer</code> and <code>LRUCacheTransformer</code> along with their dedicated visitor modules, and to ensure that transformer discovery and version metadata contain only the transformers that remain supported.</p>
+<p>This is a complete removal rather than a rename: do not add replacement classes or compatibility aliases.</p>
+<h4>1. Delete the obsolete transformers and modules</h4>
+<p>The following classes must be entirely removed from the package:</p>
 <ul>
 <li><code>AbsPathTransformer</code></li>
 <li><code>LRUCacheTransformer</code></li>
 </ul>
-<p>Consequently:</p>
+<p>As a consequence:</p>
 <ul>
-<li>Neither name may be imported from <code>django_codemod.visitors</code>.</li>
-<li>Neither name may appear in <code>django_codemod.visitors.__all__</code> or any other public package export.</li>
-<li>The dedicated modules <code>django_codemod.visitors.os_utils</code> and <code>django_codemod.visitors.lru_cache</code> must be removed and must no longer expose these classes.</li>
-<li>Neither class may be discovered, selected by a version-based command, or included in deprecation/removal metadata.</li>
-<li>Do not retain aliases under these names or introduce renamed replacements.</li>
+<li>Neither of the two names may be imported from <code>django_codemod.visitors</code>.</li>
+<li>Neither of them may occur in <code>django_codemod.visitors.__all__</code> or any other public package export.</li>
+<li>The dedicated modules <code>django_codemod.visitors.os_utils</code> and <code>django_codemod.visitors.lru_cache</code> must be removed and must not expose these classes any longer.</li>
+<li>Neither class may be discovered, selected through a version-based command, or included in deprecation/removal metadata.</li>
+<li>Do not keep aliases under these names or introduce renamed replacements.</li>
 </ul>
-<p><code>NonCallableViewTransformer</code> is not an existing transformer and must not be created, exported, or added to metadata.</p>
-<h4>2. Preserve the remaining visitor API</h4>
-<p>After the removals, the following transformer classes must remain importable from <code>django_codemod.visitors</code> and remain part of its public exports, in the existing export order:</p>
+<p><code>NonCallableViewTransformer</code> does not exist as a transformer and must not be created, exported, or added to metadata.</p>
+<h4>2. Keep the remaining visitor API</h4>
+<p>Once the removals are done, the following transformer classes must remain importable from <code>django_codemod.visitors</code> and must stay part of its public exports, in the existing export order:</p>
 <ol>
 <li><code>ForceTextTransformer</code></li>
 <li><code>HttpUrlQuotePlusTransformer</code></li>
@@ -1126,10 +1132,10 @@ result = abspath(content)
 <li><code>URLTransformer</code></li>
 <li><code>UnescapeEntitiesTransformer</code></li>
 </ol>
-<p>Their existing transformation behavior and import compatibility must remain unchanged.</p>
-<h4>3. Exact deprecation metadata</h4>
-<p><code>django_codemod.cli.DEPRECATED_IN</code> maps <code>(major, minor)</code> Django version tuples to ordered lists of transformer <strong>class objects</strong>. The values must not be strings; callers must be able to use each entry as a class, including reading its <code>__name__</code>.</p>
-<p>The mapping must contain exactly these version keys and class lists, with each list in the order shown:</p>
+<p>Their existing transformation behavior and import compatibility must stay unchanged.</p>
+<h4>3. Precise deprecation metadata</h4>
+<p>The keys of <code>django_codemod.cli.DEPRECATED_IN</code> are <code>(major, minor)</code> Django version tuples, and its values are ordered lists of transformer <strong>class objects</strong>. Strings must not be used as values; callers must be able to use each entry as a class, including reading its <code>__name__</code>.</p>
+<p>The mapping must contain exactly these version keys and class lists, and each list must follow the order shown:</p>
 <ul>
 <li><code>(3, 0)</code>:
 <ol>
@@ -1160,10 +1166,10 @@ result = abspath(content)
 </ol>
 </li>
 </ul>
-<p>No other version key may be present. In particular, there must be no <code>(1, 9)</code> entry, and version groups left empty by the removals must be omitted.</p>
-<h4>4. Exact removal metadata</h4>
-<p><code>django_codemod.cli.REMOVED_IN</code> likewise maps <code>(major, minor)</code> version tuples to ordered lists of transformer class objects, not class-name strings.</p>
-<p>The mapping must contain exactly these version keys and class lists, with each list in the order shown:</p>
+<p>No version key other than these may be present. In particular, a <code>(1, 9)</code> entry must not exist, and version groups that the removals leave empty must be omitted.</p>
+<h4>4. Precise removal metadata</h4>
+<p>Likewise, <code>django_codemod.cli.REMOVED_IN</code> maps <code>(major, minor)</code> version tuples to ordered lists of transformer class objects rather than class-name strings.</p>
+<p>Exactly the following version keys and class lists must appear in the mapping, and each list must follow the order shown:</p>
 <ul>
 <li><code>(4, 0)</code>:
 <ol>
@@ -1190,37 +1196,37 @@ result = abspath(content)
 </ol>
 </li>
 </ul>
-<p>No other version key may be present. In particular, there must be no <code>(1, 9)</code> entry, and version groups left empty by the removals must be omitted.</p>
-<h4>5. Transformer version attributes</h4>
-<p>The metadata attributes on all remaining transformer classes must retain their existing values:</p>
+<p>No version key other than these may be present. In particular, a <code>(1, 9)</code> entry must not exist, and version groups that the removals leave empty must be omitted.</p>
+<h4>5. Version attributes of the transformers</h4>
+<p>The metadata attributes on all remaining transformer classes must keep their existing values:</p>
 <ul>
-<li>The fourteen transformers in the <code>(3, 0)</code> deprecation group above have <code>deprecated_in == (3, 0)</code> and <code>removed_in == (4, 0)</code>.</li>
-<li><code>InlineHasAddPermissionsTransformer</code> has <code>deprecated_in == (2, 1)</code> and <code>removed_in == (3, 0)</code>.</li>
-<li><code>RenderToResponseTransformer</code> has <code>deprecated_in == (2, 0)</code> and <code>removed_in == (3, 0)</code>.</li>
+<li>In the <code>(3, 0)</code> deprecation group above, the fourteen transformers have <code>deprecated_in == (3, 0)</code> and <code>removed_in == (4, 0)</code>.</li>
+<li><code>InlineHasAddPermissionsTransformer</code> carries <code>deprecated_in == (2, 1)</code> and <code>removed_in == (3, 0)</code>.</li>
+<li><code>RenderToResponseTransformer</code> carries <code>deprecated_in == (2, 0)</code> and <code>removed_in == (3, 0)</code>.</li>
 </ul>
-<p>In particular, <code>HttpUrlQuotePlusTransformer</code>, <code>URLTransformer</code>, and <code>UnescapeEntitiesTransformer</code> remain deprecated in Django 3.0 and removed in Django 4.0; they must not be reassigned to Django 1.9.</p>
-<h4>6. Compatibility and command behavior</h4>
-<p>Apart from removing the two obsolete transformers, preserve existing behavior:</p>
+<p>In particular, <code>HttpUrlQuotePlusTransformer</code>, <code>URLTransformer</code>, and <code>UnescapeEntitiesTransformer</code> stay deprecated in Django 3.0 and removed in Django 4.0; they must not be reassigned to Django 1.9.</p>
+<h4>6. Command behavior and compatibility</h4>
+<p>With the exception of removing the two obsolete transformers, existing behavior must be preserved:</p>
 <ul>
-<li><code>--deprecated-in 2.0</code> selects only <code>RenderToResponseTransformer</code>.</li>
-<li><code>--deprecated-in 2.1</code> selects only <code>InlineHasAddPermissionsTransformer</code>.</li>
-<li><code>--deprecated-in 3.0</code> selects the fourteen-transformer group above.</li>
-<li><code>--removed-in 3.0</code> selects <code>InlineHasAddPermissionsTransformer</code> followed by <code>RenderToResponseTransformer</code>.</li>
-<li><code>--removed-in 4.0</code> selects the fourteen-transformer group above.</li>
-<li><code>Django30Command</code>, <code>Django40Command</code>, all remaining individual transformers, CLI argument/version handling, and unrelated package behavior must continue to work as before.</li>
+<li>Only <code>RenderToResponseTransformer</code> is selected by <code>--deprecated-in 2.0</code>.</li>
+<li>Only <code>InlineHasAddPermissionsTransformer</code> is selected by <code>--deprecated-in 2.1</code>.</li>
+<li><code>--deprecated-in 3.0</code> selects the group of fourteen transformers listed above.</li>
+<li>For <code>--removed-in 3.0</code>, the selected transformers are <code>InlineHasAddPermissionsTransformer</code> followed by <code>RenderToResponseTransformer</code>.</li>
+<li>For <code>--removed-in 4.0</code>, the selected transformers are the group of fourteen transformers listed above.</li>
+<li><code>Django30Command</code>, <code>Django40Command</code>, all remaining individual transformers, CLI argument/version handling, and unrelated package behavior must keep working as before.</li>
 </ul>
-<p>The removed <code>django.utils._os.abspathu</code> and <code>django.utils.lru_cache.lru_cache</code> codemods are no longer part of any version-selected operation. No other transformer, version assignment, or codemod behavior should be added or changed as part of this task.</p>
+<p>The <code>django.utils._os.abspathu</code> and <code>django.utils.lru_cache.lru_cache</code> codemods, once removed, are no longer part of any version-selected operation. Aside from that, no other transformer, version assignment, or codemod behavior should be added or changed as part of this task.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Expose three new transformer classes from the django_codemod.visitors package.</span>
-        <span class="spec-meta muted">254 words · source specification
+        <span class="spec-title">From the django_codemod.visitors package, expose three new transformer classes.</span>
+        <span class="spec-meta muted">265 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add Django 2.0 deprecation transformers</h3>
-<p>Expose three new transformer classes from the <code>django_codemod.visitors</code> package. They must follow the same construction and execution contract as the existing visitor transformer classes.</p>
+      <div class="spec-body"><h3>Add transformers for Django 2.0 deprecations</h3>
+<p>From the <code>django_codemod.visitors</code> package, expose three new transformer classes. They must adhere to the same construction and execution contract as the existing visitor transformer classes.</p>
 <h4>Public API</h4>
 <p>The following imports must succeed:</p>
 <pre><code class="language-python">from django_codemod.visitors import (
@@ -1231,7 +1237,7 @@ result = abspath(content)
 </code></pre>
 <h4>Required transformations</h4>
 <h5><code>AbsPathTransformer</code></h5>
-<p>Given a direct import of <code>abspathu</code> from <code>django.utils._os</code>, replace it with <code>abspath</code> from <code>os.path</code> and update its use accordingly.</p>
+<p>If <code>abspathu</code> is imported directly from <code>django.utils._os</code>, replace the import with <code>abspath</code> from <code>os.path</code> and update its use accordingly.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.utils._os import abspathu
 
@@ -1243,7 +1249,7 @@ result = abspathu(content)
 result = abspath(content)
 </code></pre>
 <h5><code>LRUCacheTransformer</code></h5>
-<p>Replace a direct import of <code>lru_cache</code> from <code>django.utils.lru_cache</code> with the standard-library import from <code>functools</code>. Uses of the imported name remain unchanged.</p>
+<p>Where <code>lru_cache</code> is imported directly from <code>django.utils.lru_cache</code>, replace the import with the standard-library import from <code>functools</code>. Uses of the imported name stay unchanged.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.utils.lru_cache import lru_cache
 
@@ -1255,7 +1261,7 @@ result = lru_cache(content)
 result = lru_cache(content)
 </code></pre>
 <h5><code>UnicodeCompatibleTransformer</code></h5>
-<p>Replace a direct import of <code>python_2_unicode_compatible</code> from <code>django.utils.encoding</code> with the equivalent import from <code>six</code>. Uses of the imported name, including decorator use, remain unchanged.</p>
+<p>Where <code>python_2_unicode_compatible</code> is imported directly from <code>django.utils.encoding</code>, replace the import with the equivalent import from <code>six</code>. Uses of the imported name, including decorator use, stay unchanged.</p>
 <p>Input:</p>
 <pre><code class="language-python">from django.utils.encoding import python_2_unicode_compatible
 
@@ -1270,16 +1276,16 @@ class MyModel:
 class MyModel:
     pass
 </code></pre>
-<h4>CLI transformer-version mappings</h4>
-<p>Update the existing version mappings in <code>django_codemod.cli</code> so these transformers participate in version-based selection.</p>
-<p>For Django version <code>(2, 0)</code>, the deprecated-in transformer bucket must contain, in this order:</p>
+<h4>Transformer-version mappings in the CLI</h4>
+<p>Update the existing version mappings in <code>django_codemod.cli</code> so these transformers take part in version-based selection.</p>
+<p>The deprecated-in transformer bucket for Django version <code>(2, 0)</code> must contain, in this order:</p>
 <ol>
 <li><code>AbsPathTransformer</code></li>
 <li><code>LRUCacheTransformer</code></li>
 <li><code>RenderToResponseTransformer</code></li>
 <li><code>UnicodeCompatibleTransformer</code></li>
 </ol>
-<p>For Django version <code>(3, 0)</code>, the removed-in transformer bucket must contain, in this order:</p>
+<p>The removed-in transformer bucket for Django version <code>(3, 0)</code> must contain, in this order:</p>
 <ol>
 <li><code>AbsPathTransformer</code></li>
 <li><code>InlineHasAddPermissionsTransformer</code></li>
@@ -1287,48 +1293,49 @@ class MyModel:
 <li><code>RenderToResponseTransformer</code></li>
 <li><code>UnicodeCompatibleTransformer</code></li>
 </ol>
-<p>All other existing version mappings remain unchanged.</p>
+<p>All other existing version mappings remain as they are.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Add a new public helper function module_matcher to the module django_codemod.visitors.base.</span>
-        <span class="spec-meta muted">290 words · source specification
+        <span class="spec-title">Introduce a new public helper function module_matcher into the module django_codemod.visitors.base.</span>
+        <span class="spec-meta muted">317 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Add a new public helper function <code>module_matcher</code> to the module <code>django_codemod.visitors.base</code>.</p>
-<h5>Function to Implement</h5>
-<p><strong>Location:</strong> <code>django_codemod/visitors/base.py</code></p>
-<p><strong>Signature:</strong></p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<h5>Goal</h5>
+<p>Introduce a new public helper function <code>module_matcher</code> into the module <code>django_codemod.visitors.base</code>.</p>
+<h5>Function to Write</h5>
+<p><strong>File:</strong> <code>django_codemod/visitors/base.py</code></p>
+<p><strong>Function signature:</strong></p>
 <pre><code class="language-python">def module_matcher(parts)
 </code></pre>
-<h5>Behavior</h5>
-<p><code>module_matcher</code> accepts a single argument <code>parts</code>: a list of strings representing the dotted components of a module path (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;, &quot;admin&quot;]</code>).</p>
-<p>It must build and return a <code>libcst.matchers</code> node structure that describes the given module path as a nested attribute-access expression, using the following types from <code>libcst.matchers</code>:</p>
+<h5>Behavior of the Function</h5>
+<p>The <code>module_matcher</code> function accepts a single argument, <code>parts</code>: a list of strings which represent the dotted components of a module path (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;, &quot;admin&quot;]</code>).</p>
+<p>It must build and return a <code>libcst.matchers</code> node structure that describes the supplied module path as a nested attribute-access expression, making use of the following types from <code>libcst.matchers</code>:</p>
 <ul>
 <li><code>Attribute</code></li>
 <li><code>Name</code></li>
 </ul>
-<p>The returned matcher is constructed as follows:</p>
+<p>The returned matcher is assembled as follows:</p>
 <ul>
 <li>
-<p><strong>Single element</strong> (e.g. <code>[&quot;django&quot;]</code>): return an <code>Attribute</code> whose <code>attr</code> is a <code>Name</code> for that element.</p>
+<p><strong>A single element</strong> (e.g. <code>[&quot;django&quot;]</code>): return an <code>Attribute</code> in which the <code>attr</code> is a <code>Name</code> for that element.</p>
 <ul>
-<li>Result equivalent to: <code>Attribute(attr=Name(&quot;django&quot;))</code></li>
+<li>The result is equivalent to: <code>Attribute(attr=Name(&quot;django&quot;))</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Two elements</strong> (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;]</code>): return an <code>Attribute</code> whose <code>value</code> is a <code>Name</code> for the first element and whose <code>attr</code> is a <code>Name</code> for the second element.</p>
+<p><strong>Two elements</strong> (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;]</code>): return an <code>Attribute</code> in which the <code>value</code> is a <code>Name</code> for the first element and the <code>attr</code> is a <code>Name</code> for the second element.</p>
 <ul>
-<li>Result equivalent to: <code>Attribute(value=Name(&quot;django&quot;), attr=Name(&quot;contrib&quot;))</code></li>
+<li>The result is equivalent to: <code>Attribute(value=Name(&quot;django&quot;), attr=Name(&quot;contrib&quot;))</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Three or more elements</strong> (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;, &quot;admin&quot;]</code>): the <code>value</code> of the outermost <code>Attribute</code> is itself the matcher built from all preceding parts, and the <code>attr</code> is a <code>Name</code> for the last element.</p>
+<p><strong>Three or more elements</strong> (e.g. <code>[&quot;django&quot;, &quot;contrib&quot;, &quot;admin&quot;]</code>): the outermost <code>Attribute</code> has as its <code>value</code> the matcher built from all preceding parts, and as its <code>attr</code> a <code>Name</code> for the last element.</p>
 <ul>
-<li>Result equivalent to:<pre><code class="language-python">Attribute(
+<li>The result is equivalent to:<pre><code class="language-python">Attribute(
     value=Attribute(value=Name(&quot;django&quot;), attr=Name(&quot;contrib&quot;)),
     attr=Name(&quot;admin&quot;),
 )
@@ -1337,106 +1344,106 @@ class MyModel:
 </ul>
 </li>
 </ul>
-<p>In other words, the matcher is built recursively: each additional part beyond the first wraps the previous matcher as the <code>value</code> of a new <code>Attribute</code>, with the new part as the <code>attr</code>. The very first part becomes a <code>Name</code> (used as a <code>value</code> when there are further parts, or as the <code>attr</code> when it is the only part).</p>
+<p>To put it differently, the matcher is constructed recursively: each additional part beyond the first wraps the previous matcher as the <code>value</code> of a new <code>Attribute</code>, with the new part acting as the <code>attr</code>. The very first part turns into a <code>Name</code> (serving as a <code>value</code> when there are further parts, or as the <code>attr</code> when it is the only part).</p>
 <h5>Notes</h5>
 <ul>
-<li>The function must return the matcher object itself (not evaluate it against any code).</li>
-<li>Equality of the returned matcher must match the described structures when compared by their <code>repr</code>.</li>
-<li>The existing public name <code>BaseSimpleFuncRenameTransformer</code> must remain importable from <code>django_codemod.visitors.base</code>.</li>
+<li>This function must return the matcher object itself (not evaluate it against any code).</li>
+<li>When compared via their <code>repr</code>, the equality of the returned matcher must match the described structures.</li>
+<li>The existing public name <code>BaseSimpleFuncRenameTransformer</code> must continue to be importable from <code>django_codemod.visitors.base</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">You will work on a Python codebase (django_codemod) that provides a command-line codemod tool for updating Django code.</span>
-        <span class="spec-meta muted">592 words · source specification
+        <span class="spec-title">You will be working on a Python codebase (django_codemod) that offers a command-line codemod tool for updating Django code.</span>
+        <span class="spec-meta muted">628 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You will work on a Python codebase (<code>django_codemod</code>) that provides a command-line codemod tool for updating Django code. This task has two independent parts:</p>
+<p>You will be working on a Python codebase (<code>django_codemod</code>) that offers a command-line codemod tool for updating Django code. The task comes in two independent parts:</p>
 <ol>
-<li>Extend a libCST-based transformer that fixes calls to a base class method inside admin inline classes.</li>
-<li>Refactor the CLI so that command execution is exposed through importable helper functions.</li>
+<li>Extend a transformer based on libCST that fixes calls to a base class method inside admin inline classes.</li>
+<li>Refactor the CLI so that command execution is exposed via importable helper functions.</li>
 </ol>
 <hr />
-<h4>Part 1: Admin Inline <code>has_add_permission</code> Transformer</h4>
-<h5>Existing behavior context</h5>
-<p>There is a libCST transformer that operates on classes derived from Django admin inline base classes (<code>admin.TabularInline</code> and <code>admin.StackedInline</code>, imported from <code>django.contrib</code>). Within such inline classes, it updates the method:</p>
+<h4>Part 1: <code>has_add_permission</code> Transformer for Admin Inline Classes</h4>
+<h5>Context on the existing behavior</h5>
+<p>The codebase already contains a libCST transformer that works on classes derived from Django admin inline base classes (<code>admin.TabularInline</code> and <code>admin.StackedInline</code>, imported from <code>django.contrib</code>). Inside those inline classes, it modifies the method:</p>
 <pre><code class="language-python">def has_add_permission(self, request):
 </code></pre>
-<p>by adding a second parameter so the signature becomes:</p>
+<p>by adding a second parameter so that the signature becomes:</p>
 <pre><code class="language-python">def has_add_permission(self, request, obj = None):
 </code></pre>
-<p>This applies whether the inline base class is the sole base, one of several bases, or combined with mixins/other bases. It must <strong>not</strong> apply to classes that do not derive from a recognized admin inline base class (e.g. <code>admin.ModelAdmin</code> or an unrelated class).</p>
-<p>The transformer must also correctly manage its per-class state so that entering and leaving one class does not affect the handling of a subsequent, unrelated class in the same module.</p>
-<h5>New required behavior</h5>
-<p>In addition to rewriting the method signature, the transformer must rewrite any <code>super().has_add_permission(request)</code> call inside the body of the targeted <code>has_add_permission</code> method so that it forwards the new parameter:</p>
+<p>The change applies whether the inline base class is the only base, one of multiple bases, or used in combination with mixins/other bases. It must <strong>not</strong> be applied to classes that do not derive from a recognized admin inline base class (e.g. <code>admin.ModelAdmin</code> or an unrelated class).</p>
+<p>The transformer must also manage its per-class state correctly, so that entering and leaving one class does not affect how a subsequent, unrelated class in the same module is handled.</p>
+<h5>Required new behavior</h5>
+<p>Besides rewriting the method signature, the transformer must rewrite any <code>super().has_add_permission(request)</code> call within the body of the targeted <code>has_add_permission</code> method so that it forwards the new parameter:</p>
 <ul>
 <li><code>super().has_add_permission(request)</code> → <code>super().has_add_permission(request, obj = obj)</code></li>
 </ul>
-<p>This rewrite applies only within inline classes that qualify for the signature change (the same set of classes described above). The rewrite must occur regardless of surrounding statements in the method body (for example, when the <code>super()</code> call appears after conditional logic and other return statements).</p>
-<p>For classes that do <strong>not</strong> qualify (non-inline base classes), neither the signature nor any <code>super().has_add_permission(...)</code> call inside the method body may be modified — the code must be left byte-for-byte unchanged.</p>
-<p>The state-clearing requirement above must hold for both recognized inline base classes.</p>
+<p>Only inline classes that qualify for the signature change (the same set of classes described above) are subject to this rewrite. The rewrite must happen regardless of the statements around it in the method body (for example, when the <code>super()</code> call appears after conditional logic and other return statements).</p>
+<p>When a class does <strong>not</strong> qualify (non-inline base classes), neither the signature nor any <code>super().has_add_permission(...)</code> call inside the method body may be modified — the code must be left byte-for-byte unchanged.</p>
+<p>For both recognized inline base classes, the state-clearing requirement above must hold.</p>
 <hr />
-<h4>Part 2: CLI Command Execution Helpers</h4>
-<p>Module: <code>django_codemod.cli</code></p>
-<p>Expose two importable, callable functions at module level:</p>
+<h4>Part 2: Helpers for CLI Command Execution</h4>
+<p>The module to work in is <code>django_codemod.cli</code>.</p>
+<p>Two importable, callable functions must be exposed at module level:</p>
 <h5><code>build_command(codemodders_list)</code></h5>
 <ul>
-<li>Accepts a list of codemod/transformer specifications (may be empty).</li>
-<li>Returns a command instance object suitable for passing to <code>call_command</code>.</li>
-<li>Must be callable with an empty list and return a usable instance.</li>
+<li>Accepts a list of codemod/transformer specifications (which may be empty).</li>
+<li>Returns a command instance object that can be passed to <code>call_command</code>.</li>
+<li>Must be callable with an empty list and return an instance that is usable.</li>
 </ul>
 <h5><code>call_command(command_instance, path)</code></h5>
-<p>Executes the given command over the files found at <code>path</code>.</p>
+<p>Runs the given command over the files found at <code>path</code>.</p>
 <p>Behavior:</p>
 <ol>
-<li>It gathers the files to process from <code>path</code>. File gathering is performed by a module-level callable named <code>gather_files</code> (accessible as <code>django_codemod.cli.gather_files</code>) that returns a list of file paths.</li>
-<li>It runs the transformation by invoking a module-level callable named <code>parallel_exec_transform_with_prettyprint</code> (accessible as <code>django_codemod.cli.parallel_exec_transform_with_prettyprint</code>). This callable returns a result object exposing integer attributes <code>successes</code>, <code>failures</code>, <code>warnings</code>, and <code>skips</code>.</li>
-<li>Outcome handling based on the returned result:
+<li>The files to process are gathered from <code>path</code>. The gathering is done by a module-level callable named <code>gather_files</code> (accessible as <code>django_codemod.cli.gather_files</code>) that returns a list of file paths.</li>
+<li>The transformation is run by invoking a module-level callable named <code>parallel_exec_transform_with_prettyprint</code> (accessible as <code>django_codemod.cli.parallel_exec_transform_with_prettyprint</code>). This callable returns a result object that exposes the integer attributes <code>successes</code>, <code>failures</code>, <code>warnings</code>, and <code>skips</code>.</li>
+<li>How the outcome is handled depends on the returned result:
 <ul>
-<li>If <code>failures</code> is <code>0</code>, the function completes normally and returns <code>None</code>.</li>
+<li>If <code>failures</code> is <code>0</code>, the function finishes normally and returns <code>None</code>.</li>
 <li>If <code>failures</code> is greater than <code>0</code>, the function must terminate the command via a Click exit (raising <code>click.exceptions.Exit</code>).</li>
 </ul>
 </li>
-<li>If invoking <code>parallel_exec_transform_with_prettyprint</code> raises <code>KeyboardInterrupt</code>, <code>call_command</code> must convert it into a Click abort (raising <code>click.Abort</code>).</li>
+<li>If invoking <code>parallel_exec_transform_with_prettyprint</code> raises <code>KeyboardInterrupt</code>, <code>call_command</code> must turn it into a Click abort (raising <code>click.Abort</code>).</li>
 </ol>
-<h5>Import surface</h5>
-<p>The module must continue to expose the existing names <code>DEPRECATED_IN</code> and <code>REMOVED_IN</code>, and must additionally expose <code>build_command</code>, <code>call_command</code>, <code>gather_files</code>, and <code>parallel_exec_transform_with_prettyprint</code> as module-level attributes that can be imported and patched.</p>
-<p>The existing top-level Click command (<code>djcodemod</code>) must continue to work as before, using <code>call_command</code> internally to perform its execution step.</p>
+<h5>Names exposed for import</h5>
+<p>The module must still expose the existing names <code>DEPRECATED_IN</code> and <code>REMOVED_IN</code>, and must additionally expose <code>build_command</code>, <code>call_command</code>, <code>gather_files</code>, and <code>parallel_exec_transform_with_prettyprint</code> as module-level attributes that can be imported and patched.</p>
+<p>The existing top-level Click command (<code>djcodemod</code>) must keep working as before, with <code>call_command</code> used internally to perform its execution step.</p>
 <hr />
 <h4>Constraints</h4>
 <ul>
-<li>Do not alter public behavior beyond what is described above.</li>
-<li>Both <code>gather_files</code> and <code>parallel_exec_transform_with_prettyprint</code> must be referenced through module-level names so they can be substituted at runtime.</li>
+<li>Public behavior must not be altered beyond what is described above.</li>
+<li>Both <code>gather_files</code> and <code>parallel_exec_transform_with_prettyprint</code> must be referenced via module-level names so that they can be replaced at runtime.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add a ContextDecoratorTransformer to django_codemod that migrates Django&#39;s deprecated re-export of ContextDecorator to the equivalent Python…</span>
-        <span class="spec-meta muted">548 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Introduce a ContextDecoratorTransformer into django_codemod that translates Django&#39;s deprecated re-export of ContextDecorator to the equivalent Python…</span>
+        <span class="spec-meta muted">588 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add a <code>ContextDecoratorTransformer</code> to <code>django_codemod</code> that migrates Django's deprecated re-export of <code>ContextDecorator</code> to the equivalent Python standard-library import. Register the transformer for the Django versions in which that re-export was deprecated and removed, without changing existing transformer behavior or registrations.</p>
-<h4>Public transformer API</h4>
-<p>Create the module <code>django_codemod.visitors.decorators</code> with a concrete transformer class named <code>ContextDecoratorTransformer</code>.</p>
-<p>The following import must work:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Introduce a <code>ContextDecoratorTransformer</code> into <code>django_codemod</code> that translates Django's deprecated re-export of <code>ContextDecorator</code> to the equivalent Python standard-library import. Register the transformer for the Django versions in which that re-export was deprecated and removed, leaving existing transformer behavior and registrations unchanged.</p>
+<h4>Transformer public API</h4>
+<p>Add the module <code>django_codemod.visitors.decorators</code>, containing a concrete transformer class called <code>ContextDecoratorTransformer</code>.</p>
+<p>The import shown below must work:</p>
 <pre><code class="language-python">from django_codemod.visitors.decorators import ContextDecoratorTransformer
 </code></pre>
-<p>The class must follow the same public construction and execution interface as the other transformers in <code>django_codemod.visitors</code>: it must be usable as a libCST context-aware transformer, be instantiable with a codemod context, and be runnable in the existing visitor/command pipeline.</p>
-<p>The transformer is associated with these Django milestones under the package's established metadata interface:</p>
+<p>Like the other transformers in <code>django_codemod.visitors</code>, the class must provide the same public construction and execution interface: it must be usable as a libCST context-aware transformer, be instantiable with a codemod context, and be runnable in the existing visitor/command pipeline.</p>
+<p>Under the package's established metadata interface, the transformer is associated with these Django milestones:</p>
 <ul>
 <li><code>deprecated_in</code>: <code>(2, 0)</code></li>
 <li><code>removed_in</code>: <code>(3, 0)</code></li>
 </ul>
-<p>It must also be exposed to the package's normal visitor discovery mechanism so that it participates in version-selected codemod commands.</p>
-<h4>Transformation behavior</h4>
-<p>The transformer relocates the explicitly imported symbol <code>ContextDecorator</code> from <code>django.utils.decorators</code> to <code>contextlib</code>.</p>
-<p>Given:</p>
+<p>The transformer must also be exposed to the package's normal visitor discovery mechanism so that it takes part in version-selected codemod commands.</p>
+<h4>Behavior of the transformation</h4>
+<p>The transformer moves the explicitly imported symbol <code>ContextDecorator</code> from <code>django.utils.decorators</code> over to <code>contextlib</code>.</p>
+<p>Starting from this input:</p>
 <pre><code class="language-python">from django.utils.decorators import ContextDecorator
 
 class MyContext(ContextDecorator):
@@ -1448,7 +1455,7 @@ class MyContext(ContextDecorator):
         print(&quot;Finishing&quot;)
         return False
 </code></pre>
-<p>it must produce:</p>
+<p>the transformer must produce:</p>
 <pre><code class="language-python">from contextlib import ContextDecorator
 
 class MyContext(ContextDecorator):
@@ -1460,23 +1467,23 @@ class MyContext(ContextDecorator):
         print(&quot;Finishing&quot;)
         return False
 </code></pre>
-<p>The relocation has the following public semantics:</p>
+<p>The public semantics of the relocation are as follows:</p>
 <ul>
-<li>Match explicit <code>from django.utils.decorators import ContextDecorator</code> imports and import that same symbol from <code>contextlib</code> instead.</li>
-<li>Preserve the symbol name <code>ContextDecorator</code>; references to it, including base-class expressions and calls, must not be renamed.</li>
-<li>Preserve an import alias when present. For example, <code>from django.utils.decorators import ContextDecorator as CD</code> becomes <code>from contextlib import ContextDecorator as CD</code>, and uses of <code>CD</code> remain unchanged.</li>
-<li>If the source import also imports other names, move only <code>ContextDecorator</code>. The other names must remain imported from <code>django.utils.decorators</code>, with any import splitting or merging handled consistently with the project's existing single-symbol relocation transformers.</li>
-<li>Leave class definitions, decorators, method bodies, arguments, expressions, and all other unrelated statements semantically and textually unchanged apart from import organization required for the relocation.</li>
-<li>Code that does not explicitly import <code>ContextDecorator</code> from <code>django.utils.decorators</code> must not be modified by this transformer. In particular, similarly named local definitions and unrelated imports from either module are outside its scope.</li>
+<li>Recognize explicit <code>from django.utils.decorators import ContextDecorator</code> imports and import that same symbol from <code>contextlib</code> instead.</li>
+<li>Keep the symbol name <code>ContextDecorator</code>; references to it—base-class expressions and calls included—must not be renamed.</li>
+<li>When an import alias is present, preserve it. For example, <code>from django.utils.decorators import ContextDecorator as CD</code> becomes <code>from contextlib import ContextDecorator as CD</code>, and uses of <code>CD</code> are left unchanged.</li>
+<li>If the source import brings in other names as well, move only <code>ContextDecorator</code>. The other names must continue to be imported from <code>django.utils.decorators</code>, and any import splitting or merging is handled consistently with the project's existing single-symbol relocation transformers.</li>
+<li>Class definitions, decorators, method bodies, arguments, expressions, and all other unrelated statements must be left semantically and textually unchanged, except for the import organization required for the relocation.</li>
+<li>This transformer must not modify code that does not explicitly import <code>ContextDecorator</code> from <code>django.utils.decorators</code>. In particular, similarly named local definitions and unrelated imports from either module fall outside its scope.</li>
 </ul>
-<h4>Deprecation and removal registration</h4>
-<p>Register the actual <code>ContextDecoratorTransformer</code> class object in both public version mappings:</p>
+<h4>Registering the deprecation and removal</h4>
+<p>The actual <code>ContextDecoratorTransformer</code> class object must be registered in both public version mappings:</p>
 <ul>
 <li><code>django_codemod.cli.DEPRECATED_IN[(2, 0)]</code></li>
 <li><code>django_codemod.cli.REMOVED_IN[(3, 0)]</code></li>
 </ul>
-<p>Mapping values are ordered lists of executable transformer class objects. <code>ContextDecoratorTransformer</code> must therefore be stored as the class itself—not as the string <code>&quot;ContextDecoratorTransformer&quot;</code> and not as an instance—so callers can inspect <code>klass.__name__</code> and instantiate the mapped transformer.</p>
-<p>Ordering is alphabetical by transformer class name. Projecting each affected list through <code>klass.__name__</code> must yield:</p>
+<p>The values of these mappings are ordered lists of executable transformer class objects. As a result, <code>ContextDecoratorTransformer</code> must be stored as the class itself—not as the string <code>&quot;ContextDecoratorTransformer&quot;</code> and not as an instance—so callers can inspect <code>klass.__name__</code> and instantiate the mapped transformer.</p>
+<p>The ordering is alphabetical according to the transformer class name. Each affected list, projected through <code>klass.__name__</code>, must yield:</p>
 <pre><code class="language-python">[klass.__name__ for klass in DEPRECATED_IN[(2, 0)]] == [
     &quot;AbsPathTransformer&quot;,
     &quot;ContextDecoratorTransformer&quot;,
@@ -1495,36 +1502,36 @@ class MyContext(ContextDecorator):
     &quot;UnicodeCompatibleTransformer&quot;,
 ]
 </code></pre>
-<p>Consequently, selecting deprecations for Django 2.0 or removals for Django 3.0 through the existing command interface must include this transformer. All pre-existing entries, version groups, command behavior, and transformer APIs must remain intact.</p>
-<h4>Non-goals</h4>
+<p>Consequently, when deprecations for Django 2.0 or removals for Django 3.0 are selected through the existing command interface, the selection must include this transformer. All pre-existing entries, version groups, command behavior, and transformer APIs must remain intact.</p>
+<h4>Out of scope</h4>
 <ul>
-<li>Do not rename <code>ContextDecorator</code> or rewrite its subclasses or method implementations.</li>
-<li>Do not relocate other objects from <code>django.utils.decorators</code>.</li>
-<li>Do not alter the behavior or version metadata of existing transformers.</li>
+<li>Do not rename <code>ContextDecorator</code>, and do not rewrite its subclasses or method implementations.</li>
+<li>Other objects from <code>django.utils.decorators</code> must not be relocated.</li>
+<li>The behavior or version metadata of existing transformers must not be altered.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add a codemod transformer for the removed django.utils.decorators.available_attrs utility.</span>
-        <span class="spec-meta muted">323 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Create a codemod transformer for the removed django.utils.decorators.available_attrs utility.</span>
+        <span class="spec-meta muted">348 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add a codemod transformer for the removed <code>django.utils.decorators.available_attrs</code> utility. Django's helper represented the standard-library <code>functools.WRAPPER_ASSIGNMENTS</code>; code using the helper must be rewritten to use that constant directly.</p>
-<h4>Public transformer API</h4>
-<p>Create a class named <code>AvailableAttrsTransformer</code> in <code>django_codemod.visitors.decorators</code>. It must be importable as:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Create a codemod transformer for the removed <code>django.utils.decorators.available_attrs</code> utility. Django's helper stood for the standard-library <code>functools.WRAPPER_ASSIGNMENTS</code>; code that uses the helper must be rewritten to use that constant directly.</p>
+<h4>Transformer public API</h4>
+<p>Define a class called <code>AvailableAttrsTransformer</code> inside <code>django_codemod.visitors.decorators</code>. It must be importable in the following way:</p>
 <pre><code class="language-python">from django_codemod.visitors.decorators import AvailableAttrsTransformer
 </code></pre>
-<p>The class must follow the same constructor and application interface as the other transformer classes in that module, such as <code>ContextDecoratorTransformer</code>, so callers can instantiate and run it through the existing codemod framework in the same way.</p>
-<h4>Transformation behavior</h4>
-<p>For source code that directly imports <code>available_attrs</code> from <code>django.utils.decorators</code> and calls it with a single argument, the transformer must:</p>
+<p>The class must have the same constructor and application interface as the other transformer classes in that module, such as <code>ContextDecoratorTransformer</code>, so callers can instantiate and run it through the existing codemod framework in the same way.</p>
+<h4>Behavior of the transformation</h4>
+<p>Given source code that imports <code>available_attrs</code> directly from <code>django.utils.decorators</code> and calls it with a single argument, the transformer must:</p>
 <ol>
-<li>Replace <code>from django.utils.decorators import available_attrs</code> with <code>from functools import WRAPPER_ASSIGNMENTS</code>.</li>
-<li>Replace every matching call expression <code>available_attrs(&lt;arg&gt;)</code> with the bare name <code>WRAPPER_ASSIGNMENTS</code>.</li>
+<li>Replace the import statement <code>from django.utils.decorators import available_attrs</code> with <code>from functools import WRAPPER_ASSIGNMENTS</code>.</li>
+<li>Replace every call expression that matches <code>available_attrs(&lt;arg&gt;)</code> with the bare name <code>WRAPPER_ASSIGNMENTS</code>.</li>
 </ol>
-<p>The argument may be any single argument expression. The entire invocation—including its parentheses and argument—is removed; the argument is not retained in the transformed source. All matching calls associated with the imported utility must be transformed.</p>
+<p>The argument may take the form of any single argument expression. The whole invocation, parentheses and argument included, is removed; the argument is not kept in the transformed source. All matching calls tied to the imported utility must be transformed.</p>
 <h5>Example</h5>
 <p>Input:</p>
 <pre><code class="language-python">from django.utils.decorators import available_attrs
@@ -1546,65 +1553,65 @@ def my_decorator(func):
 
     return inner
 </code></pre>
-<h4>Django version metadata and registration</h4>
-<p>Register <code>AvailableAttrsTransformer</code> with the project's standard transformer discovery and version metadata so that it is:</p>
+<h4>Registration and Django version metadata</h4>
+<p>The transformer must be registered with the project's standard transformer discovery and version metadata so that it is:</p>
 <ul>
 <li>deprecated in Django <code>(2, 0)</code>; and</li>
 <li>removed in Django <code>(3, 0)</code>.</li>
 </ul>
-<p>The transformer must therefore appear in both corresponding public version-mapping values. Transformer classes in each affected mapping value must remain ordered alphabetically by class name. The resulting affected groups are:</p>
+<p>The transformer must consequently appear in both of the corresponding public version-mapping values. In each affected mapping value, the transformer classes must remain in alphabetical order by class name. The affected groups that result are:</p>
 <ul>
 <li>Deprecated in <code>(2, 0)</code>: <code>AbsPathTransformer</code>, <code>AvailableAttrsTransformer</code>, <code>ContextDecoratorTransformer</code>, <code>LRUCacheTransformer</code>, <code>RenderToResponseTransformer</code>, <code>UnicodeCompatibleTransformer</code>.</li>
 <li>Removed in <code>(3, 0)</code>: <code>AbsPathTransformer</code>, <code>AvailableAttrsTransformer</code>, <code>ContextDecoratorTransformer</code>, <code>InlineHasAddPermissionsTransformer</code>, <code>LRUCacheTransformer</code>, <code>RenderToResponseTransformer</code>, <code>UnicodeCompatibleTransformer</code>.</li>
 </ul>
-<p>In both groups, <code>AvailableAttrsTransformer</code> must appear immediately after <code>AbsPathTransformer</code> and immediately before <code>ContextDecoratorTransformer</code>. Existing transformers, their behavior, and their version assignments must remain unchanged.</p>
+<p>In both groups, <code>AvailableAttrsTransformer</code> must be placed immediately after <code>AbsPathTransformer</code> and immediately before <code>ContextDecoratorTransformer</code>. The existing transformers, their behavior, and their version assignments must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Implement ModelsPermalinkTransformer</span>
-        <span class="spec-meta muted">573 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Implementing ModelsPermalinkTransformer</span>
+        <span class="spec-meta muted">634 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>ModelsPermalinkTransformer</code></h3>
+      <div class="spec-body"><h3>Task Specification: Implementing <code>ModelsPermalinkTransformer</code></h3>
 <h4>Overview</h4>
-<p>Add a codemod transformer for the deprecation and removal of Django's <code>@models.permalink</code> decorator. It must remove that decorator, replace the tuple returned by the decorated method with a direct <code>reverse(...)</code> call, ensure <code>reverse</code> is imported, and participate in the project's version-based transformer mappings.</p>
+<p>A codemod transformer is to be added that addresses the deprecation and removal of Django's <code>@models.permalink</code> decorator. The transformer must remove that decorator, must replace the tuple that the decorated method returns with a direct <code>reverse(...)</code> call, must ensure <code>reverse</code> is imported, and must participate in the project's version-based transformer mappings.</p>
 <h4>Public API</h4>
-<p>Create the module:</p>
+<p>The following module must be created:</p>
 <pre><code class="language-text">django_codemod/visitors/models.py
 </code></pre>
-<p>It must define a concrete class named <code>ModelsPermalinkTransformer</code>. The class must be available through both of these imports, with both names referring to the same class object:</p>
+<p>A concrete class named <code>ModelsPermalinkTransformer</code> must be defined in it. The class must be available via both of the following imports, with both names denoting the same class object:</p>
 <pre><code class="language-python">from django_codemod.visitors.models import ModelsPermalinkTransformer
 from django_codemod.visitors import ModelsPermalinkTransformer
 </code></pre>
-<p><code>ModelsPermalinkTransformer</code> must follow the same construction and invocation conventions as the other codemod transformers in <code>django_codemod.visitors</code>: it must be a concrete, context-aware libCST transformer that can be instantiated and run wherever the existing transformer classes are accepted.</p>
-<h4>Required Transformation Behavior</h4>
-<p>The transformer targets methods decorated with <code>@models.permalink</code>, where <code>models</code> refers to <code>django.db.models</code>. For each matching method, it must perform all of the following changes.</p>
-<h5>1. Remove the deprecated decorator</h5>
-<p>Remove <code>@models.permalink</code> from the method definition. The method itself and any decorators other than <code>@models.permalink</code> remain in place.</p>
-<h5>2. Rewrite the returned tuple as a <code>reverse</code> call</h5>
-<p>The decorated method returns a tuple whose elements represent positional arguments for URL resolution. Replace that tuple-valued return expression with a direct call to <code>reverse(...)</code>:</p>
+<p><code>ModelsPermalinkTransformer</code> must conform to the same construction and invocation conventions as the other codemod transformers in <code>django_codemod.visitors</code>: the class must be a concrete, context-aware libCST transformer that can be instantiated and run wherever the existing transformer classes are accepted.</p>
+<h4>Required Behavior of the Transformation</h4>
+<p>The transformer targets methods that carry the <code>@models.permalink</code> decorator, where <code>models</code> refers to <code>django.db.models</code>. For every matching method, the transformer must carry out all of the changes listed below.</p>
+<h5>1. Removing the deprecated decorator</h5>
+<p><code>@models.permalink</code> must be removed from the method definition. The method itself, along with any decorators other than <code>@models.permalink</code>, remains in place.</p>
+<h5>2. Rewriting the returned tuple as a <code>reverse</code> call</h5>
+<p>The decorated method returns a tuple whose elements serve as positional arguments for URL resolution. That tuple-valued return expression must be replaced with a direct call to <code>reverse(...)</code>:</p>
 <ul>
-<li>The tuple's first element, the view name, becomes the first argument to <code>reverse</code>.</li>
-<li>Insert the literal <code>None</code> as the second argument to <code>reverse</code>.</li>
-<li>Append every remaining tuple element as a subsequent argument, preserving each expression and its original order.</li>
+<li>The first element of the tuple, the view name, becomes the first argument to <code>reverse</code>.</li>
+<li>The literal <code>None</code> is inserted as the second argument to <code>reverse</code>.</li>
+<li>Every remaining tuple element is appended as a subsequent argument, with each expression and its original order preserved.</li>
 </ul>
-<p>In other words:</p>
+<p>Put differently:</p>
 <pre><code class="language-python">return (view_name, *remaining_elements)
 </code></pre>
-<p>becomes the equivalent of:</p>
+<p>turns into the equivalent of:</p>
 <pre><code class="language-python">return reverse(view_name, None, *remaining_elements)
 </code></pre>
-<p>The transformation expands the tuple's elements into call arguments; it does not pass the original tuple as one argument.</p>
-<h5>3. Ensure <code>reverse</code> is imported</h5>
-<p>A module in which a matching method is rewritten must import <code>reverse</code> as:</p>
+<p>The transformation expands the tuple's elements into call arguments; the original tuple is not passed as a single argument.</p>
+<h5>3. Ensuring <code>reverse</code> is imported</h5>
+<p>A module in which a matching method is rewritten must import <code>reverse</code> in the following way:</p>
 <pre><code class="language-python">from django.urls import reverse
 </code></pre>
-<p>The existing <code>django.db.models</code> import must remain. For the input forms shown below, the new import appears immediately after the existing import and before the class definition.</p>
+<p>The already-present <code>django.db.models</code> import must remain. In the input forms shown below, the new import shows up immediately after the existing import and before the class definition.</p>
 <h4>Examples</h4>
-<h5>Positional-arguments tuple</h5>
-<p>Input:</p>
+<h5>Tuple of positional arguments</h5>
+<p>Input code:</p>
 <pre><code class="language-python">from django.db import models
 
 class MyModel(models.Model):
@@ -1613,7 +1620,7 @@ class MyModel(models.Model):
     def url(self):
         return ('guitarist_detail', [self.slug])
 </code></pre>
-<p>Output:</p>
+<p>Output code:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 
@@ -1622,8 +1629,8 @@ class MyModel(models.Model):
     def url(self):
         return reverse('guitarist_detail', None, [self.slug])
 </code></pre>
-<h5>Tuple containing both argument and keyword dictionaries</h5>
-<p>Input:</p>
+<h5>Tuple holding both an argument dictionary and a keyword dictionary</h5>
+<p>Input code:</p>
 <pre><code class="language-python">from django.db import models
 
 class MyModel(models.Model):
@@ -1632,7 +1639,7 @@ class MyModel(models.Model):
     def url(self):
         return ('guitarist_detail', [], {'slug': self.slug})
 </code></pre>
-<p>Output:</p>
+<p>Output code:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 
@@ -1641,85 +1648,86 @@ class MyModel(models.Model):
     def url(self):
         return reverse('guitarist_detail', None, [], {'slug': self.slug})
 </code></pre>
-<p>In both examples, the original import is preserved, the <code>reverse</code> import is added, the decorator is removed, and the tuple elements appear in the generated call in the required order with <code>None</code> inserted second.</p>
-<h4>Version Metadata and Mapping Registration</h4>
-<p><code>ModelsPermalinkTransformer</code> must expose version metadata equivalent to:</p>
+<p>Both examples keep the original import, add the <code>reverse</code> import, remove the decorator, and place the tuple elements in the generated call in the required order, with <code>None</code> inserted second.</p>
+<h4>Version Metadata and Registration in the Mappings</h4>
+<p>Version metadata equivalent to the following must be exposed by <code>ModelsPermalinkTransformer</code>:</p>
 <pre><code class="language-python">ModelsPermalinkTransformer.deprecated_in == (1, 11)
 ModelsPermalinkTransformer.removed_in == (2, 1)
 </code></pre>
-<p>The project-level deprecation and removal mappings associate <code>(major, minor)</code> Django version tuples with lists of transformer <strong>class objects</strong>. Register <code>ModelsPermalinkTransformer</code> so that:</p>
+<p>The deprecation and removal mappings at the project level map <code>(major, minor)</code> Django version tuples to lists of transformer <strong>class objects</strong>. <code>ModelsPermalinkTransformer</code> must be registered so that:</p>
 <ul>
-<li><code>DEPRECATED_IN[(1, 11)]</code> contains the actual <code>ModelsPermalinkTransformer</code> class object.</li>
-<li><code>REMOVED_IN[(2, 1)]</code> contains the actual <code>ModelsPermalinkTransformer</code> class object.</li>
+<li>The actual <code>ModelsPermalinkTransformer</code> class object is contained in <code>DEPRECATED_IN[(1, 11)]</code>.</li>
+<li>The actual <code>ModelsPermalinkTransformer</code> class object is contained in <code>REMOVED_IN[(2, 1)]</code>.</li>
 </ul>
-<p>The entries must not be the string <code>&quot;ModelsPermalinkTransformer&quot;</code>. Consumers must be able to obtain the name through the entry's <code>__name__</code> attribute and instantiate the entry as a transformer class. Existing registrations for all other transformer classes and versions must remain unchanged.</p>
+<p>The entries are required not to be the string <code>&quot;ModelsPermalinkTransformer&quot;</code>. Consumers must be able to obtain the name via the entry's <code>__name__</code> attribute and to instantiate the entry as a transformer class. Registrations already present for all other transformer classes and versions must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Extend the existing Django model permalink codemod so that it recognizes a directly imported permalink decorator in addition to the already supported…</span>
-        <span class="spec-meta muted">483 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Take the existing Django model permalink codemod and extend it so that, in addition to the already supported @models.permalink form, it also recognizes a…</span>
+        <span class="spec-meta muted">532 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Extend the existing Django model permalink codemod so that it recognizes a directly imported <code>permalink</code> decorator in addition to the already supported <code>@models.permalink</code> form. The transformation replaces Django's deprecated permalink tuple convention with an explicit call to <code>django.urls.reverse</code>.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>Take the existing Django model permalink codemod and extend it so that, in addition to the already supported <code>@models.permalink</code> form, it also recognizes a <code>permalink</code> decorator that is imported directly. In this transformation, Django's deprecated permalink tuple convention gets replaced with an explicit call to <code>django.urls.reverse</code>.</p>
 <h4>Public API and compatibility</h4>
 <ul>
-<li>The transformer responsible for this behavior is <code>ModelsPermalinkTransformer</code>.</li>
-<li>It must remain importable under its existing exact name and module path:<pre><code class="language-python">from django_codemod.visitors.models import ModelsPermalinkTransformer
+<li><code>ModelsPermalinkTransformer</code> is the transformer responsible for this behavior.</li>
+<li>It must remain importable under its exact existing name and module path:<pre><code class="language-python">from django_codemod.visitors.models import ModelsPermalinkTransformer
 </code></pre>
 </li>
-<li>Its existing package exposure and version-based discovery must remain intact. In particular, its deprecation/removal metadata remains Django 1.11 (<code>deprecated_in == (1, 11)</code>) and Django 2.1 (<code>removed_in == (2, 1)</code>).</li>
-<li><code>ModelsPermalinkTransformer</code> remains a LibCST-based codemod transformer that can be applied to a source module to produce the transformations described below.</li>
-<li><code>AvailableAttrsTransformer</code> is a separate transformer for <code>django.utils.decorators.available_attrs</code>; it is not the target of this permalink change and its behavior must remain unaffected.</li>
+<li>Its existing package exposure and version-based discovery must stay intact. In particular, the deprecation/removal metadata is still Django 1.11 (<code>deprecated_in == (1, 11)</code>) and Django 2.1 (<code>removed_in == (2, 1)</code>).</li>
+<li><code>ModelsPermalinkTransformer</code> remains a LibCST-based codemod transformer that can be applied to a source module in order to produce the transformations described below.</li>
+<li><code>AvailableAttrsTransformer</code> is a separate transformer for <code>django.utils.decorators.available_attrs</code>; this permalink change does not target it, and its behavior must remain unaffected.</li>
 </ul>
-<h4>Recognized permalink forms</h4>
-<p>The transformer must continue to recognize the existing attribute-reference decorator form:</p>
+<h4>Permalink forms that are recognized</h4>
+<p>The existing attribute-reference decorator form must continue to be recognized by the transformer:</p>
 <pre><code class="language-python">from django.db import models
 
 @models.permalink
 def url(self):
     return ('guitarist_detail', [self.slug])
 </code></pre>
-<p>It must additionally recognize the directly imported, unaliased form when the module contains:</p>
+<p>Additionally, it must recognize the directly imported, unaliased form when the module contains:</p>
 <pre><code class="language-python">from django.db.models import permalink
 </code></pre>
-<p>and the imported name is used as the decorator:</p>
+<p>and the imported name is applied as the decorator:</p>
 <pre><code class="language-python">@permalink
 def url(self):
     return ('guitarist_detail', [self.slug])
 </code></pre>
 <h4>Required transformation</h4>
-<p>For either recognized decorator form, the transformer must:</p>
+<p>For either decorator form that it recognizes, the transformer must:</p>
 <ol>
-<li>Remove the permalink decorator from the decorated method.</li>
-<li>Ensure the module imports <code>reverse</code> with:<pre><code class="language-python">from django.urls import reverse
+<li>Strip the permalink decorator off the decorated method.</li>
+<li>Ensure the module imports <code>reverse</code> using:<pre><code class="language-python">from django.urls import reverse
 </code></pre>
 </li>
-<li>Rewrite a tuple return from the decorated method as a call to <code>reverse</code>.</li>
+<li>Rewrite a tuple returned from the decorated method as a call to <code>reverse</code>.</li>
 </ol>
-<p>For the directly imported form, it must also remove:</p>
+<p>When the form is the directly imported one, it must also remove:</p>
 <pre><code class="language-python">from django.db.models import permalink
 </code></pre>
-<p>Unrelated imports, including <code>from django.db import models</code>, must be preserved.</p>
-<h5>Return-value conversion</h5>
-<p>The original tuple elements become positional arguments to <code>reverse</code>, with a literal <code>None</code> inserted as the second positional argument.</p>
-<p>A two-element tuple:</p>
+<p>Unrelated imports, <code>from django.db import models</code> included, must be preserved.</p>
+<h5>Conversion of the return value</h5>
+<p>The elements of the original tuple turn into positional arguments to <code>reverse</code>, and a literal <code>None</code> is inserted as the second positional argument.</p>
+<p>A tuple with two elements:</p>
 <pre><code class="language-python">return (viewname, args_list)
 </code></pre>
-<p>becomes:</p>
+<p>turns into:</p>
 <pre><code class="language-python">return reverse(viewname, None, args_list)
 </code></pre>
-<p>The existing three-element tuple behavior must also remain intact:</p>
+<p>The existing behavior for three-element tuples must also stay intact:</p>
 <pre><code class="language-python">return (viewname, args_list, kwargs_dict)
 </code></pre>
-<p>becomes:</p>
+<p>which turns into:</p>
 <pre><code class="language-python">return reverse(viewname, None, args_list, kwargs_dict)
 </code></pre>
-<p>The tuple's original expressions and their order are preserved after the inserted <code>None</code>.</p>
-<h4>Direct-import example</h4>
-<p>Input:</p>
+<p>The original expressions of the tuple, and their order, are preserved after the inserted <code>None</code>.</p>
+<h4>Example with the direct import</h4>
+<p>The input:</p>
 <pre><code class="language-python">from django.db import models
 from django.db.models import permalink
 
@@ -1729,7 +1737,7 @@ class MyModel(models.Model):
     def url(self):
         return ('guitarist_detail', [self.slug])
 </code></pre>
-<p>Output:</p>
+<p>The output:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 
@@ -1738,8 +1746,8 @@ class MyModel(models.Model):
     def url(self):
         return reverse('guitarist_detail', None, [self.slug])
 </code></pre>
-<h4>Existing attribute-reference compatibility</h4>
-<p>The previously supported form must continue to produce the same result. For example:</p>
+<h4>Compatibility for the existing attribute-reference form</h4>
+<p>The previously supported form must continue to produce the same result. To illustrate:</p>
 <pre><code class="language-python">from django.db import models
 
 class MyModel(models.Model):
@@ -1748,7 +1756,7 @@ class MyModel(models.Model):
     def url(self):
         return ('guitarist_detail', [], {'slug': self.slug})
 </code></pre>
-<p>must become:</p>
+<p>must be turned into:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 
@@ -1758,100 +1766,100 @@ class MyModel(models.Model):
         return reverse('guitarist_detail', None, [], {'slug': self.slug})
 </code></pre>
 <h4>Scope</h4>
-<p>Only the permalink behavior described here is in scope. No additional decorator spellings or import forms are required, and unrelated codemod transformers must continue to behave unchanged.</p>
+<p>What is in scope is only the permalink behavior described here. No additional decorator spellings or import forms are required, and codemod transformers that are unrelated must continue to behave unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
         <span class="spec-title">ModelsPermalinkTransformer</span>
-        <span class="spec-meta muted">540 words · rewritten by GPT-5.6-sol
+        <span class="spec-meta muted">583 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>ModelsPermalinkTransformer</code></h3>
+      <div class="spec-body"><h3>Specification: <code>ModelsPermalinkTransformer</code></h3>
 <h4>Public API</h4>
-<p>Provide a class <code>ModelsPermalinkTransformer</code> importable from:</p>
+<p>A class <code>ModelsPermalinkTransformer</code> must be importable from:</p>
 <pre><code class="language-python">from django_codemod.visitors.models import ModelsPermalinkTransformer
 </code></pre>
-<p>It must be a codemod visitor/transformer consistent with the project's other visitors and rewrite Python source code as described below.</p>
+<p>It must be a codemod visitor/transformer that is consistent with the project's other visitors, and it must rewrite Python source code as described below.</p>
 <h4>Purpose</h4>
-<p>The transformer removes usages of Django's deprecated <code>@permalink</code> decorator from model methods and rewrites the decorated method's return value to use <code>django.urls.reverse</code> instead.</p>
+<p>The transformer strips usages of Django's deprecated <code>@permalink</code> decorator out of model methods and rewrites the return value of the decorated method so that it uses <code>django.urls.reverse</code> instead.</p>
 <h4>Required Behavior</h4>
-<h5>Decorator rewrite</h5>
-<p>Recognize both supported forms of the decorator:</p>
+<h5>Rewriting the decorator</h5>
+<p>Both supported forms of the decorator must be recognized:</p>
 <ul>
-<li><code>@models.permalink</code>, when <code>models</code> is imported with <code>from django.db import models</code>.</li>
-<li><code>@permalink</code>, when <code>permalink</code> is imported with <code>from django.db.models import permalink</code>.</li>
+<li><code>@models.permalink</code>, when <code>models</code> is imported via <code>from django.db import models</code>.</li>
+<li><code>@permalink</code>, when <code>permalink</code> is imported via <code>from django.db.models import permalink</code>.</li>
 </ul>
-<p>For a recognized permalink-decorated method that returns a tuple literal:</p>
+<p>Given a recognized permalink-decorated method that returns a tuple literal:</p>
 <ul>
-<li>Remove the matching <code>permalink</code> decorator from the method.</li>
-<li>Replace the returned tuple with a call to <code>reverse(...)</code>.</li>
+<li>Strip the matching <code>permalink</code> decorator from the method.</li>
+<li>Turn the returned tuple into a call to <code>reverse(...)</code>.</li>
 </ul>
-<p>A two-element tuple <code>(viewname, args)</code> must become:</p>
+<p>A two-element tuple <code>(viewname, args)</code> must be converted into:</p>
 <pre><code class="language-python">reverse(viewname, None, args)
 </code></pre>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">return ('guitarist_detail', [self.slug])
 </code></pre>
-<p>must become:</p>
+<p>must be rewritten as:</p>
 <pre><code class="language-python">return reverse('guitarist_detail', None, [self.slug])
 </code></pre>
-<p>A three-element tuple <code>(viewname, args, kwargs)</code> must preserve both trailing elements and become:</p>
+<p>A three-element tuple <code>(viewname, args, kwargs)</code> must retain both trailing elements and become:</p>
 <pre><code class="language-python">reverse(viewname, None, args, kwargs)
 </code></pre>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">return ('guitarist_detail', [], {'slug': self.slug})
 </code></pre>
-<p>must become:</p>
+<p>must be rewritten as:</p>
 <pre><code class="language-python">return reverse('guitarist_detail', None, [], {'slug': self.slug})
 </code></pre>
-<p>The inserted <code>None</code> is always the second positional argument to <code>reverse</code>; the original tuple elements retain their order after it.</p>
-<p>Other methods in the same class that are not decorated with <code>permalink</code> must remain completely unchanged, including their bodies and any function calls they contain.</p>
-<h5>Import handling</h5>
-<p>Whenever a permalink-decorated method is transformed, ensure that this import is present:</p>
+<p>The inserted <code>None</code> always appears as the second positional argument to <code>reverse</code>; the original tuple elements keep their order after it.</p>
+<p>Other methods in the same class that are not decorated with <code>permalink</code> must stay completely unchanged; this includes their bodies and any function calls they contain.</p>
+<h5>Handling imports</h5>
+<p>Whenever a permalink-decorated method undergoes transformation, ensure that this import is present:</p>
 <pre><code class="language-python">from django.urls import reverse
 </code></pre>
-<p>The transformer must handle both supported ways of importing <code>permalink</code>.</p>
-<h6>Attribute usage through <code>models</code></h6>
-<p>For code using:</p>
+<p>Both supported ways of importing <code>permalink</code> must be handled by the transformer.</p>
+<h6>Attribute usage via <code>models</code></h6>
+<p>For code that uses:</p>
 <pre><code class="language-python">from django.db import models
 </code></pre>
-<p>and <code>@models.permalink</code>, preserve the <code>models</code> import and add the <code>reverse</code> import. The resulting imports are:</p>
+<p>together with <code>@models.permalink</code>, keep the <code>models</code> import and add the <code>reverse</code> import. The resulting imports are:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 </code></pre>
-<h6>Direct import of <code>permalink</code></h6>
-<p>When <code>permalink</code> is imported by itself:</p>
+<h6><code>permalink</code> imported directly</h6>
+<p>When <code>permalink</code> is imported on its own:</p>
 <pre><code class="language-python">from django.db.models import permalink
 </code></pre>
-<p>remove that import entirely and add <code>from django.urls import reverse</code>.</p>
-<p>When <code>permalink</code> is imported alongside other names, remove only <code>permalink</code> and leave every other imported name intact. This must work whether <code>permalink</code> appears first or last in the import list. For example, both:</p>
+<p>drop that import entirely and add <code>from django.urls import reverse</code>.</p>
+<p>When <code>permalink</code> is imported together with other names, remove only <code>permalink</code> and keep every other imported name intact. This must hold whether <code>permalink</code> appears first or last in the import list. As an example, both:</p>
 <pre><code class="language-python">from django.db.models import permalink, ObjectDoesNotExist
 </code></pre>
 <p>and:</p>
 <pre><code class="language-python">from django.db.models import ObjectDoesNotExist, permalink
 </code></pre>
-<p>must become:</p>
+<p>must be rewritten as:</p>
 <pre><code class="language-python">from django.db.models import ObjectDoesNotExist
 </code></pre>
-<p>The surviving import must remain syntactically valid, without a comma left behind for the removed name, and the <code>reverse</code> import must be added.</p>
-<h5>Import ordering and output</h5>
-<p>For a direct import containing other names, the surviving imports must appear in this order:</p>
+<p>The import that survives must remain syntactically valid, with no comma left behind for the removed name, and the <code>reverse</code> import must be added.</p>
+<h5>Ordering of imports and output</h5>
+<p>When a direct import contains other names, the surviving imports must appear in this order:</p>
 <pre><code class="language-python">from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.urls import reverse
 </code></pre>
-<p>For module-attribute usage, the resulting imports must appear in this order:</p>
+<p>For module-attribute usage, the imports that result must appear in this order:</p>
 <pre><code class="language-python">from django.db import models
 from django.urls import reverse
 </code></pre>
 <h4>Notes and Edge Cases</h4>
 <ul>
-<li>Only recognized <code>permalink</code> decorator usage triggers method transformation.</li>
-<li>Matching must support both the module-attribute form and the bare-name form associated with their corresponding imports.</li>
-<li>Removing a direct <code>permalink</code> import must not remove unrelated names from the same import statement.</li>
-<li>Both supported permalink tuple forms must retain all original tuple values: two-element tuples preserve <code>viewname</code> and <code>args</code>, while three-element tuples additionally preserve <code>kwargs</code>.</li>
+<li>Method transformation is triggered only by recognized <code>permalink</code> decorator usage.</li>
+<li>Matching must support both the module-attribute form and the bare-name form, each associated with its corresponding import.</li>
+<li>When a direct <code>permalink</code> import is removed, unrelated names from the same import statement must not be removed with it.</li>
+<li>For both supported permalink tuple forms, all original tuple values must be retained: two-element tuples preserve <code>viewname</code> and <code>args</code>, while three-element tuples additionally preserve <code>kwargs</code>.</li>
 </ul>
 </div>
     </details>

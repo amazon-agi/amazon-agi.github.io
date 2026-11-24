@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/bwhmather/ssort/compare/0459835807289878895eb85858b4f85d91013a1a...bcb6d34398bc3b311e5cfde63babb9db8c85a89a" target="_blank" rel="noopener" class="mono">0459835807 … bcb6d34398</a> · 85 commits by 1 author over 4 mo (2021-04-09 to 2021-08-08)</dd></div>
       <div><dt>Window:</dt><dd>requests 21–40 of a run of 51 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>7,749 lines of code in 31 files when the chain starts · over the 20 requests the developers added 15,114 and removed 2,497 lines of code, plus 1,270 lines of tests (164 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.5k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 12 and symbols introduced by earlier ones to depth 6</dd></div>
+      <div><dt>Specifications:</dt><dd>10.4k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 12 and symbols introduced by earlier ones to depth 6</dd></div>
     </dl>
   </header>
 </section>
@@ -144,76 +144,76 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">The codebase currently has a module that analyzes Python AST nodes to determine which names a node requires from its surrounding scope (i.e., names that…</span>
-        <span class="spec-meta muted">1101 words · source specification
+        <span class="spec-title">At the moment, the codebase contains a module that examines Python AST nodes to work out which names a node requires from its surrounding scope (i.e., names…</span>
+        <span class="spec-meta muted">1194 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Rename the &quot;dependencies&quot; concept to &quot;requirements&quot;</h3>
+      <div class="spec-body"><h3>Task: Rename the concept &quot;dependencies&quot; to &quot;requirements&quot;</h3>
 <h4>Overview</h4>
-<p>The codebase currently has a module that analyzes Python AST nodes to determine which names a node <em>requires</em> from its surrounding scope (i.e., names that must be defined elsewhere for the node to work). This concept is currently called &quot;dependencies&quot; and must be renamed to &quot;requirements&quot;. The public API surface must be updated accordingly.</p>
-<h4>Required Public API</h4>
-<p>Create a module at <code>ssort/_requirements</code> that exposes a function:</p>
+<p>At the moment, the codebase contains a module that examines Python AST nodes to work out which names a node <em>requires</em> from its surrounding scope (i.e., names that must be defined elsewhere for the node to work). This concept presently goes by the name &quot;dependencies&quot; and must be renamed to &quot;requirements&quot;. The public API surface must be updated to match.</p>
+<h4>The Required Public API</h4>
+<p>A module must be created at <code>ssort/_requirements</code>, and it must expose a function:</p>
 <pre><code class="language-python">def get_requirements(node):
     ...
 </code></pre>
 <ul>
-<li><code>node</code>: a Python AST node (as produced by <code>ast.parse</code>, typically a single statement/expression node).</li>
-<li>Returns: an iterable of requirement objects. Each object has a <code>.name</code> attribute (a <code>str</code>) giving the name of a required (externally-defined) identifier.</li>
-<li>The ordering of the returned objects must match the source order in which the names appear (as detailed by the examples below).</li>
+<li><code>node</code>: a Python AST node (of the kind produced by <code>ast.parse</code>, typically a single statement/expression node).</li>
+<li>Returns: an iterable of requirement objects. Each object carries a <code>.name</code> attribute (a <code>str</code>) holding the name of a required (externally-defined) identifier.</li>
+<li>The order of the returned objects must match the source order in which the names appear (with the examples below providing the detail).</li>
 </ul>
-<p>This module and function replace any previous <code>ssort/_dependencies</code> module / <code>get_dependencies</code> function. The old name is no longer part of the API.</p>
-<h4>Behavior of <code>get_requirements</code></h4>
-<p><code>get_requirements(node)</code> yields the free names that <code>node</code> requires from an enclosing scope. Names that are locally bound/defined within the node's own scope are <em>not</em> requirements. The <code>.name</code> values collected in order, for the following representative inputs, must be exactly:</p>
+<p>This module and function take the place of any previous <code>ssort/_dependencies</code> module / <code>get_dependencies</code> function. The old name no longer forms part of the API.</p>
+<h4>How <code>get_requirements</code> Behaves</h4>
+<p>Given a node, <code>get_requirements(node)</code> yields the free names that the node requires from an enclosing scope. Names that are bound/defined locally within the node's own scope are <em>not</em> requirements. For the following representative inputs, the <code>.name</code> values collected in order must be exactly:</p>
 <h5>Function definitions</h5>
 <ul>
-<li>A function whose body references a name defined outside → that name is required.
+<li>When a function's body references a name defined outside, that name is required.
 <ul>
 <li><code>def function(): return name</code> → <code>[&quot;name&quot;]</code></li>
-<li>Function referencing <code>a</code> and <code>b</code> in its body → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
+<li>a function that references <code>a</code> and <code>b</code> in its body → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 </ul>
 </li>
-<li>Arguments shadow outer names: a parameter used in the body is not required.
+<li>Arguments shadow outer names: a parameter that the body uses is not required.
 <ul>
 <li><code>def function(arg): return arg</code> → <code>[]</code></li>
 </ul>
 </li>
-<li>Local assignment shadows: names assigned before use inside the body are not required, but genuinely external names are.
+<li>Local assignment also shadows: a name assigned inside the body before it is used is not required, but genuinely external names are.
 <ul>
-<li>body assigns <code>a</code> then uses <code>a</code> and <code>b</code> → <code>[&quot;b&quot;]</code></li>
+<li>the body assigns <code>a</code> and then uses <code>a</code> and <code>b</code> → <code>[&quot;b&quot;]</code></li>
 </ul>
 </li>
-<li>Names bound by the &quot;rest&quot; of a starred assignment target shadow.
+<li>Names bound by the &quot;rest&quot; part of a starred assignment target shadow.
 <ul>
 <li>a function that binds <code>a</code> (via unpacking) and returns <code>value</code> → <code>[&quot;value&quot;]</code></li>
 </ul>
 </li>
-<li>A name used before being shadowed later is still required if used in a way that requires the external binding; when a name is assigned and only the external one matters → <code>[&quot;b&quot;]</code> (function assigns something then references <code>b</code>).</li>
-<li>Decorators and their arguments are requirements.
+<li>A name used prior to being shadowed later on is still required if it is used in a way that requires the external binding; when a name is assigned and only the external one matters → <code>[&quot;b&quot;]</code> (a function assigns something and then references <code>b</code>).</li>
+<li>Decorators, together with their arguments, are requirements.
 <ul>
 <li><code>@decorator(arg)\ndef function(): pass</code> → <code>[&quot;decorator&quot;, &quot;arg&quot;]</code></li>
 </ul>
 </li>
-<li><code>nonlocal</code> declarations: a <code>nonlocal a</code> referencing an enclosing name → <code>[&quot;a&quot;]</code>.
+<li><code>nonlocal</code> declarations: a <code>nonlocal a</code> that references an enclosing name → <code>[&quot;a&quot;]</code>.
 <ul>
-<li><code>nonlocal</code> within a closure: still <code>[&quot;a&quot;]</code>.</li>
+<li><code>nonlocal</code> inside a closure: still <code>[&quot;a&quot;]</code>.</li>
 <li>a closure that itself captures the nonlocal name locally → <code>[]</code>.</li>
 </ul>
 </li>
 <li><code>global</code> declarations: <code>global a</code> used → <code>[&quot;a&quot;]</code>.
 <ul>
-<li>global within a closure → <code>[&quot;a&quot;]</code>.</li>
-<li>global within a closure that does not capture → <code>[&quot;a&quot;]</code>.</li>
+<li>global inside a closure → <code>[&quot;a&quot;]</code>.</li>
+<li>global inside a closure that does not capture → <code>[&quot;a&quot;]</code>.</li>
 </ul>
 </li>
-<li>Async function definitions behave the same as regular functions:
+<li>Async function definitions behave the same way as regular functions:
 <ul>
-<li>referencing an external name <code>other</code> → <code>[&quot;other&quot;]</code>.</li>
+<li>referencing the external name <code>other</code> → <code>[&quot;other&quot;]</code>.</li>
 </ul>
 </li>
 </ul>
 <h5>Class definitions</h5>
 <ul>
-<li>Class definitions yield the external names referenced in base classes, decorators, and body, in source order (e.g. a class construction referencing multiple external names yields them in order).</li>
+<li>Class definitions yield the external names referenced in the base classes, the decorators, and the body, in source order (e.g. a class construction referencing multiple external names yields them in order).</li>
 </ul>
 <h5>Statements</h5>
 <ul>
@@ -222,59 +222,59 @@
 <li><code>del a, b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 <li><code>del a[b:c]</code> → <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code></li>
 <li><code>del obj.attr</code> → <code>[&quot;obj&quot;]</code></li>
-<li>Assignment <code>a = b</code> → <code>[&quot;b&quot;]</code> (the assignment target is not a requirement).</li>
+<li>Assignment <code>a = b</code> → <code>[&quot;b&quot;]</code> (the target of the assignment is not a requirement).</li>
 <li>Augmented assignment <code>a += b</code> → <code>[&quot;b&quot;]</code>.</li>
-<li>Annotated assignment (<code>a: T = b</code>) → <code>[&quot;b&quot;]</code> (the annotated form referencing external <code>b</code> yields <code>[&quot;b&quot;]</code>).</li>
-<li><code>for</code> loops: the iterable, and any external names used in the body/else, are requirements; the loop target is bound (not required). For a loop like iterating and using several external names → <code>[&quot;b&quot;, &quot;c&quot;, &quot;e&quot;, &quot;g&quot;]</code>.
+<li>Annotated assignment (<code>a: T = b</code>) → <code>[&quot;b&quot;]</code> (the annotated form, which references the external <code>b</code>, yields <code>[&quot;b&quot;]</code>).</li>
+<li><code>for</code> loops: the iterable, along with any external names used in the body/else, are requirements; the loop target is bound (not required). For a loop of the kind that iterates and uses several external names → <code>[&quot;b&quot;, &quot;c&quot;, &quot;e&quot;, &quot;g&quot;]</code>.
 <ul>
-<li>When the loop target name is also used to produce the iterable (<code>for a in a(): ...</code>), the target replaces the outer scope, so <code>a</code> used as the callable is still required → <code>[&quot;a&quot;]</code>.</li>
+<li>When the loop target name is also used to produce the iterable (<code>for a in a(): ...</code>), the target replaces the outer scope, so <code>a</code>, in its role as the callable, is still required → <code>[&quot;a&quot;]</code>.</li>
 </ul>
 </li>
-<li><code>async for</code> behaves identically to <code>for</code> → <code>[&quot;b&quot;, &quot;c&quot;, &quot;e&quot;, &quot;g&quot;]</code>.</li>
-<li><code>while</code> loops: predicate and body/else external names, in order → <code>[&quot;predicate&quot;, &quot;action&quot;, &quot;cleanup&quot;]</code>.</li>
-<li><code>if</code> statements: test, body, else, in order → <code>[&quot;predicate&quot;, &quot;subsequent&quot;, &quot;alternate&quot;]</code>.</li>
-<li><code>with</code> statements: context expression external names and body external names → <code>[&quot;A&quot;, &quot;b&quot;]</code>.
+<li><code>async for</code> works identically to <code>for</code> → <code>[&quot;b&quot;, &quot;c&quot;, &quot;e&quot;, &quot;g&quot;]</code>.</li>
+<li><code>while</code> loops: the predicate, then the body/else external names, in order → <code>[&quot;predicate&quot;, &quot;action&quot;, &quot;cleanup&quot;]</code>.</li>
+<li><code>if</code> statements: test, then body, then else, in order → <code>[&quot;predicate&quot;, &quot;subsequent&quot;, &quot;alternate&quot;]</code>.</li>
+<li><code>with</code> statements: the external names of the context expression, then those of the body → <code>[&quot;A&quot;, &quot;b&quot;]</code>.
 <ul>
-<li><code>async with</code> behaves identically → <code>[&quot;A&quot;, &quot;b&quot;]</code>.</li>
+<li><code>async with</code> acts identically → <code>[&quot;A&quot;, &quot;b&quot;]</code>.</li>
 </ul>
 </li>
 <li><code>raise Exception(message)</code> → <code>[&quot;Exception&quot;, &quot;message&quot;]</code>.</li>
-<li><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>: external names referenced throughout, in source order.</li>
-<li><code>assert</code>, plain control-flow statements (<code>break</code>/<code>continue</code>/<code>pass</code>), <code>import</code>, <code>import ... from</code>, bare <code>global</code>/<code>nonlocal</code> at module level, and expression statements produce results consistent with the definitions here (no requirements introduced by import statements or by pure control-flow keywords).</li>
+<li><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>: the external names referenced throughout, in source order.</li>
+<li><code>assert</code>, the plain control-flow statements (<code>break</code>/<code>continue</code>/<code>pass</code>), <code>import</code>, <code>import ... from</code>, a bare <code>global</code>/<code>nonlocal</code> at module level, and expression statements all produce results consistent with the definitions given here (import statements or pure control-flow keywords introduce no requirements).</li>
 </ul>
-<h5><code>with</code> statement bindings interaction</h5>
-<p>For a <code>with</code> block of the form:</p>
+<h5>Interaction of <code>with</code> statement bindings</h5>
+<p>For a <code>with</code> block shaped like this:</p>
 <pre><code class="language-python">with chdir(os.path.dirname(path)):
     requirements = get_requirements(node)
     ...
 </code></pre>
-<p>the requirements collected must be:</p>
+<p>the requirements that are collected must be:</p>
 <pre><code>[&quot;chdir&quot;, &quot;os&quot;, &quot;path&quot;, &quot;get_requirements&quot;, &quot;node&quot;]
 </code></pre>
-<p>(i.e., the context manager callable and its argument names in order, followed by names used in the body that are not locally bound; names assigned within the body are excluded from requirements).</p>
+<p>(that is, the context manager callable and its argument names in order, followed by the names used in the body that are not locally bound; names assigned within the body are excluded from requirements).</p>
 <h5>Expressions</h5>
 <ul>
-<li>Boolean ops, named expressions (<code>:=</code>), conditional expressions, sets, generator expressions, <code>await</code>, <code>yield</code>, <code>yield from</code>, comparisons, formatted values / f-strings, constants, starred expressions, lists — all yield the external names they reference in source order.</li>
+<li>Boolean ops, named expressions (<code>:=</code>), conditional expressions, sets, generator expressions, <code>await</code>, <code>yield</code>, <code>yield from</code>, comparisons, formatted values / f-strings, constants, starred expressions, lists — all of them yield the external names they reference in source order.</li>
 <li><code>a + b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
-<li>Unary op on <code>plus</code> → <code>[&quot;plus&quot;]</code></li>
-<li><code>lambda</code>: parameters shadow; a lambda referencing external <code>other</code> → <code>[&quot;other&quot;]</code>.</li>
-<li>Dict literal referencing external <code>value</code> → <code>[&quot;value&quot;]</code>; <code>{}</code> → <code>[]</code>; <code>{**values}</code> → <code>[&quot;values&quot;]</code>.</li>
-<li>Comprehensions bind their loop targets; the iterable and the action expression external names are required:
+<li>A unary op on <code>plus</code> → <code>[&quot;plus&quot;]</code></li>
+<li><code>lambda</code>: parameters shadow; a lambda that references the external <code>other</code> → <code>[&quot;other&quot;]</code>.</li>
+<li>A dict literal referencing the external <code>value</code> → <code>[&quot;value&quot;]</code>; <code>{}</code> → <code>[]</code>; <code>{**values}</code> → <code>[&quot;values&quot;]</code>.</li>
+<li>Comprehensions bind their loop targets; the external names of the iterable and of the action expression are required:
 <ul>
 <li>list comprehension → <code>[&quot;action&quot;, &quot;iterator&quot;]</code></li>
 <li>set comprehension → <code>[&quot;action&quot;, &quot;iterator&quot;]</code></li>
 <li>dict comprehension → <code>[&quot;process_key&quot;, &quot;process_value&quot;, &quot;iterator&quot;]</code></li>
 </ul>
 </li>
-<li>Calls: callable then argument names in order.
+<li>Calls: the callable, then the argument names, in order.
 <ul>
 <li><code>function(*args)</code> → <code>[&quot;function&quot;, &quot;args&quot;]</code></li>
-<li>kwarg unpacking form → <code>[&quot;function&quot;, &quot;kwargs&quot;]</code></li>
+<li>the kwarg unpacking form → <code>[&quot;function&quot;, &quot;kwargs&quot;]</code></li>
 <li><code>obj.method(arg_value, kwarg=kwarg_value)</code> → <code>[&quot;obj&quot;, &quot;arg_value&quot;, &quot;kwarg_value&quot;]</code></li>
 </ul>
 </li>
-<li>Attribute access <code>obj.attr</code> → <code>[&quot;obj&quot;]</code>.</li>
-<li>Subscript <code>array[key]</code> → <code>[&quot;array&quot;, &quot;key&quot;]</code>.
+<li>Attribute access: <code>obj.attr</code> → <code>[&quot;obj&quot;]</code>.</li>
+<li>Subscripting: <code>array[key]</code> → <code>[&quot;array&quot;, &quot;key&quot;]</code>.
 <ul>
 <li><code>array[start:end]</code> → <code>[&quot;array&quot;, &quot;start&quot;, &quot;end&quot;]</code></li>
 <li><code>array[:end]</code> → <code>[&quot;array&quot;, &quot;end&quot;]</code></li>
@@ -282,49 +282,49 @@
 <li><code>array[:]</code> → <code>[&quot;array&quot;]</code></li>
 </ul>
 </li>
-<li>Plain name <code>name</code> → <code>[&quot;name&quot;]</code>.</li>
-<li>Tuple <code>(a, b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>; <code>(a, *b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>.</li>
+<li>A plain name: <code>name</code> → <code>[&quot;name&quot;]</code>.</li>
+<li>A tuple: <code>(a, b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>; <code>(a, *b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>.</li>
 </ul>
-<h4>Additional requirement</h4>
-<p>Elsewhere in the codebase there exists a name-binding analysis (a <code>get_bindings</code>-style facility). It must continue to work such that, for a <code>with</code> block like the one shown above (context manager <code>chdir(os.path.dirname(path))</code> with a body that assigns names), the <em>bindings</em> produced reflect the names bound within, consistent with the existing binding behavior. No behavioral change to binding logic is required beyond keeping it consistent with the renamed requirements concept.</p>
-<h4>Summary of the change</h4>
-<p>Rename the module <code>ssort/_dependencies</code> → <code>ssort/_requirements</code> and the function <code>get_dependencies</code> → <code>get_requirements</code>, preserving all existing analysis behavior exactly as specified above. Update all internal usages so the package continues to function with the new name.</p>
+<h4>An Additional Requirement</h4>
+<p>Elsewhere in the codebase there is a name-binding analysis (a facility in the style of <code>get_bindings</code>). It must continue to work so that, for a <code>with</code> block like the one shown above (context manager <code>chdir(os.path.dirname(path))</code> with a body that assigns names), the <em>bindings</em> it produces reflect the names bound inside, consistent with the existing binding behavior. Apart from keeping it consistent with the renamed requirements concept, no behavioral change to the binding logic is required.</p>
+<h4>Change Summary</h4>
+<p>The rename covers the module <code>ssort/_dependencies</code> → <code>ssort/_requirements</code> and the function <code>get_dependencies</code> → <code>get_requirements</code>, with all existing analysis behavior preserved exactly as specified above. All internal usages must be updated so that the package keeps functioning with the new name.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Statement Sorting by Dependency Order</span>
-        <span class="spec-meta muted">496 words · source specification
+        <span class="spec-title">Sorting Statements by Dependency Order</span>
+        <span class="spec-meta muted">513 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Statement Sorting by Dependency Order</h3>
-<h4>Objective</h4>
-<p>Implement a function that reorders top-level statements in a Python source file so that definitions appear before the code that depends on them, using their order of use to break ties.</p>
+      <div class="spec-body"><h3>Task Specification: Sorting Statements by Dependency Order</h3>
+<h4>Goal</h4>
+<p>Implement a function that rearranges the top-level statements of a Python source file so that definitions appear before the code depending on them, with the order of use serving as the tie-breaker.</p>
 <h4>Public API</h4>
-<p>Provide a module <code>ssort</code> exposing a callable:</p>
+<p>Supply a module <code>ssort</code> that exposes the callable:</p>
 <pre><code class="language-python">def ssort(source: str) -&gt; str
 </code></pre>
 <ul>
-<li><strong>Input:</strong> A string containing valid Python source code.</li>
-<li><strong>Output:</strong> A string containing the same statements, reordered as described below. The output preserves each statement's original text and retains a trailing newline consistent with normal source formatting.</li>
+<li><strong>Input:</strong> A string that contains valid Python source code.</li>
+<li><strong>Output:</strong> A string with the same statements, rearranged into the order described below. Each statement's original text is preserved, and the output retains a trailing newline consistent with normal source formatting.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p><code>ssort</code> parses the top-level statements of the input, determines the dependency relationships between them, and emits them in an order where a statement that another statement depends on comes before its dependent — subject to the tie-breaking and cycle rules below.</p>
-<h5>Dependency ordering</h5>
-<p>When one statement references a name defined by another statement, the defining statement must be placed before the referencing statement.</p>
-<p>Where multiple independent definitions are required by a later statement, they must be emitted in the order in which they are first used by that later statement (i.e., dependencies are ordered according to their order of use).</p>
-<p>Concretely, given definitions that are only referenced by a subsequent statement, and that subsequent statement uses them in a particular sequence, the definitions must be output in that sequence of first use — even if this differs from their original source order.</p>
-<p>For example, input in which <code>main</code> calls <code>_step1()</code> then <code>_step2()</code>, but where <code>_step2</code> is defined before <code>_step1</code> in the source, must be reordered so that <code>_step1</code> precedes <code>_step2</code>, both preceding <code>main</code>.</p>
+<h4>Required behavior</h4>
+<p><code>ssort</code> parses the input's top-level statements, works out the dependency relationships between them, and emits them in an order in which a statement that another statement depends on comes before its dependent — subject to the tie-breaking and cycle rules below.</p>
+<h5>Dependency-driven ordering</h5>
+<p>Whenever one statement references a name that another statement defines, the defining statement must be placed before the referencing one.</p>
+<p>When a later statement requires multiple independent definitions, those definitions must be emitted in the order in which that later statement first uses them (that is, dependencies are ordered according to their order of use).</p>
+<p>Concretely, when definitions are referenced only by a subsequent statement and that subsequent statement uses them in a particular sequence, the definitions must be output in that sequence of first use — even if this differs from their original source order.</p>
+<p>As an example, input where <code>main</code> calls <code>_step1()</code> then <code>_step2()</code>, but in which <code>_step2</code> is defined before <code>_step1</code> in the source, must be reordered so that <code>_step1</code> precedes <code>_step2</code>, both of them preceding <code>main</code>.</p>
 <h5>Cycles</h5>
-<p>When statements participate in a dependency cycle (each function calls another in the group, forming a loop), the members of the cycle are emitted preserving their original relative order.</p>
+<p>When statements take part in a dependency cycle (each function in the group calls another, forming a loop), the cycle's members are emitted with their original relative order preserved.</p>
 <ul>
-<li>A direct cycle among statements A→B→C→A (in source order A, B, C) is emitted unchanged.</li>
-<li>A reversed cycle where A depends on C, B depends on A, C depends on B (source order A, B, C) is emitted unchanged.</li>
+<li>A direct cycle among statements A→B→C→A, with source order A, B, C, is emitted unchanged.</li>
+<li>A reversed cycle in which A depends on C, B depends on A, and C depends on B (source order A, B, C) is emitted unchanged.</li>
 </ul>
-<h5>Cycles with external dependents</h5>
-<p>When a statement outside a cycle depends on a member of that cycle, the cycle members must appear before the dependent, while the internal order of the cycle members is otherwise preserved.</p>
-<p>For example, given source order:</p>
+<h5>Cycles with dependents outside the cycle</h5>
+<p>If a statement outside a cycle depends on a member of that cycle, the cycle members must appear before the dependent, while the internal order of the cycle members is otherwise kept intact.</p>
+<p>For instance, with this source order:</p>
 <pre><code>def c():
     return a()
 def a():
@@ -332,26 +332,26 @@ def a():
 def b():
     return a()
 </code></pre>
-<p>where <code>a</code> and <code>b</code> form a cycle and <code>c</code> depends on <code>a</code>, the required output order is <code>a</code>, <code>c</code>, <code>b</code> — the cycle member <code>a</code> is promoted ahead of its dependent <code>c</code>, and the remaining cycle member <code>b</code> follows.</p>
-<h5>References resolved</h5>
-<p>Name references inside function bodies (e.g. calls like <code>b()</code> within <code>def a(): return b()</code>) count as dependencies of the enclosing function on the referenced definition.</p>
+<p>where <code>a</code> and <code>b</code> form a cycle and <code>c</code> depends on <code>a</code>, the required output order is <code>a</code>, <code>c</code>, <code>b</code> — cycle member <code>a</code> is promoted ahead of its dependent <code>c</code>, and the remaining cycle member <code>b</code> follows.</p>
+<h5>How references are resolved</h5>
+<p>Name references that occur inside function bodies (e.g. calls like <code>b()</code> within <code>def a(): return b()</code>) count as dependencies of the enclosing function on the referenced definition.</p>
 <h4>Notes</h4>
 <ul>
-<li>The reordering operates on top-level definitions and statements.</li>
-<li>Statement source text (including bodies and indentation) is preserved verbatim; only the ordering of statements changes.</li>
+<li>The reordering acts on top-level definitions and statements.</li>
+<li>The source text of statements (bodies and indentation included) is preserved verbatim; only the ordering of statements changes.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Provide the following public API in ssort._graphs</span>
-        <span class="spec-meta muted">282 words · source specification
+        <span class="spec-title">The following public API must be provided in ssort._graphs</span>
+        <span class="spec-meta muted">343 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Required behavior</h3>
 <h4>Graph API</h4>
-<p>Provide the following public API in <code>ssort._graphs</code>:</p>
+<p>The following public API must be provided in <code>ssort._graphs</code>:</p>
 <pre><code class="language-python">class Graph:
     def __init__(self): ...
     def add_node(self, node): ...
@@ -359,58 +359,58 @@ def b():
 
 def topological_sort(graph): ...
 </code></pre>
-<p><code>Graph.add_dependency(node, dependency)</code> declares that <code>dependency</code> must appear before <code>node</code>.</p>
-<p><code>topological_sort(graph)</code> must return a <code>list</code> of graph nodes in dependency order.</p>
-<p>The following integer-node cases must produce exactly these results:</p>
+<p><code>Graph.add_dependency(node, dependency)</code> states that <code>dependency</code> must appear before <code>node</code>.</p>
+<p>The call <code>topological_sort(graph)</code> must return a <code>list</code> of graph nodes in dependency order.</p>
+<p>The following integer-node cases must each produce exactly the result shown:</p>
 <ol>
 <li>
-<p>Nodes added as <code>1, 2, 3, 4</code>, with dependencies:</p>
+<p>Nodes are added in the order <code>1, 2, 3, 4</code>, with these dependencies:</p>
 <ul>
-<li><code>2</code> depends on <code>1</code></li>
-<li><code>3</code> depends on <code>2</code></li>
-<li><code>4</code> depends on <code>3</code></li>
+<li><code>2</code> has a dependency on <code>1</code></li>
+<li><code>3</code> has a dependency on <code>2</code></li>
+<li><code>4</code> has a dependency on <code>3</code></li>
 </ul>
-<p>Result:</p>
+<p>The result:</p>
 <pre><code class="language-python">[1, 2, 3, 4]
 </code></pre>
 </li>
 <li>
-<p>Nodes added as <code>1, 2, 3, 4</code>, with dependencies:</p>
+<p>Nodes are added in the order <code>1, 2, 3, 4</code>, with these dependencies:</p>
 <ul>
-<li><code>1</code> depends on <code>2</code></li>
-<li><code>2</code> depends on <code>3</code></li>
-<li><code>3</code> depends on <code>4</code></li>
+<li><code>1</code> has a dependency on <code>2</code></li>
+<li><code>2</code> has a dependency on <code>3</code></li>
+<li><code>3</code> has a dependency on <code>4</code></li>
 </ul>
-<p>Result:</p>
+<p>The result:</p>
 <pre><code class="language-python">[4, 3, 2, 1]
 </code></pre>
 </li>
 <li>
-<p>Nodes added as <code>1, 2, 3, 4</code>, with dependencies:</p>
+<p>Nodes are added in the order <code>1, 2, 3, 4</code>, with these dependencies:</p>
 <ul>
-<li><code>1</code> depends on <code>4</code></li>
-<li><code>2</code> depends on <code>4</code></li>
-<li><code>3</code> depends on <code>4</code></li>
+<li><code>1</code> has a dependency on <code>4</code></li>
+<li><code>2</code> has a dependency on <code>4</code></li>
+<li><code>3</code> has a dependency on <code>4</code></li>
 </ul>
-<p>Result:</p>
+<p>The result:</p>
 <pre><code class="language-python">[4, 1, 2, 3]
 </code></pre>
 </li>
 </ol>
-<p>Thus, when the dependents <code>1</code>, <code>2</code>, and <code>3</code> are otherwise unconstrained, their insertion order must be preserved.</p>
+<p>Therefore, when the dependents <code>1</code>, <code>2</code>, and <code>3</code> are not constrained in any other way, their insertion order must be preserved.</p>
 <h4>Example sorting compatibility</h4>
-<p>The package root must expose:</p>
+<p>The root of the package must expose:</p>
 <pre><code class="language-python">from ssort import ssort
 </code></pre>
-<p>It must accept source text and a filename keyword argument:</p>
+<p>It must accept source text as well as a keyword argument for the filename:</p>
 <pre><code class="language-python">ssort(input_text, filename=filename)
 </code></pre>
-<p>For each of the following example names, the repository must contain both:</p>
+<p>For each of the following example names, the repository must contain both of these files:</p>
 <ul>
 <li><code>examples/&lt;name&gt;_input.py</code></li>
 <li><code>examples/&lt;name&gt;_output.py</code></li>
 </ul>
-<p>Names:</p>
+<p>The names are:</p>
 <ul>
 <li><code>distlib_compat</code></li>
 <li><code>dnspython_versioned</code></li>
@@ -422,20 +422,20 @@ def topological_sort(graph): ...
 <li><code>setuptools_msvccompiler</code></li>
 <li><code>sqlalchemy_base</code></li>
 </ul>
-<p>For every pair, passing the complete text of the <code>_input.py</code> file to <code>ssort</code>, with that input file’s path converted to a string as <code>filename</code>, must return text exactly equal to the complete contents of the corresponding <code>_output.py</code> file. Equality includes all formatting and whitespace.</p>
+<p>For every pair, when the complete text of the <code>_input.py</code> file is passed to <code>ssort</code>, with the path of that input file converted to a string as <code>filename</code>, the text it returns must be exactly equal to the complete contents of the corresponding <code>_output.py</code> file. Equality covers all formatting and whitespace.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Ensure the sorting APIs produce repeatable fixed-point results for the existing example modules.</span>
-        <span class="spec-meta muted">409 words · source specification
+        <span class="spec-title">Ensure the sorting APIs produce repeatable fixed-point results for the example modules that already exist.</span>
+        <span class="spec-meta muted">450 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change: deterministic and idempotent statement sorting</h3>
-<p>Ensure the sorting APIs produce repeatable fixed-point results for the existing example modules.</p>
-<h4>Public API surface</h4>
-<p>The following imports and call forms must remain available:</p>
+      <div class="spec-body"><h3>Required change: statement sorting that is deterministic and idempotent</h3>
+<p>Ensure the sorting APIs produce repeatable fixed-point results for the example modules that already exist.</p>
+<h4>Surface of the public API</h4>
+<p>The following imports and call forms must stay available:</p>
 <ul>
 <li><code>from ssort import ssort</code>
 <ul>
@@ -472,8 +472,8 @@ def topological_sort(graph): ...
 </ul>
 </li>
 </ul>
-<h4>Example corpus</h4>
-<p>The required behavior applies to these checked-in example pairs:</p>
+<h4>Corpus of examples</h4>
+<p>The required behavior covers these checked-in pairs of examples:</p>
 <ul>
 <li><code>distlib_compat</code></li>
 <li><code>dnspython_versioned</code></li>
@@ -485,41 +485,41 @@ def topological_sort(graph): ...
 <li><code>setuptools_msvccompiler</code></li>
 <li><code>sqlalchemy_base</code></li>
 </ul>
-<p>For each name, the input is <code>examples/&lt;name&gt;_input.py</code> and the expected complete result is <code>examples/&lt;name&gt;_output.py</code>.</p>
-<h4>Full <code>ssort</code> behavior</h4>
-<p>For every example input:</p>
+<p>For each name, <code>examples/&lt;name&gt;_input.py</code> is the input and <code>examples/&lt;name&gt;_output.py</code> is the expected complete result.</p>
+<h4>Full behavior of <code>ssort</code></h4>
+<p>With every example input:</p>
 <ol>
-<li><code>ssort(input_text, filename=str(input_path))</code> must exactly equal the contents of the corresponding output file.</li>
-<li>Sorting that returned text again with the same <code>filename</code> must return exactly the same string:
+<li>Calling <code>ssort(input_text, filename=str(input_path))</code> must produce a result that exactly equals the contents of the corresponding output file.</li>
+<li>Sorting the returned text again with the same <code>filename</code> must return exactly the same string:
 <ul>
 <li><code>ssort(ssort(input_text, filename=filename), filename=filename) == ssort(input_text, filename=filename)</code></li>
 </ul>
 </li>
 </ol>
-<p>Equality is exact string equality, including whitespace and final newlines.</p>
-<h4>Presort behavior</h4>
-<p>A presort result is observed by:</p>
+<p>Equality here means exact string equality, with whitespace and final newlines included.</p>
+<h4>Behavior of presort</h4>
+<p>A presort result is observed through these steps:</p>
 <ol>
-<li>Constructing <code>Module(input_text, filename=filename)</code>.</li>
-<li>Calling <code>presort(module)</code>.</li>
-<li>Converting each returned statement with <code>statement_text(module, statement)</code>.</li>
-<li>Joining those strings with <code>&quot;\n&quot;</code> and appending one final <code>&quot;\n&quot;</code>.</li>
+<li>Creating <code>Module(input_text, filename=filename)</code>.</li>
+<li>Invoking <code>presort(module)</code>.</li>
+<li>Passing each returned statement through <code>statement_text(module, statement)</code>.</li>
+<li>Joining those strings using <code>&quot;\n&quot;</code> and appending one final <code>&quot;\n&quot;</code>.</li>
 </ol>
-<p>For every example input, this observable result must be:</p>
+<p>For every example input, the observable result must be:</p>
 <ul>
-<li><strong>Repeatable:</strong> two fresh modules created from the same source and filename produce exactly the same serialized result.</li>
-<li><strong>Idempotent:</strong> parsing the serialized presort result into a new <code>Module</code> with the same filename and presorting it again produces exactly the same serialized string.</li>
+<li><strong>Repeatable:</strong> when two fresh modules are created from the same source and filename, they produce exactly the same serialized result.</li>
+<li><strong>Idempotent:</strong> when the serialized presort result is parsed into a new <code>Module</code> with the same filename and presorted again, the outcome is exactly the same serialized string.</li>
 </ul>
-<h4>Dependency-based topological sort behavior</h4>
-<p>The topological-sort result is observed through this API sequence:</p>
+<h4>Behavior of the dependency-based topological sort</h4>
+<p>The topological-sort result is observed by carrying out this API sequence:</p>
 <ol>
-<li>Construct <code>Module(input_text, filename=filename)</code>.</li>
-<li>Build a graph with:
+<li>Create <code>Module(input_text, filename=filename)</code>.</li>
+<li>Build a graph using:
 <ul>
 <li><code>Graph.from_dependencies(module.statements(), lambda statement: statement_dependencies(module, statement))</code></li>
 </ul>
 </li>
-<li>Call:
+<li>Invoke:
 <ul>
 <li><code>replace_cycles(graph, key=sort_key_from_iter(module.statements()))</code></li>
 </ul>
@@ -529,70 +529,71 @@ def topological_sort(graph): ...
 <li><code>topological_sort(graph)</code></li>
 </ul>
 </li>
-<li>Serialize the returned statements with <code>statement_text(module, statement)</code>, joining with <code>&quot;\n&quot;</code> and appending one final <code>&quot;\n&quot;</code>.</li>
+<li>Serialize the returned statements with <code>statement_text(module, statement)</code>, join them with <code>&quot;\n&quot;</code>, and append one final <code>&quot;\n&quot;</code>.</li>
 </ol>
-<p>For every example input, this observable result must be:</p>
+<p>With every example input, the observable result must be:</p>
 <ul>
-<li><strong>Repeatable:</strong> running the complete sequence twice on fresh modules created from identical source and filename produces exactly the same serialized string.</li>
-<li><strong>Idempotent:</strong> parsing the serialized result into a fresh <code>Module</code> with the same filename and running the complete sequence again produces exactly the same serialized string.</li>
+<li><strong>Repeatable:</strong> when the complete sequence is run twice on fresh modules created from identical source and filename, it produces exactly the same serialized string.</li>
+<li><strong>Idempotent:</strong> when the serialized result is parsed into a fresh <code>Module</code> with the same filename and the complete sequence is run again, it produces exactly the same serialized string.</li>
 </ul>
-<p>This requires deterministic ordering even where dependency processing or cycle replacement could otherwise permit multiple orderings.</p>
+<p>This requires the ordering to be deterministic even in places where dependency processing or cycle replacement could otherwise permit multiple orderings.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Implement dependency resolution and pre-sorting functionality across several modules of the ssort package.</span>
-        <span class="spec-meta muted">909 words · source specification
+        <span class="spec-title">The job at hand is to implement, in several modules of the ssort package, functionality that resolves dependencies and performs pre-sorting.</span>
+        <span class="spec-meta muted">1069 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement dependency resolution and pre-sorting functionality across several modules of the <code>ssort</code> package. The public API surface described below must exist exactly as named so it can be imported and called.</p>
-<h4>Module: <code>ssort._graphs</code></h4>
-<p>This module already exposes a <code>Graph</code> class and a <code>topological_sort</code> function. You must ensure <code>topological_sort</code> satisfies the ordering guarantees below.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>The job at hand is to implement, in several modules of the <code>ssort</code> package, functionality that resolves dependencies and performs pre-sorting. Everything making up the public API surface laid out in the sections that follow must exist exactly as named, so that it can be imported and called.</p>
+<h4>The <code>ssort._graphs</code> module</h4>
+<p>Already exposed by this module are a <code>Graph</code> class together with a <code>topological_sort</code> function. <code>topological_sort</code> must satisfy the ordering guarantees listed below — you must ensure that it does.</p>
 <h5><code>Graph</code></h5>
-<p>Supports:</p>
+<p>What it supports:</p>
 <ul>
-<li><code>add_node(node)</code> — register a node.</li>
-<li><code>add_dependency(node, dependency)</code> — declare that <code>node</code> depends on <code>dependency</code> (i.e. <code>dependency</code> must be ordered before <code>node</code>).</li>
+<li><code>add_node(node)</code> — takes a node and registers it.</li>
+<li><code>add_dependency(node, dependency)</code> — records that <code>node</code> depends on <code>dependency</code> (meaning <code>dependency</code> must be ordered before <code>node</code>).</li>
 </ul>
 <h5><code>topological_sort(graph) -&gt; list</code></h5>
-<p>Returns a list containing every node added to the graph, ordered so that:</p>
+<p>Returns a list made up of every node that was added to the graph, with an ordering such that:</p>
 <ul>
-<li>Each node appears after all of its (transitive) dependencies.</li>
-<li>Among nodes not otherwise constrained relative to one another, the <strong>original insertion order</strong> (the order in which nodes were added via <code>add_node</code>) is preserved. In other words, the sort must be a <em>stable</em> topological sort: when the dependency constraints permit multiple valid orderings, the node inserted earlier comes first.</li>
+<li>In the ordering, each node is placed after all of its (transitive) dependencies.</li>
+<li>Where nodes are not otherwise constrained relative to one another, the <strong>original insertion order</strong> — the order in which nodes were added via <code>add_node</code> — is what gets preserved. Stated differently, the sort must be a <em>stable</em> topological sort: when the dependency constraints allow multiple valid orderings, the node that was inserted earlier comes first.</li>
 </ul>
-<p>Concretely:</p>
+<p>To make this concrete:</p>
 <ul>
-<li>A graph of unconnected nodes returns them in exactly their insertion order.</li>
-<li>For a graph where nodes are inserted in a given order and every dependency edge points from a later-inserted node to an earlier-inserted node, the result equals the insertion order.</li>
-<li>Example: nodes <code>1,2,3,4,5</code> inserted in that order, with dependencies <code>3→2</code>, <code>5→4</code>, <code>5→3</code>, yields <code>[1, 2, 3, 4, 5]</code>.</li>
+<li>For a graph whose nodes are unconnected, the function returns them in exactly their insertion order.</li>
+<li>If the nodes of a graph get inserted in a given order and every dependency edge runs from a later-inserted node to an earlier-inserted node, the result equals the insertion order.</li>
+<li>Example: with nodes <code>1,2,3,4,5</code> inserted in that order and the dependencies <code>3→2</code>, <code>5→4</code>, <code>5→3</code> added, the sort yields <code>[1, 2, 3, 4, 5]</code>.</li>
 </ul>
-<h4>Module: <code>ssort._modules</code></h4>
-<p>Provide a <code>Module</code> class and a <code>statement_text</code> function.</p>
+<h4>The <code>ssort._modules</code> module</h4>
+<p>The pieces to provide here are a <code>Module</code> class and a <code>statement_text</code> function.</p>
 <h5><code>Module</code></h5>
-<p>Constructor signature:</p>
+<p>The constructor is declared as follows:</p>
 <pre><code class="language-python">Module(source, filename=&quot;&lt;unknown&gt;&quot;)
 </code></pre>
 <ul>
-<li><code>source</code> is a string of Python source code.</li>
-<li><code>filename</code> is an optional keyword argument used for parsing context; it defaults to <code>&quot;&lt;unknown&gt;&quot;</code>.</li>
+<li>The <code>source</code> argument carries a string of Python source code.</li>
+<li>The <code>filename</code> argument is an optional keyword argument that supplies parsing context; <code>&quot;&lt;unknown&gt;&quot;</code> is its default.</li>
 </ul>
-<p>Method:</p>
+<p>The class provides this method:</p>
 <ul>
-<li><code>statements()</code> — returns the sequence of top-level statement objects of the module, in source order. Each element is an opaque object representing one top-level statement. Iterating <code>statements()</code> more than once (or unpacking it) must yield stable, identity-comparable objects: the same statement objects must be returned so they can be compared by identity/equality with statements obtained from other calls on the same <code>Module</code> instance.</li>
+<li><code>statements()</code> — returns the module's top-level statement objects as a sequence, in source order. Each element is an opaque object standing for a single top-level statement. When <code>statements()</code> is iterated more than once (or unpacked), it must yield stable, identity-comparable objects: the same statement objects must be returned, so that they can be compared by identity/equality against statements obtained from other calls on the same <code>Module</code> instance.</li>
 </ul>
 <h5><code>statement_text(module, statement) -&gt; str</code></h5>
-<p>Given a <code>Module</code> and one of its statement objects, return the exact source text for that statement.</p>
-<h4>Module: <code>ssort._dependencies</code></h4>
+<p>Once handed a <code>Module</code> and one of its statement objects, the function returns the exact source text of the statement in question.</p>
+<h4>The <code>ssort._dependencies</code> module</h4>
 <h5><code>statement_dependencies(module, statement) -&gt; iterable</code></h5>
-<p>Given a <code>Module</code> and one of its top-level statement objects, return the top-level statements of that module that <code>statement</code> depends on — that is, the other top-level statements defining names that are referenced (used) within <code>statement</code>.</p>
-<p>Requirements:</p>
+<p>When given a <code>Module</code> and one of its top-level statement objects, this function returns the top-level statements of the module on which <code>statement</code> depends — phrased differently, those other top-level statements whose defined names are referenced (used) within <code>statement</code>.</p>
+<p>The requirements:</p>
 <ul>
-<li>Only names bound by other <strong>top-level</strong> statements of the module count as dependencies. References to names that are not defined by a top-level statement (e.g. builtins) are ignored.</li>
-<li>The returned dependencies are ordered by the position of their <strong>first use</strong> within the statement.</li>
-<li>Each returned element is (identity-comparable to) one of the objects returned by <code>module.statements()</code>.</li>
+<li>Only names bound by other <strong>top-level</strong> statements of the module are counted as dependencies. Where a name is not defined by a top-level statement (e.g. builtins), references to it are ignored.</li>
+<li>The order of the returned dependencies is determined by the position of their <strong>first use</strong> within the statement.</li>
+<li>Each element that comes back is (identity-comparable to) one of the objects <code>module.statements()</code> returns.</li>
 </ul>
-<p>Example: for a module</p>
+<p>As an example, take this module:</p>
 <pre><code class="language-python">def c():
     pass
 
@@ -604,17 +605,17 @@ def a():
 def b():
     pass
 </code></pre>
-<p>the dependencies of <code>a</code> are <code>[b, c]</code> — <code>map</code> is a builtin and excluded; <code>b</code> is used before <code>c</code>, so <code>b</code> precedes <code>c</code>.</p>
-<h4>Module: <code>ssort._presort</code></h4>
+<p>the dependencies of <code>a</code> are <code>[b, c]</code>: <code>map</code> is a builtin and gets excluded, while <code>b</code> is used before <code>c</code>, which is why <code>b</code> precedes <code>c</code>.</p>
+<h4>The <code>ssort._presort</code> module</h4>
 <h5><code>presort(module) -&gt; iterable</code></h5>
-<p>Given a <code>Module</code>, return an ordering of its top-level statements (the same statement objects returned by <code>module.statements()</code>) produced by a pre-sorting pass.</p>
-<p>Behavior required:</p>
+<p>Taking a <code>Module</code> as input, the function returns an ordering of the module's top-level statements (the same statement objects that <code>module.statements()</code> returns); this ordering is the output of a pre-sorting pass.</p>
+<p>The required behavior:</p>
 <ul>
 <li>
-<p>The pre-sort reorders top-level statements according to dependency relationships, using a stable topological ordering. Nodes not otherwise constrained retain their original relative order.</p>
+<p>Guided by the dependency relationships, the pre-sort rearranges top-level statements, applying a stable topological ordering. Where nodes are not otherwise constrained, their original relative order is retained.</p>
 </li>
 <li>
-<p>For the following input:</p>
+<p>Take the following input:</p>
 <pre><code class="language-python">class Base:
     pass
 
@@ -631,7 +632,7 @@ class B(Base):
 def something():
     return [A, B]
 </code></pre>
-<p><code>presort</code> yields statements whose concatenated text (each statement's source separated by a single newline, then whitespace-normalized to a single trailing newline) is:</p>
+<p><code>presort</code> yields statements whose concatenated text (each statement's source separated by a single newline, then whitespace-normalized to a single trailing newline) is the following:</p>
 <pre><code class="language-python">def something():
     return [A, B]
 
@@ -649,7 +650,7 @@ def a():
 </code></pre>
 </li>
 <li>
-<p>For the following input the pre-sort leaves the statements in their original order (i.e. presorting an already-consistent module is a no-op):</p>
+<p>Given the following input, the statements stay in their original order after the pre-sort (expressed another way, presorting an already-consistent module is a no-op):</p>
 <pre><code class="language-python">import dns.exception
 import dns.transaction
 import dns.zone
@@ -683,9 +684,9 @@ class Version:
 </code></pre>
 </li>
 </ul>
-<h4>Public entry point: <code>ssort(source) -&gt; str</code></h4>
-<p>The top-level <code>ssort</code> function (already present) sorts a Python source string's top-level statements and returns the reformatted source. Ensure its output satisfies the following cases.</p>
-<h5>Case 1 — leave already-satisfied ordering unchanged when only runtime references cross statements</h5>
+<h4>The public entry point: <code>ssort(source) -&gt; str</code></h4>
+<p>A top-level <code>ssort</code> function is already present; it sorts the top-level statements of a Python source string and returns the reformatted source. You must ensure that its output satisfies the following cases.</p>
+<h5>Case 1 — when only runtime references cross statements, ordering that is already satisfied is left unchanged</h5>
 <p>Input:</p>
 <pre><code class="language-python">class Base:
     pass
@@ -703,8 +704,8 @@ class B(Base):
 def something():
     return [A, B]
 </code></pre>
-<p>Output must be identical to the input. (<code>A</code> and <code>B</code> are only referenced inside the body of <code>something</code>, which is not evaluated at definition time, so no reordering is required.)</p>
-<h5>Case 2 — repeated function definitions (single-dispatch style) preserve source order</h5>
+<p>Input and output must be identical. (The only place <code>A</code> and <code>B</code> are referenced is inside the body of <code>something</code>, and that body is not evaluated at definition time, so no reordering is required.)</p>
+<h5>Case 2 — source order is preserved for repeated function definitions (single-dispatch style)</h5>
 <p>Input:</p>
 <pre><code class="language-python">import functools
 
@@ -723,34 +724,35 @@ def fun(x):
 if __name__ == &quot;__main__&quot;:
     fun()
 </code></pre>
-<p>Output must be identical to the input. Multiple top-level statements binding the same name (<code>fun</code>) must retain their original relative order, and later definitions that reference the earlier binding (through decorators such as <code>@fun.register(...)</code>) must not be reordered ahead of it.</p>
-<h4>General notes</h4>
+<p>In this case too, input and output must be identical. When multiple top-level statements bind the same name (<code>fun</code>), their original relative order must be retained, and later definitions that reference the earlier binding (via decorators such as <code>@fun.register(...)</code>) must not be reordered ahead of it.</p>
+<h4>General remarks</h4>
 <ul>
-<li>Any leading module docstring (a string literal at the top of the file) must remain at the top and not be reordered below other statements.</li>
-<li>The whitespace/formatting of individual statements must be preserved exactly as in the source; only the ordering of top-level statements may change.</li>
+<li>Any module docstring that leads the file (a string literal at the top of the file) must remain at the top and must not be reordered below other statements.</li>
+<li>The whitespace/formatting of individual statements must be preserved exactly as it appears in the source; the ordering of top-level statements is the only thing that may change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You are working on the ssort package, a tool that sorts Python source code so that statements are ordered according to their dependencies.</span>
-        <span class="spec-meta muted">407 words · source specification
+        <span class="spec-title">The package you are working on, ssort, is a tool that sorts Python source code so that statements end up in an order determined by their dependencies.</span>
+        <span class="spec-meta muted">437 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>ssort</code> package, a tool that sorts Python source code so that statements are ordered according to their dependencies. This task involves removing a &quot;presorting&quot; preprocessing step from the sorting pipeline, which changes the output ordering in certain cases.</p>
-<h4>Required Changes</h4>
-<h5>1. Remove the presorting module</h5>
-<p>The module <code>ssort._presort</code> must be removed entirely. In particular, the function <code>presort</code> (previously importable as <code>from ssort._presort import presort</code>) must no longer exist. Nothing in the remaining codebase may depend on this module.</p>
-<h5>2. Adjust the sorting behavior in <code>ssort</code></h5>
-<p>The public entry point remains:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The package you are working on, <code>ssort</code>, is a tool that sorts Python source code so that statements end up in an order determined by their dependencies. This task entails removing a &quot;presorting&quot; preprocessing step from the sorting pipeline, which alters the output ordering in certain cases.</p>
+<h4>Changes Required</h4>
+<h5>1. Removal of the presorting module</h5>
+<p>The module <code>ssort._presort</code> must be removed in its entirety. Specifically, the function <code>presort</code> (which was previously importable as <code>from ssort._presort import presort</code>) must no longer exist. Nothing in the codebase that remains may depend on this module.</p>
+<h5>2. Modify the sorting behavior in <code>ssort</code></h5>
+<p>The public entry point is unchanged:</p>
 <pre><code class="language-python">from ssort import ssort
 
 ssort(source_text: str, filename: str = ...) -&gt; str
 </code></pre>
-<p><code>ssort</code> takes Python source text and returns reordered Python source text. The behavior change required is that the sorting pipeline must no longer perform any preliminary reordering pass before resolving dependency order. As a consequence, the relative order in which dependencies are emitted is no longer rearranged to match the order in which they are first used.</p>
-<p>Concretely, given this input:</p>
+<p><code>ssort</code> takes Python source text as input and returns reordered Python source text. The required behavior change is that the sorting pipeline must no longer perform any preliminary reordering pass before dependency order is resolved. As a result, the relative order in which dependencies are emitted is no longer rearranged to match the order of their first use.</p>
+<p>To make this concrete, given the following input:</p>
 <pre><code class="language-python">def _step2():
     ...
 def _step1():
@@ -759,7 +761,7 @@ def main():
     _step1()
     _step2()
 </code></pre>
-<p>the output must be:</p>
+<p>the following output must be produced:</p>
 <pre><code class="language-python">def _step2():
     ...
 def _step1():
@@ -768,55 +770,55 @@ def main():
     _step1()
     _step2()
 </code></pre>
-<p>That is, <code>_step2</code> and <code>_step1</code> retain their original relative order (both are dependencies of <code>main</code>, and neither is reordered relative to the other); only the constraint that dependencies appear before the statements that use them is enforced. <code>main</code>, which depends on both, is emitted last.</p>
-<h4>Properties That Must Continue To Hold</h4>
-<p>For the full set of example inputs shipped with the package (the <code>examples/*_input.py</code> files), <code>ssort</code> must produce stable and idempotent results:</p>
+<p>In other words, <code>_step2</code> and <code>_step1</code> keep their original relative order (they are both dependencies of <code>main</code>, and neither is reordered relative to the other); only the constraint that dependencies come before the statements that use them is enforced. <code>main</code>, which depends on both, is emitted last.</p>
+<h4>Properties That Must Still Hold</h4>
+<p>For the full set of example inputs that ship with the package (the <code>examples/*_input.py</code> files), <code>ssort</code> must produce stable and idempotent results:</p>
 <ul>
-<li><strong>Stability</strong>: Running <code>ssort</code> twice on the same input text (with the same <code>filename</code>) must produce identical output both times.</li>
-<li><strong>Idempotence</strong>: Running <code>ssort</code> on already-sorted output must return that output unchanged.</li>
+<li><strong>Stability</strong>: When <code>ssort</code> is run twice on the same input text (with the same <code>filename</code>), it must produce identical output both times.</li>
+<li><strong>Idempotence</strong>: When <code>ssort</code> is run on already-sorted output, it must return that output unchanged.</li>
 </ul>
-<p>The expected sorted output files (<code>examples/*_expected.py</code> or equivalent reference outputs used by the example suite) must be regenerated to reflect the new ordering that results from removing the presorting step, so that sorting each <code>*_input.py</code> produces the corresponding expected output.</p>
+<p>The expected sorted output files (<code>examples/*_expected.py</code> or equivalent reference outputs used by the example suite) must be regenerated to reflect the new ordering that comes from removing the presorting step, so that sorting each <code>*_input.py</code> produces the corresponding expected output.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not change the public signature or import path of <code>ssort</code>.</li>
-<li>The <code>ssort._presort</code> module and its <code>presort</code> function must be fully removed, not merely bypassed.</li>
-<li>Other internal modules (<code>ssort._dependencies</code>, <code>ssort._graphs</code>, <code>ssort._modules</code>, <code>ssort._utils</code>) continue to exist and are not part of this change beyond removing any dependence on the deleted presort module.</li>
+<li>Do not alter the public signature or import path of <code>ssort</code>.</li>
+<li>The <code>ssort._presort</code> module, together with its <code>presort</code> function, must be fully removed and not merely bypassed.</li>
+<li>Other internal modules (<code>ssort._dependencies</code>, <code>ssort._graphs</code>, <code>ssort._modules</code>, <code>ssort._utils</code>) remain in existence and are not part of this change apart from removing any dependence on the deleted presort module.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Implement the following interfaces and behavior.</span>
-        <span class="spec-meta muted">307 words · source specification
+        <span class="spec-title">Implement the interfaces and behavior described below.</span>
+        <span class="spec-meta muted">337 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Replace module-based dependency handling with statement collections</h3>
-<p>Implement the following interfaces and behavior.</p>
-<h4>Statement parsing</h4>
+      <div class="spec-body"><h3>Swap module-based dependency handling for statement collections</h3>
+<p>Implement the interfaces and behavior described below.</p>
+<h4>Parsing statements</h4>
 <h5><code>ssort._parsing.split(source, *, filename)</code></h5>
 <ul>
-<li>Accept Python source text and a filename supplied as a keyword argument.</li>
-<li>Return an iterable of statement objects in source order.</li>
-<li>Empty source must produce no statements.</li>
-<li>Preserve the existing statement boundaries and exact source text associated with each statement; callers should no longer need to unpack each result as a <code>(text, AST)</code> pair.</li>
+<li>Accept Python source text together with a filename that is supplied as a keyword argument.</li>
+<li>Return an iterable of statement objects, ordered as they appear in the source.</li>
+<li>Empty source must result in no statements.</li>
+<li>Preserve the existing statement boundaries along with the exact source text associated with each statement; callers should no longer have to unpack each result as a <code>(text, AST)</code> pair.</li>
 </ul>
 <h5><code>ssort._statements.statement_text(statement)</code></h5>
 <ul>
-<li>Accept a statement object returned by <code>split</code>.</li>
-<li>Return the exact source-text fragment associated with that statement.</li>
-<li>Applying <code>statement_text</code> to every result from <code>split</code> must produce the same ordered textual fragments that splitting previously exposed.</li>
+<li>Accept a statement object as returned by <code>split</code>.</li>
+<li>Return the exact fragment of source text associated with that statement.</li>
+<li>Applying <code>statement_text</code> to every result of <code>split</code> must produce the same ordered textual fragments that splitting exposed previously.</li>
 </ul>
-<h4>Statement dependency graph</h4>
+<h4>Dependency graph of statements</h4>
 <h5><code>ssort._dependencies.statements_graph(statements)</code></h5>
 <ul>
-<li>Accept a list of statement objects, such as <code>list(split(source, filename=&quot;&lt;unknown&gt;&quot;))</code>.</li>
-<li>Return an object exposing a <code>dependencies</code> mapping.</li>
-<li>The original statement objects must be usable as keys in this mapping.</li>
-<li>Each mapping value must be an iterable of the statements on which that statement depends.</li>
-<li>Dependencies must be ordered by their first use within the dependent statement, not by the dependencies’ source order.</li>
+<li>Accept a list of statement objects, for instance <code>list(split(source, filename=&quot;&lt;unknown&gt;&quot;))</code>.</li>
+<li>Return an object that exposes a <code>dependencies</code> mapping.</li>
+<li>It must be possible to use the original statement objects as keys in this mapping.</li>
+<li>Each value in the mapping must be an iterable of the statements on which that statement depends.</li>
+<li>Dependencies must be ordered by their first use within the dependent statement, not by the order in which the dependencies occur in the source.</li>
 </ul>
-<p>For example, splitting:</p>
+<p>As an example, splitting:</p>
 <pre><code class="language-python">def c():
     pass
 
@@ -827,9 +829,9 @@ def a():
 def b():
     pass
 </code></pre>
-<p>produces the statements <code>c</code>, <code>a</code>, and <code>b</code> in that order. For the <code>a</code> statement, iterating <code>graph.dependencies[a]</code> must produce the <code>b</code> statement followed by the <code>c</code> statement.</p>
-<h4>Sorting compatibility</h4>
-<p>The existing source-sorting entry point must continue to leave an already ordered <code>singledispatch</code> definition sequence unchanged when registered implementations have distinct names:</p>
+<p>results in the statements <code>c</code>, <code>a</code>, and <code>b</code> in that order. For the <code>a</code> statement, iteration over <code>graph.dependencies[a]</code> must produce the <code>b</code> statement followed by the <code>c</code> statement.</p>
+<h4>Compatibility with sorting</h4>
+<p>When registered implementations have distinct names, the existing source-sorting entry point must continue to leave an already ordered <code>singledispatch</code> definition sequence unchanged:</p>
 <pre><code class="language-python">from functools import singledispatch
 
 @singledispatch
@@ -847,30 +849,30 @@ def _fun_int(x):
 if __name__ == &quot;__main__&quot;:
     ...
 </code></pre>
-<p>The generic function must remain before its registered implementations, the registration implementations must retain their source order and names, and the main-guard statement must remain after them.</p>
+<p>The generic function must remain before its registered implementations. The registration implementations must keep their source order and names. The main-guard statement must remain after them.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Add the following callable</span>
-        <span class="spec-meta muted">113 words · source specification
+        <span class="spec-title">The following callable is to be added</span>
+        <span class="spec-meta muted">127 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add the following callable:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>The following callable is to be added:</p>
 <pre><code class="language-python">ssort._statements.statement_text_padded(statement) -&gt; str
 </code></pre>
-<p><code>statement</code> is a statement object yielded by:</p>
+<p>The <code>statement</code> argument is a statement object yielded by:</p>
 <pre><code class="language-python">ssort._parsing.split(source: str)
 </code></pre>
-<p>The function must return the statement’s own source text prefixed with whitespace that preserves its original zero-based row and column offset:</p>
+<p>The function must return the statement's own source text, prefixed with whitespace such that the statement's original zero-based row and column offset is preserved:</p>
 <ul>
-<li>Prefix one <code>&quot;\n&quot;</code> for each row before the statement’s starting row.</li>
-<li>After those newlines, prefix one space for each column before the statement’s starting column.</li>
-<li>Do not include the source text of preceding statements.</li>
+<li>For each row before the statement's starting row, prefix one <code>&quot;\n&quot;</code>.</li>
+<li>For each column before the statement's starting column, prefix one space after those newlines.</li>
+<li>The source text of preceding statements must not be included.</li>
 </ul>
-<p>Required examples:</p>
+<h4>Examples that are required</h4>
 <pre><code class="language-python">statements = list(split(&quot;a = 4; b = 5&quot;))
 statement_text_padded(statements[1])
 # &quot;       b = 5&quot;
@@ -884,76 +886,76 @@ statement_text_padded(statements[1])
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">The module ssort._parsing already provides a split function and a supporting statement abstraction.</span>
-        <span class="spec-meta muted">814 words · source specification
+        <span class="spec-title">The ssort._parsing module already comes with a split function and a supporting statement abstraction.</span>
+        <span class="spec-meta muted">853 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>split_class</code> in <code>ssort._parsing</code></h3>
-<h4>Context</h4>
-<p>The module <code>ssort._parsing</code> already provides a <code>split</code> function and a supporting statement abstraction. You must add a new public function, <code>split_class</code>, to that same module.</p>
-<h4>Existing behavior you can rely on</h4>
+      <div class="spec-body"><h3>Task: Add <code>split_class</code> to <code>ssort._parsing</code></h3>
+<h4>Background</h4>
+<p>The <code>ssort._parsing</code> module already comes with a <code>split</code> function and a supporting statement abstraction. You are required to add a new public function, <code>split_class</code>, to that same module.</p>
+<h4>Existing behavior you can build on</h4>
 <ul>
-<li><code>ssort._parsing.split(source)</code> parses a source string and yields statement objects (iterate it with <code>list(...)</code> to get them in source order). Each yielded statement object represents one top-level statement (including its decorators and any attached leading comments/whitespace).</li>
-<li><code>ssort._statements.statement_text(statement)</code> returns the source text for a given statement object.</li>
+<li><code>ssort._parsing.split(source)</code> parses a source string and yields statement objects (iterate it with <code>list(...)</code> to obtain them in source order). Each statement object it yields represents a single top-level statement (together with its decorators and any leading comments/whitespace attached to it).</li>
+<li>Given a statement object, <code>ssort._statements.statement_text(statement)</code> returns the source text for it.</li>
 </ul>
-<h4>Required new API</h4>
-<p>Add a function with this signature to <code>ssort._parsing</code>:</p>
+<h4>Required new API addition</h4>
+<p>Add a function with the following signature to <code>ssort._parsing</code>:</p>
 <pre><code class="language-python">def split_class(statement):
     ...
 </code></pre>
 <ul>
-<li><strong>Input:</strong> a single statement object (of the same kind produced by <code>split</code>) that represents a class definition.</li>
-<li><strong>Output:</strong> a 2-tuple <code>(head, body)</code> where:
+<li><strong>Input:</strong> a single statement object (of the same kind that <code>split</code> produces) representing a class definition.</li>
+<li><strong>Output:</strong> a 2-tuple <code>(head, body)</code> in which:
 <ul>
-<li><code>head</code> is a <strong>string</strong>: the text of the class header, i.e. everything from the start of the statement up to and including the colon that terminates the <code>class ...:</code> clause. This includes any decorators, any leading comment lines, and any inline (trailing) comment that appears after the colon on the header line.</li>
-<li><code>body</code> is a <strong>list of statement objects</strong> (of the same kind produced by <code>split</code>), one per statement in the class body, in source order. Each element must be compatible with <code>statement_text</code> so its text can be recovered.</li>
+<li><code>head</code> is a <strong>string</strong>: the text of the class header — that is, all text from the beginning of the statement up to and including the colon that ends the <code>class ...:</code> clause. It covers any decorators, any leading comment lines, and any inline (trailing) comment that appears after the colon on the header line.</li>
+<li><code>body</code> is a <strong>list of statement objects</strong> (of the same kind that <code>split</code> produces), holding one entry per statement in the class body, in source order. Each element must be compatible with <code>statement_text</code> so that its text can be recovered.</li>
 </ul>
 </li>
 </ul>
-<h4>Required behavior details</h4>
-<p>The head string must be exactly the original source text of everything preceding the class body, with the following inclusions:</p>
+<h4>Details of the required behavior</h4>
+<p>The head string must be exactly the original source text of everything preceding the class body, and the following are part of it:</p>
 <ul>
-<li><strong>Decorators:</strong> If the class is decorated, the decorator lines are part of <code>head</code> (e.g. <code>&quot;@decorator()\nclass A:&quot;</code>).</li>
-<li><strong>Leading comments:</strong> A comment line immediately preceding the class (e.g. <code>&quot;# Comment.\nclass A:&quot;</code>) is part of <code>head</code>.</li>
-<li><strong>Leading blank lines / whitespace:</strong> Any leading whitespace that belongs to the statement is preserved in <code>head</code> (e.g. a class following another top-level statement may have a leading newline, giving a head like <code>&quot;\nclass A:&quot;</code>).</li>
-<li><strong>Header inline comment:</strong> A comment appearing after the colon on the header line (e.g. <code>&quot;class A:  # Something witty.&quot;</code>) is part of <code>head</code>, exactly as written.</li>
-<li>The head must <strong>not</strong> include a trailing newline after the colon (or after the header inline comment).</li>
+<li><strong>Decorators:</strong> If the class is decorated, the decorator lines belong to <code>head</code> (e.g. <code>&quot;@decorator()\nclass A:&quot;</code>).</li>
+<li><strong>Leading comments:</strong> A comment line that immediately precedes the class (e.g. <code>&quot;# Comment.\nclass A:&quot;</code>) is part of <code>head</code>.</li>
+<li><strong>Leading blank lines / whitespace:</strong> <code>head</code> preserves any leading whitespace belonging to the statement (e.g. a class that follows another top-level statement may begin with a newline, producing a head like <code>&quot;\nclass A:&quot;</code>).</li>
+<li><strong>Header inline comment:</strong> A comment occurring after the colon on the header line (e.g. <code>&quot;class A:  # Something witty.&quot;</code>) is part of <code>head</code>, exactly as written.</li>
+<li>A trailing newline after the colon (or after the header inline comment) must <strong>not</strong> be included in the head.</li>
 </ul>
-<p>The body must be split into individual statements, and each statement's recovered text must retain its original leading indentation. Specifically:</p>
+<p>The body must be split into its individual statements, and the text recovered for each statement must retain that statement's original leading indentation. Concretely:</p>
 <ul>
 <li>
 <p><strong>Indented block body:</strong></p>
 <pre><code>class A:
     attr = 2
 </code></pre>
-<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    attr = 2&quot;]</code> (indentation preserved).</p>
+<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    attr = 2&quot;]</code> (the indentation is preserved).</p>
 </li>
 <li>
-<p><strong>Single-line class body</strong> (body on the same line as the header, after the colon):</p>
+<p><strong>Single-line class body</strong> (the body sits on the header's line, after the colon):</p>
 <pre><code>class A: attr = 3
 </code></pre>
-<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    attr = 3&quot;]</code>. Note that a single-line body must be re-emitted with a 4-space indent.</p>
+<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    attr = 3&quot;]</code>. Note that a body on a single line must be re-emitted with a 4-space indent.</p>
 </li>
 <li>
-<p><strong>Single-line body with multiple statements</strong> separated by <code>;</code>:</p>
+<p><strong>Single-line body holding multiple statements</strong>, separated by <code>;</code>:</p>
 <pre><code>class A: a = 2; b = 3
 </code></pre>
-<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    a = 2&quot;, &quot;    b = 3&quot;]</code>. Each semicolon-separated statement becomes its own body element, each indented by 4 spaces.</p>
+<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;    a = 2&quot;, &quot;    b = 3&quot;]</code>. Each semicolon-separated statement becomes its own body element, and each one is indented by 4 spaces.</p>
 </li>
 <li>
-<p><strong>Indented body line containing multiple statements</strong> separated by <code>;</code>:</p>
+<p><strong>Multiple statements on an indented body line</strong>, separated by <code>;</code>:</p>
 <pre><code>class A:
    a = 2; b = 3
 </code></pre>
-<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;   a = 2&quot;, &quot;   b = 3&quot;]</code>. Each becomes its own body element; the original indentation of that line (here 3 spaces) is preserved on each.</p>
+<p>→ head <code>&quot;class A:&quot;</code>, body statement texts <code>[&quot;   a = 2&quot;, &quot;   b = 3&quot;]</code>. Each becomes its own body element; the original indentation of that line (3 spaces here) is preserved on each one.</p>
 </li>
 </ul>
-<h4>Examples (input source → result)</h4>
-<p>For each example below, the input is passed through <code>split(...)</code>, and the relevant class statement (the last one produced) is passed to <code>split_class</code>. The result is <code>(head, [statement_text(child) for child in body])</code>.</p>
+<h4>Examples (source input → result)</h4>
+<p>For each example below, the input goes through <code>split(...)</code>, and the relevant class statement (the last one produced) is passed to <code>split_class</code>. The result is <code>(head, [statement_text(child) for child in body])</code>.</p>
 <table>
 <thead>
 <tr>
-<th>Input source</th>
+<th>Source input</th>
 <th>head</th>
 <th>body texts</th>
 </tr>
@@ -1001,297 +1003,300 @@ statement_text_padded(statements[1])
 </tr>
 </tbody>
 </table>
-<h4>Import surface</h4>
-<p>The following imports must succeed:</p>
+<h4>Import requirements</h4>
+<p>The imports below must succeed:</p>
 <pre><code class="language-python">from ssort._parsing import split, split_class
 from ssort._statements import statement_text
 </code></pre>
-<p>(<code>split</code> and <code>statement_text</code> already exist; you are adding <code>split_class</code>.)</p>
-<p>Note: the last example shows that when the class is one of several statements parsed from a source, <code>split_class</code> operates on the single statement object passed to it (the class statement), and its leading whitespace (the blank line separating it from the previous statement) is part of that statement and therefore included in <code>head</code>.</p>
+<p>(<code>split</code> and <code>statement_text</code> are already there; <code>split_class</code> is the function you are adding.)</p>
+<p>Note: the last example shows that when the class is one of several statements parsed from a source, <code>split_class</code> operates on the single statement object given to it (the class statement), and its leading whitespace (the blank line separating it from the previous statement) is part of that statement and is therefore included in <code>head</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Implement a new function that analyzes a Python method definition (as an AST node) and determines which attributes it requires from its bound instance or…</span>
-        <span class="spec-meta muted">437 words · source specification
+        <span class="spec-title">Create a new function that examines a Python method definition (given as an AST node) and determines which attributes it requires from its bound instance or…</span>
+        <span class="spec-meta muted">445 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement a new function that analyzes a Python method definition (as an AST node) and determines which attributes it requires from its bound instance or class parameter (i.e. <code>self</code> or <code>cls</code>).</p>
-<p>Additionally, remove a now-unused bubble sort module.</p>
-<h4>Part 1: Method Requirements Analysis</h4>
-<h5>Public API</h5>
-<p>Create a module at <code>ssort/_method_requirements.py</code> exposing:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>Create a new function that examines a Python method definition (given as an AST node) and determines which attributes it requires from its bound instance or class parameter (i.e. <code>self</code> or <code>cls</code>).</p>
+<p>In addition, remove a bubble sort module that is now unused.</p>
+<h4>Part 1: Analysis of Method Requirements</h4>
+<h5>Public Interface</h5>
+<p>Create a module at <code>ssort/_method_requirements.py</code> which exposes:</p>
 <pre><code class="language-python">def get_method_requirements(node):
     ...
 </code></pre>
 <ul>
-<li><strong>Input</strong>: <code>node</code> is a Python AST node representing a single function definition (an <code>ast.FunctionDef</code> node, as produced by <code>ast.parse(...).body[0]</code>). The function definition may be decorated with <code>@staticmethod</code> or <code>@classmethod</code>, or be an ordinary (instance) method.</li>
-<li><strong>Output</strong>: An iterable (e.g. a generator or list) of strings. Each string is the name of an attribute accessed on the method's bound parameter, in the order in which those accesses appear in the source.</li>
+<li><strong>Input</strong>: <code>node</code> is a Python AST node that represents a single function definition (an <code>ast.FunctionDef</code> node, as produced by <code>ast.parse(...).body[0]</code>). The function definition may be decorated with <code>@staticmethod</code> or <code>@classmethod</code>, or it may be an ordinary (instance) method.</li>
+<li><strong>Output</strong>: An iterable of strings (e.g. a generator or list). Every string is the name of an attribute accessed on the method's bound parameter, in the order in which the accesses appear in the source.</li>
 </ul>
 <h5>Behavior</h5>
-<p>The &quot;bound parameter&quot; is the first positional parameter of the method:</p>
+<p>The &quot;bound parameter&quot; is the method's first positional parameter:</p>
 <ul>
-<li>For an ordinary instance method, this is conventionally <code>self</code>.</li>
-<li>For a <code>@classmethod</code>, this is conventionally <code>cls</code>.</li>
-<li>For a <code>@staticmethod</code>, there is no bound parameter.</li>
+<li>For an ordinary instance method, it is conventionally <code>self</code>.</li>
+<li>For a <code>@classmethod</code>, it is conventionally <code>cls</code>.</li>
+<li>For a <code>@staticmethod</code>, no bound parameter exists.</li>
 </ul>
-<p>The function must collect the names of every attribute accessed via attribute access on the bound parameter (i.e. expressions of the form <code>&lt;bound&gt;.&lt;name&gt;</code>), yielding each attribute <code>name</code> in source order.</p>
-<p>Specific rules derived from the required behavior:</p>
+<p>The function must collect the names of every attribute accessed through attribute access on the bound parameter (i.e. expressions of the form <code>&lt;bound&gt;.&lt;name&gt;</code>), yielding each attribute <code>name</code> in source order.</p>
+<p>The following rules are derived from the required behavior:</p>
 <ol>
 <li>
-<p><strong>Static methods</strong>: A method decorated with <code>@staticmethod</code> has no bound parameter. Regardless of what it accesses (including attribute accesses on unrelated names), the result is empty.</p>
+<p><strong>Static methods</strong>: A method decorated with <code>@staticmethod</code> has no bound parameter. No matter what it accesses (including attribute accesses on unrelated names), the result is empty.</p>
 </li>
 <li>
-<p><strong>Class methods</strong>: A method decorated with <code>@classmethod</code> has its first parameter (e.g. <code>cls</code>) as the bound parameter. Attribute accesses on that parameter are collected. Attribute accesses on other parameters or names are ignored. The presence of additional parameters and <code>**kwargs</code> in the signature does not affect the result.</p>
+<p><strong>Class methods</strong>: For a method decorated with <code>@classmethod</code>, the bound parameter is its first parameter (e.g. <code>cls</code>). Attribute accesses on that parameter are collected, whereas attribute accesses on other parameters or names are ignored. Having additional parameters and <code>**kwargs</code> in the signature does not affect the result.</p>
 <ul>
-<li>Example: for a classmethod whose body is <code>return cls.attr + arg.argattr</code>, the result is <code>[&quot;attr&quot;]</code> — <code>cls.attr</code> contributes <code>attr</code>, while <code>arg.argattr</code> is ignored because <code>arg</code> is not the bound parameter.</li>
+<li>Example: for a classmethod with the body <code>return cls.attr + arg.argattr</code>, the result is <code>[&quot;attr&quot;]</code> — <code>cls.attr</code> contributes <code>attr</code>, while <code>arg.argattr</code> is ignored since <code>arg</code> is not the bound parameter.</li>
 </ul>
 </li>
 <li>
-<p><strong>Instance methods</strong>: An undecorated method has its first parameter (e.g. <code>self</code>) as the bound parameter. Attribute accesses on that parameter are collected in source order; accesses on other parameters or names are ignored.</p>
+<p><strong>Instance methods</strong>: For an undecorated method, the bound parameter is its first parameter (e.g. <code>self</code>). Attribute accesses on that parameter are collected in source order, and accesses on other parameters or names are ignored.</p>
 <ul>
-<li>Example: for a method whose body is <code>return self.a + self.b - something.other</code>, the result is <code>[&quot;a&quot;, &quot;b&quot;]</code> — <code>self.a</code> and <code>self.b</code> contribute in order, while <code>something.other</code> is ignored.</li>
+<li>Example: for a method with the body <code>return self.a + self.b - something.other</code>, the result is <code>[&quot;a&quot;, &quot;b&quot;]</code> — <code>self.a</code> and <code>self.b</code> contribute in order, while <code>something.other</code> is ignored.</li>
 </ul>
 </li>
 </ol>
-<p>The determination of whether a method is a static method, class method, or ordinary method is based on the decorators present on the function definition node (<code>@staticmethod</code> / <code>@classmethod</code>).</p>
-<h4>Part 2: Remove Bubble Sort Module</h4>
-<p>Remove the module <code>ssort/_bubble_sort.py</code> (which contained a <code>bubble_sort</code> function). It is no longer needed and no longer referenced.</p>
+<p>Whether a method is a static method, class method, or ordinary method is determined by the decorators present on the function definition node (<code>@staticmethod</code> / <code>@classmethod</code>).</p>
+<h4>Part 2: Removing the Bubble Sort Module</h4>
+<p>Delete the module <code>ssort/_bubble_sort.py</code> (which contained a <code>bubble_sort</code> function). It is neither needed nor referenced any longer.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">You are working on a dependency-analysis component that examines Python source code (parsed into an AST) and determines which external names a code…</span>
-        <span class="spec-meta muted">397 words · source specification
+        <span class="spec-title">The component at the center of this task performs dependency analysis</span>
+        <span class="spec-meta muted">468 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a dependency-analysis component that examines Python source code (parsed into an AST) and determines which external names a code construct depends on. A &quot;dependency&quot; is a name that is <em>referenced</em> (read) within a construct but <em>not defined</em> by that construct itself. Names that a construct binds locally — for example, function parameters — are considered <em>shadowed</em> and must NOT be reported as external dependencies.</p>
-<p>Your task is to ensure that <strong>all forms of function parameters</strong> are correctly recognized as locally-bound names when analyzing a function definition, so that references to those parameters within the function body are not counted as external dependencies.</p>
-<h4>Required Behavior</h4>
-<p>When analyzing a function definition node, the following parameter kinds must all shadow (bind) their names, so that using them inside the function body produces no external dependency:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Background</h4>
+<p>The component at the center of this task performs dependency analysis: it inspects Python source code (parsed into an AST) and works out the external names on which a given code construct relies. A name qualifies as a &quot;dependency&quot; when it is <em>referenced</em> (read) inside the construct yet <em>not defined</em> by that same construct. If a construct binds a name locally — one example being function parameters — that name counts as <em>shadowed</em>, and it must NOT be reported among the external dependencies.</p>
+<p>The goal is to guarantee that, while a function definition is being analyzed, <strong>all forms of function parameters</strong> are recognized correctly as locally-bound names, with the consequence that references to those parameters inside the function body do not count as external dependencies.</p>
+<h4>Behavior Requirements</h4>
+<p>During analysis of a function definition node, every parameter kind listed below must receive the shadowing (binding) treatment for its name, so that a use of that name inside the function body leads to no external dependency:</p>
 <ol>
-<li><strong>Regular (positional-or-keyword) arguments</strong> — e.g. <code>def function(arg):</code></li>
-<li><strong>Positional-only arguments</strong> (those declared before a <code>/</code> separator) — e.g. <code>def function(arg, /):</code></li>
-<li><strong>Keyword-only arguments</strong> (those declared after a bare <code>*</code> separator) — e.g. <code>def function(*, arg):</code></li>
+<li><strong>Regular (positional-or-keyword) arguments</strong> — as in <code>def function(arg):</code></li>
+<li><strong>Positional-only arguments</strong> (parameters that appear before a <code>/</code> separator) — as in <code>def function(arg, /):</code></li>
+<li><strong>Keyword-only arguments</strong> (parameters that appear after a bare <code>*</code> separator) — as in <code>def function(*, arg):</code></li>
 </ol>
-<p>In each case, if the parameter name is referenced within the function body, it must be treated as bound by the function and therefore excluded from the set of external dependency names. A function whose only body references are to its own parameters (of any of the above kinds) must report an empty list of external dependencies.</p>
-<h4>Public API</h4>
-<p>The behavior is exercised through the existing dependency-analysis surface, which must support the constructs described above:</p>
+<p>In every one of these cases, if a reference to the parameter name occurs within the function body, the name must be counted as bound by the function and must consequently be left out of the set of external dependency names. When the only references in a function's body are to that function's own parameters (with any of the kinds listed above), the function must report an empty list of external dependencies.</p>
+<h4>Public Interface</h4>
+<p>The behavior is exercised via the dependency-analysis surface that already exists, and that surface must support the constructs described above:</p>
 <ul>
-<li>A helper that parses a snippet of Python source text and returns the AST node representing the single top-level statement it contains. The snippet may be indented (i.e., leading indentation on all lines must be tolerated / normalized before parsing).</li>
-<li>A function <code>_dep_names(node)</code> that, given such an AST node, returns a list of the names the node depends on externally (names referenced but not bound within the node). For a function definition whose body only references its own parameters, this returns <code>[]</code>.</li>
+<li>A helper takes a snippet of Python source text, parses it, and returns the AST node for the single top-level statement the snippet contains. The snippet may be indented (that is, leading indentation appearing on all lines must be tolerated / normalized before parsing).</li>
+<li>A function <code>_dep_names(node)</code> takes such an AST node and returns a list of the names on which the node depends externally (names that get referenced but are not bound within the node). For a function definition whose body references only its own parameters, the return value is <code>[]</code>.</li>
 </ul>
-<h4>Notes / Edge Cases</h4>
+<h4>Edge Cases / Notes</h4>
 <ul>
-<li>The three parameter kinds (positional-only, positional-or-keyword, keyword-only) must be handled uniformly with respect to shadowing.</li>
-<li>The result for the described cases is an empty list (no external dependencies), regardless of parameter kind.</li>
+<li>Handling must be uniform across the three parameter kinds (positional-only, positional-or-keyword, keyword-only) where shadowing is concerned.</li>
+<li>In the cases described, the result is an empty list (no external dependencies), no matter which parameter kind is involved.</li>
 </ul>
-<p>&lt;sub&gt;The key change is extending parameter-name collection to also include positional-only and keyword-only parameters, not just regular positional-or-keyword parameters.&lt;/sub&gt;</p>
+<p>&lt;sub&gt;The essential change consists of extending parameter-name collection so that it also includes positional-only and keyword-only parameters, not merely regular positional-or-keyword parameters.&lt;/sub&gt;</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Modify the behavior of the ssort function so that it correctly handles empty input.</span>
-        <span class="spec-meta muted">109 words · source specification
+        <span class="spec-title">Change the behavior of the ssort function so that empty input is handled correctly.</span>
+        <span class="spec-meta muted">118 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the behavior of the <code>ssort</code> function so that it correctly handles empty input.</p>
-<h4>Public API</h4>
-<p>The function <code>ssort</code> must be importable from the top-level package:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Change the behavior of the <code>ssort</code> function so that empty input is handled correctly.</p>
+<h4>Public Interface</h4>
+<p>It must be possible to import the function <code>ssort</code> from the top-level package:</p>
 <pre><code class="language-python">from ssort import ssort
 </code></pre>
-<p>Signature:</p>
+<p>The signature is:</p>
 <pre><code class="language-python">def ssort(text: str) -&gt; str:
     ...
 </code></pre>
-<p>It accepts a single string argument (the source text) and returns a string (the processed source text).</p>
-<h4>Required Behavior</h4>
-<p>When <code>ssort</code> is called with an empty string (<code>&quot;&quot;</code>), it must return an empty string (<code>&quot;&quot;</code>).</p>
-<p>Specifically, no trailing newline (or any other character) may be added to empty input — the output for empty input must be exactly the empty string.</p>
+<p>The function accepts the source text as a single string argument and returns the processed source text as a string.</p>
+<h4>Behavior Requirements</h4>
+<p>Calling <code>ssort</code> with an empty string (<code>&quot;&quot;</code>) must make it return an empty string (<code>&quot;&quot;</code>).</p>
+<p>In particular, a trailing newline (or any other character) may not be added to empty input — for empty input, the output must be exactly the empty string.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">The ssort command-line tool sorts top-level statements in Python source files so that definitions appear before their uses (private helpers before the…</span>
-        <span class="spec-meta muted">855 words · source specification
+        <span class="spec-title">ssort is a command-line tool that reorders the top-level statements of Python source files so that definitions come before their uses (private helpers are…</span>
+        <span class="spec-meta muted">909 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>--check</code> mode for the <code>ssort</code> command-line tool</h3>
+      <div class="spec-body"><h3>Task: Add a <code>--check</code> mode to the <code>ssort</code> command-line tool</h3>
 <h4>Overview</h4>
-<p>The <code>ssort</code> command-line tool sorts top-level statements in Python source files so that definitions appear before their uses (private helpers before the public functions that call them). You must implement a <code>--check</code> mode that reports whether files are already correctly sorted, <strong>without modifying any files</strong>, and produces a specific set of diagnostic and summary messages.</p>
-<p>The tool must be invocable as an executable named <code>ssort</code> (available on <code>PATH</code>). It is invoked like:</p>
+<p><code>ssort</code> is a command-line tool that reorders the top-level statements of Python source files so that definitions come before their uses (private helpers are placed before the public functions that call them). You must implement a <code>--check</code> mode that reports whether files are already correctly sorted, <strong>without modifying any files</strong>, and that emits a specific set of diagnostic and summary messages.</p>
+<p>It must be possible to invoke the tool as an executable named <code>ssort</code> (available on <code>PATH</code>). It is invoked as:</p>
 <pre><code>ssort --check &lt;directory&gt;
 </code></pre>
-<p>where <code>&lt;directory&gt;</code> contains one or more <code>.py</code> files to inspect. All files in the given directory must be processed.</p>
-<h4>Sorting semantics (for determining &quot;correctly sorted&quot;)</h4>
-<p>A file's top-level statements are considered correctly sorted when every definition appears before the statements that depend on it. Concretely, for the fixtures involved:</p>
+<p>where <code>&lt;directory&gt;</code> contains one or more <code>.py</code> files to inspect. The tool must process all files in the given directory.</p>
+<h4>Sorting semantics (for deciding whether a file is &quot;correctly sorted&quot;)</h4>
+<p>A file's top-level statements are regarded as correctly sorted when every definition appears before the statements that depend on it. Specifically, for the fixtures involved:</p>
 <ul>
-<li>A file where a private helper function is defined <em>before</em> the public function that calls it is <strong>correctly sorted</strong> (would be left unchanged).</li>
-<li>A file where a public function that calls a private helper is defined <em>before</em> that helper is <strong>not correctly sorted</strong> (would be resorted).</li>
+<li>A file in which a private helper function is defined <em>before</em> the public function that calls it is <strong>correctly sorted</strong> (would be left unchanged).</li>
+<li>A file in which a public function that calls a private helper is defined <em>before</em> that helper is <strong>not correctly sorted</strong> (would be resorted).</li>
 </ul>
 <h4>Processing order and output</h4>
-<p>The tool processes the files in sorted filename order. For each file, it may emit an error line to <strong>stderr</strong>. After all files are processed, it emits exactly one summary line to <strong>stderr</strong>.</p>
-<p>All output described below goes to <strong>stderr</strong>. Each message is a single line terminated by a newline (<code>\n</code>).</p>
-<h5>Per-file error messages</h5>
-<p>For each file, exactly one of the following applies:</p>
+<p>Files are processed by the tool in sorted filename order. For each file, an error line may be emitted to <strong>stderr</strong>. Once all files have been processed, it emits exactly one summary line to <strong>stderr</strong>.</p>
+<p>All of the output described below goes to <strong>stderr</strong>. Each message consists of a single line terminated by a newline (<code>\n</code>).</p>
+<h5>Error messages per file</h5>
+<p>For each file, exactly one of the following cases applies:</p>
 <ol>
 <li>
-<p><strong>File is correctly sorted</strong> — no per-file message is emitted.</p>
+<p><strong>File is correctly sorted</strong> — no message is emitted for the file.</p>
 </li>
 <li>
 <p><strong>File is not correctly sorted</strong> — emit:</p>
 <pre><code>ERROR: '&lt;path&gt;' is incorrectly sorted
 </code></pre>
-<p>where <code>&lt;path&gt;</code> is the file path as it was passed in (the <code>repr()</code> of the path string, i.e. wrapped in single quotes).</p>
+<p>where <code>&lt;path&gt;</code> is the file path as passed in (the <code>repr()</code> of the path string, i.e. enclosed in single quotes).</p>
 </li>
 <li>
 <p><strong>File contains a Python syntax error</strong> — emit:</p>
 <pre><code>ERROR: syntax error in '&lt;path&gt;': line &lt;line&gt;, column &lt;col&gt;
 </code></pre>
-<p>where <code>&lt;line&gt;</code> and <code>&lt;col&gt;</code> are the 1-based line and column of the syntax error. (<code>&lt;path&gt;</code> is again the <code>repr()</code> of the path string.)</p>
+<p>where <code>&lt;line&gt;</code> and <code>&lt;col&gt;</code> are the 1-based line and column of the syntax error. (<code>&lt;path&gt;</code> is once again the <code>repr()</code> of the path string.)</p>
 </li>
 <li>
-<p><strong>File contains an unresolved dependency</strong> — a top-level statement references a name that is never defined at the top level of the module and is not a recognised builtin. Emit:</p>
+<p><strong>File contains an unresolved dependency</strong> — a top-level statement references a name that is never defined at the module's top level and is not a recognised builtin. Emit:</p>
 <pre><code>ERROR: unresolved dependency '&lt;name&gt;' in '&lt;path&gt;': line &lt;line&gt;, column &lt;col&gt;
 </code></pre>
-<p>where <code>&lt;name&gt;</code> is the unresolved name, and <code>&lt;line&gt;</code>/<code>&lt;col&gt;</code> are the 1-based line and column at which the unresolved name is used.</p>
+<p>where <code>&lt;name&gt;</code> is the unresolved name, while <code>&lt;line&gt;</code>/<code>&lt;col&gt;</code> are the 1-based line and column at which the unresolved name is used.</p>
 </li>
 </ol>
-<p>Per-file error lines are emitted in file-processing order.</p>
-<h5>Summary message</h5>
-<p>After processing all files, emit exactly one summary line built from the following count-based clauses, in this order, including only the clauses whose count is greater than zero:</p>
+<p>Per-file error lines are emitted in the order in which the files are processed.</p>
+<h5>Summary line</h5>
+<p>Once all files have been processed, emit exactly one summary line built from the following count-based clauses, in this order, including only clauses whose count is greater than zero:</p>
 <ol>
-<li>Files that would be resorted (not correctly sorted, but syntactically valid and resolvable):
+<li>Files that would be resorted (i.e. not correctly sorted, but syntactically valid and resolvable):
 <ul>
-<li><code>N file would be resorted</code> if N == 1</li>
-<li><code>N files would be resorted</code> if N &gt; 1</li>
+<li><code>N file would be resorted</code> when N == 1</li>
+<li><code>N files would be resorted</code> when N &gt; 1</li>
 </ul>
 </li>
-<li>Files that would be left unchanged (correctly sorted):
+<li>Files that would be left unchanged (i.e. correctly sorted):
 <ul>
-<li><code>N file would be left unchanged</code> if N == 1</li>
-<li><code>N files would be left unchanged</code> if N &gt; 1</li>
+<li><code>N file would be left unchanged</code> when N == 1</li>
+<li><code>N files would be left unchanged</code> when N &gt; 1</li>
 </ul>
 </li>
-<li>Files that would not be sortable (syntax error or unresolved dependency):
+<li>Files that would not be sortable (a syntax error or an unresolved dependency):
 <ul>
-<li><code>N file would not be sortable</code> if N == 1</li>
-<li><code>N files would not be sortable</code> if N &gt; 1</li>
+<li><code>N file would not be sortable</code> when N == 1</li>
+<li><code>N files would not be sortable</code> when N &gt; 1</li>
 </ul>
 </li>
 </ol>
-<p>The included clauses are joined with <code>&quot;, &quot;</code> (comma and single space) and the line is terminated with a newline.</p>
-<p>Examples of complete summary lines:</p>
+<p>The clauses that are included are joined with <code>&quot;, &quot;</code> (comma and single space), and the line ends with a newline.</p>
+<p>Examples of full summary lines:</p>
 <ul>
-<li>All three files correctly sorted: <code>3 files would be left unchanged</code></li>
-<li>One unsorted, two correct: <code>1 file would be resorted, 2 files would be left unchanged</code></li>
-<li>All three unsorted: <code>3 files would be resorted</code></li>
-<li>Two correct, one syntax error: <code>2 files would be left unchanged, 1 file would not be sortable</code></li>
-<li>Three syntax errors: <code>3 files would not be sortable</code></li>
-<li>One unsorted, one correct, one syntax error: <code>1 file would be resorted, 1 file would be left unchanged, 1 file would not be sortable</code></li>
+<li>Three files, all correctly sorted: <code>3 files would be left unchanged</code></li>
+<li>One file unsorted, two correct: <code>1 file would be resorted, 2 files would be left unchanged</code></li>
+<li>All three files unsorted: <code>3 files would be resorted</code></li>
+<li>Two correct, one with a syntax error: <code>2 files would be left unchanged, 1 file would not be sortable</code></li>
+<li>Three files with syntax errors: <code>3 files would not be sortable</code></li>
+<li>One unsorted, one correct, one with a syntax error: <code>1 file would be resorted, 1 file would be left unchanged, 1 file would not be sortable</code></li>
 </ul>
 <h4>Exit status</h4>
 <ul>
-<li>If <strong>every</strong> file is correctly sorted (would be left unchanged), exit with status code <code>0</code>.</li>
-<li>If <strong>any</strong> file is not correctly sorted, has a syntax error, or has an unresolved dependency, exit with status code <code>1</code>.</li>
+<li>When <strong>every</strong> file is correctly sorted (would be left unchanged), exit with status code <code>0</code>.</li>
+<li>When <strong>any</strong> file is not correctly sorted, has a syntax error, or has an unresolved dependency, exit with status code <code>1</code>.</li>
 </ul>
-<h4>Builtins</h4>
-<p>Name resolution must treat <code>raw_input</code> as a recognised builtin (in addition to the standard set of Python builtins), so that a reference to it does not produce an unresolved-dependency error.</p>
-<h4>Line/column reporting details</h4>
-<p>Positions reported for syntax errors and unresolved dependencies are 1-based for both line and column. For reference, given source such as:</p>
+<h4>Builtin names</h4>
+<p>Name resolution must treat <code>raw_input</code> as a recognised builtin (in addition to the standard set of Python builtins), so that a reference to it does not result in an unresolved-dependency error.</p>
+<h4>Details of line/column reporting</h4>
+<p>The positions reported for syntax errors and unresolved dependencies are 1-based for both line and column. For reference, given the following source:</p>
 <pre><code>def _private(
     pass
 
 def public(
     return _private()
 </code></pre>
-<p>the syntax error is reported at <code>line 3, column 5</code>.</p>
-<p>And given source such as:</p>
+<p>the position reported for the syntax error is <code>line 3, column 5</code>.</p>
+<p>And given the following source:</p>
 <pre><code>def _private():
     pass
 
 def public():
     return _other()
 </code></pre>
-<p>the reference to the unresolved name <code>_other</code> is reported at <code>line 6, column 11</code>.</p>
-<p>(Both example sources above begin with a leading newline, so the first physical line is blank.)</p>
+<p>the position reported for the reference to the unresolved name <code>_other</code> is <code>line 6, column 11</code>.</p>
+<p>(Both of the example sources above start with a leading newline, so the first physical line is blank.)</p>
 <h4>Constraints</h4>
 <ul>
-<li>Files must <strong>not</strong> be modified in <code>--check</code> mode.</li>
-<li>Nothing is written to stdout for the behavior described here; all diagnostics and the summary go to stderr.</li>
+<li>In <code>--check</code> mode, files must <strong>not</strong> be modified.</li>
+<li>For the behavior described here, nothing is written to stdout; all diagnostics and the summary go to stderr.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">ssort Command-Line Tool in Fix (Mutating) Mode</span>
-        <span class="spec-meta muted">714 words · source specification
+        <span class="spec-title">Implementing the Fix (Mutating) Mode of the ssort Command-Line Tool</span>
+        <span class="spec-meta muted">818 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>ssort</code> Command-Line Tool in Fix (Mutating) Mode</h3>
-<h4>Overview</h4>
-<p>Implement the behavior of the <code>ssort</code> command-line executable when invoked to sort Python source files <strong>in place</strong> (fix mode). The tool accepts a path argument (typically a directory) identifying a set of Python files, attempts to sort the top-level statements of each file according to dependency order, rewrites files whose contents change, and reports a summary of what happened. All human-readable output described here must be written to <strong>standard error</strong>.</p>
-<h4>Invocation</h4>
-<p>The tool is invoked as:</p>
+      <div class="spec-body"><h3>Task Specification: Implementing the Fix (Mutating) Mode of the <code>ssort</code> Command-Line Tool</h3>
+<h4>What This Task Covers</h4>
+<p>This task is about implementing how the <code>ssort</code> command-line executable behaves when it is invoked to sort Python source files <strong>in place</strong> (fix mode). The tool accepts a path argument (typically a directory) that identifies a set of Python files. For every one of those files, it attempts to arrange the top-level statements according to dependency order; files whose contents change are rewritten, and a summary of the results is reported. Every piece of human-readable output described in this document must be written to <strong>standard error</strong>.</p>
+<h4>Calling the Tool</h4>
+<p>The tool gets invoked like this:</p>
 <pre><code>ssort &lt;path&gt;
 </code></pre>
-<p>where <code>&lt;path&gt;</code> is a directory containing the Python files to process. The tool discovers the <code>.py</code> files under that path and processes each one.</p>
-<h4>Per-File Processing</h4>
-<p>For each file discovered, exactly one of the following outcomes applies:</p>
+<p><code>&lt;path&gt;</code> here is a directory that holds the Python files to be processed. Under that path, the tool finds the <code>.py</code> files and processes each of them.</p>
+<h4>Outcomes for Each File</h4>
+<p>Exactly one of the three outcomes below holds for every file that is discovered:</p>
 <ol>
 <li>
-<p><strong>Left unchanged</strong> — The file was parsed and analyzed successfully, and its sorted form is identical to its current contents. No per-file message is emitted. The file is not modified.</p>
+<p><strong>Left unchanged</strong> — Parsing and analysis of the file succeed, and the sorted form that results is identical to the contents the file currently has. The tool emits no per-file message, and no modification is made to the file.</p>
 </li>
 <li>
-<p><strong>Resorted</strong> — The file was parsed and analyzed successfully, and its sorted form differs from its current contents. The file is rewritten with the sorted contents, and a per-file message is emitted (see below).</p>
+<p><strong>Resorted</strong> — Parsing and analysis succeed here as well, but the sorted form differs from the file's current contents. The tool rewrites the file with the sorted contents, and a per-file message is emitted (see below).</p>
 </li>
 <li>
-<p><strong>Not sortable</strong> — The file could not be processed because of a syntax error or an unresolved dependency. An error message is emitted (see below), and the file is not modified.</p>
+<p><strong>Not sortable</strong> — The file cannot be processed, the cause being a syntax error or an unresolved dependency. An error message is emitted (see below), and the file is left unmodified.</p>
 </li>
 </ol>
-<h4>Per-File Messages</h4>
-<p>Messages must be emitted in the order files are processed, and this order is deterministic (the same fixed order in which the files were provided/discovered).</p>
+<h4>Messages for Individual Files</h4>
+<p>Emission must follow the order in which files are processed; that order is deterministic — it is the same fixed order in which the files were provided/discovered.</p>
 <ul>
 <li>
-<p><strong>Resorted file:</strong> emit a line of the form:</p>
+<p><strong>Resorted file:</strong> emit a line like this:</p>
 <pre><code>Sorting '&lt;path&gt;'
 </code></pre>
-<p>where <code>&lt;path&gt;</code> is the file path, formatted using Python's <code>repr()</code> of the path string (i.e., surrounded by quotes as <code>repr</code> renders it).</p>
+<p>Here <code>&lt;path&gt;</code> stands for the file path, rendered as Python's <code>repr()</code> of the path string — in other words, it appears wrapped in the quotes that <code>repr</code> produces.</p>
 </li>
 <li>
-<p><strong>Syntax error:</strong> emit a line of the form:</p>
+<p><strong>Syntax error:</strong> emit a line matching this pattern:</p>
 <pre><code>ERROR: syntax error in '&lt;path&gt;': line &lt;L&gt;, column &lt;C&gt;
 </code></pre>
-<p>where <code>&lt;path&gt;</code> is the <code>repr()</code>-formatted file path, and <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> are the 1-based line and column of the error.</p>
+<p>In it, <code>&lt;path&gt;</code> is once more the <code>repr()</code>-formatted file path, while <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> identify the 1-based line and column where the error is located.</p>
 </li>
 <li>
-<p><strong>Unresolved dependency:</strong> emit a line of the form:</p>
+<p><strong>Unresolved dependency:</strong> emit a line with this structure:</p>
 <pre><code>ERROR: unresolved dependency '&lt;name&gt;' in '&lt;path&gt;': line &lt;L&gt;, column &lt;C&gt;
 </code></pre>
-<p>where <code>&lt;name&gt;</code> is the name of the unresolved dependency, <code>&lt;path&gt;</code> is the <code>repr()</code>-formatted file path, and <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> are the 1-based line and column where the unresolved reference occurs.</p>
+<p><code>&lt;name&gt;</code> designates the unresolved dependency's name, <code>&lt;path&gt;</code> is again the <code>repr()</code>-formatted file path, and <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> give the 1-based line and column at which the unresolved reference occurs.</p>
 </li>
 <li>
-<p><strong>Unchanged file:</strong> no per-file message.</p>
+<p><strong>Unchanged file:</strong> no message gets emitted for it.</p>
 </li>
 </ul>
-<p>Each emitted line is terminated by a single newline (<code>\n</code>).</p>
-<h4>Summary Message</h4>
-<p>After all files have been processed, emit exactly one final summary line (terminated by a newline) that describes the aggregate results across three categories:</p>
+<p>Every line that gets emitted ends with a single newline (<code>\n</code>).</p>
+<h4>Overall Summary</h4>
+<p>Once the last file has been processed, emit exactly one final summary line — itself terminated by a newline — that captures the aggregate outcome over three categories:</p>
 <ul>
-<li><strong>resorted</strong> — count of files that were rewritten,</li>
-<li><strong>unchanged</strong> — count of files left unchanged,</li>
-<li><strong>not sortable</strong> — count of files that failed due to syntax or resolution errors.</li>
+<li><strong>resorted</strong> — how many files were rewritten,</li>
+<li><strong>unchanged</strong> — how many files were left unchanged,</li>
+<li><strong>not sortable</strong> — how many files failed because of syntax or resolution errors.</li>
 </ul>
-<p>Only categories with a nonzero count are included in the summary, and they appear in this fixed order: resorted, then unchanged, then not sortable. The included categories are joined by <code>&quot;, &quot;</code> (comma and space) into a single line.</p>
-<p>Each category's phrase uses correct singular/plural grammar based on its count:</p>
+<p>Only categories whose count is nonzero appear in the summary; the sequence among them is fixed: resorted, then unchanged, then not sortable. The categories that qualify are joined by <code>&quot;, &quot;</code> (comma and space) to produce one line.</p>
+<p>Each category's phrase follows correct singular/plural grammar, with the choice made according to its count:</p>
 <ul>
 <li>Resorted:
 <ul>
@@ -1312,247 +1317,249 @@ def public():
 </ul>
 </li>
 </ul>
-<p>Examples of complete summary lines:</p>
+<p>Complete summary lines, by way of example:</p>
 <ul>
-<li>All three files unchanged: <code>3 files were left unchanged</code></li>
-<li>One resorted, two unchanged: <code>1 file was resorted, 2 files were left unchanged</code></li>
-<li>Three resorted: <code>3 files were resorted</code></li>
-<li>Two unchanged, one not sortable: <code>2 files were left unchanged, 1 file was not sortable</code></li>
-<li>Three not sortable: <code>3 files were not sortable</code></li>
-<li>One resorted, one unchanged, one not sortable: <code>1 file was resorted, 1 file was left unchanged, 1 file was not sortable</code></li>
+<li>All three files come out unchanged: <code>3 files were left unchanged</code></li>
+<li>One file resorted and two unchanged: <code>1 file was resorted, 2 files were left unchanged</code></li>
+<li>All three files resorted: <code>3 files were resorted</code></li>
+<li>Two files unchanged, one not sortable: <code>2 files were left unchanged, 1 file was not sortable</code></li>
+<li>All three files not sortable: <code>3 files were not sortable</code></li>
+<li>One file resorted, one unchanged, one not sortable: <code>1 file was resorted, 1 file was left unchanged, 1 file was not sortable</code></li>
 </ul>
 <h4>Exit Status</h4>
 <ul>
-<li>Exit status <strong>0</strong> if no file was &quot;not sortable&quot; (i.e., every file was either resorted or left unchanged).</li>
-<li>Exit status <strong>1</strong> if at least one file was &quot;not sortable&quot; (any syntax error or unresolved dependency occurred).</li>
+<li>The exit status is <strong>0</strong> when no file was &quot;not sortable&quot; — that is, every file was either resorted or left unchanged.</li>
+<li>The exit status is <strong>1</strong> when at least one file was &quot;not sortable&quot; — that is, any syntax error or unresolved dependency occurred.</li>
 </ul>
-<h4>Output Ordering Summary</h4>
-<p>The complete standard-error output consists of the per-file messages (in file-processing order) followed by the single summary line, each terminated by a newline.</p>
+<h4>How the Output Is Ordered</h4>
+<p>Taken as a whole, the standard-error output is made up of the per-file messages (in the order the files were processed) plus the single summary line that comes after them; a newline terminates each of these lines.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Create a new module that exposes a collection of Python&#39;s built-in names.</span>
-        <span class="spec-meta muted">146 words · source specification
+        <span class="spec-title">Build a new module that exposes a collection of Python&#39;s built-in names.</span>
+        <span class="spec-meta muted">168 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Create a new module that exposes a collection of Python's built-in names.</p>
-<h4>Module and API Surface</h4>
-<p>Create a module at the import path <code>ssort._builtins</code>.</p>
-<p>This module must define a module-level attribute named <code>MODULE_BUILTINS</code>.</p>
-<h4>Requirements for <code>MODULE_BUILTINS</code></h4>
+<p>Build a new module that exposes a collection of Python's built-in names.</p>
+<h4>The Module and Its API</h4>
+<p>Create a module residing at the import path <code>ssort._builtins</code>.</p>
+<p>The module is required to define a module-level attribute called <code>MODULE_BUILTINS</code>.</p>
+<h4>Constraints on <code>MODULE_BUILTINS</code></h4>
 <ul>
-<li><code>MODULE_BUILTINS</code> must be a <code>set</code> (or otherwise support Python set operations, specifically set difference via the <code>-</code> operator, and be usable as the right-hand operand of <code>set(...) - MODULE_BUILTINS</code>).</li>
-<li>Its contents must be the names of Python's built-ins.</li>
-<li>It must contain, at minimum, every name present in the standard <code>builtins</code> module namespace — i.e. every key of <code>builtins.__dict__</code>. The set difference <code>set(builtins.__dict__) - MODULE_BUILTINS</code> must be empty.</li>
-<li>It may contain additional names beyond those in <code>builtins.__dict__</code>; the presence of extra names is acceptable.</li>
+<li><code>MODULE_BUILTINS</code> must be a <code>set</code>, or it must otherwise support Python set operations — specifically set difference through the <code>-</code> operator — and be usable as the right-hand operand of <code>set(...) - MODULE_BUILTINS</code>.</li>
+<li>Its contents must consist of the names of Python's built-ins.</li>
+<li>At minimum, it must contain every name present in the standard <code>builtins</code> module namespace — that is, every key of <code>builtins.__dict__</code>. When the set difference <code>set(builtins.__dict__) - MODULE_BUILTINS</code> is computed, the result must be empty.</li>
+<li>It may hold additional names beyond those in <code>builtins.__dict__</code>; it is acceptable for such extra names to be present.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The elements are the built-in names as strings (matching the keys of <code>builtins.__dict__</code>).</li>
+<li>Each element is one of the built-in names, given as a string (matching the keys of <code>builtins.__dict__</code>).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">This task involves two related changes to a Python source-analysis library</span>
-        <span class="spec-meta muted">415 words · source specification
+        <span class="spec-title">This task comprises two connected changes to a Python library for source analysis</span>
+        <span class="spec-meta muted">439 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>This task involves two related changes to a Python source-analysis library: adding a new constant that enumerates the implicit names available inside a class body, and using that knowledge to avoid reporting those implicit names as external requirements when analyzing a class definition.</p>
-<h5>Part 1: New <code>CLASS_BUILTINS</code> constant</h5>
-<p>In the module <code>ssort._builtins</code>, add a new public constant named <code>CLASS_BUILTINS</code>.</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>This task comprises two connected changes to a Python library for source analysis: introducing a new constant that lists the implicit names available inside a class body, and putting that knowledge to use so that those implicit names are not reported as external requirements when a class definition is analyzed.</p>
+<h5>Part 1: The new <code>CLASS_BUILTINS</code> constant</h5>
+<p>In the module <code>ssort._builtins</code>, introduce a new public constant called <code>CLASS_BUILTINS</code>.</p>
 <ul>
 <li>
-<p><code>MODULE_BUILTINS</code> already exists in this module and must remain available.</p>
+<p><code>MODULE_BUILTINS</code> already exists in this module and must continue to be available.</p>
 </li>
 <li>
-<p><code>CLASS_BUILTINS</code> must be a set (or set-like container supporting <code>set()</code> construction and membership) of strings.</p>
+<p><code>CLASS_BUILTINS</code> must be a set (or a set-like container that supports <code>set()</code> construction and membership) consisting of strings.</p>
 </li>
 <li>
-<p>It must contain the names that Python makes implicitly available in the local namespace of a class body during its definition, excluding any names the user explicitly assigns. Concretely, when a class body executes, its <code>locals()</code> includes at least the following implicit names, which must all be present in <code>CLASS_BUILTINS</code>:</p>
+<p>It must contain the names Python implicitly makes available in the local namespace of a class body during that body's definition, excluding any names the user assigns explicitly. In concrete terms, when a class body runs, its <code>locals()</code> includes at least the following implicit names, and all of them must be present in <code>CLASS_BUILTINS</code>:</p>
 <ul>
 <li><code>__qualname__</code></li>
 <li><code>__module__</code></li>
 </ul>
-<p>(These are the implicit names that appear in a class body's local scope beyond names the class body itself binds. <code>CLASS_BUILTINS</code> must be a superset of exactly the implicit names Python injects, and must not be missing any of them.)</p>
+<p>(These are the implicit names that occur in a class body's local scope beyond the names the class body itself binds. <code>CLASS_BUILTINS</code> must be a superset of exactly the implicit names Python injects, and must not lack any of them.)</p>
 </li>
 </ul>
-<h5>Part 2: Class-body requirement detection ignores class builtins</h5>
-<p>The library computes the set of external &quot;requirements&quot; (free names that a code construct depends on from its surrounding scope). When analyzing a class definition, names that are implicitly provided within a class body must <strong>not</strong> be reported as requirements.</p>
-<p>Specifically, for a class definition:</p>
+<h5>Part 2: Class builtins are ignored during class-body requirement detection</h5>
+<p>The library determines the set of external &quot;requirements&quot; (free names on which a code construct depends from its surrounding scope). When a class definition is analyzed, names implicitly provided within a class body must <strong>not</strong> be reported as requirements.</p>
+<p>In particular, for a class definition:</p>
 <ul>
-<li>References made directly in the class body to any name in <code>CLASS_BUILTINS</code> (for example <code>__qualname__</code> or <code>__module__</code> used at class-body level) must not be treated as requirements of the class.</li>
-<li>However, a reference to such an implicit name that occurs inside a method defined within the class (i.e., not at the class-body level, but within a nested function scope) is <strong>not</strong> covered by this suppression and must still be reported as a requirement.</li>
+<li>Direct references in the class body to any name in <code>CLASS_BUILTINS</code> (for example <code>__qualname__</code> or <code>__module__</code> used at class-body level) must not be counted as requirements of the class.</li>
+<li>However, a reference to such an implicit name that appears inside a method defined within the class (that is, not at the class-body level, but inside a nested function scope) is <strong>not</strong> covered by this suppression and must still be reported as a requirement.</li>
 </ul>
-<h6>Concrete behavior</h6>
-<p>Given a class such as:</p>
+<h6>Behavior in a concrete case</h6>
+<p>For a class such as:</p>
 <pre><code class="language-python">class A:
     name = __qualname__
     def method(self):
         return __module__
 </code></pre>
-<p>The computed requirement names for this class definition must be exactly <code>[&quot;__module__&quot;]</code>:</p>
+<p>The requirement names computed for this class definition must be exactly <code>[&quot;__module__&quot;]</code>:</p>
 <ul>
-<li><code>__qualname__</code>, referenced at class-body level, is a class builtin and is therefore excluded.</li>
-<li><code>__module__</code>, referenced inside the method body (a nested scope, not the class body), is retained as a requirement.</li>
+<li><code>__qualname__</code>, used at class-body level, is a class builtin and is therefore excluded.</li>
+<li><code>__module__</code>, referenced inside the method body (a nested scope, not the class body), is kept as a requirement.</li>
 </ul>
 <h5>Notes</h5>
 <ul>
-<li>Ordering of the resulting requirement names must be preserved as they are encountered.</li>
-<li>The existing requirement-detection behavior for class definitions (beyond the suppression of class builtins at class-body level) is unchanged.</li>
+<li>The resulting requirement names must appear in the order in which they are encountered.</li>
+<li>The existing requirement-detection behavior for class definitions (aside from the suppression of class builtins at class-body level) remains unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Implement support for correctly computing the variable requirements (dependencies) of Python del statements that target a list or tuple of elements,…</span>
-        <span class="spec-meta muted">428 words · source specification
+        <span class="spec-title">Add support for correctly computing the variable requirements (dependencies) of Python del statements that target a list or tuple of elements, including…</span>
+        <span class="spec-meta muted">455 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement support for correctly computing the variable requirements (dependencies) of Python <code>del</code> statements that target a list or tuple of elements, including nested subscript and attribute targets.</p>
-<h4>Context</h4>
-<p>The codebase analyzes Python AST nodes to determine which variable names a given statement depends on (&quot;requirements&quot;). The dependency-analysis logic currently handles some target forms in delete context, but does not correctly handle the case where a <code>del</code> statement targets a parenthesized tuple (or list) of multiple targets.</p>
+      <div class="spec-body"><h4>Aim</h4>
+<p>Add support for correctly computing the variable requirements (dependencies) of Python <code>del</code> statements that target a list or tuple of elements, including targets that are nested subscripts or attribute accesses.</p>
+<h4>Background</h4>
+<p>To work out which variable names a given statement depends on (&quot;requirements&quot;), the codebase analyzes Python AST nodes. In delete context, the dependency-analysis logic already handles some target forms, but it does not correctly handle the case where a <code>del</code> statement targets a parenthesized tuple (or list) of multiple targets.</p>
 <h4>Required Behavior</h4>
-<p>When analyzing the requirements of a <code>del</code> statement whose target is a tuple/list of one or more elements, the analysis must recurse into each element of that tuple/list and collect the dependencies of each element, in source order.</p>
-<p>The individual element target forms that must be handled within such a tuple/list include:</p>
+<p>When the requirements of a <code>del</code> statement are analyzed and that statement's target is a tuple/list of one or more elements, the analysis must recurse into each element of that tuple/list and collect the dependencies of each element, in source order.</p>
+<p>Within such a tuple/list, the individual element target forms that must be handled include:</p>
 <ul>
-<li><strong>Plain names</strong>: a bare name being deleted contributes that name as a dependency.</li>
-<li><strong>Subscripts</strong> (e.g. <code>a[b:c]</code>): the object being subscripted contributes its name, and any names appearing in the subscript/slice expression also contribute as dependencies, in order.</li>
-<li><strong>Attribute access</strong> (e.g. <code>d.f</code>): the object being accessed contributes its name; the attribute name itself does not contribute.</li>
+<li><strong>Plain names</strong>: deleting a bare name contributes that name as a dependency.</li>
+<li><strong>Subscripts</strong> (e.g. <code>a[b:c]</code>): the subscripted object contributes its name, and any names that appear in the subscript/slice expression also contribute as dependencies, in order.</li>
+<li><strong>Attribute access</strong> (e.g. <code>d.f</code>): the accessed object contributes its name; the attribute name itself does not contribute.</li>
 </ul>
-<p>The dependencies from all elements must be concatenated in the left-to-right order in which the elements appear.</p>
-<h5>Examples of required results</h5>
-<p>Given a parsed statement and its resulting ordered list of dependency names:</p>
+<p>The dependencies contributed by all elements must be concatenated in the left-to-right order in which the elements appear.</p>
+<h5>Examples of the required results</h5>
+<p>Each example below shows a parsed statement together with the ordered list of dependency names that results from it:</p>
 <ul>
 <li><code>del (a, b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 <li><code>del (a[b:c], d.f)</code> → <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]</code></li>
 </ul>
-<p>These must produce the same kind of results already produced for the equivalent non-tuple forms:</p>
+<p>These statements must produce results of the same kind as those already produced for the equivalent non-tuple forms:</p>
 <ul>
 <li><code>del a[b:c]</code> → <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code></li>
 <li><code>del obj.attr</code> → <code>[&quot;obj&quot;]</code></li>
 </ul>
-<h4>Notes on Scope</h4>
-<p>The change is specifically to ensure that delete context handles tuple/list-of-targets by recursing into each contained target using the same requirement-gathering logic that applies to load and delete contexts. Subscript targets in delete context must yield dependencies identical to subscript expressions in load context (the subscripted object plus all names in the subscript expression, in order). Attribute targets in delete context must yield only the accessed object's name.</p>
+<h4>Scope Notes</h4>
+<p>The change is specifically meant to ensure that delete context handles a tuple/list of targets by recursing into each target it contains, using the same requirement-gathering logic that applies to load and delete contexts. In delete context, subscript targets must yield dependencies identical to those of subscript expressions in load context (the subscripted object plus all names in the subscript expression, in order). In delete context, attribute targets must yield only the name of the accessed object.</p>
 <h4>Public API</h4>
-<p>The dependency-analysis entry point that these behaviors are exercised through takes a parsed AST node (the result of parsing a single statement) and returns an ordered list of the dependency variable names as strings. This existing entry point must, after your change, return the results described above for <code>del</code> statements targeting tuples/lists.</p>
-<p>Ensure that the function producing an ordered list of dependency names from an AST node yields the exact ordered results specified above for both single-target and tuple/list-target <code>del</code> statements.</p>
+<p>These behaviors are exercised through a dependency-analysis entry point that takes a parsed AST node (obtained by parsing a single statement) and returns an ordered list of the dependency variable names as strings. After your change, this existing entry point must return the results described above for <code>del</code> statements that target tuples/lists.</p>
+<p>Ensure that, for both single-target and tuple/list-target <code>del</code> statements, the function that produces an ordered list of dependency names from an AST node yields the exact ordered results specified above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on ssort, a tool that reorders (topologically sorts) statements within Python source code so that definitions appear before their usages.</span>
-        <span class="spec-meta muted">690 words · source specification
+        <span class="spec-title">You are working on ssort, a tool that topologically sorts (reorders) the statements within Python source code so that definitions appear before their usages.</span>
+        <span class="spec-meta muted">745 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>ssort</code>, a tool that reorders (topologically sorts) statements within Python source code so that definitions appear before their usages. This task covers two behaviors: correct ordering behavior around class-body <code>__slots__</code> and dunder assignments, and deterministic reporting of multiple unresolved-dependency errors.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>You are working on <code>ssort</code>, a tool that topologically sorts (reorders) the statements within Python source code so that definitions appear before their usages. The task covers two behaviors: correct ordering behavior around class-body <code>__slots__</code> and dunder assignments, together with deterministic reporting when multiple unresolved-dependency errors occur.</p>
+<h4>Public API</h4>
 <h5><code>ssort(source: str) -&gt; str</code></h5>
-<p>Importable as <code>from ssort import ssort</code>. Takes Python source text and returns the reordered source text.</p>
-<h5>Command-line &quot;check&quot; behavior</h5>
-<p>The package exposes a runnable command-line entry point (invoked as a module/console script) that supports a <code>--check</code> mode. When run in check mode against a directory of Python files it:</p>
+<p>It can be imported as <code>from ssort import ssort</code>. The function accepts Python source text and returns the reordered source text.</p>
+<h5>&quot;check&quot; behavior on the command line</h5>
+<p>The package exposes an entry point that can be run from the command line (invoked as a module/console script) and that supports a <code>--check</code> mode. When it runs in check mode against a directory of Python files, it:</p>
 <ul>
-<li>Emits diagnostic messages (to output the caller captures) describing per-file results.</li>
-<li>Returns/exits with a status code: <code>0</code> when all files are already correctly sorted with no errors, <code>1</code> when any file has errors or would be modified.</li>
+<li>Emits diagnostic messages (into output that the caller captures) describing the per-file results.</li>
+<li>Returns/exits with a status code: <code>0</code> when all files are already correctly sorted and there are no errors, <code>1</code> when any file has errors or would be modified.</li>
 </ul>
-<p>The relevant behavior to implement/preserve is described below under &quot;Reporting unresolved dependencies&quot;.</p>
+<p>Below, under &quot;Reporting unresolved dependencies&quot;, the relevant behavior to implement/preserve is described.</p>
 <h4>Required Behavior</h4>
-<h5>1. Ordering of class body statements with <code>__slots__</code> and dunder assignments</h5>
-<p>When sorting the statements inside a class body, module-level ordering rules apply as usual, with the following specific behavior for assignments:</p>
+<h5>1. Ordering of statements in the class body with <code>__slots__</code> and dunder assignments</h5>
+<p>When the statements inside a class body are sorted, the module-level ordering rules apply as usual, with the following behavior specific to assignments:</p>
 <ul>
-<li>A <code>__slots__ = (...)</code> assignment must be placed at the <strong>top</strong> of the class body, before other attribute assignments and annotated attributes, while otherwise preserving the relative order of the remaining statements.</li>
-<li>Dunder-named assignments (identifiers with the <code>__name__</code> double-underscore pattern) that are <strong>not</strong> recognized standard/known dunder methods must be treated as ordinary class attributes for the purpose of ordering — i.e., they are treated the same as any normal attribute assignment. They should not be given any special hoisting or reordering treatment beyond that of a normal attribute.</li>
+<li>An assignment of the form <code>__slots__ = (...)</code> must be placed at the <strong>top</strong> of the class body, before the other attribute assignments and annotated attributes, while otherwise preserving the relative order of the remaining statements.</li>
+<li>Assignments with dunder names (identifiers following the <code>__name__</code> double-underscore pattern) that are <strong>not</strong> recognized standard/known dunder methods must, for the purpose of ordering, be treated as ordinary class attributes — i.e., they are treated the same as any normal attribute assignment. They should not receive any special hoisting or reordering treatment beyond that of a normal attribute.</li>
 </ul>
 <p>Concrete examples:</p>
-<p>Given input:</p>
+<p>For the input:</p>
 <pre><code class="language-python">class Struct:
     int_attr: int
     __slots__ = (&quot;int_attr&quot;, &quot;str_attr&quot;)
     str_attr: str
 </code></pre>
-<p>the output is:</p>
+<p>the resulting output is:</p>
 <pre><code class="language-python">class Struct:
     __slots__ = (&quot;int_attr&quot;, &quot;str_attr&quot;)
     int_attr: int
     str_attr: str
 </code></pre>
-<p>Given input:</p>
+<p>For the input:</p>
 <pre><code class="language-python">class Table:
     column = None
     __tablename__ = &quot;table&quot;
     __slots__ = (&quot;column&quot;, &quot;other_column&quot;)
     other_column = None
 </code></pre>
-<p>the output is:</p>
+<p>the resulting output is:</p>
 <pre><code class="language-python">class Table:
     __slots__ = (&quot;column&quot;, &quot;other_column&quot;)
     __tablename__ = &quot;table&quot;
     column = None
     other_column = None
 </code></pre>
-<p>Here <code>__slots__</code> moves to the top; <code>__tablename__</code> (an unknown dunder) keeps its position among the normal attributes as though it were a normal attribute, preserving relative order with the other attributes.</p>
+<p>Here <code>__slots__</code> moves to the top, while <code>__tablename__</code> (an unknown dunder) keeps its place among the normal attributes as if it were a normal attribute, so the relative order with the other attributes is preserved.</p>
 <h5>2. Reporting unresolved dependencies (deterministic order)</h5>
-<p>When a file references names that cannot be resolved (unresolved dependencies), the check mode must emit one <code>ERROR</code> message per unresolved reference. When a single statement references multiple unresolved names, all such names must be reported.</p>
-<p>Requirements:</p>
+<p>If a file references names that cannot be resolved (unresolved dependencies), the check mode must emit one <code>ERROR</code> message per unresolved reference. If a single statement references multiple unresolved names, all such names must be reported.</p>
+<p>The requirements are:</p>
 <ul>
 <li>
-<p>Each unresolved reference produces a message of exactly this form:</p>
+<p>Each unresolved reference produces a message with exactly this form:</p>
 <pre><code>ERROR: unresolved dependency '&lt;name&gt;' in &lt;path&gt;: line &lt;L&gt;, column &lt;C&gt;
 </code></pre>
-<p>where <code>&lt;name&gt;</code> is the unresolved identifier, <code>&lt;path&gt;</code> is the repr of the file path (i.e. quoted as Python would repr a path), and <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> are the 1-based line and 0-based column of the reference within the source file. Each message ends with a trailing newline.</p>
+<p>where <code>&lt;name&gt;</code> is the unresolved identifier, <code>&lt;path&gt;</code> is the repr of the file path (i.e. quoted the way Python would repr a path), and <code>&lt;L&gt;</code>/<code>&lt;C&gt;</code> are the 1-based line and 0-based column of the reference within the source file. Each message is terminated by a trailing newline.</p>
 </li>
 <li>
-<p>When multiple unresolved dependencies occur, the messages must be emitted in a <strong>deterministic order</strong>: sorted by their source position (line first, then column). For example, two unresolved names appearing on the same line are reported left-to-right by column.</p>
+<p>When multiple unresolved dependencies occur, the messages must be emitted in a <strong>deterministic order</strong>: they are sorted by their source position (line first, then column). For example, two unresolved names that appear on the same line are reported left-to-right by column.</p>
 </li>
 <li>
-<p>After per-file diagnostics, a summary line is emitted describing the outcome across all processed files, of the form:</p>
+<p>After the per-file diagnostics, a summary line is emitted that describes the outcome across all processed files, of the form:</p>
 <pre><code>&lt;N&gt; files would be left unchanged, &lt;M&gt; file would not be sortable
 </code></pre>
-<p>(using the appropriate singular/plural counts), followed by a trailing newline.</p>
+<p>(with the counts using the appropriate singular/plural forms), followed by a trailing newline.</p>
 </li>
 <li>
-<p>The overall status code in this situation is <code>1</code>.</p>
+<p>In this situation, the overall status code is <code>1</code>.</p>
 </li>
 </ul>
-<p>Concrete example: for a file whose sole public function body is <code>return _other() + _same()</code>, where <code>_other</code> and <code>_same</code> are both undefined, and where that expression sits on line 6 with <code>_other</code> at column 11 and <code>_same</code> at column 22, the emitted messages are:</p>
+<p>Concrete example: take a file whose sole public function has the body <code>return _other() + _same()</code>, where <code>_other</code> and <code>_same</code> are both undefined, and where that expression is on line 6, with <code>_other</code> at column 11 and <code>_same</code> at column 22. The messages emitted are:</p>
 <pre><code>ERROR: unresolved dependency '_other' in '&lt;path&gt;': line 6, column 11
 ERROR: unresolved dependency '_same' in '&lt;path&gt;': line 6, column 22
 </code></pre>
-<p>in that order (column 11 before column 22).</p>
+<p>in that order (column 11 comes before column 22).</p>
 <h4>Constraints</h4>
 <ul>
-<li>The relative order of statements not affected by the rules above must be preserved.</li>
-<li>Only the behaviors described here are in scope.</li>
+<li>Statements that the rules above do not affect must have their relative order preserved.</li>
+<li>The scope covers only the behaviors described here.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Expose the package-level function</span>
-        <span class="spec-meta muted">201 words · source specification
+        <span class="spec-title">The package-level function must be exposed</span>
+        <span class="spec-meta muted">226 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change</h3>
-<p>Expose the package-level function:</p>
+      <div class="spec-body"><h3>Change that is required</h3>
+<p>The package-level function must be exposed:</p>
 <pre><code class="language-python">from ssort import ssort
 </code></pre>
-<p>with the callable interface:</p>
+<p>together with the callable interface:</p>
 <pre><code class="language-python">ssort(source: str) -&gt; str
 </code></pre>
-<p>It must apply the following class-member ordering behavior while preserving each member’s source text and formatting.</p>
-<h4>Runtime and initialization dependencies</h4>
-<p>When a class assignment aliases a method, and that method references another method through <code>self</code>, order the referenced method first, followed by the alias target, then the assignment.</p>
-<p>For example, this input:</p>
+<p>It must apply the class-member ordering behavior described below while leaving each member’s source text and formatting unchanged.</p>
+<h4>Dependencies at runtime and on initialization</h4>
+<p>Whenever a class assignment aliases a method, and that method uses <code>self</code> to reference another method, the referenced method must be ordered first, the alias target must follow, and the assignment must come after that.</p>
+<p>For example, given the input:</p>
 <pre><code class="language-python">class Loopy:
 
     def method(self):
@@ -1563,7 +1570,7 @@ ERROR: unresolved dependency '_same' in '&lt;path&gt;': line 6, column 22
     def _method(self):
         pass
 </code></pre>
-<p>must produce:</p>
+<p>the function must produce:</p>
 <pre><code class="language-python">class Loopy:
 
     def _method(self):
@@ -1574,17 +1581,17 @@ ERROR: unresolved dependency '_same' in '&lt;path&gt;': line 6, column 22
 
     attr = method
 </code></pre>
-<p>Thus, the runtime dependency from <code>method</code> to <code>_method</code> must be respected together with the class-initialization dependency from <code>attr</code> to <code>method</code>.</p>
-<h4>Class attributes resembling dunder names</h4>
-<p>For a class containing these assignments, <code>__slots__</code> must be placed first, but <code>__tablename__</code> must remain among the ordinary class attributes rather than being promoted alongside <code>__slots__</code>.</p>
-<p>A body initially ordered as:</p>
+<p>Consequently, the runtime dependency from <code>method</code> to <code>_method</code> must be respected alongside the class-initialization dependency from <code>attr</code> to <code>method</code>.</p>
+<h4>Class attributes that resemble dunder names</h4>
+<p>In the case of a class containing these assignments, <code>__slots__</code> must be placed first, but <code>__tablename__</code> must remain among the ordinary class attributes instead of being promoted alongside <code>__slots__</code>.</p>
+<p>When a body is initially ordered as:</p>
 <pre><code class="language-python">class Table:
     column = None
     __tablename__ = &quot;table&quot;
     other_column = None
     __slots__ = (&quot;column&quot;, &quot;other_column&quot;)
 </code></pre>
-<p>must be returned as:</p>
+<p>it must be returned as:</p>
 <pre><code class="language-python">class Table:
     __slots__ = (&quot;column&quot;, &quot;other_column&quot;)
     column = None
@@ -1596,50 +1603,50 @@ ERROR: unresolved dependency '_same' in '&lt;path&gt;': line 6, column 22
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Update ssort._bindings.get_bindings(node).</span>
-        <span class="spec-meta muted">271 words · source specification
+        <span class="spec-title">Modify ssort._bindings.get_bindings(node).</span>
+        <span class="spec-meta muted">330 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Function-definition binding discovery</h3>
-<p>Update <code>ssort._bindings.get_bindings(node)</code>.</p>
-<h4>Public API</h4>
+      <div class="spec-body"><h3>Binding discovery for function definitions</h3>
+<p>Modify <code>ssort._bindings.get_bindings(node)</code>.</p>
+<h4>Public interface</h4>
 <ul>
-<li>Module: <code>ssort._bindings</code></li>
-<li>Callable: <code>get_bindings(node)</code></li>
-<li><code>node</code> may be an <code>ast.FunctionDef</code> or <code>ast.AsyncFunctionDef</code>.</li>
-<li>The return value must be iterable and yield binding names as strings in the required order.</li>
+<li>The module is <code>ssort._bindings</code>.</li>
+<li>The callable is <code>get_bindings(node)</code>.</li>
+<li>The <code>node</code> argument may be an <code>ast.FunctionDef</code> or an <code>ast.AsyncFunctionDef</code>.</li>
+<li>The return value must be iterable, and it must yield binding names as strings in the required order.</li>
 </ul>
-<h4>Required behavior</h4>
-<p>For both regular and async function definitions:</p>
+<h4>Behavior requirements</h4>
+<p>For both regular and async function definitions, the rules below apply:</p>
 <ol>
-<li>Yield the function’s own name.</li>
-<li>Detect assignment-expression (<code>:=</code>) targets in definition-time expressions:
+<li>Yield the name of the function itself.</li>
+<li>Identify the targets of assignment expressions (<code>:=</code>) that appear in definition-time expressions:
 <ul>
-<li>positional parameter defaults;</li>
-<li>keyword-only parameter defaults;</li>
-<li>positional-only parameter annotations;</li>
-<li>regular parameter annotations;</li>
-<li><code>*args</code> annotations;</li>
-<li>keyword-only parameter annotations;</li>
-<li><code>**kwargs</code> annotations;</li>
+<li>defaults of positional parameters;</li>
+<li>defaults of keyword-only parameters;</li>
+<li>annotations of positional-only parameters;</li>
+<li>annotations of regular parameters;</li>
+<li>annotations on <code>*args</code>;</li>
+<li>annotations of keyword-only parameters;</li>
+<li>annotations on <code>**kwargs</code>;</li>
 <li>return annotations;</li>
 <li>decorator expressions.</li>
 </ul>
 </li>
-<li>Do not yield parameter names merely because they are parameters.</li>
-<li>Do not yield ordinary referenced names from annotations, decorators, defaults, or the function body.</li>
-<li>A name merely referenced in the function body must not contribute a binding.</li>
+<li>Do not yield parameter names merely on the grounds that they are parameters.</li>
+<li>Do not yield ordinary referenced names that come from annotations, decorators, defaults, or the function body.</li>
+<li>A name that is merely referenced in the function body must not contribute a binding.</li>
 </ol>
-<h4>Ordering</h4>
+<h4>Ordering of yields</h4>
 <ul>
-<li>Assignment-expression bindings in decorators are yielded before the function name. For example, a function named <code>prop</code> decorated with <code>@(p := property)</code> yields:
+<li>Bindings from assignment expressions located in decorators are yielded before the function name. As an example, a function named <code>prop</code> decorated with <code>@(p := property)</code> yields:
 <ul>
 <li><code>p</code></li>
 <li><code>prop</code></li>
 </ul>
 </li>
-<li>Assignment-expression bindings in defaults and annotations are yielded after the function name.</li>
-<li>Annotation bindings are ordered as follows:
+<li>Bindings from assignment expressions located in defaults and annotations are yielded after the function name.</li>
+<li>Bindings arising from annotations are ordered as follows:
 <ol>
 <li>positional-only parameters;</li>
 <li>regular positional parameters;</li>
@@ -1650,7 +1657,7 @@ ERROR: unresolved dependency '_same' in '&lt;path&gt;': line 6, column 22
 </ol>
 </li>
 </ul>
-<p>Thus, a function named <code>function</code> with annotation assignment targets named <code>posonly_type</code>, <code>arg_type</code>, <code>args_type</code>, <code>kwarg_type</code>, <code>kwargs_type</code>, and <code>return_type</code> in those respective locations yields:</p>
+<p>As a consequence, if a function named <code>function</code> has annotation assignment targets named <code>posonly_type</code>, <code>arg_type</code>, <code>args_type</code>, <code>kwarg_type</code>, <code>kwargs_type</code>, and <code>return_type</code> in those respective locations, it yields:</p>
 <pre><code class="language-text">function
 posonly_type
 arg_type
@@ -1659,8 +1666,8 @@ kwarg_type
 kwargs_type
 return_type
 </code></pre>
-<p>A positional default such as <code>(b_binding := 2)</code> yields <code>function</code> followed by <code>b_binding</code>. A keyword-only default such as <code>(kw1_binding := 1)</code> likewise yields <code>function</code> followed by <code>kw1_binding</code>.</p>
-<p>All specified behavior and ordering apply equally to <code>ast.FunctionDef</code> and <code>ast.AsyncFunctionDef</code>.</p>
+<p>With a positional default such as <code>(b_binding := 2)</code>, the result yields <code>function</code> followed by <code>b_binding</code>. With a keyword-only default such as <code>(kw1_binding := 1)</code>, the result likewise yields <code>function</code> followed by <code>kw1_binding</code>.</p>
+<p>All of the specified behavior and ordering applies equally to <code>ast.FunctionDef</code> and <code>ast.AsyncFunctionDef</code>.</p>
 </div>
     </details>
   </div>

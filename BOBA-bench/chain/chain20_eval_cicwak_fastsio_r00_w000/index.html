@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/cicwak/fastsio/compare/aa2e146a60aa9b2257ce748690104c796a09b551...a3ae2a938472f103d543ad46ff6d923c0f2415ee" target="_blank" rel="noopener" class="mono">aa2e146a60 … a3ae2a9384</a> · 78 commits by 6 authors over 12 mo (2015-07-15 to 2016-07-29)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 33 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,637 lines of code in 33 files when the chain starts · over the 20 requests the developers added 1,340 and removed 431 lines of code, plus 470 lines of tests (99 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.2k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>9.1k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,303 +144,306 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement functionality to retrieve the list of rooms a client is currently a member of, at both the manager level and the server level.</span>
-        <span class="spec-meta muted">340 words · source specification
+        <span class="spec-title">Implement functionality for retrieving the list of rooms a client is currently a member of, at both the manager level and the server level.</span>
+        <span class="spec-meta muted">380 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement functionality to retrieve the list of rooms a client is currently a member of, at both the manager level and the server level.</p>
-<h4>1. Manager: <code>get_rooms</code> method</h4>
-<p>Add a method to the base manager class (the class used as the default client manager, instantiable and testable via the manager used in the codebase's base manager tests) with the following signature:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>Implement functionality for retrieving the list of rooms a client is currently a member of, at both the manager level and the server level.</p>
+<h4>1. Manager: the <code>get_rooms</code> method</h4>
+<p>Add a method to the base manager class — the class that serves as the default client manager, instantiable and testable through the manager used in the codebase's base manager tests — with the following signature:</p>
 <pre><code class="language-python">def get_rooms(self, sid, namespace):
 </code></pre>
 <h5>Behavior</h5>
-<p>Given a client session id (<code>sid</code>) and a <code>namespace</code>, return the collection of rooms that the client belongs to within that namespace.</p>
-<p>Relevant context on room membership:</p>
+<p>When called with a client session id (<code>sid</code>) and a <code>namespace</code>, the method returns the collection of rooms that the client belongs to within that namespace.</p>
+<p>Some context relevant to room membership:</p>
 <ul>
-<li>A client can be connected to a namespace (via the manager's <code>connect(sid, namespace)</code> method).</li>
-<li>A client can be added to a named room within a namespace (via the manager's <code>enter_room(sid, namespace, room)</code> method).</li>
-<li>By convention, when a client connects, it is automatically placed into a room whose name equals its own <code>sid</code>.</li>
+<li>A client can be connected to a namespace (using the manager's <code>connect(sid, namespace)</code> method).</li>
+<li>A client can be added to a named room within a namespace (using the manager's <code>enter_room(sid, namespace, room)</code> method).</li>
+<li>As a convention, when a client connects, it is automatically placed in a room whose name equals its own <code>sid</code>.</li>
 </ul>
-<p>Therefore, for a client that has connected to a namespace and then entered an additional named room, <code>get_rooms</code> must return a collection containing both:</p>
+<p>Consequently, for a client that has connected to a namespace and then entered an additional named room, the collection returned by <code>get_rooms</code> must contain both:</p>
 <ul>
 <li>the room whose name equals the client's <code>sid</code>, and</li>
-<li>the additional named room the client entered.</li>
+<li>the additional named room that the client entered.</li>
 </ul>
-<p>The returned value must support <code>len()</code> and membership testing (<code>in</code>), and must contain each of the client's rooms as elements. For a client that connected and entered one additional room, the returned collection has length 2.</p>
-<h4>2. Server: <code>rooms</code> method</h4>
-<p>Add a method to the <code>Server</code> class in the <code>server</code> module with the following signature:</p>
+<p>The value that is returned must support <code>len()</code> and membership testing (<code>in</code>), and it must contain each of the client's rooms as elements. For a client that connected and entered one additional room, the collection that is returned has length 2.</p>
+<h4>2. Server: the <code>rooms</code> method</h4>
+<p>Add a method with the following signature to the <code>Server</code> class in the <code>server</code> module:</p>
 <pre><code class="language-python">def rooms(self, sid, namespace=None):
 </code></pre>
 <h5>Behavior</h5>
-<p>Return the rooms a given client (<code>sid</code>) is in for the specified namespace, by delegating to the manager's <code>get_rooms</code> method.</p>
+<p>The method returns the rooms that a given client (<code>sid</code>) is in for the specified namespace, and it does so by delegating to the manager's <code>get_rooms</code> method.</p>
 <ul>
-<li>If <code>namespace</code> is not provided (i.e. is <code>None</code>), it defaults to <code>'/'</code>.</li>
-<li>The method must call <code>self.manager.get_rooms(sid, namespace)</code>, passing the resolved namespace (the provided value, or <code>'/'</code> when none was given), and return its result.</li>
+<li>When <code>namespace</code> is not provided (that is, when its value is <code>None</code>), it defaults to <code>'/'</code>.</li>
+<li>The method must call <code>self.manager.get_rooms(sid, namespace)</code>, with the resolved namespace passed in (the value that was provided, or <code>'/'</code> when none was given), and must return its result.</li>
 </ul>
-<p>Examples of the delegation contract:</p>
+<p>Examples illustrating the delegation contract:</p>
 <ul>
-<li><code>rooms('123', namespace='/foo')</code> results in a call <code>get_rooms('123', '/foo')</code>.</li>
-<li><code>rooms('123')</code> results in a call <code>get_rooms('123', '/')</code>.</li>
+<li>A call to <code>rooms('123', namespace='/foo')</code> results in a call <code>get_rooms('123', '/foo')</code>.</li>
+<li>A call to <code>rooms('123')</code> results in a call <code>get_rooms('123', '/')</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You are modifying the connection-handling logic in a Socket.IO server implementation.</span>
-        <span class="spec-meta muted">473 words · source specification
+        <span class="spec-title">The task is to modify the connection-handling logic of a Socket.IO server implementation.</span>
+        <span class="spec-meta muted">517 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are modifying the connection-handling logic in a Socket.IO server implementation. The change concerns how the server manages connection registration when a <code>connect</code> event handler <strong>rejects</strong> a connection (i.e., the handler returns a value indicating the connection should be refused).</p>
-<h4>Context / API Surface</h4>
-<p>The relevant class is the server class in the <code>socketio</code> package (importable as <code>socketio.Server</code>), which uses:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The task is to modify the connection-handling logic of a Socket.IO server implementation. The change deals with the way the server handles connection registration when a <code>connect</code> event handler <strong>rejects</strong> a connection (that is, the handler returns a value indicating the connection should be refused).</p>
+<h4>Context and API Surface</h4>
+<p>The class of interest is the server class in the <code>socketio</code> package (which can be imported as <code>socketio.Server</code>), and it makes use of:</p>
 <ul>
-<li>A connection manager accessible via the server instance's <code>manager</code> attribute, which exposes:
+<li>A connection manager reachable through the server instance's <code>manager</code> attribute, which exposes:
 <ul>
 <li><code>manager.connect(sid, namespace)</code> — registers a client session for a namespace.</li>
 <li><code>manager.disconnect(sid, namespace)</code> — removes a client session from a namespace.</li>
 </ul>
 </li>
-<li>An Engine.IO layer accessible via the <code>eio</code> attribute, which exposes <code>eio.send(sid, packet, binary=False)</code>.</li>
-<li>A handler registration method <code>on(event, handler, namespace=...)</code> used to register event handlers such as <code>connect</code>.</li>
-<li>The internal entry points that drive connection processing:
+<li>An Engine.IO layer reachable through the <code>eio</code> attribute, which exposes <code>eio.send(sid, packet, binary=False)</code>.</li>
+<li>A method for registering handlers, <code>on(event, handler, namespace=...)</code>, which is used to register event handlers such as <code>connect</code>.</li>
+<li>The internal entry points that drive the processing of connections:
 <ul>
 <li><code>_handle_eio_connect(sid, environ)</code> — invoked when a low-level Engine.IO connection is established.</li>
 <li><code>_handle_eio_message(sid, data)</code> — invoked when a Socket.IO packet arrives.</li>
 </ul>
 </li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When a <code>connect</code> event handler is invoked for a given session and namespace, and that handler <strong>rejects</strong> the connection:</p>
+<h4>Behavior That Is Required</h4>
+<p>Whenever a <code>connect</code> event handler is invoked for a particular session and namespace, and that handler <strong>rejects</strong> the connection:</p>
 <ol>
 <li>
-<p>The connection must first be <strong>registered</strong> with the connection manager. That is, <code>manager.connect</code> must be called for the session/namespace as part of processing the connect handler — even in the rejection case.</p>
+<p>The connection must first be <strong>registered</strong> with the connection manager. This means <code>manager.connect</code> must be called for the session/namespace as part of the processing of the connect handler — even in the rejection case.</p>
 </li>
 <li>
-<p>Because the handler rejected the connection, the session must then be <strong>removed</strong> from the connection manager for that namespace. That is, <code>manager.disconnect</code> must be called for the session/namespace.</p>
+<p>Since the handler rejected the connection, the session must then be <strong>removed</strong> from the connection manager for that namespace. In other words, <code>manager.disconnect</code> must be called for the session/namespace.</p>
 </li>
 <li>
-<p>The server must send the appropriate rejection packet to the client via <code>eio.send</code>, using <code>binary=False</code>.</p>
+<p>The server must send the appropriate rejection packet to the client through <code>eio.send</code>, with <code>binary=False</code>.</p>
 </li>
 </ol>
-<h5>Specific cases the change must satisfy</h5>
-<p><strong>Default namespace (<code>/</code>) rejection:</strong>
-Given a <code>connect</code> handler registered for the default namespace that rejects the connection, when a low-level connection is established for a session:</p>
+<h5>Specific cases that the change must satisfy</h5>
+<p><strong>Rejection on the default namespace (<code>/</code>):</strong>
+Given a <code>connect</code> handler that is registered for the default namespace and rejects the connection, when a low-level connection is established for a session:</p>
 <ul>
-<li>The handler is invoked once with the session id and the environ.</li>
-<li><code>manager.connect</code> is called exactly once.</li>
-<li><code>manager.disconnect</code> is called exactly once.</li>
-<li>A single rejection packet <code>'4'</code> is sent to the session via <code>eio.send</code> with <code>binary=False</code>.</li>
+<li>The handler is invoked once, with the session id and the environ.</li>
+<li><code>manager.connect</code> gets called exactly once.</li>
+<li><code>manager.disconnect</code> gets called exactly once.</li>
+<li>A single rejection packet <code>'4'</code> is sent to the session through <code>eio.send</code>, with <code>binary=False</code>.</li>
 </ul>
-<p><strong>Named namespace (<code>/foo</code>) rejection:</strong>
-Given a <code>connect</code> handler registered for the namespace <code>/foo</code> that rejects the connection, when a low-level connection is established for a session and then a Socket.IO connect packet for <code>/foo</code> is received:</p>
+<p><strong>Rejection on the named namespace (<code>/foo</code>):</strong>
+Given a <code>connect</code> handler that is registered for the namespace <code>/foo</code> and rejects the connection, when a low-level connection is established for a session and, after that, a Socket.IO connect packet for <code>/foo</code> is received:</p>
 <ul>
-<li><code>manager.connect</code> is called a total of <strong>two</strong> times (once for the default-namespace connection established by the low-level connect, and once for the <code>/foo</code> namespace connect packet).</li>
-<li><code>manager.disconnect</code> is called exactly once (for the rejected <code>/foo</code> connection).</li>
-<li>A rejection packet <code>'4/foo'</code> is sent to the session via <code>eio.send</code> with <code>binary=False</code>.</li>
+<li><code>manager.connect</code> is called <strong>two</strong> times in total (once for the connection in the default namespace established by the low-level connect, and once for the <code>/foo</code> namespace connect packet).</li>
+<li><code>manager.disconnect</code> gets called exactly once (for the <code>/foo</code> connection that was rejected).</li>
+<li>A rejection packet <code>'4/foo'</code> is sent to the session through <code>eio.send</code>, with <code>binary=False</code>.</li>
 </ul>
-<h4>Summary of the change</h4>
-<p>Previously, a rejected connection did <strong>not</strong> register the session in the manager (so no corresponding disconnect occurred). The new behavior registers the connection in the manager as normal, and then, upon rejection, removes it via <code>manager.disconnect</code>. Non-rejection behavior (accepted connections registering via <code>manager.connect</code>) is unchanged.</p>
+<h4>Change Summary</h4>
+<p>In the previous behavior, a rejected connection did <strong>not</strong> register the session in the manager (so no corresponding disconnect occurred). With the new behavior, the connection is registered in the manager as normal, and then, upon rejection, it is removed via <code>manager.disconnect</code>. The non-rejection behavior (accepted connections registering via <code>manager.connect</code>) is left unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Add Server Disconnect Support</span>
-        <span class="spec-meta muted">463 words · source specification
+        <span class="spec-title">Implement Server Disconnect Support</span>
+        <span class="spec-meta muted">510 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Server Disconnect Support</h3>
-<h4>Overview</h4>
-<p>You must add a <code>disconnect</code> method to the <code>Server</code> class located in the <code>server</code> module (<code>server.Server</code>). This method allows the server to disconnect a client, either from all namespaces the client is connected to, or from a specific namespace.</p>
-<h4>Background Context</h4>
-<p>The <code>Server</code> class manages Socket.IO clients over an underlying Engine.IO transport, accessible via <code>self.eio</code>. Clients are identified by a session ID (<code>sid</code>, a string). Messages are sent to clients using:</p>
+      <div class="spec-body"><h3>Task Specification: Implement Server Disconnect Support</h3>
+<h4>Summary</h4>
+<p>A <code>disconnect</code> method must be added to the <code>Server</code> class, which is located in the <code>server</code> module (<code>server.Server</code>). This method makes it possible for the server to disconnect a client, either from all namespaces the client is connected to, or from a specific namespace.</p>
+<h4>Context and Background</h4>
+<p>Socket.IO clients are managed by the <code>Server</code> class over an underlying Engine.IO transport, accessible via <code>self.eio</code>. A client is identified by a session ID (<code>sid</code>, a string). Messages are sent to clients by way of:</p>
 <pre><code class="language-python">self.eio.send(sid, packet_data, binary=False)
 </code></pre>
-<p>Clients can connect to one or more Socket.IO namespaces. A client establishes a connection to a namespace by sending a connect packet. The default namespace is <code>/</code>. Connect packets for named namespaces are encoded as <code>0&lt;namespace&gt;</code> (e.g. <code>0/foo</code> connects to the <code>/foo</code> namespace).</p>
-<p>The relevant lifecycle methods that are already present and used to set up client state include:</p>
+<p>A client can be connected to one or more Socket.IO namespaces. To establish a connection to a namespace, a client sends a connect packet. The namespace <code>/</code> is the default. For named namespaces, connect packets have the encoding <code>0&lt;namespace&gt;</code> (e.g. <code>0/foo</code> connects to the <code>/foo</code> namespace).</p>
+<p>The lifecycle methods that already exist and are used to set up client state include:</p>
 <ul>
-<li><code>s._handle_eio_connect(sid, environ)</code> — handles a new Engine.IO connection.</li>
-<li><code>s._handle_eio_message(sid, data)</code> — handles an incoming Engine.IO message (including namespace connect packets like <code>'0/foo'</code>).</li>
+<li><code>s._handle_eio_connect(sid, environ)</code> — processes a new Engine.IO connection.</li>
+<li><code>s._handle_eio_message(sid, data)</code> — processes an incoming Engine.IO message (this includes namespace connect packets like <code>'0/foo'</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>Add the following method:</p>
+<h4>Behavior Requirements</h4>
+<p>The following method is to be added:</p>
 <pre><code class="language-python">def disconnect(self, sid, namespace=None)
 </code></pre>
-<h5>Parameters</h5>
+<h5>Method Parameters</h5>
 <ul>
-<li><code>sid</code> (str): the session ID of the client to disconnect.</li>
-<li><code>namespace</code> (str, optional): the namespace from which to disconnect the client. Defaults to <code>None</code>.</li>
+<li><code>sid</code> (str): the session ID of the client that is to be disconnected.</li>
+<li><code>namespace</code> (str, optional): the namespace the client is to be disconnected from. Its default value is <code>None</code>.</li>
 </ul>
-<h5>Behavior</h5>
-<p>When <code>namespace</code> is provided (a specific namespace string, e.g. <code>'/foo'</code>):</p>
+<h5>Detailed Behavior</h5>
+<p>When a <code>namespace</code> is supplied (a specific namespace string, for example <code>'/foo'</code>):</p>
 <ul>
-<li>The server must send a Socket.IO disconnect packet for that namespace only. The disconnect packet is sent via <code>self.eio.send(sid, '1' + namespace, binary=False)</code>.
+<li>The server must send a Socket.IO disconnect packet that concerns that namespace only. That disconnect packet is sent via <code>self.eio.send(sid, '1' + namespace, binary=False)</code>.
 <ul>
-<li>For example, disconnecting from <code>/foo</code> sends the payload <code>'1/foo'</code>.</li>
+<li>As an example, disconnecting from <code>/foo</code> sends the payload <code>'1/foo'</code>.</li>
 </ul>
 </li>
 </ul>
-<p>When <code>namespace</code> is <code>None</code> (default):</p>
+<p>When <code>namespace</code> is <code>None</code> (the default):</p>
 <ul>
-<li>The server must disconnect the client from every namespace to which that client is currently connected, sending a disconnect packet for each.</li>
-<li>Each disconnect packet is sent via <code>self.eio.send(sid, '1' + &lt;namespace&gt;, binary=False)</code>.</li>
-<li>For a namespace such as <code>/foo</code>, this produces payload <code>'1/foo'</code>.</li>
-<li>For the default namespace <code>/</code>, the disconnect packet payload is <code>'1'</code> (i.e. the <code>/</code> namespace produces just <code>'1'</code> with no namespace suffix appended).</li>
+<li>The server must disconnect the client from every namespace that the client is currently connected to, with a disconnect packet sent for each one.</li>
+<li>Each of these disconnect packets is sent through <code>self.eio.send(sid, '1' + &lt;namespace&gt;, binary=False)</code>.</li>
+<li>With a namespace such as <code>/foo</code>, this produces the payload <code>'1/foo'</code>.</li>
+<li>When the namespace is the default <code>/</code>, the payload of the disconnect packet is <code>'1'</code> (i.e. the <code>/</code> namespace produces <code>'1'</code> on its own, with no namespace suffix appended).</li>
 </ul>
-<h5>Notes on Payload Encoding</h5>
+<h5>Payload Encoding Notes</h5>
 <ul>
-<li>A disconnect packet for a named namespace <code>&lt;ns&gt;</code> is encoded as <code>'1' + &lt;ns&gt;</code> (e.g. <code>'1/foo'</code>).</li>
-<li>A disconnect packet for the default namespace <code>/</code> is encoded simply as <code>'1'</code>.</li>
-<li>All disconnect packets are sent with <code>binary=False</code>.</li>
+<li>The encoding of a disconnect packet for a named namespace <code>&lt;ns&gt;</code> is <code>'1' + &lt;ns&gt;</code> (e.g. <code>'1/foo'</code>).</li>
+<li>A disconnect packet intended for the default namespace <code>/</code> is encoded simply as <code>'1'</code>.</li>
+<li>All disconnect packets are sent using <code>binary=False</code>.</li>
 </ul>
-<h5>Namespace Tracking</h5>
-<p>The disconnect-all behavior (when <code>namespace</code> is <code>None</code>) requires the server to know which namespaces a given client is connected to. A client that has connected via the default connection (<code>_handle_eio_connect</code>) and then sent a connect packet for <code>/foo</code> is considered connected to both the default namespace <code>/</code> and <code>/foo</code>; a subsequent <code>disconnect(sid)</code> must send disconnect packets covering all of those namespaces.</p>
-<p>You may need to ensure the server maintains the set of namespaces each client is connected to so that <code>disconnect</code> can iterate over them.</p>
+<h5>Tracking Client Namespaces</h5>
+<p>The disconnect-all behavior (the case where <code>namespace</code> is <code>None</code>) requires the server to know which namespaces a given client is connected to. A client that has connected via the default connection (<code>_handle_eio_connect</code>) and then sent a connect packet for <code>/foo</code> is regarded as connected to both the default namespace <code>/</code> and <code>/foo</code>; a subsequent <code>disconnect(sid)</code> must send disconnect packets covering all of those namespaces.</p>
+<p>You may need to ensure that the server maintains the set of namespaces each client is connected to, so that <code>disconnect</code> can iterate over them.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Update the Socket.IO base connection manager and server while preserving existing behavior outside the contracts below.</span>
-        <span class="spec-meta muted">797 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The Socket.IO base connection manager and the server are the targets of this update</span>
+        <span class="spec-meta muted">986 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Update the Socket.IO base connection manager and server while preserving existing behavior outside the contracts below.</p>
-<h4>1. <code>BaseManager</code> namespace connection state</h4>
-<p>In the module that defines <code>BaseManager</code>, add the following public method:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>The Socket.IO base connection manager and the server are the targets of this update; everywhere outside the contracts listed below, existing behavior must remain untouched.</p>
+<h4>1. Per-namespace connection state in <code>BaseManager</code></h4>
+<p>The module that contains the definition of <code>BaseManager</code> gains this public method:</p>
 <pre><code class="language-python">def is_connected(self, sid, namespace)
 </code></pre>
-<p>It must return a Boolean indicating whether <code>sid</code> is currently connected to exactly the given <code>namespace</code>:</p>
+<p>The Boolean that comes back must indicate whether <code>sid</code> is connected, at the present moment, to exactly the <code>namespace</code> supplied:</p>
 <ul>
-<li>Return <code>True</code> after <code>connect(sid, namespace)</code> establishes that connection.</li>
-<li>Return <code>False</code> if the session was never connected to that namespace, if the namespace does not exist, or after that namespace connection has been disconnected.</li>
-<li>The result must reflect a disconnect immediately; it must not depend on deferred room cleanup.</li>
+<li>After <code>connect(sid, namespace)</code> establishes the connection, the method must return <code>True</code>.</li>
+<li><code>False</code> must be returned if the session never had a connection to that namespace, if the namespace does not exist, or after its connection to that namespace has been disconnected.</li>
+<li>The result must react to a disconnect immediately; deferred room cleanup must not be what the result depends on.</li>
 </ul>
-<p>Connection state is scoped to the <code>(sid, namespace)</code> pair. A session can be connected to several namespaces at once, and operations on one namespace must not alter its state in any other namespace.</p>
-<p><code>disconnect(sid, namespace)</code> must therefore:</p>
+<p>The <code>(sid, namespace)</code> pair is what connection state is keyed to. One session can be connected to several namespaces at the same time, and working on a single namespace must not change that session's state in any other namespace.</p>
+<p>Therefore, <code>disconnect(sid, namespace)</code> must do the following:</p>
 <ul>
-<li>remove the session from its connection and all of its rooms in only the selected namespace;</li>
-<li>treat <code>'/'</code> as the default namespace itself, not as a request to disconnect every namespace;</li>
-<li>leave all other sessions and namespaces unchanged; and</li>
-<li>be idempotent and safe for an unknown, already disconnected, or otherwise inactive <code>(sid, namespace)</code> pair. Such calls must not raise an error.</li>
+<li>remove the session from its connection and from all of its rooms, doing so in only the namespace that was selected;</li>
+<li>treat <code>'/'</code> as the default namespace in its own right, not as a request to disconnect every namespace;</li>
+<li>leave all other sessions and namespaces in an untouched state; and</li>
+<li>stay idempotent and safe when the <code>(sid, namespace)</code> pair is unknown, already disconnected, or otherwise inactive. An error must not be raised by such calls.</li>
 </ul>
-<p>For example, after connecting the same <code>sid</code> to both <code>'/'</code> and <code>'/foo'</code>, disconnecting it from <code>'/'</code> makes <code>is_connected(sid, '/')</code> false while <code>is_connected(sid, '/foo')</code> remains true. A later disconnect from <code>'/foo'</code> makes the latter false as well.</p>
-<h4>2. <code>Server</code> construction</h4>
-<p>Change the public constructor in <code>socketio.server</code> to:</p>
+<p>To make this concrete: after the same <code>sid</code> has been connected to both <code>'/'</code> and <code>'/foo'</code>, cutting it off from <code>'/'</code> makes <code>is_connected(sid, '/')</code> false, whereas <code>is_connected(sid, '/foo')</code> continues to be true. A further disconnect, this time from <code>'/foo'</code>, makes that one false too.</p>
+<h4>2. Constructing <code>Server</code></h4>
+<p>In <code>socketio.server</code>, the public constructor takes this form:</p>
 <pre><code class="language-python">def __init__(self, client_manager=None, logger=False, binary=False,
              engineio_logger=False, **kwargs)
 </code></pre>
-<p>The first positional argument is now the Socket.IO client-manager provider. Engine.IO options are supplied directly as keyword arguments.</p>
-<h5>Client manager</h5>
+<p>The provider of the Socket.IO client manager is what the first positional argument now carries. The Engine.IO options arrive directly, in the form of keyword arguments.</p>
+<h5>Client-manager handling</h5>
 <ul>
-<li><code>client_manager</code> is a manager class, factory, or other callable provider. When supplied, invoke it exactly once with the newly created <code>Server</code> instance as its sole argument and expose the returned manager as <code>server.manager</code>.</li>
-<li>When <code>client_manager</code> is omitted or <code>None</code>, use <code>BaseManager</code> in the same way.</li>
-<li>For backward compatibility, continue accepting <code>client_manager_class</code> as a keyword alias for <code>client_manager</code>. When used in place of <code>client_manager</code>, its value must likewise be invoked exactly once with the server instance and installed as <code>server.manager</code>.</li>
-<li><code>client_manager_class</code> is a Socket.IO compatibility option, not an Engine.IO option: consume it and do not forward it to the Engine.IO constructor. Callers should supply at most one of <code>client_manager</code> and <code>client_manager_class</code>.</li>
+<li>What <code>client_manager</code> holds is a manager class, a factory, or some other callable provider. If such a value is present, invoke it exactly once, handing it the newly created <code>Server</code> instance as its sole argument, and expose the manager it gives back as <code>server.manager</code>.</li>
+<li>When <code>client_manager</code> is omitted or is <code>None</code>, <code>BaseManager</code> takes that role in identical fashion.</li>
+<li>For backward compatibility, <code>client_manager_class</code> keeps being accepted as a keyword alias for <code>client_manager</code>. When it stands in for <code>client_manager</code>, its value must likewise be invoked exactly once — the server instance being the argument — and installed as <code>server.manager</code>.</li>
+<li><code>client_manager_class</code> is an option for Socket.IO compatibility, not one for Engine.IO: consume it, rather than forwarding it to the Engine.IO constructor. At most one of <code>client_manager</code> and <code>client_manager_class</code> should be supplied by callers.</li>
 </ul>
-<h5>Socket.IO logger</h5>
-<p><code>logger</code> controls <code>server.logger</code> independently of Engine.IO logging:</p>
+<h5>Logging on the Socket.IO side</h5>
+<p><code>logger</code> decides what <code>server.logger</code> is, and it does so independently of Engine.IO logging:</p>
 <ul>
-<li><code>logger=False</code> (the default) selects the standard Socket.IO logger and sets its effective level to <code>logging.ERROR</code>.</li>
-<li><code>logger=True</code> selects a real logger object through the standard logging facility and sets its effective level to <code>logging.INFO</code>.</li>
-<li>Any non-Boolean value, such as a caller-provided logger object or another custom value, is assigned directly to <code>server.logger</code>.</li>
+<li>Opting for <code>logger=False</code> (the default) brings in the standard Socket.IO logger, whose effective level is set to <code>logging.ERROR</code>.</li>
+<li>Opting for <code>logger=True</code> obtains a real logger object by way of the standard logging facility, and the effective level is set to <code>logging.INFO</code>.</li>
+<li>Any value that is not a Boolean — a logger object coming from the caller, or another custom value, for instance — is assigned directly to <code>server.logger</code>.</li>
 </ul>
-<h5>Engine.IO construction and logging</h5>
+<h5>Construction and logging on the Engine.IO side</h5>
 <ul>
-<li>Construct the underlying Engine.IO server from all remaining <code>**kwargs</code> without otherwise changing them.</li>
-<li><code>engineio_logger</code> is independent of <code>logger</code>. If it is anything other than the Boolean <code>False</code>, add it to the Engine.IO construction arguments under the key <code>logger</code>.</li>
-<li>If <code>engineio_logger</code> is <code>False</code>, do not add a <code>logger</code> entry on its behalf.</li>
-<li>The Socket.IO-only arguments <code>client_manager</code>, <code>client_manager_class</code>, <code>binary</code>, <code>logger</code>, and <code>engineio_logger</code> must not otherwise leak into the Engine.IO options.</li>
-<li>Preserve the existing <code>binary</code> behavior and retain the selected value on the Socket.IO server.</li>
+<li>All the <code>**kwargs</code> that remain are what the underlying Engine.IO server is built from, and they are not touched in any other respect.</li>
+<li><code>engineio_logger</code> operates independently of <code>logger</code>. If the value it carries is anything other than the Boolean <code>False</code>, add it to the arguments for constructing Engine.IO, under the key <code>logger</code>.</li>
+<li>When <code>engineio_logger</code> is <code>False</code>, no <code>logger</code> entry is to be added on its behalf.</li>
+<li>The Socket.IO-only arguments <code>client_manager</code>, <code>client_manager_class</code>, <code>binary</code>, <code>logger</code>, and <code>engineio_logger</code> must not, beyond what is described above, leak into the Engine.IO options.</li>
+<li>The <code>binary</code> behavior that already exists is preserved, and the value selected for it is retained on the Socket.IO server.</li>
 </ul>
 <p>Examples:</p>
 <pre><code class="language-python">Server(manager_factory, binary=True, foo='bar')
 </code></pre>
-<p>This invokes <code>manager_factory(server)</code> once and constructs the Engine.IO server with <code>foo='bar'</code> only.</p>
+<p>In this case <code>manager_factory(server)</code> is invoked once, the only argument used to construct the Engine.IO server being <code>foo='bar'</code>.</p>
 <pre><code class="language-python">Server(client_manager_class=manager_factory, foo='bar')
 </code></pre>
-<p>This uses the legacy manager alias but still forwards only <code>foo='bar'</code> to Engine.IO.</p>
+<p>The legacy manager alias is in use here, but what is still forwarded to Engine.IO is only <code>foo='bar'</code>.</p>
 <pre><code class="language-python">Server(engineio_logger='foo')
 </code></pre>
-<p>This constructs the Engine.IO server with <code>logger='foo'</code> while leaving Socket.IO's own logger under the separate default <code>logger=False</code> behavior.</p>
-<h4>3. <code>Server.disconnect</code> namespace behavior</h4>
-<p>Keep the public method:</p>
+<p>The Engine.IO server is constructed with <code>logger='foo'</code>, and Socket.IO's own logger remains subject to the separate default behavior, <code>logger=False</code>.</p>
+<h4>3. Namespace handling in <code>Server.disconnect</code></h4>
+<p>This public method is kept:</p>
 <pre><code class="language-python">def disconnect(self, sid, namespace=None)
 </code></pre>
-<p>An omitted or <code>None</code> namespace means <code>'/'</code>. Disconnection must be limited to that one normalized namespace:</p>
+<p>A namespace that is missing, or that is <code>None</code>, stands for <code>'/'</code>. The disconnect must stay confined to that single namespace, once it has been normalized:</p>
 <ul>
-<li>If the session is connected to the selected namespace, send that client exactly the Socket.IO disconnect packet for that namespace with <code>binary=False</code>, then remove that namespace connection through the manager.</li>
-<li>For the default namespace, the encoded packet is <code>'1'</code>.</li>
-<li>For a named namespace such as <code>'/foo'</code>, the encoded packet is <code>'1/foo'</code>.</li>
-<li>Do not send disconnect packets for any other namespace. In particular, disconnecting <code>'/'</code> must neither send named-namespace disconnect packets nor disconnect the session from those namespaces, even when the session is connected to them.</li>
-<li>If the session is not connected to the selected namespace, do not send a disconnect packet for it. The operation must not disturb any namespace to which the session is connected.</li>
+<li>Whenever the session is connected to the namespace that was selected, that client must be sent exactly the Socket.IO disconnect packet for that namespace, with <code>binary=False</code>; then that namespace connection is removed through the manager.</li>
+<li>In the default namespace's case, <code>'1'</code> is the encoded packet.</li>
+<li>For a namespace with a name — <code>'/foo'</code>, for instance — <code>'1/foo'</code> is the encoded packet.</li>
+<li>Disconnect packets must not be sent for any other namespace. In particular, a disconnect of <code>'/'</code> must neither send named-namespace disconnect packets nor disconnect the session from those namespaces, even when the session is connected to them.</li>
+<li>If the session is not connected to the namespace that was selected, do not send a disconnect packet for it. The operation must not disturb any of the namespaces the session is connected to.</li>
 </ul>
-<p>Thus, a session connected to both <code>'/'</code> and <code>'/foo'</code> receives only <code>'1'</code> from <code>disconnect(sid)</code> and remains connected to <code>'/foo'</code>. Conversely, <code>disconnect(sid, namespace='/foo')</code> sends only <code>'1/foo'</code> and leaves the default namespace unchanged.</p>
+<p>Accordingly, take a session with connections to both <code>'/'</code> and <code>'/foo'</code>: <code>disconnect(sid)</code> leaves it having received only <code>'1'</code>, and its <code>'/foo'</code> connection is still there. Conversely, <code>disconnect(sid, namespace='/foo')</code> sends only <code>'1/foo'</code>, and the default namespace remains as it was.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Custom JSON Encoder/Decoder Support</span>
-        <span class="spec-meta muted">1030 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Support for a Custom JSON Encoder/Decoder</span>
+        <span class="spec-meta muted">1136 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Custom JSON Encoder/Decoder Support</h3>
+      <div class="spec-body"><h3>Task Specification: Support for a Custom JSON Encoder/Decoder</h3>
 <h4>Overview</h4>
-<p>Allow an application to supply a custom JSON encoder/decoder object to the <code>socketio</code> library. The selected object must be used for Socket.IO packet serialization and deserialization and must also be supplied to the underlying Engine.IO server.</p>
-<p>The server's existing logging option must also respect an explicitly configured level on the shared Socket.IO logger. Enabling logging on a new server must not overwrite such a level.</p>
+<p>Make it possible for an application to supply a custom JSON encoder/decoder object to the <code>socketio</code> library. Whichever object is selected must be used for serialization and deserialization of Socket.IO packets, and it must also be supplied to the underlying Engine.IO server.</p>
+<p>The server's existing logging option must also honor a level that has been explicitly configured on the shared Socket.IO logger. Turning logging on for a new server must not overwrite such a level.</p>
 <h4>Required Behavior</h4>
-<h5>1. <code>socketio.packet.Packet</code> must expose a configurable JSON object</h5>
-<p>The <code>Packet</code> class in <code>socketio.packet</code> must expose a class attribute named <code>json</code>. Its initial/default value must be Python's standard-library <code>json</code> module.</p>
-<p>Every JSON operation performed by <code>Packet</code> must use the object currently held in <code>Packet.json</code>:</p>
+<h5>1. <code>socketio.packet.Packet</code> must expose a JSON object that can be configured</h5>
+<p>The <code>Packet</code> class in <code>socketio.packet</code> must expose a class attribute called <code>json</code>. Its initial value, which is also its default, must be Python's standard-library <code>json</code> module.</p>
+<p>Every JSON operation that <code>Packet</code> performs must use whatever object <code>Packet.json</code> currently holds:</p>
 <ul>
-<li><code>Packet.encode()</code> must use <code>Packet.json.dumps(...)</code> to serialize packet data.</li>
-<li>Decoding an encoded packet, whether through <code>Packet(encoded_packet=...)</code> or the existing decode operation, must use <code>Packet.json.loads(...)</code> to deserialize its JSON payload.</li>
-<li>JSON metadata generated for packets containing binary attachments must follow the same rule. There must be no serialization or deserialization path that bypasses the configured object in favor of a direct reference to the standard <code>json</code> module.</li>
+<li>To serialize packet data, <code>Packet.encode()</code> must use <code>Packet.json.dumps(...)</code>.</li>
+<li>If an encoded packet is decoded, whether through <code>Packet(encoded_packet=...)</code> or through the existing decode operation, <code>Packet.json.loads(...)</code> must be used to deserialize its JSON payload.</li>
+<li>JSON metadata produced for packets that contain binary attachments must follow the same rule. There must not be any serialization or deserialization path that bypasses the configured object in favor of a direct reference to the standard <code>json</code> module.</li>
 </ul>
-<p>The existing Socket.IO framing behavior remains unchanged. In particular, the serialized JSON text is appended after the packet type, namespace, and acknowledgement ID fields as applicable. With the default JSON module, packet JSON remains compact, using the existing comma and colon separators without added whitespace. The value returned by a custom <code>dumps(...)</code> is used as the serialized JSON portion of the packet, and the value returned by a custom <code>loads(...)</code> becomes the packet's <code>data</code> value.</p>
-<p>A custom JSON object is required to expose only these two callable attributes:</p>
+<p>The framing behavior already present in Socket.IO remains unchanged. Specifically, the serialized JSON text is appended after the packet type, namespace, and acknowledgement ID fields, as applicable. When the default JSON module is used, packet JSON remains compact, with the existing comma and colon separators and no whitespace added. What a custom <code>dumps(...)</code> returns is used as the serialized JSON portion of the packet, and what a custom <code>loads(...)</code> returns becomes the packet's <code>data</code> value.</p>
+<p>A custom JSON object is required to expose only the following two callable attributes:</p>
 <ul>
-<li><code>dumps(...)</code>, which returns the text used as the encoded JSON payload.</li>
-<li><code>loads(...)</code>, which returns the decoded packet data.</li>
+<li><code>dumps(...)</code>, which returns the text that serves as the encoded JSON payload.</li>
+<li><code>loads(...)</code>, which returns the packet's decoded data.</li>
 </ul>
-<p>It does not need to provide the rest of the standard-library <code>json</code> module API.</p>
-<p>Assigning a new value to <code>Packet.json</code> is a class-level, process-wide change. It affects all subsequently encoded or decoded <code>Packet</code> instances, including packets created or consumed by any <code>Server</code>. The setting remains active until it is explicitly replaced; it is not scoped to one packet or one server.</p>
-<h5>2. <code>socketio.server.Server</code> must accept and propagate <code>json</code></h5>
-<p>The <code>Server</code> constructor must accept an optional <code>json</code> keyword argument in addition to its existing arguments and Engine.IO options.</p>
-<p>When a custom <code>json</code> value is supplied:</p>
+<p>There is no need for it to provide the rest of the standard-library <code>json</code> module API.</p>
+<p>Assigning a new value to <code>Packet.json</code> constitutes a class-level change that applies process-wide. It affects every <code>Packet</code> instance that is encoded or decoded subsequently, including packets that any <code>Server</code> creates or consumes. The setting stays active until it is explicitly replaced; it is not scoped to a single packet or a single server.</p>
+<h5>2. <code>socketio.server.Server</code> must accept <code>json</code> and propagate it</h5>
+<p>In addition to its existing arguments and Engine.IO options, the <code>Server</code> constructor must accept an optional <code>json</code> keyword argument.</p>
+<p>When a custom <code>json</code> value is provided:</p>
 <ol>
-<li>The exact supplied object must be installed as <code>socketio.packet.Packet.json</code>.</li>
-<li>The exact same object must be passed to the underlying <code>engineio.Server</code> constructor under the keyword name <code>json</code>.</li>
+<li>The exact object that was supplied must be installed as <code>socketio.packet.Packet.json</code>.</li>
+<li>The exact same object must be passed on to the underlying <code>engineio.Server</code> constructor under the keyword name <code>json</code>.</li>
 </ol>
 <p>When the caller omits <code>json</code>:</p>
 <ul>
-<li>The underlying Engine.IO constructor must not receive a <code>json</code> keyword merely as a default added by Socket.IO.</li>
-<li><code>Packet.json</code> must remain unchanged. In particular, constructing a server without <code>json</code> must not reset an earlier custom selection back to the standard module.</li>
+<li>The underlying Engine.IO constructor must not receive a <code>json</code> keyword merely as a default that Socket.IO adds.</li>
+<li><code>Packet.json</code> must remain unchanged. In particular, constructing a server without <code>json</code> must not reset a custom selection made earlier back to the standard module.</li>
 </ul>
-<p>Other existing Engine.IO options and their forwarding behavior must remain compatible with this new option.</p>
-<h5>3. Built-in Socket.IO logger level preservation</h5>
-<p>The existing <code>logger</code> constructor argument on <code>Server</code> must retain its supported modes:</p>
+<p>The other existing Engine.IO options, along with their forwarding behavior, must remain compatible with this new option.</p>
+<h5>3. Preserving the built-in Socket.IO logger's level</h5>
+<p>The <code>logger</code> constructor argument that <code>Server</code> already has must retain the modes it supports:</p>
 <ul>
-<li>A non-boolean logger value is used directly as the server's logger.</li>
-<li>A boolean value selects the shared named logger returned by <code>logging.getLogger('socketio')</code>.</li>
-<li>With <code>logger=False</code>, the existing disabled-logging behavior remains: the built-in logger is set to <code>logging.ERROR</code>.</li>
-<li>With <code>logger=True</code>, the built-in logger is set to <code>logging.INFO</code> only when that logger's own level is currently <code>logging.NOTSET</code>.</li>
+<li>A logger value that is not a boolean is used directly as the server's logger.</li>
+<li>A boolean value selects the shared named logger that <code>logging.getLogger('socketio')</code> returns.</li>
+<li>With <code>logger=False</code>, the existing disabled-logging behavior remains in force: the built-in logger is set to <code>logging.ERROR</code>.</li>
+<li>With <code>logger=True</code>, the built-in logger is set to <code>logging.INFO</code> only when that logger's own level is <code>logging.NOTSET</code> at that moment.</li>
 </ul>
-<p>The <code>logger=True</code> decision must be based on the named logger's own configured level, not merely its effective level inherited from a parent or root logger. If its own level is any explicit value other than <code>logging.NOTSET</code>—for example <code>logging.DEBUG</code>, <code>logging.WARNING</code>, or <code>logging.ERROR</code>—that value must be preserved.</p>
-<p>Because the named logger is shared, this rule also applies across repeated server construction. For example, after an application changes the shared logger's level to <code>logging.WARNING</code>, constructing another <code>Server(logger=True)</code> must leave it at <code>logging.WARNING</code>. If the shared logger's own level is reset to <code>logging.NOTSET</code>, constructing <code>Server(logger=True)</code> must initialize it to <code>logging.INFO</code>.</p>
-<h5>4. Existing packet API and protocol compatibility</h5>
-<p>The existing packet construction and encoding API must remain available, including <code>packet_type</code>, <code>data</code>, <code>namespace</code>, <code>id</code>, <code>binary</code>, and <code>encoded_packet</code> constructor arguments. Existing packet constants and framing behavior must not change. In particular:</p>
+<p>The decision made for <code>logger=True</code> must be based on the level that has been configured on the named logger itself, not merely on its effective level as inherited from a parent or root logger. If its own level is any explicit value other than <code>logging.NOTSET</code>—for instance <code>logging.DEBUG</code>, <code>logging.WARNING</code>, or <code>logging.ERROR</code>—that value must be preserved.</p>
+<p>Since the named logger is shared, this rule also holds across repeated construction of servers. For example, after an application sets the shared logger's level to <code>logging.WARNING</code>, creating another <code>Server(logger=True)</code> must leave it at <code>logging.WARNING</code>. If the shared logger's own level is reset to <code>logging.NOTSET</code>, then creating <code>Server(logger=True)</code> must initialize it to <code>logging.INFO</code>.</p>
+<h5>4. Compatibility with the existing packet API and protocol</h5>
+<p>The packet construction and encoding API that already exists must remain available, including the <code>packet_type</code>, <code>data</code>, <code>namespace</code>, <code>id</code>, <code>binary</code>, and <code>encoded_packet</code> constructor arguments. Existing packet constants and framing behavior must not change. Specifically:</p>
 <ul>
-<li><code>socketio.packet.EVENT</code> remains the event packet type whose string representation in an encoded packet is <code>'2'</code>.</li>
-<li><code>Packet.encode()</code> continues to return an encoded string for non-binary packets and the existing encoded-packet-plus-attachments form for binary packets.</li>
-<li>Decoded data remains available through the packet's <code>data</code> attribute.</li>
-<li>Namespace, acknowledgement ID, and binary placeholder handling continue to behave as before; only the source of JSON serialization and deserialization is made configurable.</li>
+<li><code>socketio.packet.EVENT</code> remains the event packet type, whose string representation within an encoded packet is <code>'2'</code>.</li>
+<li><code>Packet.encode()</code> continues to return an encoded string for non-binary packets, and for binary packets it returns the existing encoded-packet-plus-attachments form.</li>
+<li>Decoded data remains available via the packet's <code>data</code> attribute.</li>
+<li>Handling of the namespace, the acknowledgement ID, and binary placeholders continues to behave as it did before; only the source of JSON serialization and deserialization is made configurable.</li>
 </ul>
-<h4>Observable Examples</h4>
-<p>Given the following custom object:</p>
+<h4>Examples of Observable Behavior</h4>
+<p>Take the following custom object:</p>
 <pre><code class="language-python">class CustomJSON(object):
     @staticmethod
     def dumps(*args, **kwargs):
@@ -450,14 +453,14 @@ Given a <code>connect</code> handler registered for the namespace <code>/foo</co
     def loads(*args, **kwargs):
         return '+++ decoded +++'
 </code></pre>
-<p>Installing it through the server must configure both protocol layers:</p>
+<p>Installing it through the server must configure both of the protocol layers:</p>
 <pre><code class="language-python">from socketio import packet
 from socketio import server
 
 sio = server.Server(json=CustomJSON)
 assert packet.Packet.json is CustomJSON
 </code></pre>
-<p>It must then control direct packet encoding and decoding:</p>
+<p>It must then take control of direct packet encoding and decoding:</p>
 <pre><code class="language-python">pkt = packet.Packet(
     packet_type=packet.EVENT,
     data={'foo': 'bar'},
@@ -468,8 +471,8 @@ assert encoded == '2*** encoded ***'
 decoded = packet.Packet(encoded_packet=encoded)
 assert decoded.data == '+++ decoded +++'
 </code></pre>
-<p>The leading <code>'2'</code> is the existing <code>EVENT</code> packet type; the remainder comes unchanged from <code>CustomJSON.dumps(...)</code>. During decoding, <code>CustomJSON.loads(...)</code> receives the payload portion and its return value is retained as <code>data</code>.</p>
-<p>Logger configuration must remain stable across server instances:</p>
+<p>The <code>'2'</code> at the front is the existing <code>EVENT</code> packet type; the remainder comes from <code>CustomJSON.dumps(...)</code> unchanged. During decoding, the payload portion is what <code>CustomJSON.loads(...)</code> receives, and its return value is retained as <code>data</code>.</p>
+<p>Logger configuration must remain stable from one server instance to the next:</p>
 <pre><code class="language-python">import logging
 from socketio import server
 
@@ -482,63 +485,63 @@ shared_logger.setLevel(logging.WARNING)
 server.Server(logger=True)
 assert shared_logger.level == logging.WARNING
 </code></pre>
-<h4>API Surface Summary</h4>
+<h4>Summary of the API Surface</h4>
 <ul>
 <li><code>socketio.packet.Packet</code>
 <ul>
-<li>Class attribute <code>json</code>, defaulting initially to the standard-library <code>json</code> module.</li>
-<li>Existing constructor arguments, including <code>packet_type</code>, <code>data</code>, and <code>encoded_packet</code>.</li>
-<li>Existing <code>encode()</code> and decode behavior, with all JSON work delegated to <code>Packet.json</code>.</li>
-<li><code>data</code> containing the supplied or decoded packet payload.</li>
+<li>Class attribute <code>json</code>, which initially defaults to the standard-library <code>json</code> module.</li>
+<li>The constructor arguments that already exist, including <code>packet_type</code>, <code>data</code>, and <code>encoded_packet</code>.</li>
+<li>The existing <code>encode()</code> and decode behavior, with all of the JSON work delegated to <code>Packet.json</code>.</li>
+<li><code>data</code> containing the packet payload as supplied or as decoded.</li>
 </ul>
 </li>
 <li><code>socketio.packet.EVENT</code>
 <ul>
-<li>Existing event packet constant encoded with the leading character <code>'2'</code>.</li>
+<li>The existing event packet constant, encoded with <code>'2'</code> as the leading character.</li>
 </ul>
 </li>
 <li><code>socketio.server.Server</code>
 <ul>
-<li>Optional <code>json</code> keyword, globally configuring <code>Packet.json</code> and forwarded unchanged to Engine.IO.</li>
-<li>Existing <code>logger</code> option, with <code>logger=True</code> preserving every explicitly configured level on the shared <code>'socketio'</code> logger.</li>
+<li>The optional <code>json</code> keyword, which configures <code>Packet.json</code> globally and is forwarded unchanged to Engine.IO.</li>
+<li>The existing <code>logger</code> option, where <code>logger=True</code> preserves every explicitly configured level on the shared <code>'socketio'</code> logger.</li>
 </ul>
 </li>
 </ul>
-<p>No per-instance JSON configuration is introduced: selecting a custom JSON object through either <code>Packet.json</code> or <code>Server(json=...)</code> intentionally changes the class-level setting for all packets.</p>
+<p>No per-instance JSON configuration is introduced: selecting a custom JSON object via either <code>Packet.json</code> or <code>Server(json=...)</code> intentionally alters the class-level setting for all packets.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Expose the following public API</span>
-        <span class="spec-meta muted">69 words · source specification
+        <span class="spec-title">Expose the public API listed below</span>
+        <span class="spec-meta muted">80 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add transport lookup to <code>Server</code></h4>
-<p>Expose the following public API:</p>
+      <div class="spec-body"><h4>Add a transport lookup to <code>Server</code></h4>
+<p>Expose the public API listed below:</p>
 <ul>
 <li>Module: <code>socketio.server</code></li>
 <li>Class: <code>Server</code></li>
 <li>Method: <code>transport(self, sid)</code></li>
 </ul>
-<h5>Required behavior</h5>
-<p>For a session identifier previously accepted through <code>Server._handle_eio_connect(sid, environ)</code>:</p>
+<h5>Behavior requirements</h5>
+<p>Given a session identifier that has previously been accepted through <code>Server._handle_eio_connect(sid, environ)</code>:</p>
 <ul>
-<li><code>Server.transport(sid)</code> must call the underlying Engine.IO server’s <code>transport(sid)</code> method exactly once, passing the same <code>sid</code>.</li>
-<li>It must return the underlying method’s result unchanged. For example, if <code>self.eio.transport(sid)</code> returns <code>'polling'</code>, then <code>Server.transport(sid)</code> must return <code>'polling'</code>.</li>
+<li><code>Server.transport(sid)</code> must call the <code>transport(sid)</code> method of the underlying Engine.IO server exactly once and pass the same <code>sid</code> to it.</li>
+<li>It must return, unchanged, the underlying method's result. As an example, if <code>self.eio.transport(sid)</code> returns <code>'polling'</code>, then <code>Server.transport(sid)</code> must return <code>'polling'</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">The following import paths and callable surfaces must exist</span>
-        <span class="spec-meta muted">639 words · source specification
+        <span class="spec-title">The import paths and callable surfaces listed below must exist</span>
+        <span class="spec-meta muted">701 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required callback/ack management behavior</h3>
-<h4>Public API</h4>
-<p>The following import paths and callable surfaces must exist:</p>
+      <div class="spec-body"><h3>Behavior required for callback/ack management</h3>
+<h4>Public interface</h4>
+<p>The import paths and callable surfaces listed below must exist:</p>
 <h5><code>socketio.base_manager</code></h5>
 <pre><code class="language-python">class BaseManager:
     def __init__(self, server): ...
@@ -571,40 +574,40 @@ assert shared_logger.level == logging.WARNING
     def _handle_eio_message(self, sid, message): ...
 </code></pre>
 <p><code>Server</code> must expose its manager as <code>server.manager</code>, and its Engine.IO server as <code>server.eio</code>.</p>
-<h4>BaseManager-owned state</h4>
-<p>Constructing <code>BaseManager(server)</code> must initialize its own empty <code>rooms</code> mapping. Construction must not require the supplied server object to have a preconfigured <code>rooms</code> attribute.</p>
-<p>The manager must also expose callback registrations through <code>manager.callbacks</code>, organized so that registrations can be addressed by both session ID and namespace.</p>
-<h4>Ack ID registration and callback triggering</h4>
+<h4>State owned by BaseManager</h4>
+<p>Constructing <code>BaseManager(server)</code> must initialize an empty <code>rooms</code> mapping of its own. The construction must not require that the supplied server object have a <code>rooms</code> attribute already preconfigured.</p>
+<p>The manager must also expose callback registrations through <code>manager.callbacks</code>, arranged so that registrations can be addressed by both session ID and namespace.</p>
+<h4>Registering ack IDs and triggering callbacks</h4>
 <p><code>BaseManager._generate_ack_id(sid, namespace, callback)</code> must:</p>
 <ul>
-<li>Work even if the SID has not been connected.</li>
-<li>Accept the supplied callback value, including non-callable values such as strings.</li>
+<li>Function even when the SID has not been connected.</li>
+<li>Accept the callback value as supplied, including non-callable values such as strings.</li>
 <li>Register it for the specified SID and namespace.</li>
-<li>Return an ack ID usable by <code>trigger_callback()</code> and packet emission.</li>
-<li>Return <code>1</code> for the first registration in the fresh-manager scenarios described below.</li>
+<li>Return an ack ID that <code>trigger_callback()</code> and packet emission can use.</li>
+<li>Return <code>1</code> for the first registration in the fresh-manager scenarios laid out below.</li>
 </ul>
-<p><code>BaseManager.trigger_callback(sid, namespace, id, data)</code> must find the callback registered for that exact SID, namespace, and ID and invoke it with the items in <code>data</code> expanded as positional arguments. For example:</p>
+<p><code>BaseManager.trigger_callback(sid, namespace, id, data)</code> must find the callback registered for that exact SID, namespace, and ID, and invoke it with the items in <code>data</code> expanded into positional arguments. For example:</p>
 <ul>
-<li><code>data == ['foo']</code> invokes <code>callback('foo')</code>.</li>
-<li><code>data == ['bar', 'baz']</code> invokes <code>callback('bar', 'baz')</code>.</li>
+<li>When <code>data == ['foo']</code>, the method invokes <code>callback('foo')</code>.</li>
+<li>When <code>data == ['bar', 'baz']</code>, the method invokes <code>callback('bar', 'baz')</code>.</li>
 </ul>
-<p>Callback lookup is namespace-specific. Registrations for the same SID under <code>/</code> and <code>/foo</code> must be independently triggerable.</p>
-<p>The method must raise <code>ValueError</code> when any of the following does not identify a registered callback:</p>
+<p>Callback lookup is performed per namespace. Registrations for the same SID under <code>/</code> and <code>/foo</code> must be triggerable independently of one another.</p>
+<p>The method must raise <code>ValueError</code> if any of the following does not identify a registered callback:</p>
 <ul>
 <li>The SID.</li>
-<li>The namespace under an otherwise valid SID.</li>
-<li>The ID under an otherwise valid SID and namespace.</li>
+<li>The namespace, given an otherwise valid SID.</li>
+<li>The ID, given an otherwise valid SID and namespace.</li>
 </ul>
-<p>These failures must not invoke the valid registered callback.</p>
-<h4>Callback cleanup on disconnect</h4>
-<p>Given callback registrations for one SID in both <code>/</code> and <code>/foo</code>:</p>
+<p>In these failure cases, the valid registered callback must not be invoked.</p>
+<h4>Cleaning up callbacks on disconnect</h4>
+<p>Suppose a single SID has callback registrations in both <code>/</code> and <code>/foo</code>:</p>
 <ol>
-<li><code>disconnect(sid, '/foo')</code> must remove the <code>/foo</code> entry from <code>callbacks[sid]</code> while preserving registrations in <code>/</code>.</li>
-<li>A subsequent <code>disconnect(sid, '/')</code> must remove the SID itself from <code>callbacks</code> once no callback namespaces remain for it.</li>
+<li><code>disconnect(sid, '/foo')</code> must remove the <code>/foo</code> entry from <code>callbacks[sid]</code>, while registrations in <code>/</code> are preserved.</li>
+<li>A subsequent <code>disconnect(sid, '/')</code> must remove the SID itself from <code>callbacks</code> once there are no callback namespaces left for it.</li>
 </ol>
-<h4>Emitting through BaseManager with a callback</h4>
-<p>When <code>BaseManager.emit()</code> targets a connected participant and receives a non-<code>None</code> callback, it must obtain an ack ID for that recipient, namespace, and callback through the associated server’s ack-ID generation surface and pass the resulting ID to <code>server._emit_internal()</code>.</p>
-<p>For example, with SID <code>123</code> connected to <code>/foo</code>, if the server’s ack-ID generation returns <code>11</code>, this call:</p>
+<h4>Emission via BaseManager with a callback</h4>
+<p>When <code>BaseManager.emit()</code> targets a connected participant and receives a callback that is not <code>None</code>, it must obtain an ack ID for that recipient, namespace, and callback through the ack-ID generation surface of the associated server, and pass the resulting ID to <code>server._emit_internal()</code>.</p>
+<p>As an example, with SID <code>123</code> connected to <code>/foo</code>, if the server's ack-ID generation returns <code>11</code>, the following call:</p>
 <pre><code class="language-python">manager.emit(
     'my event',
     {'foo': 'bar'},
@@ -612,7 +615,7 @@ assert shared_logger.level == logging.WARNING
     callback='cb',
 )
 </code></pre>
-<p>must result in exactly one internal emission equivalent to:</p>
+<p>must result in exactly one internal emission that is equivalent to:</p>
 <pre><code class="language-python">server._emit_internal(
     '123',
     'my event',
@@ -621,9 +624,9 @@ assert shared_logger.level == logging.WARNING
     11,
 )
 </code></pre>
-<h4>Server internal emission with a pre-generated ID</h4>
-<p><code>Server._emit_internal()</code> must accept an already-generated ack <code>id</code>; it is not passed the callback itself.</p>
-<p>On a fresh server:</p>
+<h4>Server internal emission with an ID generated in advance</h4>
+<p><code>Server._emit_internal()</code> must accept an ack <code>id</code> that has already been generated; the callback itself is not passed to it.</p>
+<p>With a fresh server:</p>
 <pre><code class="language-python">id = server.manager._generate_ack_id('123', '/foo', 'cb')
 server._emit_internal(
     '123',
@@ -633,30 +636,30 @@ server._emit_internal(
     id=id,
 )
 </code></pre>
-<p>must send exactly:</p>
+<p>must send exactly the following:</p>
 <pre><code class="language-python">server.eio.send(
     '123',
     '2/foo,1[&quot;my event&quot;,&quot;my data&quot;]',
     binary=False,
 )
 </code></pre>
-<p>This also establishes that the generated ID in this fresh-manager case is <code>1</code>.</p>
-<h4>Processing incoming ACK packets</h4>
-<p>After an Engine.IO connection for SID <code>123</code> has been established, callbacks registered with <code>server.manager._generate_ack_id()</code> must be invoked when matching Socket.IO ACK packets are passed to <code>server._handle_eio_message()</code>.</p>
-<p>For the default namespace:</p>
+<p>This also establishes that, in this fresh-manager case, the generated ID is <code>1</code>.</p>
+<h4>Handling incoming ACK packets</h4>
+<p>Once an Engine.IO connection for SID <code>123</code> has been established, callbacks registered with <code>server.manager._generate_ack_id()</code> must be invoked when matching Socket.IO ACK packets are passed to <code>server._handle_eio_message()</code>.</p>
+<p>In the default namespace:</p>
 <ul>
-<li>Register callbacks for SID <code>123</code> under <code>/</code>.</li>
-<li>Emit using the returned IDs.</li>
-<li>Processing <code>31[&quot;foo&quot;,2]</code> must invoke the callback registered as ID <code>1</code> exactly once as:</li>
+<li>Register callbacks for the SID <code>123</code> under <code>/</code>.</li>
+<li>Emit using the IDs that were returned.</li>
+<li>When <code>31[&quot;foo&quot;,2]</code> is processed, the callback registered as ID <code>1</code> must be invoked exactly once as:</li>
 </ul>
 <pre><code class="language-python">callback('foo', 2)
 </code></pre>
-<p>For namespace <code>/foo</code>:</p>
+<p>For the namespace <code>/foo</code>:</p>
 <ul>
-<li>Establish the namespace by processing <code>0/foo</code>.</li>
-<li>Register a callback for SID <code>123</code> under <code>/foo</code>.</li>
-<li>Emit with the returned ID.</li>
-<li>Processing <code>3/foo,1[&quot;foo&quot;,2]</code> must invoke that callback exactly once as:</li>
+<li>Establish the namespace via processing of <code>0/foo</code>.</li>
+<li>Register a callback for the SID <code>123</code> under <code>/foo</code>.</li>
+<li>Emit with the ID that was returned.</li>
+<li>When <code>3/foo,1[&quot;foo&quot;,2]</code> is processed, that callback must be invoked exactly once as:</li>
 </ul>
 <pre><code class="language-python">callback('foo', 2)
 </code></pre>
@@ -665,161 +668,162 @@ server._emit_internal(
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Modify the Server class in the server module (server.Server) to change how a custom client manager is provided at construction time.</span>
-        <span class="spec-meta muted">392 words · source specification
+        <span class="spec-title">Alter the way a custom client manager is supplied at construction time by modifying the Server class in the server module (server.Server).</span>
+        <span class="spec-meta muted">429 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Modify the <code>Server</code> class in the <code>server</code> module (<code>server.Server</code>) to change how a custom client manager is provided at construction time.</p>
-<h5>Constructor Signature Change</h5>
-<p>The <code>Server</code> constructor must accept a keyword argument named <code>client_manager</code> (replacing any previous <code>client_manager_class</code> argument). The constructor signature must support the following call patterns:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<p>Alter the way a custom client manager is supplied at construction time by modifying the <code>Server</code> class in the <code>server</code> module (<code>server.Server</code>).</p>
+<h5>Change to the Constructor Signature</h5>
+<p>The <code>Server</code> constructor must accept a keyword argument named <code>client_manager</code> (this replaces any previous <code>client_manager_class</code> argument). The following call patterns must be supported by the constructor signature:</p>
 <ul>
 <li><code>Server(client_manager=&lt;manager&gt;, ...)</code></li>
 <li><code>Server(client_manager=&lt;manager&gt;, binary=True, foo='bar')</code></li>
 </ul>
-<h5>Required Behavior</h5>
+<h5>Behavior Requirements</h5>
 <ol>
 <li>
-<p><strong>Client manager assignment</strong>: When a <code>client_manager</code> object is passed to the constructor, that exact object must be stored and made accessible as the instance attribute <code>self.manager</code>. The value of <code>self.manager</code> must be the same object that was passed in (i.e., identity-preserving assignment — the object itself is used directly, not instantiated or wrapped).</p>
+<p><strong>Assignment of the client manager</strong>: When a <code>client_manager</code> object is supplied to the constructor, that exact object must be stored and exposed as the instance attribute <code>self.manager</code>. The value stored in <code>self.manager</code> must be the same object that was passed in (i.e., the assignment preserves identity — the object itself is used directly, not instantiated or wrapped).</p>
 </li>
 <li>
-<p><strong>No instantiation of the provided manager</strong>: The object passed as <code>client_manager</code> must NOT be called/instantiated by the constructor. It is used as-is.</p>
+<p><strong>The provided manager is not instantiated</strong>: The constructor must NOT call or instantiate the object passed as <code>client_manager</code>. That object is used as-is.</p>
 </li>
 <li>
-<p><strong>Engine.IO passthrough</strong>: Any additional keyword arguments not consumed by the <code>Server</code> constructor (such as <code>foo='bar'</code>) must be forwarded to the underlying Engine.IO server constructor. For example, constructing with an unrelated keyword like <code>foo='bar'</code> results in the Engine.IO server being created with exactly that keyword (<code>foo='bar'</code>) and no other passthrough keywords.</p>
+<p><strong>Passthrough to Engine.IO</strong>: Any additional keyword arguments that the <code>Server</code> constructor does not consume (such as <code>foo='bar'</code>) must be forwarded to the constructor of the underlying Engine.IO server. As an example, constructing with an unrelated keyword such as <code>foo='bar'</code> leads to the Engine.IO server being created with exactly that keyword (<code>foo='bar'</code>) and no other passthrough keywords.</p>
 </li>
 <li>
-<p><strong><code>binary</code> option</strong>: A <code>binary</code> keyword argument must be accepted and stored as the instance attribute <code>self.binary</code>, reflecting the passed boolean value. <code>binary</code> must not be forwarded to the Engine.IO server.</p>
+<p><strong>The <code>binary</code> option</strong>: A <code>binary</code> keyword argument must be accepted and stored as the instance attribute <code>self.binary</code>, reflecting the boolean value that was passed. The <code>binary</code> argument must not be forwarded to the Engine.IO server.</p>
 </li>
 <li>
-<p><strong>Event handler registration</strong>: During construction, three event handlers must be registered on the underlying Engine.IO server (its <code>on</code> method is invoked three times).</p>
+<p><strong>Registration of event handlers</strong>: During construction, three event handlers must be registered on the underlying Engine.IO server (the <code>on</code> method of that server is invoked three times).</p>
 </li>
 </ol>
-<h5>Manager Interaction (unchanged behavior that must continue to work)</h5>
-<p>All server operations continue to delegate to <code>self.manager</code> (the provided client manager). Specifically:</p>
+<h5>Interaction with the Manager (behavior that is unchanged and must continue to work)</h5>
+<p>Delegation to <code>self.manager</code> (the provided client manager) continues for all server operations. In particular:</p>
 <ul>
-<li><code>emit(event, data, room=None, skip_sid=None, namespace=None, callback=None)</code> — calls <code>self.manager.emit(event, data, namespace_or_default, room, skip_sid, callback)</code>, where the namespace defaults to <code>'/'</code> when not provided.</li>
-<li><code>send(data, room=None, skip_sid=None, namespace=None, callback=None)</code> — behaves like <code>emit</code> with the event name <code>'message'</code>.</li>
-<li><code>enter_room(sid, room, namespace=None)</code> — calls <code>self.manager.enter_room(sid, namespace_or_default, room)</code>.</li>
-<li><code>leave_room(sid, room, namespace=None)</code> — calls <code>self.manager.leave_room(sid, namespace_or_default, room)</code>.</li>
-<li><code>close_room(room, namespace=None)</code> — calls <code>self.manager.close_room(namespace_or_default, room)</code>.</li>
-<li><code>rooms(sid, namespace=None)</code> — calls <code>self.manager.get_rooms(sid, namespace_or_default)</code>.</li>
+<li><code>emit(event, data, room=None, skip_sid=None, namespace=None, callback=None)</code> — invokes <code>self.manager.emit(event, data, namespace_or_default, room, skip_sid, callback)</code>, with the namespace defaulting to <code>'/'</code> when it is not provided.</li>
+<li><code>send(data, room=None, skip_sid=None, namespace=None, callback=None)</code> — operates like <code>emit</code> with the event name <code>'message'</code>.</li>
+<li><code>enter_room(sid, room, namespace=None)</code> — invokes <code>self.manager.enter_room(sid, namespace_or_default, room)</code>.</li>
+<li><code>leave_room(sid, room, namespace=None)</code> — invokes <code>self.manager.leave_room(sid, namespace_or_default, room)</code>.</li>
+<li><code>close_room(room, namespace=None)</code> — invokes <code>self.manager.close_room(namespace_or_default, room)</code>.</li>
+<li><code>rooms(sid, namespace=None)</code> — invokes <code>self.manager.get_rooms(sid, namespace_or_default)</code>.</li>
 </ul>
-<p>In all of the above, when <code>namespace</code> is omitted it defaults to <code>'/'</code>.</p>
-<p>The connect/disconnect/event handling logic (<code>_handle_eio_connect</code>, <code>_handle_eio_disconnect</code>, <code>_handle_eio_message</code>, <code>on</code>) and their interaction with the manager remain as before; the only structural change is the constructor now receives an already-constructed manager object via the <code>client_manager</code> keyword and assigns it directly to <code>self.manager</code>.</p>
+<p>In all of the above cases, <code>namespace</code> defaults to <code>'/'</code> when it is omitted.</p>
+<p>The connect/disconnect/event handling logic (<code>_handle_eio_connect</code>, <code>_handle_eio_disconnect</code>, <code>_handle_eio_message</code>, <code>on</code>) and the way these interact with the manager stay as before; the only structural change is that the constructor now takes an already-constructed manager object via the <code>client_manager</code> keyword and assigns it directly to <code>self.manager</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Modify the base manager class to relocate acknowledgment-ID generation from the server object onto the manager itself.</span>
-        <span class="spec-meta muted">225 words · source specification
+        <span class="spec-title">Change the base manager class so that acknowledgment-ID generation is moved from the server object onto the manager itself.</span>
+        <span class="spec-meta muted">245 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the base manager class to relocate acknowledgment-ID generation from the server object onto the manager itself.</p>
+      <div class="spec-body"><h4>Summary</h4>
+<p>Change the base manager class so that acknowledgment-ID generation is moved from the server object onto the manager itself.</p>
 <h4>API Surface</h4>
-<p>In the base manager class (the class instantiated in the manager module and referenced as <code>self.bm</code> in usage), add a method:</p>
+<p>Add a method to the base manager class (the class that is instantiated in the manager module and referenced as <code>self.bm</code> in usage):</p>
 <pre><code class="language-python">def _generate_ack_id(self, sid, namespace, callback):
     ...
 </code></pre>
 <ul>
-<li><code>sid</code>: the session identifier (string).</li>
-<li><code>namespace</code>: the namespace string.</li>
-<li><code>callback</code>: the callback to associate with the generated acknowledgment ID.</li>
-<li>Returns an acknowledgment ID.</li>
+<li><code>sid</code>: the session identifier (a string).</li>
+<li><code>namespace</code>: the namespace as a string.</li>
+<li><code>callback</code>: the callback to be associated with the generated acknowledgment ID.</li>
+<li>The method returns an acknowledgment ID.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>The base manager's <code>emit</code> method has the following signature (relevant parameters):</p>
+<p>The <code>emit</code> method of the base manager uses the following signature (the relevant parameters are shown):</p>
 <pre><code class="language-python">def emit(self, event, data, namespace=None, room=None, skip_sid=None, callback=None):
     ...
 </code></pre>
-<p>When <code>emit</code> is called with a non-<code>None</code> <code>callback</code>, the manager must obtain an acknowledgment ID by invoking its own <code>_generate_ack_id</code> method, passing the session id, the namespace, and the callback in that order (<code>_generate_ack_id(sid, namespace, callback)</code>).</p>
-<p>Specifically, given a client connected via <code>connect(sid, namespace)</code>, calling:</p>
+<p>If <code>emit</code> is called with a non-<code>None</code> <code>callback</code>, the manager must obtain an acknowledgment ID by invoking its own <code>_generate_ack_id</code> method with the session id, the namespace, and the callback, in that order (<code>_generate_ack_id(sid, namespace, callback)</code>).</p>
+<p>In particular, for a client connected via <code>connect(sid, namespace)</code>, the call:</p>
 <pre><code class="language-python">emit(event, data, namespace=namespace, callback=callback)
 </code></pre>
-<p>must result in exactly one call to the manager's own <code>_generate_ack_id</code> method with arguments <code>(sid, namespace, callback)</code>. The acknowledgment ID used for emission is the value returned by this method call.</p>
-<p>The acknowledgment-ID generation must be performed by the manager instance itself, not delegated to the server object. The server's internal emit routine is still invoked to perform the actual emission, using the acknowledgment ID produced by <code>_generate_ack_id</code>.</p>
+<p>must lead to exactly one call to the manager's own <code>_generate_ack_id</code> method with arguments <code>(sid, namespace, callback)</code>. The acknowledgment ID used for the emission is the value that this method call returns.</p>
+<p>The acknowledgment-ID generation must be performed by the manager instance itself and not delegated to the server object. The server's internal emit routine is still invoked to carry out the actual emission, using the acknowledgment ID produced by <code>_generate_ack_id</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Modify the Packet class in the packet module to support decoding packets whose encoded form is provided as an integer (not just a string).</span>
-        <span class="spec-meta muted">245 words · source specification
+        <span class="spec-title">Modify the Packet class in the packet module so that it supports decoding packets whose encoded form is supplied as an integer (not just a string).</span>
+        <span class="spec-meta muted">282 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>Packet</code> class in the <code>packet</code> module to support decoding packets whose encoded form is provided as an integer (not just a string).</p>
+<p>Modify the <code>Packet</code> class in the <code>packet</code> module so that it supports decoding packets whose encoded form is supplied as an integer (not just a string).</p>
 <h4>Background</h4>
-<p>The <code>packet</code> module defines a <code>Packet</code> class used to encode and decode Socket.IO-style packets. Packet type constants are defined at module level, including at least:</p>
+<p>Inside the <code>packet</code> module, a <code>Packet</code> class is defined that is used to encode and decode Socket.IO-style packets. Constants for the packet types are defined at module level, including at least:</p>
 <ul>
 <li><code>DISCONNECT</code> (value <code>1</code>)</li>
 <li><code>EVENT</code></li>
 <li><code>BINARY_EVENT</code></li>
 </ul>
 <h4>Required Behavior</h4>
-<h5><code>Packet</code> construction from an encoded packet</h5>
-<p>The <code>Packet</code> class constructor accepts a keyword argument <code>encoded_packet</code>. When provided, the constructor decodes it and sets <code>self.packet_type</code> accordingly.</p>
-<p>The encoded packet value may be given either as:</p>
+<h5>Constructing a <code>Packet</code> from an encoded packet</h5>
+<p>The constructor of the <code>Packet</code> class accepts a keyword argument named <code>encoded_packet</code>. When this argument is provided, the constructor decodes it and sets <code>self.packet_type</code> accordingly.</p>
+<p>The value of the encoded packet may be supplied either as:</p>
 <ul>
-<li>a <strong>string</strong> (e.g. <code>'1'</code>), or</li>
-<li>an <strong>integer</strong> (e.g. <code>1</code>).</li>
+<li>a <strong>string</strong> (for example <code>'1'</code>), or</li>
+<li>an <strong>integer</strong> (for example <code>1</code>).</li>
 </ul>
-<p>In both cases, the leading character/digit identifies the packet type. Specifically:</p>
+<p>In both cases, it is the leading character/digit that identifies the packet type. Specifically:</p>
 <ul>
-<li>An encoded packet of <code>'1'</code> (string) must decode to a packet whose <code>packet_type</code> equals <code>DISCONNECT</code>.</li>
-<li>An encoded packet of <code>1</code> (integer) must decode to a packet whose <code>packet_type</code> equals <code>DISCONNECT</code>.</li>
+<li>An encoded packet given as <code>'1'</code> (string) must decode to a packet whose <code>packet_type</code> equals <code>DISCONNECT</code>.</li>
+<li>An encoded packet given as <code>1</code> (integer) must decode to a packet whose <code>packet_type</code> equals <code>DISCONNECT</code>.</li>
 </ul>
-<p>That is, a bare packet-type value (with no payload following it) must be decoded correctly, whether supplied as a one-character string or as the equivalent integer. When the encoded packet is an integer, it must be treated equivalently to its string representation for the purpose of determining the packet type.</p>
+<p>In other words, a bare packet-type value (with no payload following it) must be decoded correctly, whether it is supplied as a one-character string or as the equivalent integer. If the encoded packet is an integer, it must be treated equivalently to its string representation in order to determine the packet type.</p>
 <h4>Public API Surface</h4>
 <ul>
 <li>Module: <code>packet</code></li>
 <li>Class: <code>packet.Packet</code></li>
-<li>Constructor keyword argument: <code>encoded_packet</code> (accepts <code>str</code> or <code>int</code>)</li>
-<li>Instance attribute: <code>packet_type</code></li>
-<li>Module-level constant: <code>packet.DISCONNECT</code></li>
+<li>Keyword argument of the constructor: <code>encoded_packet</code> (accepts <code>str</code> or <code>int</code>)</li>
+<li>Attribute of an instance: <code>packet_type</code></li>
+<li>Constant defined at module level: <code>packet.DISCONNECT</code></li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Existing string-based decoding behavior must continue to work unchanged.</li>
+<li>The decoding behavior for strings that already exists must continue to work unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Implement a method _data_is_binary on the Packet class in the packet module.</span>
-        <span class="spec-meta muted">235 words · source specification
+        <span class="spec-title">Provide an implementation of a method _data_is_binary on the Packet class in the packet module.</span>
+        <span class="spec-meta muted">254 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a method <code>_data_is_binary</code> on the <code>Packet</code> class in the <code>packet</code> module. This method determines whether a given payload contains any binary data.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Provide an implementation of a method <code>_data_is_binary</code> on the <code>Packet</code> class in the <code>packet</code> module. Its purpose is to determine whether a payload given to it contains any binary data.</p>
 <h4>Public API</h4>
 <ul>
 <li><strong>Module:</strong> <code>packet</code></li>
 <li><strong>Class:</strong> <code>Packet</code></li>
 <li><strong>Method:</strong> <code>_data_is_binary(self, data)</code></li>
 </ul>
-<p>The <code>Packet</code> class must be instantiable with no arguments (i.e., <code>Packet()</code> must work).</p>
+<p>The <code>Packet</code> class must be constructible with no arguments (that is, <code>Packet()</code> must work).</p>
 <h4>Behavior</h4>
-<p><code>_data_is_binary(data)</code> returns a boolean indicating whether the payload <code>data</code> contains any binary (bytes) content.</p>
+<p><code>_data_is_binary(data)</code> returns a boolean that reports whether the payload <code>data</code> contains any binary (bytes) content.</p>
 <h5>For list inputs</h5>
 <ul>
-<li>Return <code>True</code> if <strong>any</strong> element of the list is a bytes object.</li>
-<li>Return <code>False</code> if the list contains no bytes objects (including when elements are text/<code>str</code> values).</li>
-<li>Return <code>False</code> for an <strong>empty list</strong>.</li>
+<li>Return <code>True</code> when <strong>any</strong> element of the list is a bytes object.</li>
+<li>Return <code>False</code> when the list holds no bytes objects (including cases where elements are text/<code>str</code> values).</li>
+<li>For an <strong>empty list</strong>, return <code>False</code>.</li>
 </ul>
 <h5>For dict inputs</h5>
 <ul>
-<li>Return <code>True</code> if <strong>any</strong> value in the dictionary is a bytes object.</li>
-<li>Return <code>False</code> if none of the values are bytes objects (including when values are text/<code>str</code> values).</li>
-<li>Return <code>False</code> for an <strong>empty dict</strong>.</li>
+<li>Return <code>True</code> when <strong>any</strong> value in the dictionary is a bytes object.</li>
+<li>Return <code>False</code> when none of the values are bytes objects (including cases where values are text/<code>str</code> values).</li>
+<li>For an <strong>empty dict</strong>, return <code>False</code>.</li>
 </ul>
 <h4>Notes on Types</h4>
 <ul>
-<li>&quot;Binary&quot; means a <code>bytes</code> object.</li>
-<li>Text strings (Python <code>str</code> / unicode text) are <strong>not</strong> considered binary.</li>
-<li>For dicts, only the values are inspected; keys are not relevant to the determination.</li>
+<li>&quot;Binary&quot; refers to a <code>bytes</code> object.</li>
+<li>Text strings (Python <code>str</code> / unicode text) are <strong>not</strong> treated as binary.</li>
+<li>When the input is a dict, only the values are looked at; the keys are irrelevant to the determination.</li>
 </ul>
 <h4>Examples</h4>
 <ul>
@@ -832,178 +836,178 @@ server._emit_internal(
 <li><code>_data_is_binary({'a': b'foo'})</code> → <code>True</code></li>
 <li><code>_data_is_binary({'a': text('foo'), 'b': b'bar'})</code> → <code>True</code></li>
 </ul>
-<p>(where <code>text(...)</code> denotes a text/unicode string value)</p>
+<p>(where <code>text(...)</code> stands for a text/unicode string value)</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">You must make changes to the socketio package affecting two areas</span>
-        <span class="spec-meta muted">330 words · source specification
+        <span class="spec-title">The changes you must make to the socketio package cover two areas</span>
+        <span class="spec-meta muted">348 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You must make changes to the <code>socketio</code> package affecting two areas: the <code>BaseManager</code> class and the <code>Server</code> class.</p>
+      <div class="spec-body"><p>The changes you must make to the <code>socketio</code> package cover two areas: the <code>BaseManager</code> class and the <code>Server</code> class.</p>
 <h4>1. <code>socketio.base_manager.BaseManager</code></h4>
-<h5>Construction and initialization</h5>
-<p>Change the way <code>BaseManager</code> is associated with a server.</p>
+<h5>Constructor and initialization</h5>
+<p>Change how <code>BaseManager</code> is associated with a server.</p>
 <ul>
-<li>The <code>BaseManager</code> constructor must take <strong>no required arguments</strong> — it must be possible to instantiate it with <code>base_manager.BaseManager()</code>.</li>
-<li>Add an instance method <code>initialize(self, server)</code> that accepts a server object and associates it with the manager. After calling <code>initialize</code>, the manager must be fully usable (i.e., all other manager behavior works exactly as if the server had been provided at construction time).</li>
+<li>The <code>BaseManager</code> constructor must take <strong>no required arguments</strong> — it must be possible to instantiate it as <code>base_manager.BaseManager()</code>.</li>
+<li>Add an instance method <code>initialize(self, server)</code> that accepts a server object and associates it with the manager. Once <code>initialize</code> has been called, the manager must be fully usable (i.e., all other manager behavior works exactly as it would have if the server had been supplied at construction time).</li>
 </ul>
-<p>The previously supported behavior (connecting sessions, entering/leaving rooms, tracking rooms per namespace, etc.) must continue to work unchanged, except where noted below.</p>
-<h5><code>close_room</code> argument order</h5>
+<p>Behavior that was previously supported (connecting sessions, entering/leaving rooms, tracking rooms per namespace, etc.) must keep working unchanged, except as noted below.</p>
+<h5>Argument order of <code>close_room</code></h5>
 <p>The <code>close_room</code> method must have the signature:</p>
 <pre><code>close_room(self, room, namespace)
 </code></pre>
-<p>That is, the <strong>room</strong> is the first positional argument and the <strong>namespace</strong> is the second.</p>
+<p>In other words, the <strong>room</strong> is the first positional argument and the <strong>namespace</strong> is the second.</p>
 <ul>
-<li>Calling <code>close_room('bar', '/foo')</code> removes room <code>'bar'</code> from the set of rooms tracked for namespace <code>'/foo'</code> (accessible via <code>self.rooms[namespace]</code>).</li>
-<li>Calling <code>close_room</code> with a room that does not exist in the given namespace must not raise; it should simply do nothing.</li>
+<li>A call to <code>close_room('bar', '/foo')</code> removes room <code>'bar'</code> from the set of rooms tracked for namespace <code>'/foo'</code> (accessible via <code>self.rooms[namespace]</code>).</li>
+<li>Calling <code>close_room</code> with a room that is not present in the given namespace must not raise; it should simply do nothing.</li>
 </ul>
 <h4>2. <code>socketio.server.Server</code></h4>
-<h5><code>close_room</code> delegation</h5>
-<p><code>Server.close_room(self, room, namespace=None)</code> must delegate to its manager by calling <code>self.manager.close_room(room, namespace)</code> — i.e., passing the room first and the namespace second.</p>
+<h5>Delegation of <code>close_room</code></h5>
+<p><code>Server.close_room(self, room, namespace=None)</code> must delegate to its manager by invoking <code>self.manager.close_room(room, namespace)</code> — i.e., the room is passed first and the namespace second.</p>
 <ul>
 <li>When called as <code>close_room('room', namespace='/foo')</code>, it must invoke <code>self.manager.close_room('room', '/foo')</code>.</li>
-<li>When called as <code>close_room('room')</code> with no namespace, it must default the namespace to <code>'/'</code> and invoke <code>self.manager.close_room('room', '/')</code>.</li>
+<li>When called as <code>close_room('room')</code> with no namespace, the namespace must default to <code>'/'</code> and it must invoke <code>self.manager.close_room('room', '/')</code>.</li>
 </ul>
 <h5><code>start_background_task</code></h5>
-<p>Add a method <code>start_background_task(self, target, *args, **kwargs)</code> to <code>Server</code>. It must delegate directly to the underlying Engine.IO server's method of the same name, forwarding the target callable, all positional arguments, and all keyword arguments unchanged:</p>
+<p>Add to <code>Server</code> a method <code>start_background_task(self, target, *args, **kwargs)</code>. It must delegate directly to the method of the same name on the underlying Engine.IO server, forwarding the target callable, all positional arguments, and all keyword arguments unchanged:</p>
 <pre><code>self.eio.start_background_task(target, *args, **kwargs)
 </code></pre>
-<p>For example, <code>start_background_task('foo', 'bar', baz='baz')</code> must result in <code>self.eio.start_background_task('foo', 'bar', baz='baz')</code>.</p>
-<p>The <code>Server</code> must be instantiable both with no arguments (<code>server.Server()</code>) and with a <code>client_manager</code> keyword argument (<code>server.Server(client_manager=mgr)</code>), where the provided manager becomes accessible as <code>s.manager</code>.</p>
+<p>To give an example, <code>start_background_task('foo', 'bar', baz='baz')</code> must result in <code>self.eio.start_background_task('foo', 'bar', baz='baz')</code>.</p>
+<p>It must be possible to instantiate the <code>Server</code> both with no arguments (<code>server.Server()</code>) and with a <code>client_manager</code> keyword argument (<code>server.Server(client_manager=mgr)</code>), with the supplied manager accessible as <code>s.manager</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Update callback acknowledgement handling so that acknowledgements which cannot be matched to a registered callback are ignored rather than raising an…</span>
-        <span class="spec-meta muted">201 words · source specification
+        <span class="spec-title">Change how callback acknowledgements are handled so that an acknowledgement that cannot be matched to a registered callback is ignored rather than raising…</span>
+        <span class="spec-meta muted">230 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Ignore acknowledgements for unknown callbacks</h3>
-<p>Update callback acknowledgement handling so that acknowledgements which cannot be matched to a registered callback are ignored rather than raising an exception.</p>
-<h4>Public API behavior</h4>
+      <div class="spec-body"><h3>Ignore acknowledgements whose callbacks are unknown</h3>
+<p>Change how callback acknowledgements are handled so that an acknowledgement that cannot be matched to a registered callback is ignored rather than raising an exception.</p>
+<h4>Behavior of the public API</h4>
 <h5><code>socketio.base_manager.BaseManager</code></h5>
-<p>The following existing methods are involved:</p>
+<p>The existing methods that follow are involved:</p>
 <ul>
 <li><code>connect(sid, namespace)</code></li>
 <li><code>_generate_ack_id(sid, namespace, callback)</code></li>
 <li><code>trigger_callback(sid, namespace, id, data)</code></li>
 </ul>
-<p>After registering a callback ID for a connected SID and namespace, <code>trigger_callback()</code> must not raise an exception or invoke that callback when called with:</p>
+<p>Once a callback ID has been registered for a connected SID and namespace, <code>trigger_callback()</code> must not raise an exception or invoke that callback when called with:</p>
 <ul>
-<li>an unknown SID,</li>
-<li>an unknown namespace for the SID, or</li>
-<li>an unknown callback ID for the SID and namespace.</li>
+<li>a SID that is not known,</li>
+<li>a namespace that is not known for the SID, or</li>
+<li>a callback ID that is not known for the SID and namespace.</li>
 </ul>
-<p>For example, given a callback registered for SID <code>&quot;123&quot;</code> and namespace <code>&quot;/&quot;</code>, calls using SID <code>&quot;124&quot;</code>, namespace <code>&quot;/foo&quot;</code>, or a different callback ID must complete without error. The registered callback must not be called by any of these invalid acknowledgements.</p>
+<p>For example, if a callback is registered for SID <code>&quot;123&quot;</code> and namespace <code>&quot;/&quot;</code>, calls that use SID <code>&quot;124&quot;</code>, namespace <code>&quot;/foo&quot;</code>, or a different callback ID must complete without error. The registered callback must not be called in response to any of these invalid acknowledgements.</p>
 <h5><code>socketio.server.Server</code></h5>
-<p>The existing method:</p>
+<p>The following existing method:</p>
 <ul>
 <li><code>_handle_eio_message(sid, data)</code></li>
 </ul>
-<p>must tolerate a completed binary acknowledgement whose callback ID is not registered.</p>
-<p>In particular, after receiving:</p>
+<p>is required to tolerate a completed binary acknowledgement whose callback ID is not registered.</p>
+<p>Specifically, once the following has been received:</p>
 <pre><code class="language-python">server._handle_eio_message(
     &quot;123&quot;,
     '61-1[&quot;my message&quot;,&quot;a&quot;,{&quot;_placeholder&quot;:true,&quot;num&quot;:0}]'
 )
 </code></pre>
-<p>the server must report one pending attachment through <code>server._attachment_count</code>. Supplying that attachment with:</p>
+<p>the server must report one pending attachment via <code>server._attachment_count</code>. Providing that attachment with:</p>
 <pre><code class="language-python">server._handle_eio_message(&quot;123&quot;, b&quot;foo&quot;)
 </code></pre>
-<p>must complete without raising an exception, even though the acknowledgement references an invalid callback ID.</p>
+<p>must complete without raising an exception, even though the acknowledgement refers to an invalid callback ID.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Implement a PubSubManager class in a new module socketio/pubsub_manager.py.</span>
-        <span class="spec-meta muted">745 words · source specification
+        <span class="spec-title">Create a PubSubManager class inside a new module socketio/pubsub_manager.py.</span>
+        <span class="spec-meta muted">815 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement a PubSub-based Socket.IO Manager</h3>
+      <div class="spec-body"><h3>Task: Implement a Socket.IO Manager Based on PubSub</h3>
 <h4>Overview</h4>
-<p>Implement a <code>PubSubManager</code> class in a new module <code>socketio/pubsub_manager.py</code>. This class extends the existing <code>socketio.base_manager.BaseManager</code> to distribute Socket.IO events across multiple servers via a publish/subscribe message backend. This class is a base for concrete backends; it defines the message routing logic while delegating the actual transport (<code>_publish</code> and <code>_listen</code>) to subclasses.</p>
+<p>Create a <code>PubSubManager</code> class inside a new module <code>socketio/pubsub_manager.py</code>. It extends the existing <code>socketio.base_manager.BaseManager</code> in order to distribute Socket.IO events across multiple servers by way of a publish/subscribe message backend. Concrete backends are built on top of this class: the message routing logic is defined here, while the actual transport (<code>_publish</code> and <code>_listen</code>) is delegated to subclasses.</p>
 <h4>Public API</h4>
 <h5><code>socketio.pubsub_manager.PubSubManager</code></h5>
-<p>A subclass of <code>socketio.base_manager.BaseManager</code>.</p>
+<p>It subclasses <code>socketio.base_manager.BaseManager</code>.</p>
 <h6><code>__init__(self, channel='socketio')</code></h6>
 <ul>
-<li>Stores the <code>channel</code> argument on <code>self.channel</code>.</li>
-<li>Generates a random host identifier stored on <code>self.host_id</code>, which must be a string of exactly 32 characters. Each instance gets its own value.</li>
+<li>The <code>channel</code> argument is stored on <code>self.channel</code>.</li>
+<li>A random host identifier is generated and stored on <code>self.host_id</code>; it must be a string of exactly 32 characters. Every instance is given its own value.</li>
 </ul>
 <h6><code>initialize(self, server)</code></h6>
 <ul>
-<li>Performs the base-class initialization for the given <code>server</code> (must remain compatible with <code>BaseManager.initialize</code>, so <code>self.server</code> is set as usual).</li>
-<li>Starts a background task by calling <code>self.server.start_background_task(self._thread)</code> exactly once.</li>
+<li>Carries out the base-class initialization for the given <code>server</code> (this must remain compatible with <code>BaseManager.initialize</code>, so <code>self.server</code> is set in the usual way).</li>
+<li>A background task is started by calling <code>self.server.start_background_task(self._thread)</code> exactly once.</li>
 </ul>
-<h4>Methods to Publish (outgoing)</h4>
+<h4>Publishing Methods (outgoing)</h4>
 <h5><code>emit(self, event, data, namespace=None, room=None, skip_sid=None, callback=None)</code></h5>
-<p>Instead of emitting locally, publish a message describing the emit. Behavior:</p>
+<p>The method does not emit locally; instead, it publishes a message describing the emit. Behavior:</p>
 <ul>
-<li><code>namespace</code> defaults to <code>'/'</code> when not provided (i.e. when <code>None</code>).</li>
-<li><code>room</code> defaults to <code>None</code>.</li>
-<li><code>skip_sid</code> defaults to <code>None</code>.</li>
-<li>When <code>callback</code> is <code>None</code>, publish a single message (via <code>self._publish(message)</code>):<pre><code class="language-python">{'method': 'emit', 'event': event, 'data': data,
+<li>If <code>namespace</code> is not provided (i.e. when it is <code>None</code>), it defaults to <code>'/'</code>.</li>
+<li>The default for <code>room</code> is <code>None</code>.</li>
+<li>The default for <code>skip_sid</code> is <code>None</code>.</li>
+<li>If <code>callback</code> is <code>None</code>, a single message is published (via <code>self._publish(message)</code>):<pre><code class="language-python">{'method': 'emit', 'event': event, 'data': data,
  'namespace': namespace, 'room': room, 'skip_sid': skip_sid,
  'callback': None}
 </code></pre>
 </li>
-<li>When <code>callback</code> is provided:
+<li>If a <code>callback</code> is provided:
 <ul>
-<li>A <code>room</code> must be provided; if <code>room</code> is <code>None</code>, raise <code>ValueError</code> and do not publish.</li>
-<li>Generate an acknowledgement id by calling <code>self._generate_ack_id(room, namespace, callback)</code> and use its return value as <code>ack_id</code>.</li>
-<li>The published <code>'callback'</code> field must be the tuple <code>(room, namespace, ack_id)</code>. All other fields are as above.</li>
+<li>A <code>room</code> must be supplied; if <code>room</code> is <code>None</code>, raise <code>ValueError</code> and do not publish.</li>
+<li>An acknowledgement id is generated by calling <code>self._generate_ack_id(room, namespace, callback)</code>, and its return value is used as <code>ack_id</code>.</li>
+<li>The <code>'callback'</code> field of the published message must be the tuple <code>(room, namespace, ack_id)</code>. All other fields are as above.</li>
 </ul>
 </li>
 </ul>
 <h5><code>close_room(self, room, namespace=None)</code></h5>
-<p>Publish a message rather than closing locally:</p>
+<p>Publish a message instead of closing locally:</p>
 <pre><code class="language-python">{'method': 'close_room', 'room': room, 'namespace': namespace}
 </code></pre>
 <ul>
-<li><code>namespace</code> defaults to <code>'/'</code> when not provided.</li>
+<li>If <code>namespace</code> is not provided, it defaults to <code>'/'</code>.</li>
 </ul>
-<h4>Methods to Handle Incoming Messages</h4>
+<h4>Methods for Handling Incoming Messages</h4>
 <h5><code>_handle_emit(self, message)</code></h5>
 <ul>
-<li>Reads <code>'event'</code> and <code>'data'</code> from the message (required).</li>
-<li>Reads <code>'namespace'</code>, <code>'room'</code>, <code>'skip_sid'</code>, <code>'callback'</code> from the message, each defaulting to <code>None</code> if absent.</li>
-<li>When the message has no <code>'callback'</code>, invoke the base-class emit:<pre><code class="language-python">BaseManager.emit(event, data, namespace=namespace, room=room,
+<li>Read <code>'event'</code> and <code>'data'</code> from the message (required).</li>
+<li>Read <code>'namespace'</code>, <code>'room'</code>, <code>'skip_sid'</code>, <code>'callback'</code> from the message, each of them defaulting to <code>None</code> when absent.</li>
+<li>If the message has no <code>'callback'</code>, invoke the base-class emit:<pre><code class="language-python">BaseManager.emit(event, data, namespace=namespace, room=room,
                  skip_sid=skip_sid, callback=None)
 </code></pre>
 </li>
-<li>When the message contains a <code>'callback'</code> value, it is a 3-tuple <code>(sid, callback_namespace, callback_id)</code>. Build a callable and pass it as the <code>callback</code> keyword to the base-class emit. This callable must be a <code>functools.partial</code> object. The base-class emit is called with positional args <code>(event, data)</code> and keyword args <code>namespace</code>, <code>room</code>, <code>skip_sid</code>, and this <code>callback</code>.</li>
-<li>When the constructed callback is later invoked with arbitrary positional arguments, it must publish a callback message:<pre><code class="language-python">{'method': 'callback', 'host_id': self.host_id, 'sid': sid,
+<li>If the message does contain a <code>'callback'</code> value, that value is a 3-tuple <code>(sid, callback_namespace, callback_id)</code>. Construct a callable and pass it to the base-class emit as the <code>callback</code> keyword. This callable must be a <code>functools.partial</code> object. The base-class emit is called with positional args <code>(event, data)</code> together with the keyword args <code>namespace</code>, <code>room</code>, <code>skip_sid</code>, and this <code>callback</code>.</li>
+<li>If the constructed callback is later invoked with arbitrary positional arguments, it must publish a callback message:<pre><code class="language-python">{'method': 'callback', 'host_id': self.host_id, 'sid': sid,
  'namespace': callback_namespace, 'id': callback_id, 'args': &lt;the args tuple&gt;}
 </code></pre>
-where <code>&lt;the args tuple&gt;</code> is the tuple of positional arguments passed to the callback.</li>
+where <code>&lt;the args tuple&gt;</code> is the tuple of positional arguments that were passed to the callback.</li>
 </ul>
 <h5><code>_handle_callback(self, message)</code></h5>
 <ul>
-<li>Reads <code>'host_id'</code> from the message.</li>
-<li>If <code>host_id</code> does not equal this instance's <code>self.host_id</code>, do nothing.</li>
-<li>Otherwise, read <code>'sid'</code>, <code>'namespace'</code>, <code>'id'</code>, and <code>'args'</code> from the message. Only if all four are present, call <code>self.trigger_callback(sid, namespace, id, args)</code>. If any of these keys is missing, do nothing (do not call <code>trigger_callback</code>).</li>
+<li>Read <code>'host_id'</code> from the message.</li>
+<li>If <code>host_id</code> is not equal to this instance's <code>self.host_id</code>, do nothing.</li>
+<li>Otherwise, read <code>'sid'</code>, <code>'namespace'</code>, <code>'id'</code>, and <code>'args'</code> from the message. Call <code>self.trigger_callback(sid, namespace, id, args)</code> only when all four are present. If any of these keys is missing, do nothing (do not call <code>trigger_callback</code>).</li>
 </ul>
 <h5><code>_handle_close_room(self, message)</code></h5>
 <ul>
-<li>Reads <code>'room'</code> (required) and <code>'namespace'</code> (defaulting to <code>None</code>) from the message.</li>
-<li>Invokes <code>BaseManager.close_room(room=room, namespace=namespace)</code>.</li>
+<li>Read <code>'room'</code> (required) and <code>'namespace'</code> (defaulting to <code>None</code>) from the message.</li>
+<li>Then invoke <code>BaseManager.close_room(room=room, namespace=namespace)</code>.</li>
 </ul>
 <h4>Background Thread and Transport Hooks</h4>
 <h5><code>_thread(self)</code></h5>
-<p>Continuously consume messages by iterating over <code>self._listen()</code> (a generator). For each yielded item:</p>
+<p>Consume messages in a continuous loop by iterating over <code>self._listen()</code> (a generator). For each item the generator yields:</p>
 <ol>
-<li>If the item is <code>bytes</code>, attempt to deserialize it as a pickled object. If unpickling fails, skip the item.</li>
-<li>Else if the item is a string (<code>str</code>), attempt to parse it as JSON. If parsing fails, skip the item.</li>
-<li>Else the item is used as-is (e.g. a dict).</li>
+<li>Should the item be <code>bytes</code>, attempt to deserialize it as a pickled object; if unpickling fails, skip the item.</li>
+<li>Else, if the item is a string (<code>str</code>), attempt to parse it as JSON; if parsing fails, skip the item.</li>
+<li>In every remaining case, the item is used as-is (e.g. a dict).</li>
 </ol>
-<p>After obtaining a data object:</p>
+<p>After a data object has been obtained:</p>
 <ul>
-<li>If it is a mapping containing a <code>'method'</code> key:
+<li>If it is a mapping that contains a <code>'method'</code> key:
 <ul>
 <li><code>'emit'</code> → call <code>self._handle_emit(data)</code></li>
 <li><code>'callback'</code> → call <code>self._handle_callback(data)</code></li>
@@ -1011,107 +1015,108 @@ where <code>&lt;the args tuple&gt;</code> is the tuple of positional arguments p
 <li>any other/unknown method → ignore</li>
 </ul>
 </li>
-<li>If it has no <code>'method'</code> key, ignore it.</li>
+<li>If there is no <code>'method'</code> key, the item is ignored.</li>
 </ul>
-<p>The loop terminates naturally when the <code>_listen()</code> generator raises (e.g. <code>KeyboardInterrupt</code>); such an exception should propagate out of <code>_thread</code> (it need not be swallowed).</p>
+<p>The loop comes to a natural end when the <code>_listen()</code> generator raises (e.g. <code>KeyboardInterrupt</code>); an exception of that kind should propagate out of <code>_thread</code> (it need not be swallowed).</p>
 <h5><code>_publish(self, data)</code> and <code>_listen(self)</code></h5>
-<p>These are abstract transport hooks intended to be overridden by concrete subclasses. In this base class they may raise <code>NotImplementedError</code>. They are the only two methods a backend must override; all message routing is implemented here.</p>
+<p>These act as abstract transport hooks, meant to be overridden by concrete subclasses. Within this base class they may raise <code>NotImplementedError</code>. These are the only two methods that a backend must override; all message routing is implemented in this class.</p>
 <h4>Notes</h4>
 <ul>
-<li><code>_generate_ack_id</code> and <code>trigger_callback</code> are provided by the base class / infrastructure and are called as described above; you do not implement them here.</li>
-<li>The message dictionaries published must contain exactly the keys described, with the exact string values shown.</li>
+<li><code>_generate_ack_id</code> and <code>trigger_callback</code> come from the base class / infrastructure and are called as described above; you do not implement them yourself here.</li>
+<li>The message dictionaries that get published must contain exactly the keys described, with the exact string values shown.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Modify the emit method of the PubSubManager class located in the pubsub_manager module so that it rejects the use of acknowledgment callbacks when the…</span>
-        <span class="spec-meta muted">217 words · source specification
+        <span class="spec-title">Change the emit method of the PubSubManager class from the pubsub_manager module such that the use of acknowledgment callbacks is rejected when the manager…</span>
+        <span class="spec-meta muted">229 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>emit</code> method of the <code>PubSubManager</code> class located in the <code>pubsub_manager</code> module so that it rejects the use of acknowledgment callbacks when the manager has not been initialized within a server context.</p>
-<h4>Required Behavior</h4>
-<p>The <code>PubSubManager</code> class must be constructable directly with no arguments:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>Change the <code>emit</code> method of the <code>PubSubManager</code> class from the <code>pubsub_manager</code> module such that the use of acknowledgment callbacks is rejected when the manager has not been initialized within a server context.</p>
+<h4>Behavior Requirements</h4>
+<p>It must be possible to construct the <code>PubSubManager</code> class directly, without passing any arguments:</p>
 <pre><code class="language-python">manager = pubsub_manager.PubSubManager()
 </code></pre>
-<p>A <code>PubSubManager</code> instance created this way is <strong>not</strong> associated with a server (it has not been initialized in a server context).</p>
-<p>When the <code>emit</code> method is called on such a standalone (server-less) manager instance <strong>and</strong> a <code>callback</code> argument is provided, the method must raise a <code>RuntimeError</code>.</p>
-<p>The relevant call shape is:</p>
+<p>A <code>PubSubManager</code> instance produced in this fashion is <strong>not</strong> associated with a server (it has not been initialized in a server context).</p>
+<p>When the <code>emit</code> method is called on a standalone (server-less) manager instance of this kind <strong>and</strong> a <code>callback</code> argument is provided, the method must raise a <code>RuntimeError</code>.</p>
+<p>The call form in question is:</p>
 <pre><code class="language-python">manager.emit('foo', 'bar', callback='cb')
 </code></pre>
 <ul>
-<li>The first two positional arguments are the event name and the data payload.</li>
-<li>The <code>callback</code> keyword argument specifies an acknowledgment callback.</li>
+<li>The event name and the data payload are the first two positional arguments.</li>
+<li>An acknowledgment callback is specified via the <code>callback</code> keyword argument.</li>
 </ul>
-<p>If a callback is supplied but the manager has no server context, the operation is invalid and must result in a <code>RuntimeError</code> being raised.</p>
-<h4>Scope</h4>
+<p>Supplying a callback while the manager has no server context makes the operation invalid, and a <code>RuntimeError</code> must be raised as a result.</p>
+<h4>Scope of the Change</h4>
 <ul>
-<li>Do not alter the behavior of <code>emit</code> for cases where no callback is provided.</li>
-<li>Do not alter the behavior of <code>emit</code> for managers that have been properly initialized within a server context.</li>
-<li>The only new constraint is: raising <code>RuntimeError</code> when <code>emit</code> is invoked with a <code>callback</code> on a manager lacking a server context.</li>
+<li>Leave the behavior of <code>emit</code> unchanged in cases where no callback is provided.</li>
+<li>Likewise, leave the behavior of <code>emit</code> unchanged for managers that have been properly initialized within a server context.</li>
+<li>The only new constraint is the raising of <code>RuntimeError</code> when <code>emit</code> is invoked with a <code>callback</code> on a manager lacking a server context.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add write_only Support to PubSubManager</span>
-        <span class="spec-meta muted">244 words · source specification
+        <span class="spec-title">Adding write_only Support to PubSubManager</span>
+        <span class="spec-meta muted">269 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>write_only</code> Support to PubSubManager</h3>
+      <div class="spec-body"><h3>Task Specification: Adding <code>write_only</code> Support to PubSubManager</h3>
 <h4>Overview</h4>
-<p>Modify the <code>PubSubManager</code> class (importable as <code>pubsub_manager.PubSubManager</code>) so that it supports an optional <code>write_only</code> mode. In this mode, the manager can publish messages but does not start any background listening task.</p>
-<h4>Required Changes</h4>
+<p>Update the <code>PubSubManager</code> class (importable as <code>pubsub_manager.PubSubManager</code>) so that it supports an optional <code>write_only</code> mode. While in this mode, the manager can publish messages but does not start any background listening task.</p>
+<h4>Required Modifications</h4>
 <h5><code>PubSubManager.__init__</code></h5>
-<p>Add a keyword argument <code>write_only</code> to the constructor:</p>
+<p>Add a <code>write_only</code> keyword argument to the constructor:</p>
 <pre><code class="language-python">def __init__(self, channel='socketio', write_only=False):
     ...
 </code></pre>
 <ul>
-<li><code>channel</code> (existing): the name of the pub/sub channel. Defaults to <code>'socketio'</code>.</li>
-<li><code>write_only</code> (new): a boolean flag defaulting to <code>False</code>. When <code>True</code>, the manager operates in a mode where it will not spawn a background listening task during initialization.</li>
+<li><code>channel</code> (existing): the name of the pub/sub channel. It defaults to <code>'socketio'</code>.</li>
+<li><code>write_only</code> (new): a boolean flag that defaults to <code>False</code>. When it is <code>True</code>, the manager runs in a mode in which it will not spawn a background listening task during initialization.</li>
 </ul>
-<p>The constructor must retain existing behavior:</p>
+<p>The constructor must preserve its existing behavior:</p>
 <ul>
-<li>Store the <code>channel</code> value, accessible via the <code>channel</code> attribute.</li>
-<li>Generate a unique host identifier accessible via the <code>host_id</code> attribute. This identifier must be a 32-character string.</li>
+<li>Store the <code>channel</code> value so that it is accessible via the <code>channel</code> attribute.</li>
+<li>Generate a unique host identifier that is accessible via the <code>host_id</code> attribute. The identifier must be a 32-character string.</li>
 </ul>
 <h5><code>PubSubManager.initialize</code></h5>
-<p>The <code>initialize(self, server)</code> method receives a server object and must store it such that it is accessible via the <code>server</code> attribute.</p>
-<p>Behavior with respect to background tasks:</p>
+<p>The <code>initialize(self, server)</code> method is passed a server object and must store it so that it is accessible via the <code>server</code> attribute.</p>
+<p>Behavior regarding background tasks:</p>
 <ul>
-<li>When the manager was constructed with <code>write_only=True</code>, <code>initialize</code> must <strong>not</strong> call <code>server.start_background_task</code> at all (it must be invoked zero times).</li>
-<li>(Existing behavior, when not write-only, of starting a background task should be preserved.)</li>
+<li>If the manager was constructed with <code>write_only=True</code>, <code>initialize</code> must <strong>not</strong> call <code>server.start_background_task</code> at all (it must be invoked zero times).</li>
+<li>(When the manager is not write-only, the existing behavior of starting a background task should be preserved.)</li>
 </ul>
-<h4>Expected Behavior Summary</h4>
-<p>Given:</p>
+<h4>Summary of Expected Behavior</h4>
+<p>Given the following code:</p>
 <pre><code class="language-python">pm = pubsub_manager.PubSubManager(write_only=True)
 pm.initialize(mock_server)
 </code></pre>
-<p>The following must hold:</p>
+<p>The following conditions must hold:</p>
 <ul>
 <li><code>pm.channel == 'socketio'</code></li>
 <li><code>len(pm.host_id) == 32</code></li>
-<li><code>pm.server</code> is the server passed to <code>initialize</code></li>
-<li><code>pm.server.start_background_task</code> was never called.</li>
+<li><code>pm.server</code> is the server that was passed to <code>initialize</code></li>
+<li>No call was ever made to <code>pm.server.start_background_task</code>.</li>
 </ul>
-<p>Existing publish/emit behavior of the manager must remain unchanged.</p>
+<p>The manager's existing publish/emit behavior must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Update the socketio.server module and its Server class.</span>
-        <span class="spec-meta muted">241 words · source specification
+        <span class="spec-title">Modify the socketio.server module and its Server class.</span>
+        <span class="spec-meta muted">258 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change: preserve list arguments while expanding tuples</h3>
-<p>Update the <code>socketio.server</code> module and its <code>Server</code> class.</p>
-<h4>Exercised API surface</h4>
-<p>The following call forms must remain available:</p>
+      <div class="spec-body"><h3>Required change: keep list arguments intact while expanding tuples</h3>
+<p>Modify the <code>socketio.server</code> module and its <code>Server</code> class.</p>
+<h4>API surface exercised</h4>
+<p>The call forms below must remain available:</p>
 <pre><code class="language-python">from socketio import server
 
 server.Server()
@@ -1119,46 +1124,46 @@ Server._emit_internal(sid, event, data, namespace=None, id=None)
 Server.on(event, handler=None, namespace=None)
 Server._handle_eio_message(sid, data)
 </code></pre>
-<h4>Event emission behavior</h4>
-<p><code>Server._emit_internal()</code> must distinguish tuple payloads from list payloads:</p>
+<h4>Behavior for event emission</h4>
+<p><code>Server._emit_internal()</code> must tell tuple payloads apart from list payloads:</p>
 <ul>
-<li>A tuple payload represents multiple Socket.IO event arguments.</li>
-<li>A list payload represents one Socket.IO event argument and must remain nested.</li>
+<li>A tuple payload stands for multiple Socket.IO event arguments.</li>
+<li>A list payload stands for one Socket.IO event argument and must stay nested.</li>
 </ul>
-<p>For example:</p>
+<p>For instance:</p>
 <pre><code class="language-python">s._emit_internal(
     '123', 'my event', ('foo', 'bar'), namespace='/foo'
 )
 </code></pre>
-<p>must perform exactly one Engine.IO send equivalent to:</p>
+<p>must perform exactly one Engine.IO send that is equivalent to:</p>
 <pre><code class="language-python">s.eio.send(
     '123',
     '2/foo,[&quot;my event&quot;,&quot;foo&quot;,&quot;bar&quot;]',
     binary=False
 )
 </code></pre>
-<p>By contrast:</p>
+<p>In contrast:</p>
 <pre><code class="language-python">s._emit_internal(
     '123', 'my event', ['foo', 'bar'], namespace='/foo'
 )
 </code></pre>
-<p>must perform exactly one send equivalent to:</p>
+<p>must perform exactly one send that is equivalent to:</p>
 <pre><code class="language-python">s.eio.send(
     '123',
     '2/foo,[&quot;my event&quot;,[&quot;foo&quot;,&quot;bar&quot;]]',
     binary=False
 )
 </code></pre>
-<p>The serialized packet must use compact JSON formatting as shown.</p>
-<h4>Event acknowledgement behavior</h4>
-<p>When an event handler returns a list, that list must be encoded as a single acknowledgement argument rather than expanded into multiple acknowledgement arguments.</p>
-<p>Given a handler registered as:</p>
+<p>As shown, the serialized packet must use compact JSON formatting.</p>
+<h4>Behavior for event acknowledgements</h4>
+<p>If an event handler returns a list, that list must be encoded as one acknowledgement argument instead of being expanded into multiple acknowledgement arguments.</p>
+<p>Suppose a handler is registered as:</p>
 <pre><code class="language-python">s.on('my message', handler)
 </code></pre>
-<p>where <code>handler</code> returns:</p>
+<p>in which <code>handler</code> returns:</p>
 <pre><code class="language-python">[1, '2', True]
 </code></pre>
-<p>processing:</p>
+<p>Processing the following:</p>
 <pre><code class="language-python">s._handle_eio_message(
     '123',
     '21000[&quot;my message&quot;,&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]'
@@ -1167,12 +1172,12 @@ Server._handle_eio_message(sid, data)
 <p>must:</p>
 <ol>
 <li>
-<p>Invoke the handler as:</p>
+<p>Invoke the handler as follows:</p>
 <pre><code class="language-python">handler('123', 'a', 'b', 'c')
 </code></pre>
 </li>
 <li>
-<p>Send exactly one acknowledgement:</p>
+<p>Exactly one acknowledgement must be sent:</p>
 <pre><code class="language-python">s.eio.send(
     '123',
     '31000[[1,&quot;2&quot;,true]]',
@@ -1181,89 +1186,89 @@ Server._handle_eio_message(sid, data)
 </code></pre>
 </li>
 </ol>
-<p>The acknowledgement must retain the returned list as the single nested value; it must not serialize it as <code>31000[1,&quot;2&quot;,true]</code>.</p>
+<p>The acknowledgement must keep the returned list as the single nested value; it must not serialize it as <code>31000[1,&quot;2&quot;,true]</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Room Membership Cleanup in BaseManager</span>
-        <span class="spec-meta muted">1053 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Cleaning Up Room Memberships in BaseManager</span>
+        <span class="spec-meta muted">1148 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Room Membership Cleanup in BaseManager</h3>
+      <div class="spec-body"><h3>Task Specification: Cleaning Up Room Memberships in BaseManager</h3>
 <h4>Overview</h4>
-<p>Update the in-memory room-management behavior of <code>BaseManager</code> so that leaving a room or disconnecting from a namespace produces a fully reconciled <code>rooms</code> structure immediately and synchronously. Removed memberships must be deleted, not retained as inactive tombstones that require a later cleanup pass.</p>
-<p>This is a focused cleanup change. Existing connection, room, emission, callback, and integration behavior must remain compatible except for the timing and representation of room-membership removal described here.</p>
+<p>Change the in-memory room-management behavior of <code>BaseManager</code> so that leaving a room or disconnecting from a namespace results in a fully reconciled <code>rooms</code> structure immediately and synchronously. Memberships that have been removed must be deleted, not retained as inactive tombstones that require a later cleanup pass.</p>
+<p>This is a cleanup change with a narrow scope. Connection, room, emission, callback, and integration behavior that already exists must remain compatible except for the timing and representation of room-membership removal described here.</p>
 <h4>Public API and State Model</h4>
-<p><code>BaseManager</code> remains instantiable without arguments:</p>
+<p><code>BaseManager</code> remains instantiable with no arguments:</p>
 <pre><code class="language-python">bm = BaseManager()
 </code></pre>
-<p>It maintains the public nested mapping:</p>
+<p>It maintains the following public nested mapping:</p>
 <pre><code class="language-text">rooms[namespace][room_name][sid] = &lt;truthy value&gt;
 </code></pre>
 <ul>
-<li><code>namespace</code> is a namespace string such as <code>'/'</code> or <code>'/foo'</code>.</li>
+<li><code>namespace</code> is a string naming a namespace, such as <code>'/'</code> or <code>'/foo'</code>.</li>
 <li><code>room_name</code> is a room identifier or <code>None</code>.</li>
-<li><code>sid</code> is a client session identifier.</li>
-<li>The <code>None</code> room contains all clients connected to that namespace.</li>
-<li>Connecting a client also implicitly creates membership in a room whose name is that client's <code>sid</code>.</li>
-<li>Membership values for entries that remain present are truthy; examples below use <code>True</code>.</li>
+<li><code>sid</code> is an identifier for a client session.</li>
+<li>All clients connected to that namespace are contained in the <code>None</code> room.</li>
+<li>When a client connects, membership in a room whose name is that client's <code>sid</code> is also implicitly created.</li>
+<li>Entries that stay present hold truthy membership values; the examples below use <code>True</code>.</li>
 </ul>
-<p>The relevant methods retain their existing signatures:</p>
+<p>The relevant methods keep their existing signatures:</p>
 <ul>
-<li><code>connect(sid, namespace)</code> registers the client in the namespace and adds it to both the <code>None</code> room and its <code>sid</code>-named room.</li>
-<li><code>enter_room(sid, namespace, room)</code> adds the client to a room.</li>
-<li><code>leave_room(sid, namespace, room)</code> removes that one membership.</li>
-<li><code>disconnect(sid, namespace)</code> disconnects the client from that namespace.</li>
-<li><code>is_connected(sid, namespace)</code> reports whether the client is connected to that namespace.</li>
-<li><code>get_participants(namespace, room)</code> returns an iterable of the room's current participants.</li>
-<li><code>close_room(room, namespace)</code> removes all participants from the room.</li>
+<li><code>connect(sid, namespace)</code> registers the client in the namespace and adds it to both the <code>None</code> room and the room named after its <code>sid</code>.</li>
+<li><code>enter_room(sid, namespace, room)</code> adds the client as a member of a room.</li>
+<li><code>leave_room(sid, namespace, room)</code> removes just that one membership.</li>
+<li><code>disconnect(sid, namespace)</code> disconnects the client from the given namespace.</li>
+<li><code>is_connected(sid, namespace)</code> reports whether the client is connected to the given namespace.</li>
+<li><code>get_participants(namespace, room)</code> returns an iterable of the participants currently in the room.</li>
+<li><code>close_room(room, namespace)</code> removes all of the room's participants.</li>
 </ul>
 <h4>Required Behavior</h4>
 <h5>1. Eliminate deferred reconciliation</h5>
-<p><code>BaseManager</code> must no longer expose or use <code>_clean_rooms</code>, and callers must not need any equivalent externally triggered cleanup operation. Participant enumeration must not be required to make pending removals take effect. No pending-removal queue or inactive membership tombstones may be used as the externally observable room state.</p>
-<p>At the return of <code>leave_room</code>, <code>disconnect</code>, or <code>close_room</code>, <code>rooms</code> must already represent the completed operation.</p>
-<h5>2. Remove memberships outright and prune empty containers</h5>
-<p>For a membership that exists, <code>leave_room(sid, namespace, room)</code> must immediately delete the <code>sid</code> key from that room. It must not assign <code>False</code>, <code>None</code>, or any other inactive marker to the key.</p>
-<p>After a membership is removed:</p>
+<p><code>_clean_rooms</code> must no longer be exposed or used by <code>BaseManager</code>, and callers must not need any equivalent cleanup operation triggered externally. Making pending removals take effect must not require participant enumeration. Neither a pending-removal queue nor inactive membership tombstones may be used as the externally observable room state.</p>
+<p>By the time <code>leave_room</code>, <code>disconnect</code>, or <code>close_room</code> returns, <code>rooms</code> must already represent the completed operation.</p>
+<h5>2. Delete memberships outright and prune empty containers</h5>
+<p>For an existing membership, <code>leave_room(sid, namespace, room)</code> must immediately delete the <code>sid</code> key from that room. The key must not be assigned <code>False</code>, <code>None</code>, or any other inactive marker.</p>
+<p>After a membership has been removed:</p>
 <ol>
-<li>If the room has no remaining members, remove the room key from its namespace.</li>
-<li>If the namespace then has no remaining rooms, remove the namespace key from <code>rooms</code>.</li>
+<li>If no members remain in the room, remove the room key from its namespace.</li>
+<li>If no rooms then remain in the namespace, remove the namespace key from <code>rooms</code>.</li>
 </ol>
-<p>Leaving a room, namespace, or membership that does not exist remains a no-op and must not raise an error.</p>
-<h5>3. Disconnect all memberships in the selected namespace</h5>
-<p><code>disconnect(sid, namespace)</code> must synchronously remove the client from every room in the selected namespace, including:</p>
+<p>Leaving a room, namespace, or membership that does not exist is a no-op and must not raise an error.</p>
+<h5>3. Disconnect all memberships in the given namespace</h5>
+<p><code>disconnect(sid, namespace)</code> must synchronously remove the client from every room in the namespace passed to the call, including:</p>
 <ul>
-<li>the namespace's <code>None</code> room;</li>
-<li>the client's <code>sid</code>-named room; and</li>
-<li>every custom room joined by that client.</li>
+<li>the <code>None</code> room of that namespace;</li>
+<li>the room named after the client's <code>sid</code>; and</li>
+<li>every custom room that the client has joined.</li>
 </ul>
-<p>Empty rooms and namespaces must be pruned under the same rules as <code>leave_room</code>. Once the call returns:</p>
+<p>Empty rooms and namespaces must be pruned following the same rules as <code>leave_room</code>. Once the call has returned:</p>
 <ul>
-<li>the disconnected <code>sid</code> is not a key in any room of that namespace;</li>
-<li><code>is_connected(sid, namespace)</code> reports <code>False</code> while that namespace still exists; and</li>
-<li>participant enumeration cannot return the disconnected <code>sid</code>.</li>
+<li>the disconnected <code>sid</code> does not appear as a key in any room of that namespace;</li>
+<li><code>is_connected(sid, namespace)</code> reports <code>False</code> as long as that namespace still exists; and</li>
+<li>the disconnected <code>sid</code> cannot be returned by participant enumeration.</li>
 </ul>
-<p>Repeating a disconnect for a client already removed from a namespace must not fail or alter the remaining state. Existing acknowledgement-callback cleanup remains namespace-scoped: callback registrations for the disconnected namespace are removed, while registrations associated with other namespaces remain until those namespaces are disconnected.</p>
-<h5>4. Preserve every other namespace</h5>
-<p>A disconnect is strictly scoped to the <code>namespace</code> argument. Disconnecting a session from one namespace must leave all of that session's memberships in every other namespace unchanged, including its <code>None</code> membership, its <code>sid</code>-named room, and any custom-room memberships. Those memberships remain until the session separately leaves or disconnects from those namespaces.</p>
-<p>Consequently, a client can be disconnected from <code>'/foo'</code> and remain connected to <code>'/'</code>, or vice versa.</p>
-<h5>5. Preserve room-operation compatibility</h5>
-<p>Immediate deletion must not break operations that enumerate participants. <code>close_room</code> must still remove every participant from a valid room and remove the resulting empty room synchronously; closing a missing room remains a no-op. Emission and participant queries must operate only on memberships that are present at the time of the operation and must not expose stale, falsy entries.</p>
-<h4>Concrete Expected States</h4>
-<p>Dictionary membership values are shown as <code>True</code>.</p>
-<h5>Sequence A: Disconnect one client with custom rooms</h5>
-<p>Clients <code>123</code> and <code>456</code> are connected to both <code>'/'</code> and <code>'/foo'</code>. Client <code>123</code> joins room <code>'bar'</code> in <code>'/foo'</code>, client <code>456</code> joins room <code>'baz'</code>, and then <code>123</code> disconnects from <code>'/foo'</code>:</p>
+<p>Repeating a disconnect for a client already removed from a namespace must not fail or change the state that remains. The existing cleanup of acknowledgement callbacks remains scoped to the namespace: callback registrations for the disconnected namespace are removed, while registrations belonging to other namespaces stay in place until those namespaces are disconnected.</p>
+<h5>4. Keep every other namespace intact</h5>
+<p>The effect of a disconnect is strictly limited to the <code>namespace</code> argument. When a session is disconnected from one namespace, all of that session's memberships in every other namespace must be left unchanged, including its <code>None</code> membership, its <code>sid</code>-named room, and any custom-room memberships. Those memberships stay in place until the session separately leaves or disconnects from those namespaces.</p>
+<p>As a result, a client can be disconnected from <code>'/foo'</code> while remaining connected to <code>'/'</code>, or the other way around.</p>
+<h5>5. Keep room-operation compatibility</h5>
+<p>The immediate deletion must not break operations that enumerate participants. <code>close_room</code> must still remove every participant from a valid room and remove the resulting empty room synchronously; closing a room that does not exist remains a no-op. Emission and participant queries must operate only on the memberships present at the moment of the operation and must not expose stale, falsy entries.</p>
+<h4>Expected States in Concrete Terms</h4>
+<p>In the dictionaries, membership values are shown as <code>True</code>.</p>
+<h5>Sequence A: Disconnect one client that has custom rooms</h5>
+<p>Clients <code>123</code> and <code>456</code> are connected to both <code>'/'</code> and <code>'/foo'</code>. Client <code>123</code> joins room <code>'bar'</code> in <code>'/foo'</code>, and client <code>456</code> joins room <code>'baz'</code>. Then <code>123</code> disconnects from <code>'/foo'</code>:</p>
 <pre><code class="language-python">rooms['/foo'] == {
     None: {'456': True},
     '456': {'456': True},
     'baz': {'456': True},
 }
 </code></pre>
-<p>The <code>123</code> membership, its <code>sid</code>-named room, and the now-empty <code>'bar'</code> room are entirely absent from <code>'/foo'</code>. Its memberships in <code>'/'</code> remain unchanged.</p>
-<h5>Sequence B: Disconnect from only one namespace</h5>
-<p>Clients <code>123</code> and <code>456</code> connect to both <code>'/'</code> and <code>'/foo'</code>. Disconnecting <code>123</code> only from <code>'/foo'</code> gives:</p>
+<p>The <code>123</code> membership, the room named after its <code>sid</code>, and the <code>'bar'</code> room, which is now empty, are entirely absent from <code>'/foo'</code>. Its memberships in <code>'/'</code> are unchanged.</p>
+<h5>Sequence B: Disconnecting from only one namespace</h5>
+<p>Clients <code>123</code> and <code>456</code> connect to both <code>'/'</code> and <code>'/foo'</code>. Disconnecting <code>123</code> only from <code>'/foo'</code> produces:</p>
 <pre><code class="language-python">rooms['/'] == {
     None: {'123': True, '456': True},
     '123': {'123': True},
@@ -1275,82 +1280,82 @@ rooms['/foo'] == {
     '456': {'456': True},
 }
 </code></pre>
-<p>Immediately afterward:</p>
+<p>Immediately afterwards:</p>
 <pre><code class="language-python">is_connected('123', '/foo') is False
 is_connected('123', '/') is True
 </code></pre>
-<p>Thus all traces of <code>123</code> are gone from <code>'/foo'</code>, while all of its memberships in <code>'/'</code> are unchanged. The same isolation rule applies to custom rooms in an unaffected namespace.</p>
-<h5>Sequence C: Repeat a disconnect</h5>
-<p>With <code>456</code> still connected in <code>'/foo'</code>, disconnecting <code>123</code> from <code>'/foo'</code> again after it has already been removed is a no-op and leaves:</p>
+<p>Hence all traces of <code>123</code> are gone from <code>'/foo'</code>, while all of its memberships in <code>'/'</code> are unchanged. Custom rooms in an unaffected namespace are covered by the same isolation rule.</p>
+<h5>Sequence C: Repeating a disconnect</h5>
+<p>With <code>456</code> still connected in <code>'/foo'</code>, disconnecting <code>123</code> again from <code>'/foo'</code> after it has already been removed is a no-op and leaves:</p>
 <pre><code class="language-python">rooms['/foo'] == {
     None: {'456': True},
     '456': {'456': True},
 }
 </code></pre>
-<h5>Sequence D: Remove the last clients</h5>
-<p>If the only active namespace is <code>'/foo'</code> and every client connected to it disconnects, all of their custom, implicit, and <code>None</code> memberships are removed, followed by the empty rooms and namespace:</p>
+<h5>Sequence D: Removing the last clients</h5>
+<p>If <code>'/foo'</code> is the only active namespace and every client connected to it disconnects, all of their custom, implicit, and <code>None</code> memberships are removed, followed by the empty rooms and namespace:</p>
 <pre><code class="language-python">rooms == {}
 </code></pre>
-<h5>Sequence E: Participant visibility is immediate</h5>
-<p>After clients <code>123</code>, <code>456</code>, and <code>789</code> connect to <code>'/'</code> and <code>789</code> disconnects:</p>
+<h5>Sequence E: Participants are visible immediately</h5>
+<p>After clients <code>123</code>, <code>456</code>, and <code>789</code> have connected to <code>'/'</code> and <code>789</code> has disconnected:</p>
 <ul>
-<li><code>'789'</code> is immediately absent as a key from <code>rooms['/'][None]</code>;</li>
-<li><code>get_participants('/', None)</code> yields exactly <code>123</code> and <code>456</code>, with ordering unspecified; and</li>
-<li>no additional operation is needed to reconcile <code>rooms</code>.</li>
+<li><code>'789'</code> is immediately no longer present as a key in <code>rooms['/'][None]</code>;</li>
+<li><code>get_participants('/', None)</code> yields exactly <code>123</code> and <code>456</code>, with the ordering left unspecified; and</li>
+<li>there is no need for any additional operation to reconcile <code>rooms</code>.</li>
 </ul>
-<h4>Constraint and Non-Goals</h4>
-<p>Do not redesign unrelated manager or server behavior. The required change is the immediate, synchronous deletion and pruning of room memberships during leave, close, and disconnect operations, while preserving existing APIs, callback behavior, broadcasts, and namespace isolation.</p>
+<h4>Constraints and Non-Goals</h4>
+<p>Unrelated manager or server behavior must not be redesigned. The required change is the immediate, synchronous deletion and pruning of room memberships during leave, close, and disconnect operations, while existing APIs, callback behavior, broadcasts, and namespace isolation are preserved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">In module socketio.base_manager, the public class BaseManager must support</span>
-        <span class="spec-meta muted">66 words · source specification
+        <span class="spec-title">The public class BaseManager of module socketio.base_manager must support</span>
+        <span class="spec-meta muted">73 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>In module <code>socketio.base_manager</code>, the public class <code>BaseManager</code> must support:</p>
+      <div class="spec-body"><h4>Change required</h4>
+<p>The public class <code>BaseManager</code> of module <code>socketio.base_manager</code> must support:</p>
 <pre><code class="language-python">BaseManager()
 BaseManager.get_rooms(sid, namespace)
 </code></pre>
-<p>When <code>get_rooms(sid, namespace)</code> is called on a newly created manager and the requested namespace has no rooms, it must return an empty list:</p>
+<p>If <code>get_rooms(sid, namespace)</code> is called on a manager that has just been created and there are no rooms in the requested namespace, the call must return an empty list:</p>
 <pre><code class="language-python">manager = BaseManager()
 manager.get_rooms('123', '/foo')  # returns []
 </code></pre>
-<p>The call must not raise <code>KeyError</code> when the namespace or its room collection does not exist.</p>
+<p>Such a call must not raise <code>KeyError</code> when the namespace, or its room collection, does not exist.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Implement changes in socketio.server.Server.</span>
-        <span class="spec-meta muted">170 words · source specification
+        <span class="spec-title">The changes must be implemented in socketio.server.Server.</span>
+        <span class="spec-meta muted">191 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>Implement changes in <code>socketio.server.Server</code>.</p>
-<h5>Lazy client-manager initialization</h5>
-<p><code>Server</code> must support construction with a custom manager:</p>
+      <div class="spec-body"><h4>API to Implement</h4>
+<p>The changes must be implemented in <code>socketio.server.Server</code>.</p>
+<h5>Lazy initialization of the client manager</h5>
+<p><code>Server</code> must support being constructed with a custom manager:</p>
 <pre><code class="language-python">Server(client_manager=manager, binary=True, **engineio_options)
 </code></pre>
-<p>Manager initialization must be deferred until request handling:</p>
+<p>Initialization of the manager must be postponed until request handling:</p>
 <ul>
-<li><code>Server.handle_request(environ, start_response)</code> must initialize the configured manager with the <code>Server</code> instance.</li>
-<li>Initialization occurs only once for that server, even when <code>handle_request()</code> is called repeatedly.</li>
-<li>Two calls such as <code>handle_request({}, None)</code> must result in exactly one call to <code>manager.initialize(server_instance)</code>.</li>
-<li>The manager must remain accessible through <code>Server.manager</code>.</li>
-<li>A manager, including the default manager, must also support explicit initialization through <code>server.manager.initialize(server)</code> when internal message handling is invoked without first handling a request.</li>
+<li>The configured manager must be initialized with the <code>Server</code> instance by <code>Server.handle_request(environ, start_response)</code>.</li>
+<li>Initialization takes place only once for that server, even when <code>handle_request()</code> is called repeatedly.</li>
+<li>Making two calls such as <code>handle_request({}, None)</code> must lead to exactly one call to <code>manager.initialize(server_instance)</code>.</li>
+<li>The manager must remain accessible via <code>Server.manager</code>.</li>
+<li>A manager, the default manager included, must also support explicit initialization through <code>server.manager.initialize(server)</code> when internal message handling is invoked without a request having been handled first.</li>
 </ul>
-<p>Existing constructor behavior must remain intact: arbitrary Engine.IO options are forwarded appropriately, <code>binary</code> is retained on the Socket.IO server, and Engine.IO event handlers remain registered.</p>
-<h5>Cooperative sleep helper</h5>
-<p>Add:</p>
+<p>The constructor's existing behavior must be preserved: arbitrary Engine.IO options are still forwarded appropriately, <code>binary</code> is retained on the Socket.IO server, and Engine.IO event handlers remain registered.</p>
+<h5>Cooperative sleep utility</h5>
+<p>Introduce:</p>
 <pre><code class="language-python">Server.sleep(seconds)
 </code></pre>
-<p>Calling this method must delegate the supplied duration unchanged to the associated Engine.IO server:</p>
+<p>A call to this method must delegate the supplied duration unchanged to the associated Engine.IO server:</p>
 <pre><code class="language-python">server.eio.sleep(seconds)
 </code></pre>
-<p>For example, <code>server.sleep(1.23)</code> must call <code>server.eio.sleep(1.23)</code> exactly once. No specific return-value behavior is required.</p>
+<p>As an example, <code>server.sleep(1.23)</code> must call <code>server.eio.sleep(1.23)</code> exactly once. No particular return-value behavior is required.</p>
 </div>
     </details>
   </div>

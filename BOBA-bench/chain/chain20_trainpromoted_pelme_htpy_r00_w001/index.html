@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/pelme/htpy/compare/eee681c8d0455f45ebbbe90a7c2afa078f6618a8...bf841dc05c1c2c0b9d35d3a7ab6ff21b9297556d" target="_blank" rel="noopener" class="mono">eee681c8d0 … bf841dc05c</a> · 95 commits by 3 authors over 4 mo (2023-11-06 to 2024-03-12)</dd></div>
       <div><dt>Window:</dt><dd>requests 8–27 of a run of 27 test-bearing changes (overlaps the previous window by 13) · training split</dd></div>
       <div><dt>Size:</dt><dd>459 lines of code in 20 files when the chain starts · over the 20 requests the developers added 2,033 and removed 760 lines of code, plus 365 lines of tests (55 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.6k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 4</dd></div>
+      <div><dt>Specifications:</dt><dd>7.2k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 4</dd></div>
     </dl>
   </header>
 </section>
@@ -144,205 +144,209 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">You are working on an HTML element generation library.</span>
-        <span class="spec-meta muted">293 words · source specification
+        <span class="spec-title">This task is set in an HTML element generation library.</span>
+        <span class="spec-meta muted">324 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on an HTML element generation library. Elements are created via callable objects (e.g., <code>div</code>) that accept positional shorthand strings for id/class attributes and keyword arguments for additional attributes. The resulting object, when converted to a string, renders as an HTML tag.</p>
-<h4>Required Behavior</h4>
-<p>When an element is called with:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Background</h4>
+<p>This task is set in an HTML element generation library. Element creation happens through callable objects (e.g., <code>div</code>) that accept positional shorthand strings for id/class attributes as well as keyword arguments for the additional attributes. Once converted to a string, the resulting object renders as an HTML tag.</p>
+<h4>Behavior Requirements</h4>
+<p>If a call to an element provides:</p>
 <ol>
-<li>A leading shorthand string specifying an id (using the <code>#</code> prefix syntax), <strong>and</strong></li>
-<li>One or more keyword arguments representing additional attributes,</li>
+<li>A leading shorthand string that specifies an id (making use of the <code>#</code> prefix syntax), <strong>and</strong></li>
+<li>One or more keyword arguments that stand for additional attributes,</li>
 </ol>
-<p>the rendered output must correctly combine both the id derived from the shorthand string and the attributes derived from the keyword arguments.</p>
-<h5>Keyword Argument Name Normalization</h5>
-<p>Keyword argument names that end with a trailing underscore must have that trailing underscore stripped when rendered as an HTML attribute name. Specifically, a keyword argument named <code>for_</code> must render as the HTML attribute <code>for</code>.</p>
-<h5>Concrete Requirement</h5>
-<p>Calling the <code>div</code> element with the positional shorthand <code>&quot;#theid&quot;</code> and the keyword argument <code>for_=&quot;hello&quot;</code> must produce, when converted to a string:</p>
+<p>the rendered output must correctly combine both the id taken from the shorthand string and the attributes taken from the keyword arguments.</p>
+<h5>Normalizing Keyword Argument Names</h5>
+<p>A keyword argument name that ends with a trailing underscore must have that trailing underscore stripped when it is rendered as an HTML attribute name. Concretely, a keyword argument named <code>for_</code> must render as the HTML attribute <code>for</code>.</p>
+<h5>Specific Requirement</h5>
+<p>Calling the <code>div</code> element with the positional shorthand <code>&quot;#theid&quot;</code> together with the keyword argument <code>for_=&quot;hello&quot;</code> must produce the following once converted to a string:</p>
 <pre><code class="language-html">&lt;div id=&quot;theid&quot; for=&quot;hello&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>That is:</p>
+<p>In other words:</p>
 <ul>
-<li>The <code>#theid</code> shorthand yields <code>id=&quot;theid&quot;</code>.</li>
-<li>The <code>for_=&quot;hello&quot;</code> keyword argument yields <code>for=&quot;hello&quot;</code> (trailing underscore removed).</li>
-<li>The id attribute appears first, followed by the keyword-derived attribute.</li>
-<li>The tag has no content (empty body) and renders with matching open/close tags.</li>
+<li>The shorthand <code>#theid</code> yields <code>id=&quot;theid&quot;</code>.</li>
+<li>The keyword argument <code>for_=&quot;hello&quot;</code> yields <code>for=&quot;hello&quot;</code> (with the trailing underscore removed).</li>
+<li>The id attribute comes first, followed by the attribute derived from the keyword argument.</li>
+<li>The tag contains no content (empty body) and renders with matching open/close tags.</li>
 </ul>
 <h4>API Surface</h4>
 <ul>
-<li>The <code>div</code> element callable must be importable and usable such that <code>div(&quot;#theid&quot;, for_=&quot;hello&quot;)</code> returns an object whose <code>str()</code> conversion produces the HTML shown above. (This is consistent with the existing library structure where <code>div</code> is already available for import and callable.)</li>
+<li>It must be possible to import the <code>div</code> element callable and use it such that <code>div(&quot;#theid&quot;, for_=&quot;hello&quot;)</code> returns an object whose <code>str()</code> conversion produces the HTML shown above. (This is in line with the existing library structure, where <code>div</code> is already available for import and callable.)</li>
 </ul>
 <h4>Scope</h4>
-<p>The only change in scope is ensuring that keyword arguments are handled correctly in combination with a leading id/class shorthand string, including the trailing-underscore-to-attribute-name normalization. No other behavior should be altered.</p>
+<p>The only change in scope is to ensure that keyword arguments are handled correctly when combined with a leading id/class shorthand string, including the trailing-underscore-to-attribute-name normalization. Aside from that, no behavior should be altered.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You are working on htpy, a Python library for building HTML programmatically.</span>
-        <span class="spec-meta muted">468 words · source specification
+        <span class="spec-title">You are working on htpy, a Python library used to build HTML programmatically.</span>
+        <span class="spec-meta muted">501 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on <code>htpy</code>, a Python library for building HTML programmatically. This task requires modifications to attribute value escaping, the public <code>Element</code> type, and framework interoperability (specifically Django's autoescape mechanism).</p>
-<h5>Public API</h5>
-<p>The library exposes HTML element builders importable from the top-level <code>htpy</code> package, e.g.:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<p>You are working on <code>htpy</code>, a Python library used to build HTML programmatically. This task requires changes to attribute value escaping, the public <code>Element</code> type, and framework interoperability (specifically Django's autoescape mechanism).</p>
+<h5>The public API</h5>
+<p>HTML element builders are exposed by the library, importable from the top-level <code>htpy</code> package, e.g.:</p>
 <pre><code class="language-python">from htpy import div, li
 </code></pre>
-<p>There must also be a public class named <code>Element</code>, importable from <code>htpy</code>, which is the type of the objects produced by these element builders (both standard elements like <code>div</code>/<code>li</code> and custom-tag elements).</p>
-<h5>Element builder behavior</h5>
-<p>Element builders support being called with:</p>
+<p>There must also be a public class called <code>Element</code>, importable from <code>htpy</code>, and it is the type of the objects that these element builders produce (both standard elements like <code>div</code>/<code>li</code> and custom-tag elements).</p>
+<h5>Behavior of element builders</h5>
+<p>Element builders support being called with the following:</p>
 <ul>
-<li>A leading string shorthand argument for <code>id</code>/<code>class</code> (e.g. <code>&quot;#theid&quot;</code> sets <code>id=&quot;theid&quot;</code>).</li>
-<li>Keyword arguments representing HTML attributes.</li>
+<li>A leading string shorthand argument used for <code>id</code>/<code>class</code> (e.g. <code>&quot;#theid&quot;</code> sets <code>id=&quot;theid&quot;</code>).</li>
+<li>Keyword arguments that represent HTML attributes.</li>
 </ul>
-<p>Keyword-argument attribute names undergo the existing name transformation, where trailing underscores are stripped (<code>for_</code> → <code>for</code>) and internal underscores become hyphens (<code>data_foo</code> → <code>data-foo</code>).</p>
-<p><strong>Attribute value escaping (required change):</strong> Attribute <em>values</em> must be HTML-escaped when rendered. In particular, the <code>&lt;</code> character in an attribute value must be rendered as <code>&amp;lt;</code>. For example:</p>
+<p>Attribute names passed as keyword arguments go through the existing name transformation: trailing underscores are stripped (<code>for_</code> → <code>for</code>) and internal underscores become hyphens (<code>data_foo</code> → <code>data-foo</code>).</p>
+<p><strong>Attribute value escaping (required change):</strong> When rendered, attribute <em>values</em> must be HTML-escaped. In particular, a <code>&lt;</code> character appearing in an attribute value must be rendered as <code>&amp;lt;</code>. For example:</p>
 <pre><code class="language-python">str(div(&quot;#theid&quot;, for_=&quot;hello&quot;, data_foo=&quot;&lt;bar&quot;))
 # '&lt;div id=&quot;theid&quot; for=&quot;hello&quot; data-foo=&quot;&amp;lt;bar&quot;&gt;&lt;/div&gt;'
 </code></pre>
-<p>Attribute values that contain no special characters render unchanged.</p>
-<h5>Element instances and the <code>Element</code> type</h5>
-<p>Objects returned by element builders are instances of the <code>Element</code> class:</p>
+<p>Rendering leaves attribute values that contain no special characters unchanged.</p>
+<h5>Element instances and type <code>Element</code></h5>
+<p>The objects that element builders return are instances of the <code>Element</code> class:</p>
 <pre><code class="language-python">el = my_custom_element()
 isinstance(el, Element)   # True
 str(el) == &quot;&lt;my-custom-element&gt;&lt;/my-custom-element&gt;&quot;
 </code></pre>
-<p>(A custom element builder here is one whose tag name contains hyphens, e.g. <code>my-custom-element</code>.)</p>
-<h5>String rendering and <code>__html__</code></h5>
-<p>Calling <code>str()</code> on an element produces its full HTML serialization as a plain <code>str</code>.</p>
-<p>The <strong>result of <code>str(element)</code></strong> must itself expose an <code>__html__()</code> method that returns the same HTML string. In other words, the rendered string value carries a &quot;safe string&quot; interface such that:</p>
+<p>(Here, a custom element builder is one whose tag name contains hyphens, e.g. <code>my-custom-element</code>.)</p>
+<h5>Rendering to a string and <code>__html__</code></h5>
+<p>Calling <code>str()</code> on an element produces the element's full HTML serialization as a plain <code>str</code>.</p>
+<p>The <strong>result of <code>str(element)</code></strong> must itself expose an <code>__html__()</code> method which returns the same HTML string. Put differently, the string value that results from rendering carries a &quot;safe string&quot; interface such that:</p>
 <pre><code class="language-python">result = str(div(id=&quot;a&quot;)).__html__()
 result == '&lt;div id=&quot;a&quot;&gt;&lt;/div&gt;'
 </code></pre>
-<p>This means <code>str()</code> of an element must return a string-like object that both behaves as a normal <code>str</code> (comparing equal to the expected markup) and provides an <code>__html__()</code> method returning that same markup.</p>
-<h5>Django autoescape compatibility</h5>
-<p>When an element is placed into a Django template context and rendered, it must not be double-escaped by Django's autoescaping. Django recognizes objects that implement the <code>__html__()</code> protocol as already-safe. Element rendering must integrate with this protocol so that inserting an element into a Django template yields its HTML unescaped.</p>
-<p>Concretely, given:</p>
+<p>This means <code>str()</code> of an element must return a string-like object, one that both behaves as a normal <code>str</code> (comparing equal to the expected markup) and provides an <code>__html__()</code> method returning that same markup.</p>
+<h5>Compatibility with Django autoescape</h5>
+<p>An element placed into a Django template context and rendered must not be double-escaped by Django's autoescaping. Objects that implement the <code>__html__()</code> protocol are recognized by Django as already-safe. Rendering of elements must integrate with this protocol so that inserting an element into a Django template yields its HTML unescaped.</p>
+<p>In concrete terms, given:</p>
 <pre><code class="language-python">from django.template import Context, Template
 from htpy import li
 
 t = Template(&quot;&lt;ul&gt;{{ stuff }}&lt;/ul&gt;&quot;)
 result = t.render(Context({&quot;stuff&quot;: li[&quot;I am safe!&quot;]}))
 </code></pre>
-<p>the result must be:</p>
+<p>the result must be the following:</p>
 <pre><code>&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;
 </code></pre>
-<p>That is, the element's markup must appear intact (angle brackets preserved, not escaped) when interpolated into a Django template.</p>
-<h5>Notes</h5>
+<p>That is to say, when an element is interpolated into a Django template, its markup must appear intact (angle brackets preserved, not escaped).</p>
+<h5>Additional notes</h5>
 <ul>
-<li>The existing element/children/attribute APIs and their prior behaviors remain unchanged except where stated above.</li>
-<li>Django is only needed for the interoperability behavior; the <code>__html__()</code> protocol on rendered strings is the mechanism that provides this compatibility.</li>
+<li>Apart from what is stated above, the existing element/children/attribute APIs and their prior behaviors remain unchanged.</li>
+<li>Django is needed only for the interoperability behavior; the mechanism that provides this compatibility is the <code>__html__()</code> protocol on rendered strings.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You are working on an HTML generation library called htpy.</span>
-        <span class="spec-meta muted">662 words · source specification
+        <span class="spec-title">You are working on htpy, an HTML generation library.</span>
+        <span class="spec-meta muted">730 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on an HTML generation library called <code>htpy</code>. This library provides HTML element objects that can be composed with children via subscript (<code>[...]</code>) syntax and rendered to HTML strings. This task involves two areas: (1) rejecting nested lists/tuples in element children, and (2) ensuring compatibility with the safe-string / escaping mechanisms of Django, Jinja2, and MarkupSafe.</p>
-<h4>Public API</h4>
-<p>The following must be importable from the <code>htpy</code> module:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>General Description</h4>
+<p>You are working on <code>htpy</code>, an HTML generation library. It offers HTML element objects that can be combined with children through subscript (<code>[...]</code>) syntax and rendered to HTML strings. The task covers two areas: (1) rejecting lists/tuples that are nested in element children, and (2) ensuring compatibility with the safe-string / escaping mechanisms of Django, Jinja2, and MarkupSafe.</p>
+<h4>Public Interface</h4>
+<p>Everything listed below must be importable from the <code>htpy</code> module:</p>
 <ul>
-<li><code>ul</code> — an HTML <code>&lt;ul&gt;</code> element object.</li>
-<li><code>li</code> — an HTML <code>&lt;li&gt;</code> element object.</li>
+<li><code>ul</code> — an element object for the HTML <code>&lt;ul&gt;</code> element.</li>
+<li><code>li</code> — an element object for the HTML <code>&lt;li&gt;</code> element.</li>
 </ul>
-<p>Element objects support:</p>
+<p>Element objects support the following:</p>
 <ul>
-<li><strong>Child assignment via subscript</strong>: <code>element[children]</code> produces a new renderable element containing the given children.</li>
-<li><strong>Rendering via <code>str(...)</code></strong>: calling <code>str()</code> on an element produces its HTML string representation.</li>
+<li><strong>Assigning children via subscript</strong>: <code>element[children]</code> results in a new renderable element that contains the given children.</li>
+<li><strong>Rendering via <code>str(...)</code></strong>: calling <code>str()</code> on an element gives its HTML string representation.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Existing child handling (must continue to work)</h5>
+<h4>Behavior Requirements</h4>
+<h5>1. Current child handling (must keep working)</h5>
 <ul>
-<li>A list or tuple passed as children is treated as a sequence of child items, each rendered in order. For example, a <code>&lt;ul&gt;</code> given a list/tuple of two <code>&lt;li&gt;</code> elements renders as <code>&lt;ul&gt;&lt;li&gt;a&lt;/li&gt;&lt;li&gt;b&lt;/li&gt;&lt;/ul&gt;</code>.</li>
-<li>A generator passed as children is likewise iterated, each yielded item rendered in order.</li>
+<li>A list or tuple that is passed as children is handled as a sequence of child items, each of which is rendered in order. For example, a <code>&lt;ul&gt;</code> that is given a list/tuple of two <code>&lt;li&gt;</code> elements renders as <code>&lt;ul&gt;&lt;li&gt;a&lt;/li&gt;&lt;li&gt;b&lt;/li&gt;&lt;/ul&gt;</code>.</li>
+<li>A generator that is passed as children is likewise iterated, with each yielded item rendered in order.</li>
 </ul>
-<h5>2. Disallow nested lists/tuples inside lists/tuples</h5>
-<p>When children are provided as a list or tuple, no item within that list or tuple may itself be a list or tuple. Nesting must be rejected at the point the children are assigned to the element (i.e., during the <code>element[...]</code> subscript operation), by raising a <code>ValueError</code>.</p>
-<p>The error message must depend on the type of the containing sequence and the type of the offending nested item:</p>
+<h5>2. Reject lists/tuples nested inside lists/tuples</h5>
+<p>When children are supplied as a list or tuple, no item inside that list or tuple may itself be a list or tuple. Such nesting must be rejected at the point where the children are assigned to the element (i.e., during the <code>element[...]</code> subscript operation), by raising a <code>ValueError</code>.</p>
+<p>The message of the error must depend on the type of the containing sequence and on the type of the offending nested item:</p>
 <ul>
-<li>A <code>list</code> containing a <code>list</code> item → message: <code>list items cannot be of type list</code></li>
-<li>A <code>list</code> containing a <code>tuple</code> item → message: <code>list items cannot be of type tuple</code></li>
-<li>A <code>tuple</code> containing a <code>list</code> item → message: <code>tuple items cannot be of type list</code></li>
-<li>A <code>tuple</code> containing a <code>tuple</code> item → message: <code>tuple items cannot be of type tuple</code></li>
+<li>A <code>list</code> that contains a <code>list</code> item → message: <code>list items cannot be of type list</code></li>
+<li>A <code>list</code> that contains a <code>tuple</code> item → message: <code>list items cannot be of type tuple</code></li>
+<li>A <code>tuple</code> that contains a <code>list</code> item → message: <code>tuple items cannot be of type list</code></li>
+<li>A <code>tuple</code> that contains a <code>tuple</code> item → message: <code>tuple items cannot be of type tuple</code></li>
 </ul>
-<p>This detection applies to the immediate items of the list/tuple being assigned. For example:</p>
+<p>This detection applies to the immediate items of the list/tuple that is being assigned. For example:</p>
 <ul>
-<li><code>ul[[[]]]</code> (a list whose single item is an empty list) raises <code>ValueError</code> with message <code>list items cannot be of type list</code>.</li>
-<li><code>ul[[()]]</code> (a list whose single item is an empty tuple) raises <code>ValueError</code> with message <code>list items cannot be of type tuple</code>.</li>
-<li><code>ul[(([],),)]</code> (a tuple whose single item is a tuple — but the inner tuple contains a list; detection must reach the tuple-containing-list level) raises <code>ValueError</code> with message <code>tuple items cannot be of type list</code>.</li>
-<li><code>ul[(((),),)]</code> (nested tuples) raises <code>ValueError</code> with message <code>tuple items cannot be of type tuple</code>.</li>
+<li><code>ul[[[]]]</code> (a list in which the single item is an empty list) raises <code>ValueError</code> with message <code>list items cannot be of type list</code>.</li>
+<li><code>ul[[()]]</code> (a list in which the single item is an empty tuple) raises <code>ValueError</code> with message <code>list items cannot be of type tuple</code>.</li>
+<li><code>ul[(([],),)]</code> (a tuple whose single item is a tuple — but that inner tuple contains a list; detection must reach the tuple-containing-list level) raises <code>ValueError</code> with message <code>tuple items cannot be of type list</code>.</li>
+<li><code>ul[(((),),)]</code> (tuples nested in tuples) raises <code>ValueError</code> with message <code>tuple items cannot be of type tuple</code>.</li>
 </ul>
-<p>The <code>match</code> string in each case is a substring of the raised <code>ValueError</code>'s message.</p>
-<h5>3. Safe-string / escaping compatibility</h5>
-<p>The library must integrate correctly with third-party safe-string protocols so that:</p>
+<p>In each case, the <code>match</code> string is a substring of the message of the raised <code>ValueError</code>.</p>
+<h5>3. Compatibility with safe-string / escaping</h5>
+<p>The library must integrate correctly with third-party safe-string protocols so that the following holds:</p>
 <p><strong>Django (<code>django.utils.safestring</code> / <code>django.utils.html</code>)</strong></p>
 <ul>
-<li>A rendered <code>htpy</code> element, when placed into a Django template context and rendered, must be treated as already-safe HTML (not re-escaped). Rendering <code>&lt;ul&gt;{{ stuff }}&lt;/ul&gt;</code> with <code>stuff</code> set to <code>li[&quot;I am safe!&quot;]</code> must yield <code>&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;</code>.</li>
-<li>A Django <code>mark_safe(...)</code> string passed as a child must be inserted verbatim without escaping. <code>ul[mark_safe(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)]</code> renders to <code>&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;</code>.</li>
-<li>A Django <code>escape(...)</code> result passed as a child must be inserted as its (already escaped) safe content without double-escaping. <code>ul[escape(&quot;&lt;hello&gt;&quot;)]</code> renders to <code>&lt;ul&gt;&amp;lt;hello&amp;gt;&lt;/ul&gt;</code>.</li>
+<li>When a rendered <code>htpy</code> element is placed into a Django template context and rendered, it must be treated as already-safe HTML (not re-escaped). When <code>&lt;ul&gt;{{ stuff }}&lt;/ul&gt;</code> is rendered with <code>stuff</code> set to <code>li[&quot;I am safe!&quot;]</code>, this must yield <code>&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;</code>.</li>
+<li>When a Django <code>mark_safe(...)</code> string is passed as a child, it must be inserted verbatim without escaping. <code>ul[mark_safe(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)]</code> renders as <code>&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;</code>.</li>
+<li>When a Django <code>escape(...)</code> result is passed as a child, it must be inserted as its (already escaped) safe content without double-escaping. <code>ul[escape(&quot;&lt;hello&gt;&quot;)]</code> renders as <code>&lt;ul&gt;&amp;lt;hello&amp;gt;&lt;/ul&gt;</code>.</li>
 </ul>
 <p><strong>Jinja2 / MarkupSafe (<code>markupsafe</code>)</strong></p>
 <ul>
-<li>A rendered <code>htpy</code> element placed into a Jinja2 template must be treated as already-safe HTML. Rendering <code>&lt;ul&gt;{{ stuff }}&lt;/ul&gt;</code> with <code>stuff</code> set to <code>li[&quot;I am safe!&quot;]</code> must yield <code>&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;</code>.</li>
-<li>A <code>markupsafe.Markup(...)</code> string passed as a child must be inserted verbatim without escaping. <code>ul[Markup(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)]</code> renders to <code>&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;</code>.</li>
-<li>A <code>markupsafe.escape(...)</code> result passed as a child must be inserted as its (already escaped) safe content without double-escaping. <code>ul[escape(&quot;&lt;hi&gt;&quot;)]</code> renders to <code>&lt;ul&gt;&amp;lt;hi&amp;gt;&lt;/ul&gt;</code>.</li>
+<li>When a rendered <code>htpy</code> element is placed into a Jinja2 template, it must be treated as already-safe HTML. When <code>&lt;ul&gt;{{ stuff }}&lt;/ul&gt;</code> is rendered with <code>stuff</code> set to <code>li[&quot;I am safe!&quot;]</code>, this must yield <code>&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;</code>.</li>
+<li>When a <code>markupsafe.Markup(...)</code> string is passed as a child, it must be inserted verbatim without escaping. <code>ul[Markup(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)]</code> renders as <code>&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;</code>.</li>
+<li>When a <code>markupsafe.escape(...)</code> result is passed as a child, it must be inserted as its (already escaped) safe content without double-escaping. <code>ul[escape(&quot;&lt;hi&gt;&quot;)]</code> renders as <code>&lt;ul&gt;&amp;lt;hi&amp;gt;&lt;/ul&gt;</code>.</li>
 </ul>
-<p>In summary: strings that carry a &quot;safe&quot; marker (via Django's or MarkupSafe's protocols) must be emitted as-is without additional HTML escaping, and rendered <code>htpy</code> elements must themselves be recognized as safe HTML when embedded in Django and Jinja2 templates.</p>
+<p>To summarize: strings carrying a &quot;safe&quot; marker (via Django's or MarkupSafe's protocols) must be emitted as-is without additional HTML escaping, and rendered <code>htpy</code> elements must themselves be recognized as safe HTML when embedded in Django and Jinja2 templates.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">You must implement HTML element construction that accepts attributes through multiple mechanisms simultaneously</span>
-        <span class="spec-meta muted">451 words · source specification
+        <span class="spec-title">You must implement HTML element construction that accepts attributes via multiple mechanisms simultaneously</span>
+        <span class="spec-meta muted">480 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement HTML element construction that accepts attributes through multiple mechanisms simultaneously: a shorthand string, a dictionary of attributes, and keyword arguments. These sources must be combined according to well-defined precedence rules.</p>
-<h4>Public API</h4>
-<p>There must be a callable named <code>div</code> (importable such that <code>div(...)</code> produces an HTML <code>&lt;div&gt;</code> element). Calling <code>str()</code> on the result must produce the element's HTML string representation, including a closing tag (e.g. <code>&lt;div ...&gt;&lt;/div&gt;</code> with no children).</p>
-<h4>Accepted Positional/Keyword Inputs</h4>
-<p>The <code>div</code> callable must accept, in any combination:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You must implement HTML element construction that accepts attributes via multiple mechanisms simultaneously: a shorthand string, a dictionary of attributes, and keyword arguments. These sources must be merged following well-defined precedence rules.</p>
+<h4>Public Interface</h4>
+<p>A callable named <code>div</code> must exist (importable so that <code>div(...)</code> produces an HTML <code>&lt;div&gt;</code> element). Calling <code>str()</code> on the result must produce the element's HTML string representation, a closing tag included (e.g. <code>&lt;div ...&gt;&lt;/div&gt;</code> with no children).</p>
+<h4>Accepted Positional and Keyword Inputs</h4>
+<p>The <code>div</code> callable must accept the following, in any combination:</p>
 <ol>
 <li>
-<p><strong>A shorthand string</strong> as a positional argument. This string may encode:</p>
+<p><strong>A shorthand string</strong> passed as a positional argument. The string may encode:</p>
 <ul>
-<li>An <code>id</code> via a leading <code>#</code> (e.g. <code>&quot;#theid&quot;</code> → <code>id=&quot;theid&quot;</code>).</li>
-<li>A <code>class</code> via a leading <code>.</code> (e.g. <code>&quot;.a&quot;</code> → <code>class=&quot;a&quot;</code>).</li>
+<li>An <code>id</code> by means of a leading <code>#</code> (e.g. <code>&quot;#theid&quot;</code> → <code>id=&quot;theid&quot;</code>).</li>
+<li>A <code>class</code> by means of a leading <code>.</code> (e.g. <code>&quot;.a&quot;</code> → <code>class=&quot;a&quot;</code>).</li>
 </ul>
 </li>
 <li>
-<p><strong>A dictionary</strong> as a positional argument, whose keys/values are attribute names/values (e.g. <code>{&quot;a&quot;: &quot;1&quot;, &quot;for&quot;: &quot;a&quot;}</code>, <code>{&quot;class&quot;: &quot;b&quot;}</code>, <code>{&quot;foo&quot;: &quot;a&quot;}</code>).</p>
+<p><strong>A dictionary</strong> passed as a positional argument; its keys/values are the attribute names/values (e.g. <code>{&quot;a&quot;: &quot;1&quot;, &quot;for&quot;: &quot;a&quot;}</code>, <code>{&quot;class&quot;: &quot;b&quot;}</code>, <code>{&quot;foo&quot;: &quot;a&quot;}</code>).</p>
 </li>
 <li>
-<p><strong>Keyword arguments</strong> for attributes. Keyword argument names are normalized as follows:</p>
+<p><strong>Keyword arguments</strong> used as attributes. The names of keyword arguments are normalized as follows:</p>
 <ul>
-<li>A single trailing underscore is stripped (e.g. <code>for_</code> → <code>for</code>, <code>class_</code> → <code>class</code>).</li>
-<li>Internal underscores are converted to hyphens (e.g. <code>data_foo</code> → <code>data-foo</code>).</li>
+<li>A single trailing underscore is removed (e.g. <code>for_</code> → <code>for</code>, <code>class_</code> → <code>class</code>).</li>
+<li>Interior underscores are converted to hyphens (e.g. <code>data_foo</code> → <code>data-foo</code>).</li>
 </ul>
 </li>
 </ol>
-<p>The shorthand string and the dictionary are both optional positional arguments and may appear together (shorthand string first, then dictionary).</p>
-<h4>Attribute Value Escaping</h4>
-<p>Attribute values must be HTML-escaped. In particular, <code>&lt;</code> must be rendered as <code>&amp;lt;</code> (e.g. <code>data_foo=&quot;&lt;bar&quot;</code> → <code>data-foo=&quot;&amp;lt;bar&quot;</code>).</p>
-<h4>Combination and Precedence Rules</h4>
-<p>When the same attribute name is provided by more than one source, the resolved value follows this precedence (highest wins):</p>
+<p>Both the shorthand string and the dictionary are optional as positional arguments, and the two may be supplied together (the shorthand string first, then the dictionary).</p>
+<h4>Escaping of Attribute Values</h4>
+<p>The values of attributes must be HTML-escaped. In particular, <code>&lt;</code> must be output as <code>&amp;lt;</code> (e.g. <code>data_foo=&quot;&lt;bar&quot;</code> → <code>data-foo=&quot;&amp;lt;bar&quot;</code>).</p>
+<h4>Rules for Combination and Precedence</h4>
+<p>Whenever the same attribute name is supplied by more than one source, the resulting value follows this precedence (highest wins):</p>
 <ol>
 <li><strong>Keyword arguments</strong> (highest priority)</li>
-<li><strong>Dictionary</strong> positional argument</li>
+<li><strong>Dictionary</strong> given as a positional argument</li>
 <li><strong>Shorthand string</strong> (lowest priority)</li>
 </ol>
-<p>This applies to all attribute names, including <code>class</code> and <code>id</code>.</p>
-<h5>Ordering of attributes in output</h5>
-<p>Attributes appear in the output in the order they are first introduced across the combined sources, with the shorthand string contributing first, then the dictionary, then keyword arguments. When a later source overrides the value of an already-introduced attribute, the attribute keeps its original position but takes the overriding value.</p>
-<h4>Concrete Behavioral Requirements</h4>
+<p>This holds for all attribute names, <code>class</code> and <code>id</code> included.</p>
+<h5>Attribute Order in the Output</h5>
+<p>In the output, attributes show up in the order in which they are first introduced across the combined sources: the shorthand string contributes first, then the dictionary, then keyword arguments. If a later source overrides the value of an attribute that has already been introduced, that attribute keeps its original position but takes on the overriding value.</p>
+<h4>Concrete Requirements for Behavior</h4>
 <ul>
 <li>
 <p><code>div(&quot;#theid&quot;, for_=&quot;hello&quot;, data_foo=&quot;&lt;bar&quot;)</code> →
@@ -351,22 +355,22 @@ result = t.render(Context({&quot;stuff&quot;: li[&quot;I am safe!&quot;]}))
 <li>
 <p><code>div({&quot;a&quot;: &quot;1&quot;, &quot;for&quot;: &quot;a&quot;}, for_=&quot;b&quot;, b=&quot;2&quot;)</code> →
 <code>&lt;div a=&quot;1&quot; for=&quot;b&quot; b=&quot;2&quot;&gt;&lt;/div&gt;</code>
-(The <code>for</code> attribute is introduced by the dictionary, keeps its position, but its value is overridden by the <code>for_</code> keyword. The <code>b</code> keyword is appended after.)</p>
+(The dictionary introduces the <code>for</code> attribute, which keeps its position, but its value is overridden by the <code>for_</code> keyword. The <code>b</code> keyword gets appended after.)</p>
 </li>
 <li>
 <p><code>div(&quot;.a&quot;, {&quot;class&quot;: &quot;b&quot;}, class_=&quot;c&quot;)</code> →
 <code>&lt;div class=&quot;c&quot;&gt;&lt;/div&gt;</code>
-(The <code>class</code> attribute is introduced by the shorthand <code>.a</code>; the dictionary and keyword both target <code>class</code>, and the keyword value wins.)</p>
+(The shorthand <code>.a</code> introduces the <code>class</code> attribute; <code>class</code> is targeted by both the dictionary and the keyword, and the keyword's value wins.)</p>
 </li>
 <li>
 <p><code>div(&quot;.a&quot;, {&quot;class&quot;: &quot;b&quot;})</code> →
 <code>&lt;div class=&quot;b&quot;&gt;&lt;/div&gt;</code>
-(The <code>class</code> attribute is introduced by the shorthand <code>.a</code>; the dictionary value overrides the shorthand.)</p>
+(The shorthand <code>.a</code> introduces the <code>class</code> attribute; the dictionary's value overrides the shorthand.)</p>
 </li>
 <li>
 <p><code>div({&quot;foo&quot;: &quot;a&quot;}, foo=&quot;b&quot;)</code> →
 <code>&lt;div foo=&quot;b&quot;&gt;&lt;/div&gt;</code>
-(The <code>foo</code> attribute is introduced by the dictionary; the keyword value overrides it.)</p>
+(The dictionary introduces the <code>foo</code> attribute; the keyword's value overrides it.)</p>
 </li>
 </ul>
 </div>
@@ -374,23 +378,23 @@ result = t.render(Context({&quot;stuff&quot;: li[&quot;I am safe!&quot;]}))
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">The top-level htpy module must publicly export the HTML element objects div, dl, dt, and dd.</span>
-        <span class="spec-meta muted">165 words · source specification
+        <span class="spec-title">The HTML element objects div, dl, dt, and dd must be publicly exported by the top-level htpy module.</span>
+        <span class="spec-meta muted">184 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Recursive child flattening</h3>
-<p>The top-level <code>htpy</code> module must publicly export the HTML element objects <code>div</code>, <code>dl</code>, <code>dt</code>, and <code>dd</code>. These objects support child assignment with subscription syntax:</p>
+      <div class="spec-body"><h3>Recursive flattening of children</h3>
+<p>The HTML element objects <code>div</code>, <code>dl</code>, <code>dt</code>, and <code>dd</code> must be publicly exported by the top-level <code>htpy</code> module. Child assignment is supported on these objects through subscription syntax:</p>
 <pre><code class="language-python">element[children]
 </code></pre>
-<p>The result must be an <code>htpy.Element</code> renderable with <code>str()</code>.</p>
-<p>When children contain nested containers, recursively flatten:</p>
+<p>The resulting value must be an <code>htpy.Element</code> renderable with <code>str()</code>.</p>
+<p>If the children contain nested containers, flattening must recurse into:</p>
 <ul>
 <li><code>list</code></li>
 <li><code>tuple</code></li>
 <li>generators, including generators yielded by other generators</li>
 </ul>
-<p>Flattening must work across mixed container types and at arbitrary nesting depth. Preserve the original left-to-right or yield order. Strings and child <code>Element</code> instances remain individual children rather than being recursively split.</p>
-<p>Examples of required rendering:</p>
+<p>This flattening must operate across mixed container types and at arbitrary nesting depth. The original left-to-right or yield order must be preserved. Strings and child <code>Element</code> instances must remain individual children instead of being recursively split.</p>
+<p>Examples demonstrating the required rendering:</p>
 <pre><code class="language-python">dl[
     [
         (dt[&quot;a&quot;], dd[&quot;b&quot;]),
@@ -398,244 +402,245 @@ result = t.render(Context({&quot;stuff&quot;: li[&quot;I am safe!&quot;]}))
     ]
 ]
 </code></pre>
-<p>renders as:</p>
+<p>which renders as:</p>
 <pre><code class="language-html">&lt;dl&gt;&lt;dt&gt;a&lt;/dt&gt;&lt;dd&gt;b&lt;/dd&gt;&lt;dt&gt;c&lt;/dt&gt;&lt;dd&gt;d&lt;/dd&gt;&lt;/dl&gt;
 </code></pre>
 <pre><code class="language-python">div[[([[&quot;a&quot;]],)], [([[&quot;b&quot;]],)]]
 </code></pre>
-<p>renders as:</p>
+<p>this renders as:</p>
 <pre><code class="language-html">&lt;div&gt;ab&lt;/div&gt;
 </code></pre>
-<p>Nested generators must also flatten in yield order. A generator yielding three generators, each of which yields <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>, must render inside <code>div</code> as:</p>
+<p>Nested generators, too, must flatten in yield order. When a generator yields three generators, each of which yields <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>, the output must render inside <code>div</code> as:</p>
 <pre><code class="language-html">&lt;div&gt;abcabcabc&lt;/div&gt;
 </code></pre>
-<p>Nested lists and tuples must no longer raise errors merely because they contain another list or tuple.</p>
+<p>Nested lists and tuples must no longer raise errors merely due to containing another list or tuple.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You are working on an HTML-generation library that provides callable element objects (e.g., a div element).</span>
-        <span class="spec-meta muted">307 words · source specification
+        <span class="spec-title">You are working on an HTML-generation library that provides element objects which are callable (e.g., a div element).</span>
+        <span class="spec-meta muted">341 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Context</h4>
-<p>You are working on an HTML-generation library that provides callable element objects (e.g., a <code>div</code> element). These elements can be called with positional and keyword arguments to produce HTML output.</p>
-<h4>Required Behavior: First-Argument &quot;id/class shorthand&quot; validation</h4>
-<p>When an HTML element is called with a <strong>string</strong> as its first positional argument, that string is interpreted as an &quot;id/class shorthand&quot; that specifies the element's <code>id</code> and/or CSS classes.</p>
-<p>A valid id/class shorthand string must begin with either:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Background</h4>
+<p>You are working on an HTML-generation library that provides element objects which are callable (e.g., a <code>div</code> element). These elements can be called with positional and keyword arguments in order to produce HTML output.</p>
+<h4>Required Behavior: validating the first-argument &quot;id/class shorthand&quot;</h4>
+<p>When a call to an HTML element has a <strong>string</strong> as its first positional argument, that string is interpreted as an &quot;id/class shorthand&quot; that specifies the element's <code>id</code> and/or CSS classes.</p>
+<p>For an id/class shorthand string to be valid, it must begin with either:</p>
 <ul>
-<li><code>#</code> — introducing an id, or</li>
-<li><code>.</code> — introducing a class.</li>
+<li><code>#</code> — which introduces an id, or</li>
+<li><code>.</code> — which introduces a class.</li>
 </ul>
-<h5>New requirement</h5>
-<p>If the first positional string argument does <strong>not</strong> start with <code>#</code> or <code>.</code>, the call must raise a <code>ValueError</code> whose message is exactly:</p>
+<h5>Newly added requirement</h5>
+<p>If the first positional string argument does <strong>not</strong> start with <code>#</code> or <code>.</code>, the call must raise a <code>ValueError</code> with exactly the following message:</p>
 <pre><code>id/class strings must start with # or .
 </code></pre>
-<p>For example, calling the <code>div</code> element with <code>&quot;foo&quot;</code> as its first argument must raise this <code>ValueError</code>.</p>
-<h5>Existing behavior that must continue to work</h5>
-<p>A first-argument string that correctly begins with <code>#</code> or <code>.</code> remains valid and continues to set the id/class accordingly. For instance:</p>
+<p>For instance, calling the <code>div</code> element with <code>&quot;foo&quot;</code> as its first argument must raise this <code>ValueError</code>.</p>
+<h5>Existing behavior that must keep working</h5>
+<p>A string passed as the first argument that correctly begins with <code>#</code> or <code>.</code> remains valid and keeps setting the id/class accordingly. For instance:</p>
 <ul>
 <li>
-<p>Calling <code>div</code> with <code>&quot;#theid&quot;</code> produces an element whose <code>id</code> attribute is <code>theid</code>.</p>
+<p>Calling <code>div</code> with <code>&quot;#theid&quot;</code> results in an element whose <code>id</code> attribute is <code>theid</code>.</p>
 </li>
 <li>
-<p>Such a shorthand string may be combined with keyword arguments, which are rendered as additional attributes. Keyword arguments follow the library's normal attribute conventions: a trailing underscore in a keyword name is stripped (e.g. <code>for_</code> → <code>for</code>), underscores within keyword names are converted to hyphens (e.g. <code>data_foo</code> → <code>data-foo</code>), and attribute values are HTML-escaped (e.g. <code>&lt;</code> → <code>&amp;lt;</code>).</p>
-<p>Example: calling <code>div(&quot;#theid&quot;, for_=&quot;hello&quot;, data_foo=&quot;&lt;bar&quot;)</code> renders as:</p>
+<p>A shorthand string that correctly begins with <code>#</code> or <code>.</code> may be combined with keyword arguments, which are rendered as additional attributes. Keyword arguments are subject to the library's normal attribute conventions: in a keyword name, a trailing underscore is stripped (e.g. <code>for_</code> → <code>for</code>), underscores within keyword names are turned into hyphens (e.g. <code>data_foo</code> → <code>data-foo</code>), and attribute values are HTML-escaped (e.g. <code>&lt;</code> → <code>&amp;lt;</code>).</p>
+<p>As an example, calling <code>div(&quot;#theid&quot;, for_=&quot;hello&quot;, data_foo=&quot;&lt;bar&quot;)</code> renders as:</p>
 <pre><code>&lt;div id=&quot;theid&quot; for=&quot;hello&quot; data-foo=&quot;&amp;lt;bar&quot;&gt;&lt;/div&gt;
 </code></pre>
 </li>
 </ul>
-<p>The validation described here applies only to strings passed as the first positional argument that are being interpreted as id/class shorthand. Non-string children and other existing element behaviors are unchanged.</p>
-<p>Details</p>
-<p>The validation change involves rejecting first-argument shorthand strings that lack a leading <code>#</code> or <code>.</code> sigil.</p>
+<p>The validation described here applies only to strings that are passed as the first positional argument and are being interpreted as id/class shorthand. Non-string children and other existing element behaviors remain unchanged.</p>
+<p>Further details</p>
+<p>The validation change involves rejecting first-argument shorthand strings that do not have a leading <code>#</code> or <code>.</code> sigil.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">The div element constructor (and by extension the shared element-building logic) accepts positional &#34;id/class&#34; shorthand arguments.</span>
-        <span class="spec-meta muted">178 words · source specification
+        <span class="spec-title">Positional &#34;id/class&#34; shorthand arguments are accepted by the div element constructor (and, by extension, the shared element-building logic).</span>
+        <span class="spec-meta muted">193 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>The <code>div</code> element constructor (and by extension the shared element-building logic) accepts positional &quot;id/class&quot; shorthand arguments. When such a positional argument is provided but is not a string, the code must raise a clear, informative error.</p>
-<h4>Required Behavior</h4>
-<p>When a positional id/class shorthand argument passed to an element constructor (e.g. <code>div</code>) is <strong>not</strong> of type <code>str</code>, a <code>ValueError</code> must be raised.</p>
-<p>The error message must be exactly:</p>
+<p>Positional &quot;id/class&quot; shorthand arguments are accepted by the <code>div</code> element constructor (and, by extension, the shared element-building logic). If such a positional argument is supplied yet is not a string, the code must raise an error that is clear and informative.</p>
+<h4>Behavior Requirements</h4>
+<p>When a positional id/class shorthand argument given to an element constructor (e.g. <code>div</code>) is <strong>not</strong> of type <code>str</code>, a <code>ValueError</code> must be raised.</p>
+<p>The message of the error must be exactly:</p>
 <pre><code>id/class strings must be str. got &lt;value&gt;
 </code></pre>
-<p>where <code>&lt;value&gt;</code> is the <code>repr</code> of the offending (non-string) argument.</p>
+<p>with <code>&lt;value&gt;</code> being the <code>repr</code> of the offending (non-string) argument.</p>
 <h5>Example</h5>
 <p>Calling:</p>
 <pre><code class="language-python">div({&quot;oops&quot;: &quot;yes&quot;}, {})
 </code></pre>
-<p>must raise <code>ValueError</code> with the message:</p>
+<p>must raise <code>ValueError</code> whose message is:</p>
 <pre><code>id/class strings must be str. got {'oops': 'yes'}
 </code></pre>
-<p>Note that the first non-string positional argument is the one reported. Additional positional arguments after it are irrelevant to the error message.</p>
+<p>Take note that it is the first non-string positional argument that is reported. Additional positional arguments appearing after it are irrelevant to the error message.</p>
 <h4>Scope</h4>
 <ul>
-<li>This validation applies to the positional id/class shorthand argument(s) of element constructors.</li>
-<li>The check is triggered specifically when the argument is not a <code>str</code> instance.</li>
-<li>No other behavior of the element constructors should be altered.</li>
+<li>The positional id/class shorthand argument(s) of element constructors are what this validation applies to.</li>
+<li>It is specifically when the argument is not a <code>str</code> instance that the check is triggered.</li>
+<li>No other behavior of the element constructors should be modified.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Adopt MarkupSafe&#39;s Markup API in htpy</span>
-        <span class="spec-meta muted">439 words · source specification
+        <span class="spec-title">Bringing MarkupSafe&#39;s Markup API into htpy</span>
+        <span class="spec-meta muted">464 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Adopt MarkupSafe's <code>Markup</code> API in <code>htpy</code></h3>
-<h4>Overview</h4>
-<p>The <code>htpy</code> library builds HTML programmatically. This task changes the public API used for marking strings as &quot;safe&quot; (already-escaped) HTML content. The library must expose <code>Markup</code> from its top-level package and use it as the canonical safe-string type.</p>
-<h4>Public API Requirements</h4>
-<p>The top-level <code>htpy</code> package must export the following name:</p>
+      <div class="spec-body"><h3>Task Specification: Bringing MarkupSafe's <code>Markup</code> API into <code>htpy</code></h3>
+<h4>Summary</h4>
+<p>The <code>htpy</code> library constructs HTML programmatically. This task alters the public API by which strings get marked as &quot;safe&quot; (already-escaped) HTML content. The library must expose <code>Markup</code> from its top-level package and treat it as the canonical safe-string type.</p>
+<h4>Requirements for the Public API</h4>
+<p>The following name must be exported by the top-level <code>htpy</code> package:</p>
 <ul>
-<li><code>Markup</code> — the safe-string type used to wrap already-escaped/trusted HTML content. This must be the <code>Markup</code> class from the <code>markupsafe</code> library (i.e. <code>from markupsafe import Markup</code>). Wrapping a string in <code>Markup(...)</code> marks it as safe so it will not be escaped when rendered.</li>
+<li><code>Markup</code> — the safe-string type for wrapping already-escaped/trusted HTML content. It must be the <code>Markup</code> class from the <code>markupsafe</code> library (i.e. <code>from markupsafe import Markup</code>). When a string is wrapped in <code>Markup(...)</code>, it is marked as safe and will not be escaped when rendered.</li>
 </ul>
-<p>The previously available names <code>mark_safe</code> and <code>SafeString</code> must <strong>no longer</strong> be part of the public <code>htpy</code> API. Only <code>Markup</code> is provided for safe-string handling.</p>
-<h4>Behavioral Requirements</h4>
-<h5>Safe content is not escaped</h5>
-<p>When a value wrapped in <code>Markup(...)</code> is used as a child of an element, its content is emitted verbatim (not HTML-escaped):</p>
+<p><code>mark_safe</code> and <code>SafeString</code> were previously available; they must <strong>no longer</strong> be part of the public <code>htpy</code> API. For safe-string handling, <code>Markup</code> is the only name provided.</p>
+<h4>Requirements on Behavior</h4>
+<h5>Escaping is skipped for safe content</h5>
+<p>If a value wrapped in <code>Markup(...)</code> appears as a child of an element, its content is emitted verbatim (not HTML-escaped):</p>
 <ul>
 <li><code>str(div[Markup(&quot;&lt;hello&gt;&lt;/hello&gt;&quot;)])</code> → <code>&quot;&lt;div&gt;&lt;hello&gt;&lt;/hello&gt;&lt;/div&gt;&quot;</code></li>
 <li><code>str(div[Markup(&quot;&lt;foo&gt;&lt;/foo&gt;&quot;)])</code> → <code>&quot;&lt;div&gt;&lt;foo&gt;&lt;/foo&gt;&lt;/div&gt;&quot;</code></li>
 </ul>
-<h5>Safe content in attribute values is not escaped</h5>
-<p>When a <code>Markup(...)</code> value is used as an attribute value (keyword argument), it is emitted verbatim:</p>
+<h5>Attribute values with safe content are not escaped</h5>
+<p>If a <code>Markup(...)</code> value serves as an attribute value (keyword argument), it is emitted verbatim:</p>
 <ul>
 <li><code>str(div(id=Markup(&quot;&lt;hi&gt;&quot;)))</code> → <code>'&lt;div id=&quot;&lt;hi&gt;&quot;&gt;&lt;/div&gt;'</code></li>
 </ul>
-<h5>Safe content in dict-based attributes is not escaped</h5>
-<p>When <code>Markup(...)</code> values are used as both keys and values in a dict passed as attributes, they are emitted verbatim:</p>
+<h5>Dict-based attributes with safe content are not escaped</h5>
+<p>If <code>Markup(...)</code> values are used as both keys and values in a dict passed as attributes, they are emitted verbatim:</p>
 <ul>
 <li><code>str(div({Markup('&lt;&quot;'): Markup('&quot;hello&quot;')}))</code> → <code>'&lt;div &lt;&quot;=&quot;&quot;hello&quot;&quot;&gt;&lt;/div&gt;'</code></li>
 </ul>
-<h5>Regular (non-safe) content is still escaped</h5>
-<p>Ordinary strings continue to be HTML-escaped:</p>
+<h5>Escaping still applies to regular (non-safe) content</h5>
+<p>HTML escaping continues to apply to ordinary strings:</p>
 <ul>
 <li><code>str(div[&quot;&lt;foo&gt;&lt;/foo&gt;&quot;])</code> → <code>&quot;&lt;div&gt;&amp;lt;foo&amp;gt;&amp;lt;/foo&amp;gt;&lt;/div&gt;&quot;</code></li>
 </ul>
-<h5>Interoperability with Django safe strings</h5>
-<p>Because <code>markupsafe.Markup</code> and Django's <code>SafeString</code> share the &quot;safe string&quot; protocol, a value produced by Django (e.g. <code>django.utils.safestring.SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)</code>) used as a child must also be emitted verbatim:</p>
+<h5>Interoperation with Django safe strings</h5>
+<p>Since <code>markupsafe.Markup</code> and Django's <code>SafeString</code> share the &quot;safe string&quot; protocol, a value produced by Django (e.g. <code>django.utils.safestring.SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)</code>) that is used as a child must also be emitted verbatim:</p>
 <ul>
 <li><code>str(ul[django_SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)])</code> → <code>&quot;&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;&quot;</code></li>
 </ul>
 <h5>Typing</h5>
-<p><code>Markup(...)</code> must be typed such that its return value has static type <code>Markup</code>. Code performing <code>assert_type(Markup(&quot;...&quot;), Markup)</code> must type-check successfully.</p>
-<h4>Notes</h4>
+<p>Typing of <code>Markup(...)</code> must be such that its return value has static type <code>Markup</code>. Code that performs <code>assert_type(Markup(&quot;...&quot;), Markup)</code> must type-check successfully.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The escaping/rendering behavior for regular strings and the general element/attribute construction API remain unchanged. Only the safe-string entry point changes from <code>mark_safe</code>/<code>SafeString</code> to <code>Markup</code>.</li>
+<li>Escaping/rendering behavior for regular strings, together with the general element/attribute construction API, remains unchanged. The safe-string entry point is the only thing that changes, switching from <code>mark_safe</code>/<code>SafeString</code> to <code>Markup</code>.</li>
 </ul>
 <h4>Dependencies</h4>
-<p>The <code>markupsafe</code> library is a runtime dependency and must be available for import.</p>
-<h3>Related Existing Behavior (unchanged, must continue to work)</h3>
-<p>The following behaviors are unrelated to safe-strings but must remain intact:</p>
+<p>As a runtime dependency, the <code>markupsafe</code> library must be available for import.</p>
+<h3>Related Existing Behavior (unchanged, must keep working)</h3>
+<p>The behaviors listed below are unrelated to safe-strings but must remain intact:</p>
 <ul>
-<li>Passing id/class shorthand strings in the wrong order raises <code>ValueError</code> with a message matching <code>id (#) must be specified before classes (.)</code>.</li>
-<li>Passing a non-string as an id/class shorthand (e.g. a dict) raises <code>ValueError</code> with a message matching <code>id/class strings must be str. got {'oops': 'yes'}</code>.</li>
-<li>Indexing a void element such as <code>img</code> with children raises <code>ValueError</code> with a message matching <code>img elements cannot have children</code>.</li>
+<li>Supplying id/class shorthand strings in the wrong order raises <code>ValueError</code> with a message matching <code>id (#) must be specified before classes (.)</code>.</li>
+<li>When a non-string is passed as an id/class shorthand (e.g. a dict), this raises <code>ValueError</code> with a message matching <code>id/class strings must be str. got {'oops': 'yes'}</code>.</li>
+<li>When a void element such as <code>img</code> is indexed with children, this raises <code>ValueError</code> with a message matching <code>img elements cannot have children</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You are working on htpy, a Python library for generating HTML elements programmatically.</span>
-        <span class="spec-meta muted">318 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">You will be working on htpy, a Python library that generates HTML elements programmatically.</span>
+        <span class="spec-meta muted">360 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>htpy</code>, a Python library for generating HTML elements programmatically. HTML elements are created dynamically as attribute accesses on the <code>htpy</code> module (for example, <code>htpy.div</code>).</p>
-<h4>Public API Requirements</h4>
+<p>You will be working on <code>htpy</code>, a Python library that generates HTML elements programmatically. HTML elements are brought into existence dynamically through attribute accesses on the <code>htpy</code> module (for example, <code>htpy.div</code>).</p>
+<h4>Requirements for the Public API</h4>
 <h5><code>htpy.Element</code></h5>
-<p>The <code>htpy</code> module must expose a class named <code>Element</code> that is importable directly:</p>
+<p>A class named <code>Element</code> that is importable directly must be exposed by the <code>htpy</code> module:</p>
 <pre><code class="language-python">from htpy import Element
 </code></pre>
-<p>The <code>Element</code> constructor must accept three positional arguments:</p>
+<p>The constructor for <code>Element</code> must accept three positional arguments:</p>
 <pre><code class="language-python">Element(name, attributes, children)
 </code></pre>
 <ul>
-<li><code>name</code> (<code>str</code>): the HTML element name.</li>
-<li><code>attributes</code> (mapping): the element's attributes.</li>
-<li><code>children</code> (sequence): the element's children.</li>
+<li><code>name</code> (<code>str</code>): the name of the HTML element.</li>
+<li><code>attributes</code> (mapping): the attributes of the element.</li>
+<li><code>children</code> (sequence): the children of the element.</li>
 </ul>
-<h5>Element name validation</h5>
-<p>When an <code>Element</code> is constructed, its <code>name</code> must contain no uppercase characters. Equivalently, the name must already be in lowercase form; this is a casing requirement, not a requirement that every character in the name be a cased letter.</p>
-<p>If the provided <code>name</code> contains an uppercase character, such as <code>&quot;Foo&quot;</code>, the constructor must raise a <code>ValueError</code> whose message contains the text:</p>
+<h5>Validating the element name</h5>
+<p>Upon construction of an <code>Element</code>, its <code>name</code> must contain no uppercase characters. In other words, the name must already be in lowercase form; this is a requirement about casing, not a requirement that every character in the name be a cased letter.</p>
+<p>If an uppercase character, such as <code>&quot;Foo&quot;</code>, is present in the provided <code>name</code>, the constructor must raise a <code>ValueError</code> whose message contains the text:</p>
 <pre><code class="language-text">html elements must have all lowercase names
 </code></pre>
-<p>A name that is already lowercase must be accepted without error. Non-letter characters and separators do not by themselves violate the rule. In particular, lowercase custom-element names containing hyphens must be accepted:</p>
+<p>A name that is already in lowercase must be accepted without error. The rule is not violated by non-letter characters and separators on their own. In particular, custom-element names in lowercase that contain hyphens must be accepted:</p>
 <pre><code class="language-python">Element(&quot;my-custom-element&quot;, {}, [])
 </code></pre>
-<h5>Dynamic element access and caching</h5>
-<p>Accessing an HTML element as an attribute on the <code>htpy</code> module, such as <code>htpy.div</code>, must return an element object. Element objects are created on demand and reused across accesses. Repeated accesses of the same element name must return the exact same object instance:</p>
+<h5>Dynamic access to elements and caching</h5>
+<p>An access to an HTML element as an attribute on the <code>htpy</code> module, such as <code>htpy.div</code>, must return an element object. Element objects come into being on demand and are reused across accesses. Accesses that are repeated for the same element name must return the exact same object instance:</p>
 <pre><code class="language-python">htpy.div is htpy.div  # True
 </code></pre>
-<p>Python underscores in dynamically accessed custom-element names map to HTML hyphens. For example, <code>htpy.my_custom_element</code> represents an element named <code>my-custom-element</code>. This access must remain valid under element-name validation because hyphens are permitted.</p>
+<p>In custom-element names that are accessed dynamically, Python underscores map to HTML hyphens. By way of example, <code>htpy.my_custom_element</code> stands for an element named <code>my-custom-element</code>. Since hyphens are permitted, this access must remain valid under element-name validation.</p>
 <h4>Notes</h4>
 <ul>
-<li>The exact numeric or structural nature of returned element objects beyond the identity-caching behavior above is not constrained here.</li>
-<li>Only the behaviors described above are required.</li>
+<li>Apart from the identity-caching behavior above, the exact numeric or structural nature of returned element objects is not constrained here.</li>
+<li>The behaviors described above are the only ones that are required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">The following imports and invocation forms must remain available</span>
-        <span class="spec-meta muted">239 words · source specification
+        <span class="spec-title">The imports and invocation forms listed below must stay available</span>
+        <span class="spec-meta muted">264 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: update HTML escaping and safe-string handling</h3>
+      <div class="spec-body"><h3>Task: revise HTML escaping and safe-string handling</h3>
 <h4>Public API</h4>
-<p>The following imports and invocation forms must remain available:</p>
+<p>The imports and invocation forms listed below must stay available:</p>
 <pre><code class="language-python">from htpy import div, li, ul
 </code></pre>
-<p>Element objects must support:</p>
+<p>Element objects must offer support for:</p>
 <ul>
-<li>Child assignment by subscription, such as <code>div[child]</code> and <code>ul[child]</code>.</li>
-<li>Attributes supplied as keyword arguments, such as <code>div(id=value)</code>.</li>
-<li>Attributes supplied as a positional mapping, such as <code>div({&quot;@click&quot;: value})</code>.</li>
-<li>Rendering via <code>str(element)</code>.</li>
+<li>Assigning children via subscription, such as <code>div[child]</code> and <code>ul[child]</code>.</li>
+<li>Passing attributes as keyword arguments, such as <code>div(id=value)</code>.</li>
+<li>Passing attributes as a positional mapping, such as <code>div({&quot;@click&quot;: value})</code>.</li>
+<li>Rendering through <code>str(element)</code>.</li>
 </ul>
-<h4>Required escaping behavior</h4>
-<p>Unsafe string content must render with the following exact escaping:</p>
+<h4>Escaping behavior that is required</h4>
+<p>Unsafe string content must be rendered with exactly this escaping:</p>
 <pre><code class="language-python">str(div['&gt;&quot;'])
 # '&lt;div&gt;&amp;gt;&amp;#34;&lt;/div&gt;'
 </code></pre>
-<p>Quotes must use the decimal numeric entity <code>&amp;#34;</code>, including in attributes:</p>
+<p>Quote characters must be represented with the decimal numeric entity <code>&amp;#34;</code>, including in attributes:</p>
 <pre><code class="language-python">str(div(id='&quot;hello&quot;'))
 # '&lt;div id=&quot;&amp;#34;hello&amp;#34;&quot;&gt;&lt;/div&gt;'
 </code></pre>
-<p>Both mapping-based attribute names and values must be escaped:</p>
+<p>Both attribute names and values supplied via a mapping must be escaped:</p>
 <pre><code class="language-python">str(div({'&lt;&quot;': '&quot;hello&quot;'}))
 # '&lt;div &amp;lt;&amp;#34;=&quot;&amp;#34;hello&amp;#34;&quot;&gt;&lt;/div&gt;'
 </code></pre>
-<p>The same quote representation applies to arbitrary mapping attributes:</p>
+<p>Arbitrary mapping attributes are subject to the same quote representation:</p>
 <pre><code class="language-python">str(div({&quot;@click&quot;: 'hi = &quot;hello&quot;'}))
 # '&lt;div @click=&quot;hi = &amp;#34;hello&amp;#34;&quot;&gt;&lt;/div&gt;'
 </code></pre>
-<p>In particular, these outputs must use <code>&amp;#34;</code>, not <code>&amp;quot;</code>.</p>
-<h4>Safe child values</h4>
-<p>A <code>markupsafe.Markup</code> value used as a child must be treated as already safe and must not have its markup escaped.</p>
-<p>A value returned by <code>markupsafe.escape</code> must also remain safe without being escaped a second time:</p>
+<p>Specifically, these outputs must use <code>&amp;#34;</code> rather than <code>&amp;quot;</code>.</p>
+<h4>Child values that are safe</h4>
+<p>A <code>markupsafe.Markup</code> value that serves as a child must be treated as already safe, and its markup must not be escaped.</p>
+<p>A value returned by <code>markupsafe.escape</code> must likewise remain safe and must not be escaped a second time:</p>
 <pre><code class="language-python">from markupsafe import escape
 
 str(ul[escape(&quot;&lt;hi&gt;&quot;)])
 # '&lt;ul&gt;&amp;lt;hi&amp;gt;&lt;/ul&gt;'
 </code></pre>
-<p>Django safe strings must likewise remain unescaped:</p>
+<p>Safe strings from Django must also remain unescaped:</p>
 <pre><code class="language-python">from django.utils.safestring import SafeString
 
 str(ul[SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)])
 # '&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;'
 </code></pre>
-<p>Existing element rendering through Jinja2 and Django templates must continue to preserve generated HTML. Rendering <code>ul[li[&quot;I am safe!&quot;]]</code> as template content must produce:</p>
+<p>Element rendering through Jinja2 and Django templates, in its existing form, must continue to preserve generated HTML. When <code>ul[li[&quot;I am safe!&quot;]]</code> is rendered as template content, the output must be:</p>
 <pre><code class="language-html">&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;
 </code></pre>
 </div>
@@ -643,47 +648,47 @@ str(ul[SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)])
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">The public htpy module must export div.</span>
-        <span class="spec-meta muted">95 words · source specification
+        <span class="spec-title">div must be exported by the public htpy module.</span>
+        <span class="spec-meta muted">106 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>The public <code>htpy</code> module must export <code>div</code>.</p>
-<p><code>div</code> must support child attachment through subscription syntax:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p><code>div</code> must be exported by the public <code>htpy</code> module.</p>
+<p>Child attachment via subscription syntax must be supported by <code>div</code>:</p>
 <pre><code class="language-python">div[child]
 </code></pre>
-<p>The returned value must be renderable with <code>str()</code>.</p>
-<p>When <code>child</code> is a <code>django.forms.utils.ErrorList</code>, it must be rendered as the ErrorList’s complete HTML output inside the <code>&lt;div&gt;</code>, rather than being treated as a generic iterable of individual errors.</p>
-<p>For example:</p>
+<p>The value that is returned must be renderable with <code>str()</code>.</p>
+<p>When <code>child</code> is a <code>django.forms.utils.ErrorList</code>, the ErrorList’s complete HTML output must be rendered inside the <code>&lt;div&gt;</code>, rather than it being treated as a generic iterable of individual errors.</p>
+<p>As an example:</p>
 <pre><code class="language-python">from django.forms.utils import ErrorList
 from htpy import div
 
 error_list = ErrorList([&quot;my error&quot;])
 result = div[error_list]
 </code></pre>
-<p><code>str(result)</code> must return exactly:</p>
+<p><code>str(result)</code> must return exactly the following:</p>
 <pre><code class="language-html">&lt;div&gt;&lt;ul class=&quot;errorlist&quot;&gt;&lt;li&gt;my error&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
 </code></pre>
-<p>There must be no additional escaping, wrappers, or whitespace.</p>
+<p>There must not be any additional escaping, wrappers, or whitespace.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Update the public htpy API behavior described below.</span>
-        <span class="spec-meta muted">208 words · source specification
+        <span class="spec-title">Modify the behavior of the public htpy API as described below.</span>
+        <span class="spec-meta muted">246 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public <code>htpy</code> API behavior described below.</p>
-<h5><code>htpy.div</code> class attribute handling</h5>
-<p><code>htpy.div</code> must remain callable with a <code>class_</code> keyword argument.</p>
-<p>The <code>class_</code> value must accept a tuple that mixes:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify the behavior of the public <code>htpy</code> API as described below.</p>
+<h5>Handling of the <code>htpy.div</code> class attribute</h5>
+<p>It must remain possible to call <code>htpy.div</code> with a <code>class_</code> keyword argument.</p>
+<p>The <code>class_</code> value must accept a tuple that combines:</p>
 <ul>
-<li>class-name strings, and</li>
-<li>dictionaries mapping class names to inclusion flags.</li>
+<li>strings holding class names, and</li>
+<li>dictionaries that map class names to inclusion flags.</li>
 </ul>
-<p>For example:</p>
+<p>Here is an example:</p>
 <pre><code class="language-python">from htpy import div
 
 result = div(
@@ -694,16 +699,16 @@ result = div(
     )
 )
 </code></pre>
-<p>Converting the result to a string must produce:</p>
+<p>When the result is converted to a string, the output must be:</p>
 <pre><code class="language-html">&lt;div class=&quot;class-1 class-2 class-4&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>String entries retain their order. Dictionary keys with a true value are included; keys with a false value are omitted.</p>
-<h5>HTML-capable list objects as children</h5>
-<p><code>htpy.div</code> must support child content through subscription syntax:</p>
+<p>The order of the string entries is preserved. Dictionary keys whose value is true are included; keys whose value is false are omitted.</p>
+<h5>List objects with HTML capability as children</h5>
+<p><code>htpy.div</code> must support supplying child content via the subscription syntax:</p>
 <pre><code class="language-python">div[child]
 </code></pre>
-<p>When <code>child</code> is both list-like and provides the <code>__html__</code> safe-HTML protocol, its HTML representation must take precedence over treating it as a collection of separate children.</p>
-<p>This must work when the object is constructed directly inside the subscription expression. In particular, with Django’s public API:</p>
+<p>When <code>child</code> is both list-like and supplies the <code>__html__</code> safe-HTML protocol, the HTML representation of that object must take priority over handling the object as a collection of separate children.</p>
+<p>This must work in the situation where the object is constructed directly inside the subscription expression. In particular, when Django's public API is used:</p>
 <pre><code class="language-python">from django.forms.utils import ErrorList
 from htpy import div
 
@@ -712,160 +717,160 @@ result = div[ErrorList([&quot;my error&quot;])]
 <p>Converting the result to a string must produce exactly:</p>
 <pre><code class="language-html">&lt;div&gt;&lt;ul class=&quot;errorlist&quot;&gt;&lt;li&gt;my error&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
 </code></pre>
-<p>The <code>ErrorList</code> HTML must be embedded as HTML rather than escaped or rendered as its individual list entries.</p>
+<p>The HTML of the <code>ErrorList</code> must be embedded as HTML instead of being escaped or rendered as its individual list entries.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Update the public div element factory exported from the htpy module</span>
-        <span class="spec-meta muted">93 words · source specification
+        <span class="spec-title">Modify the public div element factory that the htpy module exports</span>
+        <span class="spec-meta muted">97 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public <code>div</code> element factory exported from the <code>htpy</code> module:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify the public <code>div</code> element factory that the <code>htpy</code> module exports:</p>
 <pre><code class="language-python">from htpy import div
 </code></pre>
-<p>It must accept a <code>class_</code> keyword argument containing a tuple that mixes class-name strings with conditional class mappings.</p>
-<p>For this call:</p>
+<p>It must accept a <code>class_</code> keyword argument that contains a tuple combining class-name strings with conditional class mappings.</p>
+<p>Given this call:</p>
 <pre><code class="language-python">result = div(class_=(&quot;foo&quot;, {&quot;bar&quot;: False}))
 </code></pre>
-<p>converting <code>result</code> to a string must produce exactly:</p>
+<p>turning <code>result</code> into a string must produce exactly:</p>
 <pre><code class="language-html">&lt;div class=&quot;foo&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>The class name <code>&quot;foo&quot;</code> is included, while <code>&quot;bar&quot;</code> is omitted because its mapping value is <code>False</code>. Omitting the false conditional class must not leave trailing or additional whitespace in the rendered <code>class</code> attribute.</p>
+<p>The class name <code>&quot;foo&quot;</code> is included, whereas <code>&quot;bar&quot;</code> is left out because its mapping value is <code>False</code>. Dropping the false conditional class must not leave behind trailing or extra whitespace in the rendered <code>class</code> attribute.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Modify the HTML element rendering behavior so that attributes whose value is None are omitted entirely from the rendered output.</span>
-        <span class="spec-meta muted">252 words · source specification
+        <span class="spec-title">Alter the rendering behavior for HTML elements so that an attribute whose value is None is omitted entirely from the rendered output.</span>
+        <span class="spec-meta muted">276 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the HTML element rendering behavior so that attributes whose value is <code>None</code> are omitted entirely from the rendered output.</p>
-<h4>Behavior Required</h4>
-<p>When an HTML element is rendered to a string, any attribute assigned a value of <code>None</code> must be excluded from the output. This applies regardless of how the attribute was provided:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Alter the rendering behavior for HTML elements so that an attribute whose value is <code>None</code> is omitted entirely from the rendered output.</p>
+<h4>Required Behavior</h4>
+<p>Whenever an HTML element is rendered to a string, any attribute that has been assigned <code>None</code> as its value must be excluded from the output. This holds no matter how the attribute was supplied:</p>
 <ol>
-<li>As a keyword argument — e.g. calling an element factory with <code>foo=None</code>.</li>
-<li>As a key in a dictionary of attributes passed positionally — e.g. passing <code>{&quot;foo&quot;: None}</code>.</li>
+<li>As a keyword argument — for instance, calling an element factory with <code>foo=None</code>.</li>
+<li>As a key inside a dictionary of attributes passed positionally — for instance, passing <code>{&quot;foo&quot;: None}</code>.</li>
 </ol>
-<p>In both cases, the attribute must not appear in the rendered string at all (neither its name nor a value).</p>
+<p>In both cases, the attribute must not be present in the rendered string at all (neither its name nor a value).</p>
 <h4>Examples</h4>
 <ul>
 <li>
-<p>Rendering a <code>div</code> element created with a keyword attribute <code>foo=None</code> must produce:</p>
+<p>Rendering a <code>div</code> element that was created with a keyword attribute <code>foo=None</code> must produce:</p>
 <pre><code>&lt;div&gt;&lt;/div&gt;
 </code></pre>
 </li>
 <li>
-<p>Rendering a <code>div</code> element created with a dictionary attribute <code>{&quot;foo&quot;: None}</code> must produce:</p>
+<p>Rendering a <code>div</code> element that was created with a dictionary attribute <code>{&quot;foo&quot;: None}</code> must produce:</p>
 <pre><code>&lt;div&gt;&lt;/div&gt;
 </code></pre>
 </li>
 </ul>
 <h4>API Surface</h4>
-<p>The existing element factory callables (such as <code>div</code> and <code>button</code>) remain available and must continue to accept:</p>
+<p>The element factory callables that already exist (such as <code>div</code> and <code>button</code>) stay available and must continue to accept:</p>
 <ul>
 <li>Attributes as keyword arguments.</li>
-<li>Attributes as a positional <code>dict</code> mapping attribute names to values.</li>
+<li>Attributes as a positional <code>dict</code> that maps attribute names to values.</li>
 </ul>
-<p>Each returns an object whose <code>str()</code> representation is the rendered HTML for that element.</p>
-<h4>Notes on Existing Behavior (must remain unchanged)</h4>
+<p>Each call returns an object whose <code>str()</code> representation is the rendered HTML for that element.</p>
+<h4>Notes About Existing Behavior (must remain unchanged)</h4>
 <ul>
-<li>Boolean attribute with value <code>True</code> renders as the bare attribute name (e.g. <code>button(disabled=True)</code> → <code>&lt;button disabled&gt;&lt;/button&gt;</code>).</li>
-<li>Boolean attribute with value <code>False</code> is omitted (e.g. <code>button(disabled=False)</code> → <code>&lt;button&gt;&lt;/button&gt;</code>).</li>
+<li>A boolean attribute with the value <code>True</code> renders as the attribute name alone (e.g. <code>button(disabled=True)</code> → <code>&lt;button disabled&gt;&lt;/button&gt;</code>).</li>
+<li>A boolean attribute with the value <code>False</code> is omitted (e.g. <code>button(disabled=False)</code> → <code>&lt;button&gt;&lt;/button&gt;</code>).</li>
 </ul>
-<p>The only new requirement is that a <code>None</code> attribute value is treated as an omitted attribute in both keyword and dictionary forms.</p>
+<p>The only requirement being added is that an attribute value of <code>None</code> is treated as an omitted attribute in both the keyword and the dictionary forms.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">The htpy package must publicly expose the tag objects</span>
-        <span class="spec-meta muted">302 words · source specification
+        <span class="spec-title">The tag objects listed below must be publicly exposed by the htpy package</span>
+        <span class="spec-meta muted">350 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required behavior</h3>
-<h4>Public API</h4>
-<p>The <code>htpy</code> package must publicly expose the tag objects:</p>
+      <div class="spec-body"><h3>Behavior requirements</h3>
+<h4>Publicly exposed API</h4>
+<p>The tag objects listed below must be publicly exposed by the <code>htpy</code> package:</p>
 <ul>
 <li><code>htpy.div</code></li>
 <li><code>htpy.li</code></li>
 <li><code>htpy.ul</code></li>
 </ul>
-<p>These objects must support:</p>
+<p>These objects must support the following:</p>
 <ul>
-<li>Attribute application by calling them, such as <code>div(class_=...)</code>.</li>
-<li>Child assignment with subscription syntax, such as <code>li[&quot;text&quot;]</code> or <code>ul[child]</code>.</li>
-<li>HTML rendering through <code>str(...)</code>.</li>
+<li>Applying attributes by calling them, for example <code>div(class_=...)</code>.</li>
+<li>Assigning children using subscription syntax, for example <code>li[&quot;text&quot;]</code> or <code>ul[child]</code>.</li>
+<li>Rendering HTML via <code>str(...)</code>.</li>
 </ul>
-<h4>Class attribute rendering</h4>
-<p><code>htpy.div(class_=...)</code> must support the following class value forms:</p>
+<h4>Rendering of the class attribute</h4>
+<p>The class value forms below must be supported by <code>htpy.div(class_=...)</code>:</p>
 <ol>
 <li>
-<p>A dictionary of class names to inclusion values.</p>
-<p>For:</p>
+<p>A dictionary mapping class names to inclusion values.</p>
+<p>Given:</p>
 <pre><code class="language-python">div(class_={&quot;&gt;foo&quot;: True, &quot;x&quot;: False, &quot;y&quot;: None, &quot;bar&quot;: True})
 </code></pre>
-<p>rendering must produce:</p>
+<p>rendering must result in:</p>
 <pre><code class="language-html">&lt;div class=&quot;&amp;gt;foo bar&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>Class names mapped to <code>True</code> are included in insertion order. Entries mapped to <code>False</code> or <code>None</code> are omitted. Class names must be HTML-escaped.</p>
+<p>Class names whose mapped value is <code>True</code> are included in insertion order. Entries whose mapped value is <code>False</code> or <code>None</code> are omitted. HTML escaping must be applied to class names.</p>
 </li>
 <li>
-<p>A list containing class-name strings and class dictionaries.</p>
-<p>For:</p>
+<p>A list that contains class-name strings and class dictionaries.</p>
+<p>Given:</p>
 <pre><code class="language-python">div(class_=[&quot;class-1&quot;, &quot;class-2&quot;, {&quot;class-3&quot;: False, &quot;class-4&quot;: True}])
 </code></pre>
-<p>rendering must produce:</p>
+<p>rendering must result in:</p>
 <pre><code class="language-html">&lt;div class=&quot;class-1 class-2 class-4&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>For:</p>
+<p>Given:</p>
 <pre><code class="language-python">div(class_=[&quot;foo&quot;, {&quot;bar&quot;: False}])
 </code></pre>
-<p>rendering must produce:</p>
+<p>rendering must result in:</p>
 <pre><code class="language-html">&lt;div class=&quot;foo&quot;&gt;&lt;/div&gt;
 </code></pre>
 </li>
 </ol>
-<h4>Invalid dynamic element names</h4>
-<p>Accessing an uppercase element name as a module attribute:</p>
+<h4>Dynamic element names that are invalid</h4>
+<p>Accessing an uppercase element name as a module attribute, for instance:</p>
 <pre><code class="language-python">htpy.Foo
 </code></pre>
-<p>must raise <code>AttributeError</code>. The exception message must contain:</p>
+<p>must raise <code>AttributeError</code>. The message of the exception must contain:</p>
 <pre><code class="language-text">html elements must have all lowercase names
 </code></pre>
-<h4>Django interoperability</h4>
-<p>When Django is configured, rendered <code>htpy</code> elements must interoperate with Django’s safe-string and template APIs:</p>
+<h4>Interoperability with Django</h4>
+<p>When Django is configured, <code>htpy</code> elements that are rendered must interoperate with Django’s safe-string and template APIs:</p>
 <ul>
 <li>
-<p>Passing <code>li[&quot;I am safe!&quot;]</code> into a Django template context and rendering it through <code>{{ stuff }}</code> must not HTML-escape the generated <code>&lt;li&gt;</code> markup. Rendering <code>&quot;&lt;ul&gt;{{ stuff }}&lt;/ul&gt;&quot;</code> must produce:</p>
+<p>If <code>li[&quot;I am safe!&quot;]</code> is passed into a Django template context and rendered through <code>{{ stuff }}</code>, the generated <code>&lt;li&gt;</code> markup must not be HTML-escaped. Rendering <code>&quot;&lt;ul&gt;{{ stuff }}&lt;/ul&gt;&quot;</code> must result in:</p>
 <pre><code class="language-html">&lt;ul&gt;&lt;li&gt;I am safe!&lt;/li&gt;&lt;/ul&gt;
 </code></pre>
 </li>
 <li>
-<p>A <code>django.utils.safestring.SafeString</code> child must be rendered without escaping:</p>
+<p>A child that is a <code>django.utils.safestring.SafeString</code> must be rendered without escaping:</p>
 <pre><code class="language-python">str(ul[SafeString(&quot;&lt;li&gt;hello&lt;/li&gt;&quot;)])
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-html">&lt;ul&gt;&lt;li&gt;hello&lt;/li&gt;&lt;/ul&gt;
 </code></pre>
 </li>
 <li>
-<p>A value already escaped with <code>django.utils.html.escape</code> must not be escaped again:</p>
+<p>A value that has already been escaped with <code>django.utils.html.escape</code> must not be escaped a second time:</p>
 <pre><code class="language-python">str(ul[django.utils.html.escape(&quot;&lt;hello&gt;&quot;)])
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-html">&lt;ul&gt;&amp;lt;hello&amp;gt;&lt;/ul&gt;
 </code></pre>
 </li>
 <li>
-<p>A <code>django.forms.utils.ErrorList([&quot;my error&quot;])</code> used as a child must retain its safe rendered markup:</p>
+<p>When a <code>django.forms.utils.ErrorList([&quot;my error&quot;])</code> is used as a child, its safe rendered markup must be retained:</p>
 <pre><code class="language-python">str(div[ErrorList([&quot;my error&quot;])])
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-html">&lt;div&gt;&lt;ul class=&quot;errorlist&quot;&gt;&lt;li&gt;my error&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;
 </code></pre>
 </li>
@@ -875,251 +880,254 @@ result = div[ErrorList([&quot;my error&quot;])]
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">You are working on htpy, a Python library for generating HTML.</span>
-        <span class="spec-meta muted">632 words · source specification
+        <span class="spec-title">You are working on htpy, a Python library that generates HTML.</span>
+        <span class="spec-meta muted">686 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Rename and Split the HTML Element Base Class</h3>
+      <div class="spec-body"><h3>Task: Renaming and Splitting the HTML Element Base Class</h3>
 <h4>Overview</h4>
-<p>You are working on <code>htpy</code>, a Python library for generating HTML. The library exposes HTML element objects (e.g. <code>div</code>, <code>img</code>, <code>input</code>, <code>ul</code>, <code>li</code>, etc.) that can be called to add attributes, indexed to add children, and stringified to produce HTML markup.</p>
-<p>This task requires refactoring the element type hierarchy into two distinct public classes and adjusting a few related behaviors. All names below must be importable directly from the top-level <code>htpy</code> module.</p>
-<h4>Required Public API</h4>
-<p>The <code>htpy</code> module must export the following class names:</p>
+<p>You are working on <code>htpy</code>, a Python library that generates HTML. HTML element objects (e.g. <code>div</code>, <code>img</code>, <code>input</code>, <code>ul</code>, <code>li</code>, etc.) are exposed by the library and can be called to add attributes, indexed to add children, and stringified to produce HTML markup.</p>
+<p>The task requires a refactoring of the element type hierarchy into two distinct public classes, together with adjustments to a few related behaviors. All of the names below must be importable directly from the top-level <code>htpy</code> module.</p>
+<h4>Public API Requirements</h4>
+<p>The class names below must be exported by the <code>htpy</code> module:</p>
 <ul>
 <li><code>Element</code> — a base type for all HTML element objects.</li>
-<li><code>RegularElement</code> — the type for standard (non-void) HTML elements that may contain children.</li>
-<li><code>VoidElement</code> — the type for void HTML elements that cannot contain children.</li>
+<li><code>RegularElement</code> — the type of standard (non-void) HTML elements, which may contain children.</li>
+<li><code>VoidElement</code> — the type of void HTML elements, which cannot contain children.</li>
 </ul>
-<p>Both <code>RegularElement</code> and <code>VoidElement</code> must be usable as the type of the corresponding element objects. Specifically:</p>
+<p>It must be possible to use both <code>RegularElement</code> and <code>VoidElement</code> as the type of the corresponding element objects. In particular:</p>
 <ul>
-<li>Standard elements such as <code>div</code>, <code>ul</code>, <code>li</code>, and dynamically-created custom elements are instances/values of type <code>RegularElement</code>.</li>
-<li>Void elements such as <code>img</code> and <code>input</code> are instances/values of type <code>VoidElement</code>.</li>
-<li><code>Element</code> remains a valid common type usable to annotate any element (regular or void).</li>
+<li>The standard elements, such as <code>div</code>, <code>ul</code>, <code>li</code>, and dynamically-created custom elements, are instances/values of type <code>RegularElement</code>.</li>
+<li>The void elements, such as <code>img</code> and <code>input</code>, are instances/values of type <code>VoidElement</code>.</li>
+<li><code>Element</code> stays a valid common type that can be used to annotate any element (regular or void).</li>
 </ul>
-<p>The following element objects must be importable from <code>htpy</code>: <code>div</code>, <code>img</code>, <code>input</code>, <code>ul</code>, <code>li</code>, <code>dd</code>, <code>dl</code>, <code>dt</code>, <code>html</code>, <code>my_custom_element</code>.</p>
-<h4>Type Requirements</h4>
-<p>The static types of the element objects and their operations must be:</p>
+<p>The element objects that follow must be importable from <code>htpy</code>: <code>div</code>, <code>img</code>, <code>input</code>, <code>ul</code>, <code>li</code>, <code>dd</code>, <code>dl</code>, <code>dt</code>, <code>html</code>, <code>my_custom_element</code>.</p>
+<h4>Required Types</h4>
+<p>The element objects and their operations must have the following static types:</p>
 <ul>
-<li><code>img</code> has type <code>VoidElement</code>.</li>
-<li><code>div</code> has type <code>RegularElement</code>.</li>
-<li>Calling a regular element (e.g. <code>div()</code>) yields a <code>RegularElement</code>.</li>
-<li>Indexing a regular element with children (e.g. <code>div()[&quot;a&quot;]</code>) yields a <code>RegularElement</code>.</li>
+<li><code>img</code> is of type <code>VoidElement</code>.</li>
+<li><code>div</code> is of type <code>RegularElement</code>.</li>
+<li>A regular element, when called (e.g. <code>div()</code>), yields a <code>RegularElement</code>.</li>
+<li>A regular element, when indexed with children (e.g. <code>div()[&quot;a&quot;]</code>), yields a <code>RegularElement</code>.</li>
 </ul>
-<p><code>RegularElement</code> must be assignable to <code>Element</code> (i.e. a <code>RegularElement</code> value can be used where an <code>Element</code> is expected).</p>
-<p>Regular elements support being indexed with children where the children may be:</p>
+<p>A value of type <code>RegularElement</code> must be assignable to <code>Element</code> (i.e. it can be used where an <code>Element</code> is expected).</p>
+<p>Regular elements support being indexed with children; the children may be:</p>
 <ul>
 <li>a single <code>Element</code>,</li>
 <li>a <code>list</code> of <code>Element</code>,</li>
 <li>a <code>Generator</code> yielding <code>Element</code>.</li>
 </ul>
-<p>A newly created custom element (e.g. <code>my_custom_element()</code>) must be an instance of <code>RegularElement</code> (verifiable with <code>isinstance</code>) and stringify to <code>&lt;my-custom-element&gt;&lt;/my-custom-element&gt;</code>.</p>
-<h4>Behavior Requirements</h4>
-<h5>Void elements cannot have children</h5>
-<p>Attempting to index a void element to give it children (e.g. <code>img[&quot;hey&quot;]</code>) must raise <code>TypeError</code>.</p>
-<h5>Children rendering</h5>
+<p>When a new custom element is created (e.g. <code>my_custom_element()</code>), it must be an instance of <code>RegularElement</code> (verifiable with <code>isinstance</code>) and stringify to <code>&lt;my-custom-element&gt;&lt;/my-custom-element&gt;</code>.</p>
+<h4>Behavioral Requirements</h4>
+<h5>Void elements cannot be given children</h5>
+<p>An attempt to index a void element in order to give it children (e.g. <code>img[&quot;hey&quot;]</code>) must raise <code>TypeError</code>.</p>
+<h5>Rendering of children</h5>
 <ul>
-<li>Indexing a regular element with <code>None</code> as a child produces no child output (e.g. <code>str(div[None])</code> is <code>&quot;&lt;div&gt;&lt;/div&gt;&quot;</code>).</li>
+<li>When a regular element is indexed with <code>None</code> as a child, no child output is produced (e.g. <code>str(div[None])</code> is <code>&quot;&lt;div&gt;&lt;/div&gt;&quot;</code>).</li>
 </ul>
 <h5>The <code>class_</code> attribute</h5>
-<p>When a regular element is called with a <code>class_</code> keyword argument, the resulting <code>class</code> attribute value is computed and HTML-escaped. The <code>class_</code> argument accepts the following input forms:</p>
+<p>When a regular element is called with a <code>class_</code> keyword argument, the value of the resulting <code>class</code> attribute is computed and HTML-escaped. The <code>class_</code> argument accepts the input forms below:</p>
 <ul>
 <li>
-<p><strong>String</strong>: used directly as the class value.</p>
+<p><strong>String</strong>: taken directly as the class value.</p>
 <ul>
 <li><code>div(class_=&quot;&gt;foo bar&quot;)</code> → <code>&lt;div class=&quot;&amp;gt;foo bar&quot;&gt;&lt;/div&gt;</code></li>
 </ul>
 </li>
 <li>
-<p><strong>List</strong>: each item is one of: a string, <code>False</code>, <code>None</code>, or an empty string. Include only the truthy, non-empty string items, joined by a single space in order.</p>
+<p><strong>List</strong>: each item is one of: a string, <code>False</code>, <code>None</code>, or an empty string. Only the truthy, non-empty string items are included, joined by a single space in order.</p>
 <ul>
 <li><code>div(class_=[&quot;&gt;foo&quot;, False, None, &quot;&quot;, &quot;bar&quot;])</code> → <code>&lt;div class=&quot;&amp;gt;foo bar&quot;&gt;&lt;/div&gt;</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Tuple</strong>: same handling as a list.</p>
+<p><strong>Tuple</strong>: handled the same way as a list.</p>
 <ul>
 <li><code>div(class_=(&quot;&gt;foo&quot;, False, None, &quot;&quot;, &quot;bar&quot;))</code> → <code>&lt;div class=&quot;&amp;gt;foo bar&quot;&gt;&lt;/div&gt;</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Dict</strong>: keys are class names, values are booleans. Include only keys whose value is truthy, in insertion order, joined by a single space.</p>
+<p><strong>Dict</strong>: the keys are class names and the values are booleans. Only keys whose value is truthy are included, in insertion order, joined by a single space.</p>
 <ul>
 <li><code>div(class_={&quot;&gt;foo&quot;: True, &quot;x&quot;: False, &quot;bar&quot;: True})</code> → <code>&lt;div class=&quot;&amp;gt;foo bar&quot;&gt;&lt;/div&gt;</code></li>
 </ul>
 </li>
 <li>
-<p><strong>List or tuple containing dicts mixed with strings</strong>: process each element in order — strings are included as-is (subject to the truthiness rule above), and dicts contribute their truthy keys. The results are flattened and joined by single spaces in order.</p>
+<p><strong>List or tuple containing dicts mixed with strings</strong>: handle each element in order — strings are included as-is (subject to the truthiness rule above), and dicts contribute their truthy keys. The results are then flattened and joined by single spaces in order.</p>
 <ul>
 <li><code>div(class_=[&quot;class-1&quot;, &quot;class-2&quot;, {&quot;class-3&quot;: False, &quot;class-4&quot;: True}])</code> → <code>&lt;div class=&quot;class-1 class-2 class-4&quot;&gt;&lt;/div&gt;</code></li>
 <li><code>div(class_=(&quot;class-1&quot;, &quot;class-2&quot;, {&quot;class-3&quot;: False, &quot;class-4&quot;: True}))</code> → <code>&lt;div class=&quot;class-1 class-2 class-4&quot;&gt;&lt;/div&gt;</code></li>
 </ul>
 </li>
 </ul>
-<p>The final class value is HTML-escaped (<code>&gt;</code> becomes <code>&amp;gt;</code>).</p>
+<p>HTML-escaping is applied to the final class value (<code>&gt;</code> becomes <code>&amp;gt;</code>).</p>
 <h4>Stringification</h4>
-<p>Element objects stringify to their HTML markup. Regular elements render as <code>&lt;tag ...attrs...&gt;children&lt;/tag&gt;</code>; void elements render as <code>&lt;tag ...attrs...&gt;</code> with no closing tag and no children.</p>
-<p>Element objects must also provide an <code>__html__()</code> method returning the same HTML string (safe-string protocol), e.g. <code>str(div(id=&quot;a&quot;)).__html__()</code> returns <code>&lt;div id=&quot;a&quot;&gt;&lt;/div&gt;</code>.</p>
+<p>Stringifying an element object produces its HTML markup. A regular element renders as <code>&lt;tag ...attrs...&gt;children&lt;/tag&gt;</code>, while a void element renders as <code>&lt;tag ...attrs...&gt;</code>, with no closing tag and no children.</p>
+<p>Element objects must also provide an <code>__html__()</code> method that returns the same HTML string (safe-string protocol); for example, <code>str(div(id=&quot;a&quot;)).__html__()</code> returns <code>&lt;div id=&quot;a&quot;&gt;&lt;/div&gt;</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">You are working on htpy, a Python library for building HTML elements programmatically.</span>
-        <span class="spec-meta muted">481 words · source specification
+        <span class="spec-title">You are working on htpy, a Python library used to build HTML elements programmatically.</span>
+        <span class="spec-meta muted">510 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>htpy</code>, a Python library for building HTML elements programmatically. This task concerns the public element type API and the behavior of void elements when children are provided.</p>
-<h4>Required Public API</h4>
-<p>The <code>htpy</code> module must expose a single element class named <code>Element</code>:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>You are working on <code>htpy</code>, a Python library used to build HTML elements programmatically. The task at hand concerns the public element type API and how void elements behave when children are provided.</p>
+<h4>Public API Requirements</h4>
+<p>A single element class, named <code>Element</code>, must be exposed by the <code>htpy</code> module:</p>
 <ul>
 <li><code>from htpy import Element</code></li>
 </ul>
-<p>There must <strong>not</strong> be separate classes named <code>RegularElement</code> or <code>VoidElement</code> in the public API. All element instances — regardless of whether they represent regular (container) elements or void (self-closing) elements — must be instances of the single <code>Element</code> class.</p>
-<h4>Type Requirements</h4>
-<p>The following must all be typed as <code>Element</code> (this must hold under static type checking, i.e. <code>typing.assert_type</code>):</p>
+<p>Separate classes named <code>RegularElement</code> or <code>VoidElement</code> must <strong>not</strong> exist in the public API. Regardless of whether they represent regular (container) elements or void (self-closing) elements, all element instances must be instances of the single <code>Element</code> class.</p>
+<h4>Typing Requirements</h4>
+<p>The items below must all be typed as <code>Element</code> (and this must hold under static type checking, i.e. <code>typing.assert_type</code>):</p>
 <ul>
-<li>Any element accessor imported from <code>htpy</code>, such as <code>div</code> and <code>img</code>, must have the type <code>Element</code>. This applies both to regular elements (e.g. <code>div</code>) and void elements (e.g. <code>img</code>).</li>
-<li>Calling an element accessor produces an <code>Element</code>. For example, <code>div()</code> is an <code>Element</code>.</li>
-<li>Indexing an element with children produces an <code>Element</code>. For example, <code>div()[&quot;a&quot;]</code> is an <code>Element</code>.</li>
-<li>Element accessors that are usable as children (e.g. <code>li</code>) are assignable to a variable annotated as <code>Element</code>.</li>
+<li>Any element accessor imported from <code>htpy</code> (such as <code>div</code> and <code>img</code>) must have the type <code>Element</code>. This applies to both regular elements (e.g. <code>div</code>) and void elements (e.g. <code>img</code>).</li>
+<li>Calling an element accessor results in an <code>Element</code>; for example, <code>div()</code> is an <code>Element</code>.</li>
+<li>Indexing an element with children results in an <code>Element</code>; for instance, <code>div()[&quot;a&quot;]</code> is an <code>Element</code>.</li>
+<li>Element accessors that are usable as children (e.g. <code>li</code>) can be assigned to a variable annotated as <code>Element</code>.</li>
 </ul>
-<p>At runtime, an element instance must satisfy <code>isinstance(el, Element)</code>.</p>
-<h4>Element Behavior</h4>
-<h5>Element accessors</h5>
-<p>The following element accessors must be importable from <code>htpy</code> and callable to produce elements: <code>dd</code>, <code>div</code>, <code>dl</code>, <code>dt</code>, <code>html</code>, <code>img</code>, <code>input</code>, <code>li</code>, <code>ul</code>, and <code>my_custom_element</code>.</p>
+<p>An element instance must satisfy <code>isinstance(el, Element)</code> at runtime.</p>
+<h4>Behavior of Elements</h4>
+<h5>Accessors for elements</h5>
+<p>The following element accessors must be importable from <code>htpy</code>, and they must be callable to produce elements: <code>dd</code>, <code>div</code>, <code>dl</code>, <code>dt</code>, <code>html</code>, <code>img</code>, <code>input</code>, <code>li</code>, <code>ul</code>, and <code>my_custom_element</code>.</p>
 <h5>Custom elements</h5>
-<p>Accessing an attribute whose name maps to a custom element (e.g. <code>my_custom_element</code>) must produce a callable element accessor. Calling it with no arguments produces an <code>Element</code> that renders as a container element with matching open and close tags derived from the hyphenated name:</p>
+<p>An attribute whose name maps to a custom element (e.g. <code>my_custom_element</code>) must produce a callable element accessor when it is accessed. Calling that accessor with no arguments produces an <code>Element</code> which renders as a container element whose open and close tags match and are derived from the hyphenated name:</p>
 <ul>
 <li><code>str(my_custom_element())</code> must equal <code>&quot;&lt;my-custom-element&gt;&lt;/my-custom-element&gt;&quot;</code></li>
 </ul>
-<p>(The underscores in the attribute name become hyphens in the tag name.)</p>
+<p>(Underscores in the attribute name turn into hyphens in the tag name.)</p>
 <h5>Void elements</h5>
-<p>Void elements are those HTML elements that are self-closing and render without a closing tag. For example:</p>
+<p>Void elements are the HTML elements that are self-closing and render without a closing tag. To give an example:</p>
 <ul>
 <li><code>str(input(name=&quot;foo&quot;))</code> must equal <code>'&lt;input name=&quot;foo&quot;&gt;'</code></li>
 </ul>
-<p>Void elements <strong>must not</strong> accept children. Attempting to index a void element with children must raise a <code>ValueError</code>. The error message must state that the specific element cannot have children, using the tag name. For example, indexing <code>img</code> with a child must raise:</p>
+<p>Void elements <strong>must not</strong> accept children. An attempt to index a void element with children must raise a <code>ValueError</code>. Using the tag name, the error message must state that the specific element cannot have children. For instance, indexing <code>img</code> with a child must raise:</p>
 <pre><code>ValueError: img elements cannot have children
 </code></pre>
-<p>The message format is: <code>&quot;&lt;tag&gt; elements cannot have children&quot;</code> where <code>&lt;tag&gt;</code> is the element's tag name.</p>
+<p>The format of the message is: <code>&quot;&lt;tag&gt; elements cannot have children&quot;</code>, where <code>&lt;tag&gt;</code> is the element's tag name.</p>
 <h5>Regular elements</h5>
-<p>Regular (non-void) elements render with an open tag and a matching close tag. They accept children via indexing and attributes via calling. (Existing behavior — no change required beyond the type unification described above.)</p>
-<h4>Summary of the Change</h4>
+<p>Regular (non-void) elements render using an open tag and a matching close tag. Children are accepted via indexing, and attributes via calling. (This behavior already exists — no change is required beyond the type unification described above.)</p>
+<h4>Change Summary</h4>
 <ul>
-<li>Collapse any distinction between <code>RegularElement</code> and <code>VoidElement</code> at the public API level into a single <code>Element</code> class. Only <code>Element</code> should be importable and used for type annotations / <code>isinstance</code> checks.</li>
-<li>When a void element is given children (via indexing), raise <code>ValueError</code> with the message <code>&quot;&lt;tag&gt; elements cannot have children&quot;</code>.</li>
+<li>Collapse, at the public API level, any distinction between <code>RegularElement</code> and <code>VoidElement</code> into a single <code>Element</code> class. Only <code>Element</code> should be importable, and only <code>Element</code> should be used for type annotations / <code>isinstance</code> checks.</li>
+<li>If a void element is given children (via indexing), raise <code>ValueError</code> with the message <code>&quot;&lt;tag&gt; elements cannot have children&quot;</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Modify the behavior of void HTML elements so that attempting to give them children raises a TypeError.</span>
-        <span class="spec-meta muted">113 words · source specification
+        <span class="spec-title">Change the behavior of void HTML elements so that trying to give them children raises a TypeError.</span>
+        <span class="spec-meta muted">124 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the behavior of void HTML elements so that attempting to give them children raises a <code>TypeError</code>.</p>
-<h4>Background</h4>
-<p>The codebase provides HTML element objects (for example, an element named <code>img</code>) that support a subscript/indexing syntax for attaching children, e.g. <code>element[child]</code>.</p>
-<p>Void HTML elements (such as <code>img</code>) are elements that cannot contain children.</p>
-<h4>Required Behavior</h4>
-<p>When a void element (such as <code>img</code>) is subscripted/indexed with a child value (e.g. <code>img[&quot;hey&quot;]</code>), the operation must raise a <code>TypeError</code>.</p>
-<p>Previously this operation raised a <code>ValueError</code>; it must now raise a <code>TypeError</code> instead.</p>
-<h4>Notes</h4>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Change the behavior of void HTML elements so that trying to give them children raises a <code>TypeError</code>.</p>
+<h4>Context</h4>
+<p>HTML element objects (for example, an element named <code>img</code>) are provided by the codebase and support a subscript/indexing syntax for attaching children, e.g. <code>element[child]</code>.</p>
+<p>A void HTML element (such as <code>img</code>) is an element that cannot contain children.</p>
+<h4>Behavior Requirements</h4>
+<p>The operation must raise a <code>TypeError</code> when a void element (such as <code>img</code>) is subscripted/indexed with a child value (e.g. <code>img[&quot;hey&quot;]</code>).</p>
+<p>This operation previously raised a <code>ValueError</code>; now it must raise a <code>TypeError</code> instead.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The exception type must be exactly <code>TypeError</code>.</li>
-<li>No specific exception message content is required.</li>
+<li>The type of the raised exception must be exactly <code>TypeError</code>.</li>
+<li>No particular content for the exception message is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working on htpy, a Python library for building HTML by composing element objects.</span>
-        <span class="spec-meta muted">546 words · source specification
+        <span class="spec-title">You are working on htpy, a Python library that builds HTML by composing element objects.</span>
+        <span class="spec-meta muted">586 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on <code>htpy</code>, a Python library for building HTML by composing element objects. Your task is to add support for <strong>lazy</strong> and <strong>generator-based</strong> children when rendering elements by streaming (iteration).</p>
-<h5>Existing API context</h5>
-<p>The <code>htpy</code> package exposes HTML element objects that can be imported directly by name, for example:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<p>You are working on <code>htpy</code>, a Python library that builds HTML by composing element objects. Your task is to add support for <strong>lazy</strong> and <strong>generator-based</strong> children when elements are rendered by streaming (iteration).</p>
+<h5>Context on the existing API</h5>
+<p>HTML element objects are exposed by the <code>htpy</code> package and can be imported directly by name, for example:</p>
 <pre><code class="language-python">from htpy import div, ul, li, br
 </code></pre>
 <ul>
-<li>Non-void elements (like <code>div</code>, <code>ul</code>, <code>li</code>) are instances of a class named <code>Element</code>.</li>
-<li>Void elements (like <code>br</code>) are instances of a class named <code>VoidElement</code>.</li>
+<li>A non-void element (like <code>div</code>, <code>ul</code>, <code>li</code>) is an instance of a class named <code>Element</code>.</li>
+<li>A void element (like <code>br</code>) is an instance of a class named <code>VoidElement</code>.</li>
 </ul>
-<p>Children are attached to an element using subscript syntax, e.g. <code>ul[child]</code>, <code>div[child]</code>. An element with children can be iterated (<code>iter(element)</code>) to stream its HTML as a sequence of string chunks. Existing behavior already produces the opening tag, the rendered children, and the closing tag as separate string pieces when iterated.</p>
-<p>Both <code>Element</code> and <code>VoidElement</code> are importable from the top-level <code>htpy</code> package. Attributes may be set on an element via a string in the subscript-less call form (e.g. <code>li(&quot;#a&quot;)</code> produces an element with <code>id=&quot;a&quot;</code>).</p>
-<h5>Required new behavior</h5>
-<p>Extend child handling so that the following two kinds of children are supported as element children and rendered correctly during iteration:</p>
-<h6>1. Generator children (lazy iterables)</h6>
-<p>A child may be a generator (an object produced by a generator function). When an element containing a generator child is iterated:</p>
+<p>Subscript syntax is used to attach children to an element, e.g. <code>ul[child]</code>, <code>div[child]</code>. An element that has children can be iterated (<code>iter(element)</code>) to stream its HTML as a sequence of string chunks. When iterated, the existing behavior already produces the opening tag, the rendered children, and the closing tag as separate string pieces.</p>
+<p>From the top-level <code>htpy</code> package, both <code>Element</code> and <code>VoidElement</code> are importable. Attributes may be set on an element by passing a string in the subscript-less call form (e.g. <code>li(&quot;#a&quot;)</code> produces an element with <code>id=&quot;a&quot;</code>).</p>
+<h5>New behavior required</h5>
+<p>Extend the handling of children so that the following two kinds of children are supported as element children and are rendered correctly during iteration:</p>
+<h6>1. Children that are generators (lazy iterables)</h6>
+<p>A child may be a generator (an object produced by a generator function). When an element that has a generator child is iterated:</p>
 <ul>
-<li>The generator must <strong>not</strong> be started or advanced until the iteration reaches the point where that child is rendered.</li>
-<li>Each element yielded by the generator is rendered in order, inline, at the child's position.</li>
-<li>The generator is only advanced as the consuming iteration demands its values (fully lazy streaming). Consuming the chunk(s) for a yielded child must not advance the generator past the point needed to produce those chunks.</li>
+<li>The generator must <strong>not</strong> be started or advanced until iteration reaches the point where that child is rendered.</li>
+<li>Each element that the generator yields is rendered in order, inline, at that child's position.</li>
+<li>The generator is advanced only as the consuming iteration demands its values (fully lazy streaming). Consuming the chunk(s) belonging to a yielded child must not advance the generator past the point needed to produce those chunks.</li>
 </ul>
-<p>Concretely, given a generator that yields element children, iterating the containing element yields: the parent's opening tag first (without touching the generator), then the streamed chunks of each yielded child in order, then the parent's closing tag once the generator is exhausted.</p>
-<h6>2. Callable children (lazy/deferred)</h6>
-<p>A child may be a zero-argument callable that returns a renderable child (for example, an element). When an element containing a callable child is iterated:</p>
+<p>Concretely, with a generator that yields element children, iterating the containing element yields: the parent's opening tag first (without touching the generator), then the streamed chunks of each yielded child in order, and after that the parent's closing tag once the generator is exhausted.</p>
+<h6>2. Children that are callables (lazy/deferred)</h6>
+<p>A child may be a callable that takes zero arguments and returns a renderable child (for example, an element). When an element that has a callable child is iterated:</p>
 <ul>
-<li>The callable must <strong>not</strong> be invoked until the iteration reaches the point where that child is rendered.</li>
-<li>When reached, the callable is invoked once and its return value is rendered inline at the child's position.</li>
+<li>The callable must <strong>not</strong> be invoked until the iteration reaches the point at which that child is rendered.</li>
+<li>When that point is reached, the callable is invoked once and its return value is rendered inline at the child's position.</li>
 </ul>
-<p>Concretely, given a callable that returns an element, iterating the containing element yields: the parent's opening tag first (without invoking the callable), then the rendered chunk(s) of the callable's return value, then the parent's closing tag.</p>
-<h5>Rendering details</h5>
+<p>Concretely, with a callable that returns an element, iterating the containing element yields: the parent's opening tag first (without invoking the callable), then the rendered chunk(s) of the callable's return value, and after that the parent's closing tag.</p>
+<h5>Details of rendering</h5>
 <ul>
-<li>The opening tag of an element with children is emitted as a string chunk of the form <code>&lt;tagname&gt;</code> (with attributes rendered inside, e.g. <code>&lt;li id=&quot;a&quot;&gt;</code>).</li>
-<li>The closing tag is emitted as a separate string chunk of the form <code>&lt;/tagname&gt;</code>.</li>
-<li>A void element renders as a single self-closing-style chunk of the form <code>&lt;br&gt;</code> (no closing tag).</li>
-<li>All streamed chunks are strings.</li>
+<li>For an element with children, the opening tag is emitted as a string chunk that has the form <code>&lt;tagname&gt;</code> (with attributes rendered inside, e.g. <code>&lt;li id=&quot;a&quot;&gt;</code>).</li>
+<li>The closing tag is emitted as a separate string chunk that has the form <code>&lt;/tagname&gt;</code>.</li>
+<li>A void element renders as a single chunk in self-closing style, of the form <code>&lt;br&gt;</code> (no closing tag).</li>
+<li>All chunks that are streamed are strings.</li>
 </ul>
 <h5>Constraints</h5>
 <ul>
-<li>Laziness is essential: neither generators nor callables may be evaluated eagerly at the time the child is attached to the element or when iteration begins — only when iteration structurally reaches that child.</li>
+<li>Laziness is essential: neither generators nor callables may be evaluated eagerly at the moment the child is attached to the element or when iteration begins — only when iteration structurally reaches that child.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You are working on htpy, a Python library for generating HTML.</span>
-        <span class="spec-meta muted">347 words · source specification
+        <span class="spec-title">The codebase you are working on is htpy, a Python library for generating HTML.</span>
+        <span class="spec-meta muted">411 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>htpy</code>, a Python library for generating HTML. This task concerns how HTML element attributes are escaped when rendered to strings.</p>
+<p>The codebase you are working on is <code>htpy</code>, a Python library for generating HTML. This task deals with how the attributes of HTML elements are escaped when they are rendered to strings.</p>
 <h4>Public API</h4>
-<p>The library exposes HTML element objects from the top-level <code>htpy</code> module, including (but not limited to) <code>div</code> and <code>button</code>. These element objects support being called with attributes in two ways:</p>
+<p>From the top-level <code>htpy</code> module, the library exposes HTML element objects, including (but not limited to) <code>div</code> and <code>button</code>. There are two ways in which these element objects can be called with attributes:</p>
 <ol>
-<li><strong>Dictionary form</strong>: passing a single <code>dict</code> mapping attribute names to attribute values, e.g. <code>div({&quot;name&quot;: &quot;value&quot;})</code>.</li>
-<li><strong>Keyword-argument form</strong>: passing attributes as keyword arguments, e.g. <code>div(**{&quot;name&quot;: &quot;value&quot;})</code> / <code>div(name=&quot;value&quot;)</code>.</li>
+<li><strong>Dictionary form</strong>: supplying a single <code>dict</code> that maps attribute names to attribute values, e.g. <code>div({&quot;name&quot;: &quot;value&quot;})</code>.</li>
+<li><strong>Keyword-argument form</strong>: supplying attributes in the form of keyword arguments, e.g. <code>div(**{&quot;name&quot;: &quot;value&quot;})</code> / <code>div(name=&quot;value&quot;)</code>.</li>
 </ol>
-<p>Both forms produce an element object whose string representation (<code>str(...)</code>) is the rendered HTML.</p>
-<h4>Required Behavior</h4>
-<h5>Attribute name and value escaping</h5>
-<p>When rendering an element's attributes, <strong>both</strong> the attribute name and the attribute value must be HTML-escaped in the output. Escaping applies to both the dictionary form and the keyword-argument form identically.</p>
-<p>The escaping must convert HTML-sensitive characters to their corresponding HTML entities. Specifically:</p>
+<p>Both forms produce an element object, and the rendered HTML is the string representation (<code>str(...)</code>) of that object.</p>
+<h4>Behavior Requirements</h4>
+<h5>Escaping of attribute names and values</h5>
+<p>While an element's attributes are being rendered, HTML-escaping must be applied in the output to <strong>both</strong> the attribute name and the attribute value. Both the dictionary form and the keyword-argument form are subject to this escaping in an identical way.</p>
+<p>HTML-sensitive characters must be converted by the escaping to their corresponding HTML entities. Specifically:</p>
 <ul>
-<li><code>&lt;</code> becomes <code>&amp;lt;</code></li>
-<li><code>&gt;</code> becomes <code>&amp;gt;</code></li>
-<li><code>&quot;</code> (double quote) becomes <code>&amp;#34;</code></li>
+<li><code>&lt;</code> is turned into <code>&amp;lt;</code></li>
+<li><code>&gt;</code> is turned into <code>&amp;gt;</code></li>
+<li><code>&quot;</code> (the double quote character) is turned into <code>&amp;#34;</code></li>
 </ul>
-<p>For example, given an attribute name and value both equal to the string <code>&lt;&quot;foo</code>, the rendered element must be:</p>
+<p>For example, when an attribute name and its value are both equal to the string <code>&lt;&quot;foo</code>, the rendered element must be:</p>
 <pre><code>&lt;div &amp;lt;&amp;#34;foo=&quot;&amp;lt;&amp;#34;foo&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>That is, the name is escaped and placed before the <code>=</code>, and the escaped value is placed inside double quotes.</p>
-<h5>Escaping must be forced even for pre-marked-safe strings</h5>
-<p>Attribute names and values that are instances of <code>markupsafe.Markup</code> (i.e. strings already marked as &quot;safe&quot; and normally exempt from escaping) <strong>must still be escaped</strong> when used as attribute names or attribute values. In other words, escaping of attribute names and values is unconditional — it does not honor the &quot;safe&quot; marking that <code>Markup</code> normally provides.</p>
-<p>For example, passing <code>markupsafe.Markup('&lt;&quot;foo')</code> as both the name and value must produce exactly the same escaped output as passing the plain string <code>'&lt;&quot;foo'</code>:</p>
+<p>That is to say, the name, once escaped, is placed before the <code>=</code>, while the escaped value is placed inside double quotes.</p>
+<h5>Escaping must be forced even for strings pre-marked as safe</h5>
+<p>An attribute name or an attribute value that is an instance of <code>markupsafe.Markup</code> (that is, a string already marked as &quot;safe&quot; and normally exempt from escaping) <strong>must still be escaped</strong> when used as an attribute name or an attribute value. Put another way, the escaping of attribute names and values is unconditional — the &quot;safe&quot; marking that <code>Markup</code> normally provides is not honored.</p>
+<p>For example, when <code>markupsafe.Markup('&lt;&quot;foo')</code> is passed as both the name and the value, the escaped output must be exactly the same as when the plain string <code>'&lt;&quot;foo'</code> is passed:</p>
 <pre><code>&lt;div &amp;lt;&amp;#34;foo=&quot;&amp;lt;&amp;#34;foo&quot;&gt;&lt;/div&gt;
 </code></pre>
-<p>This holds for both the dictionary form and the keyword-argument form.</p>
-<h4>Notes</h4>
+<p>This is true for both the dictionary form and the keyword-argument form.</p>
+<h4>Additional Notes</h4>
 <ul>
-<li>Existing attribute behaviors already supported by the library (such as underscore-to-hyphen replacement in keyword names, boolean attributes, etc.) remain unchanged and are outside the scope of this task.</li>
+<li>Attribute behaviors that the library already supports (such as the replacement of underscores with hyphens in keyword names, boolean attributes, etc.) remain unchanged and are outside the scope of this task.</li>
 </ul>
 </div>
     </details>

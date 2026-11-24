@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/pallets-eco/croniter/compare/cb80dbe2863c6a4ef8dd401cde21c0a1116f56c7...ab5f760f8ce3e53ebb6d3a6a7d9ecccc4e603801" target="_blank" rel="noopener" class="mono">cb80dbe286 … ab5f760f8c</a> · 95 commits by 10 authors over 6 mo (2020-09-30 to 2021-04-12)</dd></div>
       <div><dt>Window:</dt><dd>requests 40–59 of a run of 59 test-bearing changes (overlaps the previous window by 1) · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,901 lines of code in 19 files when the chain starts · over the 20 requests the developers added 866 and removed 402 lines of code, plus 860 lines of tests (125 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.9k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 2</dd></div>
+      <div><dt>Specifications:</dt><dd>10.7k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 2</dd></div>
     </dl>
   </header>
 </section>
@@ -144,95 +144,96 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Modify the croniter class to change how its generator-based iteration methods behave when a matching date cannot be found within the searched time range,…</span>
-        <span class="spec-meta muted">484 words · source specification
+        <span class="spec-title">The croniter class is the subject of this task.</span>
+        <span class="spec-meta muted">585 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>croniter</code> class to change how its generator-based iteration methods behave when a matching date cannot be found within the searched time range, depending on whether the caller explicitly specified a maximum gap between matches.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>The <code>croniter</code> class is the subject of this task. Its generator-based iteration methods are to behave differently when no matching date can be found within the range of time being searched, and which behavior applies is decided by whether the caller gave an explicit maximum gap between matches.</p>
 <h4>Public API</h4>
-<p>The relevant class is <code>croniter</code>, importable as:</p>
+<p>The class this task revolves around is <code>croniter</code>, which is imported as follows:</p>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
 <h5>Constructor</h5>
-<p>The constructor must accept a keyword argument <code>max_years_between_matches</code> (in addition to its existing parameters such as the cron expression string, a start datetime, and <code>day_or</code>):</p>
+<p>A keyword argument <code>max_years_between_matches</code> must be accepted by the constructor, on top of its existing parameters such as the cron expression string, a start datetime, and <code>day_or</code>:</p>
 <pre><code class="language-python">croniter(expr_format, start_time=..., day_or=..., max_years_between_matches=None)
 </code></pre>
 <ul>
-<li><code>max_years_between_matches</code> specifies the maximum number of years to search forward or backward when looking for the next/previous matching date.</li>
-<li>When <code>max_years_between_matches</code> is <strong>not</strong> provided (i.e. left at its default), the effective search window is an implicit default of 1 year.</li>
-<li>When <code>max_years_between_matches</code> <strong>is</strong> provided, that value (in years) defines the search window.</li>
+<li><code>max_years_between_matches</code> states the maximum number of years that the search covers, forward or backward, while it looks for the next/previous matching date.</li>
+<li>Whenever <code>max_years_between_matches</code> is <strong>not</strong> given (i.e. the argument keeps its default), the search window that takes effect defaults implicitly to 1 year.</li>
+<li>If, on the other hand, <code>max_years_between_matches</code> <strong>is</strong> given, the search window is defined by that value (in years).</li>
 </ul>
 <h5>Generator methods</h5>
-<p>Two generator methods must exist:</p>
+<p>Two generator methods are required:</p>
 <pre><code class="language-python">croniter_instance.all_next(ret_type=...)
 croniter_instance.all_prev(ret_type=...)
 </code></pre>
 <ul>
-<li><code>all_next()</code> yields successive matching dates moving forward in time from the start.</li>
-<li><code>all_prev()</code> yields successive matching dates moving backward in time from the start.</li>
-<li>Both accept an optional <code>ret_type</code> argument controlling the type of the yielded values. When <code>datetime</code> is passed, yielded values are <code>datetime.datetime</code> instances.</li>
+<li>Starting from the start and moving forward in time, <code>all_next()</code> yields matching dates one after another.</li>
+<li>Starting from the start and moving backward in time, <code>all_prev()</code> yields matching dates one after another.</li>
+<li>An optional <code>ret_type</code> argument is accepted by both; it decides the type of the values yielded. Passing <code>datetime</code> makes the yielded values <code>datetime.datetime</code> instances.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The exception type involved is <code>CroniterBadDateError</code>, importable from the <code>croniter</code> package.</p>
-<p>When a generator (<code>all_next()</code> or <code>all_prev()</code>) attempts to produce the next value and no matching date is found within the search window, the behavior depends on how the search window was determined:</p>
+<h4>Behavior Requirements</h4>
+<p><code>CroniterBadDateError</code> is the exception type at issue here; it can be imported from the <code>croniter</code> package.</p>
+<p>Consider a generator (<code>all_next()</code> or <code>all_prev()</code>) that sets out to produce its next value while no matching date is located within the search window; the behavior that follows is decided by the manner in which the search window was established:</p>
 <ol>
 <li>
-<p><strong>Implicit window (default, <code>max_years_between_matches</code> not provided):</strong>
-The generator must raise <code>CroniterBadDateError</code>. The caller is notified that the search hit the implicit limit without finding a match.</p>
+<p><strong>Implicit window (the default; <code>max_years_between_matches</code> not provided):</strong>
+<code>CroniterBadDateError</code> must be raised by the generator. This informs the caller that the search ran into the implicit limit without a match being found.</p>
 </li>
 <li>
 <p><strong>Explicit window (<code>max_years_between_matches</code> provided):</strong>
-The generator must <strong>not</strong> raise <code>CroniterBadDateError</code>. Instead, iteration simply ends — requesting the next value raises <code>StopIteration</code> (i.e. the generator is exhausted). The caller explicitly agreed to a maximum gap, so exhausting that range without a match is a normal termination, not an error.</p>
+What the generator must <strong>not</strong> do here is raise <code>CroniterBadDateError</code>. Rather, iteration comes to an end — a request for the next value raises <code>StopIteration</code> (i.e. the generator is exhausted). Since the caller gave explicit agreement to a maximum gap, using up that range without finding a match is a normal termination rather than an error.</p>
 </li>
 </ol>
-<p>When a matching date <strong>is</strong> found within the search window, the generator yields it normally.</p>
-<h4>Concrete Examples</h4>
-<p>Using the cron expression <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code>:</p>
+<p>If a matching date <strong>is</strong> found inside the search window, the generator yields it as usual.</p>
+<h4>Worked Examples</h4>
+<p>Take the cron expression <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> in combination with <code>day_or=False</code>:</p>
 <ul>
 <li>
-<p><strong>Forward</strong>, start <code>datetime(2020, 9, 24)</code>:</p>
+<p><strong>Forward</strong>, starting from <code>datetime(2020, 9, 24)</code>:</p>
 <ul>
-<li>With no <code>max_years_between_matches</code>: first <code>next()</code> on <code>all_next()</code> raises <code>CroniterBadDateError</code>.</li>
-<li>With <code>max_years_between_matches=5</code>: first yielded value (as <code>datetime</code>) is <code>datetime(2025, 1, 8, 13)</code>.</li>
-<li>With <code>max_years_between_matches=2</code>: first <code>next()</code> raises <code>StopIteration</code>.</li>
+<li><code>max_years_between_matches</code> left out: calling <code>next()</code> on <code>all_next()</code> for the first time raises <code>CroniterBadDateError</code>.</li>
+<li><code>max_years_between_matches=5</code> supplied: the value yielded first (as <code>datetime</code>) is <code>datetime(2025, 1, 8, 13)</code>.</li>
+<li><code>max_years_between_matches=2</code> supplied: the first <code>next()</code> raises <code>StopIteration</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Reverse</strong>, start <code>datetime(2025, 1, 8)</code>:</p>
+<p><strong>Reverse</strong>, starting from <code>datetime(2025, 1, 8)</code>:</p>
 <ul>
-<li>With no <code>max_years_between_matches</code>: first <code>next()</code> on <code>all_prev()</code> raises <code>CroniterBadDateError</code>.</li>
-<li>With <code>max_years_between_matches=5</code>: first yielded value (as <code>datetime</code>) is <code>datetime(2020, 7, 8, 13)</code>.</li>
-<li>With <code>max_years_between_matches=2</code>: first <code>next()</code> raises <code>StopIteration</code>.</li>
+<li><code>max_years_between_matches</code> left out: calling <code>next()</code> on <code>all_prev()</code> for the first time raises <code>CroniterBadDateError</code>.</li>
+<li><code>max_years_between_matches=5</code> supplied: the value yielded first (as <code>datetime</code>) is <code>datetime(2020, 7, 8, 13)</code>.</li>
+<li><code>max_years_between_matches=2</code> supplied: the first <code>next()</code> raises <code>StopIteration</code>.</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The single-step methods <code>get_next()</code> and <code>get_prev()</code> must remain unchanged in behavior; the new &quot;stop instead of raise&quot; logic applies only to the <code>all_next()</code> / <code>all_prev()</code> generator interfaces.</li>
-<li>Existing behavior for callers that do not pass <code>max_years_between_matches</code> must be preserved (default 1-year implicit window, raising <code>CroniterBadDateError</code> on failure to find a match).</li>
+<li><code>get_next()</code> and <code>get_prev()</code> — the single-step methods — must keep their behavior unchanged; the newly introduced &quot;stop instead of raise&quot; logic comes into play only on the <code>all_next()</code> / <code>all_prev()</code> generator interfaces.</li>
+<li>For callers that do not pass <code>max_years_between_matches</code>, the behavior that already exists must be preserved (an implicit window with a 1-year default, and <code>CroniterBadDateError</code> raised when no match can be found).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Support l as an upper bound in cron range expressions</span>
-        <span class="spec-meta muted">598 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Allowing l as an upper bound in cron range expressions</span>
+        <span class="spec-meta muted">634 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support <code>l</code> as an upper bound in cron range expressions</h3>
-<h4>Context</h4>
-<p>Modify the <code>croniter</code> Python library so that <code>l</code> can be used as the upper endpoint of a cron-field range. The package is importable as <code>croniter</code> and provides the <code>croniter</code> class for parsing cron expressions and computing matching datetimes.</p>
+      <div class="spec-body"><h3>Task Specification: Allowing <code>l</code> as an upper bound in cron range expressions</h3>
+<h4>Background</h4>
+<p>The <code>croniter</code> Python library is to be modified so that <code>l</code> can serve as the upper endpoint of a cron-field range. The package is importable under the name <code>croniter</code> and supplies the <code>croniter</code> class for parsing cron expressions and computing matching datetimes.</p>
 <h4>Public API</h4>
-<p>The following existing API must remain importable and callable:</p>
+<p>The existing API listed here must remain importable and callable:</p>
 <ul>
 <li><code>croniter(expr, start_time, ret_type=..., day_or=...)</code>
 <ul>
-<li>The first positional argument is a cron expression string.</li>
-<li>The second positional argument may be a <code>datetime</code>.</li>
-<li>The <code>ret_type</code> keyword controls the result type; for example, <code>ret_type=datetime</code> returns <code>datetime</code> values.</li>
-<li><code>get_next()</code> returns the next matching time after the configured start time and uses the constructor's configured <code>ret_type</code> when no return type is passed directly.</li>
+<li>The cron expression string is supplied as the first positional argument.</li>
+<li>A <code>datetime</code> may be passed as the second positional argument.</li>
+<li>The result type is controlled by the <code>ret_type</code> keyword; for instance, <code>ret_type=datetime</code> returns <code>datetime</code> values.</li>
+<li><code>get_next()</code> returns the next matching time after the configured start time; when no return type is passed directly, it uses the <code>ret_type</code> configured on the constructor.</li>
 </ul>
 </li>
 <li><code>croniter_range</code></li>
@@ -240,28 +241,28 @@ The generator must <strong>not</strong> raise <code>CroniterBadDateError</code>.
 <li><code>CroniterBadCronError</code></li>
 <li><code>CroniterNotAlphaError</code></li>
 </ul>
-<p>These names and their existing behavior outside the change described below must remain unchanged.</p>
+<p>Outside the change described below, these names together with their existing behavior must remain unchanged.</p>
 <h4>Required behavior</h4>
-<h5><code>l</code> as a range endpoint</h5>
-<p>Cron range forms <code>&lt;low&gt;-l</code> and <code>&lt;low&gt;-l/&lt;step&gt;</code> must be accepted. The literal <code>l</code> is lowercase L and denotes the maximum legal value of the field in which it appears. Omitting <code>/step</code> has the usual range behavior, equivalent to a step of 1.</p>
-<p>All existing cron range rules continue to apply, including inclusive range endpoints, field-specific value normalization, and optional steps.</p>
-<h5>Step alignment when the lower endpoint is below the field minimum</h5>
-<p>If <code>&lt;low&gt;</code> is a value that the field's existing normalization maps or clamps to its minimum, the step sequence remains aligned to the lower endpoint as written. Normalizing that endpoint must not rebase or shift the rest of the stepped sequence.</p>
-<p>For the day-of-month field, whose legal numeric range is 1 through 31, <code>0-l/8</code> therefore has step positions <code>0, 8, 16, 24</code> up to the maximum endpoint of 31. Applying the existing day-of-month normalization to the out-of-range lower position maps <code>0</code> to <code>1</code>, so the effective matching day set is:</p>
+<h5><code>l</code> as an endpoint of a range</h5>
+<p>Expressions using the cron range forms <code>&lt;low&gt;-l</code> and <code>&lt;low&gt;-l/&lt;step&gt;</code> must be accepted. The literal <code>l</code>, a lowercase L, denotes the maximum legal value of the field in which it appears. Leaving out <code>/step</code> gives the usual range behavior, which is equivalent to a step of 1.</p>
+<p>All cron range rules that already exist continue to apply, including inclusive range endpoints, field-specific value normalization, and optional steps.</p>
+<h5>Step alignment when the lower endpoint lies below the field minimum</h5>
+<p>If the field's existing normalization maps or clamps <code>&lt;low&gt;</code> to its minimum, the step sequence remains aligned to the lower endpoint as written. The normalization of that endpoint must not rebase or shift the rest of the stepped sequence.</p>
+<p>Take the day-of-month field, whose legal numeric range is 1 through 31: here <code>0-l/8</code> consequently has step positions <code>0, 8, 16, 24</code> up to the maximum endpoint of 31. When the existing day-of-month normalization is applied to the out-of-range lower position, <code>0</code> is mapped to <code>1</code>, so the effective matching day set is:</p>
 <pre><code class="language-text">1, 8, 16, 24
 </code></pre>
-<p>It must not be interpreted as a progression newly anchored at day 1 (<code>1, 9, 17, 25</code>).</p>
-<h4>Concrete example</h4>
-<p>For this expression:</p>
+<p>It must not be interpreted as a progression anchored anew at day 1 (<code>1, 9, 17, 25</code>).</p>
+<h4>Worked example</h4>
+<p>Take this expression:</p>
 <pre><code class="language-text">35 * 0-l/8 * *
 </code></pre>
 <ul>
-<li>The minute is 35.</li>
-<li>The hour is a wildcard.</li>
-<li>The day-of-month values are 1, 8, 16, and 24.</li>
-<li>The month and day-of-week are wildcards.</li>
+<li>The minute value is 35.</li>
+<li>The hour field is a wildcard.</li>
+<li>For day-of-month, the values are 1, 8, 16, and 24.</li>
+<li>The month and the day-of-week are wildcards.</li>
 </ul>
-<p>Given a start time at midnight on a day in January 2020, constructing the iterator with <code>ret_type=datetime</code> and calling <code>get_next()</code> must produce the following results:</p>
+<p>If the start time is midnight on a day in January 2020, constructing the iterator with <code>ret_type=datetime</code> and calling <code>get_next()</code> must produce the following results:</p>
 <table>
 <thead>
 <tr>
@@ -292,224 +293,223 @@ The generator must <strong>not</strong> raise <code>CroniterBadDateError</code>.
 </tr>
 </tbody>
 </table>
-<p>This table applies to every individual start day from January 1 through January 30, inclusive. In particular:</p>
+<p>The table covers every individual start day from January 1 through January 30, inclusive. Specifically:</p>
 <ul>
-<li>A midnight start on a matching day can return 00:35 on that same day because the occurrence is later than the start instant.</li>
-<li>Day 8 is a matching day, so starts at midnight from January 2 through January 8 next match on January 8.</li>
-<li>Day 25 is not a matching day. Once January 24 has passed, the schedule rolls into the next month and next matches on February 1.</li>
+<li>With a midnight start on a matching day, the iterator can return 00:35 on that same day because the occurrence is later than the start instant.</li>
+<li>Since day 8 is a matching day, starts at midnight from January 2 through January 8 next match on January 8.</li>
+<li>Day 25 is not a matching day. Once January 24 is past, the schedule rolls over into the next month and next matches on February 1.</li>
 </ul>
 <h4>Compatibility and scope</h4>
-<p>Only support for <code>l</code> as the upper endpoint of a range, including its interaction with a step and existing lower-value normalization, is to be added or corrected. Standalone <code>l</code> behavior, ordinary numeric ranges and steps, iteration semantics, return-type handling, date rollover, timezone behavior, exceptions, and all other existing cron parsing and scheduling behavior must remain unchanged.</p>
+<p>The only item to be added or corrected is support for <code>l</code> as the upper endpoint of a range, including its interaction with a step and with existing lower-value normalization. Standalone <code>l</code> behavior must remain unchanged, as must ordinary numeric ranges and steps, iteration semantics, return-type handling, date rollover, timezone behavior, exceptions, and all other existing cron parsing and scheduling behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Support Sparse Cron Matches Across Multiple Years</span>
-        <span class="spec-meta muted">708 words · source specification
+        <span class="spec-title">Supporting Sparse Cron Matches That Span Multiple Years</span>
+        <span class="spec-meta muted">745 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support Sparse Cron Matches Across Multiple Years</h3>
+      <div class="spec-body"><h3>Task Specification: Supporting Sparse Cron Matches That Span Multiple Years</h3>
 <h4>Overview</h4>
-<p>Modify the <code>croniter</code> library (module <code>croniter</code>, importable via <code>from croniter import croniter, croniter_range, CroniterBadDateError</code>) to support iterating over cron schedules where consecutive matching dates may be separated by more than one year (e.g. quarterly patterns that only match in certain months/day-of-week combinations, so that some years produce no match at all).</p>
-<h4>Background Behavior</h4>
-<p>By default, <code>croniter</code> searches for the next/previous matching datetime within a bounded lookahead of one year. When a pattern is sparse enough that no match exists within that window, the search fails. This one-year default must be preserved.</p>
-<h4>Required Changes</h4>
-<h5>1. New constructor parameter: <code>max_years_between_matches</code></h5>
-<p>Add a new keyword argument <code>max_years_between_matches</code> to the <code>croniter(...)</code> constructor.</p>
+<p>Extend the <code>croniter</code> library (module <code>croniter</code>, importable via <code>from croniter import croniter, croniter_range, CroniterBadDateError</code>) so that it supports iterating over cron schedules whose consecutive matching dates may be more than one year apart (e.g. quarterly patterns that match only in certain months/day-of-week combinations, leaving some years with no match at all).</p>
+<h4>Background: Current Behavior</h4>
+<p>By default, <code>croniter</code> searches for the next/previous matching datetime using a lookahead bounded to one year. If a pattern is sparse enough that the window holds no match, the search fails. This one-year default must be kept intact.</p>
+<h4>Changes Required</h4>
+<h5>1. New constructor parameter <code>max_years_between_matches</code></h5>
+<p>Extend the <code>croniter(...)</code> constructor with a new keyword argument, <code>max_years_between_matches</code>.</p>
 <ul>
-<li>It specifies the maximum number of years to search forward or backward when looking for the next/previous matching datetime.</li>
-<li>Its default value corresponds to the existing one-year search behavior (i.e., when not provided, behavior is unchanged from before this task).</li>
-<li>When provided with a larger value, the search window is widened accordingly, allowing matches that are several years away from the starting point to be found.</li>
+<li>It gives the maximum number of years to search forward or backward when looking for the next/previous matching datetime.</li>
+<li>Its default value matches the existing one-year search behavior (i.e., when the argument is not provided, behavior remains unchanged from before this task).</li>
+<li>When a larger value is provided, the search window widens accordingly, so that matches lying several years away from the starting point can be found.</li>
 </ul>
-<p>Example: with the cron expression <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> (day-of-week and day-of-month treated as AND, i.e. <code>day_or=False</code>), starting from <code>datetime(2020, 9, 24)</code>, the next match is <code>datetime(2025, 1, 8, 13)</code>, which is more than four years later. This match is only reachable if the search window is at least 5 years.</p>
-<h5>2. Behavior of <code>get_next()</code> / <code>get_prev()</code></h5>
-<p>These methods keep their existing behavior of raising <code>CroniterBadDateError</code> when no matching datetime can be found within the configured search window.</p>
+<p>Example: for the cron expression <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> (day-of-week and day-of-month combined as AND, i.e. <code>day_or=False</code>) and a start of <code>datetime(2020, 9, 24)</code>, the next match is <code>datetime(2025, 1, 8, 13)</code>, more than four years later. This match can only be reached if the search window is at least 5 years.</p>
+<h5>2. <code>get_next()</code> / <code>get_prev()</code> behavior</h5>
+<p>These methods retain their existing behavior: when no matching datetime is found within the configured search window, they raise <code>CroniterBadDateError</code>.</p>
 <ul>
-<li>With the default (one-year) window and a sparse pattern that has no match within a year, <code>get_next()</code> raises <code>CroniterBadDateError</code>.</li>
-<li>With <code>max_years_between_matches</code> large enough to reach the next match, <code>get_next(datetime)</code> returns the correct matching <code>datetime</code> object.</li>
+<li>Given the default (one-year) window and a sparse pattern that has no match within a year, <code>get_next()</code> raises <code>CroniterBadDateError</code>.</li>
+<li>If <code>max_years_between_matches</code> is large enough to reach the next match, <code>get_next(datetime)</code> returns the correct matching <code>datetime</code> object.</li>
 </ul>
-<h5>3. Behavior of <code>all_next()</code> / <code>all_prev()</code> generators</h5>
-<p>These generator interfaces must distinguish between two cases when no further match is found within the search window:</p>
+<h5>3. <code>all_next()</code> / <code>all_prev()</code> generator behavior</h5>
+<p>When no further match is found within the search window, these generator interfaces must distinguish between two cases:</p>
 <ul>
-<li><strong>Default window (parameter not provided):</strong> raise <code>CroniterBadDateError</code> (as <code>get_next()</code>/<code>get_prev()</code> do). This preserves backward compatibility — the caller is notified that the implicit one-year limit was reached.</li>
-<li><strong>Explicit window (<code>max_years_between_matches</code> provided):</strong> do NOT raise <code>CroniterBadDateError</code>. Instead, simply stop iteration (raise <code>StopIteration</code> from the generator). The rationale: if the caller explicitly specified the maximum gap, then hitting that limit is an expected termination condition, not an error.</li>
+<li><strong>Default window (parameter not provided):</strong> raise <code>CroniterBadDateError</code> (just as <code>get_next()</code>/<code>get_prev()</code> do). This preserves backward compatibility — the caller is informed that the implicit one-year limit was reached.</li>
+<li><strong>Explicit window (<code>max_years_between_matches</code> provided):</strong> do NOT raise <code>CroniterBadDateError</code>; instead, simply end iteration (raising <code>StopIteration</code> from the generator). Rationale: if the caller explicitly specified the maximum gap, then reaching that limit is an expected termination condition, not an error.</li>
 </ul>
-<p>Concretely, for the cron <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code>:</p>
+<p>In concrete terms, for the cron <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code>:</p>
 <ul>
 <li>
 <p>Forward from <code>datetime(2020, 9, 24)</code>:</p>
 <ul>
-<li>No <code>max_years_between_matches</code>: <code>all_next()</code> → first <code>next(...)</code> raises <code>CroniterBadDateError</code>.</li>
-<li><code>max_years_between_matches=5</code>: <code>all_next(datetime)</code> → first <code>next(...)</code> yields <code>datetime(2025, 1, 8, 13)</code>.</li>
-<li><code>max_years_between_matches=2</code>: <code>all_next(datetime)</code> → first <code>next(...)</code> raises <code>StopIteration</code> (the next match is beyond 2 years, so iteration ends cleanly).</li>
+<li>Without <code>max_years_between_matches</code>: <code>all_next()</code> → the first <code>next(...)</code> raises <code>CroniterBadDateError</code>.</li>
+<li><code>max_years_between_matches=5</code>: <code>all_next(datetime)</code> → the first <code>next(...)</code> yields <code>datetime(2025, 1, 8, 13)</code>.</li>
+<li><code>max_years_between_matches=2</code>: <code>all_next(datetime)</code> → the first <code>next(...)</code> raises <code>StopIteration</code> (the next match lies beyond 2 years, so iteration ends cleanly).</li>
 </ul>
 </li>
 <li>
 <p>Reverse from <code>datetime(2025, 1, 8)</code>:</p>
 <ul>
-<li>No <code>max_years_between_matches</code>: <code>all_prev()</code> → first <code>next(...)</code> raises <code>CroniterBadDateError</code>.</li>
-<li><code>max_years_between_matches=5</code>: <code>all_prev(datetime)</code> → first <code>next(...)</code> yields <code>datetime(2020, 7, 8, 13)</code>.</li>
-<li><code>max_years_between_matches=2</code>: <code>all_prev()</code> → first <code>next(...)</code> raises <code>StopIteration</code>.</li>
+<li>Without <code>max_years_between_matches</code>: <code>all_prev()</code> → the first <code>next(...)</code> raises <code>CroniterBadDateError</code>.</li>
+<li><code>max_years_between_matches=5</code>: <code>all_prev(datetime)</code> → the first <code>next(...)</code> yields <code>datetime(2020, 7, 8, 13)</code>.</li>
+<li><code>max_years_between_matches=2</code>: <code>all_prev()</code> → the first <code>next(...)</code> raises <code>StopIteration</code>.</li>
 </ul>
 </li>
 </ul>
-<h5>4. <code>croniter_range()</code> automatic window sizing</h5>
-<p>Update <code>croniter_range(start, end, expr_format, ...)</code> so that it automatically derives an appropriate <code>max_years_between_matches</code> from the span between <code>start</code> and <code>end</code>. As a result, <code>croniter_range()</code> must never surface a <code>CroniterBadDateError</code> to its caller — it either yields the matches that fall within the <code>[start, end]</code> range or produces no results.</p>
-<p>Behavior for the cron <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code>:</p>
+<h5>4. Automatic window sizing for <code>croniter_range()</code></h5>
+<p>Adjust <code>croniter_range(start, end, expr_format, ...)</code> so that it automatically determines a suitable <code>max_years_between_matches</code> from the span between <code>start</code> and <code>end</code>. Consequently, <code>croniter_range()</code> must never expose a <code>CroniterBadDateError</code> to its caller — the only possible outcomes are that it yields the matches that fall within the <code>[start, end]</code> range or that it produces no results.</p>
+<p>With the cron <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> set to <code>day_or=False</code>, the behavior is as follows:</p>
 <ul>
-<li><code>croniter_range(datetime(2020, 1, 1), datetime(2020, 12, 31), cron, day_or=False)</code> yields exactly three datetimes, in order:
+<li><code>croniter_range(datetime(2020, 1, 1), datetime(2020, 12, 31), cron, day_or=False)</code> yields exactly three datetimes, in this order:
 <ul>
 <li><code>datetime(2020, 1, 8, 13)</code></li>
 <li><code>datetime(2020, 4, 8, 13)</code></li>
 <li><code>datetime(2020, 7, 8, 13)</code></li>
 </ul>
 </li>
-<li><code>croniter_range(datetime(2020, 9, 30), datetime(2020, 10, 30), cron, day_or=False)</code> yields no datetimes (empty result), even though this span contains no matching date and the underlying pattern is sparse.</li>
+<li><code>croniter_range(datetime(2020, 9, 30), datetime(2020, 10, 30), cron, day_or=False)</code> yields no datetimes (an empty result), even though this span contains no matching date and the underlying pattern is sparse.</li>
 </ul>
-<h4>Public API Summary</h4>
+<h4>Summary of the Public API</h4>
 <ul>
-<li><code>croniter(expr_format, start_time=..., ..., day_or=..., max_years_between_matches=&lt;default&gt;)</code> — new keyword parameter added; all existing parameters and behavior unchanged.</li>
-<li><code>croniter.get_next(ret_type=...)</code>, <code>croniter.get_prev(ret_type=...)</code> — unchanged behavior (still raise <code>CroniterBadDateError</code> when no match within window).</li>
-<li><code>croniter.all_next(ret_type=...)</code>, <code>croniter.all_prev(ret_type=...)</code> — generators whose termination behavior depends on whether <code>max_years_between_matches</code> was explicitly given (see section 3).</li>
-<li><code>croniter_range(start, end, expr_format, ..., day_or=...)</code> — automatically sizes the search window from <code>start</code>/<code>end</code>; never raises <code>CroniterBadDateError</code>.</li>
-<li><code>CroniterBadDateError</code> — importable from the <code>croniter</code> package.</li>
+<li><code>croniter(expr_format, start_time=..., ..., day_or=..., max_years_between_matches=&lt;default&gt;)</code> — a new keyword parameter has been added; all existing parameters and behavior remain unchanged.</li>
+<li><code>croniter.get_next(ret_type=...)</code>, <code>croniter.get_prev(ret_type=...)</code> — behavior unchanged (they still raise <code>CroniterBadDateError</code> when there is no match within the window).</li>
+<li><code>croniter.all_next(ret_type=...)</code>, <code>croniter.all_prev(ret_type=...)</code> — generators whose termination behavior depends on whether <code>max_years_between_matches</code> was supplied explicitly (see section 3).</li>
+<li><code>croniter_range(start, end, expr_format, ..., day_or=...)</code> — automatically sizes the search window from <code>start</code>/<code>end</code>; it never raises <code>CroniterBadDateError</code>.</li>
+<li><code>CroniterBadDateError</code> — can be imported from the <code>croniter</code> package.</li>
 </ul>
-<p>All datetime return values are naive <code>datetime</code> objects matching the calendar values shown above.</p>
+<p>All datetime return values are naive <code>datetime</code> objects that match the calendar values shown above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">The package-level module croniter must export</span>
-        <span class="spec-meta muted">317 words · source specification
+        <span class="spec-title">The following must be exported by the package-level module croniter</span>
+        <span class="spec-meta muted">348 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Correct cron matching with microseconds while preserving bounded-search behavior</h3>
+      <div class="spec-body"><h3>Task: Fix cron matching for datetimes with microseconds while preserving bounded-search behavior</h3>
 <h4>Public API</h4>
-<p>The package-level module <code>croniter</code> must export:</p>
+<p>The following must be exported by the package-level module <code>croniter</code>:</p>
 <ul>
-<li><code>croniter</code>: the callable cron iterator class, usable as <code>from croniter import croniter</code></li>
-<li><code>CroniterBadDateError</code>: the exception raised when a matching date cannot be found within the applicable search limit</li>
+<li><code>croniter</code>: the cron iterator class, which is callable and usable as <code>from croniter import croniter</code></li>
+<li><code>CroniterBadDateError</code>: the exception raised in cases where a matching date cannot be found within the applicable search limit</li>
 </ul>
-<p>The <code>croniter</code> class must support:</p>
+<p>The following must be supported by the <code>croniter</code> class:</p>
 <ul>
-<li>Construction with <code>expr_format</code>, <code>start_time</code>, <code>day_or</code>, and optional <code>max_years_between_matches</code></li>
+<li>Construction with <code>expr_format</code>, <code>start_time</code>, <code>day_or</code>, and an optional <code>max_years_between_matches</code></li>
 <li><code>get_next(ret_type=None)</code></li>
 <li><code>all_next()</code></li>
 <li><code>all_prev()</code></li>
 <li><code>croniter.match(cron_expression, datetime_value, day_or=True)</code></li>
-<li>A writable instance attribute named <code>_max_years_between_matches</code></li>
+<li>A writable instance attribute called <code>_max_years_between_matches</code></li>
 </ul>
-<h4>Required behavior</h4>
-<h5>Matching datetimes containing microseconds</h5>
-<p>Calling:</p>
+<h4>Behavior that is required</h4>
+<h5>Matching datetime values that contain microseconds</h5>
+<p>The following call:</p>
 <ul>
 <li><code>croniter.match(&quot;* * * * *&quot;, datetime(2019, 1, 14, 11, 0, 59, 999999))</code></li>
 </ul>
-<p>must return <code>True</code>. The nonzero seconds and microseconds must not cause this minute-level wildcard expression to be reported as a non-match.</p>
-<h5>Sparse forward searches</h5>
-<p>For:</p>
+<p>must return <code>True</code>. The nonzero seconds and microseconds must not lead to this minute-level wildcard expression being reported as a non-match.</p>
+<h5>Sparse searches in the forward direction</h5>
+<p>Given:</p>
 <ul>
-<li>Start: <code>datetime(2020, 9, 24)</code></li>
+<li>Starting datetime: <code>datetime(2020, 9, 24)</code></li>
 <li>Expression: <code>&quot;0 13 8 1,4,7,10 wed&quot;</code></li>
 <li><code>day_or=False</code></li>
 </ul>
-<p>the following behavior is required:</p>
+<p>the behavior laid out below is required:</p>
 <ol>
-<li>With <code>max_years_between_matches=1</code>, calling <code>get_next()</code> must raise <code>CroniterBadDateError</code>.</li>
-<li>With <code>max_years_between_matches=5</code>, calling <code>get_next(datetime)</code> must return <code>datetime(2025, 1, 8, 13, 0)</code>.</li>
-<li>If <code>max_years_between_matches</code> is omitted during construction and <code>_max_years_between_matches</code> is subsequently set to <code>1</code>, advancing the iterator returned by <code>all_next()</code> for the first time must raise <code>CroniterBadDateError</code>.</li>
-<li>If <code>max_years_between_matches=1</code> is explicitly supplied during construction, advancing the iterator returned by <code>all_next()</code> for the first time must instead raise <code>StopIteration</code>.</li>
+<li>When <code>max_years_between_matches=1</code>, calling <code>get_next()</code> must raise <code>CroniterBadDateError</code>.</li>
+<li>When <code>max_years_between_matches=5</code>, calling <code>get_next(datetime)</code> must return <code>datetime(2025, 1, 8, 13, 0)</code>.</li>
+<li>If construction omits <code>max_years_between_matches</code> and <code>_max_years_between_matches</code> is subsequently set to <code>1</code>, then the first advance of the iterator returned by <code>all_next()</code> must raise <code>CroniterBadDateError</code>.</li>
+<li>If <code>max_years_between_matches=1</code> is explicitly supplied during construction, then the first advance of the iterator returned by <code>all_next()</code> must instead raise <code>StopIteration</code>.</li>
 </ol>
-<h5>Sparse reverse searches</h5>
-<p>For:</p>
+<h5>Sparse searches in the reverse direction</h5>
+<p>Given:</p>
 <ul>
-<li>Start: <code>datetime(2025, 1, 1)</code></li>
+<li>Starting datetime: <code>datetime(2025, 1, 1)</code></li>
 <li>Expression: <code>&quot;0 13 8 1,4,7,10 wed&quot;</code></li>
 <li><code>day_or=False</code></li>
 </ul>
-<p>the following behavior is required:</p>
+<p>the behavior laid out below is required:</p>
 <ol>
-<li>If <code>max_years_between_matches</code> is omitted during construction and <code>_max_years_between_matches</code> is subsequently set to <code>1</code>, advancing the iterator returned by <code>all_prev()</code> for the first time must raise <code>CroniterBadDateError</code>.</li>
-<li>If <code>max_years_between_matches=1</code> is explicitly supplied during construction, advancing the iterator returned by <code>all_prev()</code> for the first time must raise <code>StopIteration</code>.</li>
+<li>If construction omits <code>max_years_between_matches</code> and <code>_max_years_between_matches</code> is subsequently set to <code>1</code>, then the first advance of the iterator returned by <code>all_prev()</code> must raise <code>CroniterBadDateError</code>.</li>
+<li>If <code>max_years_between_matches=1</code> is explicitly supplied during construction, then the first advance of the iterator returned by <code>all_prev()</code> must raise <code>StopIteration</code>.</li>
 </ol>
-<p>Thus, iterator exhaustion caused by an explicitly supplied search limit is exposed as normal <code>StopIteration</code>, while hitting an equivalent limit that was not explicitly supplied remains a <code>CroniterBadDateError</code>.</p>
+<p>Hence, iterator exhaustion brought about by an explicitly supplied search limit is exposed as normal <code>StopIteration</code>, while reaching an equivalent limit that was not explicitly supplied remains a <code>CroniterBadDateError</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">The top-level croniter package must expose</span>
-        <span class="spec-meta muted">50 words · source specification
+        <span class="spec-title">At the top level, the croniter package must expose the following</span>
+        <span class="spec-meta muted">58 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required behavior</h4>
-<p>The top-level <code>croniter</code> package must expose:</p>
+      <div class="spec-body"><h4>Required behaviour</h4>
+<p>At the top level, the <code>croniter</code> package must expose the following:</p>
 <ul>
-<li><code>croniter</code>: a callable supporting <code>croniter(expression, start_time)</code>.</li>
-<li><code>CroniterBadCronError</code>: the public exception type for invalid cron syntax.</li>
+<li><code>croniter</code>: a callable that supports <code>croniter(expression, start_time)</code>.</li>
+<li><code>CroniterBadCronError</code>: the public exception type that corresponds to invalid cron syntax.</li>
 </ul>
 <p>Calling:</p>
 <pre><code class="language-python">croniter(&quot;0-1&amp; * * * *&quot;, start_time)
 </code></pre>
-<p>where <code>start_time</code> is a <code>datetime.datetime</code> instance, must reject the malformed cron expression by raising <code>CroniterBadCronError</code>.</p>
+<p>with <code>start_time</code> being a <code>datetime.datetime</code> instance must reject that malformed cron expression by raising <code>CroniterBadCronError</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Expose the following from the package root module croniter</span>
-        <span class="spec-meta muted">192 words · source specification
+        <span class="spec-title">The following must be exposed from the package root module croniter</span>
+        <span class="spec-meta muted">226 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>Expose the following from the package root module <code>croniter</code>:</p>
+      <div class="spec-body"><h4>Public API requirements</h4>
+<p>The following must be exposed from the package root module <code>croniter</code>:</p>
 <ul>
-<li><code>croniter</code>: a constructible class/callable supporting:<pre><code class="language-python">croniter(expression: str, start_time: datetime | None = None)
+<li><code>croniter</code>: a class/callable that can be constructed, supporting:<pre><code class="language-python">croniter(expression: str, start_time: datetime | None = None)
 </code></pre>
 </li>
 <li><code>croniter.get_next()</code>:<pre><code class="language-python">get_next()
 </code></pre>
-When called without a return-type argument, it returns the next occurrence as a Unix timestamp <code>float</code>.</li>
-<li><code>CroniterBadCronError</code>: the exception raised for invalid cron expressions.</li>
+If the call omits the return-type argument, it returns the next occurrence in the form of a Unix timestamp <code>float</code>.</li>
+<li><code>CroniterBadCronError</code>: the exception that gets raised for a cron expression that is invalid.</li>
 </ul>
-<h4>Required behavior</h4>
+<h4>Behavior requirements</h4>
 <ol>
 <li>
-<p>Constructing <code>croniter</code> with an excessively large field range must reject the expression by raising <code>CroniterBadCronError</code>. In particular:</p>
+<p>When <code>croniter</code> is constructed with an excessively large field range, the expression must be rejected by raising <code>CroniterBadCronError</code>. Specifically, the following must raise during construction:</p>
 <pre><code class="language-python">croniter(&quot;0-10000000 * * * *&quot;, &lt;datetime&gt;)
 </code></pre>
-<p>must raise during construction.</p>
 </li>
 <li>
-<p>Comma-separated day-of-week fields containing <code>*</code> must still process and validate the remaining entries.</p>
+<p>Day-of-week fields that are comma-separated and contain <code>*</code> must still process and validate the entries that remain.</p>
 <ul>
 <li>
-<p>This expression is valid:</p>
+<p>The expression below is valid:</p>
 <pre><code class="language-python">croniter(
     &quot;* * * * *,0&quot;,
     datetime(2019, 1, 14, 11, 0, 59, 999999),
 ).get_next()
 </code></pre>
-<p>It must return:</p>
+<p>The call must return:</p>
 <pre><code class="language-python">1547463660.0
 </code></pre>
 </li>
 <li>
-<p>An invalid entry after the wildcard must not be ignored:</p>
+<p>An invalid entry that comes after the wildcard must not be ignored:</p>
 <pre><code class="language-python">croniter(&quot;* * * * *,b&quot;)
 </code></pre>
-<p>must raise <code>CroniterBadCronError</code> during construction.</p>
+<p>must raise <code>CroniterBadCronError</code> when it is constructed.</p>
 </li>
 <li>
-<p>A named weekday with an nth-occurrence modifier may be combined with the wildcard:</p>
+<p>A weekday given by name, together with an nth-occurrence modifier, may be used in combination with the wildcard:</p>
 <pre><code class="language-python">croniter(
     &quot;0 0 * * *,sat#3&quot;,
     datetime(2019, 1, 14, 11, 0, 59, 999999),
 ).get_next()
 </code></pre>
-<p>It must return:</p>
+<p>The call must return:</p>
 <pre><code class="language-python">1547856000.0
 </code></pre>
 </li>
@@ -521,102 +521,103 @@ When called without a return-type argument, it returns the next occurrence as a 
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">The top-level croniter package must expose the existing callable/class</span>
-        <span class="spec-meta muted">81 words · source specification
+        <span class="spec-title">The top-level croniter package must expose the callable/class that already exists</span>
+        <span class="spec-meta muted">88 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>The top-level <code>croniter</code> package must expose the existing callable/class:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>The top-level <code>croniter</code> package must expose the callable/class that already exists:</p>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
-<p>It must support invocation with a cron expression as the first positional argument:</p>
+<p>Invocation must be supported with a cron expression supplied as the first positional argument:</p>
 <pre><code class="language-python">croniter(expr_format)
 </code></pre>
-<p>When <code>expr_format</code> is:</p>
+<p>If <code>expr_format</code> is:</p>
 <pre><code class="language-text">0-10/ * * * *
 </code></pre>
-<p>construction/parsing must fail immediately by raising <code>ValueError</code> (or a subclass of <code>ValueError</code>). The trailing <code>/</code> in the minute field represents a step component with no step value and must not be accepted as a valid cron expression.</p>
+<p>then construction/parsing must fail immediately, raising <code>ValueError</code> (or a subclass of <code>ValueError</code>). A trailing <code>/</code> in the minute field stands for a step component with no step value, and it must not be accepted as a valid cron expression.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Modify the cron field parsing logic in the croniter library so that numeric range/step expressions containing an underscore in a numeric literal are…</span>
-        <span class="spec-meta muted">269 words · source specification
+        <span class="spec-title">Alter the cron field parsing logic of the croniter library so that numeric range/step expressions in which a numeric literal contains an underscore are…</span>
+        <span class="spec-meta muted">288 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Modify the cron field parsing logic in the <code>croniter</code> library so that numeric range/step expressions containing an underscore in a numeric literal are rejected as invalid.</p>
-<h5>Public API Surface</h5>
-<p>The library is imported as:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Goal</h5>
+<p>Alter the cron field parsing logic of the <code>croniter</code> library so that numeric range/step expressions in which a numeric literal contains an underscore are rejected as invalid.</p>
+<h5>Public API</h5>
+<p>The library is imported in the following way:</p>
 <pre><code class="language-python">import croniter
 from croniter import croniter
 </code></pre>
-<p>The primary entry point is the <code>croniter</code> class constructor:</p>
+<p>The main entry point is the constructor of the <code>croniter</code> class:</p>
 <pre><code class="language-python">croniter(expr_format, start_time=None, ...)
 </code></pre>
 <ul>
-<li><code>expr_format</code> is a string containing a standard 5-field cron expression (minute, hour, day-of-month, month, day-of-week).</li>
+<li><code>expr_format</code> is a string that holds a standard 5-field cron expression (minute, hour, day-of-month, month, day-of-week).</li>
 </ul>
-<h5>Required Behavior</h5>
-<p>When a cron field contains a numeric literal that includes an underscore character (<code>_</code>), the expression must be treated as invalid, and constructing a <code>croniter</code> with such an expression must raise <code>ValueError</code>.</p>
-<p>Concretely, an expression such as:</p>
+<h5>Behavior Requirements</h5>
+<p>If a cron field contains a numeric literal that includes an underscore character (<code>_</code>), the expression must be treated as invalid, and constructing a <code>croniter</code> from such an expression must raise <code>ValueError</code>.</p>
+<p>To be concrete, an expression like:</p>
 <pre><code>1-1_0 * * * *
 </code></pre>
-<p>must raise <code>ValueError</code> when passed to the <code>croniter</code> constructor. Here the token <code>1_0</code> is an underscore-containing numeric literal appearing within a range expression (<code>1-1_0</code>), and it must not be accepted or interpreted as the integer <code>10</code>.</p>
-<p>In other words, when the parser attempts to interpret a substring as an integer during expansion of a cron field, it must reject strings that Python's <code>int()</code> would otherwise silently accept via underscore digit grouping (e.g. <code>&quot;1_0&quot;</code> → <code>10</code>). Any component of a field that is expected to be a plain integer literal but contains an underscore must cause the whole expression to be rejected with <code>ValueError</code>.</p>
-<h5>Scope</h5>
+<p>must raise <code>ValueError</code> when handed to the <code>croniter</code> constructor. In this example, the token <code>1_0</code> is a numeric literal that contains an underscore and sits within the range expression (<code>1-1_0</code>); it must not be accepted or interpreted as the integer <code>10</code>.</p>
+<p>Put differently, whenever the parser tries to interpret a substring as an integer while expanding a cron field, it must reject strings that Python's <code>int()</code> would otherwise silently accept through underscore digit grouping (e.g. <code>&quot;1_0&quot;</code> → <code>10</code>). Any component of a field that is expected to be a plain integer literal but has an underscore in it must cause the whole expression to be rejected with <code>ValueError</code>.</p>
+<h5>Scope of the Change</h5>
 <ul>
-<li>This change concerns only the rejection of underscore-containing numeric literals.</li>
-<li>Valid cron expressions without underscores in their numeric literals must continue to parse and behave exactly as before.</li>
-<li>No other parsing or scheduling behavior should change.</li>
+<li>This change covers only the rejection of underscore-containing numeric literals.</li>
+<li>Valid cron expressions that have no underscores in their numeric literals must continue to parse and behave exactly as before.</li>
+<li>No parsing or scheduling behavior other than this should change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">The croniter package must expose the existing public constructor/class</span>
-        <span class="spec-meta muted">73 words · source specification
+        <span class="spec-title">The croniter package must expose the public constructor/class that already exists</span>
+        <span class="spec-meta muted">79 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>The <code>croniter</code> package must expose the existing public constructor/class:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>The <code>croniter</code> package must expose the public constructor/class that already exists:</p>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
-<p>It must remain callable with at least:</p>
+<p>It must continue to be callable with at least:</p>
 <pre><code class="language-python">croniter(expr_format, start_time=None, ret_type=float, day_or=True)
 </code></pre>
-<p>When parsing a five-field cron expression, a step separator <code>/</code> must not be accepted without a numeric step value.</p>
-<p>Specifically:</p>
+<p>During parsing of a five-field cron expression, a step separator <code>/</code> must not be accepted without a numeric step value.</p>
+<p>In particular:</p>
 <pre><code class="language-python">croniter('0-10/ * * * *')
 </code></pre>
-<p>must raise <code>ValueError</code> rather than creating a cron iterator.</p>
-<p>No particular exception message is required.</p>
+<p>must raise <code>ValueError</code> instead of creating a cron iterator.</p>
+<p>No specific exception message is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">The croniter package must support an uppercase L as the “last day of the month” marker when used as the upper bound of a day-of-month range.</span>
-        <span class="spec-meta muted">119 words · source specification
+        <span class="spec-title">When an uppercase L is used as the upper bound of a day-of-month range, the croniter package must support it as the “last day of the month” marker.</span>
+        <span class="spec-meta muted">136 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>The <code>croniter</code> package must support an uppercase <code>L</code> as the “last day of the month” marker when used as the upper bound of a day-of-month range.</p>
+      <div class="spec-body"><h4>The change that is required</h4>
+<p>When an uppercase <code>L</code> is used as the upper bound of a day-of-month range, the <code>croniter</code> package must support it as the “last day of the month” marker.</p>
 <h5>Public API</h5>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
-<p>Supported call pattern:</p>
+<p>The call pattern that is supported:</p>
 <pre><code class="language-python">iterator = croniter(expression: str, start_time: datetime)
 next_value = iterator.get_next(datetime)
 </code></pre>
-<h5>Required behavior</h5>
-<p>Given:</p>
+<h5>Behavior that is required</h5>
+<p>Starting point:</p>
 <pre><code class="language-python">base = datetime(2015, 9, 4)
 iterator = croniter(&quot;0 0 29-L * *&quot;, base)
 </code></pre>
-<p>Successive calls to:</p>
+<p>Consecutive calls to:</p>
 <pre><code class="language-python">iterator.get_next(datetime)
 </code></pre>
 <p>must return <code>datetime</code> values for:</p>
@@ -624,44 +625,44 @@ iterator = croniter(&quot;0 0 29-L * *&quot;, base)
 <li>September 29, 2015</li>
 <li>September 30, 2015</li>
 </ol>
-<p>Thus, uppercase <code>L</code> must be accepted in <code>29-L</code> and interpreted as the month’s last day, making the range inclusive from day 29 through the final day of that month.</p>
+<p>As a result, uppercase <code>L</code> must be accepted in <code>29-L</code> and interpreted as the last day of the month, so that the range is inclusive from day 29 through the final day of that month.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">The croniter library parses cron expressions and exposes the croniter class as follows</span>
-        <span class="spec-meta muted">640 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The croniter library parses cron expressions and makes the croniter class available in this way</span>
+        <span class="spec-meta muted">703 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Context</h4>
-<p>The <code>croniter</code> library parses cron expressions and exposes the <code>croniter</code> class as follows:</p>
+      <div class="spec-body"><h4>Background</h4>
+<p>The <code>croniter</code> library parses cron expressions and makes the <code>croniter</code> class available in this way:</p>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
-<p>A <code>croniter</code> instance is constructed with a cron expression as its first argument and may receive a start time and the other already-supported constructor options. Construction exposes the normalized expansion of the expression through the public <code>expanded</code> attribute.</p>
+<p>A <code>croniter</code> instance is built by passing a cron expression as the first argument; a start time and the other constructor options that are already supported may also be supplied. As part of construction, the normalized expansion of the expression is exposed through the public <code>expanded</code> attribute.</p>
 <h4>The <code>expanded</code> attribute</h4>
-<p><code>expanded</code> is a list whose elements correspond to the cron fields in expression order:</p>
+<p><code>expanded</code> is a list whose elements line up with the cron fields in expression order:</p>
 <ul>
-<li>index 0: minute</li>
-<li>index 1: hour</li>
-<li>index 2: day of month</li>
-<li>index 3: month</li>
-<li>index 4: day of week</li>
-<li>index 5: second, when a six-field expression is supplied</li>
+<li>index 0: the minute</li>
+<li>index 1: the hour</li>
+<li>index 2: the day of month</li>
+<li>index 3: the month</li>
+<li>index 4: the day of week</li>
+<li>index 5: the second, when a six-field expression is provided</li>
 </ul>
-<p>Each element is itself a list containing the normalized values or special tokens produced by expanding that field. Existing normalization remains in effect; for example, an uppercase <code>L</code> used as a standalone last-day marker is exposed as lowercase <code>&quot;l&quot;</code>.</p>
-<h4>Required canonical ordering</h4>
-<p>Every inner list in <code>expanded</code> must be returned in a deterministic canonical order, regardless of the order in which comma-separated terms, ranges, or other supported syntax appeared in the input. Ordering is based on the meaning of special tokens, not merely on whether a value is a string.</p>
-<p>The order is:</p>
+<p>Each element is itself a list that holds the normalized values or special tokens generated by expanding that field. The existing normalization continues to apply; for instance, an uppercase <code>L</code> appearing as a standalone last-day marker is exposed as lowercase <code>&quot;l&quot;</code>.</p>
+<h4>Mandatory canonical ordering</h4>
+<p>Every inner list that <code>expanded</code> contains must be returned in a deterministic canonical order, regardless of the order in which comma-separated terms, ranges, or other supported syntax appeared in the input. The ordering is determined by what the special tokens mean, not merely by whether a value is a string.</p>
+<p>The ordering is:</p>
 <ol>
-<li>The wildcard token <code>&quot;*&quot;</code> comes before integer values.</li>
-<li>Integer values are ordered numerically in ascending order.</li>
-<li>The last-day token <code>&quot;l&quot;</code> comes after integer values.</li>
+<li>The wildcard token <code>&quot;*&quot;</code> is placed before integer values.</li>
+<li>Integer values are sorted numerically in ascending order.</li>
+<li>The last-day token <code>&quot;l&quot;</code> is placed after integer values.</li>
 </ol>
-<p>Thus, when all three categories occur, their relative order is <code>&quot;*&quot;</code>, then ascending integers, then <code>&quot;l&quot;</code>. A generic rule that puts every string before every integer is not valid, because <code>&quot;*&quot;</code> and <code>&quot;l&quot;</code> have different ranks. Likewise, values must not be ordered lexicographically by their string representations.</p>
-<p>Sorting occurs on the normalized expanded values. It must continue to work for ordinary numeric fields, expanded ranges, and fields containing a supported mixture of special tokens and integers.</p>
-<h4>Required examples</h4>
-<p>The following observable results are required:</p>
+<p>Consequently, when all three categories occur, their relative order is <code>&quot;*&quot;</code>, then ascending integers, then <code>&quot;l&quot;</code>. A blanket rule that places every string before every integer is not valid, since <code>&quot;*&quot;</code> and <code>&quot;l&quot;</code> carry different ranks. Likewise, values must not be sorted lexicographically according to their string representations.</p>
+<p>The sorting is performed on the normalized expanded values. It must continue to work for ordinary numeric fields, expanded ranges, and fields that contain a supported mixture of special tokens and integers.</p>
+<h4>Examples that are required</h4>
+<p>The observable results below are required:</p>
 <pre><code class="language-python">croniter(&quot;0 8,22,10,23 0 0 0&quot;).expanded[1]
 # [8, 10, 22, 23]
 
@@ -674,50 +675,50 @@ croniter(&quot;1 1 7,14,21,L * *&quot;).expanded[2]
 croniter(&quot;0 0 * * *,sat#3&quot;).expanded[4]
 # [&quot;*&quot;, 6]
 </code></pre>
-<p>These examples establish that:</p>
+<p>These examples demonstrate that:</p>
 <ul>
-<li>Numeric input order does not affect output order.</li>
-<li>A day-of-month range ending in <code>L</code> expands to ascending concrete day numbers through 31.</li>
-<li>A standalone <code>L</code> is normalized to <code>&quot;l&quot;</code> and follows the numeric day values.</li>
-<li>A wildcard in a mixed day-of-week expansion precedes the normalized integer weekday value.</li>
+<li>The order in which numbers appear in the input does not affect the output order.</li>
+<li>A day-of-month range whose end is <code>L</code> expands to ascending concrete day numbers through 31.</li>
+<li>A standalone <code>L</code> is normalized to <code>&quot;l&quot;</code> and comes after the numeric day values.</li>
+<li>In a mixed day-of-week expansion, a wildcard comes before the normalized integer weekday value.</li>
 </ul>
-<h4>Compatibility requirements</h4>
-<p>All existing cron parsing, validation, normalization, and scheduling behavior must be preserved. In particular:</p>
+<h4>Requirements for compatibility</h4>
+<p>All existing behavior for cron parsing, validation, normalization, and scheduling must be preserved. Specifically:</p>
 <ul>
-<li>Five-field and six-field expression handling must remain compatible.</li>
-<li>Supported ranges, steps, comma-separated values, alphabetic month and weekday names, last-day syntax, and nth-weekday syntax must retain their existing meanings.</li>
-<li>Existing deduplication of repeated or overlapping values must remain intact.</li>
-<li>Existing conversion of a complete field domain to the wildcard representation <code>[</code>&quot;*&quot;<code>]</code> must remain intact.</li>
-<li>The ordering change must not alter the dates produced by iteration or the behavior of other public operations.</li>
-<li>Existing public constructor options and public APIs must remain compatible.</li>
+<li>Handling of five-field and six-field expressions must remain compatible.</li>
+<li>The supported ranges, steps, comma-separated values, alphabetic month and weekday names, last-day syntax, and nth-weekday syntax must retain their existing meanings.</li>
+<li>Existing deduplication of values that are repeated or overlap must remain intact.</li>
+<li>The existing conversion of a complete field domain into the wildcard representation <code>[</code>&quot;*&quot;<code>]</code> must remain intact.</li>
+<li>The ordering change must not alter the dates that iteration produces, nor the behavior of other public operations.</li>
+<li>The existing public constructor options and public APIs must remain compatible.</li>
 </ul>
-<p>The scope of the behavioral change is the consistent canonical ordering of each field list exposed through <code>expanded</code>.</p>
-<h4>Dependency constraint</h4>
-<p>This ordering must not require <code>natsort</code> or any other third-party sorting package. The package must neither import nor declare a runtime dependency on a third-party library solely for this sorting behavior, and it must remain importable and usable when such a package is absent. Standard-library sorting facilities are sufficient. Existing dependencies unrelated to sorting are outside this change.</p>
-<h4>Public API summary</h4>
+<p>The behavioral change is limited in scope to the consistent canonical ordering of each field list exposed through <code>expanded</code>.</p>
+<h4>Constraint on dependencies</h4>
+<p>The ordering described here must not require <code>natsort</code> or any other third-party sorting package. Solely for this sorting behavior, the package must neither import a third-party library nor declare a runtime dependency on one, and it must remain importable and usable when such a package is absent. Sorting facilities from the standard library are sufficient. Existing dependencies that are unrelated to sorting lie outside this change.</p>
+<h4>Summary of the public API</h4>
 <ul>
 <li>Module: <code>croniter</code></li>
 <li>Class: <code>croniter</code></li>
-<li>Constructor: <code>croniter(expr_format, start_time=...)</code>, with all other existing optional arguments remaining supported</li>
-<li>Attribute: <code>croniter_instance.expanded</code>, a field-ordered list of normalized expansion lists, each canonically ordered as specified above</li>
+<li>Constructor: <code>croniter(expr_format, start_time=...)</code>, where all other existing optional arguments remain supported</li>
+<li>Attribute: <code>croniter_instance.expanded</code>, a list ordered by field, made up of normalized expansion lists, each canonically ordered as specified above</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">The top-level croniter package must continue to export</span>
-        <span class="spec-meta muted">212 words · source specification
+        <span class="spec-title">The following must continue to be exported from the top-level croniter package</span>
+        <span class="spec-meta muted">230 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Support custom iterator classes in <code>croniter_range</code></h3>
-<p>The top-level <code>croniter</code> package must continue to export:</p>
+      <div class="spec-body"><h3>Custom iterator class support for <code>croniter_range</code></h3>
+<p>The following must continue to be exported from the top-level <code>croniter</code> package:</p>
 <ul>
 <li><code>croniter</code></li>
 <li><code>croniter_range</code></li>
 <li><code>CroniterBadCronError</code></li>
 </ul>
-<p>Update the public range API to accept an optional iterator class:</p>
+<p>Modify the public range API so that it accepts an optional iterator class:</p>
 <pre><code class="language-python">croniter_range(
     start,
     stop,
@@ -727,16 +728,16 @@ croniter(&quot;0 0 * * *,sat#3&quot;).expanded[4]
     croniter=None,
 )
 </code></pre>
-<h4>Required behavior</h4>
+<h4>Behavior that is required</h4>
 <ul>
 <li>
-<p>When the <code>croniter</code> argument is omitted, <code>croniter_range</code> must retain its existing behavior using the package’s standard <code>croniter</code> class.</p>
+<p>When the <code>croniter</code> argument is left out, <code>croniter_range</code> must keep its existing behavior, which uses the package's standard <code>croniter</code> class.</p>
 </li>
 <li>
-<p>When a class is supplied through the <code>croniter</code> keyword, the range must use that class to parse and validate the cron expression and generate the range.</p>
+<p>When a class is provided through the <code>croniter</code> keyword, the range must use that class to parse and validate the cron expression and to generate the range.</p>
 </li>
 <li>
-<p>Derived classes with an overridden class method such as:</p>
+<p>Derived classes that provide an overridden class method such as:</p>
 <pre><code class="language-python">@classmethod
 def expand(cls, expr_format):
     ...
@@ -744,19 +745,19 @@ def expand(cls, expr_format):
 <p>must be honored by <code>croniter_range</code>.</p>
 </li>
 </ul>
-<p>For example, given a subclass that rejects expressions containing six whitespace-separated fields by raising <code>CroniterBadCronError</code>:</p>
+<p>As an example, take a subclass that rejects expressions containing six whitespace-separated fields by raising <code>CroniterBadCronError</code>:</p>
 <ul>
 <li>
-<p>Calling <code>croniter_range</code> with that subclass, <code>day_or=False</code>, the range from <code>datetime(2020, 1, 1)</code> through <code>datetime(2020, 12, 31)</code>, and the five-field expression:</p>
+<p>If <code>croniter_range</code> is called with that subclass, <code>day_or=False</code>, the range from <code>datetime(2020, 1, 1)</code> through <code>datetime(2020, 12, 31)</code>, and the five-field expression:</p>
 <pre><code class="language-text">0 13 8 1,4,7,10 wed
 </code></pre>
-<p>must produce an iterable containing exactly three matches.</p>
+<p>the result must be an iterable containing exactly three matches.</p>
 </li>
 <li>
-<p>Using the same subclass with the six-field expression:</p>
+<p>With the same subclass and the six-field expression:</p>
 <pre><code class="language-text">0 1 8 1,15,L wed 15,45
 </code></pre>
-<p>must preserve the subclass’s validation behavior. Attempting to retrieve the first result from the iterable returned by <code>croniter_range</code> must raise <code>CroniterBadCronError</code>, just as constructing the subclass directly with that expression does.</p>
+<p>the subclass's validation behavior must be preserved. Trying to obtain the first result from the iterable returned by <code>croniter_range</code> must raise <code>CroniterBadCronError</code>, just as constructing the subclass directly with that expression does.</p>
 </li>
 </ul>
 </div>
@@ -764,82 +765,83 @@ def expand(cls, expr_format):
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Modify the croniter_range() function in the croniter package so that the keyword argument used to supply a custom croniter class is named _croniter (with a…</span>
-        <span class="spec-meta muted">250 words · source specification
+        <span class="spec-title">Adjust the croniter_range() function in the croniter package so that the keyword argument through which a custom croniter class is supplied is named…</span>
+        <span class="spec-meta muted">265 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Modify the <code>croniter_range()</code> function in the <code>croniter</code> package so that the keyword argument used to supply a custom croniter class is named <code>_croniter</code> (with a leading underscore).</p>
-<h5>API Surface</h5>
-<p>The <code>croniter_range</code> function must be importable from the <code>croniter</code> package:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>Adjust the <code>croniter_range()</code> function in the <code>croniter</code> package so that the keyword argument through which a custom croniter class is supplied is named <code>_croniter</code> (which starts with an underscore).</p>
+<h5>Public API</h5>
+<p>It must be possible to import the <code>croniter_range</code> function from the <code>croniter</code> package:</p>
 <pre><code class="language-python">from croniter import croniter_range
 </code></pre>
-<h5>Required Behavior</h5>
-<p><code>croniter_range(start, stop, expr_format, *, day_or=..., _croniter=None, ...)</code> generates a sequence of <code>datetime</code> objects that match the given cron expression within the range <code>[start, stop]</code>.</p>
-<p>The parameter that allows callers to pass a custom croniter class <strong>must be named <code>_croniter</code></strong>. When a caller provides a custom class via <code>_croniter=SomeClass</code>, that class must be used internally to parse and evaluate the cron expression instead of the default croniter class.</p>
-<p>Specifically:</p>
+<h5>Behavior Requirements</h5>
+<p><code>croniter_range(start, stop, expr_format, *, day_or=..., _croniter=None, ...)</code> produces a sequence of <code>datetime</code> objects matching the given cron expression within the range <code>[start, stop]</code>.</p>
+<p>The parameter that lets callers pass in a custom croniter class <strong>must be named <code>_croniter</code></strong>. When a caller supplies a custom class through <code>_croniter=SomeClass</code>, that class must be used internally to parse and evaluate the cron expression rather than the default croniter class.</p>
+<p>In particular:</p>
 <ul>
 <li>
-<p>When called as</p>
+<p>When the call takes the form</p>
 <pre><code class="language-python">croniter_range(datetime(2020, 1, 1), datetime(2020, 12, 31), &quot;0 13 8 1,4,7,10 wed&quot;,
                day_or=False, _croniter=custom_class)
 </code></pre>
-<p>the function must produce its results using <code>custom_class</code> for expression handling, and the resulting iterable must contain the correct matching datetimes for the given expression and range.</p>
+<p>the function must produce its results with <code>custom_class</code> handling the expression, and the resulting iterable must contain the correct matching datetimes for the given expression and range.</p>
 </li>
 <li>
-<p>The custom class supplied through <code>_croniter</code> must actually be used for cron expression parsing. Consequently, if the supplied custom class rejects an expression as invalid, calling <code>croniter_range(...)</code> with that expression and beginning iteration over the result must raise <code>CroniterBadCronError</code> (importable from the <code>croniter</code> package).</p>
+<p>The custom class that is supplied via <code>_croniter</code> must actually be used for cron expression parsing. As a result, if the supplied custom class rejects an expression as invalid, calling <code>croniter_range(...)</code> with that expression and starting iteration over the result must raise <code>CroniterBadCronError</code> (which is importable from the <code>croniter</code> package).</p>
 </li>
 </ul>
 <h5>Constraints</h5>
 <ul>
-<li>The keyword name for supplying the custom class must be exactly <code>_croniter</code>. The previous name (<code>croniter</code>) must no longer be the accepted keyword for this parameter.</li>
-<li>All other behavior of <code>croniter_range()</code> remains unchanged.</li>
+<li>The keyword for supplying the custom class must be named exactly <code>_croniter</code>. The earlier name (<code>croniter</code>) must no longer be accepted as the keyword for this parameter.</li>
+<li>All other behavior of <code>croniter_range()</code> stays unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Last-Day-of-Month Weekday Support in croniter</span>
-        <span class="spec-meta muted">1093 words · source specification
+        <span class="spec-title">Support for the Last Weekday of the Month in croniter</span>
+        <span class="spec-meta muted">1165 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Last-Day-of-Month Weekday Support in <code>croniter</code></h3>
-<h4>Overview</h4>
-<p>You are working on the <code>croniter</code> cron-expression library. This task requires adding support for &quot;last weekday of the month&quot; scheduling (the <code>L</code> suffix in the day-of-week field), plus a supporting public helper method. All existing range/iteration behavior must continue to work.</p>
-<h4>Public API Surface</h4>
-<p>Everything below must be importable from the top-level <code>croniter</code> package:</p>
+      <div class="spec-body"><h3>Task Specification: Support for the Last Weekday of the Month in <code>croniter</code></h3>
+<h4>Summary</h4>
+<p>Your work takes place in the <code>croniter</code> cron-expression library. The task is to implement scheduling for &quot;last weekday of the month&quot; (the <code>L</code> suffix in the day-of-week field) together with a public helper method that backs it. Every piece of existing range/iteration behavior must keep working.</p>
+<h4>Public API</h4>
+<p>Each of the following must be importable from the top-level <code>croniter</code> package:</p>
 <pre><code class="language-python">from croniter import croniter, croniter_range, CroniterBadDateError, CroniterBadCronError, CroniterNotAlphaError
 </code></pre>
 <ul>
-<li><code>croniter</code> — the main iterator class (existing).</li>
-<li><code>croniter_range</code> — the range-generator function (existing).</li>
-<li><code>CroniterBadDateError</code>, <code>CroniterBadCronError</code>, <code>CroniterNotAlphaError</code> — exception classes (existing).</li>
+<li><code>croniter</code> — the principal iterator class (already present).</li>
+<li><code>croniter_range</code> — the function that generates a range (already present).</li>
+<li><code>CroniterBadDateError</code>, <code>CroniterBadCronError</code>, <code>CroniterNotAlphaError</code> — the exception classes (already present).</li>
 </ul>
-<h4>Requirement 1: <code>croniter.find_day_of_last_dow</code> classmethod</h4>
-<p>Add a classmethod on <code>croniter</code>:</p>
+<h4>Requirement 1: The <code>croniter.find_day_of_last_dow</code> classmethod</h4>
+<p>Add a classmethod to <code>croniter</code>:</p>
 <pre><code class="language-python">@classmethod
 def find_day_of_last_dow(cls, some_date, dow):
     ...
 </code></pre>
 <h5>Behavior</h5>
-<p>Given:</p>
+<p>Inputs:</p>
 <ul>
-<li><code>some_date</code>: a <code>datetime.datetime</code>. Only its <strong>year and month</strong> are relevant; the day, time, etc. are irrelevant to the result.</li>
+<li><code>some_date</code>: a <code>datetime.datetime</code>. Only its <strong>year and month</strong> matter; its day, time, etc. play no part in the result.</li>
 <li><code>dow</code>: an integer day-of-week index where <code>0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday</code>.</li>
 </ul>
-<p>Return: an <code>int</code> — the day-of-month number of the <strong>last occurrence</strong> of the requested weekday within the month that contains <code>some_date</code>.</p>
+<p>The return value: an <code>int</code> — the day-of-month number of the <strong>last occurrence</strong> of the requested weekday inside the month that contains <code>some_date</code>.</p>
 <h5>Examples</h5>
 <ul>
-<li>Month of March 2021, last Sunday → <code>28</code></li>
-<li>Month of December 2035, last Saturday → <code>29</code></li>
-<li>Month of January 2000, last Friday → <code>28</code></li>
-<li>Month of August 2014, last Monday → <code>25</code></li>
-<li>Month of February 2022, last Tuesday → <code>22</code></li>
-<li>Month of October 1999, last Wednesday → <code>27</code></li>
-<li>Month of July 2005, last Thursday → <code>28</code></li>
+<li>March 2021, last Sunday → <code>28</code></li>
+<li>December 2035, last Saturday → <code>29</code></li>
+<li>January 2000, last Friday → <code>28</code></li>
+<li>August 2014, last Monday → <code>25</code></li>
+<li>February 2022, last Tuesday → <code>22</code></li>
+<li>October 1999, last Wednesday → <code>27</code></li>
+<li>July 2005, last Thursday → <code>28</code></li>
 </ul>
-<p>Leap-year / February examples (year 2000, February has 29 days):</p>
+<p>Leap-year / February examples (the year 2000, whose February has 29 days):</p>
 <ul>
 <li>last Tuesday → <code>29</code></li>
 <li>last Sunday → <code>27</code></li>
@@ -849,13 +851,13 @@ def find_day_of_last_dow(cls, some_date, dow):
 <li>last Friday → <code>25</code></li>
 <li>last Saturday → <code>26</code></li>
 </ul>
-<p>The specific day inside <code>some_date</code> must not affect the result (e.g., passing Feb 1 or Feb 10 of the same month yields identical output).</p>
-<h4>Requirement 2: <code>L</code> support in the day-of-week field</h4>
-<p>The <code>croniter</code> constructor must accept a 5-field cron expression whose day-of-week (5th) field uses the syntax <code>L&lt;n&gt;</code>, where <code>&lt;n&gt;</code> is a weekday number using the standard cron day-of-week numbering (<code>0</code> or <code>7</code> = Sunday, <code>1</code> = Monday, ... <code>5</code> = Friday, <code>6</code> = Saturday).</p>
-<p><code>L&lt;n&gt;</code> means: match only on the <strong>last occurrence</strong> of weekday <code>&lt;n&gt;</code> in each month (i.e., the last such weekday of the month, as computed above).</p>
-<p>Iteration (<code>next</code>, <code>get_next</code>) must produce matching datetimes correctly, advancing month to month.</p>
+<p>Which specific day <code>some_date</code> falls on must not affect the result (e.g., passing Feb 1 or Feb 10 of the same month yields identical output).</p>
+<h4>Requirement 2: <code>L</code> in the day-of-week field</h4>
+<p>The constructor of <code>croniter</code> must accept a 5-field cron expression in which the day-of-week (5th) field is written <code>L&lt;n&gt;</code>, where <code>&lt;n&gt;</code> is a weekday number following the standard cron day-of-week numbering (<code>0</code> or <code>7</code> = Sunday, <code>1</code> = Monday, ... <code>5</code> = Friday, <code>6</code> = Saturday).</p>
+<p><code>L&lt;n&gt;</code> has the following meaning: match only on the <strong>last occurrence</strong> of weekday <code>&lt;n&gt;</code> in each month (i.e., the last such weekday of the month, as computed above).</p>
+<p>Iteration (<code>next</code>, <code>get_next</code>) must produce the matching datetimes correctly, advancing from one month to the next.</p>
 <h5>Example</h5>
-<p>For the expression <code>&quot;0 0 * * L5&quot;</code> (midnight on the last Friday of every month), starting from <code>datetime(1987, 1, 15)</code>, successive <code>next(...)</code> calls with <code>ret_type=datetime</code> must yield, in order:</p>
+<p>Starting from <code>datetime(1987, 1, 15)</code>, successive <code>next(...)</code> calls with <code>ret_type=datetime</code> on the expression <code>&quot;0 0 * * L5&quot;</code> (midnight on the last Friday of every month) must yield, in order:</p>
 <pre><code>1987-01-30
 1987-02-27
 1987-03-27
@@ -871,82 +873,82 @@ def find_day_of_last_dow(cls, some_date, dow):
 </code></pre>
 <h5>Constraints / scope</h5>
 <ul>
-<li>Only the case where the day-of-week field is exactly a single <code>L&lt;n&gt;</code> token needs to work. Mixing <code>L</code> with other day-of-week values in the same field is out of scope.</li>
-<li>An <code>L</code> may appear in other fields (e.g. day-of-month) as part of a larger expression that a caller may reject at parse time — see Requirement 3.</li>
+<li>The only case that needs to work is a day-of-week field consisting of exactly a single <code>L&lt;n&gt;</code> token. Mixing <code>L</code> with other day-of-week values in the same field is out of scope.</li>
+<li>An <code>L</code> may show up in other fields (e.g. day-of-month) as part of a larger expression that a caller may reject at parse time — see Requirement 3.</li>
 </ul>
-<h4>Requirement 3: Preserve existing behavior</h4>
-<p>All of the following existing behavior must continue to function unchanged.</p>
+<h4>Requirement 3: Existing behavior that must be preserved</h4>
+<p>Every item of existing behavior below must continue to function unchanged.</p>
 <h5><code>croniter_range(start, stop, expr, ret_type=None, day_or=True, exclude_ends=False, _croniter=None)</code></h5>
-<p>Generates all cron matches between <code>start</code> and <code>stop</code> (inclusive by default).</p>
+<p>Produces every cron match between <code>start</code> and <code>stop</code> (inclusive by default).</p>
 <ul>
-<li><strong>Return type</strong>: if <code>ret_type</code> is not given, it is auto-detected from the type of <code>start</code>: <code>datetime</code> inputs yield <code>datetime</code> objects; <code>float</code> inputs yield <code>float</code> (epoch seconds). Passing <code>ret_type=float</code> forces float output.</li>
-<li><strong>Inclusive endpoints</strong>: by default the first yielded item equals <code>start</code> and the last equals <code>stop</code> when they are themselves matches. With <code>exclude_ends=True</code>, values equal to <code>start</code> or <code>stop</code> are omitted.</li>
-<li><strong>Direction</strong>: if <code>start &lt;= stop</code>, iterate forward; if <code>start &gt; stop</code>, iterate backward. Forward and reverse over the same interval produce mirror-image sequences (same set of times, reversed order, same count).</li>
-<li><strong>Type consistency</strong>: <code>start</code> and <code>stop</code> must be the same kind (both datetime or both numeric). Mixing a <code>datetime</code> with a <code>float</code> (in either order) must raise <code>TypeError</code>.</li>
-<li><strong>Timezone/DST</strong>: when iterating tz-aware datetimes across a DST transition, the yielded datetimes reflect the changed UTC offset (the first and last items may carry different <code>tzinfo</code>/offset), and the count of matches is correct across the transition.</li>
-<li><strong><code>_croniter</code> parameter</strong>: an alternative class (a <code>croniter</code> subclass) to use internally instead of <code>croniter</code>. If that subclass's parsing rejects the expression (e.g. by raising <code>CroniterBadCronError</code>), that error must propagate — both when constructing the class directly and when advancing the generator returned by <code>croniter_range</code>.</li>
-<li><strong><code>day_or</code> parameter</strong>: forwarded to the underlying <code>croniter</code>; controls AND vs OR semantics between day-of-month and day-of-week fields.</li>
+<li><strong>Return type</strong>: when <code>ret_type</code> is not supplied, it is auto-detected from the type of <code>start</code>: <code>datetime</code> inputs produce <code>datetime</code> objects; <code>float</code> inputs produce <code>float</code> (epoch seconds). Supplying <code>ret_type=float</code> forces float output.</li>
+<li><strong>Inclusive endpoints</strong>: by default, the first item yielded equals <code>start</code> and the last equals <code>stop</code> whenever those endpoints are themselves matches. With <code>exclude_ends=True</code>, values equal to <code>start</code> or <code>stop</code> are left out.</li>
+<li><strong>Direction</strong>: when <code>start &lt;= stop</code>, iteration runs forward; when <code>start &gt; stop</code>, it runs backward. Walking the same interval forward and in reverse gives mirror-image sequences (same set of times, reversed order, same count).</li>
+<li><strong>Type consistency</strong>: <code>start</code> and <code>stop</code> must be the same kind (both datetime or both numeric). Passing a <code>datetime</code> together with a <code>float</code> (in either order) must raise <code>TypeError</code>.</li>
+<li><strong>Timezone/DST</strong>: when tz-aware datetimes are iterated across a DST transition, the datetimes that come out reflect the changed UTC offset (the first and last items may carry different <code>tzinfo</code>/offset), and the number of matches is correct across the transition.</li>
+<li><strong><code>_croniter</code> parameter</strong>: an alternative class (a <code>croniter</code> subclass) to be used internally in place of <code>croniter</code>. If that subclass's parsing rejects the expression (e.g. by raising <code>CroniterBadCronError</code>), that error must propagate — both when constructing the class directly and when advancing the generator returned by <code>croniter_range</code>.</li>
+<li><strong><code>day_or</code> parameter</strong>: passed through to the underlying <code>croniter</code>; it governs whether AND or OR semantics apply between the day-of-month and day-of-week fields.</li>
 </ul>
 <h6>Concrete range behavior examples</h6>
 <ul>
-<li>Daily <code>'0 0 * * *'</code> from <code>2016-12-02</code> to <code>2016-12-10</code> inclusive → 9 items, first = start, last = stop. With <code>exclude_ends=True</code> → 7 items, endpoints excluded.</li>
-<li>Monthly <code>'0 0 1 * *'</code> from <code>1982-01-01</code> to <code>1983-12-31</code> → 24 items; first = start; last = <code>1983-12-01</code>.</li>
-<li>Per-minute <code>'* * * * *'</code> from <code>2000-01-01 00:00</code> to <code>2000-01-01 00:01</code> with <code>ret_type=float</code> → 2 items; first = <code>946684800.0</code>; last − first = <code>60</code>.</li>
-<li><code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code> over the year 2020 → 3 matches: <code>2020-01-08 13:00</code>, <code>2020-04-08 13:00</code>, <code>2020-07-08 13:00</code>. Over <code>2020-09-30</code> to <code>2020-10-30</code> → 0 matches (empty list).</li>
+<li>The daily expression <code>'0 0 * * *'</code> from <code>2016-12-02</code> to <code>2016-12-10</code> inclusive → 9 items, with first = start and last = stop. Using <code>exclude_ends=True</code> → 7 items, with the endpoints excluded.</li>
+<li>The monthly expression <code>'0 0 1 * *'</code> from <code>1982-01-01</code> to <code>1983-12-31</code> → 24 items; first = start; last = <code>1983-12-01</code>.</li>
+<li>The per-minute expression <code>'* * * * *'</code> from <code>2000-01-01 00:00</code> to <code>2000-01-01 00:01</code>, with <code>ret_type=float</code> → 2 items; first = <code>946684800.0</code>; last − first = <code>60</code>.</li>
+<li>For <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code> across the year 2020 → 3 matches: <code>2020-01-08 13:00</code>, <code>2020-04-08 13:00</code>, <code>2020-07-08 13:00</code>. Across <code>2020-09-30</code> to <code>2020-10-30</code> → 0 matches (empty list).</li>
 </ul>
-<h5>Multi-year matching on <code>croniter</code></h5>
-<p><code>croniter(expr, start, day_or=..., max_years_between_matches=N)</code> supports finding matches for sparse patterns across up to <code>N</code> years:</p>
+<h5>Multi-year matching with <code>croniter</code></h5>
+<p><code>croniter(expr, start, day_or=..., max_years_between_matches=N)</code> makes it possible to find matches for sparse patterns spanning up to <code>N</code> years:</p>
 <ul>
-<li>With <code>&quot;0 13 8 1,4,7,10 wed&quot;</code>, <code>day_or=False</code>, start <code>2020-09-24</code>:
+<li>Using <code>&quot;0 13 8 1,4,7,10 wed&quot;</code> with <code>day_or=False</code> and start <code>2020-09-24</code>:
 <ul>
-<li><code>max_years_between_matches=1</code> → calling <code>get_next()</code> raises <code>CroniterBadDateError</code> (no match found within the allowed gap).</li>
+<li><code>max_years_between_matches=1</code> → calling <code>get_next()</code> raises <code>CroniterBadDateError</code> (no match exists within the allowed gap).</li>
 <li><code>max_years_between_matches=5</code> → <code>get_next(datetime)</code> returns <code>2025-01-08 13:00</code>.</li>
 </ul>
 </li>
 </ul>
-<p>The instance attribute <code>_max_years_between_matches</code> may be set directly and has the same effect as the constructor keyword.</p>
-<p><code>croniter</code> provides an <code>all_next(ret_type=None)</code> iterator method:</p>
+<p>The instance attribute <code>_max_years_between_matches</code> may be assigned directly and then has the same effect as the constructor keyword.</p>
+<p><code>croniter</code> offers an <code>all_next(ret_type=None)</code> iterator method:</p>
 <ul>
-<li>If no explicit <code>max_years_between_matches</code> was given and an implicit limit is hit before finding a match, iterating raises <code>CroniterBadDateError</code>.</li>
-<li>With a sufficient <code>max_years_between_matches</code>, iterating yields the next match (e.g. <code>2025-01-08 13:00</code> for the pattern above from start <code>2020-09-24</code>).</li>
-<li>With a <code>max_years_between_matches</code> too small to reach the next match, iterating raises <code>StopIteration</code> (a clean stop, not an error).</li>
+<li>If no explicit <code>max_years_between_matches</code> was given and an implicit limit is reached before a match is found, iterating raises <code>CroniterBadDateError</code>.</li>
+<li>With a <code>max_years_between_matches</code> large enough, iterating yields the next match (e.g. <code>2025-01-08 13:00</code> for the pattern above from start <code>2020-09-24</code>).</li>
+<li>When <code>max_years_between_matches</code> is too small to reach the next match, iterating raises <code>StopIteration</code> (a clean stop, not an error).</li>
 </ul>
 <h4>Notes on validation</h4>
 <ul>
-<li>A 6-field expression (seconds field present) is normally accepted by <code>croniter</code>. A caller may subclass <code>croniter</code> and override <code>expand</code> to reject 6-field expressions by raising <code>CroniterBadCronError</code>; this rejection must occur at construction time and must also surface when such a subclass is passed to <code>croniter_range</code>.</li>
+<li><code>croniter</code> normally accepts an expression with 6 fields (i.e., with a seconds field present). A caller may subclass <code>croniter</code> and override <code>expand</code> so that 6-field expressions are rejected by raising <code>CroniterBadCronError</code>; this rejection must take place at construction time and must also surface when a subclass of this kind is passed to <code>croniter_range</code>.</li>
 </ul>
 <h4>Deliverable</h4>
-<p>Implement <code>croniter.find_day_of_last_dow</code> and the <code>L&lt;n&gt;</code> day-of-week matching, ensuring all range, multi-year, and DST behavior described above remains correct.</p>
+<p>Implement <code>croniter.find_day_of_last_dow</code> together with the <code>L&lt;n&gt;</code> day-of-week matching, making sure that all of the range, multi-year, and DST behavior described above stays correct.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">The croniter class (importable from the croniter package, e.g.</span>
-        <span class="spec-meta muted">298 words · source specification
+        <span class="spec-title">The croniter class (which can be imported from the croniter package, e.g.</span>
+        <span class="spec-meta muted">326 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>The <code>croniter</code> class (importable from the <code>croniter</code> package, e.g. <code>from croniter import croniter</code>) must expose a static/class-level helper method for computing the day-of-month of the last occurrence of a given weekday within a specified month and year.</p>
-<h5>Required API</h5>
-<p>Add the following method to the <code>croniter</code> class:</p>
+      <div class="spec-body"><h5>Summary</h5>
+<p>The <code>croniter</code> class (which can be imported from the <code>croniter</code> package, e.g. <code>from croniter import croniter</code>) must expose a static/class-level helper method that computes the day-of-month of the last occurrence of a given weekday in a specified month and year.</p>
+<h5>API to Add</h5>
+<p>The following method is to be added to the <code>croniter</code> class:</p>
 <pre><code class="language-python">croniter._get_last_weekday_of_month(year, month, day_of_week)
 </code></pre>
 <ul>
-<li>It must be callable directly off the class (accessible as <code>croniter._get_last_weekday_of_month</code>), independent of any instance.</li>
+<li>It must be callable directly on the class (i.e. it must be accessible as <code>croniter._get_last_weekday_of_month</code>), without needing any instance.</li>
 </ul>
-<h5>Parameters</h5>
+<h5>Method Parameters</h5>
 <ul>
-<li><code>year</code> (int): the calendar year (e.g. <code>2000</code>, <code>2021</code>, <code>2035</code>).</li>
-<li><code>month</code> (int): the calendar month, <code>1</code>–<code>12</code>.</li>
-<li><code>day_of_week</code> (int): the target weekday, encoded as an integer <code>0</code>–<code>6</code> where <code>0</code> = Sunday, <code>1</code> = Monday, <code>2</code> = Tuesday, <code>3</code> = Wednesday, <code>4</code> = Thursday, <code>5</code> = Friday, <code>6</code> = Saturday.</li>
+<li><code>year</code> (int): the calendar year (for example <code>2000</code>, <code>2021</code>, <code>2035</code>).</li>
+<li><code>month</code> (int): the calendar month, in the range <code>1</code>–<code>12</code>.</li>
+<li><code>day_of_week</code> (int): the target weekday, given as an integer in the range <code>0</code>–<code>6</code>, where <code>0</code> = Sunday, <code>1</code> = Monday, <code>2</code> = Tuesday, <code>3</code> = Wednesday, <code>4</code> = Thursday, <code>5</code> = Friday, <code>6</code> = Saturday.</li>
 </ul>
-<h5>Return Value</h5>
+<h5>Value Returned</h5>
 <ul>
-<li>An integer: the day-of-month (1-based) of the <strong>last</strong> occurrence of the requested weekday within the given <code>year</code>/<code>month</code>.</li>
+<li>An integer: the (1-based) day-of-month of the <strong>last</strong> occurrence of the requested weekday in the supplied <code>year</code>/<code>month</code>.</li>
 </ul>
-<h5>Behavior Examples</h5>
-<p>For the given <code>(year, month, weekday)</code> inputs, the method must return:</p>
+<h5>Example Behavior</h5>
+<p>The method must return the following for these <code>(year, month, weekday)</code> inputs:</p>
 <ul>
 <li><code>(2021, 3, Sunday)</code> → <code>28</code></li>
 <li><code>(2035, 12, Saturday)</code> → <code>29</code></li>
@@ -956,7 +958,7 @@ def find_day_of_last_dow(cls, some_date, dow):
 <li><code>(1999, 10, Wednesday)</code> → <code>27</code></li>
 <li><code>(2005, 7, Thursday)</code> → <code>28</code></li>
 </ul>
-<p>Leap-year February (<code>2000</code>, February):</p>
+<p>February of a leap year (<code>2000</code>, February):</p>
 <ul>
 <li><code>Sunday</code> → <code>27</code></li>
 <li><code>Monday</code> → <code>28</code></li>
@@ -966,117 +968,117 @@ def find_day_of_last_dow(cls, some_date, dow):
 <li><code>Friday</code> → <code>25</code></li>
 <li><code>Saturday</code> → <code>26</code></li>
 </ul>
-<h5>Notes</h5>
+<h5>Remarks</h5>
 <ul>
-<li>The result depends only on <code>year</code>, <code>month</code>, and the target weekday; no day-of-month value is part of the input.</li>
+<li>The result is determined only by <code>year</code>, <code>month</code>, and the target weekday; the input contains no day-of-month value.</li>
 </ul>
 <h5>Migration Requirement</h5>
-<p>This replaces a previously existing helper whose signature accepted a <code>datetime</code> object plus a weekday index (i.e. <code>find_day_of_last_dow(dt, dow)</code>). The new method must instead take <code>(year, month, day_of_week)</code> as plain integers as described above and be named <code>_get_last_weekday_of_month</code>.</p>
+<p>This takes the place of a helper that previously existed, whose signature accepted a <code>datetime</code> object together with a weekday index (i.e. <code>find_day_of_last_dow(dt, dow)</code>). Instead, the new method must take <code>(year, month, day_of_week)</code> as plain integers, as described above, and must be named <code>_get_last_weekday_of_month</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">&#34;Last Weekday of Month&#34; Support in croniter</span>
-        <span class="spec-meta muted">854 words · source specification
+        <span class="spec-title">croniter Gains a &#34;Last Weekday of Month&#34; Specifier</span>
+        <span class="spec-meta muted">988 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: &quot;Last Weekday of Month&quot; Support in croniter</h3>
-<h4>Overview</h4>
-<p>Extend the <code>croniter</code> class (importable as <code>from croniter import croniter</code>) to support a &quot;last weekday of the month&quot; specifier in the day-of-week field of a cron expression, and to integrate it with the existing &quot;nth weekday of the month&quot; (<code>dow#n</code>) mechanism. Both features must work seamlessly with each other and with the standard time-of-day fields.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as described:</p>
+      <div class="spec-body"><h3>Task Specification: croniter Gains a &quot;Last Weekday of Month&quot; Specifier</h3>
+<h4>Background</h4>
+<p>This task extends the <code>croniter</code> class (imported via <code>from croniter import croniter</code>) in two ways: the day-of-week field of a cron expression must come to support a &quot;last weekday of the month&quot; specifier, and that specifier must be integrated with the existing &quot;nth weekday of the month&quot; (<code>dow#n</code>) mechanism. The two features must work seamlessly together, and each must also work alongside the standard time-of-day fields.</p>
+<h4>Public API</h4>
+<p>The items below must all be importable and callable exactly as stated:</p>
 <ul>
-<li><code>croniter</code> — the main class, constructed as <code>croniter(expr, start_time, ret_type=..., is_prev=...)</code> and iterated with <code>next(it)</code>.</li>
-<li><code>croniter.expanded</code> — the existing attribute holding the parsed/expanded fields (a list indexed by field position; the day-of-week field is the standard position).</li>
-<li><code>croniter._get_last_weekday_of_month</code> — a static method with signature <code>_get_last_weekday_of_month(year, month, weekday)</code> returning an <code>int</code>.</li>
+<li><code>croniter</code> — the central class; instances are created as <code>croniter(expr, start_time, ret_type=..., is_prev=...)</code> and advanced with <code>next(it)</code>.</li>
+<li><code>croniter.expanded</code> — an already-present attribute that stores the parsed/expanded fields (a list whose indexes correspond to field positions; the day-of-week field sits at the standard position).</li>
+<li><code>croniter._get_last_weekday_of_month</code> — a static method, <code>_get_last_weekday_of_month(year, month, weekday)</code> being its signature, that returns an <code>int</code>.</li>
 </ul>
-<h4>Requirement 1: <code>_get_last_weekday_of_month(year, month, weekday)</code></h4>
-<p>A static method that returns the day-of-month number (1-based <code>int</code>) of the last occurrence of the given weekday within the given month.</p>
+<h4>Requirement 1: Static method <code>_get_last_weekday_of_month(year, month, weekday)</code></h4>
+<p>Given a year, a month, and a weekday, this static method returns the number of the day of the month (a 1-based <code>int</code>) on which the given weekday falls for the final time within that month.</p>
 <ul>
-<li><code>weekday</code> uses the convention <code>0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday</code>.</li>
-<li>Must correctly handle month lengths, including February in leap years.</li>
+<li>The convention followed by <code>weekday</code> is <code>0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday</code>.</li>
+<li>Month lengths must be handled correctly, February in leap years included.</li>
 </ul>
-<p>Verified behaviors:</p>
+<p>Behaviors that have been verified:</p>
 <ul>
-<li>March 2021, Sunday → 28</li>
-<li>October 1999, Wednesday → 27</li>
-<li>July 2005, Thursday → 28</li>
+<li>Sunday in March 2021 → 28</li>
+<li>Wednesday in October 1999 → 27</li>
+<li>Thursday in July 2005 → 28</li>
 <li>February 2000 (leap year): Tuesday → 29, Friday → 25, Saturday → 26</li>
 </ul>
-<h4>Requirement 2: New <code>Ln</code> day-of-week specifier</h4>
-<p>The day-of-week field must accept tokens of the form <code>L&lt;dow&gt;</code>, meaning &quot;the last <code>&lt;dow&gt;</code> of the month,&quot; where <code>&lt;dow&gt;</code> is a numeric weekday value (<code>0</code>–<code>6</code>/<code>7</code>, standard cron day-of-week semantics, <code>0</code>/<code>7</code>=Sunday).</p>
-<p>Iteration (both forward and, when <code>is_prev=True</code>, backward) must yield only the dates that are the last such weekday in each month, at the times specified by the minute/hour fields.</p>
-<p>Verified behaviors:</p>
+<h4>Requirement 2: The new <code>Ln</code> specifier for the day-of-week field</h4>
+<p>Tokens of the form <code>L&lt;dow&gt;</code> must be accepted by the day-of-week field. Such a token stands for &quot;the last <code>&lt;dow&gt;</code> of the month,&quot; with <code>&lt;dow&gt;</code> being a numeric weekday value (<code>0</code>–<code>6</code>/<code>7</code>, standard cron day-of-week semantics, <code>0</code>/<code>7</code>=Sunday).</p>
+<p>Iteration — both forward and, when <code>is_prev=True</code>, backward — must yield only the dates on which that weekday is the last of its kind in each month, at the times the minute/hour fields dictate.</p>
+<p>Behaviors that have been verified:</p>
 <ul>
-<li><code>&quot;0 0 * * L5&quot;</code> (last Friday, midnight) starting 1987-01-15, forward: 1987-01-30, 1987-02-27, 1987-03-27, 1987-04-24, 1987-05-29, 1987-06-26, 1987-07-31, 1987-08-28, 1987-09-25, 1987-10-30, 1987-11-27, 1987-12-25.</li>
-<li><code>&quot;0 0 * * L6&quot;</code> (last Saturday) starting 2017-12-31 with <code>is_prev=True</code>, backward: 2017-12-30, 2017-11-25, 2017-10-28, 2017-09-30, 2017-08-26, 2017-07-29, 2017-06-24, 2017-05-27, 2017-04-29, 2017-03-25, 2017-02-25, 2017-01-28.</li>
+<li>Starting 1987-01-15 and iterating forward, <code>&quot;0 0 * * L5&quot;</code> (last Friday, midnight) yields: 1987-01-30, 1987-02-27, 1987-03-27, 1987-04-24, 1987-05-29, 1987-06-26, 1987-07-31, 1987-08-28, 1987-09-25, 1987-10-30, 1987-11-27, 1987-12-25.</li>
+<li>Starting 2017-12-31 with <code>is_prev=True</code> and iterating backward, <code>&quot;0 0 * * L6&quot;</code> (last Saturday) yields: 2017-12-30, 2017-11-25, 2017-10-28, 2017-09-30, 2017-08-26, 2017-07-29, 2017-06-24, 2017-05-27, 2017-04-29, 2017-03-25, 2017-02-25, 2017-01-28.</li>
 </ul>
-<h5>Interaction with hour/minute fields</h5>
-<p>The <code>Ln</code> matching must combine correctly with multiple hours and minutes; all matching times on the qualifying day are produced in order before advancing.</p>
-<p>Verified behaviors:</p>
+<h5>Combination with the hour/minute fields</h5>
+<p>Multiple hours and minutes must combine correctly with <code>Ln</code> matching; before advancing, the iteration produces all matching times on the qualifying day in order.</p>
+<p>Behaviors that have been verified:</p>
 <ul>
-<li><code>&quot;0 1,5 * * L5&quot;</code> starting 1987-01-15, forward, yields for each last-Friday date both the <code>01:00</code> and <code>05:00</code> times, e.g. 1987-01-30 01:00, 1987-01-30 05:00, 1987-02-27 01:00, 1987-02-27 05:00, ... (last Fridays through June 1987).</li>
-<li><code>&quot;0,30 1,5 * * L5&quot;</code> starting 1987-01-15, forward, yields for each last-Friday date the four times <code>01:00, 01:30, 05:00, 05:30</code> in order, e.g. 1987-01-30 01:00, 01:30, 05:00, 05:30, then 1987-02-27 …, then 1987-03-27 ….</li>
+<li>Run forward from 1987-01-15, <code>&quot;0 1,5 * * L5&quot;</code> yields, for each last-Friday date, both the <code>01:00</code> time and the <code>05:00</code> time — for instance 1987-01-30 01:00, 1987-01-30 05:00, 1987-02-27 01:00, 1987-02-27 05:00, ... (the last Fridays run through June 1987).</li>
+<li>Run forward from 1987-01-15, <code>&quot;0,30 1,5 * * L5&quot;</code> yields, for each last-Friday date and in order, the four times <code>01:00, 01:30, 05:00, 05:30</code> — for instance 1987-01-30 01:00, 01:30, 05:00, 05:30, next 1987-02-27 …, next 1987-03-27 ….</li>
 </ul>
-<h4>Requirement 3: Multiple <code>Ln</code> values in one field</h4>
-<p>The day-of-week field must accept a comma-separated list of <code>Ln</code> tokens. Iteration must yield the union of all qualifying dates, in chronological order.</p>
+<h4>Requirement 3: Several <code>Ln</code> tokens within a single field</h4>
+<p><code>Ln</code> tokens gathered into a comma-separated list must be accepted by the day-of-week field. In chronological order, iteration must yield the union of all qualifying dates.</p>
 <p>Verified behavior:</p>
 <ul>
-<li><code>&quot;0 0 * * L2,L4&quot;</code> (last Tuesday and last Thursday) starting 2016-06-01, forward: 2016-06-28, 2016-06-30, 2016-07-26, 2016-07-28, 2016-08-25, 2016-08-30, 2016-09-27, 2016-09-29, 2016-10-25, 2016-10-27. (Note the relative ordering flips when the last Tuesday precedes the last Thursday, e.g. August 2016.)</li>
+<li>Starting 2016-06-01 and iterating forward, <code>&quot;0 0 * * L2,L4&quot;</code> (last Tuesday and last Thursday) yields: 2016-06-28, 2016-06-30, 2016-07-26, 2016-07-28, 2016-08-25, 2016-08-30, 2016-09-27, 2016-09-29, 2016-10-25, 2016-10-27. (When the last Tuesday precedes the last Thursday — August 2016, for instance — their relative ordering flips.)</li>
 </ul>
-<h4>Requirement 4: Mixing <code>Ln</code> and <code>dow#n</code> in one field</h4>
-<p>The day-of-week field must accept a comma-separated list mixing <code>Ln</code> and <code>dow#n</code> tokens. Iteration yields the union of all qualifying dates in chronological order. When a token designates the same date as another, that date appears once.</p>
-<p>Verified behaviors:</p>
+<h4>Requirement 4: <code>Ln</code> combined with <code>dow#n</code> within a single field</h4>
+<p>Comma-separated lists that mix <code>Ln</code> tokens with <code>dow#n</code> tokens must be accepted by the day-of-week field. The union of all qualifying dates is what iteration yields, ordered chronologically. Should two tokens designate one and the same date, that date appears a single time.</p>
+<p>Behaviors that have been verified:</p>
 <ul>
-<li><code>&quot;0 0 * * L6,6#1&quot;</code> (last Saturday and first Saturday) starting 2021-03-01, forward: 2021-03-06, 2021-03-27, 2021-04-03, 2021-04-24, 2021-05-01, 2021-05-29.</li>
-<li><code>&quot;0 0 * * 1#4,L1&quot;</code> (4th Monday and last Monday) starting 2021-11-01, forward: 2021-11-22, 2021-11-29, 2021-12-27 (single occurrence where both coincide), 2022-01-24, 2022-01-31.</li>
+<li>Starting 2021-03-01 and iterating forward, <code>&quot;0 0 * * L6,6#1&quot;</code> (last Saturday and first Saturday) yields: 2021-03-06, 2021-03-27, 2021-04-03, 2021-04-24, 2021-05-01, 2021-05-29.</li>
+<li>Starting 2021-11-01 and iterating forward, <code>&quot;0 0 * * 1#4,L1&quot;</code> (4th Monday and last Monday) yields: 2021-11-22, 2021-11-29, 2021-12-27 (a single occurrence — both coincide on that date), 2022-01-24, 2022-01-31.</li>
 </ul>
-<p>Individually these must also hold:</p>
+<p>Taken one at a time, each of these must hold too:</p>
 <ul>
 <li><code>&quot;0 0 * * 6#1&quot;</code> from 2021-03-01: 2021-03-06, 2021-04-03, 2021-05-01.</li>
 <li><code>&quot;0 0 * * L6&quot;</code> from 2021-03-01: 2021-03-27, 2021-04-24, 2021-05-29.</li>
 <li><code>&quot;0 0 * * 1#4&quot;</code> from 2021-11-01: 2021-11-22, 2021-12-27, 2022-01-24.</li>
 <li><code>&quot;0 0 * * L1&quot;</code> from 2021-11-01: 2021-11-29, 2021-12-27, 2022-01-31.</li>
 </ul>
-<h4>Requirement 5: Wildcard collapsing includes ranges plus <code>dow#n</code></h4>
-<p>When the day-of-week field expands to cover the full set of weekdays, that field must be represented by the wildcard marker (the same representation already used for a full-range field).</p>
+<h4>Requirement 5: Wildcard collapsing, ranges plus <code>dow#n</code> included</h4>
+<p>If expansion of the day-of-week field ends up covering the full set of weekdays, the wildcard marker must be what represents that field (a full-range field already receives this same representation).</p>
 <p>Verified behavior:</p>
 <ul>
-<li><code>&quot;0 0 0 0 1-7,sat#3&quot;</code> — the day-of-week field expands to the wildcard marker. (The <code>1-7</code> range already covers all weekdays and thus collapses to the wildcard.)</li>
+<li>With <code>&quot;0 0 0 0 1-7,sat#3&quot;</code>, the wildcard marker is what the day-of-week field expands to. (All weekdays are already covered by the <code>1-7</code> range, which therefore collapses to the wildcard.)</li>
 </ul>
 <h4>Explicitly Out of Scope (must NOT be made to work)</h4>
-<p>Mixing a <strong>plain literal</strong> day-of-week value with a <code>dow#n</code> or <code>Ln</code> token in the same field is <strong>not</strong> supported; the results are not required to be correct for such expressions. These expressions do not need to produce the union of the literal-dow dates and the nth/last-dow dates:</p>
+<p>Putting a <strong>plain literal</strong> day-of-week value into the same field as a <code>dow#n</code> or <code>Ln</code> token is <strong>not</strong> supported, and such expressions are not required to give correct results. For the two expressions below, producing the union of the literal-dow dates with the nth/last-dow dates is not needed:</p>
 <ul>
-<li><code>&quot;0 0 * * 5,6#3&quot;</code> (plain Friday mixed with 3rd Saturday)</li>
-<li><code>&quot;0 0 * * 5,L6&quot;</code> (plain Friday mixed with last Saturday)</li>
+<li><code>&quot;0 0 * * 5,6#3&quot;</code> (a plain Friday together with the 3rd Saturday)</li>
+<li><code>&quot;0 0 * * 5,L6&quot;</code> (a plain Friday together with the last Saturday)</li>
 </ul>
-<p>No specific correct behavior is required for these mixed literal + nth/last forms.</p>
+<p>These mixed literal + nth/last forms carry no requirement of any specific correct behavior.</p>
 <h4>Notes</h4>
 <ul>
-<li>All existing croniter behavior and the previously supported <code>dow#n</code> &quot;nth weekday of month&quot; specifier must continue to work unchanged.</li>
-<li>The <code>Ln</code> feature should be an extension of the same underlying mechanism as <code>dow#n</code>.</li>
+<li>All behavior that croniter already exhibits, together with the previously supported <code>dow#n</code> &quot;nth weekday of month&quot; specifier, must keep working unchanged.</li>
+<li><code>Ln</code> should be built as an extension of the same underlying mechanism that <code>dow#n</code> uses.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add CroniterUnsupportedSyntaxError Exception</span>
-        <span class="spec-meta muted">525 words · source specification
+        <span class="spec-title">Introducing the CroniterUnsupportedSyntaxError Exception</span>
+        <span class="spec-meta muted">565 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>CroniterUnsupportedSyntaxError</code> Exception</h3>
-<h4>Overview</h4>
-<p>The <code>croniter</code> package must gain a new exception class, <code>CroniterUnsupportedSyntaxError</code>, which is raised when a cron expression uses a day-of-week (dow) specification that mixes a plain literal weekday value with an &quot;nth weekday of month&quot; (<code>dow#n</code>) or &quot;last weekday of month&quot; (<code>Ldow</code>) specifier in the same field.</p>
-<h4>Public API Requirements</h4>
-<h5>New Exception Class</h5>
-<p>Add a new exception class named <code>CroniterUnsupportedSyntaxError</code> to the <code>croniter</code> package.</p>
+      <div class="spec-body"><h3>Task Specification: Introducing the <code>CroniterUnsupportedSyntaxError</code> Exception</h3>
+<h4>Summary</h4>
+<p>The <code>croniter</code> package must be extended with a new exception class, <code>CroniterUnsupportedSyntaxError</code>. This exception is raised for a cron expression whose day-of-week (dow) specification combines a plain literal weekday value with an &quot;nth weekday of month&quot; (<code>dow#n</code>) or &quot;last weekday of month&quot; (<code>Ldow</code>) specifier in the same field.</p>
+<h4>Requirements for the Public API</h4>
+<h5>Exception Class to Be Added</h5>
+<p>A new exception class called <code>CroniterUnsupportedSyntaxError</code> is to be created inside the <code>croniter</code> package.</p>
 <ul>
-<li>It must be importable directly from the top-level <code>croniter</code> package:<pre><code class="language-python">from croniter import CroniterUnsupportedSyntaxError
+<li>Importing it directly from the top-level <code>croniter</code> package must be possible:<pre><code class="language-python">from croniter import CroniterUnsupportedSyntaxError
 </code></pre>
 </li>
-<li>The following existing names must remain importable from the top-level <code>croniter</code> package alongside the new one:
+<li>Alongside the new one, the existing names listed below must remain importable from the top-level <code>croniter</code> package:
 <ul>
 <li><code>croniter</code></li>
 <li><code>CroniterBadDateError</code></li>
@@ -1085,81 +1087,81 @@ def find_day_of_last_dow(cls, some_date, dow):
 </ul>
 </li>
 </ul>
-<h4>Behavior Requirements</h4>
-<h5>When the exception is raised</h5>
-<p>When iterating a <code>croniter</code> schedule whose day-of-week field mixes an ordinary literal weekday value together with an occurrence-qualified weekday specifier, iteration must raise <code>CroniterUnsupportedSyntaxError</code>. Two forms of occurrence-qualified specifier are affected:</p>
+<h4>Required Behavior</h4>
+<h5>Situations that trigger the exception</h5>
+<p><code>CroniterUnsupportedSyntaxError</code> must be raised when a <code>croniter</code> schedule whose day-of-week field combines an ordinary literal weekday value with an occurrence-qualified weekday specifier is iterated. Two forms of occurrence-qualified specifier are covered by this rule:</p>
 <ol>
 <li>
-<p><strong>Nth-weekday-of-month form</strong> (<code>dow#n</code>): A dow field that contains a literal weekday value combined (via comma) with a <code>#n</code> occurrence specifier is unsupported.</p>
-<p>Example expression that must trigger the error:</p>
+<p><strong>Nth-weekday-of-month form</strong> (<code>dow#n</code>): A dow field is unsupported if a literal weekday value in it is combined (via comma) with a <code>#n</code> occurrence specifier.</p>
+<p>Sample expression that must trigger the error:</p>
 <pre><code>0 0 * * 1,2,3,4,5,6#3
 </code></pre>
-<p>Here the field mixes plain weekdays (<code>1,2,3,4,5</code>) with an nth-weekday specifier (<code>6#3</code>).</p>
+<p>In this field, the plain weekdays (<code>1,2,3,4,5</code>) are mixed with the nth-weekday specifier (<code>6#3</code>).</p>
 </li>
 <li>
-<p><strong>Last-weekday-of-month form</strong> (<code>Ldow</code>): A dow field that contains a literal weekday value combined (via comma) with an <code>L</code>-prefixed last-weekday specifier is unsupported.</p>
-<p>Example expression that must trigger the error:</p>
+<p><strong>Last-weekday-of-month form</strong> (<code>Ldow</code>): A dow field is unsupported if a literal weekday value in it is combined (via comma) with an <code>L</code>-prefixed last-weekday specifier.</p>
+<p>Sample expression that must trigger the error:</p>
 <pre><code>0 0 * * 1,2,3,4,5,L6
 </code></pre>
-<p>Here the field mixes plain weekdays (<code>1,2,3,4,5</code>) with a last-weekday specifier (<code>L6</code>).</p>
+<p>In this field, the plain weekdays (<code>1,2,3,4,5</code>) are mixed with the last-weekday specifier (<code>L6</code>).</p>
 </li>
 </ol>
-<p>The error may be raised either at construction time or when the schedule is advanced (i.e., when successive future/next values are requested). Raising it at any point during the attempt to produce the first computed occurrence for such an expression is acceptable.</p>
-<h5>When the exception must NOT be raised</h5>
-<p>Expressions that use an occurrence-qualified weekday specifier <strong>without</strong> mixing in a plain literal weekday must continue to work correctly and produce valid results. Specifically, the following must continue to function normally (no exception):</p>
+<p>The error may be raised either while the schedule is being constructed or while it is advanced (i.e., when successive future/next values are requested). It is acceptable to raise it at any point within the attempt to produce the first computed occurrence of such an expression.</p>
+<h5>Situations where the exception must NOT be raised</h5>
+<p>Where expressions use an occurrence-qualified weekday specifier <strong>without</strong> a plain literal weekday mixed in, they must keep working correctly and producing valid results. To be specific, each of the following must keep functioning normally (no exception):</p>
 <ol>
 <li>
-<p>A pure nth-weekday-of-month expression such as:</p>
+<p>An nth-weekday-of-month expression in pure form, for instance:</p>
 <pre><code>0 0 * * 6#3
 </code></pre>
-<p>(all occurrences of the 3rd Saturday of each month)</p>
+<p>(all occurrences of each month's 3rd Saturday)</p>
 </li>
 <li>
-<p>A comma list of nth-weekday-of-month specifiers where every entry is occurrence-qualified, such as:</p>
+<p>A comma list of nth-weekday-of-month specifiers with every entry occurrence-qualified, for example:</p>
 <pre><code>0 0 * * 1#2,5#3
 </code></pre>
-<p>(2nd Monday and 3rd Friday of each month)</p>
+<p>(the 2nd Monday and the 3rd Friday of each month)</p>
 </li>
 <li>
-<p>A pure last-weekday-of-month expression such as:</p>
+<p>A last-weekday-of-month expression in pure form, for instance:</p>
 <pre><code>0 0 * * L6
 </code></pre>
-<p>(all occurrences of the last Saturday of each month)</p>
+<p>(all occurrences of each month's last Saturday)</p>
 </li>
 <li>
-<p>A comma list where every entry is a last-weekday specifier, such as:</p>
+<p>A comma list with every entry being a last-weekday specifier, for example:</p>
 <pre><code>0 0 * * L1,L5
 </code></pre>
-<p>(last Monday and last Friday of each month)</p>
+<p>(the last Monday and the last Friday of each month)</p>
 </li>
 </ol>
-<p>In short: a dow field composed entirely of occurrence-qualified specifiers (whether <code>#n</code> or <code>L</code>, and whether one entry or several) is supported; a dow field that mixes any plain literal weekday with an occurrence-qualified specifier is not, and must raise <code>CroniterUnsupportedSyntaxError</code>.</p>
-<h4>Notes</h4>
+<p>To sum up: a dow field consisting entirely of occurrence-qualified specifiers (whether <code>#n</code> or <code>L</code>, and whether one entry or several) is supported; a dow field combining any plain literal weekday with an occurrence-qualified specifier is not supported, and <code>CroniterUnsupportedSyntaxError</code> must be raised for it.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The exception should fit naturally into the package's existing exception hierarchy (the existing <code>Croniter*Error</code> classes). It must be a distinct type from <code>CroniterBadCronError</code>, <code>CroniterBadDateError</code>, and <code>CroniterNotAlphaError</code> so that it can be caught specifically.</li>
-<li>No other behavior of <code>croniter</code> should change.</li>
+<li>The package's existing exception hierarchy (the existing <code>Croniter*Error</code> classes) is where the exception should fit naturally. Its type must be distinct from the types of <code>CroniterBadCronError</code>, <code>CroniterBadDateError</code>, and <code>CroniterNotAlphaError</code>, so that it can be caught specifically.</li>
+<li>Nothing else in <code>croniter</code>'s behavior should change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on the croniter library.</span>
-        <span class="spec-meta muted">822 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The library you are working on is croniter.</span>
+        <span class="spec-meta muted">868 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on the <code>croniter</code> library. Add the weekday-of-month helper and enforce the <code>#n</code> and <code>L</code> day-of-week validation rules below, without changing the behavior of valid schedules.</p>
-<h4>1. Public helper: <code>_get_nth_weekday_of_month</code></h4>
-<p>Add a static method named <code>_get_nth_weekday_of_month</code> to the <code>croniter</code> class exported by the <code>croniter</code> package. It must be callable as:</p>
+      <div class="spec-body"><p>The library you are working on is <code>croniter</code>. Add the weekday-of-month helper and enforce the <code>#n</code> and <code>L</code> day-of-week validation rules given below, all without changing the behavior of valid schedules.</p>
+<h4>1. Public helper <code>_get_nth_weekday_of_month</code></h4>
+<p>The <code>croniter</code> class exported by the <code>croniter</code> package must gain a static method named <code>_get_nth_weekday_of_month</code>. The method must be callable as:</p>
 <pre><code class="language-python">from croniter import croniter
 
 days = croniter._get_nth_weekday_of_month(year, month, weekday)
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>year</code>: an integer year, such as <code>2000</code>.</li>
-<li><code>month</code>: an integer month in the range <code>1</code> through <code>12</code>.</li>
-<li><code>weekday</code>: an integer using cron's weekday numbering:
+<li><code>year</code>: a year given as an integer, for example <code>2000</code>.</li>
+<li><code>month</code>: a month given as an integer, in the range <code>1</code> through <code>12</code>.</li>
+<li><code>weekday</code>: an integer that follows cron's weekday numbering:
 <ul>
 <li><code>0</code> = Sunday</li>
 <li><code>1</code> = Monday</li>
@@ -1171,14 +1173,14 @@ days = croniter._get_nth_weekday_of_month(year, month, weekday)
 </ul>
 </li>
 </ul>
-<h5>Return value</h5>
-<p>Return a <code>tuple</code> containing every 1-based day-of-month in the requested month that falls on <code>weekday</code>.</p>
+<h5>Returned value</h5>
+<p>The method must return a <code>tuple</code> containing every 1-based day-of-month in the requested month that falls on <code>weekday</code>.</p>
 <ul>
-<li>Values must be in ascending order.</li>
-<li>The result therefore contains either four or five dates for a valid month and weekday.</li>
-<li>Month lengths and leap years must be handled correctly.</li>
+<li>The values must be in ascending order.</li>
+<li>For a valid month and weekday, the result therefore contains either four or five dates.</li>
+<li>The handling of month lengths and leap years must be correct.</li>
 </ul>
-<p>Required examples:</p>
+<p>The following examples are required:</p>
 <pre><code class="language-python">croniter._get_nth_weekday_of_month(2000, 1, 1) == (3, 10, 17, 24, 31)
 croniter._get_nth_weekday_of_month(2000, 2, 2) == (1, 8, 15, 22, 29)
 croniter._get_nth_weekday_of_month(2000, 3, 3) == (1, 8, 15, 22, 29)
@@ -1186,7 +1188,7 @@ croniter._get_nth_weekday_of_month(2000, 4, 4) == (6, 13, 20, 27)
 croniter._get_nth_weekday_of_month(2000, 2, 5) == (4, 11, 18, 25)
 croniter._get_nth_weekday_of_month(2000, 2, 6) == (5, 12, 19, 26)
 </code></pre>
-<p>The last element is the last occurrence of the requested weekday in that month. For February 2000, the required last occurrences are:</p>
+<p>The last element gives the last occurrence of the requested weekday in that month. For the month of February 2000, the required last occurrences are:</p>
 <table>
 <thead>
 <tr>
@@ -1225,31 +1227,31 @@ croniter._get_nth_weekday_of_month(2000, 2, 6) == (5, 12, 19, 26)
 </tr>
 </tbody>
 </table>
-<p>The former <code>_get_last_weekday_of_month</code> helper is no longer part of the public API required by this task. Its public behavior is fully replaced by:</p>
+<p>The previously existing <code>_get_last_weekday_of_month</code> helper no longer forms part of the public API required by this task. Its public behavior is entirely replaced by:</p>
 <pre><code class="language-python">croniter._get_nth_weekday_of_month(year, month, weekday)[-1]
 </code></pre>
-<p>There is no compatibility requirement to retain <code>_get_last_weekday_of_month</code> as a callable public helper.</p>
-<h4>2. Validation of <code>dow#n</code> syntax</h4>
-<p>In the day-of-week field, <code>dow#n</code> selects the nth occurrence of <code>dow</code> in a month. The occurrence number <code>n</code> must be an integer from <code>1</code> through <code>5</code>, inclusive. A value outside that interval is invalid.</p>
-<p>Constructing a <code>croniter</code> from an expression with an invalid occurrence number must raise <code>CroniterBadCronError</code>, which is importable from the package root:</p>
+<p>Retaining <code>_get_last_weekday_of_month</code> as a callable public helper is not required for compatibility.</p>
+<h4>2. Validating the <code>dow#n</code> syntax</h4>
+<p>Within the day-of-week field, <code>dow#n</code> picks out the nth occurrence of <code>dow</code> in a month. The occurrence number <code>n</code> must be an integer from <code>1</code> through <code>5</code>, inclusive. A value that falls outside that interval is invalid.</p>
+<p>When a <code>croniter</code> is constructed from an expression with an invalid occurrence number, <code>CroniterBadCronError</code> must be raised; that exception is importable from the package root:</p>
 <pre><code class="language-python">from croniter import CroniterBadCronError
 </code></pre>
-<p>For example, both of these expressions must raise that exception during construction:</p>
+<p>As an example, both of the following expressions must raise that exception during construction:</p>
 <pre><code class="language-python">croniter(&quot;0 0 * * 1#7&quot;)
 croniter(&quot;0 0 * * 1#0&quot;)
 </code></pre>
-<p>Legal values, including <code>#5</code>, must remain accepted. Valid nth-weekday schedules such as <code>&quot;0 0 * * 6#3&quot;</code> (the third Saturday of each month) must continue to iterate correctly.</p>
-<h4>3. Validation of <code>Ldow</code> syntax</h4>
-<p>In the day-of-week field, <code>Ldow</code> selects the last occurrence of weekday <code>dow</code> in a month. The weekday must be in the cron day-of-week range <code>0</code> through <code>7</code>, inclusive. Both <code>0</code> and <code>7</code> denote Sunday.</p>
-<p>Constructing a <code>croniter</code> with an out-of-range <code>Ldow</code> value must raise <code>CroniterBadCronError</code>. In particular, these expressions are invalid:</p>
+<p>Legal values, <code>#5</code> included, must remain accepted. Schedules that use nth-weekday syntax validly, such as <code>&quot;0 0 * * 6#3&quot;</code> (the third Saturday of each month), must continue to iterate correctly.</p>
+<h4>3. Validating the <code>Ldow</code> syntax</h4>
+<p>Within the day-of-week field, <code>Ldow</code> picks out the last occurrence of weekday <code>dow</code> in a month. That weekday must lie in the cron day-of-week range <code>0</code> through <code>7</code>, inclusive. Sunday is denoted by both <code>0</code> and <code>7</code>.</p>
+<p>A <code>croniter</code> constructed with an out-of-range <code>Ldow</code> value must raise <code>CroniterBadCronError</code>. Specifically, the following expressions are invalid:</p>
 <pre><code class="language-python">croniter(&quot;0 0 * * L-1&quot;)
 croniter(&quot;0 0 * * L8&quot;)
 </code></pre>
-<p>Valid last-weekday expressions must not be rejected by the new validation.</p>
-<h4>4. Compatibility of valid <code>L</code> and <code>#</code> schedules</h4>
-<p>The helper change and validation must not alter iteration results for legal expressions. Forward results must be emitted in chronological order, regardless of the order in which multiple weekday selectors occur within a month; reverse iteration must analogously move backward in time.</p>
+<p>The new validation must not reject valid last-weekday expressions.</p>
+<h4>4. Compatibility for valid <code>L</code> and <code>#</code> schedules</h4>
+<p>Iteration results for legal expressions must not be altered by the helper change or the validation. Forward results must be emitted in chronological order, no matter the order in which multiple weekday selectors occur within a month; reverse iteration must, correspondingly, move backward in time.</p>
 <h5>Last Friday</h5>
-<p>Starting at <code>datetime(1987, 1, 15)</code>, forward iteration of <code>&quot;0 0 * * L5&quot;</code> with <code>ret_type=datetime</code> must produce:</p>
+<p>Forward iteration of <code>&quot;0 0 * * L5&quot;</code> with <code>ret_type=datetime</code>, starting at <code>datetime(1987, 1, 15)</code>, must produce:</p>
 <pre><code class="language-text">1987-01-30
 1987-02-27
 1987-03-27
@@ -1263,13 +1265,13 @@ croniter(&quot;0 0 * * L8&quot;)
 1987-11-27
 1987-12-25
 </code></pre>
-<p>Time-field expansion must continue to work on those last-Friday dates:</p>
+<p>Time-field expansion must keep working on those last-Friday dates:</p>
 <ul>
-<li><code>&quot;0 1,5 * * L5&quot;</code> emits each matching date at <code>01:00</code> and <code>05:00</code>, in chronological order.</li>
-<li><code>&quot;0,30 1,5 * * L5&quot;</code> emits each matching date at <code>01:00</code>, <code>01:30</code>, <code>05:00</code>, and <code>05:30</code>, in chronological order.</li>
+<li><code>&quot;0 1,5 * * L5&quot;</code> emits each matching date at <code>01:00</code> and <code>05:00</code>, ordered chronologically.</li>
+<li><code>&quot;0,30 1,5 * * L5&quot;</code> emits each matching date at <code>01:00</code>, <code>01:30</code>, <code>05:00</code>, and <code>05:30</code>, ordered chronologically.</li>
 </ul>
 <h5>Reverse last Saturday</h5>
-<p>Starting at <code>datetime(2017, 12, 31)</code>, reverse iteration of <code>&quot;0 0 * * L6&quot;</code> with <code>ret_type=datetime</code> (including when reverse mode is selected at construction) must produce:</p>
+<p>Reverse iteration of <code>&quot;0 0 * * L6&quot;</code> with <code>ret_type=datetime</code>, starting at <code>datetime(2017, 12, 31)</code> (including the case where reverse mode is selected at construction), must produce:</p>
 <pre><code class="language-text">2017-12-30
 2017-11-25
 2017-10-28
@@ -1284,7 +1286,7 @@ croniter(&quot;0 0 * * L8&quot;)
 2017-01-28
 </code></pre>
 <h5>Multiple last weekdays</h5>
-<p>Starting at <code>datetime(2016, 6, 1)</code>, forward iteration of <code>&quot;0 0 * * L2,L4&quot;</code> with <code>ret_type=datetime</code> must produce the last Tuesday and last Thursday of each month in chronological order:</p>
+<p>Forward iteration of <code>&quot;0 0 * * L2,L4&quot;</code> with <code>ret_type=datetime</code>, starting at <code>datetime(2016, 6, 1)</code>, must produce the last Tuesday and the last Thursday of each month in chronological order:</p>
 <pre><code class="language-text">2016-06-28
 2016-06-30
 2016-07-26
@@ -1296,56 +1298,59 @@ croniter(&quot;0 0 * * L8&quot;)
 2016-10-25
 2016-10-27
 </code></pre>
-<p>In particular, August 2016's last Thursday is August 25 and its last Tuesday is August 30, so the required order is <code>2016-08-25</code> followed by <code>2016-08-30</code>. The selector names do not override chronological ordering.</p>
-<p>All valid last-weekday and nth-weekday results must retain these semantics; obtaining a last weekday is behaviorally equivalent to selecting the final element of <code>_get_nth_weekday_of_month(...)</code> for the corresponding year, month, and normalized weekday.</p>
+<p>As a particular case, the last Thursday of August 2016 is August 25 and its last Tuesday is August 30; the required order is therefore <code>2016-08-25</code> followed by <code>2016-08-30</code>. The selector names do not take precedence over chronological ordering.</p>
+<p>All valid last-weekday and nth-weekday results must keep these semantics; obtaining a last weekday is equivalent in behavior to selecting the final element of <code>_get_nth_weekday_of_month(...)</code> for the corresponding year, month, and normalized weekday.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working on the croniter library, which parses cron expressions and computes matching datetimes relative to a base time.</span>
-        <span class="spec-meta muted">296 words · source specification
+        <span class="spec-title">The croniter library is the focus here</span>
+        <span class="spec-meta muted">314 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on the <code>croniter</code> library, which parses cron expressions and computes matching datetimes relative to a base time.</p>
-<h5>Public API</h5>
-<p>The <code>croniter</code> class is importable from the <code>croniter</code> package:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<p>The <code>croniter</code> library is the focus here: it parses cron expressions and determines the datetimes that match them, relative to a base time.</p>
+<h5>Public Interface</h5>
+<p>From the <code>croniter</code> package, the <code>croniter</code> class is available for import:</p>
 <pre><code class="language-python">from croniter import croniter
 </code></pre>
-<p>It is constructed as:</p>
+<p>Construction follows this pattern:</p>
 <pre><code class="language-python">croniter(expr_format, start_time)
 </code></pre>
-<p>where <code>expr_format</code> is a standard 5-field cron expression string and <code>start_time</code> is a <code>datetime.datetime</code> instance.</p>
-<p>The instance provides:</p>
+<p>Here <code>expr_format</code> is a cron expression string in the standard 5-field format, and <code>start_time</code> is a <code>datetime.datetime</code> instance.</p>
+<p>Each instance exposes:</p>
 <pre><code class="language-python">get_prev(ret_type)
 </code></pre>
-<p>which returns the most recent datetime strictly before the current position that matches the cron expression, as an instance of the type passed in <code>ret_type</code> (e.g. <code>datetime.datetime</code>).</p>
-<h5>Required Behavior — Bug Fix</h5>
-<p>There is a defect in the backward search (<code>get_prev</code>) when the cron expression constrains the schedule to a single specific day-of-month within a single specific month, and the immediately preceding candidate month does not contain that day-of-month.</p>
-<p>The search must correctly skip over months/periods that cannot contain the required day and continue searching backward until it finds a valid matching datetime, rather than failing or producing an incorrect result.</p>
-<h6>Concrete case that must work</h6>
-<p>Given the cron expression <code>'0 6 30 3 *'</code> (minute 0, hour 6, day-of-month 30, month March, any day-of-week) and a base time of <code>datetime(2021, 3, 30, 4, 0)</code>:</p>
+<p>It returns the most recent datetime matching the cron expression that lies strictly before the current position, in the form of an instance of the type supplied via <code>ret_type</code> (e.g. <code>datetime.datetime</code>).</p>
+<h5>Required Behavior — Defect Fix</h5>
+<p>A defect is present in the backward search (<code>get_prev</code>) for the situation in which the cron expression restricts the schedule to one specific day-of-month within one specific month, while the candidate month that immediately precedes does not contain that day-of-month.</p>
+<p>Instead of failing or generating an incorrect result, the search must skip correctly over months/periods that cannot contain the required day and must keep searching backward until it finds a valid matching datetime.</p>
+<h6>Concrete scenario that must work</h6>
+<p>Take the cron expression <code>'0 6 30 3 *'</code> (minute 0, hour 6, day-of-month 30, month March, any day-of-week) together with a base time of <code>datetime(2021, 3, 30, 4, 0)</code>:</p>
 <ul>
-<li>Calling <code>get_prev(datetime)</code> must return the datetime corresponding to <strong>March 30 06:00</strong> of the <strong>previous year</strong> (2020), i.e. year <code>2020</code>, month <code>3</code>, day <code>30</code>, hour <code>6</code>, minute <code>0</code>.</li>
+<li>Calling <code>get_prev(datetime)</code> must return the datetime for <strong>March 30 06:00</strong> in the <strong>previous year</strong> (2020), that is, year <code>2020</code>, month <code>3</code>, day <code>30</code>, hour <code>6</code>, minute <code>0</code>.</li>
 </ul>
-<p>The base time (March 30, 2021 at 04:00) is before 06:00 on that same day, so the most recent prior match is not on the base date itself but on March 30 of the preceding year. The correct backward traversal must arrive at this result without being derailed by intervening months (such as February) that do not have a 30th day.</p>
+<p>Since the base time (March 30, 2021 at 04:00) lies before 06:00 on that same day, the most recent prior match falls not on the base date itself but on March 30 of the preceding year.</p>
+<p>Reaching this result is what correct backward traversal must accomplish, without being derailed by intervening months (such as February) that do not have a 30th day.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Extend croniter with deterministic hashed (H) and per-expansion random (R) cron-field expressions.</span>
-        <span class="spec-meta muted">1970 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add deterministic hashed (H) and per-expansion random (R) cron-field expressions to croniter.</span>
+        <span class="spec-meta muted">2129 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Extend <code>croniter</code> with deterministic hashed (<code>H</code>) and per-expansion random (<code>R</code>) cron-field expressions. Also support the standard <code>@</code> schedule aliases, with hash-distributed schedules when a <code>hash_id</code> is supplied. Existing cron parsing, iteration, date/time, timezone, and range behavior must remain compatible.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Add deterministic hashed (<code>H</code>) and per-expansion random (<code>R</code>) cron-field expressions to <code>croniter</code>. The standard <code>@</code> schedule aliases are also to be supported, with hash-distributed schedules when a <code>hash_id</code> is supplied. Existing behavior for cron parsing, iteration, date/time, timezone, and ranges must remain compatible.</p>
 <h4>Public API</h4>
-<p>The following remain importable from the top-level package:</p>
+<p>The following names remain importable from the top-level package:</p>
 <pre><code class="language-python">from croniter import croniter, CroniterNotAlphaError
 </code></pre>
-<h5><code>croniter</code> constructor</h5>
-<p>The constructor gains an optional <code>hash_id</code> argument without changing the behavior of existing arguments:</p>
+<h5>Constructor of <code>croniter</code></h5>
+<p>An optional <code>hash_id</code> argument is added to the constructor, leaving the behavior of the existing arguments unchanged:</p>
 <pre><code class="language-python">croniter(
     expr_format,
     start_time=None,
@@ -1356,23 +1361,23 @@ croniter(&quot;0 0 * * L8&quot;)
     hash_id=None,
 )
 </code></pre>
-<p><code>hash_id</code> accepts:</p>
+<p>The <code>hash_id</code> argument accepts:</p>
 <ul>
-<li><code>None</code>, meaning no deterministic hash seed is available;</li>
-<li>a <code>str</code>, encoded as UTF-8 before hashing; or</li>
-<li>a <code>bytes</code> object, used unchanged.</li>
+<li><code>None</code>, which means that no deterministic hash seed is available;</li>
+<li>a <code>str</code>, which is encoded as UTF-8 before hashing; or</li>
+<li>a <code>bytes</code> object, which is used unchanged.</li>
 </ul>
-<p>Any other type must raise <code>TypeError</code>. This type contract applies whenever the argument is supplied, not only when a particular expression ultimately uses <code>H</code>.</p>
-<p>Instances continue to expose <code>get_next(ret_type)</code>. Passing <code>datetime</code> returns a <code>datetime</code>; passing <code>float</code> returns a POSIX timestamp float. Successive calls advance through occurrences of the one schedule established when the expression was expanded.</p>
+<p>A value of any other type must raise <code>TypeError</code>. This contract on types holds whenever the argument is supplied, and not only when some expression ends up using <code>H</code>.</p>
+<p>Instances keep exposing <code>get_next(ret_type)</code>. When <code>datetime</code> is passed, a <code>datetime</code> is returned; when <code>float</code> is passed, a POSIX timestamp float is returned. Successive calls move forward through the occurrences of the one schedule that was established when the expression was expanded.</p>
 <h5><code>croniter.expand</code></h5>
-<p>Widen the class method to accept arbitrary additional positional and keyword arguments:</p>
+<p>The class method is to be widened so that it accepts arbitrary additional positional and keyword arguments:</p>
 <pre><code class="language-python">@classmethod
 def expand(cls, expr_format, *args, **kwargs):
     ...
 </code></pre>
-<p>It must forward all of those arguments unchanged to the internal expansion operation to which it delegates. Existing <code>expand(expr_format)</code> calls must continue to work. This is also a subclass compatibility contract: a subclass may override the widened signature, perform its own validation, and delegate with <code>croniter.expand(expr_format, *args, **kwargs)</code>. Such a subclass must continue to work when instantiated directly and when supplied to existing range-generation utilities. Constructor-driven expansion must pass the hash context through this extensible call path.</p>
-<h4>Cron field layout and bounds</h4>
-<p>Expressions use the existing five-field order, with an optional sixth seconds field at the end:</p>
+<p>All of those arguments must be forwarded unchanged to the internal expansion operation to which it delegates. Calls that use the existing form <code>expand(expr_format)</code> must continue to work. This also acts as a subclass compatibility contract: a subclass may override the widened signature, perform its own validation, and delegate with <code>croniter.expand(expr_format, *args, **kwargs)</code>. Such a subclass must continue to work both when it is instantiated directly and when it is supplied to the existing range-generation utilities. Expansion driven by the constructor must pass the hash context through this extensible call path.</p>
+<h4>Layout and bounds of cron fields</h4>
+<p>Expressions keep the existing five-field order, with an optional sixth field for seconds at the end:</p>
 <ol>
 <li>minute: <code>0..59</code></li>
 <li>hour: <code>0..23</code></li>
@@ -1381,61 +1386,61 @@ def expand(cls, expr_format, *args, **kwargs):
 <li>day of week: <code>0..7</code>, where both <code>0</code> and <code>7</code> denote Sunday</li>
 <li>second, when present: <code>0..59</code></li>
 </ol>
-<p>All bounds in special-token range forms are inclusive. Ordinary calendar validity still applies: for example, a selected day 31 simply has no occurrence in a month that lacks that date. Five-field expressions retain the existing seconds behavior; the explicit seconds value generated by the aliases described below comes from their six-field hashed forms.</p>
+<p>In special-token range forms, all bounds are inclusive. Ordinary calendar validity still applies: for instance, a selected day 31 simply has no occurrence in a month that lacks that date. Five-field expressions retain the existing seconds behavior; the explicit seconds value that the aliases described below generate comes from their six-field hashed forms.</p>
 <h4>Hashed expressions (<code>H</code>)</h4>
-<p><code>H</code> resolves deterministically from <code>hash_id</code>. It requires a non-<code>None</code> hash seed and must never fall back to random selection. An unresolved <code>H</code> without a seed is invalid under normal alphabetic-token handling and raises <code>CroniterNotAlphaError</code>.</p>
-<p>Supported forms are:</p>
+<p>An <code>H</code> value is resolved deterministically from <code>hash_id</code>. A non-<code>None</code> hash seed is required, and it must never fall back to random selection. An <code>H</code> that stays unresolved because no seed is present is invalid under normal alphabetic-token handling and raises <code>CroniterNotAlphaError</code>.</p>
+<p>The supported forms are:</p>
 <ul>
-<li><code>H</code>: one deterministic value over the field's full bounds;</li>
-<li><code>H(low-high)</code>: one deterministic value in the inclusive subrange;</li>
-<li><code>H/step</code>: a deterministic starting anchor followed by values every <code>step</code> through the field's upper bound;</li>
-<li><code>H(low-high)/step</code>: the same stepped behavior confined to the stated subrange.</li>
+<li><code>H</code>: a single deterministic value over the field's full bounds;</li>
+<li><code>H(low-high)</code>: a single deterministic value inside the inclusive subrange;</li>
+<li><code>H/step</code>: a deterministic anchor at the start, followed by values every <code>step</code> through the field's upper bound;</li>
+<li><code>H(low-high)/step</code>: the same stepped behavior, restricted to the stated subrange.</li>
 </ul>
-<p>The selected value or stepped anchor is fixed for the expanded schedule's lifetime.</p>
-<h5>Exact deterministic resolution</h5>
-<p>Hash resolution must use the following reproducible procedure. It is part of the public schedule contract.</p>
+<p>For the lifetime of the expanded schedule, the selected value or stepped anchor is fixed.</p>
+<h5>Exact deterministic resolution procedure</h5>
+<p>The following reproducible procedure must be used for hash resolution. It is part of the public schedule contract.</p>
 <ol>
 <li>
-<p>Convert a string seed with <code>hash_id.encode(&quot;UTF-8&quot;)</code>; use a bytes seed unchanged.</p>
+<p>A string seed is converted with <code>hash_id.encode(&quot;UTF-8&quot;)</code>; a bytes seed is used unchanged.</p>
 </li>
 <li>
-<p>Compute the unsigned CRC-32 value:</p>
+<p>Compute this unsigned CRC-32 value:</p>
 <pre><code class="language-python">crc = binascii.crc32(hash_id_bytes) &amp; 0xFFFFFFFF
 </code></pre>
 </li>
 <li>
-<p>Assign the zero-based field index <code>i</code> in cron order: minute <code>0</code>, hour <code>1</code>, day of month <code>2</code>, month <code>3</code>, day of week <code>4</code>, and second <code>5</code>.</p>
+<p>The zero-based field index <code>i</code> is assigned in cron order: minute <code>0</code>, hour <code>1</code>, day of month <code>2</code>, month <code>3</code>, day of week <code>4</code>, and second <code>5</code>.</p>
 </li>
 <li>
-<p>Obtain that field's hash word as <code>crc &gt;&gt; i</code>.</p>
+<p>The hash word for that field is obtained as <code>crc &gt;&gt; i</code>.</p>
 </li>
 <li>
-<p>For an unstepped field with inclusive lower and upper bounds <code>a</code> and <code>b</code>, resolve it as:</p>
+<p>For an unstepped field whose inclusive lower and upper bounds are <code>a</code> and <code>b</code>, resolve it as:</p>
 <pre><code class="language-text">a + ((crc &gt;&gt; i) % (b - a + 1))
 </code></pre>
-<p><code>H</code> uses the full field bounds; <code>H(a-b)</code> uses the explicit bounds.</p>
+<p><code>H</code> takes the full field bounds; <code>H(a-b)</code> takes the explicit bounds.</p>
 </li>
 <li>
-<p>For a stepped form with step <code>s</code>, choose its anchor as:</p>
+<p>For a stepped form with a step of <code>s</code>, choose the anchor as:</p>
 <pre><code class="language-text">anchor = a + ((crc &gt;&gt; i) % (s + 1))
 </code></pre>
-<p>and expand to <code>anchor, anchor + s, anchor + 2s, ...</code> while values remain at or below <code>b</code>. For <code>H/s</code>, <code>a</code> and <code>b</code> are the full field bounds; for <code>H(a-b)/s</code>, they are the explicit bounds. Thus the anchor offset is selected from <code>0..s</code> inclusively, rather than from a half-open <code>0..s-1</code> interval.</p>
+<p>and expand to <code>anchor, anchor + s, anchor + 2s, ...</code> for as long as the values remain at or below <code>b</code>. With <code>H/s</code>, <code>a</code> and <code>b</code> are the full field bounds; with <code>H(a-b)/s</code>, they are the explicit bounds. Thus the anchor offset is picked from <code>0..s</code> inclusively, rather than from a half-open <code>0..s-1</code> interval.</p>
 </li>
 </ol>
-<p>No expression text, start time, epoch, field name, or additional salt is concatenated with the seed. Field separation comes solely from the right shift by the field index; expression syntax affects the result through the applicable field/range bounds. Consequently, changing the start time cannot change expanded hashed values, while changing the expression can change its bounds or which fields are hashed. CRC collisions and modulo collisions are possible, so a changed <code>hash_id</code> is expected to generally, but not invariably, change a schedule.</p>
-<p>For reference, the UTF-8 bytes for <code>&quot;hello&quot;</code> have unsigned CRC-32 <code>907060870</code>. The formulas above produce minute <code>10</code>, hour <code>11</code>, day of month <code>1</code>, month <code>9</code>, day of week <code>0</code> when using the <code>0..7</code> range, and second <code>32</code>. They also produce hour anchor <code>3</code> for <code>H/3</code>, minute anchor <code>31</code> for <code>H(30-59)/10</code>, and hour <code>2</code> for <code>H(0-2)</code>.</p>
+<p>Nothing is concatenated with the seed: no expression text, start time, epoch, field name, or additional salt. Separation of fields comes solely from the right shift by the field index; expression syntax affects the result by way of the applicable field/range bounds. Consequently, expanded hashed values cannot be changed by a change of start time, whereas a change of expression can change its bounds or which fields are hashed. CRC collisions and modulo collisions can happen, so when <code>hash_id</code> is changed, the schedule is expected to change generally, but not invariably.</p>
+<p>As a reference point, the UTF-8 bytes for <code>&quot;hello&quot;</code> have unsigned CRC-32 <code>907060870</code>. The formulas above produce minute <code>10</code>, hour <code>11</code>, day of month <code>1</code>, month <code>9</code>, day of week <code>0</code> when the <code>0..7</code> range is used, and second <code>32</code>. The same formulas also give hour anchor <code>3</code> for <code>H/3</code>, minute anchor <code>31</code> for <code>H(30-59)/10</code>, and hour <code>2</code> for <code>H(0-2)</code>.</p>
 <h4>Random expressions (<code>R</code>)</h4>
-<p><code>R</code> uses random selection and does not require <code>hash_id</code>. It supports the analogous forms:</p>
+<p><code>R</code> works by random selection and does not require <code>hash_id</code>. It supports these analogous forms:</p>
 <ul>
 <li><code>R</code>;</li>
 <li><code>R(low-high)</code>;</li>
 <li><code>R/step</code>; and</li>
 <li><code>R(low-high)/step</code>.</li>
 </ul>
-<p>Unstepped forms choose a value in the relevant inclusive bounds. Stepped forms choose a random anchor using the same bounds and anchor-range semantics as their <code>H</code> counterparts, then repeat by the requested step through the upper bound. Separate random fields may be selected independently.</p>
-<p>Random choices are made as part of expression expansion, not on every occurrence lookup. Each <code>R</code> field's selected value or anchor therefore remains fixed for the lifetime of that expanded schedule, so repeated <code>get_next</code> calls iterate over one consistent cron schedule. Different constructions need not choose the same values, and no <code>hash_id</code> is needed.</p>
-<h4>Keyword aliases</h4>
-<p>Support these aliases with their conventional non-hashed meanings when no <code>hash_id</code> is supplied:</p>
+<p>Unstepped forms choose a value within the relevant inclusive bounds. Stepped forms choose a random anchor with the same bounds and anchor-range semantics as their <code>H</code> counterparts, and then repeat by the requested step through the upper bound. Distinct random fields may be selected independently.</p>
+<p>The random choices are made as part of expression expansion, not on every occurrence lookup. Therefore the value or anchor selected for each <code>R</code> field stays fixed for the lifetime of that expanded schedule, so repeated <code>get_next</code> calls iterate over one consistent cron schedule. Different constructions need not choose the same values, and no <code>hash_id</code> is needed.</p>
+<h4>Aliases written as keywords</h4>
+<p>These aliases are to be supported with their conventional non-hashed meanings when no <code>hash_id</code> is supplied:</p>
 <table>
 <thead>
 <tr>
@@ -1474,7 +1479,7 @@ def expand(cls, expr_format, *args, **kwargs):
 </tr>
 </tbody>
 </table>
-<p>When <code>hash_id</code> is supplied, use these six-field hash-distributed equivalents:</p>
+<p>When <code>hash_id</code> is supplied, these six-field hash-distributed equivalents are used:</p>
 <table>
 <thead>
 <tr>
@@ -1521,23 +1526,23 @@ def expand(cls, expr_format, *args, **kwargs):
 </tr>
 </tbody>
 </table>
-<p>The hashed aliases include an explicit hashed seconds component. <code>@midnight</code> is therefore intentionally not exact midnight under hashing: it may occur up to roughly three hours after midnight. <code>@annually</code> and <code>@yearly</code> must remain equal across successive occurrences for the same seed and start time.</p>
-<h4>Invalid alphabetic tokens</h4>
-<p>Existing valid alphabetic cron syntax remains valid. Any other alphabetic field token that is neither valid standard cron syntax nor a supported <code>H</code>/<code>R</code> form must raise the top-level <code>CroniterNotAlphaError</code>. For example:</p>
+<p>The hashed aliases contain an explicit hashed seconds component. Therefore, under hashing, <code>@midnight</code> is intentionally not exact midnight: it may occur up to roughly three hours after midnight. Across successive occurrences, <code>@annually</code> and <code>@yearly</code> must remain equal for the same seed and start time.</p>
+<h4>Alphabetic tokens that are invalid</h4>
+<p>Alphabetic cron syntax that is currently valid remains valid. Any other alphabetic field token, meaning one that is neither valid standard cron syntax nor a supported <code>H</code>/<code>R</code> form, must raise the top-level <code>CroniterNotAlphaError</code>. As an example:</p>
 <pre><code class="language-python">croniter(&quot;X X * * *&quot;, start_time, hash_id=&quot;hello&quot;)
 </code></pre>
-<p>must raise <code>CroniterNotAlphaError</code>. Normal malformed ranges, steps, and out-of-bounds values continue to use the library's existing cron-validation behavior.</p>
-<h4>Determinism and iteration requirements</h4>
+<p>must raise <code>CroniterNotAlphaError</code>. Ordinary malformed ranges, steps, and out-of-bounds values continue to use the library's existing cron-validation behavior.</p>
+<h4>Requirements around determinism and iteration</h4>
 <ul>
-<li>The same expression and <code>hash_id</code> must expand to the same hashed schedule across processes and runs.</li>
-<li>Both string and bytes seeds must be stable according to the exact CRC-32 procedure above.</li>
-<li>A start epoch affects which matching occurrence is next, but never feeds into hash resolution.</li>
-<li>A different seed should generally distribute the schedule differently, subject to possible CRC/modulo collisions.</li>
-<li>The concrete schedule selected for every <code>H</code> or <code>R</code> field remains unchanged during successive calls on one instance.</li>
-<li>Existing <code>datetime</code> and float return modes continue to behave identically after special fields have been expanded.</li>
+<li>Across processes and runs, the same expression and <code>hash_id</code> must expand to the same hashed schedule.</li>
+<li>Both seeds given as strings and seeds given as bytes must be stable according to the exact CRC-32 procedure above.</li>
+<li>Which matching occurrence is next is affected by a start epoch, but a start epoch never feeds into hash resolution.</li>
+<li>A seed that differs should generally distribute the schedule differently, subject to possible CRC/modulo collisions.</li>
+<li>During successive calls on one instance, the concrete schedule selected for every <code>H</code> or <code>R</code> field remains unchanged.</li>
+<li>After special fields have been expanded, the existing <code>datetime</code> and float return modes continue to behave identically.</li>
 </ul>
-<h4>Worked examples</h4>
-<p>Unless otherwise stated, these examples start at <code>datetime(2020, 1, 1, 0, 0)</code> and use <code>hash_id=&quot;hello&quot;</code>. Each first result is from <code>get_next(datetime)</code>.</p>
+<h4>Examples worked through</h4>
+<p>Except where stated otherwise, these examples start at <code>datetime(2020, 1, 1, 0, 0)</code> and use <code>hash_id=&quot;hello&quot;</code>. Each first result comes from <code>get_next(datetime)</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1664,28 +1669,28 @@ def expand(cls, expr_format, *args, **kwargs):
 </tr>
 </tbody>
 </table>
-<p>The weekly alternatives preserve compatibility with day-of-week range conventions: using the inclusive <code>0..7</code> field bound resolves <code>&quot;hello&quot;</code> to <code>0</code> (Sunday, January 5), while the historical <code>0..6</code> convention resolves it to <code>5</code> (Friday, January 3). Both denote a stable weekly schedule and are acceptable for this compatibility case.</p>
-<p>For float output:</p>
+<p>These weekly alternatives exist to preserve compatibility with day-of-week range conventions: with the inclusive <code>0..7</code> field bound, <code>&quot;hello&quot;</code> resolves to <code>0</code> (Sunday, January 5), whereas under the historical <code>0..6</code> convention it resolves to <code>5</code> (Friday, January 3). Both of these denote a stable weekly schedule and are acceptable in this compatibility case.</p>
+<p>When the output is float:</p>
 <pre><code class="language-python">croniter(&quot;H H * * *&quot;, datetime(2020, 1, 1), hash_id=&quot;hello&quot;).get_next(float)
 </code></pre>
-<p>returns <code>1577877000.0</code>; the following value is exactly <code>86400</code> seconds later.</p>
-<h4>Random-schedule examples</h4>
-<p>With start time <code>2020-01-01 00:00</code> and no hash seed:</p>
+<p>returns <code>1577877000.0</code>; the value that follows is exactly <code>86400</code> seconds later.</p>
+<h4>Examples with random schedules</h4>
+<p>Given a start time of <code>2020-01-01 00:00</code> and no hash seed:</p>
 <ul>
-<li>For <code>R R * * *</code>, the first <code>datetime</code> result lies in the inclusive window from <code>2020-01-01 00:00</code> through <code>2020-01-02 00:00</code>; the second lies from <code>2020-01-02 00:00</code> through <code>2020-01-03 00:00</code>.</li>
-<li>For <code>R R R(10-20) * *</code>, the first result lies from <code>2020-01-10 00:00</code> through <code>2020-01-21 00:00</code>; the second lies from <code>2020-02-10 00:00</code> through <code>2020-02-21 00:00</code>.</li>
-<li>For <code>R R * * *</code> with float output, the first result lies from <code>1577836800.0</code> through <code>1577836800.0 + 86400</code>, and the second lies from <code>1577923200.0</code> through <code>1577923200.0 + 86400</code>.</li>
+<li>For <code>R R * * *</code>, the first <code>datetime</code> result lies within the inclusive window that spans <code>2020-01-01 00:00</code> through <code>2020-01-02 00:00</code>; the second result lies from <code>2020-01-02 00:00</code> through <code>2020-01-03 00:00</code>.</li>
+<li>For <code>R R R(10-20) * *</code>, the first result lies from <code>2020-01-10 00:00</code> through <code>2020-01-21 00:00</code>, and the second result lies from <code>2020-02-10 00:00</code> through <code>2020-02-21 00:00</code>.</li>
+<li>For <code>R R * * *</code> with float output, the first result lies from <code>1577836800.0</code> through <code>1577836800.0 + 86400</code>, and the second result lies from <code>1577923200.0</code> through <code>1577923200.0 + 86400</code>.</li>
 </ul>
 <h4>Backward compatibility and non-goals</h4>
 <ul>
-<li>All existing standard cron expressions and their expansion, validation, next/previous occurrence, day-of-month/day-of-week, seconds, timezone, DST, and return-type behavior must remain unchanged.</li>
-<li>Supplying no <code>hash_id</code> to existing constructor calls must preserve their prior behavior.</li>
-<li>The feature resolves special syntax into an ordinary fixed cron schedule; it must not re-randomize while iterating.</li>
-<li>The hash is for deterministic distribution, not cryptographic security.</li>
-<li>No change is required to existing range-generation semantics beyond preserving widened <code>expand</code> delegation for custom <code>croniter</code> subclasses.</li>
+<li>All existing standard cron expressions, along with their expansion, validation, next/previous occurrence, day-of-month/day-of-week, seconds, timezone, DST, and return-type behavior, must remain unchanged.</li>
+<li>When existing constructor calls are given no <code>hash_id</code>, their prior behavior must be preserved.</li>
+<li>The feature resolves the special syntax into an ordinary fixed cron schedule; while iteration is in progress, it must not re-randomize.</li>
+<li>The hash serves deterministic distribution, not cryptographic security.</li>
+<li>Aside from preserving widened <code>expand</code> delegation for custom <code>croniter</code> subclasses, no change to existing range-generation semantics is required.</li>
 </ul>
 <h4>Flake8 configuration</h4>
-<p>Add <code>C901</code> (function too complex) to the project's Flake8 ignore list while retaining the existing ignored codes, so externally configured complexity limits do not flag this change.</p>
+<p>Add <code>C901</code> (function too complex) to the project's Flake8 ignore list while keeping the codes that are already ignored, so that externally configured complexity limits do not flag this change.</p>
 </div>
     </details>
   </div>

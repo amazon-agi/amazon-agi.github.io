@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/grafana-toolbox/grafana-client/compare/eddcde78c5d5c7131d2f037b0b718aaac2d17526...ff8e35cef3252d2630dbe9ee0da3b506ee449f80" target="_blank" rel="noopener" class="mono">eddcde78c5 … ff8e35cef3</a> · 247 commits by 21 authors over 2.4 y (2017-12-19 to 2020-05-06)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 41 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>212 lines of code in 8 files when the chain starts · over the 20 requests the developers added 4,057 and removed 1,747 lines of code, plus 2,000 lines of tests (64 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.7k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 4</dd></div>
+      <div><dt>Specifications:</dt><dd>9.6k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 4</dd></div>
     </dl>
   </header>
 </section>
@@ -144,141 +144,144 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement a Python package named grafana_api that provides a client interface for interacting with a Grafana API server.</span>
-        <span class="spec-meta muted">313 words · source specification
+        <span class="spec-title">Build a Python package named grafana_api that offers a client interface for interacting with a Grafana API server.</span>
+        <span class="spec-meta muted">353 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a Python package named <code>grafana_api</code> that provides a client interface for interacting with a Grafana API server.</p>
-<h4>Public API Surface</h4>
-<h5>Module: <code>grafana_api.grafana_face</code></h5>
-<p>Must expose a class named <code>GrafanaFace</code>.</p>
-<p><strong><code>GrafanaFace</code> constructor:</strong></p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Build a Python package named <code>grafana_api</code> that offers a client interface for interacting with a Grafana API server.</p>
+<h4>Public API</h4>
+<h5>Module <code>grafana_api.grafana_face</code></h5>
+<p>This module must expose a class named <code>GrafanaFace</code>.</p>
+<p><strong>Constructor of <code>GrafanaFace</code>:</strong></p>
 <pre><code class="language-python">GrafanaFace(auth, host='localhost', url_path_prefix='', protocol='https', ...)
 </code></pre>
 <ul>
-<li><code>auth</code>: authentication credentials. Must accept a 2-tuple such as <code>('admin', 'admin')</code> representing username/password basic-auth credentials.</li>
-<li><code>host</code>: server hostname (string).</li>
-<li><code>url_path_prefix</code>: a path prefix string prepended to API endpoints (may be an empty string).</li>
-<li><code>protocol</code>: connection protocol string (e.g. <code>'https'</code>).</li>
+<li><code>auth</code>: authentication credentials. Must accept a 2-tuple such as <code>('admin', 'admin')</code> that represents username/password basic-auth credentials.</li>
+<li><code>host</code>: the server's hostname (a string).</li>
+<li><code>url_path_prefix</code>: a string used as a path prefix that is prepended to API endpoints (it may be an empty string).</li>
+<li><code>protocol</code>: the connection protocol as a string (e.g. <code>'https'</code>).</li>
 </ul>
-<p>The constructor must accept these as keyword arguments and construct successfully without contacting any server.</p>
-<p><strong><code>GrafanaFace</code> method:</strong></p>
+<p>The constructor must accept these as keyword arguments, and it must construct successfully without contacting any server.</p>
+<p><strong>Method on <code>GrafanaFace</code>:</strong></p>
 <ul>
-<li><code>find_user(login_or_email)</code>: Looks up a user by their login name or email address. Accepts a single string argument (e.g. an email address like <code>'test@test.com'</code>). This method must be callable on a <code>GrafanaFace</code> instance and issue the corresponding lookup call through the underlying API layer.</li>
+<li><code>find_user(login_or_email)</code>: Performs a lookup of a user by their login name or email address. It accepts a single string argument (for example an email address such as <code>'test@test.com'</code>). The method must be callable on a <code>GrafanaFace</code> instance and must issue the corresponding lookup call through the underlying API layer.</li>
 </ul>
-<h5>Module: <code>grafana_api.grafana_api</code></h5>
-<p>Must expose a class named <code>GrafanaAPI</code>.</p>
+<h5>Module <code>grafana_api.grafana_api</code></h5>
+<p>This module must expose a class named <code>GrafanaAPI</code>.</p>
 <p><strong><code>GrafanaAPI.__getattr__</code>:</strong></p>
-<p><code>GrafanaAPI</code> must implement dynamic attribute access via <code>__getattr__</code>. Attribute access on a <code>GrafanaAPI</code> instance resolves to a callable that performs the corresponding HTTP request. This mechanism is the pathway through which <code>GrafanaFace</code> methods (such as <code>find_user</code>) delegate their work — calling a <code>GrafanaFace</code> method must ultimately trigger attribute resolution on the underlying <code>GrafanaAPI</code> object and invoke the resulting callable.</p>
-<h4>Behavioral Requirements</h4>
+<p><code>GrafanaAPI</code> must implement dynamic attribute access by means of <code>__getattr__</code>. Reading an attribute on a <code>GrafanaAPI</code> instance resolves to a callable that performs the corresponding HTTP request. This mechanism constitutes the pathway through which <code>GrafanaFace</code> methods (such as <code>find_user</code>) delegate their work — calling a <code>GrafanaFace</code> method must ultimately trigger attribute resolution on the underlying <code>GrafanaAPI</code> object and invoke the resulting callable.</p>
+<h4>Required Behavior</h4>
 <ul>
-<li>Creating a <code>GrafanaFace</code> with the tuple credentials and the listed keyword arguments must not raise.</li>
-<li>Calling <code>find_user</code> with a string argument must complete successfully when the underlying <code>GrafanaAPI</code> attribute-access/request layer is available, delegating the actual request through <code>GrafanaAPI.__getattr__</code>.</li>
+<li>Creation of a <code>GrafanaFace</code> using the tuple credentials and the listed keyword arguments must not raise.</li>
+<li>Calling <code>find_user</code> with a string argument must complete successfully when the underlying <code>GrafanaAPI</code> attribute-access/request layer is available, with the actual request delegated through <code>GrafanaAPI.__getattr__</code>.</li>
 </ul>
 <h4>Packaging</h4>
-<p>The <code>grafana_api</code> package must be importable such that:</p>
+<p>The <code>grafana_api</code> package must be importable in such a way that:</p>
 <ul>
-<li><code>from grafana_api.grafana_face import GrafanaFace</code> works.</li>
-<li><code>grafana_api.grafana_api.GrafanaAPI.__getattr__</code> is a patchable attribute (i.e., <code>GrafanaAPI</code> defines <code>__getattr__</code>).</li>
+<li>an import of the form <code>from grafana_api.grafana_face import GrafanaFace</code> works.</li>
+<li><code>grafana_api.grafana_api.GrafanaAPI.__getattr__</code> is a patchable attribute — in other words, <code>GrafanaAPI</code> defines <code>__getattr__</code>.</li>
 </ul>
-<h4>Notes</h4>
-<p>No live network interaction is required for the behavior under test; the request-dispatch layer (<code>GrafanaAPI.__getattr__</code>) is the integration point that higher-level methods rely upon.</p>
+<h4>Remarks</h4>
+<p>For the behavior under test, no live network interaction is required; higher-level methods rely on the request-dispatch layer (<code>GrafanaAPI.__getattr__</code>) as their integration point.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Implement a Grafana API client library that provides a dynamic, attribute-based interface for making HTTP requests to a Grafana server.</span>
-        <span class="spec-meta muted">261 words · source specification
+        <span class="spec-title">Implement a client library for the Grafana API that offers a dynamic, attribute-based interface for making HTTP requests to a Grafana server.</span>
+        <span class="spec-meta muted">276 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a Grafana API client library that provides a dynamic, attribute-based interface for making HTTP requests to a Grafana server.</p>
-<h4>Public API Surface</h4>
-<p>Create a module at <code>grafana_api/grafana_api.py</code> containing a class named <code>GrafanaAPI</code>.</p>
-<h5>Class: <code>GrafanaAPI</code></h5>
-<p>The class must expose dynamic attribute access via a <code>__getattr__</code> method. When an attribute is accessed on an instance of <code>GrafanaAPI</code>, <code>__getattr__</code> is invoked and returns a callable.</p>
-<h5>Behavior</h5>
-<p>The key behavioral contract exercised is:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Implement a client library for the Grafana API that offers a dynamic, attribute-based interface for making HTTP requests to a Grafana server.</p>
+<h4>Public API</h4>
+<p>Create a module located at <code>grafana_api/grafana_api.py</code> that contains a class called <code>GrafanaAPI</code>.</p>
+<h5>The <code>GrafanaAPI</code> Class</h5>
+<p>The class must expose dynamic attribute access through a <code>__getattr__</code> method. Accessing an attribute on an instance of <code>GrafanaAPI</code> invokes <code>__getattr__</code>, which returns a callable.</p>
+<h5>Expected Behavior</h5>
+<p>The key behavioral contract being exercised is the following:</p>
 <ol>
-<li>Accessing an arbitrary attribute on a <code>GrafanaAPI</code> instance triggers <code>__getattr__</code>, which returns a callable object.</li>
-<li>Invoking that returned callable performs the underlying request operation and returns the response payload <strong>directly</strong> — that is, the return value of calling the object produced by <code>__getattr__</code> is the response body itself.</li>
+<li>Accessing an arbitrary attribute on a <code>GrafanaAPI</code> instance triggers <code>__getattr__</code>; the method then returns a callable object.</li>
+<li>Invoking that returned callable performs the underlying request operation and returns the response payload <strong>directly</strong> — meaning the value returned by calling the object that <code>__getattr__</code> produced is the response body itself.</li>
 </ol>
-<p>Specifically, the value obtained from calling the callable returned by <code>__getattr__</code> is the raw response content (e.g., a JSON string / decoded body), <strong>not</strong> an intermediate response wrapper object. In other words:</p>
+<p>Concretely, the value obtained from calling the callable that <code>__getattr__</code> returns is the raw response content (e.g., a JSON string / decoded body), <strong>not</strong> an intermediate response wrapper object. Put differently:</p>
 <pre><code>instance.&lt;some_attr&gt;(...)  -&gt;  returns the response body
 </code></pre>
-<p>The consuming code relies on the invocation result being the body payload directly, without needing to access a <code>.content</code> (or similar) attribute on it.</p>
+<p>The code that consumes the library depends on the invocation result being the body payload directly, without having to access a <code>.content</code> (or similar) attribute on it.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The implementation must be importable as <code>from grafana_api.grafana_api import GrafanaAPI</code> and support patching of <code>GrafanaAPI.__getattr__</code>.</li>
-<li>The result of invoking a <code>__getattr__</code>-produced callable must be the response body value itself.</li>
+<li>The implementation must be importable as <code>from grafana_api.grafana_api import GrafanaAPI</code>, and it must support patching of <code>GrafanaAPI.__getattr__</code>.</li>
+<li>When a callable produced by <code>__getattr__</code> is invoked, the result must be the response body value itself.</li>
 </ul>
 <h4>Compatibility</h4>
 <ul>
-<li>The library must function under both Python 2 and Python 3.</li>
+<li>The library must work under both Python 2 and Python 3.</li>
 </ul>
 <h4>Out of Scope</h4>
-<p>Do not add any behavior beyond what is described above. Only the attribute-access-returns-callable and callable-returns-body contract is required.</p>
+<p>Beyond what is described above, do not add any behavior. The only contract required is the attribute-access-returns-callable and callable-returns-body one.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Implement a Python client library for the Grafana HTTP API that exposes a top-level client class supporting nested, namespaced access to API operations.</span>
-        <span class="spec-meta muted">307 words · source specification
+        <span class="spec-title">Build a Python client library for the Grafana HTTP API that provides a top-level client class offering nested, namespaced access to API operations.</span>
+        <span class="spec-meta muted">325 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a Python client library for the Grafana HTTP API that exposes a top-level client class supporting nested, namespaced access to API operations.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Build a Python client library for the Grafana HTTP API that provides a top-level client class offering nested, namespaced access to API operations.</p>
+<h4>Public API</h4>
 <h5>Client Class</h5>
-<p>Provide a class named <code>GrafanaFace</code> that can be imported into user code (e.g. <code>from grafana_api.grafana_face import GrafanaFace</code>, matching the existing package layout). It must be constructible with the following signature:</p>
+<p>Supply a class called <code>GrafanaFace</code> that user code can import (e.g. <code>from grafana_api.grafana_face import GrafanaFace</code>, consistent with the existing package layout). Its constructor must have the following signature:</p>
 <pre><code class="language-python">GrafanaFace(auth, host='localhost', port=None, url_path_prefix='', protocol='http')
 </code></pre>
 <ul>
-<li><code>auth</code>: authentication credentials. Must accept a two-element tuple of <code>(username, password)</code> for basic authentication.</li>
+<li><code>auth</code>: credentials used for authentication. It must accept a two-element tuple of <code>(username, password)</code> for basic authentication.</li>
 <li><code>host</code>: the hostname of the Grafana server. Defaults to <code>'localhost'</code>.</li>
 <li><code>port</code>: the port of the Grafana server. Optional.</li>
-<li><code>url_path_prefix</code>: a string prefix inserted into the request URL path. Must accept an empty string.</li>
-<li><code>protocol</code>: the request scheme, e.g. <code>'http'</code> or <code>'https'</code>. Must accept <code>'https'</code>.</li>
+<li><code>url_path_prefix</code>: a string prefix placed into the request URL path. It must accept an empty string.</li>
+<li><code>protocol</code>: the scheme used for requests, e.g. <code>'http'</code> or <code>'https'</code>. It must accept <code>'https'</code>.</li>
 </ul>
-<p>Construction must succeed with these arguments without performing any network I/O.</p>
+<p>Instantiation with these arguments must succeed without performing any network I/O.</p>
 <h5>Users Namespace</h5>
-<p>The <code>GrafanaFace</code> instance must expose an attribute named <code>users</code> that groups user-related API operations.</p>
-<p>On <code>users</code>, provide a method:</p>
+<p>An instance of <code>GrafanaFace</code> must expose an attribute called <code>users</code> that groups the API operations related to users.</p>
+<p>On <code>users</code>, supply a method:</p>
 <pre><code class="language-python">find_user(login_or_email)
 </code></pre>
 <ul>
-<li><code>login_or_email</code>: a string identifying a user by login name or email address (e.g. <code>'test@test.com'</code>).</li>
-<li>Calling this method issues the corresponding HTTP request to the Grafana API to look up the user and returns the parsed response.</li>
+<li><code>login_or_email</code>: a string that identifies a user by login name or email address (e.g. <code>'test@test.com'</code>).</li>
+<li>When called, this method issues the corresponding HTTP request to the Grafana API to look up the user and returns the parsed response.</li>
 </ul>
 <h4>Behavioral Requirements</h4>
 <ul>
-<li>User lookup functionality that was previously reachable as a direct method on the client must instead be reachable through the <code>users</code> namespace, i.e. via <code>client.users.find_user(...)</code>. A direct <code>client.find_user(...)</code> on the top-level object is not required.</li>
-<li>The client must build request URLs using the configured protocol, host, and URL path prefix, and must support HTTPS as the protocol and an empty URL path prefix.</li>
+<li>The user lookup functionality that was previously reachable as a direct method on the client must now be reachable through the <code>users</code> namespace, i.e. via <code>client.users.find_user(...)</code>. A direct <code>client.find_user(...)</code> on the top-level object is not required.</li>
+<li>The client must construct request URLs using the configured protocol, host, and URL path prefix, and it must support HTTPS as the protocol and an empty URL path prefix.</li>
 </ul>
 <h4>Compatibility</h4>
 <ul>
-<li>The library targets Python 3 only. Python 2 compatibility is not required.</li>
+<li>The library is designed for Python 3 only. Python 2 compatibility is not required.</li>
 </ul>
-<p>&lt;sub&gt;&lt;sup&gt;Note: only the behavior described above is verified. Do not add unspecified endpoints or features.&lt;/sup&gt;&lt;/sub&gt;</p>
+<p>&lt;sub&gt;&lt;sup&gt;Note: verification covers only the behavior described above. Do not add any endpoints or features that are not specified.&lt;/sup&gt;&lt;/sub&gt;</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Update the Grafana client so callers can disable TLS certificate verification for GET requests.</span>
-        <span class="spec-meta muted">120 words · source specification
+        <span class="spec-title">Modify the Grafana client so that callers can turn off TLS certificate verification for GET requests.</span>
+        <span class="spec-meta muted">143 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the Grafana client so callers can disable TLS certificate verification for GET requests.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Modify the Grafana client so that callers can turn off TLS certificate verification for GET requests.</p>
+<h5>Public interface</h5>
 <ul>
-<li>Module: <code>grafana_api.grafana_face</code></li>
-<li>Class: <code>GrafanaFace</code></li>
-<li>Supported construction:<pre><code class="language-python">GrafanaFace(
+<li>The module is <code>grafana_api.grafana_face</code>.</li>
+<li>The class is <code>GrafanaFace</code>.</li>
+<li>Construction that is supported:<pre><code class="language-python">GrafanaFace(
     auth,
     host=...,
     url_path_prefix=...,
@@ -287,15 +290,15 @@
 )
 </code></pre>
 </li>
-<li>The resulting client must expose:
+<li>The client that results must expose:
 <ul>
 <li><code>client.users.find_user(login_or_email)</code></li>
 <li><code>client.api.s.get</code></li>
 </ul>
 </li>
 </ul>
-<h5>Required behavior</h5>
-<p>Given:</p>
+<h5>Behavior that is required</h5>
+<p>Suppose the following:</p>
 <pre><code class="language-python">client = GrafanaFace(
     ('admin', 'admin'),
     host='localhost',
@@ -305,7 +308,7 @@
 )
 client.users.find_user('test@test.com')
 </code></pre>
-<p><code>find_user</code> must issue exactly one GET request equivalent to:</p>
+<p><code>find_user</code> must issue exactly one GET request, equivalent to the following:</p>
 <pre><code class="language-python">client.api.s.get(
     'https://localhost/api/users/lookup?loginOrEmail=test@test.com',
     auth=('admin', 'admin'),
@@ -314,175 +317,176 @@ client.users.find_user('test@test.com')
     verify=False,
 )
 </code></pre>
-<p>A successful response with HTTP status <code>200</code> and a JSON object must be handled without raising an error.</p>
-<p>The key requirement is that the <code>verify</code> value supplied to <code>GrafanaFace</code> is forwarded to the underlying GET request.</p>
+<p>A response that is successful — one with HTTP status <code>200</code> and a JSON object — must be handled without an error being raised.</p>
+<p>The requirement that matters most is that the <code>verify</code> value supplied to <code>GrafanaFace</code> is forwarded to the underlying GET request.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You are working on a Python Grafana API client library.</span>
-        <span class="spec-meta muted">319 words · source specification
+        <span class="spec-title">Your work is on a Python client library for the Grafana API.</span>
+        <span class="spec-meta muted">332 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Fix Authentication Handling in Grafana API Client</h3>
-<h4>Overview</h4>
-<p>You are working on a Python Grafana API client library. The library exposes a client class <code>GrafanaFace</code> that must set up an appropriate authentication object depending on the type of credential passed to it. There is a bug in how the authentication is stored and how the credential type is interpreted. You must fix it.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task: Repair Authentication Handling in the Grafana API Client</h3>
+<h4>Background</h4>
+<p>Your work is on a Python client library for the Grafana API. The library exposes a client class <code>GrafanaFace</code> that must set up an appropriate authentication object based on the type of credential passed to it. There is a bug in the way the authentication is stored and in the way the credential type is interpreted; you must fix it.</p>
+<h4>Public API</h4>
 <h5><code>grafana_api.grafana_face.GrafanaFace</code></h5>
 <p>A class whose constructor accepts the following:</p>
 <pre><code class="language-python">GrafanaFace(auth, host='...', url_path_prefix='', protocol='https', verify=True, ...)
 </code></pre>
 <ul>
-<li>The <strong>first positional argument</strong> (<code>auth</code>) is the credential. It can be either:
+<li>The <strong>first positional argument</strong> (<code>auth</code>) carries the credential. It can be either:
 <ul>
 <li>a <strong>tuple</strong> of <code>(username, password)</code> for basic authentication, or</li>
-<li>a <strong>string</strong> representing an API token for token-based authentication.</li>
+<li>a <strong>string</strong> that represents an API token for token-based authentication.</li>
 </ul>
 </li>
-<li>Other keyword arguments include <code>host</code>, <code>url_path_prefix</code>, <code>protocol</code>, and <code>verify</code>.</li>
+<li>Additional keyword arguments include <code>host</code>, <code>url_path_prefix</code>, <code>protocol</code>, and <code>verify</code>.</li>
 </ul>
-<p>The <code>GrafanaFace</code> instance must expose an attribute <code>api</code>, which in turn must expose an attribute <code>auth</code>. This <code>api.auth</code> attribute must hold the authentication object derived from the credential (see behavior below).</p>
+<p>The <code>GrafanaFace</code> instance must expose an attribute <code>api</code>; that attribute in turn must expose an attribute <code>auth</code>. This <code>api.auth</code> attribute must hold the authentication object derived from the credential (see the behavior below).</p>
 <h5><code>grafana_api.grafana_api.TokenAuth</code></h5>
-<p>A class (importable from module <code>grafana_api.grafana_api</code>) used to represent token-based authentication. It must be constructible from a token string and usable as a <code>requests</code>-compatible authentication object.</p>
-<h4>Required Behavior</h4>
-<p>When constructing a <code>GrafanaFace</code>:</p>
+<p>A class representing token-based authentication; it is importable from module <code>grafana_api.grafana_api</code>. It must be constructible from a token string and usable as a <code>requests</code>-compatible authentication object.</p>
+<h4>Behavior Requirements</h4>
+<p>When a <code>GrafanaFace</code> is constructed:</p>
 <ol>
 <li>
-<p><strong>Tuple credential → Basic Auth.</strong>
-If the first positional argument is a tuple (e.g. <code>('admin', 'admin')</code>), then <code>api.auth</code> must be an instance of <code>requests.auth.HTTPBasicAuth</code>, initialized from the tuple's username and password.</p>
+<p><strong>A tuple credential results in Basic Auth.</strong>
+If the first positional argument is a tuple (e.g. <code>('admin', 'admin')</code>), then <code>api.auth</code> must be an instance of <code>requests.auth.HTTPBasicAuth</code>, initialized using the username and password from the tuple.</p>
 </li>
 <li>
-<p><strong>String credential → Token Auth.</strong>
-If the first positional argument is a string (e.g. <code>'alongtoken012345etc'</code>), then <code>api.auth</code> must be an instance of <code>grafana_api.grafana_api.TokenAuth</code>, initialized from that token string.</p>
+<p><strong>A string credential results in Token Auth.</strong>
+If the first positional argument is a string (e.g. <code>'alongtoken012345etc'</code>), then <code>api.auth</code> must be an instance of <code>grafana_api.grafana_api.TokenAuth</code>, initialized using that token string.</p>
 </li>
 </ol>
-<p>The authentication object must be stored on the API object as the attribute <code>auth</code> (i.e. accessible via <code>GrafanaFace(...).api.auth</code>).</p>
-<h4>Notes</h4>
+<p>The authentication object must be stored on the API object as the attribute <code>auth</code> (i.e. it is accessible via <code>GrafanaFace(...).api.auth</code>).</p>
+<h4>Additional Notes</h4>
 <ul>
-<li>The distinction between the two credential forms is based on whether the value is a tuple (basic auth) or a string/other (token auth).</li>
-<li>The <code>verify</code>, <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code> parameters must continue to be accepted by the constructor without error.</li>
+<li>What distinguishes the two credential forms is whether the value is a tuple (basic auth) or a string/other (token auth).</li>
+<li>The constructor must continue to accept the <code>verify</code>, <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code> parameters without error.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Modify the Grafana API client library to support disabling SSL certificate verification on HTTP requests.</span>
-        <span class="spec-meta muted">430 words · source specification
+        <span class="spec-title">Update the Grafana API client library so that it supports disabling SSL certificate verification on HTTP requests.</span>
+        <span class="spec-meta muted">471 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the Grafana API client library to support disabling SSL certificate verification on HTTP requests. The client must expose a <code>verify</code> option that is propagated to the underlying HTTP request calls.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Update the Grafana API client library so that it supports disabling SSL certificate verification on HTTP requests. A <code>verify</code> option must be exposed by the client and propagated to the underlying HTTP request calls.</p>
+<h4>Public API</h4>
 <h5><code>grafana_api.grafana_face.GrafanaFace</code></h5>
-<p>The <code>GrafanaFace</code> class (importable from <code>grafana_api.grafana_face</code>) must accept a keyword argument <code>verify</code> in its constructor, in addition to its existing parameters. The observed constructor invocation form is:</p>
+<p>The <code>GrafanaFace</code> class, importable from <code>grafana_api.grafana_face</code>, must accept a keyword argument <code>verify</code> in its constructor in addition to its existing parameters. The invocation form observed for the constructor is:</p>
 <pre><code class="language-python">GrafanaFace(auth, host='localhost', url_path_prefix='', protocol='https', verify=False)
 </code></pre>
 <ul>
-<li><code>auth</code>: the first positional argument. It may be a <code>(username, password)</code> tuple (basic-auth style) or a token string.</li>
-<li><code>host</code>, <code>url_path_prefix</code>, <code>protocol</code>: existing connection parameters.</li>
-<li><code>verify</code>: a new parameter controlling SSL certificate verification. It defaults to <code>True</code> when not supplied. When explicitly passed (e.g. <code>verify=False</code>), the given value must be stored and used for all outgoing HTTP requests.</li>
+<li><code>auth</code>: the first positional argument. Its value may be a <code>(username, password)</code> tuple (basic-auth style) or a token string.</li>
+<li><code>host</code>, <code>url_path_prefix</code>, <code>protocol</code>: connection parameters that already exist.</li>
+<li><code>verify</code>: a new parameter that controls SSL certificate verification. When it is not supplied, it defaults to <code>True</code>. When it is passed explicitly (e.g. <code>verify=False</code>), the value given must be stored and used for all outgoing HTTP requests.</li>
 </ul>
-<p>The constructed <code>GrafanaFace</code> instance must expose an attribute <code>api</code>. The <code>api</code> object must:</p>
+<p>Once constructed, the <code>GrafanaFace</code> instance must expose an attribute <code>api</code>. The <code>api</code> object must:</p>
 <ul>
-<li>expose an attribute <code>auth</code> holding the authentication value derived from the <code>auth</code> argument (for a <code>(username, password)</code> tuple, this is the tuple itself),</li>
-<li>expose an attribute <code>s</code> representing the HTTP session object whose <code>get</code> method is used to perform GET requests.</li>
+<li>expose an attribute <code>auth</code> that holds the authentication value derived from the <code>auth</code> argument (for a <code>(username, password)</code> tuple, this is the tuple itself),</li>
+<li>expose an attribute <code>s</code> that represents the HTTP session object whose <code>get</code> method is used to perform GET requests.</li>
 </ul>
-<h5>Request behavior</h5>
-<p>When an API operation issues an HTTP GET request via <code>api.s.get</code>, the call must be made with exactly the following keyword arguments in addition to the URL:</p>
+<h5>Behaviour of Requests</h5>
+<p>When a GET request over HTTP is issued by an API operation via <code>api.s.get</code>, the call must be made with exactly the following keyword arguments in addition to the URL:</p>
 <pre><code class="language-python">api.s.get(url, auth=&lt;auth&gt;, headers=&lt;headers&gt;, json=&lt;json&gt;, verify=&lt;verify&gt;)
 </code></pre>
 <p>where:</p>
 <ul>
-<li><code>url</code> is the fully composed request URL, e.g. <code>https://localhost/api/users/lookup?loginOrEmail=test@test.com</code>.</li>
-<li><code>auth</code> is the authentication value (the <code>(username, password)</code> tuple when tuple auth was supplied).</li>
-<li><code>headers</code> is <code>None</code> when no headers are needed for the request.</li>
+<li><code>url</code> is the fully composed URL of the request, e.g. <code>https://localhost/api/users/lookup?loginOrEmail=test@test.com</code>.</li>
+<li><code>auth</code> is the authentication value (the <code>(username, password)</code> tuple in the case where tuple auth was supplied).</li>
+<li><code>headers</code> is <code>None</code> when the request needs no headers.</li>
 <li><code>json</code> is <code>None</code> when no body is sent.</li>
-<li><code>verify</code> is the value provided to the <code>GrafanaFace</code> constructor's <code>verify</code> parameter (e.g. <code>False</code>).</li>
+<li><code>verify</code> is the value provided to the <code>verify</code> parameter of the <code>GrafanaFace</code> constructor (e.g. <code>False</code>).</li>
 </ul>
-<p>The <code>verify</code> value passed at construction time must flow unchanged into every such GET request.</p>
-<h5>Users component: <code>find_user</code></h5>
-<p>The <code>GrafanaFace</code> instance must expose a <code>users</code> component with a method <code>find_user(login_or_email)</code>.</p>
-<p>Calling <code>cli.users.find_user('test@test.com')</code> must issue a single GET request to the URL path <code>/api/users/lookup</code> with a query string <code>loginOrEmail=&lt;login_or_email&gt;</code>. Given <code>protocol='https'</code>, <code>host='localhost'</code>, and empty <code>url_path_prefix</code>, the resulting URL must be exactly:</p>
+<p>The <code>verify</code> value that is passed at construction time must flow unchanged into every GET request of this kind.</p>
+<h5>The users component: <code>find_user</code></h5>
+<p>The <code>GrafanaFace</code> instance must expose a <code>users</code> component that has a method <code>find_user(login_or_email)</code>.</p>
+<p>A call to <code>cli.users.find_user('test@test.com')</code> must issue a single GET request to the URL path <code>/api/users/lookup</code> with a query string <code>loginOrEmail=&lt;login_or_email&gt;</code>. Given <code>protocol='https'</code>, <code>host='localhost'</code>, and an empty <code>url_path_prefix</code>, the URL that results must be exactly:</p>
 <pre><code>https://localhost/api/users/lookup?loginOrEmail=test@test.com
 </code></pre>
-<p>The request must be issued exactly once, using <code>api.s.get</code>, with the keyword arguments described above (<code>auth</code>, <code>headers=None</code>, <code>json=None</code>, and the constructor's <code>verify</code> value).</p>
-<p>The method returns the parsed JSON body of the response.</p>
+<p>The request must be issued exactly once, by means of <code>api.s.get</code>, with the keyword arguments described above (<code>auth</code>, <code>headers=None</code>, <code>json=None</code>, and the constructor's <code>verify</code> value).</p>
+<p>The return value of the method is the parsed JSON body of the response.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The URL query parameter for the email/login lookup must not be URL-escaped in a way that alters <code>test@test.com</code>; the value appears literally in the query string.</li>
-<li>No behavior beyond propagating <code>verify</code> and performing the described GET request is required.</li>
+<li>The URL query parameter for the email/login lookup must not be URL-escaped in a manner that alters <code>test@test.com</code>; the value occurs literally in the query string.</li>
+<li>No behavior beyond propagating <code>verify</code> and carrying out the described GET request is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Grafana API Authentication Handling</span>
-        <span class="spec-meta muted">420 words · source specification
+        <span class="spec-title">Authentication Handling for the Grafana API</span>
+        <span class="spec-meta muted">453 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Grafana API Authentication Handling</h3>
+      <div class="spec-body"><h3>Task Specification: Authentication Handling for the Grafana API</h3>
 <h4>Overview</h4>
-<p>You must implement authentication credential handling for a Grafana API client library. The client accepts an authentication credential and must select the appropriate authentication mechanism based on the type of credential provided.</p>
+<p>You must implement the handling of authentication credentials for a Grafana API client library. The client accepts an authentication credential, and the appropriate authentication mechanism must be selected according to the type of credential provided.</p>
 <h4>Public API Surface</h4>
 <h5>Module: <code>grafana_api.grafana_api</code></h5>
-<p>Define a class named <code>TokenAuth</code>. This class represents token-based authentication. It must be importable as:</p>
+<p>A class named <code>TokenAuth</code> must be defined. The class represents token-based authentication. It must be possible to import it as:</p>
 <pre><code class="language-python">from grafana_api.grafana_api import TokenAuth
 </code></pre>
-<p><code>TokenAuth</code> should be a callable authentication handler compatible with the <code>requests</code> library authentication interface (i.e., it can be used as the <code>auth</code> argument to a <code>requests</code> request). Its constructor accepts the token credential.</p>
+<p><code>TokenAuth</code> should be an authentication handler that is callable and compatible with the <code>requests</code> library authentication interface (i.e., it can be used as the <code>auth</code> argument to a <code>requests</code> request). The token credential is accepted by its constructor.</p>
 <h5>Module: <code>grafana_api.grafana_face</code></h5>
-<p>Define a class named <code>GrafanaFace</code>. It must be importable as:</p>
+<p>A class named <code>GrafanaFace</code> must be defined. It must be possible to import it as:</p>
 <pre><code class="language-python">from grafana_api.grafana_face import GrafanaFace
 </code></pre>
-<h6>Constructor signature</h6>
+<h6>Constructor Signature</h6>
 <pre><code class="language-python">GrafanaFace(auth, host='localhost', url_path_prefix='', protocol='https', ...)
 </code></pre>
-<p>The first positional parameter, <code>auth</code>, is the authentication credential. The parameters <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code> are supported as keyword arguments.</p>
+<p><code>auth</code>, the first positional parameter, is the authentication credential. The parameters <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code> are parameters that are supported as keyword arguments.</p>
 <h6>Attributes</h6>
-<p>A <code>GrafanaFace</code> instance must expose an attribute <code>api</code> which is the underlying API client object. That API client object must expose:</p>
+<p>An instance of <code>GrafanaFace</code> must expose an attribute <code>api</code> that is the underlying API client object. This API client object must expose:</p>
 <ul>
-<li>An attribute named <code>auth</code>, holding the resolved authentication handler (see behavior below).</li>
-<li>An attribute named <code>s</code>, holding a <code>requests</code>-style session object used to perform HTTP requests.</li>
+<li>An attribute <code>auth</code> that holds the resolved authentication handler (see the behavior below).</li>
+<li>An attribute <code>s</code> that holds a <code>requests</code>-style session object used to perform HTTP requests.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The authentication mechanism is selected based on the type of the <code>auth</code> credential passed to <code>GrafanaFace</code>:</p>
+<h4>Behavior Requirements</h4>
+<p>The type of the <code>auth</code> credential passed to <code>GrafanaFace</code> determines which authentication mechanism is selected:</p>
 <ol>
 <li>
-<p><strong>Basic authentication</strong> — When <code>auth</code> is a tuple (e.g., a <code>(username, password)</code> pair), the resolved <code>auth</code> attribute on the API client must be an instance of <code>requests.auth.HTTPBasicAuth</code>, constructed from the tuple's elements.</p>
+<p><strong>Basic authentication</strong> — If <code>auth</code> is a tuple (for example, a <code>(username, password)</code> pair), the <code>auth</code> attribute resolved on the API client must be an instance of <code>requests.auth.HTTPBasicAuth</code>, constructed using the tuple's elements.</p>
 </li>
 <li>
-<p><strong>Token authentication</strong> — When <code>auth</code> is not a tuple (e.g., a plain string token), the resolved <code>auth</code> attribute on the API client must be an instance of <code>TokenAuth</code>, constructed from the given credential.</p>
+<p><strong>Token authentication</strong> — If <code>auth</code> is not a tuple (for example, a plain string token), the <code>auth</code> attribute resolved on the API client must be an instance of <code>TokenAuth</code>, constructed from the credential that was given.</p>
 </li>
 </ol>
-<p>The resolved authentication handler must be stored on the API client's own <code>auth</code> attribute (not on the session object), so that it is available for use when issuing requests.</p>
+<p>The resolved authentication handler must be stored on the API client's own <code>auth</code> attribute (not on the session object), so that it is available for use when requests are issued.</p>
 <h4>Request Behavior</h4>
-<p>When the API client performs an HTTP request through its session object (<code>s</code>), it must pass the resolved authentication handler as the <code>auth</code> argument to the session's request methods.</p>
-<p>An example: calling a lookup that issues a GET request must invoke the session's <code>get</code> method with the target URL and the keyword arguments <code>auth</code> (the resolved authentication handler), <code>headers</code>, <code>json</code>, and <code>verify</code>.</p>
-<p>For a client constructed with a <code>(username, password)</code> tuple, the <code>auth</code> passed to session requests is the corresponding <code>HTTPBasicAuth</code> — equivalently the <code>(username, password)</code> tuple when compared for equality — and <code>verify</code> reflects the configured TLS verification setting.</p>
+<p>When the API client performs an HTTP request through its session object (<code>s</code>), the resolved authentication handler must be passed as the <code>auth</code> argument to the session's request methods.</p>
+<p>As an example: a lookup that issues a GET request, when called, must invoke the session's <code>get</code> method with the target URL and the keyword arguments <code>auth</code> (the resolved authentication handler), <code>headers</code>, <code>json</code>, and <code>verify</code>.</p>
+<p>When a client is constructed with a <code>(username, password)</code> tuple, the <code>auth</code> passed to the session's requests is the corresponding <code>HTTPBasicAuth</code> — equivalently the <code>(username, password)</code> tuple when compared for equality — and <code>verify</code> reflects the configured TLS verification setting.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">The following symbols and facade attributes must be available</span>
-        <span class="spec-meta muted">1153 words · source specification
+        <span class="spec-title">The symbols and facade attributes listed below must be available</span>
+        <span class="spec-meta muted">1288 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required Grafana API behavior</h3>
-<h4>Public API surface</h4>
-<p>The following symbols and facade attributes must be available:</p>
+      <div class="spec-body"><h3>Required behavior of the Grafana API</h3>
+<h4>The public API surface</h4>
+<p>The symbols and facade attributes listed below must be available:</p>
 <ul>
 <li><code>grafana_api.grafana_face.GrafanaFace</code></li>
 <li><code>grafana_api.grafana_api.GrafanaAPI</code>
 <ul>
-<li><code>GrafanaAPI.__getattr__</code> must exist and be addressable.</li>
+<li><code>GrafanaAPI.__getattr__</code> must be present and addressable.</li>
 </ul>
 </li>
 <li><code>grafana_api.grafana_api.TokenAuth</code></li>
 </ul>
-<p><code>GrafanaFace</code> must accept construction in this form:</p>
+<p>Construction of <code>GrafanaFace</code> must be accepted in this form:</p>
 <pre><code class="language-python">GrafanaFace(
     auth,
     host=&quot;localhost&quot;,
@@ -491,7 +495,7 @@ If the first positional argument is a string (e.g. <code>'alongtoken012345etc'</
     verify=False,  # optional
 )
 </code></pre>
-<p>A <code>GrafanaFace</code> instance must expose:</p>
+<p>The following must be exposed by a <code>GrafanaFace</code> instance:</p>
 <ul>
 <li><code>api</code></li>
 <li><code>admin</code></li>
@@ -500,14 +504,14 @@ If the first positional argument is a string (e.g. <code>'alongtoken012345etc'</
 <li><code>teams</code></li>
 <li><code>users</code></li>
 </ul>
-<p>For the configurations below, <code>protocol=&quot;http&quot;</code>, <code>host=&quot;localhost&quot;</code>, and an empty path prefix produce the base URL <code>http://localhost</code>.</p>
-<h4>Authentication and request configuration</h4>
+<p>In the configurations below, the base URL <code>http://localhost</code> is produced by <code>protocol=&quot;http&quot;</code>, <code>host=&quot;localhost&quot;</code>, and an empty path prefix.</p>
+<h4>Authentication and request setup</h4>
 <ul>
-<li>When <code>auth</code> is a <code>(username, password)</code> tuple, <code>client.api.auth</code> must be a <code>requests.auth.HTTPBasicAuth</code> instance.</li>
-<li>When <code>auth</code> is a token string, <code>client.api.auth</code> must be a <code>grafana_api.grafana_api.TokenAuth</code> instance.</li>
-<li><code>client.api.s</code> must expose the HTTP session methods used by requests.</li>
+<li>If <code>auth</code> is a <code>(username, password)</code> tuple, <code>client.api.auth</code> must be an instance of <code>requests.auth.HTTPBasicAuth</code>.</li>
+<li>If <code>auth</code> is a string holding a token, <code>client.api.auth</code> must be an instance of <code>grafana_api.grafana_api.TokenAuth</code>.</li>
+<li>The HTTP session methods that requests uses must be exposed by <code>client.api.s</code>.</li>
 </ul>
-<p>For:</p>
+<p>With this code:</p>
 <pre><code class="language-python">client = GrafanaFace(
     (&quot;admin&quot;, &quot;admin&quot;),
     host=&quot;localhost&quot;,
@@ -517,7 +521,7 @@ If the first positional argument is a string (e.g. <code>'alongtoken012345etc'</
 )
 client.users.find_user(&quot;test@test.com&quot;)
 </code></pre>
-<p>the session’s <code>get</code> method must be called exactly as:</p>
+<p>the <code>get</code> method of the session must be called exactly as follows:</p>
 <pre><code class="language-python">client.api.s.get(
     &quot;https://localhost/api/users/lookup?loginOrEmail=test@test.com&quot;,
     auth=requests.auth.HTTPBasicAuth(&quot;admin&quot;, &quot;admin&quot;),
@@ -527,57 +531,57 @@ client.users.find_user(&quot;test@test.com&quot;)
 )
 </code></pre>
 <h4>Admin API</h4>
-<p>Available through <code>client.admin</code>.</p>
-<p>Successful JSON responses must be decoded into Python mappings.</p>
+<p>Exposed via <code>client.admin</code>.</p>
+<p>JSON responses that succeed must be decoded into Python mappings.</p>
 <table>
 <thead>
 <tr>
 <th>Method</th>
 <th>HTTP request</th>
-<th>Required result behavior</th>
+<th>Behavior required of the result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>settings()</code></td>
 <td><code>GET /api/admin/settings</code></td>
-<td>Return a mapping preserving nested settings, including <code>result[&quot;users&quot;][&quot;allow_org_create&quot;] == &quot;true&quot;</code> when supplied by the server.</td>
+<td>Return a mapping in which nested settings are preserved, including <code>result[&quot;users&quot;][&quot;allow_org_create&quot;] == &quot;true&quot;</code> when the server supplies it.</td>
 </tr>
 <tr>
 <td><code>stats()</code></td>
 <td><code>GET /api/admin/stats</code></td>
-<td>Return the statistics mapping; a ten-entry response must produce a mapping of length 10.</td>
+<td>Return the mapping of statistics; a response with ten entries must produce a mapping whose length is 10.</td>
 </tr>
 <tr>
 <td><code>create_user(user)</code></td>
 <td><code>POST /api/admin/users</code></td>
-<td>Accept the user mapping and return the response mapping, including <code>&quot;message&quot;: &quot;User created&quot;</code>.</td>
+<td>Accept the mapping describing the user and return the response mapping, including <code>&quot;message&quot;: &quot;User created&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>change_user_password(user_id, password)</code></td>
 <td><code>PUT /api/admin/users/{user_id}/password</code></td>
-<td>For <code>user_id=2</code>, use <code>/api/admin/users/2/password</code> and return the response message <code>&quot;User password updated&quot;</code>.</td>
+<td>With <code>user_id=2</code>, <code>/api/admin/users/2/password</code> must be used, and the response message <code>&quot;User password updated&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>change_user_permissions(user_id, is_grafana_admin)</code></td>
 <td><code>PUT /api/admin/users/{user_id}/permissions</code></td>
-<td>For <code>user_id=2</code>, use <code>/api/admin/users/2/permissions</code> and return the response message <code>&quot;User permissions updated&quot;</code>.</td>
+<td>With <code>user_id=2</code>, <code>/api/admin/users/2/permissions</code> must be used, and the response message <code>&quot;User permissions updated&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>delete_user(user_id)</code></td>
 <td><code>DELETE /api/admin/users/{user_id}</code></td>
-<td>For <code>user_id=2</code>, return the response message <code>&quot;User deleted&quot;</code>.</td>
+<td>With <code>user_id=2</code>, the response message <code>&quot;User deleted&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>pause_all_alerts(pause)</code></td>
 <td><code>POST /api/admin/pause-all-alerts</code></td>
-<td>Must accept <code>pause=&quot;True&quot;</code> and return the response mapping, including <code>&quot;message&quot;: &quot;alert paused&quot;</code>.</td>
+<td><code>pause=&quot;True&quot;</code> must be accepted, and the response mapping must be returned, including <code>&quot;message&quot;: &quot;alert paused&quot;</code>.</td>
 </tr>
 </tbody>
 </table>
 <h4>Annotations API</h4>
-<p>Available through <code>client.annotations</code>.</p>
-<h5>Query annotations</h5>
+<p>Reached via <code>client.annotations</code>.</p>
+<h5>Querying annotations</h5>
 <pre><code class="language-python">get_annotation(
     time_from=...,
     time_to=...,
@@ -588,7 +592,7 @@ client.users.find_user(&quot;test@test.com&quot;)
     limit=...,
 )
 </code></pre>
-<p>This performs <code>GET /api/annotations</code> with these exact query-parameter names:</p>
+<p>The call performs <code>GET /api/annotations</code> using exactly these query-parameter names:</p>
 <ul>
 <li><code>time_from</code></li>
 <li><code>time_to</code></li>
@@ -598,7 +602,7 @@ client.users.find_user(&quot;test@test.com&quot;)
 <li><code>tags</code></li>
 <li><code>limit</code></li>
 </ul>
-<p>For example, the following arguments:</p>
+<p>For example, given these arguments:</p>
 <pre><code class="language-python">time_from=1563183710618
 time_to=1563185212275
 alert_id=11
@@ -607,10 +611,10 @@ panel_id=22
 tags=&quot;tags-test&quot;
 limit=1
 </code></pre>
-<p>must request:</p>
+<p>must produce this request:</p>
 <pre><code class="language-text">/api/annotations?time_from=1563183710618&amp;time_to=1563185212275&amp;alertId=11&amp;dashboardID=111&amp;panelId=22&amp;tags=tags-test&amp;limit=1
 </code></pre>
-<p>The return value is the decoded annotation list. A one-item response remains length 1 and exposes response fields such as:</p>
+<p>The value returned is the decoded annotation list. A response with one item stays at length 1 and exposes response fields such as:</p>
 <ul>
 <li><code>&quot;text&quot;: &quot;Annotation Description&quot;</code></li>
 <li><code>&quot;alertId&quot;: 11</code></li>
@@ -618,125 +622,125 @@ limit=1
 <li><code>&quot;panelId&quot;: 22</code></li>
 <li><code>&quot;tags&quot;: [&quot;tags-test&quot;]</code></li>
 </ul>
-<h5>Other annotation operations</h5>
+<h5>Other operations on annotations</h5>
 <table>
 <thead>
 <tr>
 <th>Method</th>
 <th>HTTP request</th>
-<th>Required result behavior</th>
+<th>Behavior required of the result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>delete_annotations_by_region_id(region_id)</code></td>
 <td><code>DELETE /api/annotations/region/{region_id}</code></td>
-<td>For ID <code>99</code>, return the response message <code>&quot;Annotation region deleted&quot;</code>.</td>
+<td>With ID <code>99</code>, the response message <code>&quot;Annotation region deleted&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>delete_annotations_by_id(annotation_id)</code></td>
 <td><code>DELETE /api/annotations/{annotation_id}</code></td>
-<td>For ID <code>99</code>, return the response message <code>&quot;Annotation deleted&quot;</code>.</td>
+<td>With ID <code>99</code>, the response message <code>&quot;Annotation deleted&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>add_annotation(time_from, time_to, is_region, tags, text)</code></td>
 <td><code>POST /api/annotations</code></td>
-<td>Accept keyword arguments such as <code>is_region=True</code>, <code>tags=&quot;tags-test&quot;</code>, and <code>text=&quot;Test&quot;</code>. Return response fields including <code>endId</code>, <code>id</code>, and <code>message</code>.</td>
+<td>Keyword arguments such as <code>is_region=True</code>, <code>tags=&quot;tags-test&quot;</code>, and <code>text=&quot;Test&quot;</code> must be accepted. Response fields including <code>endId</code>, <code>id</code>, and <code>message</code> must be part of the return value.</td>
 </tr>
 <tr>
 <td><code>update_annotation(time_from, time_to, is_region, tags, text)</code></td>
 <td><code>PUT /api/annotations</code></td>
-<td>Accept the same tested argument form and return response fields including <code>endId</code>, <code>id</code>, and <code>message</code>.</td>
+<td>The same tested argument form must be accepted, and response fields including <code>endId</code>, <code>id</code>, and <code>message</code> must be part of the return value.</td>
 </tr>
 <tr>
 <td><code>add_annotation_graphite(what, tags, when, data)</code></td>
 <td><code>POST /api/annotations/graphite</code></td>
-<td>Accept values such as <code>what=&quot;Event - deploy&quot;</code>, <code>tags=&quot;deploy, production&quot;</code>, <code>when=1467844481</code>, and <code>data=&quot;Data&quot;</code>. Return the decoded response, including <code>id</code> and <code>message</code>.</td>
+<td>Values such as <code>what=&quot;Event - deploy&quot;</code>, <code>tags=&quot;deploy, production&quot;</code>, <code>when=1467844481</code>, and <code>data=&quot;Data&quot;</code> must be accepted. The decoded response, including <code>id</code> and <code>message</code>, must be what is returned.</td>
 </tr>
 </tbody>
 </table>
-<p>For add and update responses, values such as the following must remain accessible:</p>
+<p>For responses from add and update calls, values such as the following must remain accessible:</p>
 <pre><code class="language-python">{&quot;endId&quot;: 80, &quot;id&quot;: 79, &quot;message&quot;: &quot;Annotation added&quot;}
 {&quot;endId&quot;: 80, &quot;id&quot;: 79, &quot;message&quot;: &quot;Annotation updated&quot;}
 {&quot;id&quot;: 1, &quot;message&quot;: &quot;Graphite annotation added&quot;}
 </code></pre>
 <h4>Dashboard API</h4>
-<p>Available through <code>client.dashboard</code>.</p>
+<p>Accessed through <code>client.dashboard</code>.</p>
 <table>
 <thead>
 <tr>
 <th>Method</th>
 <th>HTTP request</th>
-<th>Required result behavior</th>
+<th>Behavior required of the result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>get_dashboard(uid)</code></td>
 <td><code>GET /api/dashboards/uid/{uid}</code></td>
-<td>Return the decoded mapping. For UID <code>cIBgcSjkk</code>, <code>result[&quot;dashboard&quot;][&quot;uid&quot;]</code> must be <code>&quot;cIBgcSjkk&quot;</code>.</td>
+<td>Return the mapping after decoding. With UID <code>cIBgcSjkk</code>, <code>result[&quot;dashboard&quot;][&quot;uid&quot;]</code> must be <code>&quot;cIBgcSjkk&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>update_dashboard(dashboard_data)</code></td>
 <td><code>POST /api/dashboards/db</code></td>
-<td>Accept a dashboard mapping and return fields such as <code>&quot;uid&quot;: &quot;cIBgcSjkk&quot;</code> and <code>&quot;status&quot;: &quot;success&quot;</code>.</td>
+<td>A dashboard mapping must be accepted, and fields such as <code>&quot;uid&quot;: &quot;cIBgcSjkk&quot;</code> and <code>&quot;status&quot;: &quot;success&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>get_home_dashboard()</code></td>
 <td><code>GET /api/dashboards/home</code></td>
-<td>Return the decoded mapping, preserving values such as <code>result[&quot;meta&quot;][&quot;isHome&quot;] == &quot;true&quot;</code>.</td>
+<td>Return the mapping once decoded, preserving values such as <code>result[&quot;meta&quot;][&quot;isHome&quot;] == &quot;true&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>delete_dashboard(uid)</code></td>
 <td><code>DELETE /api/dashboards/uid/{uid}</code></td>
-<td>For UID <code>cIBgcSjkk</code>, return response fields such as <code>&quot;title&quot;: &quot;Production Overview&quot;</code>.</td>
+<td>With UID <code>cIBgcSjkk</code>, response fields such as <code>&quot;title&quot;: &quot;Production Overview&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>get_dashboards_tags()</code></td>
 <td><code>GET /api/dashboards/tags</code></td>
-<td>Return the decoded list. A two-item response remains length 2, with the first item’s <code>&quot;term&quot;</code> available as <code>&quot;tag1&quot;</code>.</td>
+<td>Return the list after decoding. A response with two items stays at length 2, with the first item's <code>&quot;term&quot;</code> available as <code>&quot;tag1&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>get_dashboard_permissions(dashboard_id)</code></td>
 <td><code>GET /api/dashboards/id/{dashboard_id}/permissions</code></td>
-<td>For ID <code>1</code>, return the decoded permissions list. A two-item response remains length 2, and the first item exposes <code>&quot;dashboardId&quot;: 1</code>.</td>
+<td>With ID <code>1</code>, return the permissions list after decoding. A response with two items stays at length 2, and the first item exposes <code>&quot;dashboardId&quot;: 1</code>.</td>
 </tr>
 <tr>
 <td><code>update_dashboard_permissions(dashboard_id, permissions)</code></td>
 <td><code>POST /api/dashboards/id/{dashboard_id}/permissions</code></td>
-<td>Accept the permissions mapping and return the response mapping, including <code>&quot;message&quot;: &quot;Dashboard permissions updated&quot;</code>.</td>
+<td>The permissions mapping must be accepted and the response mapping returned, including <code>&quot;message&quot;: &quot;Dashboard permissions updated&quot;</code>.</td>
 </tr>
 </tbody>
 </table>
 <h4>Teams API</h4>
-<p>Available through <code>client.teams</code>.</p>
-<h5>Team search</h5>
+<p>Available via <code>client.teams</code>.</p>
+<h5>Searching teams</h5>
 <pre><code class="language-python">search_teams(query, page=None)
 </code></pre>
-<p>Behavior:</p>
+<p>Required behavior:</p>
 <ul>
 <li>
-<p>Spaces in <code>query</code> must be URL encoded as <code>%20</code>.</p>
+<p>Spaces within <code>query</code> must be URL encoded as <code>%20</code>.</p>
 </li>
 <li>
-<p>Without a requested page, begin with:</p>
+<p>If no page has been requested, begin with:</p>
 <pre><code class="language-text">GET /api/teams/search?query={encoded_query}&amp;page=1
 </code></pre>
 </li>
 <li>
-<p>Return the contents of the response’s <code>&quot;teams&quot;</code> list, not the enclosing search-result mapping.</p>
+<p>Return what the response's <code>&quot;teams&quot;</code> list contains, not the enclosing search-result mapping.</p>
 </li>
 <li>
-<p>When the first response indicates more teams through <code>&quot;totalCount&quot;</code>, request sequential pages and concatenate their <code>&quot;teams&quot;</code> lists in page order.</p>
+<p>When the first response indicates more teams through <code>&quot;totalCount&quot;</code>, request the pages sequentially and concatenate their <code>&quot;teams&quot;</code> lists in page order.</p>
 <ul>
-<li>For a total count of 2 with one team on page 1, request page 2 and return both teams in order.</li>
+<li>When the total count is 2 and page 1 holds one team, request page 2 and return both teams in order.</li>
 </ul>
 </li>
 <li>
-<p>When <code>page</code> is explicitly supplied, request only that page and return only its <code>&quot;teams&quot;</code> list, regardless of the response’s total count.</p>
+<p>When <code>page</code> is explicitly supplied, request only that page and return only the <code>&quot;teams&quot;</code> list from it, regardless of the response's total count.</p>
 </li>
 </ul>
-<p>Examples:</p>
+<p>Usage examples:</p>
 <pre><code class="language-python">search_teams(&quot;my team&quot;)
 # GET /api/teams/search?query=my%20team&amp;page=1
 </code></pre>
@@ -744,119 +748,119 @@ limit=1
 # GET /api/teams/search?query=my%20team&amp;page=2
 # Only this page is loaded.
 </code></pre>
-<h5>Remaining team operations</h5>
+<h5>The remaining team operations</h5>
 <table>
 <thead>
 <tr>
 <th>Method</th>
 <th>HTTP request</th>
-<th>Required result behavior</th>
+<th>Behavior required of the result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>get_team_by_name(name)</code></td>
 <td><code>GET /api/teams/search?name={encoded_name}</code></td>
-<td>Encode spaces as <code>%20</code> and return the response’s <code>&quot;teams&quot;</code> list.</td>
+<td>Spaces must be encoded as <code>%20</code>, and the response's <code>&quot;teams&quot;</code> list must be returned.</td>
 </tr>
 <tr>
 <td><code>get_team(team_id)</code></td>
 <td><code>GET /api/teams/{team_id}</code></td>
-<td>Accept a string ID such as <code>&quot;1&quot;</code> and return the decoded team mapping.</td>
+<td>A string ID such as <code>&quot;1&quot;</code> must be accepted, and the decoded team mapping must be returned.</td>
 </tr>
 <tr>
 <td><code>add_team(team)</code></td>
 <td><code>POST /api/teams</code></td>
-<td>Accept a team mapping and return the response mapping, including a numeric <code>&quot;teamId&quot;</code>.</td>
+<td>A team mapping must be accepted and the response mapping returned, including a numeric <code>&quot;teamId&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>update_team(team_id, team)</code></td>
 <td><code>PUT /api/teams/{team_id}</code></td>
-<td>Accept an integer ID such as <code>3</code> and return the response mapping, including <code>&quot;message&quot;: &quot;Team updated&quot;</code>.</td>
+<td>An integer ID such as <code>3</code> must be accepted, and the response mapping returned, including <code>&quot;message&quot;: &quot;Team updated&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>delete_team(team_id)</code></td>
 <td><code>DELETE /api/teams/{team_id}</code></td>
-<td>On a successful deletion, return the boolean <code>True</code>, rather than the response mapping.</td>
+<td>When deletion succeeds, return the boolean <code>True</code>, rather than the response mapping.</td>
 </tr>
 <tr>
 <td><code>get_team_members(team_id)</code></td>
 <td><code>GET /api/teams/{team_id}/members</code></td>
-<td>Return the decoded members list, preserving fields such as <code>&quot;login&quot;: &quot;user1&quot;</code>.</td>
+<td>Return the members list after decoding, preserving fields such as <code>&quot;login&quot;: &quot;user1&quot;</code>.</td>
 </tr>
 <tr>
 <td><code>add_team_member(team_id, user_id)</code></td>
 <td><code>POST /api/teams/{team_id}/members</code></td>
-<td>Send a JSON body containing <code>&quot;userId&quot;</code> with the supplied value and preserve its type. For <code>user_id=&quot;3&quot;</code>, the JSON value must be the string <code>&quot;3&quot;</code>. Return the decoded response mapping.</td>
+<td>Send a JSON body that contains <code>&quot;userId&quot;</code> with the supplied value, preserving its type. For <code>user_id=&quot;3&quot;</code>, the JSON value must be the string <code>&quot;3&quot;</code>. Return the response mapping after decoding.</td>
 </tr>
 <tr>
 <td><code>remove_team_member(team_id, user_id)</code></td>
 <td><code>DELETE /api/teams/{team_id}/members/{user_id}</code></td>
-<td>For team <code>&quot;13&quot;</code> and user <code>&quot;2&quot;</code>, use <code>/api/teams/13/members/2</code> and return the response message <code>&quot;Team member removed&quot;</code>.</td>
+<td>With team <code>&quot;13&quot;</code> and user <code>&quot;2&quot;</code>, <code>/api/teams/13/members/2</code> must be used, and the response message <code>&quot;Team member removed&quot;</code> must be returned.</td>
 </tr>
 <tr>
 <td><code>get_team_preferences(team_id)</code></td>
 <td><code>GET /api/teams/{team_id}/preferences</code></td>
-<td>Return the decoded preferences mapping, preserving values such as <code>&quot;homeDashboardId&quot;: 0</code>.</td>
+<td>Return the preferences mapping after decoding, preserving values such as <code>&quot;homeDashboardId&quot;: 0</code>.</td>
 </tr>
 <tr>
 <td><code>update_team_preferences(team_id, preferences)</code></td>
 <td><code>PUT /api/teams/{team_id}/preferences</code></td>
-<td>Send JSON containing the supplied <code>&quot;theme&quot;</code> value. For <code>&quot;theme&quot;: &quot;light&quot;</code>, the request JSON must contain that exact value. Return the response mapping, including <code>&quot;message&quot;: &quot;Preferences updated&quot;</code>.</td>
+<td>Send JSON containing the <code>&quot;theme&quot;</code> value as supplied. With <code>&quot;theme&quot;: &quot;light&quot;</code>, the request JSON must contain that exact value. Return the response mapping, including <code>&quot;message&quot;: &quot;Preferences updated&quot;</code>.</td>
 </tr>
 </tbody>
 </table>
-<p>Only successful HTTP/JSON behavior described above is in scope; no additional validation or error contract is required.</p>
+<p>Only the successful HTTP/JSON behavior described above is in scope; no validation or error contract beyond it is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Grafana API Client Library</span>
-        <span class="spec-meta muted">665 words · source specification
+        <span class="spec-title">Client Library for the Grafana API</span>
+        <span class="spec-meta muted">718 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-reg" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Grafana API Client Library</h3>
-<p>You are implementing behavior for a Python Grafana API client library. Below is the exact behavior required.</p>
-<h4>Module Structure &amp; Public API</h4>
-<h5>1. Error classes — <code>grafana_api/grafana_api.py</code></h5>
-<p>This module must define the following exception classes, all importable from <code>grafana_api.grafana_api</code>:</p>
+      <div class="spec-body"><h3>Task Specification: Client Library for the Grafana API</h3>
+<p>Your task is to implement the behavior of a Python client library for the Grafana API. The exact behavior required is specified below.</p>
+<h4>Module Structure and Public API</h4>
+<h5>1. Exception classes — <code>grafana_api/grafana_api.py</code></h5>
+<p>The following exception classes must be defined by this module, all of them importable from <code>grafana_api.grafana_api</code>:</p>
 <ul>
 <li><code>GrafanaClientError</code></li>
 <li><code>GrafanaServerError</code></li>
 <li><code>GrafanaUnauthorizedError</code></li>
 <li><code>GrafanaBadInputError</code></li>
 </ul>
-<p>These are exception types raised by the HTTP layer based on the HTTP status code of a Grafana API response:</p>
+<p>These exception types are raised by the HTTP layer depending on the HTTP status code of a Grafana API response:</p>
 <ul>
-<li>HTTP status <strong>500</strong> (server-side errors, i.e. 5xx) → raise <code>GrafanaServerError</code></li>
-<li>HTTP status <strong>401</strong> → raise <code>GrafanaUnauthorizedError</code></li>
-<li>HTTP status <strong>400</strong> → raise <code>GrafanaBadInputError</code></li>
-<li>HTTP status <strong>403</strong> → raise <code>GrafanaClientError</code></li>
+<li>An HTTP status of <strong>500</strong> (server-side errors, i.e. 5xx) → raise <code>GrafanaServerError</code></li>
+<li>An HTTP status of <strong>401</strong> → raise <code>GrafanaUnauthorizedError</code></li>
+<li>An HTTP status of <strong>400</strong> → raise <code>GrafanaBadInputError</code></li>
+<li>An HTTP status of <strong>403</strong> → raise <code>GrafanaClientError</code></li>
 </ul>
-<p>(These four exceptions must exist as distinct, importable names. Client-side 4xx statuses that do not have a more specific type should map to <code>GrafanaClientError</code>.)</p>
-<h5>2. Client entry point — <code>grafana_api/grafana_face.py</code></h5>
-<p>Provide a class <code>GrafanaFace</code> acting as the top-level client.</p>
-<p><strong>Constructor signature (keyword usage that must be supported):</strong></p>
+<p>(These four exceptions must exist as distinct names that are importable. Client-side 4xx statuses that have no more specific type should map to <code>GrafanaClientError</code>.)</p>
+<h5>2. Entry-point class — <code>grafana_api/grafana_face.py</code></h5>
+<p>Supply a class <code>GrafanaFace</code> that serves as the top-level client.</p>
+<p><strong>Constructor signature (the keyword usage that must be supported):</strong></p>
 <pre><code class="language-python">GrafanaFace(auth, host=&quot;localhost&quot;, url_path_prefix=&quot;&quot;, protocol=&quot;http&quot;, port=None)
 </code></pre>
 <ul>
-<li><code>auth</code> may be a <code>(username, password)</code> tuple. When a tuple is supplied, the underlying HTTP session's authentication object must be an instance of <code>requests.auth.HTTPBasicAuth</code>.</li>
-<li>The constructor must accept a <code>port</code> keyword argument (e.g. <code>port=&quot;3000&quot;</code>) in addition to <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code>. Passing <code>port</code> must not raise and must be incorporated when the client is configured.</li>
-<li>The resulting client must expose an <code>api</code> attribute (the underlying HTTP session/handler) whose <code>.auth</code> reflects the configured authentication.</li>
+<li><code>auth</code> may be a <code>(username, password)</code> tuple. If a tuple is supplied, the authentication object of the underlying HTTP session must be an instance of <code>requests.auth.HTTPBasicAuth</code>.</li>
+<li>Besides <code>host</code>, <code>url_path_prefix</code>, and <code>protocol</code>, the constructor must accept a <code>port</code> keyword argument (e.g. <code>port=&quot;3000&quot;</code>). Supplying <code>port</code> must not raise, and it must be incorporated when the client is configured.</li>
+<li>The resulting client must expose an <code>api</code> attribute (the underlying HTTP session/handler), and the <code>.auth</code> of that attribute reflects the configured authentication.</li>
 </ul>
-<p>The <code>GrafanaFace</code> instance must expose the following namespaced sub-interfaces used below:</p>
+<p>The <code>GrafanaFace</code> instance must expose the following namespaced sub-interfaces, which are used below:</p>
 <ul>
 <li><code>.annotations</code></li>
 <li><code>.teams</code></li>
 </ul>
-<h4>Required Behaviors</h4>
-<h5>Annotations: delete by ID</h5>
+<h4>Required Behavior</h4>
+<h5>Annotations: deleting by ID</h5>
 <p>Method: <code>GrafanaFace(...).annotations.delete_annotations_by_id(annotations_id)</code></p>
 <ul>
-<li>Issues an HTTP <code>DELETE</code> to the path <code>/api/annotations/{annotations_id}</code> (where <code>{annotations_id}</code> is the string form of the argument, including the literal <code>None</code> when <code>annotations_id=None</code>).</li>
-<li>On a successful response, returns the parsed JSON body (a dict). For example, a successful deletion returns a dict whose <code>message</code> key holds the server's message text.</li>
-<li>When the server responds with an error status code, the method must raise the corresponding exception per the status-code mapping described above:
+<li>Performs an HTTP <code>DELETE</code> request to the path <code>/api/annotations/{annotations_id}</code> (with <code>{annotations_id}</code> being the string form of the argument, including the literal <code>None</code> when <code>annotations_id=None</code>).</li>
+<li>When the response is successful, the parsed JSON body (a dict) is returned. For example, a successful deletion returns a dict where the <code>message</code> key holds the server's message text.</li>
+<li>If the server responds with an error status code, the method must raise the corresponding exception according to the status-code mapping described above:
 <ul>
 <li>5xx → <code>GrafanaServerError</code></li>
 <li>403 → <code>GrafanaClientError</code></li>
@@ -865,46 +869,46 @@ limit=1
 </ul>
 </li>
 </ul>
-<h5>Teams: search</h5>
+<h5>Teams: searching</h5>
 <p>Method: <code>GrafanaFace(...).teams.search_teams(query, perpage=None)</code></p>
 <ul>
-<li>Signature must accept a positional <code>query</code> string and an optional <code>perpage</code> keyword argument.</li>
-<li>Performs paginated GET requests against <code>/api/teams/search</code>, including the query parameters <code>query</code>, <code>page</code>, and — when <code>perpage</code> is provided — <code>perpage</code>.
+<li>The signature must accept a positional <code>query</code> string together with an optional <code>perpage</code> keyword argument.</li>
+<li>It performs paginated GET requests to <code>/api/teams/search</code>, including the query parameters <code>query</code>, <code>page</code>, and — when <code>perpage</code> is provided — <code>perpage</code>.
 <ul>
-<li>The <code>query</code> parameter carries the search string.</li>
-<li>The <code>page</code> parameter starts at <code>1</code> and increments for each subsequent page request.</li>
-<li>When <code>perpage</code> is given (e.g. <code>perpage=1</code>), it is passed as the <code>perpage</code> query parameter on every request.</li>
+<li>The search string is carried by the <code>query</code> parameter.</li>
+<li>The <code>page</code> parameter starts at <code>1</code> and increments with each subsequent page request.</li>
+<li>When <code>perpage</code> is given (e.g. <code>perpage=1</code>), it gets passed as the <code>perpage</code> query parameter on every request.</li>
 </ul>
 </li>
-<li>Each response contains <code>totalCount</code> (total number of matching teams) and a <code>teams</code> list (the teams on the current page). The method must continue fetching successive pages until it has accumulated all teams up to <code>totalCount</code>.</li>
-<li>Returns a single flat list of all team objects across all pages, in page order. Each element is a dict with keys such as <code>name</code>.</li>
+<li>Each response contains <code>totalCount</code> (the total number of matching teams) together with a <code>teams</code> list (the teams on the current page). The method must continue fetching successive pages until it has collected all teams up to <code>totalCount</code>.</li>
+<li>The method returns a single flat list of all team objects across all pages, in page order. Each element is a dict that has keys such as <code>name</code>.</li>
 </ul>
-<p>For example, when <code>perpage=1</code> and there are 2 total teams (one per page), the method issues requests for page 1 and page 2 and returns a combined list of length 2, preserving order (first page's team first).</p>
+<p>For example, when <code>perpage=1</code> and there are 2 total teams (one per page), the method sends requests for page 1 and page 2 and returns a combined list of length 2, keeping the order (first page's team first).</p>
 <h4>Notes</h4>
 <ul>
-<li>The HTTP transport should be implemented so that responses' status codes are inspected and the appropriate exception raised before returning parsed JSON to callers.</li>
-<li>All named classes, functions, method signatures, and module paths above must exist exactly as specified so they can be imported and invoked.</li>
+<li>The HTTP transport should be implemented such that the status codes of responses are inspected and the appropriate exception raised before parsed JSON is returned to callers.</li>
+<li>All classes, functions, method signatures, and module paths named above must exist exactly as specified, so that they can be imported and invoked.</li>
 </ul>
-<h4>Additional Requirements</h4>
+<h4>Further Requirements</h4>
 <ul>
-<li>As an endpoint-specific override, <code>delete_annotations_by_id(None)</code> must return the parsed JSON response normally for HTTP <code>500</code> and HTTP <code>400</code>; it must not raise <code>GrafanaServerError</code> or <code>GrafanaBadInputError</code> for those responses. For example, return <code>{&quot;message&quot;: &quot;Could not find annotation to update&quot;}</code> on the specified <code>500</code> response and <code>{&quot;message&quot;: &quot;Bad Input&quot;}</code> on the specified <code>400</code> response.</li>
-<li>This override applies only to the annotation deletion method’s <code>500</code> and <code>400</code> responses. Its previously specified behavior for <code>401</code> and <code>403</code> remains unchanged.</li>
+<li>There is an endpoint-specific override: <code>delete_annotations_by_id(None)</code> must return the parsed JSON response normally for HTTP <code>500</code> and HTTP <code>400</code>, and it must not raise <code>GrafanaServerError</code> or <code>GrafanaBadInputError</code> for those responses. For example, on the specified <code>500</code> response return <code>{&quot;message&quot;: &quot;Could not find annotation to update&quot;}</code>, and on the specified <code>400</code> response return <code>{&quot;message&quot;: &quot;Bad Input&quot;}</code>.</li>
+<li>This override applies only to the <code>500</code> and <code>400</code> responses of the annotation deletion method. Its previously specified behavior for <code>401</code> and <code>403</code> stays unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">The package must provide</span>
-        <span class="spec-meta muted">461 words · source specification
+        <span class="spec-title">The package must make the following available</span>
+        <span class="spec-meta muted">564 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required API behavior</h3>
-<h4>Public imports</h4>
-<p>The package must provide:</p>
+      <div class="spec-body"><h3>API behavior that is required</h3>
+<h4>Publicly available imports</h4>
+<p>The package must make the following available:</p>
 <ul>
 <li><code>grafana_api.grafana_face.GrafanaFace</code></li>
-<li>The following importable names from <code>grafana_api.grafana_api</code>:
+<li>The following names must be importable from <code>grafana_api.grafana_api</code>:
 <ul>
 <li><code>GrafanaServerError</code></li>
 <li><code>GrafanaClientError</code></li>
@@ -913,9 +917,9 @@ limit=1
 </ul>
 </li>
 </ul>
-<p>No additional exception behavior is required.</p>
-<h4>Client construction</h4>
-<p><code>GrafanaFace</code> must support construction as:</p>
+<p>No exception behavior beyond this is required.</p>
+<h4>Constructing the client</h4>
+<p>Construction of <code>GrafanaFace</code> must be supported in this form:</p>
 <pre><code class="language-python">GrafanaFace(
     (&quot;admin&quot;, &quot;admin&quot;),
     host=&quot;localhost&quot;,
@@ -923,41 +927,41 @@ limit=1
     protocol=&quot;http&quot;,
 )
 </code></pre>
-<p>The resulting instance must expose:</p>
+<p>The instance that results must expose:</p>
 <ul>
 <li><code>client.folder</code></li>
 <li><code>client.search</code></li>
 </ul>
-<p>For this configuration, requests described below use the base URL <code>http://localhost</code>.</p>
-<h4>Folder API</h4>
-<p>The object exposed as <code>GrafanaFace.folder</code> must provide these methods and accept the named arguments shown.</p>
-<p>All methods return the decoded JSON response in list or mapping form.</p>
+<p>With this configuration, the requests described below use <code>http://localhost</code> as their base URL.</p>
+<h4>The folder API</h4>
+<p>The object exposed as <code>GrafanaFace.folder</code> must provide the methods below and accept the named arguments as shown.</p>
+<p>Every method returns the decoded JSON response, in list form or in mapping form.</p>
 <h5><code>get_all_folders()</code></h5>
 <ul>
-<li>Send <code>GET /api/folders</code>.</li>
-<li>A one-element JSON array must be returned as a one-element list, with an item containing <code>&quot;id&quot;: 1</code>.</li>
+<li>A <code>GET /api/folders</code> request must be sent.</li>
+<li>The one-element JSON array of the response must be returned as a one-element list, with an item containing <code>&quot;id&quot;: 1</code>.</li>
 </ul>
 <h5><code>get_folder(uid)</code></h5>
-<p>Example call:</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.get_folder(uid=&quot;nErXDvCkzzh&quot;)
 </code></pre>
 <ul>
-<li>Send <code>GET /api/folders/nErXDvCkzzh</code>.</li>
-<li>Return a mapping whose <code>&quot;uid&quot;</code> value reflects the response, including <code>&quot;nErXDvCkzzh&quot;</code> for the exercised response.</li>
+<li>A <code>GET /api/folders/nErXDvCkzzh</code> request must be sent.</li>
+<li>A mapping must be returned whose <code>&quot;uid&quot;</code> value reflects the response, including <code>&quot;nErXDvCkzzh&quot;</code> for the exercised response.</li>
 </ul>
 <h5><code>create_folder(title, uid)</code></h5>
-<p>Example call:</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.create_folder(
     title=&quot;Departmenet ABC&quot;,
     uid=&quot;nErXDvCkzz&quot;,
 )
 </code></pre>
 <ul>
-<li>Send <code>POST /api/folders</code>.</li>
-<li>Return a mapping containing the response value <code>&quot;uid&quot;: &quot;nErXDvCkzz&quot;</code>.</li>
+<li>A <code>POST /api/folders</code> request must be sent.</li>
+<li>A mapping containing the response value <code>&quot;uid&quot;: &quot;nErXDvCkzz&quot;</code> must be returned.</li>
 </ul>
 <h5><code>update_folder(title, uid, version, overwrite)</code></h5>
-<p>Example call:</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.update_folder(
     title=&quot;Departmenet DEF&quot;,
     uid=&quot;nErXDvCkzz&quot;,
@@ -966,28 +970,28 @@ limit=1
 )
 </code></pre>
 <ul>
-<li>Send <code>PUT /api/folders/nErXDvCkzz</code>.</li>
-<li>Return a mapping containing the response value <code>&quot;title&quot;: &quot;Departmenet DEF&quot;</code>.</li>
+<li>A <code>PUT /api/folders/nErXDvCkzz</code> request must be sent.</li>
+<li>A mapping containing the response value <code>&quot;title&quot;: &quot;Departmenet DEF&quot;</code> must be returned.</li>
 </ul>
 <h5><code>get_folder_by_id(folder_id)</code></h5>
-<p>Example call:</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.get_folder_by_id(folder_id=1)
 </code></pre>
 <ul>
-<li>Send <code>GET /api/folders/id/1</code>.</li>
-<li>Return a mapping containing the response value <code>&quot;id&quot;: 1</code>.</li>
+<li>A <code>GET /api/folders/id/1</code> request must be sent.</li>
+<li>A mapping containing the response value <code>&quot;id&quot;: 1</code> must be returned.</li>
 </ul>
 <h5><code>get_folder_permissions(uid)</code></h5>
-<p>The method must accept the <code>uid</code> parameter.</p>
-<p>Example call:</p>
+<p>The <code>uid</code> parameter must be accepted by the method.</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.get_folder_permissions(uid=&quot;nErXDvCkzz&quot;)
 </code></pre>
 <ul>
-<li>Send <code>GET /api/folders/nErXDvCkzz/permissions</code>.</li>
-<li>Return the JSON array as a list. For the exercised response, its first item has <code>&quot;permissionName&quot;: &quot;View&quot;</code>.</li>
+<li>A <code>GET /api/folders/nErXDvCkzz/permissions</code> request must be sent.</li>
+<li>The JSON array must be returned as a list. For the exercised response, its first item has <code>&quot;permissionName&quot;: &quot;View&quot;</code>.</li>
 </ul>
 <h5><code>update_folder_permissions(uid, items)</code></h5>
-<p>It must accept calls such as:</p>
+<p>It must accept calls like the following:</p>
 <pre><code class="language-python">client.folder.update_folder_permissions(
     uid=&quot;nErXDvCkzz&quot;,
     items=[
@@ -999,24 +1003,24 @@ limit=1
 )
 </code></pre>
 <ul>
-<li>Send <code>POST /api/folders/nErXDvCkzz/permissions</code>.</li>
-<li>Return a mapping containing the response value:<pre><code class="language-python">{&quot;message&quot;: &quot;Folder permissions updated&quot;}
+<li>A <code>POST /api/folders/nErXDvCkzz/permissions</code> request must be sent.</li>
+<li>A mapping containing the response value must be returned:<pre><code class="language-python">{&quot;message&quot;: &quot;Folder permissions updated&quot;}
 </code></pre>
 </li>
 </ul>
 <h5><code>delete_folder(uid)</code></h5>
-<p>Example call:</p>
+<p>An example call:</p>
 <pre><code class="language-python">client.folder.delete_folder(uid=&quot;nErXDvCkzz&quot;)
 </code></pre>
 <ul>
-<li>Send <code>DELETE /api/folders/nErXDvCkzz</code>.</li>
-<li>Return a mapping containing:<pre><code class="language-python">{&quot;message&quot;: &quot;Folder deleted&quot;}
+<li>A <code>DELETE /api/folders/nErXDvCkzz</code> request must be sent.</li>
+<li>A mapping containing the following must be returned:<pre><code class="language-python">{&quot;message&quot;: &quot;Folder deleted&quot;}
 </code></pre>
 </li>
 </ul>
-<p>The exact request-body serialization for folder creation, updates, and permission updates is not constrained by this task.</p>
-<h4>Search API</h4>
-<p>The object exposed as <code>GrafanaFace.search</code> must provide:</p>
+<p>This task does not constrain the exact serialization of request bodies for folder creation, updates, and permission updates.</p>
+<h4>The search API</h4>
+<p>The object exposed as <code>GrafanaFace.search</code> must provide the following:</p>
 <pre><code class="language-python">search_dashboards(
     query,
     folder_ids,
@@ -1027,7 +1031,7 @@ limit=1
     limit,
 )
 </code></pre>
-<p>It must accept the arguments by name. For:</p>
+<p>The arguments must be accepted by name. For the following call:</p>
 <pre><code class="language-python">client.search.search_dashboards(
     query=&quot;str_e&quot;,
     folder_ids=11,
@@ -1038,7 +1042,7 @@ limit=1
     limit=10,
 )
 </code></pre>
-<p>send a <code>GET</code> request to <code>/api/search</code> with these query parameters:</p>
+<p>a <code>GET</code> request must be sent to <code>/api/search</code> with these query parameters:</p>
 <ul>
 <li><code>folderIds=11</code></li>
 <li><code>query=str_e</code></li>
@@ -1048,39 +1052,39 @@ limit=1
 <li><code>dashboardIds=163</code></li>
 <li><code>limit=10</code></li>
 </ul>
-<p>In particular:</p>
+<p>Specifically:</p>
 <ul>
-<li><code>folder_ids</code> maps to <code>folderIds</code>.</li>
-<li><code>dashboard_ids</code> maps to <code>dashboardIds</code>.</li>
-<li><code>type_</code> maps to <code>type</code>.</li>
+<li>The argument <code>folder_ids</code> maps to <code>folderIds</code>.</li>
+<li>The argument <code>dashboard_ids</code> maps to <code>dashboardIds</code>.</li>
+<li>The argument <code>type_</code> maps to <code>type</code>.</li>
 </ul>
-<p>Query-parameter ordering is not significant.</p>
-<p>Return the decoded JSON array as a list. For the exercised response, it contains exactly one item whose <code>&quot;id&quot;</code> is <code>163</code>.</p>
+<p>The order in which query parameters appear is not significant.</p>
+<p>The decoded JSON array must be returned as a list. For the exercised response, it contains exactly one item whose <code>&quot;id&quot;</code> is <code>163</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">You are working on a Python client library for the Grafana HTTP API.</span>
-        <span class="spec-meta muted">939 words · source specification
+        <span class="spec-title">Your work targets a Python client library for the Grafana HTTP API.</span>
+        <span class="spec-meta muted">981 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on a Python client library for the Grafana HTTP API. The package is named <code>grafana_api</code>. The main entry point is the class <code>GrafanaFace</code> in <code>grafana_api.grafana_face</code>, which is constructed as:</p>
+      <div class="spec-body"><p>Your work targets a Python client library for the Grafana HTTP API. The package name is <code>grafana_api</code>. The main entry point is the <code>GrafanaFace</code> class in <code>grafana_api.grafana_face</code>, constructed like this:</p>
 <pre><code class="language-python">GrafanaFace(auth, host=&quot;localhost&quot;, url_path_prefix=&quot;&quot;, protocol=&quot;http&quot;)
 </code></pre>
-<p>where <code>auth</code> is a <code>(username, password)</code> tuple. Instances of <code>GrafanaFace</code> expose API-area attributes such as <code>.annotations</code>, <code>.folder</code>, <code>.search</code>, <code>.organization</code>, <code>.organizations</code>, and <code>.snapshots</code>.</p>
-<p>All API methods issue HTTP requests to the configured Grafana server and return the parsed JSON body of the response. On HTTP error status codes, they raise the appropriate exception (see &quot;Error handling&quot; below).</p>
-<p>You must implement / adjust the following behavior. The requirements are grouped by API area.</p>
+<p>with <code>auth</code> being a <code>(username, password)</code> tuple. API-area attributes such as <code>.annotations</code>, <code>.folder</code>, <code>.search</code>, <code>.organization</code>, <code>.organizations</code>, and <code>.snapshots</code> are exposed by instances of <code>GrafanaFace</code>.</p>
+<p>Every API method sends HTTP requests to the configured Grafana server and returns the parsed JSON body of the response. For HTTP error status codes, the appropriate exception is raised (see &quot;Error handling&quot; below).</p>
+<p>The following behavior must be implemented or adjusted by you. The requirements are organized by API area.</p>
 <hr />
-<h4>1. Error handling exceptions</h4>
-<p>The module <code>grafana_api.grafana_api</code> must expose the following exception classes (importable by name):</p>
+<h4>1. Exceptions for error handling</h4>
+<p>The following exception classes (importable by name) must be exposed by the module <code>grafana_api.grafana_api</code>:</p>
 <ul>
 <li><code>GrafanaClientError</code></li>
 <li><code>GrafanaServerError</code></li>
 <li><code>GrafanaUnauthorizedError</code></li>
 <li><code>GrafanaBadInputError</code></li>
 </ul>
-<p>These are raised depending on the HTTP status code returned by the server:</p>
+<p>Which one is raised depends on the HTTP status code the server returns:</p>
 <ul>
 <li>HTTP <code>400</code> → <code>GrafanaBadInputError</code></li>
 <li>HTTP <code>401</code> → <code>GrafanaUnauthorizedError</code></li>
@@ -1088,89 +1092,89 @@ limit=1
 <li>Other client (4xx) errors → <code>GrafanaClientError</code></li>
 </ul>
 <hr />
-<h4>2. Annotations API (<code>cli.annotations</code>)</h4>
+<h4>2. Annotations API area (<code>cli.annotations</code>)</h4>
 <h5><code>get_annotation(...)</code></h5>
-<p>Retrieves annotations via <code>GET /api/annotations</code>. Must be callable with <strong>no arguments</strong> (all filtering parameters are optional). Returns the parsed JSON list of annotations.</p>
+<p>Fetches annotations via <code>GET /api/annotations</code>. It must be callable with <strong>no arguments</strong> (all filtering parameters are optional). The parsed JSON list of annotations is returned.</p>
 <h5><code>delete_annotations_by_id(annotations_id)</code></h5>
-<p>Deletes an annotation via <code>DELETE /api/annotations/{annotations_id}</code>. The parameter is named <code>annotations_id</code> and may be passed as a keyword argument. The value of <code>annotations_id</code> is interpolated directly into the URL path (e.g. <code>annotations_id=99</code> → <code>/api/annotations/99</code>; <code>annotations_id=None</code> → <code>/api/annotations/None</code>). Returns the parsed JSON body. If the server returns an error status, the corresponding exception from section 1 is raised.</p>
+<p>Deletes an annotation through <code>DELETE /api/annotations/{annotations_id}</code>. The parameter carries the name <code>annotations_id</code> and may be passed as a keyword argument. The <code>annotations_id</code> value is interpolated directly into the URL path (e.g. <code>annotations_id=99</code> → <code>/api/annotations/99</code>; <code>annotations_id=None</code> → <code>/api/annotations/None</code>). The parsed JSON body is returned. When the server returns an error status, the matching exception from section 1 is raised.</p>
 <hr />
-<h4>3. Folder API (<code>cli.folder</code>)</h4>
+<h4>3. Folder API area (<code>cli.folder</code>)</h4>
 <h5><code>create_folder(title, uid=None)</code></h5>
-<p>Creates a folder via <code>POST /api/folders</code>. <code>title</code> is required; <code>uid</code> is optional. Returns the parsed JSON body. When the server responds with HTTP <code>400</code>, <code>GrafanaBadInputError</code> is raised.</p>
+<p>Creates a folder through <code>POST /api/folders</code>. <code>title</code> is required, whereas <code>uid</code> is optional. The parsed JSON body is returned. If the server responds with HTTP <code>400</code>, <code>GrafanaBadInputError</code> is raised.</p>
 <h5><code>update_folder(uid, title=None, version=None, overwrite=False)</code></h5>
-<p>Updates a folder via <code>PUT /api/folders/{uid}</code>, where <code>uid</code> identifies the folder in the URL path. Must be callable with only <code>title</code> and <code>uid</code> (i.e. <code>version</code> and <code>overwrite</code> are optional). Returns the parsed JSON body.</p>
+<p>Updates a folder through <code>PUT /api/folders/{uid}</code>, with <code>uid</code> identifying the folder in the URL path. It must be callable with only <code>title</code> and <code>uid</code> (i.e. <code>version</code> and <code>overwrite</code> are optional). The parsed JSON body is returned.</p>
 <hr />
-<h4>4. Search API (<code>cli.search</code>)</h4>
+<h4>4. Search API area (<code>cli.search</code>)</h4>
 <h5><code>search_dashboards(...)</code></h5>
-<p>Searches dashboards via <code>GET /api/search</code>. Must be callable with <strong>no arguments</strong> (all query parameters are optional). Returns the parsed JSON body. When the server responds with HTTP <code>400</code>, <code>GrafanaBadInputError</code> is raised.</p>
+<p>Searches dashboards through <code>GET /api/search</code>. It must be callable with <strong>no arguments</strong> (all query parameters are optional). The parsed JSON body is returned. If the server responds with HTTP <code>400</code>, <code>GrafanaBadInputError</code> is raised.</p>
 <hr />
-<h4>5. Snapshot API (<code>cli.snapshots</code>) — NEW</h4>
-<p>Create a new snapshots API area accessible as <code>cli.snapshots</code>, with the following methods.</p>
+<h4>5. Snapshots API area (<code>cli.snapshots</code>) — NEW</h4>
+<p>Set up a new snapshots API area, accessible as <code>cli.snapshots</code>, that provides the following methods.</p>
 <h5><code>create_new_snapshot(dashboard, name=None, expires=None, external=None, key=None, delete_key=None)</code></h5>
-<p>Creates a snapshot via <code>POST /api/snapshots</code>. <code>dashboard</code> (a dict) is required; all other parameters are optional and must default such that the method is callable with only <code>dashboard</code>. Returns the parsed JSON body.</p>
+<p>Creates a snapshot through <code>POST /api/snapshots</code>. <code>dashboard</code> (a dict) is required; the remaining parameters are all optional and their defaults must make the method callable with only <code>dashboard</code>. The parsed JSON body is returned.</p>
 <h5><code>get_dashboard_snapshots()</code></h5>
-<p>Lists snapshots via <code>GET /api/dashboard/snapshots</code>. Returns the parsed JSON list.</p>
+<p>Lists snapshots through <code>GET /api/dashboard/snapshots</code>. The parsed JSON list is returned.</p>
 <h5><code>get_snapshot_by_key(key)</code></h5>
-<p>Retrieves a snapshot via <code>GET /api/snapshots/{key}</code>, where <code>key</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p>Retrieves a snapshot through <code>GET /api/snapshots/{key}</code>, with <code>key</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>delete_snapshot_by_key(snapshot_id)</code></h5>
-<p>Deletes a snapshot via <code>DELETE /api/snapshots/{snapshot_id}</code>, where <code>snapshot_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p>Deletes a snapshot through <code>DELETE /api/snapshots/{snapshot_id}</code>, with <code>snapshot_id</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>delete_snapshot_by_delete_key(snapshot_delete_key)</code></h5>
-<p>Deletes a snapshot via <code>DELETE /api/snapshots-delete/{snapshot_delete_key}</code>, where <code>snapshot_delete_key</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p>Deletes a snapshot through <code>DELETE /api/snapshots-delete/{snapshot_delete_key}</code>, with <code>snapshot_delete_key</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <hr />
-<h4>6. Organization API — NEW</h4>
-<p>Two related API areas must be available.</p>
-<h5>6a. Current-organization operations (<code>cli.organization</code>)</h5>
+<h4>6. Organization APIs — NEW</h4>
+<p>Two related API areas must be made available.</p>
+<h5>6a. Operations on the current organization (<code>cli.organization</code>)</h5>
 <h5><code>get_current_organization()</code></h5>
-<p><code>GET /api/org</code>. Returns the parsed JSON body.</p>
+<p><code>GET /api/org</code>. The parsed JSON body is returned.</p>
 <h5><code>create_organization(organization)</code></h5>
-<p><code>POST /api/orgs</code>, sending the given <code>organization</code> dict. Returns the parsed JSON body.</p>
+<p><code>POST /api/orgs</code>, sending the supplied <code>organization</code> dict. The parsed JSON body is returned.</p>
 <h5><code>update_current_organization(organization)</code></h5>
-<p><code>PUT /api/org</code>, sending the given <code>organization</code> dict. Returns the parsed JSON body.</p>
+<p><code>PUT /api/org</code>, sending the provided <code>organization</code> dict. The parsed JSON body is returned.</p>
 <h5><code>get_current_organization_users()</code></h5>
-<p><code>GET /api/org/users</code>. Returns the parsed JSON list.</p>
+<p><code>GET /api/org/users</code>. The parsed JSON list is returned.</p>
 <h5><code>add_user_current_organization(user)</code></h5>
-<p><code>POST /api/org/users</code>, sending the given <code>user</code> dict (passed positionally). Returns the parsed JSON body.</p>
+<p><code>POST /api/org/users</code>, sending the supplied <code>user</code> dict (passed positionally). The parsed JSON body is returned.</p>
 <h5><code>update_user_current_organization(user_id, user)</code></h5>
-<p><code>PATCH /api/org/users/{user_id}</code>, sending the given <code>user</code> dict. <code>user_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>PATCH /api/org/users/{user_id}</code>, sending the supplied <code>user</code> dict. <code>user_id</code> is interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>delete_user_current_organization(user_id)</code></h5>
-<p><code>DELETE /api/org/users/{user_id}</code>, where <code>user_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>DELETE /api/org/users/{user_id}</code>, with <code>user_id</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>find_organization(org_name)</code></h5>
-<p><code>GET /api/orgs/name/{org_name}</code>, where <code>org_name</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
-<h5>6b. Organization-management operations (<code>cli.organizations</code>)</h5>
+<p><code>GET /api/orgs/name/{org_name}</code>, with <code>org_name</code> interpolated into the URL path. The parsed JSON body is returned.</p>
+<h5>6b. Organization management operations (<code>cli.organizations</code>)</h5>
 <h5><code>list_organization()</code></h5>
-<p><code>GET /api/orgs</code>. Returns the parsed JSON list.</p>
+<p><code>GET /api/orgs</code>. The parsed JSON list is returned.</p>
 <h5><code>update_organization(organization_id, organization)</code></h5>
-<p><code>PUT /api/orgs/{organization_id}</code>, sending the given <code>organization</code> dict. <code>organization_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>PUT /api/orgs/{organization_id}</code>, sending the provided <code>organization</code> dict. <code>organization_id</code> is interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>delete_organization(organization_id)</code></h5>
-<p><code>DELETE /api/orgs/{organization_id}</code>, where <code>organization_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>DELETE /api/orgs/{organization_id}</code>, with <code>organization_id</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>organization_user_list(organization_id)</code></h5>
-<p><code>GET /api/orgs/{organization_id}/users</code>. Returns the parsed JSON list.</p>
+<p><code>GET /api/orgs/{organization_id}/users</code>. The parsed JSON list is returned.</p>
 <h5><code>organization_user_add(organization_id, user)</code></h5>
-<p><code>POST /api/orgs/{organization_id}/users</code>, sending the given <code>user</code> dict. Returns the parsed JSON body.</p>
+<p><code>POST /api/orgs/{organization_id}/users</code>, sending the supplied <code>user</code> dict. The parsed JSON body is returned.</p>
 <h5><code>organization_user_update(organization_id, user_id, user_role)</code></h5>
-<p><code>PATCH /api/orgs/{organization_id}/users/{user_id}</code>, sending the given role. Both ids are interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>PATCH /api/orgs/{organization_id}/users/{user_id}</code>, sending the provided role. Both ids are interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>organization_user_delete(organization_id, user_id)</code></h5>
-<p><code>DELETE /api/orgs/{organization_id}/users/{user_id}</code>. Both ids are interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>DELETE /api/orgs/{organization_id}/users/{user_id}</code>. Both ids are interpolated into the URL path. The parsed JSON body is returned.</p>
 <h5><code>organization_preference_get()</code></h5>
-<p><code>GET /api/org/preferences</code>. Returns the parsed JSON body.</p>
+<p><code>GET /api/org/preferences</code>. The parsed JSON body is returned.</p>
 <h5><code>organization_preference_update(theme, home_dashboard_id, timezone)</code></h5>
-<p><code>PUT /api/org/preferences</code>, sending the given preference values. Returns the parsed JSON body.</p>
+<p><code>PUT /api/org/preferences</code>, sending the supplied preference values. The parsed JSON body is returned.</p>
 <h5><code>switch_organization(organization_id)</code></h5>
-<p><code>POST /api/user/using/{organization_id}</code>, where <code>organization_id</code> is interpolated into the URL path. Returns the parsed JSON body.</p>
+<p><code>POST /api/user/using/{organization_id}</code>, with <code>organization_id</code> interpolated into the URL path. The parsed JSON body is returned.</p>
 <hr />
-<h4>General notes</h4>
+<h4>General remarks</h4>
 <ul>
-<li>All methods return the JSON-decoded response body directly (a <code>dict</code> for object responses, a <code>list</code> for collection responses).</li>
-<li>URL path parameters are inserted into the path exactly as given, without additional validation.</li>
-<li>Optional parameters must genuinely be optional: methods documented as callable with a subset of arguments must not fail when the remaining arguments are omitted.</li>
+<li>Every method returns the JSON-decoded response body directly (a <code>dict</code> for object responses, a <code>list</code> for collection responses).</li>
+<li>URL path parameters are placed into the path exactly as given, without additional validation.</li>
+<li>Optional parameters must be genuinely optional: methods documented as callable with a subset of arguments must not fail when the remaining arguments are omitted.</li>
 </ul>
-<h4>Additional Requirements</h4>
+<h4>Further Requirements</h4>
 <ul>
-<li>The following method-specific behaviors override the general HTTP error-handling rules:
+<li>The method-specific behaviors that follow override the general HTTP error-handling rules:
 <ul>
-<li><code>cli.annotations.delete_annotations_by_id(...)</code> must return the decoded response body without raising for HTTP <code>400</code>, <code>401</code>, <code>404</code>, or <code>500</code>.</li>
-<li><code>cli.folder.create_folder(title=..., uid=None)</code> must return the decoded response body without raising when the response status is HTTP <code>400</code>.</li>
-<li><code>cli.search.search_dashboards()</code> must return the decoded response body without raising when the response status is HTTP <code>400</code>.</li>
+<li>For HTTP <code>400</code>, <code>401</code>, <code>404</code>, or <code>500</code>, <code>cli.annotations.delete_annotations_by_id(...)</code> must return the decoded response body without raising.</li>
+<li>When the response status is HTTP <code>400</code>, <code>cli.folder.create_folder(title=..., uid=None)</code> must return the decoded response body without raising.</li>
+<li>When the response status is HTTP <code>400</code>, <code>cli.search.search_dashboards()</code> must return the decoded response body without raising.</li>
 </ul>
 </li>
 </ul>
@@ -1179,49 +1183,49 @@ limit=1
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Modify the HTTP method used by the delete_snapshot_by_delete_key method so that it issues an HTTP GET request instead of an HTTP DELETE request.</span>
-        <span class="spec-meta muted">176 words · source specification
+        <span class="spec-title">Change the HTTP method that the delete_snapshot_by_delete_key method uses, so that the request it issues is an HTTP GET request and not an HTTP DELETE request.</span>
+        <span class="spec-meta muted">194 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the HTTP method used by the <code>delete_snapshot_by_delete_key</code> method so that it issues an HTTP <strong>GET</strong> request instead of an HTTP <strong>DELETE</strong> request.</p>
-<h4>API Surface</h4>
-<p>There is an existing snapshots client accessible via a client object's <code>snapshots</code> attribute. That snapshots client exposes the following method:</p>
+      <div class="spec-body"><h4>Summary</h4>
+<p>Change the HTTP method that the <code>delete_snapshot_by_delete_key</code> method uses, so that the request it issues is an HTTP <strong>GET</strong> request and not an HTTP <strong>DELETE</strong> request.</p>
+<h4>Exposed API</h4>
+<p>A snapshots client already exists; it can be accessed through a client object's <code>snapshots</code> attribute. On that snapshots client, the following method is exposed:</p>
 <pre><code class="language-python">delete_snapshot_by_delete_key(snapshot_delete_key)
 </code></pre>
 <ul>
-<li><strong>Parameter:</strong> <code>snapshot_delete_key</code> — a string identifying the snapshot to delete, passed as a keyword argument.</li>
-<li><strong>Return value:</strong> the parsed JSON response body returned by the server.</li>
+<li><strong>Parameter:</strong> <code>snapshot_delete_key</code> — a string that identifies the snapshot to be deleted, passed as a keyword argument.</li>
+<li><strong>Return value:</strong> the response body returned by the server, parsed as JSON.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>When <code>delete_snapshot_by_delete_key</code> is called with a <code>snapshot_delete_key</code>:</p>
+<p>Upon calling <code>delete_snapshot_by_delete_key</code> with a <code>snapshot_delete_key</code>:</p>
 <ul>
 <li>
-<p>It must send an HTTP <strong>GET</strong> request to the endpoint:</p>
+<p>It must send an HTTP <strong>GET</strong> request to this endpoint:</p>
 <pre><code>{base_url}/api/snapshots-delete/{snapshot_delete_key}
 </code></pre>
-<p>where <code>{snapshot_delete_key}</code> is the provided key value appended to the <code>snapshots-delete</code> path segment.</p>
+<p>where <code>{snapshot_delete_key}</code> stands for the provided key value, which is appended to the <code>snapshots-delete</code> path segment.</p>
 </li>
 <li>
-<p>The method must return the JSON-decoded response body from the server unchanged (i.e., the deserialized object corresponding to the server's JSON payload).</p>
+<p>The method must return, unchanged, the JSON-decoded response body from the server (i.e., the deserialized object that corresponds to the server's JSON payload).</p>
 </li>
 </ul>
 <h4>Constraint</h4>
-<p>The only behavioral change required is the HTTP verb used for this request: it must be GET (not DELETE). The URL construction, parameter handling, and return-value behavior otherwise remain as described above.</p>
+<p>The HTTP verb used for this request is the only behavioral change that is required: it must be GET (not DELETE). Otherwise, the URL construction, the handling of parameters, and the return-value behavior remain as described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">HTTP Error Handling in Grafana API Client</span>
-        <span class="spec-meta muted">490 words · source specification
+        <span class="spec-title">HTTP Error Behavior of the Grafana API Client</span>
+        <span class="spec-meta muted">598 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: HTTP Error Handling in Grafana API Client</h3>
-<h4>Overview</h4>
-<p>You are working on a Python client library for the Grafana HTTP API. The client exposes resource objects (annotations, folder, search, etc.) accessible through a top-level client instance. This task concerns how the client behaves when the Grafana server responds with an HTTP error status code.</p>
-<h4>Required Behavior</h4>
-<p>When any client API method issues an HTTP request and the server responds with a non-success (error) HTTP status code, the method <strong>must raise an exception</strong>. It must not swallow the error, return a normal result, or otherwise hide the failure. The specific exception type raised depends on the HTTP status code returned by the server:</p>
+      <div class="spec-body"><h3>Task Specification: HTTP Error Behavior of the Grafana API Client</h3>
+<h4>Background</h4>
+<p>The codebase you are working in is a Python client library for the Grafana HTTP API. A top-level client instance is the gateway to the resource objects (annotations, folder, search, etc.) that the client exposes. The subject matter of this task is the behavior of the client in cases where the Grafana server replies with an HTTP error status code.</p>
+<h4>Behavior That Is Required</h4>
+<p>If an HTTP request sent by any client API method is met with a non-success (error) HTTP status code from the server, <strong>an exception must be raised</strong> by the method. The error must not be swallowed, a normal result must not be returned, and the failure must not be hidden in any other way. Which particular exception type gets raised is decided by the HTTP status code with which the server responds:</p>
 <table>
 <thead>
 <tr>
@@ -1248,66 +1252,66 @@ limit=1
 </tr>
 </tbody>
 </table>
-<p>The exception must be raised at the point the API method is called (i.e., propagate out of the method call), so that a caller wrapping the call in exception-handling logic can catch it.</p>
+<p>The raise must take place at the point where the API method is called (that is, the exception propagates out of the method call), so that a caller who wraps the call in exception-handling logic can catch it.</p>
 <h4>Exception Classes</h4>
-<p>The following exception classes must exist and be importable so that callers can reference and catch them by name:</p>
+<p>The exception classes that follow must exist and be importable, so that callers can reference and catch them by name:</p>
 <ul>
 <li><code>GrafanaServerError</code></li>
 <li><code>GrafanaClientError</code></li>
 <li><code>GrafanaUnauthorizedError</code></li>
 <li><code>GrafanaBadInputError</code></li>
 </ul>
-<p>These must be importable from the same location the existing API test modules import them from (the library's public API surface, alongside the client class). Each must be a proper exception type (subclass of <code>Exception</code>) so it can be used with standard exception-catching constructs.</p>
-<h4>Public API Surface Exercised</h4>
-<p>The client instance provides resource attributes with the following methods, each of which must exhibit the error-raising behavior described above:</p>
+<p>There is a specific location from which the existing API test modules import these classes, and the classes must be importable from that same location (the library's public API surface, alongside the client class). Each of these classes must be a proper exception type (a subclass of <code>Exception</code>), so that it can be put to use with standard exception-catching constructs.</p>
+<h4>Public API Surface That Gets Exercised</h4>
+<p>Resource attributes on the client instance come equipped with the methods below; the error-raising behavior described above must be exhibited by each one of these methods:</p>
 <ul>
 <li>
 <p><code>client.annotations.delete_annotations_by_id(annotations_id=...)</code></p>
 <ul>
-<li>Issues an HTTP <code>DELETE</code> to <code>/api/annotations/&lt;annotations_id&gt;</code>.</li>
-<li>When <code>annotations_id</code> is <code>None</code>, the path segment used is the literal string <code>None</code> (i.e., the endpoint path becomes <code>/api/annotations/None</code>).</li>
-<li>Must raise the status-code-appropriate exception (per the table above) when the server responds with 400, 401, 403, or 500.</li>
+<li>An HTTP <code>DELETE</code> is performed against <code>/api/annotations/&lt;annotations_id&gt;</code>.</li>
+<li>If <code>annotations_id</code> has the value <code>None</code>, the literal string <code>None</code> is what serves as the path segment (meaning <code>/api/annotations/None</code> is the resulting endpoint path).</li>
+<li>When the server answers with 400, 401, 403, or 500, the exception appropriate to that status code (per the table above) must be raised.</li>
 </ul>
 </li>
 <li>
 <p><code>client.folder.create_folder(title=...)</code></p>
 <ul>
-<li>Issues a request to create a folder using the provided <code>title</code>.</li>
-<li>Must raise <code>GrafanaBadInputError</code> when the server responds with status code 400.</li>
+<li>Sends a request to create a folder, making use of the provided <code>title</code>.</li>
+<li><code>GrafanaBadInputError</code> must be raised when the server responds with status code 400.</li>
 </ul>
 </li>
 <li>
 <p><code>client.search.search_dashboards()</code></p>
 <ul>
-<li>Issues a request to search dashboards.</li>
-<li>Must raise <code>GrafanaBadInputError</code> when the server responds with status code 400.</li>
+<li>Sends a request whose purpose is to search dashboards.</li>
+<li>If the server responds with status code 400, <code>GrafanaBadInputError</code> must be raised.</li>
 </ul>
 </li>
 </ul>
-<h4>Behavioral Requirements Summary</h4>
+<h4>Summary of the Behavioral Requirements</h4>
 <ol>
-<li>All API methods that perform HTTP requests must detect error status codes on the response and raise, rather than return, on failure.</li>
-<li>The exception type raised must correspond exactly to the returned status code as specified in the table.</li>
-<li>The four named exception classes must be defined and importable from the library's public interface.</li>
-<li>Status codes 400, 401, 403, and 500 must be mapped to their corresponding exception types as listed. (Status codes not listed above are not exercised by this task.)</li>
+<li>All API methods that perform HTTP requests are required to detect error status codes on the response and, on failure, to raise rather than return.</li>
+<li>The exception type that gets raised must correspond to the returned status code exactly, in the way the table specifies.</li>
+<li>The four exception classes named above must be defined and importable, with the library's public interface as the location to import them from.</li>
+<li>For the status codes 400, 401, 403, and 500, the mapping to their corresponding exception types must be as listed. (Any status code that does not appear above is not exercised by this task.)</li>
 </ol>
 <h4>Non-Goals</h4>
-<p>Do not change the shape or content of the responses returned on success. This task only concerns error-path behavior for the status codes listed.</p>
+<p>The shape and the content of the responses returned on success must not be changed. Only the error-path behavior for the status codes listed is what this task concerns.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Add Request Timeout Support to Grafana API Client</span>
-        <span class="spec-meta muted">323 words · source specification
+        <span class="spec-title">Add Support for a Request Timeout in the Grafana API Client</span>
+        <span class="spec-meta muted">353 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Request Timeout Support to Grafana API Client</h3>
+      <div class="spec-body"><h3>Task Specification: Add Support for a Request Timeout in the Grafana API Client</h3>
 <h4>Overview</h4>
-<p>Add a configurable request timeout to the Grafana API client. Every HTTP request the client issues must include a timeout value, which defaults to a specific value but can be overridden by the caller.</p>
+<p>Introduce a configurable request timeout into the Grafana API client. Every HTTP request issued by the client must include a timeout value; this value defaults to a specific one, but the caller can override it.</p>
 <h4>Public API</h4>
 <h5><code>GrafanaFace</code> class</h5>
-<p>The client is constructed via the <code>GrafanaFace</code> class (importable as it currently is in the package). Its constructor must accept a new keyword argument:</p>
+<p>The client is constructed using the <code>GrafanaFace</code> class (importable in the package as it currently is). A new keyword argument must be accepted by its constructor:</p>
 <pre><code class="language-python">GrafanaFace(
     auth,
     host=&quot;localhost&quot;,
@@ -1319,107 +1323,107 @@ limit=1
 )
 </code></pre>
 <ul>
-<li><code>auth</code>: existing authentication argument (e.g. a <code>(username, password)</code> tuple).</li>
-<li><code>host</code>, <code>port</code>, <code>url_path_prefix</code>, <code>protocol</code>, <code>verify</code>: existing arguments, unchanged.</li>
-<li><code>timeout</code>: a new keyword argument. It is a float representing the request timeout in seconds. It must default to <code>5.0</code>.</li>
+<li><code>auth</code>: the authentication argument that already exists (for example a <code>(username, password)</code> tuple).</li>
+<li><code>host</code>, <code>port</code>, <code>url_path_prefix</code>, <code>protocol</code>, <code>verify</code>: arguments that already exist and remain unchanged.</li>
+<li><code>timeout</code>: a keyword argument that is new. It is a float that represents the request timeout in seconds. Its default must be <code>5.0</code>.</li>
 </ul>
 <h4>Required Behavior</h4>
-<h5>Timeout is applied to every outgoing HTTP request</h5>
-<p>The <code>timeout</code> value supplied to (or defaulted by) the <code>GrafanaFace</code> constructor must be passed to the underlying HTTP request call for <strong>every</strong> API request made through the client.</p>
-<p>Concretely, when the client performs an HTTP request, the request call must include a <code>timeout</code> keyword argument whose value equals the <code>timeout</code> configured on the client. When no <code>timeout</code> is provided at construction, the value passed to each request must be <code>5.0</code>.</p>
-<p>This applies to requests made through the client's resource accessors, including folder operations reached via:</p>
+<h5>The timeout is applied to every outgoing HTTP request</h5>
+<p>For <strong>every</strong> API request made through the client, the <code>timeout</code> value given to (or defaulted by) the <code>GrafanaFace</code> constructor must be passed on to the underlying HTTP request call.</p>
+<p>In concrete terms, when an HTTP request is performed by the client, the request call must include a <code>timeout</code> keyword argument whose value is equal to the <code>timeout</code> configured on the client. If no <code>timeout</code> is provided at construction, the value passed to each request must be <code>5.0</code>.</p>
+<p>This holds for requests made through the client's resource accessors, including folder operations reached via:</p>
 <pre><code class="language-python">cli.folder.get_all_folders()
 </code></pre>
-<h5>Timeout causes the appropriate exception</h5>
-<p>When a request exceeds the configured timeout, the operation must propagate <code>requests.exceptions.Timeout</code> to the caller. For example, constructing a client with a very small timeout (e.g. <code>timeout=0.0001</code>) against a real remote host and calling an API method must raise <code>requests.exceptions.Timeout</code>.</p>
+<h5>A timeout results in the appropriate exception</h5>
+<p>The operation must propagate <code>requests.exceptions.Timeout</code> to the caller if a request exceeds the configured timeout. For instance, constructing a client against a real remote host with a very small timeout (e.g. <code>timeout=0.0001</code>) and calling an API method must raise <code>requests.exceptions.Timeout</code>.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not change the behavior, names, or signatures of the other constructor arguments beyond adding <code>timeout</code>.</li>
-<li>Existing request parameters (such as <code>headers</code>, <code>json</code>, and <code>verify</code>) must continue to be sent exactly as before; the only addition to each request call is the <code>timeout</code> keyword argument.</li>
+<li>Apart from adding <code>timeout</code>, do not alter the behavior, names, or signatures of the other constructor arguments.</li>
+<li>Request parameters that already exist (such as <code>headers</code>, <code>json</code>, and <code>verify</code>) must continue to be sent exactly as before; the <code>timeout</code> keyword argument is the only addition to each request call.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Implement Partial Update for Annotations</span>
-        <span class="spec-meta muted">224 words · source specification
+        <span class="spec-title">Implementing Partial Update for Annotations</span>
+        <span class="spec-meta muted">248 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement Partial Update for Annotations</h3>
+      <div class="spec-body"><h3>Task Specification: Implementing Partial Update for Annotations</h3>
 <h4>Overview</h4>
-<p>Add a new method to the annotations API client that performs a partial update of an existing annotation via an HTTP <code>PATCH</code> request.</p>
+<p>The task is to add a new method to the annotations API client — one that carries out a partial update of an existing annotation by way of an HTTP <code>PATCH</code> request.</p>
 <h4>API Surface to Implement</h4>
-<p>The annotations client (accessible as <code>client.annotations</code>) must expose a new method:</p>
+<p>The annotations client, accessible as <code>client.annotations</code>, must expose a new method:</p>
 <pre><code class="language-python">def partial_update_annotation(self, annotations_id, tags=None, text=None):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>annotations_id</code>: the numeric identifier of the annotation to update.</li>
-<li><code>tags</code>: an optional list of tag strings associated with the annotation.</li>
-<li><code>text</code>: an optional string containing annotation text.</li>
+<li><code>annotations_id</code>: the numeric identifier of the annotation that is to be updated.</li>
+<li><code>tags</code>: an optional list of tag strings that are associated with the annotation.</li>
+<li><code>text</code>: an optional string that contains the annotation's text.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>When <code>partial_update_annotation</code> is called, it must issue an HTTP <code>PATCH</code> request to the endpoint:</p>
+<p>Upon a call to <code>partial_update_annotation</code>, the method must issue an HTTP <code>PATCH</code> request to the endpoint:</p>
 <pre><code>/api/annotations/&lt;annotations_id&gt;
 </code></pre>
-<p>where <code>&lt;annotations_id&gt;</code> is the provided identifier interpolated into the URL path (e.g., calling with <code>annotations_id=89</code> targets <code>/api/annotations/89</code>).</p>
-<p>The method must return the parsed JSON body of the server response as the result of the call (i.e., the deserialized response object returned to the caller).</p>
+<p>where the provided identifier is interpolated into the URL path in place of <code>&lt;annotations_id&gt;</code> (e.g., a call with <code>annotations_id=89</code> targets <code>/api/annotations/89</code>).</p>
+<p>The method must return, as the result of the call, the parsed JSON body of the server response (i.e., the deserialized response object returned to the caller).</p>
 <h5>Example</h5>
-<p>A call such as:</p>
+<p>A call like the following:</p>
 <pre><code class="language-python">result = client.annotations.partial_update_annotation(
     annotations_id=89,
     tags=[&quot;tag1&quot;, &quot;tag2&quot;],
     text=&quot;Test&quot;,
 )
 </code></pre>
-<p>must send a <code>PATCH</code> request to <code>/api/annotations/89</code> and return the JSON-decoded response body from the server.</p>
+<p>must send a <code>PATCH</code> request to <code>/api/annotations/89</code> and return the JSON-decoded body of the server's response.</p>
 <h4>Notes</h4>
 <ul>
-<li>The method signature must accept <code>annotations_id</code>, <code>tags</code>, and <code>text</code> as described, with <code>tags</code> and <code>text</code> being optional.</li>
-<li>The return value is exactly the JSON payload returned by the server, parsed into the corresponding Python object.</li>
+<li>The signature of the method must accept <code>annotations_id</code>, <code>tags</code>, and <code>text</code> as described, where <code>tags</code> and <code>text</code> are optional.</li>
+<li>The return value is exactly the JSON payload the server returns, parsed into the corresponding Python object.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">The codebase contains a Grafana API client library.</span>
-        <span class="spec-meta muted">218 words · source specification
+        <span class="spec-title">The codebase contains a client library for the Grafana API.</span>
+        <span class="spec-meta muted">241 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Update the <code>update_annotation</code> method to target a specific annotation by ID</h3>
+      <div class="spec-body"><h3>Task: Change the <code>update_annotation</code> method so that it targets a specific annotation by ID</h3>
 <h4>Context</h4>
-<p>The codebase contains a Grafana API client library. The relevant public API is:</p>
+<p>The codebase contains a client library for the Grafana API. The relevant public API is the following:</p>
 <ul>
-<li>Module: <code>grafana_api.grafana_face</code>, class <code>GrafanaFace</code></li>
-<li>Instances expose an <code>annotations</code> attribute providing annotation-related operations.</li>
+<li>Module: <code>grafana_api.grafana_face</code>, class: <code>GrafanaFace</code></li>
+<li>Instances expose an <code>annotations</code> attribute that provides annotation-related operations.</li>
 </ul>
-<h4>Required Change</h4>
-<p>Modify the <code>update_annotation</code> method on the annotations API surface so that it targets a specific annotation identified by its ID.</p>
-<h5>Method signature</h5>
+<h4>Required Modification</h4>
+<p>On the annotations API surface, change the <code>update_annotation</code> method so that it targets a specific annotation identified by its ID.</p>
+<h5>Signature of the method</h5>
 <pre><code class="language-python">update_annotation(annotations_id, time_from=..., time_to=..., is_region=..., tags=..., text=...)
 </code></pre>
-<p>The method must accept:</p>
+<p>The method must accept the following:</p>
 <ul>
-<li><code>annotations_id</code>: the numeric identifier of the annotation to update (required).</li>
-<li><code>time_from</code>, <code>time_to</code>, <code>is_region</code>, <code>tags</code>, <code>text</code>: annotation fields to update (may be passed as keyword arguments).</li>
+<li><code>annotations_id</code>: the numeric identifier of the annotation that is to be updated (required).</li>
+<li><code>time_from</code>, <code>time_to</code>, <code>is_region</code>, <code>tags</code>, <code>text</code>: fields of the annotation to update (may be passed as keyword arguments).</li>
 </ul>
 <h5>Behavior</h5>
 <ul>
 <li>
-<p>The method must issue an HTTP <code>PUT</code> request to the endpoint:</p>
+<p>It must issue an HTTP <code>PUT</code> request to the endpoint:</p>
 <pre><code>/api/annotations/{annotations_id}
 </code></pre>
-<p>where <code>{annotations_id}</code> is the given ID appended to the annotations collection path. For example, calling with <code>annotations_id=79</code> must target <code>/api/annotations/79</code>.</p>
+<p>with <code>{annotations_id}</code> being the given ID appended to the annotations collection path. For instance, calling the method with <code>annotations_id=79</code> must target <code>/api/annotations/79</code>.</p>
 </li>
 <li>
-<p>The method must return the parsed JSON body of the response as a Python object (e.g. a dictionary), giving the caller direct access to the returned fields such as <code>id</code>, <code>endId</code>, and <code>message</code>.</p>
+<p>The method must return the JSON body of the response in parsed form as a Python object (e.g. a dictionary), which gives the caller direct access to the returned fields such as <code>id</code>, <code>endId</code>, and <code>message</code>.</p>
 </li>
 </ul>
-<h4>Additional Requirement</h4>
-<p>The following exception classes must be importable from <code>grafana_api.grafana_api</code>:</p>
+<h4>Further Requirement</h4>
+<p>It must be possible to import the following exception classes from <code>grafana_api.grafana_api</code>:</p>
 <ul>
 <li><code>GrafanaBadInputError</code></li>
 <li><code>GrafanaClientError</code></li>
@@ -1427,47 +1431,48 @@ limit=1
 <li><code>GrafanaUnauthorizedError</code></li>
 </ul>
 <h4>Removal</h4>
-<p>Remove the <code>partial_update_annotation</code> method from the annotations API surface; it is no longer part of the public API.</p>
+<p>Delete the <code>partial_update_annotation</code> method from the annotations API surface; it no longer forms part of the public API.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">You are working on a Python client library for the Grafana HTTP API.</span>
-        <span class="spec-meta muted">322 words · source specification
+        <span class="spec-title">You are developing a Python client library for the Grafana HTTP API.</span>
+        <span class="spec-meta muted">340 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a Python client library for the Grafana HTTP API. The library exposes a <code>GrafanaFace</code> client object whose functionality is grouped into sub-clients accessible as attributes. This task concerns the <strong>annotations</strong> sub-client.</p>
-<p>You must implement one new method and modify one existing method as described below.</p>
-<h4>Public API Surface</h4>
-<p>The client is instantiated via:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>You are developing a Python client library for the Grafana HTTP API. In this library, a <code>GrafanaFace</code> client object exposes functionality that is grouped into sub-clients, and these sub-clients are accessible as attributes. This task is about the <strong>annotations</strong> sub-client.</p>
+<p>One new method must be implemented and one existing method must be modified, as described below.</p>
+<h4>Public API</h4>
+<p>The client is instantiated as follows:</p>
 <pre><code class="language-python">from grafana_api.grafana_face import GrafanaFace
 </code></pre>
-<p>The annotations sub-client is accessed as <code>client.annotations</code>. It must expose the following methods relevant to this task.</p>
-<h5>1. New method: <code>partial_update_annotation</code></h5>
+<p>You access the annotations sub-client as <code>client.annotations</code>. It must expose the following methods, which are relevant to this task.</p>
+<h5>1. The new method <code>partial_update_annotation</code></h5>
 <pre><code class="language-python">partial_update_annotation(self, annotations_id, time_from=None, time_to=None, tags=None, text=None)
 </code></pre>
 <ul>
-<li>Performs an HTTP <strong>PATCH</strong> request to the endpoint:<pre><code>/api/annotations/&lt;annotations_id&gt;
+<li>Sends an HTTP <strong>PATCH</strong> request to the following endpoint:<pre><code>/api/annotations/&lt;annotations_id&gt;
 </code></pre>
-where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotations_id</code>.</li>
-<li>The request body carries the update fields provided by the caller (e.g. <code>tags</code>, <code>text</code>, and optionally <code>time_from</code>, <code>time_to</code>).</li>
-<li><code>tags</code> may be a list of strings.</li>
-<li>Returns the parsed JSON response body as the method's return value (e.g. a dictionary such as <code>{&quot;message&quot;: &quot;Annotation patched&quot;}</code>).</li>
+with <code>&lt;annotations_id&gt;</code> denoting the value passed as <code>annotations_id</code>.</li>
+<li>The body of the request contains the update fields supplied by the caller (e.g. <code>tags</code>, <code>text</code>, and optionally <code>time_from</code>, <code>time_to</code>).</li>
+<li>The <code>tags</code> argument may be a list of strings.</li>
+<li>The method's return value is the parsed JSON response body (for example, a dictionary such as <code>{&quot;message&quot;: &quot;Annotation patched&quot;}</code>).</li>
 </ul>
-<h5>2. Modified method: <code>update_annotation</code></h5>
+<h5>2. The modified method <code>update_annotation</code></h5>
 <pre><code class="language-python">update_annotation(self, time_from=None, time_to=None, is_region=None, tags=None, text=None)
 </code></pre>
 <ul>
-<li>Performs an HTTP <strong>PUT</strong> request to the endpoint:<pre><code>/api/annotations
+<li>Sends an HTTP <strong>PUT</strong> request to the following endpoint:<pre><code>/api/annotations
 </code></pre>
-(Note: this endpoint no longer includes an annotation id in the path, and the method no longer accepts an <code>annotations_id</code> parameter.)</li>
-<li>The request body carries the update fields provided by the caller (<code>time_from</code>, <code>time_to</code>, <code>is_region</code>, <code>tags</code>, <code>text</code>).</li>
-<li>Returns the parsed JSON response body as the method's return value (e.g. a dictionary such as <code>{&quot;endId&quot;: 80, &quot;id&quot;: 79, &quot;message&quot;: &quot;Annotation updated&quot;}</code>).</li>
+(Note: the path of this endpoint no longer includes an annotation id, and the method no longer accepts an <code>annotations_id</code> parameter.)</li>
+<li>The body of the request contains the update fields supplied by the caller (<code>time_from</code>, <code>time_to</code>, <code>is_region</code>, <code>tags</code>, <code>text</code>).</li>
+<li>The method's return value is the parsed JSON response body (for example, a dictionary such as <code>{&quot;endId&quot;: 80, &quot;id&quot;: 79, &quot;message&quot;: &quot;Annotation updated&quot;}</code>).</li>
 </ul>
-<h4>Error / Exception Types</h4>
-<p>The following exception classes must be importable from <code>grafana_api.grafana_api</code>:</p>
+<h4>Error and Exception Types</h4>
+<p>The exception classes below must be importable from <code>grafana_api.grafana_api</code>:</p>
 <pre><code class="language-python">from grafana_api.grafana_api import (
     GrafanaServerError,
     GrafanaClientError,
@@ -1477,31 +1482,31 @@ where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotatio
 </code></pre>
 <h4>Notes</h4>
 <ul>
-<li>The base URL used by the client in these scenarios is <code>http://localhost</code>, so the full request URLs are <code>http://localhost/api/annotations/&lt;id&gt;</code> (for PATCH) and <code>http://localhost/api/annotations</code> (for PUT).</li>
-<li>Both methods should return whatever JSON the server responds with, unwrapped as native Python objects.</li>
+<li>In these scenarios, the base URL the client uses is <code>http://localhost</code>, so the full request URLs are <code>http://localhost/api/annotations/&lt;id&gt;</code> (for PATCH) and <code>http://localhost/api/annotations</code> (for PUT).</li>
+<li>Both methods should return, unwrapped as native Python objects, whatever JSON the server responds with.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Modify the update_annotation method in the Annotations API of the grafana_api package so that it targets a specific annotation by its ID.</span>
-        <span class="spec-meta muted">216 words · source specification
+        <span class="spec-title">Within the Annotations API of the grafana_api package, the update_annotation method is to be changed so that it targets a specific annotation by its ID.</span>
+        <span class="spec-meta muted">228 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>update_annotation</code> method in the Annotations API of the <code>grafana_api</code> package so that it targets a specific annotation by its ID.</p>
+<p>Within the Annotations API of the <code>grafana_api</code> package, the <code>update_annotation</code> method is to be changed so that it targets a specific annotation by its ID.</p>
 <h4>API Surface</h4>
-<p>The <code>GrafanaFace</code> class (importable from <code>grafana_api.grafana_face</code>) exposes an <code>annotations</code> attribute. That attribute must provide a method with the following signature:</p>
+<p>An <code>annotations</code> attribute is exposed by the <code>GrafanaFace</code> class (importable from <code>grafana_api.grafana_face</code>). This attribute must provide a method with the following signature:</p>
 <pre><code class="language-python">update_annotation(self, annotations_id, time_from=None, time_to=None, is_region=None, tags=None, text=None)
 </code></pre>
-<p>The first positional parameter, <code>annotations_id</code>, identifies the annotation to update.</p>
+<p>The annotation to update is identified by the first positional parameter, <code>annotations_id</code>.</p>
 <h4>Required Behavior</h4>
-<p>When <code>update_annotation</code> is called:</p>
+<p>When <code>update_annotation</code> is invoked:</p>
 <ul>
-<li>It must issue an HTTP <code>PUT</code> request to the endpoint <code>/api/annotations/&lt;annotations_id&gt;</code>, where <code>&lt;annotations_id&gt;</code> is the value passed as the <code>annotations_id</code> argument. For example, calling with <code>annotations_id=79</code> must target <code>/api/annotations/79</code>.</li>
+<li>An HTTP <code>PUT</code> request must be sent to the endpoint <code>/api/annotations/&lt;annotations_id&gt;</code>, with <code>&lt;annotations_id&gt;</code> denoting the value passed as the <code>annotations_id</code> argument. For instance, calling with <code>annotations_id=79</code> must target <code>/api/annotations/79</code>.</li>
 <li>The values passed for <code>time_from</code>, <code>time_to</code>, <code>is_region</code>, <code>tags</code>, and <code>text</code> are included in the request payload for the update.</li>
-<li>The method must return the parsed JSON response body from the server as a Python object (a dictionary), giving the caller direct access to fields such as <code>id</code>, <code>endId</code>, and <code>message</code>.</li>
+<li>The method must return the parsed JSON response body from the server as a Python object (a dictionary), so the caller is given direct access to fields such as <code>id</code>, <code>endId</code>, and <code>message</code>.</li>
 </ul>
 <h4>Error Handling</h4>
 <p>The following exception classes must remain importable from <code>grafana_api.grafana_api</code>:</p>
@@ -1512,92 +1517,93 @@ where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotatio
 <li><code>GrafanaUnauthorizedError</code></li>
 </ul>
 <h4>Notes</h4>
-<p>The only change to the existing <code>update_annotation</code> behavior is that the target annotation is now selected by its ID via the new required <code>annotations_id</code> argument, and the request URL incorporates that ID as a path segment.</p>
+<p>The only change to the existing <code>update_annotation</code> behavior is that the annotation being targeted is now chosen by its ID via the new required <code>annotations_id</code> argument, and that ID is incorporated into the request URL as a path segment.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Grafana Annotations API Client</span>
-        <span class="spec-meta muted">527 words · source specification
+        <span class="spec-title">Client for the Grafana Annotations API</span>
+        <span class="spec-meta muted">547 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Grafana Annotations API Client</h3>
+      <div class="spec-body"><h3>Task Specification: Client for the Grafana Annotations API</h3>
 <h4>Overview</h4>
-<p>You are implementing methods on a Grafana API client for working with annotations. The annotations functionality is accessed through an <code>annotations</code> attribute on the main client object. Each method builds a request payload/query and issues an HTTP request to a Grafana annotations endpoint, returning the parsed JSON response body.</p>
+<p>Your task is to implement methods on a Grafana API client that deal with annotations. Access to the annotations functionality goes through an <code>annotations</code> attribute on the main client object. Each method puts together a request payload/query, issues an HTTP request to a Grafana annotations endpoint, and returns the parsed JSON response body.</p>
 <h4>API Surface</h4>
-<p>The annotations component is reachable as <code>client.annotations</code> (where <code>client</code> is the main Grafana client instance). It must expose the following methods.</p>
+<p>The annotations component is accessible as <code>client.annotations</code> (where <code>client</code> is the main Grafana client instance). The following methods must be exposed.</p>
 <h5><code>get_annotation(...)</code></h5>
-<p>Signature (all keyword arguments, all optional):</p>
+<p>Signature (all arguments are keyword arguments, and all of them are optional):</p>
 <pre><code>get_annotation(time_from=None, time_to=None, alert_id=None, dashboard_id=None, panel_id=None, user_id=None, ann_type=None, tags=None, limit=None)
 </code></pre>
 <ul>
-<li>Issues an HTTP GET request to the annotations listing endpoint (<code>/api/annotations</code>).</li>
-<li>The provided arguments are passed as query parameters to filter the returned annotations.</li>
-<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>. Each element must be included as a separate <code>tags</code> query parameter value (i.e. repeated query parameters, one per tag), not concatenated into a single string.</li>
-<li>Returns the parsed JSON response (a list of annotation objects). Each annotation object is a dictionary whose keys mirror the Grafana response (e.g. <code>text</code>, <code>alertId</code>, <code>dashboardId</code>, <code>panelId</code>, etc.).</li>
+<li>Performs an HTTP GET request against the annotations listing endpoint (<code>/api/annotations</code>).</li>
+<li>The supplied arguments are passed as query parameters that filter the returned annotations.</li>
+<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>. Each element must be included as a separate value for the <code>tags</code> query parameter (i.e. repeated query parameters, one per tag), not concatenated into a single string.</li>
+<li>Returns the parsed JSON response (a list of annotation objects). Each annotation object is a dictionary with keys mirroring the Grafana response (e.g. <code>text</code>, <code>alertId</code>, <code>dashboardId</code>, <code>panelId</code>, etc.).</li>
 </ul>
 <h5><code>add_annotation(...)</code></h5>
 <p>Signature (keyword arguments):</p>
 <pre><code>add_annotation(dashboard_id=None, panel_id=None, time_from=None, time_to=None, is_region=None, tags=None, text=None)
 </code></pre>
 <ul>
-<li>Issues an HTTP POST request to the annotations creation endpoint (<code>/api/annotations</code>).</li>
-<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>; it must be sent as-is in the request body under a <code>tags</code> field (a JSON array of strings).</li>
-<li>The remaining arguments populate the JSON request body (e.g. time range, region flag, annotation text).</li>
-<li>Returns the parsed JSON response (a dictionary), which contains fields such as <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
+<li>Sends an HTTP POST request to the annotations creation endpoint (<code>/api/annotations</code>).</li>
+<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>; it must be placed as-is in the request body under a <code>tags</code> field (a JSON array of strings).</li>
+<li>The remaining arguments go into the JSON request body (e.g. time range, region flag, annotation text).</li>
+<li>Returns the parsed JSON response (a dictionary) containing fields such as <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
 </ul>
 <h5><code>update_annotation(...)</code></h5>
 <p>Signature (keyword arguments):</p>
 <pre><code>update_annotation(annotations_id, time_from=None, time_to=None, is_region=None, tags=None, text=None)
 </code></pre>
 <ul>
-<li>Issues an HTTP request that updates the annotation identified by <code>annotations_id</code> at the endpoint <code>/api/annotations/&lt;annotations_id&gt;</code>.</li>
-<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>, sent as-is (a JSON array of strings) in the request body.</li>
-<li>The remaining arguments populate the JSON request body.</li>
-<li>Returns the parsed JSON response (a dictionary), which contains fields such as <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
+<li>Performs an HTTP request that updates the annotation identified by <code>annotations_id</code> at the endpoint <code>/api/annotations/&lt;annotations_id&gt;</code>.</li>
+<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>, placed as-is (a JSON array of strings) in the request body.</li>
+<li>The remaining arguments go into the JSON request body.</li>
+<li>Returns the parsed JSON response (a dictionary) containing fields such as <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
 </ul>
 <h5><code>add_annotation_graphite(...)</code></h5>
 <p>Signature (keyword arguments):</p>
 <pre><code>add_annotation_graphite(what=None, tags=None, when=None, data=None)
 </code></pre>
 <ul>
-<li>Issues an HTTP POST request to the Graphite annotations endpoint (<code>/api/annotations/graphite</code>).</li>
-<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>, sent as-is (a JSON array of strings) in the request body.</li>
-<li>The remaining arguments (<code>what</code>, <code>when</code>, <code>data</code>) populate the JSON request body.</li>
-<li>Returns the parsed JSON response (a dictionary), which contains fields such as <code>id</code> and <code>message</code>.</li>
+<li>Sends an HTTP POST request to the Graphite annotations endpoint (<code>/api/annotations/graphite</code>).</li>
+<li>The <code>tags</code> parameter is a <strong>list of tag strings</strong>, placed as-is (a JSON array of strings) in the request body.</li>
+<li>The remaining arguments (<code>what</code>, <code>when</code>, <code>data</code>) go into the JSON request body.</li>
+<li>Returns the parsed JSON response (a dictionary) containing fields such as <code>id</code> and <code>message</code>.</li>
 </ul>
-<h4>Key Behavioral Requirement</h4>
-<p>The <code>tags</code> argument for all four methods is a <strong>list of strings</strong>. Callers supply tags as a Python list (for example <code>[&quot;deploy&quot;, &quot;production&quot;]</code>). The implementation must handle this list form:</p>
+<h4>Core Behavioral Requirement</h4>
+<p>Across all four methods, the <code>tags</code> argument is a <strong>list of strings</strong>. Callers provide the tags as a Python list (for example <code>[&quot;deploy&quot;, &quot;production&quot;]</code>). This list form must be handled by the implementation:</p>
 <ul>
-<li>For the listing (GET) method, each list element becomes a separate repeated <code>tags</code> query parameter.</li>
-<li>For the create/update/graphite methods, the list is placed directly into the JSON request body as an array of strings.</li>
+<li>For the listing (GET) method, each element of the list becomes a separate repeated <code>tags</code> query parameter.</li>
+<li>For the create/update/graphite methods, the list goes directly into the JSON request body as an array of strings.</li>
 </ul>
 <h4>Return Values</h4>
-<p>Every method returns the decoded JSON body of the HTTP response directly (a list for <code>get_annotation</code>, a dictionary for the others). No additional wrapping or transformation is applied.</p>
+<p>The decoded JSON body of the HTTP response is returned directly by every method (a list for <code>get_annotation</code>, a dictionary for the others). No extra wrapping or transformation is applied.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You are working on a Python client library for the Grafana HTTP API.</span>
-        <span class="spec-meta muted">798 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">You are working within a Python client library for the Grafana HTTP API.</span>
+        <span class="spec-meta muted">897 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a Python client library for the Grafana HTTP API. The package is named <code>grafana_api</code>. Two areas require work:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>You are working within a Python client library for the Grafana HTTP API. The package is called <code>grafana_api</code>. Work is required in two areas:</p>
 <ol>
-<li>Adding a new <strong>Notifications</strong> API surface for alert notification channels.</li>
-<li>Modifying the existing <strong>Annotations</strong> API surface to remove region-based functionality.</li>
+<li>Adding a new <strong>Notifications</strong> API surface that covers alert notification channels.</li>
+<li>Modifying the existing <strong>Annotations</strong> API surface so that region-based functionality is removed.</li>
 </ol>
-<p>The client entry point is the class <code>GrafanaFace</code>, importable as:</p>
+<p>The class <code>GrafanaFace</code> is the client's entry point and is importable as:</p>
 <pre><code class="language-python">from grafana_api.grafana_face import GrafanaFace
 </code></pre>
-<p><code>GrafanaFace</code> is constructed as follows:</p>
+<p><code>GrafanaFace</code> is constructed in the following way:</p>
 <pre><code class="language-python">GrafanaFace((&quot;admin&quot;, &quot;admin&quot;), host=&quot;localhost&quot;, url_path_prefix=&quot;&quot;, protocol=&quot;http&quot;)
 </code></pre>
-<p>The first positional argument is a <code>(username, password)</code> authentication tuple. With the arguments above, requests target URLs under <code>http://localhost/api/...</code>.</p>
-<p>The following existing error classes must remain importable from <code>grafana_api.grafana_api</code>:</p>
+<p>The first positional argument is an authentication tuple of the form <code>(username, password)</code>. Using the arguments above, requests target URLs under <code>http://localhost/api/...</code>.</p>
+<p>The existing error classes that follow must remain importable from <code>grafana_api.grafana_api</code>:</p>
 <pre><code class="language-python">from grafana_api.grafana_api import (
     GrafanaBadInputError,
     GrafanaClientError,
@@ -1606,89 +1612,89 @@ where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotatio
 )
 </code></pre>
 <hr />
-<h4>Part 1: Notifications API</h4>
-<p>Add a new API accessor on <code>GrafanaFace</code>, exposed as the attribute <code>notifications</code>. It provides methods for interacting with Grafana alert notification channels. Each method makes an HTTP request to the corresponding endpoint and returns the deserialized JSON response body, whether that body is a <code>dict</code> or a <code>list</code>.</p>
-<p>The base endpoint for these operations is <code>/api/alert-notifications</code>.</p>
+<h4>Part 1: Adding the Notifications API</h4>
+<p>On <code>GrafanaFace</code>, add a new API accessor that is exposed as the attribute <code>notifications</code>. It offers methods for working with Grafana alert notification channels. Each method performs an HTTP request against the corresponding endpoint and returns the deserialized JSON response body, no matter whether that body is a <code>dict</code> or a <code>list</code>.</p>
+<p><code>/api/alert-notifications</code> serves as the base endpoint for these operations.</p>
 <h5><code>get_channels()</code></h5>
 <ul>
-<li>Send HTTP <code>GET</code> to <code>/api/alert-notifications</code>.</li>
-<li>Return the deserialized JSON response, normally a list of channel objects.</li>
+<li>Send an HTTP <code>GET</code> request to <code>/api/alert-notifications</code>.</li>
+<li>Return the deserialized JSON response, which is normally a list of channel objects.</li>
 </ul>
 <h5><code>lookup_channels()</code></h5>
 <ul>
-<li>Send HTTP <code>GET</code> to <code>/api/alert-notifications/lookup</code>.</li>
-<li>Return the deserialized JSON response, normally a list of channel objects with a reduced set of fields.</li>
+<li>Send an HTTP <code>GET</code> request to <code>/api/alert-notifications/lookup</code>.</li>
+<li>Return the deserialized JSON response, which is normally a list of channel objects that have a reduced set of fields.</li>
 </ul>
 <h5><code>get_channel_by_uid(uid)</code></h5>
 <ul>
-<li><code>uid</code> is the channel's string identifier.</li>
-<li>Send HTTP <code>GET</code> to <code>/api/alert-notifications/uid/{uid}</code>.</li>
-<li>Return the deserialized JSON response for the channel.</li>
+<li><code>uid</code> is the string identifier of the channel.</li>
+<li>Send an HTTP <code>GET</code> request to <code>/api/alert-notifications/uid/{uid}</code>.</li>
+<li>Return the deserialized JSON response of the channel.</li>
 </ul>
 <h5><code>get_channel_by_id(channel_id)</code></h5>
 <ul>
-<li><code>channel_id</code> is the channel's integer identifier.</li>
-<li>Send HTTP <code>GET</code> to <code>/api/alert-notifications/{channel_id}</code>.</li>
-<li>Return the deserialized JSON response for the channel.</li>
+<li><code>channel_id</code> is the integer identifier of the channel.</li>
+<li>Send an HTTP <code>GET</code> request to <code>/api/alert-notifications/{channel_id}</code>.</li>
+<li>Return the deserialized JSON response of the channel.</li>
 </ul>
 <h5><code>create_channel(channel)</code></h5>
 <ul>
-<li><code>channel</code> is a <code>dict</code> describing the channel to create. It may contain fields such as <code>uid</code>, <code>name</code>, <code>type</code>, <code>isDefault</code>, <code>sendReminder</code>, and <code>settings</code>.</li>
-<li>Send HTTP <code>POST</code> to <code>/api/alert-notifications</code>, with <code>channel</code> as the JSON request body.</li>
-<li>Return the deserialized JSON response for the created channel.</li>
+<li><code>channel</code> is a <code>dict</code> that describes the channel to create. Fields such as <code>uid</code>, <code>name</code>, <code>type</code>, <code>isDefault</code>, <code>sendReminder</code>, and <code>settings</code> may be present in it.</li>
+<li>Send an HTTP <code>POST</code> request to <code>/api/alert-notifications</code>, using <code>channel</code> as the JSON request body.</li>
+<li>Return the deserialized JSON response for the channel that was created.</li>
 </ul>
 <h5><code>update_channel_by_uid(uid, channel)</code></h5>
 <ul>
-<li><code>uid</code> is the channel's string identifier.</li>
-<li><code>channel</code> is a <code>dict</code> containing the updated channel fields.</li>
-<li>Send HTTP <code>PUT</code> to <code>/api/alert-notifications/uid/{uid}</code>, with <code>channel</code> as the JSON request body.</li>
-<li>Return the deserialized JSON response for the updated channel.</li>
+<li><code>uid</code> is the string identifier of the channel.</li>
+<li><code>channel</code> is a <code>dict</code> that contains the updated channel fields.</li>
+<li>Send an HTTP <code>PUT</code> request to <code>/api/alert-notifications/uid/{uid}</code>, using <code>channel</code> as the JSON request body.</li>
+<li>Return the deserialized JSON response of the updated channel.</li>
 </ul>
 <h5><code>update_channel_by_id(channel_id, channel)</code></h5>
 <ul>
-<li><code>channel_id</code> is the channel's integer identifier.</li>
-<li><code>channel</code> is a <code>dict</code> containing the updated channel fields.</li>
-<li>Send HTTP <code>PUT</code> to <code>/api/alert-notifications/{channel_id}</code>, with <code>channel</code> as the JSON request body.</li>
-<li>Return the deserialized JSON response for the updated channel.</li>
+<li><code>channel_id</code> is the integer identifier of the channel.</li>
+<li><code>channel</code> is a <code>dict</code> that contains the updated channel fields.</li>
+<li>Send an HTTP <code>PUT</code> request to <code>/api/alert-notifications/{channel_id}</code>, using <code>channel</code> as the JSON request body.</li>
+<li>Return the deserialized JSON response of the updated channel.</li>
 </ul>
 <h5><code>delete_notification_by_uid(uid)</code></h5>
 <ul>
-<li><code>uid</code> is the channel's string identifier.</li>
-<li>Send HTTP <code>DELETE</code> to <code>/api/alert-notifications/uid/{uid}</code>.</li>
-<li>Return the deserialized JSON response, for example a <code>dict</code> containing a <code>message</code> key.</li>
+<li><code>uid</code> is the string identifier of the channel.</li>
+<li>Send an HTTP <code>DELETE</code> request to <code>/api/alert-notifications/uid/{uid}</code>.</li>
+<li>Return the deserialized JSON response, for instance a <code>dict</code> containing a <code>message</code> key.</li>
 </ul>
 <h5><code>delete_notification_by_id(channel_id)</code></h5>
 <ul>
-<li><code>channel_id</code> is the channel's integer identifier.</li>
-<li>Send HTTP <code>DELETE</code> to <code>/api/alert-notifications/{channel_id}</code>.</li>
-<li>Return the deserialized JSON response, for example a <code>dict</code> containing a <code>message</code> key.</li>
+<li><code>channel_id</code> is the integer identifier of the channel.</li>
+<li>Send an HTTP <code>DELETE</code> request to <code>/api/alert-notifications/{channel_id}</code>.</li>
+<li>Return the deserialized JSON response, for instance a <code>dict</code> containing a <code>message</code> key.</li>
 </ul>
 <hr />
-<h4>Part 2: Annotations API Changes</h4>
-<p>Modify the existing annotations accessor available as <code>GrafanaFace.annotations</code>.</p>
-<h5>Remove region deletion</h5>
+<h4>Part 2: Changes to the Annotations API</h4>
+<p>Apply modifications to the existing annotations accessor that is available as <code>GrafanaFace.annotations</code>.</p>
+<h5>Removing region deletion</h5>
 <ul>
-<li><code>delete_annotations_by_region_id</code> must no longer exist on the annotations API.</li>
-<li>Do not expose an operation for deleting annotations by region.</li>
+<li><code>delete_annotations_by_region_id</code> must no longer be present on the annotations API.</li>
+<li>Do not expose an operation that deletes annotations by region.</li>
 </ul>
-<h5>Update <code>add_annotation</code></h5>
-<p><code>add_annotation</code> must support the following keyword parameters:</p>
+<h5>Changes to <code>add_annotation</code></h5>
+<p>The following keyword parameters must be supported by <code>add_annotation</code>:</p>
 <ul>
 <li><code>time_from</code></li>
 <li><code>time_to</code></li>
 <li><code>tags</code></li>
 <li><code>text</code></li>
 </ul>
-<p>It must not require or accept an <code>is_region</code> parameter as part of its supported interface. A valid invocation is:</p>
+<p>As part of its supported interface, it must not require or accept an <code>is_region</code> parameter. A valid invocation looks like this:</p>
 <pre><code class="language-python">add_annotation(time_from=..., time_to=..., tags=[...], text=&quot;...&quot;)
 </code></pre>
 <ul>
-<li>Send HTTP <code>POST</code> to <code>/api/annotations</code>.</li>
-<li>Send the annotation data as a JSON request body.</li>
-<li>Return the deserialized JSON response, for example a <code>dict</code> containing <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
+<li>Send an HTTP <code>POST</code> request to <code>/api/annotations</code>.</li>
+<li>Send the annotation data in the request body as JSON.</li>
+<li>Return the deserialized JSON response, for instance a <code>dict</code> containing <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
 </ul>
-<h5>Update <code>update_annotation</code></h5>
-<p><code>update_annotation</code> must support the following keyword parameters:</p>
+<h5>Changes to <code>update_annotation</code></h5>
+<p><code>update_annotation</code> must provide support for the following keyword parameters:</p>
 <ul>
 <li><code>annotations_id</code></li>
 <li><code>time_from</code></li>
@@ -1696,7 +1702,7 @@ where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotatio
 <li><code>tags</code></li>
 <li><code>text</code></li>
 </ul>
-<p>It must not require or accept an <code>is_region</code> parameter as part of its supported interface. A valid invocation is:</p>
+<p>As part of its supported interface, it must not require or accept an <code>is_region</code> parameter. An example of a valid invocation:</p>
 <pre><code class="language-python">update_annotation(
     annotations_id=79,
     time_from=...,
@@ -1706,23 +1712,23 @@ where <code>&lt;annotations_id&gt;</code> is the value passed as <code>annotatio
 )
 </code></pre>
 <ul>
-<li>Send HTTP <code>PUT</code> to <code>/api/annotations/{annotations_id}</code>.</li>
-<li>Send the updated annotation data as a JSON request body.</li>
-<li>Return the deserialized JSON response, for example a <code>dict</code> containing <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
+<li>Send an HTTP <code>PUT</code> request to <code>/api/annotations/{annotations_id}</code>.</li>
+<li>Send the updated annotation data in the request body as JSON.</li>
+<li>Return the deserialized JSON response, for instance a <code>dict</code> containing <code>endId</code>, <code>id</code>, and <code>message</code>.</li>
 </ul>
-<h5>Retained annotation behavior</h5>
-<p>The following existing annotation operations must continue to work:</p>
+<h5>Annotation behavior that is retained</h5>
+<p>The existing annotation operations that follow must continue to work:</p>
 <ul>
-<li><code>get_annotation(...)</code> sends HTTP <code>GET</code> to <code>/api/annotations</code> and returns the deserialized JSON response, normally a list of annotation objects. Annotation responses no longer need to include a <code>regionId</code> field; the client must return the response supplied by the server rather than synthesizing such a field.</li>
-<li><code>delete_annotations_by_id(annotations_id)</code> sends HTTP <code>DELETE</code> to <code>/api/annotations/{annotations_id}</code> and returns the deserialized JSON response, for example a <code>dict</code> containing a <code>message</code> key.</li>
+<li><code>get_annotation(...)</code> sends an HTTP <code>GET</code> request to <code>/api/annotations</code> and returns the deserialized JSON response, which is normally a list of annotation objects. A <code>regionId</code> field no longer needs to be included in annotation responses; the client must return the response the server supplies instead of synthesizing such a field.</li>
+<li><code>delete_annotations_by_id(annotations_id)</code> sends an HTTP <code>DELETE</code> request to <code>/api/annotations/{annotations_id}</code> and returns the deserialized JSON response, for instance a <code>dict</code> containing a <code>message</code> key.</li>
 </ul>
 <hr />
 <h4>General Requirements</h4>
 <ul>
-<li>All operations described above must return the deserialized JSON response body from Grafana.</li>
-<li>Bodies for create and update operations must be sent as JSON.</li>
-<li><code>GrafanaFace(...).notifications</code> and <code>GrafanaFace(...).annotations</code> must use the client's existing authentication, URL construction, request configuration, and error handling.</li>
-<li>Existing client APIs outside the explicitly described annotation changes must remain compatible.</li>
+<li>All of the operations described above must return the deserialized JSON response body from Grafana.</li>
+<li>For create and update operations, bodies must be sent as JSON.</li>
+<li>The client's existing authentication, URL construction, request configuration, and error handling must be used by <code>GrafanaFace(...).notifications</code> and <code>GrafanaFace(...).annotations</code>.</li>
+<li>Outside the explicitly described annotation changes, existing client APIs must remain compatible.</li>
 </ul>
 </div>
     </details>

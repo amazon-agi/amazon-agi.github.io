@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/infobloxopen/infoblox-client/compare/152c392f17b5523b5e34c3f099f3f5e96d9c2658...86d7857511c2141e6d0af0118322b839426962ed" target="_blank" rel="noopener" class="mono">152c392f17 … 86d7857511</a> · 115 commits by 13 authors over 14 mo (2016-01-20 to 2017-03-23)</dd></div>
       <div><dt>Window:</dt><dd>requests 45–64 of a run of 64 test-bearing changes (overlaps the previous window by 16) · eval split</dd></div>
       <div><dt>Size:</dt><dd>3,383 lines of code in 38 files when the chain starts · over the 20 requests the developers added 503 and removed 185 lines of code, plus 429 lines of tests (86 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>7.6k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 2</dd></div>
+      <div><dt>Specifications:</dt><dd>8.3k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 2</dd></div>
     </dl>
   </header>
 </section>
@@ -144,14 +144,14 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Update the HTTP request behavior of infoblox_client.connector.Connector.</span>
-        <span class="spec-meta muted">164 words · source specification
+        <span class="spec-title">Change the way infoblox_client.connector.Connector makes its HTTP requests.</span>
+        <span class="spec-meta muted">181 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the HTTP request behavior of <code>infoblox_client.connector.Connector</code>.</p>
-<h5>Relevant public API</h5>
-<p>The exercised API is:</p>
+      <div class="spec-body"><h4>Change to implement</h4>
+<p>Change the way <code>infoblox_client.connector.Connector</code> makes its HTTP requests.</p>
+<h5>Public API involved</h5>
+<p>The API that gets exercised is:</p>
 <ul>
 <li><code>infoblox_client.connector.Connector(options)</code></li>
 <li><code>Connector.create_object(object_type, payload)</code></li>
@@ -159,70 +159,70 @@
 <li><code>Connector.update_object(object_reference, payload)</code></li>
 <li><code>Connector.delete_object(object_reference)</code></li>
 </ul>
-<p>Existing optional arguments and return/error behavior are outside the scope of this change.</p>
-<h5>Request behavior</h5>
-<p>For all requests issued by these methods through the connector’s HTTP session:</p>
+<p>Existing optional arguments and return/error behavior stay outside the scope of this change.</p>
+<h5>Behavior of requests</h5>
+<p>For all requests that these methods send through the HTTP session of the connector:</p>
 <ul>
 <li><code>create_object</code> uses <code>POST</code></li>
 <li><code>get_object</code> uses <code>GET</code></li>
 <li><code>update_object</code> uses <code>PUT</code></li>
 <li><code>delete_object</code> uses <code>DELETE</code></li>
 </ul>
-<p>The individual <code>post</code>, <code>get</code>, <code>put</code>, and <code>delete</code> calls must <strong>not include a <code>verify</code> keyword argument at all</strong>. This applies both to ordinary payloads/queries and those containing extensible attributes.</p>
-<p>The request calls must continue to provide their existing arguments:</p>
+<p>Each of the <code>post</code>, <code>get</code>, <code>put</code>, and <code>delete</code> calls, taken individually, must <strong>not include a <code>verify</code> keyword argument at all</strong>. This holds both for ordinary payloads/queries and for ones that contain extensible attributes.</p>
+<p>The request calls must keep providing their existing arguments:</p>
 <ul>
-<li><code>POST</code> and <code>PUT</code>: URL, serialized JSON <code>data</code>, <code>Connector.DEFAULT_HEADER</code>, and the configured request <code>timeout</code></li>
-<li><code>GET</code> and <code>DELETE</code>: URL, <code>Connector.DEFAULT_HEADER</code>, and the configured request <code>timeout</code></li>
+<li><code>POST</code> and <code>PUT</code>: URL, serialized JSON <code>data</code>, <code>Connector.DEFAULT_HEADER</code>, and the <code>timeout</code> configured for the request</li>
+<li><code>GET</code> and <code>DELETE</code>: URL, <code>Connector.DEFAULT_HEADER</code>, and the <code>timeout</code> configured for the request</li>
 </ul>
-<p>Do not pass <code>verify=True</code>, <code>verify=False</code>, or <code>verify=None</code> at request level. TLS verification must therefore not be overridden per request; the HTTP session’s verification setting remains authoritative.</p>
+<p>At request level, do not pass <code>verify=True</code>, <code>verify=False</code>, or <code>verify=None</code>. TLS verification must consequently not be overridden per request; the verification setting of the HTTP session remains authoritative.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Update infoblox_client.objects.EA so extensible-attribute values retain their collection shape when converted between the plain Python representation and…</span>
-        <span class="spec-meta muted">781 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify infoblox_client.objects.EA so that extensible-attribute values retain their collection shape when they are converted between the plain Python…</span>
+        <span class="spec-meta muted">808 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update <code>infoblox_client.objects.EA</code> so extensible-attribute values retain their collection shape when converted between the plain Python representation and the WAPI wire representation. In particular, list and tuple values must be processed element by element rather than being stringified as a whole.</p>
-<h4>Required public behavior</h4>
-<p>The behavior must be available through the existing <code>EA</code> interfaces:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Modify <code>infoblox_client.objects.EA</code> so that extensible-attribute values retain their collection shape when they are converted between the plain Python representation and the WAPI wire representation. Specifically, values that are lists or tuples must be processed element by element instead of being stringified as a whole.</p>
+<h4>Public behavior requirements</h4>
+<p>This behavior must be available via the existing <code>EA</code> interfaces:</p>
 <ul>
 <li><code>EA._process_value(rule, value)</code></li>
-<li><code>EA.from_dict(eas_from_nios)</code> for parsing WAPI-formatted extensible attributes</li>
-<li><code>EA(...).to_dict()</code> for generating the WAPI mapping from an <code>EA</code> instance</li>
+<li><code>EA.from_dict(eas_from_nios)</code> for parsing extensible attributes in WAPI format</li>
+<li><code>EA(...).to_dict()</code> for producing the WAPI mapping from an <code>EA</code> instance</li>
 </ul>
 <h5><code>EA._process_value(rule, value)</code></h5>
-<p><code>_process_value</code> must be callable on <code>EA</code> as <code>EA._process_value(rule, value)</code> and must behave as follows:</p>
+<p><code>_process_value</code> must be callable on <code>EA</code> in the form <code>EA._process_value(rule, value)</code> and must behave as follows:</p>
 <ul>
-<li>If <code>value</code> is a <code>list</code>, apply <code>rule</code> once to each element and return the results in a list, preserving element order.</li>
-<li>If <code>value</code> is a <code>tuple</code>, apply <code>rule</code> once to each element and return the results in a list, preserving element order. The result is a list, not a tuple.</li>
-<li>For every other value, apply <code>rule</code> directly to the value and return that result. Strings are scalar values for this purpose.</li>
+<li>When <code>value</code> is a <code>list</code>, apply <code>rule</code> once to each element and return the results in a list, with element order preserved.</li>
+<li>When <code>value</code> is a <code>tuple</code>, apply <code>rule</code> once to each element and return the results in a list, with element order preserved. The result is a list, not a tuple.</li>
+<li>In every other case, apply <code>rule</code> directly to the value and return that result. For this purpose, strings are scalar values.</li>
 </ul>
-<p>Using <code>str</code> as the rule, the required results include:</p>
+<p>With <code>str</code> as the rule, the required results include:</p>
 <pre><code class="language-python">EA._process_value(str, [1, 2, 3]) == ['1', '2', '3']
 EA._process_value(str, (1, 2)) == ['1', '2']
 EA._process_value(str, 1) == '1'
 EA._process_value(str, 'string') == 'string'
 </code></pre>
-<h4>Parsing WAPI extensible attributes</h4>
-<p><code>EA.from_dict(eas_from_nios)</code> must continue to accept the WAPI representation:</p>
+<h4>Parsing extensible attributes in WAPI form</h4>
+<p><code>EA.from_dict(eas_from_nios)</code> must still accept the WAPI representation:</p>
 <pre><code class="language-python">{
     'EA Name': {
         'value': value
     }
 }
 </code></pre>
-<p>For each entry, parsing must process the inner <code>value</code> according to its shape:</p>
+<p>Parsing must process the inner <code>value</code> of each entry according to the shape of that value:</p>
 <ul>
-<li>A list remains a list, with the parsing conversion applied independently to each element.</li>
+<li>A list stays a list, with the parsing conversion applied independently to each element.</li>
 <li>A tuple is exposed as a list, with the parsing conversion applied independently to each element.</li>
 <li>A scalar is processed directly.</li>
-<li>The existing strict Boolean conversion remains in effect: the exact strings <code>'True'</code> and <code>'False'</code> become the Boolean values <code>True</code> and <code>False</code>; other values remain unchanged. This conversion applies independently to collection elements as well as to scalars. For example, the string <code>'0'</code> remains <code>'0'</code>.</li>
-<li>A falsy top-level <code>eas_from_nios</code> input continues to produce <code>None</code>.</li>
+<li>The existing strict Boolean conversion stays in effect: the exact strings <code>'True'</code> and <code>'False'</code> become the Boolean values <code>True</code> and <code>False</code>; other values remain unchanged. This conversion applies independently to scalars as well as to collection elements. As an example, the string <code>'0'</code> remains <code>'0'</code>.</li>
+<li>A falsy top-level <code>eas_from_nios</code> input still produces <code>None</code>.</li>
 </ul>
-<p>Consequently, parsing this mapping must preserve the list-valued EA rather than turn it into a string:</p>
+<p>As a result, parsing the mapping below must preserve the list-valued EA instead of turning it into a string:</p>
 <pre><code class="language-python">wire_eas = {
     'DNS Record Types': {
         'value': ['record_a', 'record_ptr']
@@ -232,30 +232,30 @@ EA._process_value(str, 'string') == 'string'
 ea = EA.from_dict(wire_eas)
 assert ea.get('DNS Record Types') == ['record_a', 'record_ptr']
 </code></pre>
-<h4>Generating WAPI extensible attributes</h4>
-<p>Calling <code>to_dict()</code> on an <code>EA</code> instance must return a mapping in which each retained plain EA entry is represented as:</p>
+<h4>Generating extensible attributes in WAPI form</h4>
+<p>Calling <code>to_dict()</code> on an <code>EA</code> instance must return a mapping that represents each retained plain EA entry as:</p>
 <pre><code class="language-python">'EA Name': {'value': processed_value}
 </code></pre>
-<p>The following conversion rules apply to <code>processed_value</code>:</p>
+<p>The following rules govern the conversion of <code>processed_value</code>:</p>
 <ul>
-<li>Retained scalar values are converted with <code>str</code>.</li>
-<li>Retained list values are converted element by element with <code>str</code>; the inner <code>value</code> remains a Python list. The list itself must not be converted to its string representation.</li>
-<li>Retained tuple values are likewise converted element by element with <code>str</code>, and the inner <code>value</code> is a Python list.</li>
-<li>Filtering applies to the complete EA value, not separately to elements of a retained collection.</li>
+<li>Retained scalar values are converted using <code>str</code>.</li>
+<li>Retained list values are converted element by element with <code>str</code>, and the inner <code>value</code> remains a Python list. The list itself must not be converted into its string representation.</li>
+<li>Retained tuple values are likewise converted element by element with <code>str</code>, with the inner <code>value</code> being a Python list.</li>
+<li>Filtering is applied to the complete EA value, not separately to the elements of a retained collection.</li>
 </ul>
-<p>Before conversion, omit an EA entry when its complete value is exactly one of the following empty values:</p>
+<p>Before conversion, omit an EA entry if its complete value is exactly one of the following empty values:</p>
 <ul>
 <li><code>None</code></li>
 <li>the empty string <code>''</code></li>
 <li>the empty list <code>[]</code></li>
 </ul>
-<p>These are the omission cases. Other falsy values must not be discarded. In particular:</p>
+<p>These constitute the omission cases. Falsy values other than these must not be discarded. Specifically:</p>
 <ul>
-<li>Boolean <code>False</code> is retained and becomes the string <code>'False'</code>.</li>
-<li>Integer <code>0</code> is retained and becomes the string <code>'0'</code>.</li>
-<li>String values such as <code>'False'</code>, <code>'0'</code>, and <code>'None'</code> are retained unchanged by string conversion.</li>
+<li>Boolean <code>False</code> is retained and turns into the string <code>'False'</code>.</li>
+<li>Integer <code>0</code> is retained and turns into the string <code>'0'</code>.</li>
+<li>String values such as <code>'False'</code>, <code>'0'</code>, and <code>'None'</code> are kept unchanged by the string conversion.</li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">plain_eas = {
     'Subnet ID': 'some-id',
     'Tenant Name': 'tenant-name',
@@ -273,7 +273,7 @@ assert ea.get('DNS Record Types') == ['record_a', 'record_ptr']
 
 wire_eas = EA(plain_eas).to_dict()
 </code></pre>
-<p>The result must be:</p>
+<p>The output must be:</p>
 <pre><code class="language-python">{
     'Subnet ID': {'value': 'some-id'},
     'Tenant Name': {'value': 'tenant-name'},
@@ -286,28 +286,28 @@ wire_eas = EA(plain_eas).to_dict()
     'Zero String EA': {'value': '0'},
 }
 </code></pre>
-<p><code>None EA</code>, <code>Empty String EA</code>, and <code>Empty List EA</code> must not be present in that result.</p>
+<p><code>None EA</code>, <code>Empty String EA</code>, and <code>Empty List EA</code> must not appear in that result.</p>
 <h4>Compatibility</h4>
-<p>Existing <code>EA</code> behavior must remain available alongside the collection handling above:</p>
+<p>Existing <code>EA</code> behavior must stay available alongside the collection handling above:</p>
 <ul>
-<li><code>EA()</code> creates an object with an empty plain EA mapping, and <code>EA(ea_dict)</code> accepts the plain <code>{name: value}</code> representation.</li>
-<li><code>set(name, value)</code> stores an EA value.</li>
-<li><code>get(name, default=None)</code> returns the stored value or the supplied default.</li>
-<li>The <code>ea_dict</code> property returns the plain <code>{name: value}</code> representation as a top-level copy, so changing a key in the returned mapping does not change the corresponding stored key.</li>
-<li>Scalar WAPI values continue to round-trip through <code>from_dict()</code> and <code>to_dict()</code>, including the strict Boolean conversions described above.</li>
+<li><code>EA()</code> produces an object with an empty plain EA mapping, and <code>EA(ea_dict)</code> accepts the plain <code>{name: value}</code> representation.</li>
+<li>An EA value is stored with <code>set(name, value)</code>.</li>
+<li><code>get(name, default=None)</code> returns either the stored value or the supplied default.</li>
+<li>The <code>ea_dict</code> property returns a top-level copy of the plain <code>{name: value}</code> representation, so changing a key in the returned mapping does not change the corresponding stored key.</li>
+<li>Scalar WAPI values still round-trip through <code>from_dict()</code> and <code>to_dict()</code>, including the strict Boolean conversions described above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">In module infoblox_client.object_manager, class InfobloxObjectManager must support these positional call forms</span>
-        <span class="spec-meta muted">241 words · source specification
+        <span class="spec-title">The class InfobloxObjectManager in module infoblox_client.object_manager must support the following positional call forms</span>
+        <span class="spec-meta muted">262 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add DNS configuration control to host-record creation</h3>
-<h4>Public API</h4>
-<p>In module <code>infoblox_client.object_manager</code>, class <code>InfobloxObjectManager</code> must support these positional call forms:</p>
+      <div class="spec-body"><h3>Add DNS configuration control to the creation of host records</h3>
+<h4>Public interface</h4>
+<p>The class <code>InfobloxObjectManager</code> in module <code>infoblox_client.object_manager</code> must support the following positional call forms:</p>
 <pre><code class="language-python">create_host_record_for_given_ip(
     dns_view_name,
     zone_auth,
@@ -332,11 +332,11 @@ wire_eas = EA(plain_eas).to_dict()
     use_dns,
 )
 </code></pre>
-<p><code>use_dns</code> is the argument immediately following <code>use_dhcp</code>.</p>
-<h4>Required behavior</h4>
+<p>The argument immediately following <code>use_dhcp</code> is <code>use_dns</code>.</p>
+<h4>Mandatory behavior</h4>
 <h5><code>create_host_record_for_given_ip</code></h5>
-<p>The host-record payload passed to the manager’s connector must include the supplied <code>use_dns</code> value as the top-level field <code>configure_for_dns</code>.</p>
-<p>For inputs equivalent to:</p>
+<p>The payload for the host record that is passed to the manager's connector must include the given <code>use_dns</code> value as the top-level field <code>configure_for_dns</code>.</p>
+<p>With inputs equivalent to:</p>
 <ul>
 <li><code>zone_auth = &quot;test.dns.zone.com&quot;</code></li>
 <li><code>hostname = &quot;test_hostname&quot;</code></li>
@@ -345,7 +345,7 @@ wire_eas = EA(plain_eas).to_dict()
 <li><code>use_dhcp = True</code></li>
 <li><code>use_dns = True</code></li>
 </ul>
-<p>the connector must receive exactly this payload when creating the <code>record:host</code> object:</p>
+<p>the connector must be given exactly this payload when the <code>record:host</code> object is created:</p>
 <pre><code class="language-python">{
     &quot;name&quot;: &quot;test_hostname.test.dns.zone.com&quot;,
     &quot;view&quot;: dns_view_name,
@@ -361,11 +361,11 @@ wire_eas = EA(plain_eas).to_dict()
 }
 </code></pre>
 <h5><code>create_host_record_from_range</code></h5>
-<p>This method must likewise include the supplied <code>use_dns</code> value as the top-level <code>configure_for_dns</code> field.</p>
-<p>The IPv4 address must retain the next-available-IP expression:</p>
+<p>In the same way, this method must include the given <code>use_dns</code> value as the top-level <code>configure_for_dns</code> field.</p>
+<p>The IPv4 address must keep the next-available-IP expression:</p>
 <pre><code class="language-text">func:nextavailableip:&lt;first_ip&gt;-&lt;last_ip&gt;,&lt;net_view_name&gt;
 </code></pre>
-<p>For:</p>
+<p>With:</p>
 <ul>
 <li><code>first_ip = &quot;192.168.0.1&quot;</code></li>
 <li><code>last_ip = &quot;192.168.0.254&quot;</code></li>
@@ -373,7 +373,7 @@ wire_eas = EA(plain_eas).to_dict()
 <li><code>use_dhcp = True</code></li>
 <li><code>use_dns = False</code></li>
 </ul>
-<p>the connector must receive exactly this payload when creating the <code>record:host</code> object:</p>
+<p>the connector must be given exactly this payload when the <code>record:host</code> object is created:</p>
 <pre><code class="language-python">{
     &quot;name&quot;: &quot;test_hostname.test.dns.zone.com&quot;,
     &quot;view&quot;: dns_view_name,
@@ -391,19 +391,19 @@ wire_eas = EA(plain_eas).to_dict()
     ],
 }
 </code></pre>
-<p><code>configure_for_dns</code> must be a top-level host-record property; <code>configure_for_dhcp</code> remains inside each IPv4-address entry.</p>
+<p><code>configure_for_dns</code> must appear as a top-level property of the host record; <code>configure_for_dhcp</code> stays inside each IPv4-address entry.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Extend the existing method signature to accept an optional max_results argument</span>
-        <span class="spec-meta muted">234 words · source specification
+        <span class="spec-title">The signature of the existing method needs to be extended so that it accepts an optional max_results argument</span>
+        <span class="spec-meta muted">268 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API changes</h4>
+      <div class="spec-body"><h4>API changes that are required</h4>
 <h5><code>infoblox_client.connector.Connector</code></h5>
-<p>Extend the existing method signature to accept an optional <code>max_results</code> argument:</p>
+<p>The signature of the existing method needs to be extended so that it accepts an optional <code>max_results</code> argument:</p>
 <pre><code class="language-python">Connector.get_object(
     self,
     obj_type,
@@ -414,32 +414,32 @@ wire_eas = EA(plain_eas).to_dict()
     max_results=None,
 )
 </code></pre>
-<p>Required behavior:</p>
+<p>Behavior that is required:</p>
 <ul>
-<li>When called with:
+<li>When the method is called with:
 <ul>
 <li><code>obj_type='network'</code></li>
-<li>an empty payload</li>
+<li>a payload that is empty</li>
 <li><code>max_results=20</code></li>
 </ul>
 </li>
-<li>the WAPI request URL must include <code>_max_results=20</code>:</li>
+<li>the WAPI request URL must contain <code>_max_results=20</code>:</li>
 </ul>
 <pre><code class="language-text">https://infoblox.example.org/wapi/v1.1/network?_max_results=20
 </code></pre>
 <ul>
-<li>The GET request must continue to use:
+<li>The GET request must keep using:
 <ul>
 <li><code>headers=connector.DEFAULT_HEADER</code></li>
-<li>the configured HTTP request timeout</li>
+<li>the timeout configured for HTTP requests</li>
 </ul>
 </li>
-<li>The option must be included directly in the generated URL, not passed as a separate <code>params</code> argument.</li>
-<li>When <code>max_results</code> is omitted or is <code>None</code>, no <code>_max_results</code> query parameter may be added.</li>
+<li>The option must be placed directly in the generated URL rather than being passed as a separate <code>params</code> argument.</li>
+<li>If <code>max_results</code> is left out or is <code>None</code>, no <code>_max_results</code> query parameter may be added.</li>
 </ul>
-<p>No additional validation, truncation, negative-value handling, or appliance-error behavior is required by this change.</p>
+<p>This change does not require any additional validation, truncation, negative-value handling, or appliance-error behavior.</p>
 <h5><code>infoblox_client.objects.InfobloxObject</code></h5>
-<p>The inherited class methods must expose an optional <code>max_results</code> argument while retaining their existing parameters:</p>
+<p>The class methods that are inherited must expose an optional <code>max_results</code> argument while keeping their existing parameters in place:</p>
 <pre><code class="language-python">InfobloxObject.search(
     cls,
     connector,
@@ -460,10 +460,10 @@ wire_eas = EA(plain_eas).to_dict()
     **kwargs
 )
 </code></pre>
-<p>For ordinary searches where the caller omits this argument, the downstream connector call must explicitly include:</p>
+<p>For normal searches in which the caller leaves this argument out, the downstream call into the connector must explicitly include:</p>
 <pre><code class="language-python">max_results=None
 </code></pre>
-<p>Thus searches performed by <code>InfobloxObject</code> subclasses, including searches reached through <code>infoblox_client.object_manager.InfobloxObjectManager</code>, must call:</p>
+<p>As a result, searches carried out by <code>InfobloxObject</code> subclasses, including searches reached by way of <code>infoblox_client.object_manager.InfobloxObjectManager</code>, must call:</p>
 <pre><code class="language-python">connector.get_object(
     obj_type,
     payload,
@@ -473,25 +473,25 @@ wire_eas = EA(plain_eas).to_dict()
     max_results=None,
 )
 </code></pre>
-<p>This applies consistently to the existing lookup paths for object types such as <code>network</code>, <code>ipv6network</code>, <code>record:host</code>, <code>range</code>, <code>networkview</code>, <code>fixedaddress</code>, <code>ipv4address</code>, and extensible-attribute definitions. Existing payload construction, return-field selection, result conversion, and object-manager return behavior must remain unchanged.</p>
+<p>The same treatment applies consistently to the existing lookup paths for object types such as <code>network</code>, <code>ipv6network</code>, <code>record:host</code>, <code>range</code>, <code>networkview</code>, <code>fixedaddress</code>, <code>ipv4address</code>, and extensible-attribute definitions. Existing payload construction, return-field selection, result conversion, and object-manager return behavior must stay unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">The affected public APIs are</span>
-        <span class="spec-meta muted">387 words · source specification
+        <span class="spec-title">The public APIs affected are</span>
+        <span class="spec-meta muted">400 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>WAPI version handling and lookup delegation</h3>
+      <div class="spec-body"><h3>Handling of WAPI versions and lookup delegation</h3>
 <h4>Public API surface</h4>
-<p>The affected public APIs are:</p>
+<p>The public APIs affected are:</p>
 <ul>
 <li><code>infoblox_client.connector.Connector(options)</code></li>
 <li><code>infoblox_client.connector.Connector.is_cloud_wapi(value)</code></li>
 <li><code>infoblox_client.connector.Connector.get_object( obj_type, payload=None, return_fields=None, extattrs=None, force_proxy=False )</code></li>
 <li><code>infoblox_client.exceptions.InfobloxConfigException</code></li>
-<li>Search APIs in <code>infoblox_client.objects</code>, including:
+<li>Search APIs in <code>infoblox_client.objects</code>, including the following:
 <ul>
 <li><code>Network.search(...)</code></li>
 <li><code>HostRecord.search(...)</code></li>
@@ -500,8 +500,8 @@ wire_eas = EA(plain_eas).to_dict()
 </li>
 <li><code>infoblox_client.object_manager.InfobloxObjectManager</code></li>
 </ul>
-<h4>Connector options</h4>
-<p><code>Connector</code> must accept its options as a dictionary. A valid dictionary may contain:</p>
+<h4>Options for <code>Connector</code></h4>
+<p><code>Connector</code> must accept its options in the form of a dictionary. A valid dictionary may contain:</p>
 <pre><code class="language-python">{
     &quot;host&quot;: &quot;infoblox.example.org&quot;,
     &quot;wapi_version&quot;: &quot;1.1&quot;,
@@ -510,7 +510,7 @@ wire_eas = EA(plain_eas).to_dict()
     &quot;ssl_verify&quot;: False,
 }
 </code></pre>
-<p>The configured WAPI version is supplied in bare <code>major.minor</code> form, such as <code>&quot;1.1&quot;</code>, without a leading <code>&quot;v&quot;</code>. WAPI request paths continue to use the conventional version path form, such as <code>/wapi/v1.1/</code>.</p>
+<p>The WAPI version that is configured is supplied in bare <code>major.minor</code> form, such as <code>&quot;1.1&quot;</code>, without a leading <code>&quot;v&quot;</code>. WAPI request paths keep using the conventional version path form, such as <code>/wapi/v1.1/</code>.</p>
 <p>The incomplete dictionary below must raise
 <code>infoblox_client.exceptions.InfobloxConfigException</code>:</p>
 <pre><code class="language-python">{
@@ -518,9 +518,9 @@ wire_eas = EA(plain_eas).to_dict()
     &quot;wapi_version&quot;: &quot;1.1&quot;,
 }
 </code></pre>
-<p>No additional constructor behavior for a leading-<code>v</code> configuration value is specified by this change.</p>
-<h4>Cloud WAPI detection</h4>
-<p><code>Connector.is_cloud_wapi(value)</code> returns a Boolean. It must classify the following values exactly:</p>
+<p>This change specifies no additional constructor behavior for a leading-<code>v</code> configuration value.</p>
+<h4>Detection of cloud WAPI</h4>
+<p><code>Connector.is_cloud_wapi(value)</code> returns a Boolean. This method must classify the following values exactly:</p>
 <h5>Cloud WAPI: <code>True</code></h5>
 <ul>
 <li><code>&quot;2.1/&quot;</code></li>
@@ -539,10 +539,10 @@ wire_eas = EA(plain_eas).to_dict()
 <li><code>&quot;asd&quot;</code></li>
 <li><code>&quot;v1.4&quot;</code></li>
 </ul>
-<p>Thus, the classification must recognize major versions 2 and above in the demonstrated plain, path-like, patch-version, and leading-<code>v</code> forms, while major version 1 and unrecognized text are non-cloud.</p>
-<h4>Do not inject <code>max_results</code> into object lookups</h4>
-<p>Higher-level object and object-manager operations must call the connector’s <code>get_object</code> method without a <code>max_results</code> keyword when no result limit was requested. In particular, they must not pass <code>max_results=None</code>.</p>
-<p>They must be compatible with an injected connector exposing only this callable shape:</p>
+<p>Accordingly, the classification must recognize major versions 2 and above in the demonstrated plain, path-like, patch-version, and leading-<code>v</code> forms, whereas major version 1 and unrecognized text are non-cloud.</p>
+<h4><code>max_results</code> must not be injected into object lookups</h4>
+<p>When no result limit was requested, higher-level object and object-manager operations must call the connector's <code>get_object</code> method without a <code>max_results</code> keyword. Specifically, they must not pass <code>max_results=None</code>.</p>
+<p>They must be compatible with an injected connector that exposes only this callable shape:</p>
 <pre><code class="language-python">get_object(
     obj_type,
     payload=None,
@@ -551,15 +551,15 @@ wire_eas = EA(plain_eas).to_dict()
     force_proxy=False,
 )
 </code></pre>
-<p>The existing <code>return_fields</code>, <code>extattrs</code>, and <code>force_proxy</code> arguments must still be supplied where those operations currently require them; only the extra <code>max_results=None</code> argument is omitted.</p>
-<p>This applies to lookups performed through <code>infoblox_client.objects</code>, including:</p>
+<p>Where those operations currently require them, the existing <code>return_fields</code>, <code>extattrs</code>, and <code>force_proxy</code> arguments must still be supplied; it is only the extra <code>max_results=None</code> argument that is omitted.</p>
+<p>This applies to lookups carried out through <code>infoblox_client.objects</code>, including the following:</p>
 <ul>
-<li>IPv4 network lookup using object type <code>&quot;network&quot;</code></li>
-<li>IPv6 network lookup using object type <code>&quot;ipv6network&quot;</code></li>
-<li>Host-record lookup using object type <code>&quot;record:host&quot;</code></li>
-<li>IPv4-address lookup using object type <code>&quot;ipv4address&quot;</code></li>
+<li>IPv4 network lookup with object type <code>&quot;network&quot;</code></li>
+<li>IPv6 network lookup with object type <code>&quot;ipv6network&quot;</code></li>
+<li>Host-record lookup with object type <code>&quot;record:host&quot;</code></li>
+<li>IPv4-address lookup with object type <code>&quot;ipv4address&quot;</code></li>
 </ul>
-<p>It also applies to <code>InfobloxObjectManager</code> workflows that look up:</p>
+<p>It also covers <code>InfobloxObjectManager</code> workflows that look up:</p>
 <ul>
 <li>host records,</li>
 <li>networks,</li>
@@ -569,21 +569,21 @@ wire_eas = EA(plain_eas).to_dict()
 <li>fixed addresses during allocation/deallocation checks,</li>
 <li>and extensible-attribute definitions.</li>
 </ul>
-<p>Handling of an explicitly supplied <code>max_results</code> argument to the concrete low-level connector is outside the scope of this change.</p>
+<p>How the concrete low-level connector handles an explicitly supplied <code>max_results</code> argument is outside the scope of this change.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Provide a class-callable/static method accepting a version string and returning a Boolean.</span>
-        <span class="spec-meta muted">214 words · source specification
+        <span class="spec-title">Supply a static, class-callable method that accepts a version string and returns a Boolean.</span>
+        <span class="spec-meta muted">237 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
+      <div class="spec-body"><h4>Public API that is required</h4>
 <h5><code>infoblox_client.connector.Connector</code></h5>
 <h6><code>Connector.is_cloud_wapi(wapi_version)</code></h6>
-<p>Provide a class-callable/static method accepting a version string and returning a Boolean.</p>
-<p>Required results:</p>
+<p>Supply a static, class-callable method that accepts a version string and returns a Boolean.</p>
+<p>Required outcomes:</p>
 <table>
 <thead>
 <tr>
@@ -631,23 +631,23 @@ wire_eas = EA(plain_eas).to_dict()
 </tbody>
 </table>
 <h6><code>Connector(options)</code></h6>
-<p>The constructor must continue accepting connector options as a dictionary, including a <code>wapi_version</code> value formatted with a leading <code>v</code>, such as <code>'v1.1'</code>.</p>
-<p>A dictionary containing only:</p>
+<p>The constructor must keep accepting connector options supplied as a dictionary, including a <code>wapi_version</code> value in a format that carries a leading <code>v</code>, such as <code>'v1.1'</code>.</p>
+<p>A dictionary that contains only:</p>
 <pre><code class="language-python">{
     'host': 'infoblox.example.org',
     'wapi_version': 'v1.1',
 }
 </code></pre>
-<p>is incomplete and must cause construction to raise:</p>
+<p>is incomplete, and constructing the connector with it must raise:</p>
 <pre><code class="language-python">infoblox_client.exceptions.InfobloxConfigException
 </code></pre>
 <hr />
 <h5><code>infoblox_client.objects.Tenant</code></h5>
-<p>Add a public <code>Tenant</code> object class.</p>
-<p>It must support this class-method call form:</p>
+<p>Introduce a public object class named <code>Tenant</code>.</p>
+<p>It must support being called in the following class-method form:</p>
 <pre><code class="language-python">Tenant.search(connector, id=tenant_id)
 </code></pre>
-<p>For a call with <code>id='tenant_id'</code>, it must invoke the connector’s <code>get_object</code> method exactly once in this form:</p>
+<p>For a call that passes <code>id='tenant_id'</code>, it must invoke the connector's <code>get_object</code> method exactly once, in the following form:</p>
 <pre><code class="language-python">connector.get_object(
     'grid:cloudapi:tenant',
     {'id': 'tenant_id'},
@@ -656,7 +656,7 @@ wire_eas = EA(plain_eas).to_dict()
     force_proxy=&lt;any value&gt;,
 )
 </code></pre>
-<p>When <code>get_object</code> returns a one-item list such as:</p>
+<p>When the list that <code>get_object</code> returns contains one item, such as:</p>
 <pre><code class="language-python">[{
     '_ref': 'grid:cloudapi:tenant/ZG5zLm5ldHdvcmskMTAuMzk',
     'id': 'tenant_id',
@@ -664,7 +664,7 @@ wire_eas = EA(plain_eas).to_dict()
     'comment': 'Some comment',
 }]
 </code></pre>
-<p><code>Tenant.search(...)</code> must return a tenant object exposing these readable attributes:</p>
+<p>the <code>Tenant.search(...)</code> call must return a tenant object that exposes these readable attributes:</p>
 <pre><code class="language-python">tenant.id == 'tenant_id'
 tenant.name == 'Tenant Name'
 tenant.comment == 'Some comment'
@@ -674,72 +674,72 @@ tenant.comment == 'Some comment'
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Add max_results Option Support</span>
-        <span class="spec-meta muted">430 words · source specification
+        <span class="spec-title">Add Support for the max_results Option</span>
+        <span class="spec-meta muted">462 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>max_results</code> Option Support</h3>
+      <div class="spec-body"><h3>Task Specification: Add Support for the <code>max_results</code> Option</h3>
 <h4>Overview</h4>
-<p>Add support for a <code>max_results</code> option that limits the maximum number of objects returned from the appliance. This option must be threaded through the connector's object-retrieval method and the search methods of API objects.</p>
+<p>Add support for an option, <code>max_results</code>, that limits the maximum number of objects the appliance returns. This option must be threaded through the connector's object-retrieval method as well as the search methods of API objects.</p>
 <h4>Requirements</h4>
-<h5>1. Connector: <code>get_object</code> method</h5>
-<p>The connector class (in the connector module) exposes a <code>get_object</code> method used to retrieve objects. Its current signature accepts, at minimum, an object type, a payload, and keyword arguments such as <code>return_fields</code>, <code>extattrs</code>, and <code>force_proxy</code>.</p>
-<p>Add a new keyword argument <code>max_results</code>, defaulting to <code>None</code>:</p>
+<h5>1. Connector: the <code>get_object</code> method</h5>
+<p>Objects are retrieved through a <code>get_object</code> method that the connector class (in the connector module) exposes. In its current form, the signature accepts, at minimum, an object type, a payload, and keyword arguments such as <code>return_fields</code>, <code>extattrs</code>, and <code>force_proxy</code>.</p>
+<p>Add a new keyword argument <code>max_results</code>, which defaults to <code>None</code>:</p>
 <pre><code class="language-python">def get_object(self, obj_type, payload=None, return_fields=None,
                extattrs=None, force_proxy=False, max_results=None):
 </code></pre>
 <p>Behavior:</p>
 <ul>
-<li>When <code>max_results</code> is provided as a non-<code>None</code> value, the request URL sent to the appliance must include the query parameter <code>_max_results</code> set to that value.
+<li>When a value other than <code>None</code> is provided for <code>max_results</code>, the request URL sent to the appliance must include the <code>_max_results</code> query parameter, set to that value.
 <ul>
-<li>For example, calling <code>get_object('network', {}, max_results=20)</code> against a WAPI base of <code>https://infoblox.example.org/wapi/v1.1/</code> must issue an HTTP GET to:<pre><code>https://infoblox.example.org/wapi/v1.1/network?_max_results=20
+<li>As an example, a call to <code>get_object('network', {}, max_results=20)</code> made against a WAPI base of <code>https://infoblox.example.org/wapi/v1.1/</code> must issue an HTTP GET to:<pre><code>https://infoblox.example.org/wapi/v1.1/network?_max_results=20
 </code></pre>
-(using the connector's default headers and configured HTTP request timeout).</li>
+(the request uses the connector's default headers and the configured HTTP request timeout).</li>
 </ul>
 </li>
-<li>When <code>max_results</code> is <code>None</code> (the default), no <code>_max_results</code> parameter is added to the URL, preserving existing URL-building behavior.</li>
+<li>When <code>max_results</code> is <code>None</code> (its default), no <code>_max_results</code> parameter is added to the URL, so the existing URL-building behavior is preserved.</li>
 </ul>
-<h5>2. API Objects: <code>search</code> and <code>search_all</code></h5>
-<p>Objects derived from the base <code>InfobloxObject</code> class expose <code>search</code> and <code>search_all</code> class methods that internally invoke the connector's <code>get_object</code>.</p>
+<h5>2. API Objects: the <code>search</code> and <code>search_all</code> methods</h5>
+<p>The class methods <code>search</code> and <code>search_all</code>, which internally invoke the connector's <code>get_object</code>, are exposed by objects derived from the base <code>InfobloxObject</code> class.</p>
 <ul>
-<li>These methods must accept a <code>max_results</code> keyword argument.</li>
-<li>The value of <code>max_results</code> (defaulting to <code>None</code> when not supplied) must be passed through to the connector's <code>get_object</code> call as the <code>max_results</code> keyword argument.</li>
-<li>When not explicitly provided, the <code>max_results</code> value passed to <code>get_object</code> must be <code>None</code>.</li>
+<li>A <code>max_results</code> keyword argument must be accepted by these methods.</li>
+<li>The <code>max_results</code> value (defaulting to <code>None</code> when it is not supplied) must be passed through to the connector's <code>get_object</code> call as the <code>max_results</code> keyword argument.</li>
+<li>If <code>max_results</code> is not explicitly provided, the value passed to <code>get_object</code> must be <code>None</code>.</li>
 </ul>
-<p>Every existing invocation of <code>get_object</code> performed by these search methods must now include <code>max_results</code> as a keyword argument (with value <code>None</code> when unspecified), alongside the existing <code>extattrs</code>, <code>force_proxy</code>, and <code>return_fields</code> keyword arguments.</p>
+<p>Every existing <code>get_object</code> invocation performed by these search methods must now include <code>max_results</code> as a keyword argument (with value <code>None</code> when unspecified), alongside the existing <code>extattrs</code>, <code>force_proxy</code>, and <code>return_fields</code> keyword arguments.</p>
 <h5>3. Object Manager</h5>
-<p>All calls made by the object-manager layer to the connector's <code>get_object</code> (for locating existing objects during create/delete/bind and related operations) must pass <code>max_results</code> as a keyword argument. When these callers do not specify a limit, the value passed must be <code>None</code>.</p>
+<p>All calls that the object-manager layer makes to the connector's <code>get_object</code> (to locate existing objects during create/delete/bind and related operations) must pass <code>max_results</code> as a keyword argument. If these callers do not specify a limit, the value passed must be <code>None</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The <code>max_results</code> keyword argument is passed through unchanged; no validation or transformation of its value is required beyond placing it into the <code>_max_results</code> URL parameter when it is not <code>None</code>.</li>
-<li>The <code>Tenant</code> object and its <code>search</code> support are removed; there is no requirement for a <code>Tenant</code> class or a <code>grid:cloudapi:tenant</code> search path.</li>
+<li>The <code>max_results</code> keyword argument is forwarded unchanged; apart from placing it into the <code>_max_results</code> URL parameter when it is not <code>None</code>, no validation or transformation of its value is required.</li>
+<li>The <code>Tenant</code> object is removed, together with its <code>search</code> support; no requirement exists for a <code>Tenant</code> class or a <code>grid:cloudapi:tenant</code> search path.</li>
 </ul>
-<h4>Summary of Public API Surface</h4>
+<h4>Summary of the Public API Surface</h4>
 <ul>
-<li>Connector <code>get_object(self, obj_type, payload=None, return_fields=None, extattrs=None, force_proxy=False, max_results=None)</code> — adds <code>_max_results=&lt;value&gt;</code> to the request URL when <code>max_results</code> is not <code>None</code>.</li>
-<li><code>InfobloxObject.search(...)</code> and <code>InfobloxObject.search_all(...)</code> — accept <code>max_results</code> (default <code>None</code>) and forward it to <code>get_object</code>.</li>
+<li>Connector <code>get_object(self, obj_type, payload=None, return_fields=None, extattrs=None, force_proxy=False, max_results=None)</code> — <code>_max_results=&lt;value&gt;</code> is added to the request URL when <code>max_results</code> is not <code>None</code>.</li>
+<li><code>InfobloxObject.search(...)</code> and <code>InfobloxObject.search_all(...)</code> — accept <code>max_results</code> (defaulting to <code>None</code>) and forward it to <code>get_object</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Use the existing public modules</span>
-        <span class="spec-meta muted">226 words · source specification
+        <span class="spec-title">Make use of these existing public modules</span>
+        <span class="spec-meta muted">253 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API and behavior</h4>
-<p>Use the existing public modules:</p>
+      <div class="spec-body"><h4>API and behavior requirements</h4>
+<p>Make use of these existing public modules:</p>
 <ul>
 <li><code>infoblox_client.connector</code></li>
 <li><code>infoblox_client.exceptions</code></li>
 <li><code>infoblox_client.objects</code></li>
 </ul>
-<h5>1. Cloud WAPI version detection</h5>
-<p><code>infoblox_client.connector.Connector</code> must expose:</p>
+<h5>1. Detecting the Cloud WAPI version</h5>
+<p>The following must be exposed by <code>infoblox_client.connector.Connector</code>:</p>
 <pre><code class="language-python">Connector.is_cloud_wapi(wapi_version)
 </code></pre>
-<p>It must return <code>True</code> for:</p>
+<p>It must return <code>True</code> for each of the following:</p>
 <ul>
 <li><code>'2.1/'</code></li>
 <li><code>'/2.0/'</code></li>
@@ -749,7 +749,7 @@ tenant.comment == 'Some comment'
 <li><code>'v2.1'</code></li>
 <li><code>'v2.0'</code></li>
 </ul>
-<p>It must return <code>False</code> for:</p>
+<p>It must return <code>False</code> for each of the following:</p>
 <ul>
 <li><code>'1.4.1'</code></li>
 <li><code>'1.9/'</code></li>
@@ -757,11 +757,11 @@ tenant.comment == 'Some comment'
 <li><code>'asd'</code></li>
 <li><code>'v1.4'</code></li>
 </ul>
-<h5>2. Connector configuration versions without a <code>v</code> prefix</h5>
+<h5>2. Connector configurations using versions with no <code>v</code> prefix</h5>
 <p>The constructor:</p>
 <pre><code class="language-python">infoblox_client.connector.Connector(options)
 </code></pre>
-<p>must accept an options dictionary using a WAPI version without a leading <code>v</code>, including a complete configuration containing:</p>
+<p>must accept an options dictionary whose WAPI version lacks a leading <code>v</code>, including a complete configuration that contains:</p>
 <pre><code class="language-python">{
     'host': 'infoblox.example.org',
     'wapi_version': '1.1',
@@ -770,7 +770,7 @@ tenant.comment == 'Some comment'
     'ssl_verify': False,
 }
 </code></pre>
-<p>An incomplete configuration containing only:</p>
+<p>An incomplete configuration that holds only:</p>
 <pre><code class="language-python">{
     'host': 'infoblox.example.org',
     'wapi_version': '1.1',
@@ -779,11 +779,11 @@ tenant.comment == 'Some comment'
 <p>must raise:</p>
 <pre><code class="language-python">infoblox_client.exceptions.InfobloxConfigException
 </code></pre>
-<h5>3. Tenant lookup</h5>
-<p><code>infoblox_client.objects</code> must expose a <code>Tenant</code> class with:</p>
+<h5>3. Looking up tenants</h5>
+<p><code>infoblox_client.objects</code> must expose a <code>Tenant</code> class offering:</p>
 <pre><code class="language-python">Tenant.search(connector, id=tenant_id)
 </code></pre>
-<p>For an ID lookup, it must call the supplied connector’s <code>get_object</code> method exactly once as follows:</p>
+<p>When looking up by ID, it must call the <code>get_object</code> method of the supplied connector exactly once, in the form shown below:</p>
 <pre><code class="language-python">connector.get_object(
     'grid:cloudapi:tenant',
     {'id': tenant_id},
@@ -793,7 +793,8 @@ tenant.comment == 'Some comment'
     max_results=None,
 )
 </code></pre>
-<p>The concrete values of <code>return_fields</code> and <code>force_proxy</code> are not constrained, but both keyword arguments must be supplied. When the connector returns a one-element list containing:</p>
+<p>The concrete values of <code>return_fields</code> and <code>force_proxy</code> are not constrained; even so, both keyword arguments must be supplied.</p>
+<p>Should the connector return a one-element list holding:</p>
 <pre><code class="language-python">{
     '_ref': 'grid:cloudapi:tenant/ZG5zLm5ldHdvcmskMTAuMzk',
     'id': 'tenant_id',
@@ -801,31 +802,32 @@ tenant.comment == 'Some comment'
     'comment': 'Some comment',
 }
 </code></pre>
-<p><code>Tenant.search</code> must return a tenant object whose <code>id</code>, <code>name</code>, and <code>comment</code> attributes contain the corresponding values from that record.</p>
+<p><code>Tenant.search</code> must return a tenant object in which the <code>id</code>, <code>name</code>, and <code>comment</code> attributes contain the corresponding values from that record.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Update the public API in infoblox_client.connector so a default maximum result count can be configured on a Connector and used by all GET operations.</span>
-        <span class="spec-meta muted">610 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Update the public API in infoblox_client.connector so that a default maximum result count can be configured on a Connector and is used by all GET operations.</span>
+        <span class="spec-meta muted">680 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add connector-wide <code>max_results</code> support</h4>
-<p>Update the public API in <code>infoblox_client.connector</code> so a default maximum result count can be configured on a <code>Connector</code> and used by all GET operations. Existing connector behavior and call compatibility must remain unchanged except for the addition of this option and its fallback behavior.</p>
-<h4><code>Connector</code> construction</h4>
-<p>The constructor must continue to support:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Add support for connector-wide <code>max_results</code></h4>
+<p>Update the public API in <code>infoblox_client.connector</code> so that a default maximum result count can be configured on a <code>Connector</code> and is used by all GET operations. Except for the addition of this option and its fallback behavior, existing connector behavior and call compatibility must remain unchanged.</p>
+<h4>Constructing a <code>Connector</code></h4>
+<p>The following must continue to be supported by the constructor:</p>
 <pre><code class="language-python">Connector(options)
 </code></pre>
-<p><code>options</code> may be either an attribute-style options object or a mapping supplied directly to the constructor. Existing required options, defaults, validation, session configuration, and handling of all other options must be preserved.</p>
-<p>Every constructed connector must expose a public <code>max_results</code> attribute:</p>
+<p><code>options</code> may be either an attribute-style options object or a mapping that is passed directly to the constructor. The existing required options, defaults, validation, session configuration, and handling of all other options must be preserved.</p>
+<p>A public <code>max_results</code> attribute must be exposed on every constructed connector:</p>
 <ul>
-<li>If an attribute-style <code>options</code> object exposes <code>max_results</code>, copy that value unchanged to <code>connector.max_results</code>.</li>
-<li>If a mapping contains a <code>max_results</code> entry, copy that value unchanged to <code>connector.max_results</code>.</li>
-<li>If <code>max_results</code> is omitted, set <code>connector.max_results</code> to <code>None</code>. This applies in particular when a mapping without that entry is passed directly to <code>Connector(options)</code>.</li>
-<li>Supported values are integers, including zero and negative integers, and <code>None</code>. Values must not be made positive, clamped, or otherwise transformed.</li>
+<li>When an attribute-style <code>options</code> object exposes <code>max_results</code>, that value is to be copied unchanged to <code>connector.max_results</code>.</li>
+<li>When a mapping contains a <code>max_results</code> entry, that value is to be copied unchanged to <code>connector.max_results</code>.</li>
+<li>When <code>max_results</code> is not present, <code>connector.max_results</code> is to be set to <code>None</code>. This applies in particular when a mapping that does not contain that entry is passed directly to <code>Connector(options)</code>.</li>
+<li>The supported values are integers, with zero and negative integers among them, and <code>None</code>. Values must not be made positive, clamped, or transformed in any other way.</li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">options = {
     &quot;host&quot;: &quot;infoblox.example.org&quot;,
     &quot;username&quot;: &quot;admin&quot;,
@@ -835,23 +837,23 @@ tenant.comment == 'Some comment'
 connector = Connector(options)
 assert connector.max_results == 50
 </code></pre>
-<p>With the same required connection options but no <code>max_results</code> entry:</p>
+<p>With the same required connection options, but where no <code>max_results</code> entry is present:</p>
 <pre><code class="language-python">connector = Connector(options_without_max_results)
 assert connector.max_results is None
 </code></pre>
-<p>A <code>None</code> default means that the connector does not add a result limit of its own; it must not be replaced with the appliance's WAPI default value.</p>
+<p>A default of <code>None</code> means that the connector itself does not add a result limit; that default must not be replaced with the appliance's WAPI default value.</p>
 <h4><code>Connector.from_dict</code></h4>
-<p>The public class/static factory must support:</p>
+<p>The following must be supported by the public class/static factory:</p>
 <pre><code class="language-python">Connector.from_dict(options)
 </code></pre>
-<p>where <code>options</code> is a mapping. The returned connector must use the same option semantics as direct mapping construction:</p>
+<p>with <code>options</code> being a mapping. The connector that is returned must use the same option semantics as direct construction from a mapping:</p>
 <ul>
-<li>A <code>max_results</code> entry is exposed unchanged as <code>connector.max_results</code>.</li>
-<li>If the entry is omitted, <code>connector.max_results</code> is <code>None</code>.</li>
-<li>For example, <code>max_results=50</code> results in <code>connector.max_results == 50</code>.</li>
+<li>The value of a <code>max_results</code> entry is exposed unchanged as <code>connector.max_results</code>.</li>
+<li>When the entry is not supplied, <code>connector.max_results</code> is <code>None</code>.</li>
+<li>By way of example, <code>max_results=50</code> results in <code>connector.max_results == 50</code>.</li>
 </ul>
 <h4><code>Connector.get_object</code></h4>
-<p>Preserve the existing GET API, including its current optional arguments and their ordering, with a full call shape equivalent to:</p>
+<p>The existing GET API, including its current optional arguments and their ordering, must be preserved, with a full call shape equivalent to:</p>
 <pre><code class="language-python">get_object(
     obj_type,
     payload=None,
@@ -861,52 +863,52 @@ assert connector.max_results is None
     max_results=None,
 )
 </code></pre>
-<p>In particular, existing calls involving <code>payload</code>, <code>return_fields</code>, <code>extattrs</code>, or <code>force_proxy</code> must remain compatible, and <code>max_results</code> must remain available as a keyword argument.</p>
-<h5>Result-limit resolution</h5>
-<p>Resolve the value used for the WAPI <code>_max_results</code> query parameter as follows:</p>
+<p>In particular, existing calls that involve <code>payload</code>, <code>return_fields</code>, <code>extattrs</code>, or <code>force_proxy</code> must remain compatible, and <code>max_results</code> must remain available as a keyword argument.</p>
+<h5>Resolution of the result limit</h5>
+<p>The value used for the WAPI <code>_max_results</code> query parameter is resolved as follows:</p>
 <ol>
-<li>If the call supplies an integer <code>max_results</code>, that call-specific value takes priority over <code>connector.max_results</code>.</li>
-<li>If the call omits <code>max_results</code>, or passes <code>max_results=None</code>, use <code>connector.max_results</code> as the fallback. Thus, a caller that forwards the default value <code>None</code> does not suppress a configured connector-wide limit.</li>
-<li>If the resolved value is an integer, include it in the GET URL as <code>_max_results=&lt;value&gt;</code>. Zero and negative integers are real values and must not be treated as though the option were absent.</li>
-<li>If the resolved value is <code>None</code>, do not add a connector-derived <code>_max_results</code> query parameter.</li>
+<li>When the call supplies an integer <code>max_results</code>, that call-specific value takes priority over <code>connector.max_results</code>.</li>
+<li>When the call omits <code>max_results</code>, or passes <code>max_results=None</code>, <code>connector.max_results</code> is used as the fallback. Consequently, a caller that forwards the default value <code>None</code> does not suppress a configured connector-wide limit.</li>
+<li>When the resolved value is an integer, it is to be included in the GET URL as <code>_max_results=&lt;value&gt;</code>. Zero and negative integers are real values and must not be handled as though the option were absent.</li>
+<li>When the resolved value is <code>None</code>, no connector-derived <code>_max_results</code> query parameter is to be added.</li>
 </ol>
-<p>The selected integer must be represented unchanged in the query string. In particular, a negative value must retain its minus sign. The connector-wide fallback applies to every URL generated for that GET operation, including any existing proxy-search attempt.</p>
-<p>All established GET behavior must continue to work alongside <code>_max_results</code>, including payload query fields, requested return fields, extensible-attribute filters, proxy-search handling, response parsing, and error behavior.</p>
-<h5>Request examples</h5>
-<p>For a connector configured with host <code>infoblox.example.org</code>, WAPI version <code>1.1</code>, and <code>max_results=10</code>:</p>
+<p>The integer that is selected must be represented unchanged in the query string. In particular, the minus sign of a negative value must be retained. The connector-wide fallback applies to every URL generated for that GET operation, including any existing proxy-search attempt.</p>
+<p>Alongside <code>_max_results</code>, all established GET behavior must continue to work, including payload query fields, requested return fields, extensible-attribute filters, proxy-search handling, response parsing, and error behavior.</p>
+<h5>Examples of requests</h5>
+<p>For a connector that is configured with host <code>infoblox.example.org</code>, WAPI version <code>1.1</code>, and <code>max_results=10</code>:</p>
 <pre><code class="language-python">connector.get_object(&quot;network&quot;, {})
 </code></pre>
-<p>must issue a GET to:</p>
+<p>a GET must be issued to:</p>
 <pre><code class="language-text">https://infoblox.example.org/wapi/v1.1/network?_max_results=10
 </code></pre>
-<p>Using the same connector, a call-specific value overrides the connector setting:</p>
+<p>With the same connector, a call-specific value overrides the connector setting:</p>
 <pre><code class="language-python">connector.get_object(&quot;network&quot;, {}, max_results=-20)
 </code></pre>
-<p>must instead issue a GET to:</p>
+<p>a GET must instead be issued to:</p>
 <pre><code class="language-text">https://infoblox.example.org/wapi/v1.1/network?_max_results=-20
 </code></pre>
-<p>GET requests must continue to use <code>Connector.DEFAULT_HEADER</code> and the connector's configured <code>http_request_timeout</code>. No behavior of create, update, delete, or other non-GET operations is changed by this feature.</p>
+<p>GET requests must keep using <code>Connector.DEFAULT_HEADER</code> and the connector's configured <code>http_request_timeout</code>. This feature changes no behavior of create, update, delete, or other non-GET operations.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Update the public class infoblox_client.connector.Connector.</span>
-        <span class="spec-meta muted">126 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify the public class infoblox_client.connector.Connector.</span>
+        <span class="spec-meta muted">136 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public class <code>infoblox_client.connector.Connector</code>.</p>
-<h5>Constructor API</h5>
+      <div class="spec-body"><h4>Change required</h4>
+<p>Modify the public class <code>infoblox_client.connector.Connector</code>.</p>
+<h5>Constructor interface</h5>
 <pre><code class="language-python">Connector(opts)
 </code></pre>
-<p>The connector must support <code>max_retries</code> as an option and expose it as the public instance attribute <code>max_retries</code>.</p>
+<p>The connector must support <code>max_retries</code> as an option, and this option must be exposed as the public instance attribute <code>max_retries</code>.</p>
 <ul>
-<li>If <code>opts</code> supplies <code>max_retries</code>, preserve the configured value unchanged as <code>connector.max_retries</code>.</li>
-<li>If <code>opts</code> omits <code>max_retries</code>, set <code>connector.max_retries</code> to the default integer value <code>3</code>.</li>
-<li>This behavior applies to the connector's existing supported option forms, including attribute-style option objects and mappings.</li>
+<li>When <code>opts</code> provides <code>max_retries</code>, the configured value must be preserved unchanged as <code>connector.max_retries</code>.</li>
+<li>When <code>opts</code> leaves out <code>max_retries</code>, <code>connector.max_retries</code> must be set to the default integer value <code>3</code>.</li>
+<li>This behavior covers the connector's existing supported option forms, including attribute-style option objects and mappings.</li>
 </ul>
-<p>Examples:</p>
+<p>Example cases:</p>
 <pre><code class="language-python">opts.max_retries = 5
 conn = Connector(opts)
 
@@ -920,194 +922,194 @@ assert conn.max_retries == 5
 
 assert conn.max_retries == 3
 </code></pre>
-<p>No validation, coercion, special error handling, or retry execution behavior is required for <code>max_retries</code>. Existing connector behavior must otherwise remain unchanged.</p>
+<p>For <code>max_retries</code>, no validation, coercion, special error handling, or retry execution behavior is required. In other respects, existing connector behavior must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Modify the field-remapping behavior of infoblox object classes so that unknown fields are silently passed through rather than causing an error.</span>
-        <span class="spec-meta muted">283 words · source specification
+        <span class="spec-title">Adjust the field-remapping behavior of infoblox object classes so that unknown fields are silently passed through instead of causing an error.</span>
+        <span class="spec-meta muted">298 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the field-remapping behavior of infoblox object classes so that unknown fields are silently passed through rather than causing an error.</p>
-<h4>Public API Surface</h4>
-<p>The module <code>objects</code> must expose a class <code>Member</code> with a class method:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Adjust the field-remapping behavior of infoblox object classes so that unknown fields are silently passed through instead of causing an error.</p>
+<h4>Public API</h4>
+<p>The module <code>objects</code> must expose a class <code>Member</code> that provides a class method:</p>
 <pre><code class="language-python">Member._remap_fields(data)
 </code></pre>
 <ul>
-<li><code>data</code>: a <code>dict</code> mapping field names to their values.</li>
-<li>Returns: a <code>dict</code> of remapped field names to values.</li>
+<li><code>data</code>: a <code>dict</code> that maps field names to their values.</li>
+<li>Returns: a <code>dict</code> mapping remapped field names to values.</li>
 </ul>
-<p>This method exists on the shared base class from which infoblox object classes (including <code>Member</code>) inherit, so all such classes share this behavior.</p>
-<h4>Required Behavior</h4>
-<p><code>_remap_fields</code> translates the keys of the input dictionary according to the class's field-remapping rules while preserving the associated values.</p>
-<p>The specific requirement covered here concerns fields that have <strong>no</strong> remapping rule defined for the class (i.e., fields the class does not recognize / has no mapping entry for):</p>
+<p>The method lives on the shared base class from which infoblox object classes (including <code>Member</code>) inherit, so the behavior is shared across all such classes.</p>
+<h4>Behavior Requirements</h4>
+<p><code>_remap_fields</code> converts the keys of the input dictionary in accordance with the class's field-remapping rules while keeping the associated values intact.</p>
+<p>The particular requirement dealt with here concerns fields that have <strong>no</strong> remapping rule defined for the class (that is, fields the class does not recognize / has no mapping entry for):</p>
 <ul>
-<li>When the input dictionary contains a field that is <strong>not</strong> part of the class's known/mapped field set, that field must be included in the returned dictionary <strong>unchanged</strong> — both its key and its value are preserved as-is.</li>
-<li>Processing such an unknown field must <strong>not</strong> raise any exception.</li>
+<li>If the input dictionary holds a field that is <strong>not</strong> part of the class's known/mapped field set, that field must be included in the returned dictionary <strong>unchanged</strong> — with both its key and its value kept as-is.</li>
+<li>The processing of such an unknown field must <strong>not</strong> raise any exception.</li>
 </ul>
-<h5>Concrete case</h5>
-<p>Given an input dictionary containing:</p>
+<h5>Concrete example</h5>
+<p>Suppose the input dictionary contains:</p>
 <ul>
-<li>a known field key with its value, and</li>
-<li>an unknown/unmapped field key with its value,</li>
+<li>a known field key together with its value, and</li>
+<li>an unknown/unmapped field key together with its value,</li>
 </ul>
-<p>where none of the keys have a remapping rule that changes their name, the returned dictionary must be exactly equal to the input dictionary (same keys, same values, including the unknown field).</p>
+<p>and where none of the keys have a remapping rule that changes their name, the returned dictionary must be exactly equal to the input dictionary (same keys, same values, including the unknown field).</p>
 <h4>Summary</h4>
-<p>The only behavioral change required: <code>_remap_fields</code> must tolerate unknown fields by including them verbatim in its output instead of failing. Fields without a name-changing remap rule appear in the result with their original key and value.</p>
+<p>The only behavioral change required is: <code>_remap_fields</code> must tolerate unknown fields by including them verbatim in its output rather than failing. Fields that lack a name-changing remap rule turn up in the result with their original key and value.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Enhance infoblox_client.object_manager.InfobloxObjectManager so creation failures for Extensible Attribute (EA) definitions can either be suppressed or…</span>
-        <span class="spec-meta muted">804 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Enhance infoblox_client.object_manager.InfobloxObjectManager so that failures when creating Extensible Attribute (EA) definitions can either be suppressed…</span>
+        <span class="spec-meta muted">865 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Enhance <code>infoblox_client.object_manager.InfobloxObjectManager</code> so creation failures for Extensible Attribute (EA) definitions can either be suppressed or propagated, and so bulk creation reports only definitions that were actually created. Existing successful behavior and all unrelated object-manager behavior must remain compatible.</p>
-<p>The object manager is initialized with a connector exposing <code>create_object(obj_type, payload, return_fields)</code>. The changes apply to the two public methods below.</p>
+<p>Enhance <code>infoblox_client.object_manager.InfobloxObjectManager</code> so that failures when creating Extensible Attribute (EA) definitions can either be suppressed or propagated, and so that bulk creation reports only the definitions that were actually created. Existing successful behavior must remain compatible, as must all unrelated object-manager behavior.</p>
+<p>The object manager is initialized with a connector that exposes <code>create_object(obj_type, payload, return_fields)</code>. The two public methods below are the ones these changes apply to.</p>
 <h4>Public API</h4>
 <h5><code>InfobloxObjectManager.create_ea_definition(self, ea_def, reraise=False)</code></h5>
-<p>Create one EA definition.</p>
+<p>Creates a single EA definition.</p>
 <h6>Parameters</h6>
 <ul>
-<li><code>ea_def</code> is the EA-definition dictionary to create.</li>
-<li><code>reraise</code> is an optional boolean and defaults to <code>False</code>, preserving the prior failure-suppression behavior. It must be accepted as a keyword argument.</li>
+<li><code>ea_def</code> is the EA-definition dictionary that is to be created.</li>
+<li><code>reraise</code> is an optional boolean, and its default of <code>False</code> preserves the prior failure-suppression behavior. It must be accepted as a keyword argument.</li>
 </ul>
-<h6>Connector interaction</h6>
-<p>Each call must make one creation attempt through the connector using:</p>
+<h6>Interaction with the connector</h6>
+<p>Each call must make one creation attempt via the connector using:</p>
 <ul>
 <li>object type: <code>'extensibleattributedef'</code></li>
-<li>payload: the supplied <code>ea_def</code> dictionary, unchanged</li>
-<li>a return-fields argument compatible with the existing EA-definition object behavior; no particular return-fields value is required by this contract</li>
+<li>payload: the <code>ea_def</code> dictionary as supplied, unchanged</li>
+<li>a return-fields argument that is compatible with the existing EA-definition object behavior; this contract requires no particular return-fields value</li>
 </ul>
-<p>The creation path must not perform an additional existence check for this individual definition.</p>
+<p>An additional existence check for this individual definition must not be performed by the creation path.</p>
 <h6>Successful creation</h6>
-<p>When creation succeeds, return the existing EA-definition object-model result. In particular, a normal non-empty connector reply is converted to an <code>EADefinition</code> object rather than being returned as the raw connector dictionary. Existing handling of other connector reply forms, including a falsey reply producing a falsey result, must remain unchanged.</p>
-<h6><code>InfobloxCannotCreateObject</code> handling</h6>
+<p>When the creation succeeds, the existing EA-definition object-model result is returned. Specifically, a normal non-empty connector reply is converted into an <code>EADefinition</code> object instead of being returned as the raw connector dictionary. The existing handling of other connector reply forms must remain unchanged, including the case where a falsey reply produces a falsey result.</p>
+<h6>Handling of <code>InfobloxCannotCreateObject</code></h6>
 <p>If creation raises <code>infoblox_client.exceptions.InfobloxCannotCreateObject</code>:</p>
 <ul>
-<li>With <code>reraise=True</code>, propagate that exception to the caller.</li>
-<li>With <code>reraise=False</code>, suppress the exception and return a falsey value, such as <code>None</code> or <code>False</code>.</li>
+<li>With <code>reraise=True</code>, that exception must be propagated to the caller.</li>
+<li>With <code>reraise=False</code>, the exception is suppressed and a falsey value is returned, such as <code>None</code> or <code>False</code>.</li>
 </ul>
-<p>The connector must still have been invoked exactly once in either case. This policy applies to instances of <code>InfobloxCannotCreateObject</code>, including its subclasses. Exceptions outside that hierarchy are not newly subject to suppression.</p>
+<p>In either case, the connector must still have been invoked exactly once. This policy covers instances of <code>InfobloxCannotCreateObject</code>, including its subclasses. Exceptions that are outside that hierarchy are not newly subject to suppression.</p>
 <h5><code>InfobloxObjectManager.create_required_ea_definitions(self, required_ea_defs, reraise=False)</code></h5>
-<p>Create the required EA definitions that do not already exist.</p>
+<p>Creates the required EA definitions that do not exist already.</p>
 <h6>Parameters</h6>
 <ul>
-<li><code>required_ea_defs</code> is a list of EA-definition dictionaries. Each required dictionary is expected to contain a <code>name</code>.</li>
-<li><code>reraise</code> is an optional boolean and defaults to <code>False</code>. It must be passed through to each call of <code>create_ea_definition</code>.</li>
+<li><code>required_ea_defs</code> is a list of EA-definition dictionaries. It is expected that each required dictionary contains a <code>name</code>.</li>
+<li><code>reraise</code> is an optional boolean whose default is <code>False</code>. It must be passed through to each call of <code>create_ea_definition</code>.</li>
 </ul>
-<h6>Selecting definitions to create</h6>
+<h6>Selecting the definitions to create</h6>
 <ol>
-<li>Retrieve the existing EA definitions using the object manager's existing all-definitions lookup.</li>
-<li>Compare definitions by <code>name</code>. A required definition is missing when no retrieved <code>EADefinition</code> has a matching <code>name</code>.</li>
-<li>Do not attempt to create, and do not return, definitions that already exist.</li>
-<li>Process missing definitions in their order in <code>required_ea_defs</code>, making one single-definition creation attempt for each one unless processing is interrupted by a propagated exception.</li>
+<li>Use the object manager's existing all-definitions lookup to retrieve the existing EA definitions.</li>
+<li>Definitions are compared by <code>name</code>. A required definition is missing when no retrieved <code>EADefinition</code> has a matching <code>name</code>.</li>
+<li>For definitions that already exist, do not attempt to create them and do not return them.</li>
+<li>Process the missing definitions in the order they appear in <code>required_ea_defs</code>, making one single-definition creation attempt for each one unless a propagated exception interrupts the processing.</li>
 </ol>
-<h6>Failure policy</h6>
+<h6>Policy for failures</h6>
 <ul>
-<li>With the default <code>reraise=False</code>, an <code>InfobloxCannotCreateObject</code> from one definition is suppressed by the single-definition path. Omit that definition from the result and continue processing later missing definitions.</li>
-<li>With <code>reraise=True</code>, an <code>InfobloxCannotCreateObject</code> must propagate from the failing creation attempt. Processing stops at that exception and the method does not return a partial result list. Definitions successfully created before the exception are not required to be rolled back.</li>
+<li>When the default <code>reraise=False</code> applies, an <code>InfobloxCannotCreateObject</code> from one definition is suppressed by the single-definition path. That definition is omitted from the result, and processing of the later missing definitions continues.</li>
+<li>With <code>reraise=True</code>, an <code>InfobloxCannotCreateObject</code> must propagate from the creation attempt that fails. Processing stops at that exception, and a partial result list is not returned by the method. Definitions that were successfully created before the exception are not required to be rolled back.</li>
 </ul>
-<h6>Return value</h6>
-<p>When processing completes, return a list containing only the successfully created missing definitions, in processing order.</p>
-<p>The entries in this list must be the corresponding original dictionaries from <code>required_ea_defs</code> themselves. They must not be the <code>EADefinition</code> objects produced by <code>create_ea_definition</code>, raw connector replies, replacement dictionaries, already-existing definitions, or definitions whose creation failed. The created object returned by the single-definition path is used only to establish that the attempt produced a successful created-definition result. A falsey/no-object result is not included.</p>
-<p>Consequently, if the required inputs are <code>one</code>, <code>two</code>, <code>three</code>, and <code>four</code>, none already exist, and only creation of <code>one</code> and <code>three</code> succeeds, the result must be <code>[one, three]</code> using those same input dictionary objects and preserving their order.</p>
-<p>If <code>one</code> and <code>two</code> already exist and the required list is <code>[one, two, three]</code>, only <code>three</code> is submitted for creation. On success, the result is <code>[three]</code>, where <code>three</code> is the original required-definition dictionary even though the single-definition method returns an <code>EADefinition</code> object.</p>
+<h6>Returned value</h6>
+<p>When processing completes, return a list that contains only the missing definitions whose creation succeeded, in processing order.</p>
+<p>The entries this list contains must be the corresponding original dictionaries from <code>required_ea_defs</code> themselves. They must not be the <code>EADefinition</code> objects that <code>create_ea_definition</code> produced, raw connector replies, replacement dictionaries, already-existing definitions, or definitions whose creation failed. The created object returned by the single-definition path serves only to establish that the attempt produced a successful created-definition result. A result that is falsey/no-object is not included.</p>
+<p>Consequently, if the required inputs are <code>one</code>, <code>two</code>, <code>three</code>, and <code>four</code>, none of them already exist, and only creation of <code>one</code> and <code>three</code> succeeds, the result must be <code>[one, three]</code>, using those same input dictionary objects and preserving their order.</p>
+<p>If <code>one</code> and <code>two</code> already exist and the required list is <code>[one, two, three]</code>, then only <code>three</code> is submitted for creation. When the creation succeeds, the result is <code>[three]</code>, where <code>three</code> is the original required-definition dictionary, even though the single-definition method returns an <code>EADefinition</code> object.</p>
 <h4>Required Failure Scenarios</h4>
 <ol>
-<li>A single creation called with <code>reraise=True</code> must propagate <code>InfobloxCannotCreateObject</code> after one connector call with <code>'extensibleattributedef'</code>, the supplied dictionary, and a return-fields argument.</li>
-<li>The same failure called with <code>reraise=False</code> must not escape; the method must return a falsey value after the same single connector call.</li>
-<li>During bulk creation with <code>reraise=False</code>, any number of individual <code>InfobloxCannotCreateObject</code> failures must be omitted without preventing later attempts. The final list contains exactly the original input dictionaries for attempts that produced successful created-definition results.</li>
+<li>A single creation invoked with <code>reraise=True</code> must propagate <code>InfobloxCannotCreateObject</code> after one connector call made with <code>'extensibleattributedef'</code>, the supplied dictionary, and a return-fields argument.</li>
+<li>The same failure under <code>reraise=False</code> must not escape; after the same single connector call, the method must return a falsey value.</li>
+<li>In bulk creation with <code>reraise=False</code>, any number of individual <code>InfobloxCannotCreateObject</code> failures must be omitted without preventing later attempts. The final list contains exactly the original input dictionaries of attempts that produced successful created-definition results.</li>
 </ol>
 <h4>Compatibility and Scope</h4>
 <ul>
-<li>Calling either method without <code>reraise</code> must use <code>False</code>.</li>
-<li>Preserve all successful behavior of the existing EA-definition object creation and lookup paths except for correcting the bulk return list to exclude failed creations.</li>
-<li>Do not change the connector API, the <code>EADefinition</code> public model, or exception definitions. <code>InfobloxCannotCreateObject</code> continues to be constructible with <code>response</code>, <code>obj_type</code>, <code>content</code>, <code>args</code>, and <code>code</code> keyword data.</li>
-<li>No changes to unrelated object-manager operations are required.</li>
+<li>When either method is called without <code>reraise</code>, <code>False</code> must be used.</li>
+<li>All successful behavior of the existing EA-definition object creation and lookup paths must be preserved, except for correcting the bulk return list so that failed creations are excluded.</li>
+<li>The connector API, the <code>EADefinition</code> public model, and exception definitions must not be changed. <code>InfobloxCannotCreateObject</code> remains constructible with <code>response</code>, <code>obj_type</code>, <code>content</code>, <code>args</code>, and <code>code</code> keyword data.</li>
+<li>No changes are required to unrelated object-manager operations.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Add Network View Support to Host Records</span>
-        <span class="spec-meta muted">533 words · source specification
+        <span class="spec-title">Adding Network View Support to Host Records</span>
+        <span class="spec-meta muted">570 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Network View Support to Host Records</h3>
+      <div class="spec-body"><h3>Task Specification: Adding Network View Support to Host Records</h3>
 <h4>Overview</h4>
-<p>Add optional <code>network_view</code> support to host record search and binding operations. This affects two areas: the <code>InfobloxObjectManager</code> methods and the <code>HostRecord</code> object's search behavior. When a network view is supplied, it must be passed through to the underlying connector query as a <code>network_view</code> field.</p>
-<h4>Required Changes</h4>
+<p>Optional <code>network_view</code> support is to be added to host record search and binding operations. Two areas are affected: the methods of <code>InfobloxObjectManager</code> and the search behavior of the <code>HostRecord</code> object. If a network view is supplied, it must be passed through to the underlying connector query as a <code>network_view</code> field.</p>
+<h4>Required Modifications</h4>
 <h5>1. <code>InfobloxObjectManager.find_hostname</code></h5>
-<p>Extend the <code>find_hostname</code> method with a new optional parameter for the network view name.</p>
-<p><strong>Signature:</strong></p>
+<p>Add a new optional parameter to the <code>find_hostname</code> method that carries the network view name.</p>
+<p><strong>Method signature:</strong></p>
 <pre><code class="language-python">def find_hostname(self, dns_view, fqdn, ip, network_view=None):
 </code></pre>
 <p><strong>Behavior:</strong></p>
-<p>When called, the method queries the connector for a <code>record:host</code> object. The query payload passed to the connector must include the following keys:</p>
+<p>When invoked, the method queries the connector for a <code>record:host</code> object. The query payload given to the connector must include the following keys:</p>
 <ul>
-<li><code>view</code>: the <code>dns_view</code> value</li>
-<li><code>name</code>: the <code>fqdn</code> value</li>
-<li><code>ipv4addr</code>: the <code>ip</code> value</li>
-<li><code>network_view</code>: the <code>network_view</code> value</li>
+<li><code>view</code>: the value of <code>dns_view</code></li>
+<li><code>name</code>: the value of <code>fqdn</code></li>
+<li><code>ipv4addr</code>: the value of <code>ip</code></li>
+<li><code>network_view</code>: the value of <code>network_view</code></li>
 </ul>
-<p>The connector's object-retrieval call must be invoked exactly once, of the form:</p>
+<p>The connector's object-retrieval call must be invoked exactly once, in this form:</p>
 <pre><code class="language-python">get_object('record:host', &lt;payload&gt;,
            extattrs=None, force_proxy=&lt;any&gt;, return_fields=&lt;any&gt;,
            max_results=None)
 </code></pre>
-<p>When <code>network_view</code> is provided (non-default), the payload must contain the <code>network_view</code> key set to that value alongside the other keys listed above.</p>
+<p>If <code>network_view</code> is provided (non-default), the payload must contain the <code>network_view</code> key set to that value in addition to the other keys listed above.</p>
 <h5>2. <code>InfobloxObjectManager.bind_name_with_host_record</code></h5>
-<p>Extend the <code>bind_name_with_host_record</code> method with a new optional parameter for the network view name.</p>
-<p><strong>Signature (positional argument order matters):</strong></p>
+<p>Likewise, add a new optional parameter for the network view name to the <code>bind_name_with_host_record</code> method.</p>
+<p><strong>Method signature (the order of positional arguments matters):</strong></p>
 <pre><code class="language-python">def bind_name_with_host_record(self, dns_view, ip, name, extattrs, network_view=None):
 </code></pre>
 <p><strong>Behavior:</strong></p>
-<p>The method first retrieves an existing <code>record:host</code> object from the connector, then updates it.</p>
-<p>The retrieval call must be invoked exactly once, of the form:</p>
+<p>The method first retrieves an existing <code>record:host</code> object from the connector, then updates the object it retrieved.</p>
+<p>The retrieval call must be invoked exactly once, in this form:</p>
 <pre><code class="language-python">get_object('record:host', &lt;get_payload&gt;,
            extattrs=None, max_results=None,
            force_proxy=&lt;any&gt;, return_fields=&lt;any&gt;)
 </code></pre>
-<p>The <code>&lt;get_payload&gt;</code> used to search for the host record must include:</p>
+<p>The <code>&lt;get_payload&gt;</code> used when searching for the host record must include:</p>
 <ul>
-<li><code>view</code>: the <code>dns_view</code> value</li>
-<li><code>ipv4addr</code>: the <code>ip</code> value</li>
-<li><code>network_view</code>: the <code>network_view</code> value — this key must be present only when <code>network_view</code> is provided (non-default). When <code>network_view</code> is not provided, the search payload must NOT contain a <code>network_view</code> key.</li>
+<li><code>view</code>: the value of <code>dns_view</code></li>
+<li><code>ipv4addr</code>: the value of <code>ip</code></li>
+<li><code>network_view</code>: the value of <code>network_view</code> — this key must be present only when <code>network_view</code> is provided (non-default). If <code>network_view</code> is not provided, the search payload must NOT contain a <code>network_view</code> key.</li>
 </ul>
-<p>After retrieval, the method must update the object exactly once, of the form:</p>
+<p>After retrieval, the method must update the object exactly once, in this form:</p>
 <pre><code class="language-python">update_object(&lt;any&gt;, &lt;update_payload&gt;, &lt;any&gt;)
 </code></pre>
-<p>The <code>&lt;update_payload&gt;</code> must include <code>name</code> set to the <code>name</code> argument. The presence or value of <code>network_view</code> does not affect the update payload.</p>
+<p>The <code>&lt;update_payload&gt;</code> must include <code>name</code> set to the <code>name</code> argument. The presence or value of <code>network_view</code> has no effect on the update payload.</p>
 <h5>3. <code>HostRecord.search</code></h5>
-<p>The <code>HostRecord</code> object (accessible as <code>objects.HostRecord</code>) must support a <code>network_view</code> search field so that <code>HostRecord.search(...)</code> accepts <code>network_view</code> as a keyword argument.</p>
+<p>The <code>HostRecord</code> object (accessible as <code>objects.HostRecord</code>) must support <code>network_view</code> as a search field, such that <code>HostRecord.search(...)</code> accepts <code>network_view</code> as a keyword argument.</p>
 <p><strong>Behavior:</strong></p>
-<p>When <code>HostRecord.search</code> is called with keyword arguments including <code>view</code>, <code>ip</code>, and <code>network_view</code>, it must query the connector for a <code>record:host</code> object exactly once, of the form:</p>
+<p>When <code>HostRecord.search</code> is called with keyword arguments that include <code>view</code>, <code>ip</code>, and <code>network_view</code>, it must query the connector for a <code>record:host</code> object exactly once, in this form:</p>
 <pre><code class="language-python">get_object('record:host', &lt;payload&gt;,
            extattrs=None, force_proxy=False, return_fields=&lt;any&gt;,
            max_results=None)
 </code></pre>
-<p>The <code>&lt;payload&gt;</code> must map the search fields as follows:</p>
+<p>The search fields must be mapped by <code>&lt;payload&gt;</code> as follows:</p>
 <ul>
-<li><code>view</code>: the <code>view</code> value</li>
-<li><code>ipv4addr</code>: the <code>ip</code> value</li>
-<li><code>network_view</code>: the <code>network_view</code> value</li>
+<li><code>view</code>: the value of <code>view</code></li>
+<li><code>ipv4addr</code>: the value of <code>ip</code></li>
+<li><code>network_view</code>: the value of <code>network_view</code></li>
 </ul>
-<p>The <code>network_view</code> field must be recognized as a valid searchable field for the host record and passed through to the query payload under the key <code>network_view</code>.</p>
+<p>The <code>network_view</code> field must be recognized as a valid searchable field for the host record, and it must be passed through to the query payload under the key <code>network_view</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>All existing behavior when <code>network_view</code> is not supplied must remain unchanged: for <code>find_hostname</code> and <code>HostRecord.search</code>, the existing payload keys continue to be produced; for <code>bind_name_with_host_record</code>, the search payload must not gain a <code>network_view</code> key when the argument is absent.</li>
-<li>The <code>ip</code> search field on host records maps to the <code>ipv4addr</code> query key.</li>
+<li>When <code>network_view</code> is not supplied, all existing behavior must remain unchanged: <code>find_hostname</code> and <code>HostRecord.search</code> continue to produce the existing payload keys; in the case of <code>bind_name_with_host_record</code>, the search payload must not gain a <code>network_view</code> key when the argument is absent.</li>
+<li>On host records, the <code>ip</code> search field maps to the <code>ipv4addr</code> query key.</li>
 </ul>
 <h4>Public API Surface</h4>
 <ul>
-<li>Module <code>object_manager</code> (imported as <code>om</code>), class <code>InfobloxObjectManager</code>, methods <code>find_hostname(self, dns_view, fqdn, ip, network_view=None)</code> and <code>bind_name_with_host_record(self, dns_view, ip, name, extattrs, network_view=None)</code>.</li>
+<li>Module <code>object_manager</code> (imported as <code>om</code>), class <code>InfobloxObjectManager</code>, with the methods <code>find_hostname(self, dns_view, fqdn, ip, network_view=None)</code> and <code>bind_name_with_host_record(self, dns_view, ip, name, extattrs, network_view=None)</code>.</li>
 <li>Module <code>objects</code>, class <code>HostRecord</code> with class method <code>search(...)</code> accepting <code>network_view</code> as a searchable keyword.</li>
 </ul>
 </div>
@@ -1115,134 +1117,134 @@ assert conn.max_retries == 3
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Add DNS Zone Extensible Attributes Update Support</span>
-        <span class="spec-meta muted">304 words · source specification
+        <span class="spec-title">Add Support for Updating DNS Zone Extensible Attributes</span>
+        <span class="spec-meta muted">338 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add DNS Zone Extensible Attributes Update Support</h3>
+      <div class="spec-body"><h3>Task Specification: Add Support for Updating DNS Zone Extensible Attributes</h3>
 <h4>Overview</h4>
-<p>Add a new public method <code>update_dns_zone_attrs</code> to the <code>InfobloxObjectManager</code> class. This method updates the extensible attributes of an existing DNS authoritative zone.</p>
+<p>A new public method, <code>update_dns_zone_attrs</code>, is to be added to the <code>InfobloxObjectManager</code> class. It updates the extensible attributes of an existing DNS authoritative zone.</p>
 <h4>API Surface</h4>
-<p>The <code>InfobloxObjectManager</code> class must be importable from the object manager module (imported in tests as <code>om</code>, i.e. the module accessible via the project's existing object manager path). The class is constructed with a single connector argument:</p>
+<p>It must be possible to import the <code>InfobloxObjectManager</code> class from the object manager module (tests import it as <code>om</code>, i.e. the module that is accessible via the project's existing object manager path). A single connector argument is used to construct the class:</p>
 <pre><code class="language-python">InfobloxObjectManager(connector)
 </code></pre>
-<p>Add the following method:</p>
+<p>Add this method:</p>
 <pre><code class="language-python">def update_dns_zone_attrs(self, dns_view_name, fqdn, extattrs):
 </code></pre>
 <h4>Required Behavior</h4>
-<p>When <code>update_dns_zone_attrs(dns_view_name, fqdn, extattrs)</code> is called:</p>
+<p>When a call is made to <code>update_dns_zone_attrs(dns_view_name, fqdn, extattrs)</code>:</p>
 <ol>
 <li>
-<p><strong>Look up the zone.</strong> Retrieve the existing authoritative zone by calling the connector's <code>get_object</code> method with:</p>
+<p><strong>Retrieve the zone.</strong> Look up the existing authoritative zone by calling the connector's <code>get_object</code> method with:</p>
 <ul>
 <li>object type: the string <code>'zone_auth'</code></li>
 <li>a query payload: <code>{'fqdn': &lt;fqdn&gt;, 'view': &lt;dns_view_name&gt;}</code></li>
-<li>keyword argument <code>extattrs=None</code></li>
-<li>keyword argument <code>force_proxy=False</code></li>
-<li>keyword argument <code>max_results=None</code></li>
-<li>keyword argument <code>return_fields</code> equal to the following list, in this exact order:<pre><code class="language-python">['fqdn', 'view', 'extattrs', 'zone_format', 'ns_group', 'prefix',
+<li><code>extattrs=None</code> as a keyword argument</li>
+<li><code>force_proxy=False</code> as a keyword argument</li>
+<li><code>max_results=None</code> as a keyword argument</li>
+<li><code>return_fields</code> as a keyword argument, equal to the following list, in this exact order:<pre><code class="language-python">['fqdn', 'view', 'extattrs', 'zone_format', 'ns_group', 'prefix',
  'grid_primary', 'grid_secondaries']
 </code></pre>
 </li>
 </ul>
-<p>The <code>get_object</code> call must occur exactly once.</p>
-<p>The connector returns a list of matching zone objects; each zone is a dictionary that includes a <code>'_ref'</code> key identifying the object.</p>
+<p>The call to <code>get_object</code> must happen exactly once.</p>
+<p>What the connector returns is a list of matching zone objects; each zone is a dictionary that includes a <code>'_ref'</code> key that identifies the object.</p>
 </li>
 <li>
-<p><strong>Update the zone's extensible attributes.</strong> Using the reference (<code>'_ref'</code>) of the first returned zone, call the connector's <code>update_object</code> method exactly once with three positional arguments, in this order:</p>
+<p><strong>Update the extensible attributes of the zone.</strong> Take the reference (<code>'_ref'</code>) of the first zone that is returned and call the connector's <code>update_object</code> method exactly once, with three positional arguments in this order:</p>
 <ul>
-<li>the zone's <code>_ref</code> value</li>
-<li>the payload dictionary <code>{'extattrs': &lt;extattrs&gt;}</code> (the new extensible attributes passed to the method)</li>
-<li>the same <code>return_fields</code> list defined above</li>
+<li>the value of the zone's <code>_ref</code></li>
+<li>the payload dictionary <code>{'extattrs': &lt;extattrs&gt;}</code> (the new extensible attributes that were passed to the method)</li>
+<li>the same <code>return_fields</code> list that was defined above</li>
 </ul>
 </li>
 </ol>
-<h4>Notes / Edge Cases</h4>
+<h4>Notes and Edge Cases</h4>
 <ul>
-<li>The <code>extattrs</code> argument passed to <code>update_dns_zone_attrs</code> is placed directly under the <code>'extattrs'</code> key of the update payload without transformation.</li>
-<li>Only the first zone in the returned list is used for the update.</li>
-<li>No additional side effects or connector calls beyond the single <code>get_object</code> and single <code>update_object</code> described above are required.</li>
+<li>Without transformation, the <code>extattrs</code> argument passed to <code>update_dns_zone_attrs</code> is placed directly under the <code>'extattrs'</code> key of the update payload.</li>
+<li>For the update, only the first zone in the returned list is used.</li>
+<li>Beyond the single <code>get_object</code> and single <code>update_object</code> described above, no additional side effects or connector calls are required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Modify the search field construction for PTR DNS records so that the ptrdname value is included among the fields used to identify/search for a PTR record.</span>
-        <span class="spec-meta muted">258 words · source specification
+        <span class="spec-title">Change the way search fields for PTR DNS records are constructed so that the ptrdname value is included among the fields used to identify or search for a…</span>
+        <span class="spec-meta muted">278 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the search field construction for PTR DNS records so that the <code>ptrdname</code> value is included among the fields used to identify/search for a PTR record.</p>
-<h4>Background</h4>
-<p>The codebase contains an object model where different DNS record types define a set of fields used to search for existing records. For PTR records, this search field set currently includes the DNS view and the IPv4 address, but omits the pointer domain name.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Change the way search fields for PTR DNS records are constructed so that the <code>ptrdname</code> value is included among the fields used to identify or search for a PTR record.</p>
+<h4>Context</h4>
+<p>There is an object model in the codebase in which different DNS record types define a set of fields used to search for existing records. For PTR records, this search field set at present includes the DNS view and the IPv4 address, but leaves out the pointer domain name.</p>
 <h4>Required Change</h4>
-<p>The PtrRecord object type must include <code>ptrdname</code> in its set of search fields.</p>
-<p>Specifically, when a PtrRecord is used to search for a matching record via the object manager, the search query submitted for the <code>record:ptr</code> object type must include the following fields:</p>
+<p>The set of search fields belonging to the PtrRecord object type must include <code>ptrdname</code>.</p>
+<p>More precisely, when a PtrRecord is used through the object manager to search for a matching record, the search query submitted for the <code>record:ptr</code> object type must include the following fields:</p>
 <ul>
-<li><code>view</code> — the DNS view name</li>
+<li><code>view</code> — the name of the DNS view</li>
 <li><code>ipv4addr</code> — the IPv4 address</li>
 <li><code>ptrdname</code> — the pointer domain name (the record's name)</li>
 </ul>
-<p>The <code>ptrdname</code> field must carry the same value as the record's name.</p>
-<h4>Behavioral Detail</h4>
-<p>When the object manager creates a PTR record and searches for it, the search payload passed for the <code>record:ptr</code> object must be a mapping containing exactly the three keys above (<code>view</code>, <code>ipv4addr</code>, <code>ptrdname</code>), with <code>ptrdname</code> set equal to the name associated with the PTR record.</p>
-<p>The corresponding A record search behavior is unaffected: its search payload continues to contain only <code>view</code> and <code>ipv4addr</code>.</p>
+<p>The value that the <code>ptrdname</code> field carries must be the same as the record's name.</p>
+<h4>Behavioral Details</h4>
+<p>Whenever the object manager creates a PTR record and searches for it, the search payload passed for the <code>record:ptr</code> object must be a mapping that contains exactly the three keys listed above (<code>view</code>, <code>ipv4addr</code>, <code>ptrdname</code>), with <code>ptrdname</code> set equal to the name associated with the PTR record.</p>
+<p>The search behavior for the corresponding A record is unaffected: its search payload still contains only <code>view</code> and <code>ipv4addr</code>.</p>
 <h4>Scope</h4>
 <ul>
-<li>Add <code>ptrdname</code> to the PtrRecord search field definition only.</li>
-<li>Do not alter the search fields of any other record type.</li>
-<li>Do not change the return-fields behavior of these searches.</li>
+<li>Add <code>ptrdname</code> to the search field definition of PtrRecord only.</li>
+<li>Do not modify the search fields of any other record type.</li>
+<li>Do not alter the return-fields behavior of these searches.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add a new method to the InfobloxObjectManager class that retrieves fixed address objects filtered by network view and MAC address.</span>
-        <span class="spec-meta muted">183 words · source specification
+        <span class="spec-title">Add a new method to the InfobloxObjectManager class whose purpose is to retrieve fixed address objects, filtered by network view and MAC address.</span>
+        <span class="spec-meta muted">195 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Add a new method to the <code>InfobloxObjectManager</code> class that retrieves fixed address objects filtered by network view and MAC address.</p>
+      <div class="spec-body"><h5>Goal</h5>
+<p>Add a new method to the <code>InfobloxObjectManager</code> class whose purpose is to retrieve fixed address objects, filtered by network view and MAC address.</p>
 <h5>API Surface</h5>
-<p>In the module <code>infoblox_client.object_manager</code>, the class <code>InfobloxObjectManager</code> must provide the following method:</p>
+<p>Within the module <code>infoblox_client.object_manager</code>, the class <code>InfobloxObjectManager</code> must make the following method available:</p>
 <pre><code class="language-python">def get_fixed_addresses_by_mac(self, network_view, mac):
     ...
 </code></pre>
 <h5>Required Behavior</h5>
-<p>The method must delegate to the <code>search_all</code> class method of the <code>FixedAddress</code> class located in the <code>infoblox_client.objects</code> module.</p>
-<p>Specifically, <code>get_fixed_addresses_by_mac</code> must:</p>
+<p>The method must delegate the work to the <code>search_all</code> class method of the <code>FixedAddress</code> class, which is found in the <code>infoblox_client.objects</code> module.</p>
+<p>In particular, <code>get_fixed_addresses_by_mac</code> must:</p>
 <ol>
 <li>
-<p>Call <code>FixedAddress.search_all</code>, passing:</p>
+<p>Invoke <code>FixedAddress.search_all</code>, passing:</p>
 <ul>
-<li>The connector instance held by the <code>InfobloxObjectManager</code> (the connector that the manager was constructed with) as the first positional argument.</li>
-<li><code>network_view</code> as a keyword argument named <code>network_view</code>, set to the value passed into the method.</li>
-<li><code>mac</code> as a keyword argument named <code>mac</code>, set to the value passed into the method.</li>
+<li>The connector instance that the <code>InfobloxObjectManager</code> holds (that is, the connector with which the manager was constructed) as the first positional argument.</li>
+<li><code>network_view</code> as a keyword argument named <code>network_view</code>, assigned the value passed into the method.</li>
+<li><code>mac</code> as a keyword argument named <code>mac</code>, assigned the value passed into the method.</li>
 </ul>
-<p>This call must occur exactly once, with exactly those arguments.</p>
+<p>This call must happen exactly once, with exactly those arguments.</p>
 </li>
 <li>
-<p>Return the value produced by <code>FixedAddress.search_all</code> directly, unmodified.</p>
+<p>Return the value that <code>FixedAddress.search_all</code> produces, directly and unmodified.</p>
 </li>
 </ol>
 <h5>Notes</h5>
 <ul>
-<li>The <code>InfobloxObjectManager</code> is constructed with a connector object, which the new method must reuse when invoking <code>FixedAddress.search_all</code>.</li>
-<li>No filtering, transformation, or additional processing of the result is required beyond returning it as-is.</li>
+<li>The <code>InfobloxObjectManager</code> is constructed with a connector object, and the new method must reuse that connector when invoking <code>FixedAddress.search_all</code>.</li>
+<li>Beyond returning the result as-is, no filtering, transformation, or additional processing of it is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add a new public method find_host_records_by_mac to the InfobloxObjectManager class located in the object manager module (importable as om, i.e.</span>
-        <span class="spec-meta muted">345 words · source specification
+        <span class="spec-title">Introduce a new public method, find_host_records_by_mac, on the InfobloxObjectManager class, which resides in the object manager module (importable as om, i.e.</span>
+        <span class="spec-meta muted">368 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h5>Objective</h5>
-<p>Add a new public method <code>find_host_records_by_mac</code> to the <code>InfobloxObjectManager</code> class located in the object manager module (importable as <code>om</code>, i.e. the module containing <code>InfobloxObjectManager</code>).</p>
+<p>Introduce a new public method, <code>find_host_records_by_mac</code>, on the <code>InfobloxObjectManager</code> class, which resides in the object manager module (importable as <code>om</code>, i.e. the module that contains <code>InfobloxObjectManager</code>).</p>
 <h5>API to Implement</h5>
 <pre><code class="language-python">class InfobloxObjectManager:
     def find_host_records_by_mac(self, dns_view, mac, network_view):
@@ -1250,66 +1252,67 @@ assert conn.max_retries == 3
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>dns_view</code> — a DNS view name (string)</li>
+<li><code>dns_view</code> — the name of a DNS view (string)</li>
 <li><code>mac</code> — a MAC address (string)</li>
-<li><code>network_view</code> — a network view name (string)</li>
+<li><code>network_view</code> — the name of a network view (string)</li>
 </ul>
-<p>The <code>InfobloxObjectManager</code> is constructed with a single argument, a <code>connector</code> object. The connector exposes a method <code>get_object(obj_type, query_dict, extattrs=None, force_proxy=..., return_fields=..., max_results=None)</code>.</p>
+<p>A single argument, a <code>connector</code> object, is passed to the constructor of <code>InfobloxObjectManager</code>. The connector exposes a method named <code>get_object(obj_type, query_dict, extattrs=None, force_proxy=..., return_fields=..., max_results=None)</code>.</p>
 <h5>Required Behavior</h5>
-<p>When <code>find_host_records_by_mac(dns_view, mac, network_view)</code> is called, the method must perform the following sequence of connector queries, in this exact order:</p>
+<p>When <code>find_host_records_by_mac(dns_view, mac, network_view)</code> is called, the method must carry out the following sequence of connector queries, in this exact order:</p>
 <ol>
 <li>
-<p><strong>Query for IPv4 host records matching the MAC.</strong>
+<p><strong>Query for IPv4 host records that match the MAC.</strong>
 Call <code>connector.get_object</code> with:</p>
 <ul>
 <li>object type: <code>'record:host'</code></li>
 <li>query dictionary: <code>{'view': dns_view, 'mac': mac, 'network_view': network_view}</code></li>
-<li><code>extattrs=None</code>, <code>max_results=None</code> (values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
+<li><code>extattrs=None</code>, <code>max_results=None</code> (the values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
 </ul>
 </li>
 <li>
-<p><strong>Query for IPv6 host address records matching the MAC (interpreted as a DUID).</strong>
+<p><strong>Query for IPv6 host address records that match the MAC (interpreted as a DUID).</strong>
 Call <code>connector.get_object</code> with:</p>
 <ul>
 <li>object type: <code>'record:host_ipv6addr'</code></li>
 <li>query dictionary: <code>{'network_view': network_view, 'duid': mac}</code></li>
-<li><code>extattrs=None</code>, <code>max_results=None</code> (values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
+<li><code>extattrs=None</code>, <code>max_results=None</code> (the values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
 </ul>
-<p>This query returns a list of matching records. Each returned record is a dictionary containing a <code>'host'</code> key whose value is the host name of the associated host record.</p>
+<p>What this query returns is a list of matching records. Every returned record is a dictionary that contains a <code>'host'</code> key whose value is the host name of the associated host record.</p>
 </li>
 <li>
-<p><strong>For each record returned by query (2), query for the corresponding host record by name.</strong>
-For each returned IPv6 address record, extract the host name from its <code>'host'</code> key and call <code>connector.get_object</code> with:</p>
+<p><strong>For every record returned by query (2), query for the corresponding host record by name.</strong>
+For each IPv6 address record that was returned, take the host name from its <code>'host'</code> key and call <code>connector.get_object</code> with:</p>
 <ul>
 <li>object type: <code>'record:host'</code></li>
 <li>query dictionary: <code>{'name': &lt;host name&gt;, 'network_view': network_view, 'view': dns_view}</code></li>
-<li><code>extattrs=None</code>, <code>max_results=None</code> (values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
+<li><code>extattrs=None</code>, <code>max_results=None</code> (the values of <code>force_proxy</code> and <code>return_fields</code> are unconstrained)</li>
 </ul>
 </li>
 </ol>
 <h5>Notes</h5>
 <ul>
-<li>All three query steps must be executed on every call (steps 1 and 2 always run; step 3 runs once per record returned by step 2).</li>
-<li>The ordering of the <code>get_object</code> calls must be: the IPv4 host query first, then the IPv6-by-DUID query, then the per-host name lookups.</li>
-<li>The keys of the query dictionaries must match exactly as specified above.</li>
+<li>On every call, all three query steps must be executed (steps 1 and 2 always run; step 3 runs once for each record returned by step 2).</li>
+<li>The <code>get_object</code> calls must happen in the following order: the IPv4 host query first, then the IPv6-by-DUID query, then the per-host name lookups.</li>
+<li>The keys of the query dictionaries must match exactly what is specified above.</li>
 </ul>
 <h5>Version</h5>
-<p>Update the package version to <code>0.4.10</code>.</p>
+<p>Change the package version to <code>0.4.10</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">The infoblox_client library provides an object-oriented interface to Infoblox WAPI DNS records.</span>
-        <span class="spec-meta muted">602 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The infoblox_client library offers an object-oriented interface to Infoblox WAPI DNS records.</span>
+        <span class="spec-meta muted">642 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>The <code>infoblox_client</code> library provides an object-oriented interface to Infoblox WAPI DNS records. This task changes the search criteria used to locate IPv4 PTR (<code>record:ptr</code>) records while preserving the existing data written when a PTR record is created or updated.</p>
-<p>A PTR record's target name (<code>ptrdname</code>) must not constrain the PTR lookups covered by this task. Those lookups identify an IPv4 PTR record by DNS view and IPv4 address.</p>
-<h4>Required Behavior</h4>
-<h5>Exact IPv4 record search attributes</h5>
-<p>In both the binding/create-or-update flow and the corresponding delete/unbind cleanup flow, searches for the relevant IPv4 records must use these exact search-attribute payloads:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>The <code>infoblox_client</code> library offers an object-oriented interface to Infoblox WAPI DNS records. This task alters the search criteria applied when locating IPv4 PTR (<code>record:ptr</code>) records, preserving the existing data that gets written when a PTR record is created or updated.</p>
+<p>The target name of a PTR record (<code>ptrdname</code>) must not act as a constraint on the PTR lookups covered by this task. Such lookups identify an IPv4 PTR record by DNS view and IPv4 address.</p>
+<h4>Behavior Requirements</h4>
+<h5>Exact search attributes for IPv4 records</h5>
+<p>In both the binding/create-or-update flow and the corresponding delete/unbind cleanup flow, the relevant IPv4 records must be searched for using these exact search-attribute payloads:</p>
 <table>
 <thead>
 <tr>
@@ -1328,75 +1331,75 @@ For each returned IPv6 address record, extract the host name from its <code>'hos
 </tr>
 </tbody>
 </table>
-<p>Here, <code>dns_view</code> and <code>ip</code> are the values supplied to the operation. The word “exact” applies to the search-attribute mapping; normal request arguments such as return fields remain separate. Searches for both object types must continue to pass their applicable return fields.</p>
-<p>The <code>record:ptr</code> search attributes must not include <code>ptrdname</code> or any other additional record field, even when the desired DNS name is available to the operation.</p>
-<h5>Binding through <code>bind_name_with_record_a</code></h5>
-<p>The existing public signature remains unchanged:</p>
+<p><code>dns_view</code> and <code>ip</code> here denote the values supplied to the operation. The term “exact” refers to the search-attribute mapping; ordinary request arguments, such as return fields, stay separate. Searches for both object types must keep passing their applicable return fields.</p>
+<p>Even when the desired DNS name is available to the operation, the <code>record:ptr</code> search attributes must not contain <code>ptrdname</code> or any other additional record field.</p>
+<h5>Binding via <code>bind_name_with_record_a</code></h5>
+<p>The existing public signature is left untouched:</p>
 <pre><code class="language-python">InfobloxObjectManager.bind_name_with_record_a(
     dns_view, ip, name, bind_list, extattrs
 )
 </code></pre>
-<p>When this method processes an IPv4 address and <code>record:ptr</code> is selected in <code>bind_list</code>:</p>
+<p>When an IPv4 address is processed by this method and <code>record:ptr</code> is selected in <code>bind_list</code>:</p>
 <ol>
-<li>The existence lookup performed before creating or updating the PTR record must query <code>record:ptr</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
-<li>The lookup must omit <code>ptrdname</code>. A PTR record at that view and address can therefore be found even if its current target differs from <code>name</code>.</li>
-<li>This restriction applies only to the search payload. <code>ptrdname</code> remains writable PTR record data. The subsequent PTR create or update payload may still include <code>ptrdname</code>, and the requested <code>name</code> must continue to be used as the PTR target where needed to complete the binding.</li>
-<li>Existing create-or-update behavior remains in effect: an absent PTR may be created with the requested target, while a PTR found at the address may be updated rather than treated as absent merely because its target name differs.</li>
+<li>The existence lookup that runs before the PTR record is created or updated must query <code>record:ptr</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
+<li>The lookup must leave out <code>ptrdname</code>. Consequently, a PTR record at that view and address can be found even if its current target differs from <code>name</code>.</li>
+<li>This restriction covers the search payload only. <code>ptrdname</code> continues to be writable PTR record data. The PTR create or update payload that follows may still include <code>ptrdname</code>, and the requested <code>name</code> must continue to be used as the PTR target wherever this is needed to complete the binding.</li>
+<li>The existing create-or-update behavior stays in effect: a PTR that is absent may be created with the requested target, whereas a PTR found at the address may be updated instead of being treated as absent simply because its target name differs.</li>
 </ol>
-<p>If the corresponding IPv4 A record is selected, its pre-create lookup continues to query <code>record:a</code> using exactly <code>view</code> and <code>ipv4addr</code>. Its create or update data may continue to include <code>name</code> and the other existing writable fields.</p>
-<p>For example, binding <code>192.0.2.10</code> to <code>host.example</code> in view <code>default</code> requires these lookup payloads when both record types are selected:</p>
+<p>If the corresponding IPv4 A record is selected, its pre-create lookup keeps querying <code>record:a</code> using exactly <code>view</code> and <code>ipv4addr</code>. Its create or update data may still include <code>name</code> together with the other existing writable fields.</p>
+<p>For instance, binding <code>192.0.2.10</code> to <code>host.example</code> in view <code>default</code> requires the lookup payloads below when both record types are selected:</p>
 <pre><code class="language-text">record:a   -&gt; {'view': 'default', 'ipv4addr': '192.0.2.10'}
 record:ptr -&gt; {'view': 'default', 'ipv4addr': '192.0.2.10'}
 </code></pre>
-<p>The subsequent PTR write may still set <code>ptrdname</code> to <code>host.example</code>.</p>
-<h5>Delete and unbind cleanup</h5>
-<p>When deleting or unbinding a host/A record and cleaning up its associated PTR record:</p>
+<p>The PTR write afterwards may still set <code>ptrdname</code> to <code>host.example</code>.</p>
+<h5>Cleanup on delete and unbind</h5>
+<p>When a host/A record is being deleted or unbound and its associated PTR record is being cleaned up:</p>
 <ul>
-<li>The associated A-record lookup must continue to query <code>record:a</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
-<li>The PTR lookup must query <code>record:ptr</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
-<li><code>ptrdname</code> must not be included in the PTR search attributes.</li>
-<li>Existing behavior after records are found, including associated-record cleanup and deletion, remains unchanged.</li>
+<li>The lookup for the associated A record must continue to query <code>record:a</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
+<li>The lookup on the PTR side must query <code>record:ptr</code> with exactly <code>view</code> and <code>ipv4addr</code>.</li>
+<li><code>ptrdname</code> must not appear in the PTR search attributes.</li>
+<li>Behavior after the records are found, including associated-record cleanup and deletion, stays unchanged.</li>
 </ul>
-<h4>Compatibility and Non-Goals</h4>
+<h4>Compatibility and Non-Objectives</h4>
 <ul>
-<li>Do not change any public method signature.</li>
-<li>Preserve existing <code>bind_list</code> and <code>unbind_list</code> selection behavior, IP-version dispatch, return behavior, extensible-attribute handling, and connector interactions except for the corrected IPv4 PTR search criteria.</li>
-<li>Do not remove <code>ptrdname</code> from PTR creation or update data. Only its use as a search constraint in the covered flows is prohibited.</li>
-<li>Keep the existing WAPI object types: IPv4 forward records use <code>record:a</code>, and reverse records use <code>record:ptr</code>.</li>
-<li>No unrelated DNS record search, creation, update, or deletion behavior is changed.</li>
+<li>Public method signatures must not be changed.</li>
+<li>Except for the corrected IPv4 PTR search criteria, the existing <code>bind_list</code> and <code>unbind_list</code> selection behavior, IP-version dispatch, return behavior, extensible-attribute handling, and connector interactions must be preserved.</li>
+<li><code>ptrdname</code> must not be removed from PTR creation or update data. What is prohibited is only its use as a search constraint in the covered flows.</li>
+<li>The existing WAPI object types stay in place: IPv4 forward records use <code>record:a</code>, and reverse records use <code>record:ptr</code>.</li>
+<li>No unrelated DNS record search, creation, update, or deletion behavior is modified.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working in a Python library that provides object-oriented wrappers around Infoblox WAPI (WebAPI) records.</span>
-        <span class="spec-meta muted">456 words · source specification
+        <span class="spec-title">This task takes place in a Python library that wraps Infoblox WAPI (WebAPI) records in object-oriented classes.</span>
+        <span class="spec-meta muted">528 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>ttl</code> field support to Host Records</h3>
-<h4>Overview</h4>
-<p>You are working in a Python library that provides object-oriented wrappers around Infoblox WAPI (WebAPI) records. This task requires adding support for a <code>ttl</code> field on host record objects so that a caller-supplied TTL value is passed through to the underlying object creation request.</p>
-<h4>Existing Behavior (context)</h4>
-<p>The library exposes objects under the <code>objects</code> module, including:</p>
+      <div class="spec-body"><h3>Task: Support a <code>ttl</code> field on Host Records</h3>
+<h4>Summary</h4>
+<p>This task takes place in a Python library that wraps Infoblox WAPI (WebAPI) records in object-oriented classes. What the task requires is that host record objects support a <code>ttl</code> field, with a TTL value supplied by the caller being passed through to the request that creates the underlying object.</p>
+<h4>How the Library Behaves Now (context)</h4>
+<p>The objects this library exposes live under the <code>objects</code> module; among them:</p>
 <ul>
-<li><code>objects.IP</code> — a factory-style class with a class method <code>create(...)</code> that returns a concrete IP instance (e.g. <code>objects.IPv4</code>) based on the supplied arguments.</li>
-<li><code>objects.HostRecord</code> — a factory-style class with a class method <code>create(connector, **kwargs)</code> that returns a concrete host record instance (e.g. <code>objects.HostRecordV4</code>).</li>
+<li><code>objects.IP</code> — a factory-style class; its class method <code>create(...)</code> returns a concrete IP instance (e.g. <code>objects.IPv4</code>), the choice depending on the arguments supplied.</li>
+<li><code>objects.HostRecord</code> — factory-style as well; its class method <code>create(connector, **kwargs)</code> returns a concrete host record instance (e.g. <code>objects.HostRecordV4</code>).</li>
 </ul>
-<p><code>objects.IP.create(ip=..., mac=...)</code> builds an IP object. When given an IPv4 address, it returns an <code>objects.IPv4</code> instance carrying the given <code>ip</code> and <code>mac</code>.</p>
-<p><code>objects.HostRecord.create(...)</code> collects the supplied fields, chooses the correct concrete host record subclass based on the IP version of the supplied addresses, and invokes the connector's <code>create_object(...)</code> method to persist the record. When called with IPv4 addresses, it returns an <code>objects.HostRecordV4</code> instance.</p>
-<p>The connector's <code>create_object</code> method is called with three positional arguments:</p>
+<p>An IP object gets built when <code>objects.IP.create(ip=..., mac=...)</code> runs. If the address handed to it is IPv4, what it returns is an <code>objects.IPv4</code> instance that carries the <code>ip</code> and <code>mac</code> that were passed in.</p>
+<p>The supplied fields are gathered by <code>objects.HostRecord.create(...)</code>, which picks the correct concrete host record subclass depending on the IP version of the addresses supplied and then invokes the connector's <code>create_object(...)</code> method so that the record is persisted. When the call receives IPv4 addresses, an <code>objects.HostRecordV4</code> instance is what it returns.</p>
+<p>A call to the connector's <code>create_object</code> method takes three positional arguments:</p>
 <ol>
-<li>The WAPI object type string (<code>'record:host'</code> for host records).</li>
-<li>A dictionary of the fields to write for the new object.</li>
-<li>A list of return-field names.</li>
+<li>A string naming the WAPI object type (<code>'record:host'</code> in the host-record case).</li>
+<li>A dictionary with the fields to write for the new object.</li>
+<li>A list of the names of the return fields.</li>
 </ol>
-<p>IP addresses supplied via the <code>ip=[...]</code> argument are serialized into the payload under the <code>ipv4addrs</code> key (for IPv4), as a list of dictionaries containing <code>ipv4addr</code> and <code>mac</code>.</p>
-<h4>Required Change</h4>
-<p>Add <code>ttl</code> as a supported, writeable field on host records.</p>
-<p>When <code>objects.HostRecord.create(...)</code> is called with a <code>ttl</code> keyword argument, the value of <code>ttl</code> must be included in the field dictionary passed to <code>create_object</code> under the key <code>ttl</code>, with the exact value provided by the caller.</p>
-<h4>Concrete Expected Behavior</h4>
-<p>Given:</p>
+<p>Serialization puts the IP addresses passed in through the <code>ip=[...]</code> argument into the payload beneath the <code>ipv4addrs</code> key (for IPv4); the result is a list of dictionaries holding <code>ipv4addr</code> and <code>mac</code>.</p>
+<h4>Change to Implement</h4>
+<p>Give host records a <code>ttl</code> field that is supported and writeable.</p>
+<p>If a call to <code>objects.HostRecord.create(...)</code> includes a <code>ttl</code> keyword argument, the field dictionary handed to <code>create_object</code> must include the value of <code>ttl</code> under the key <code>ttl</code>, that value being exactly the one provided by the caller.</p>
+<h4>Expected Behavior in Concrete Terms</h4>
+<p>Starting point:</p>
 <pre><code class="language-python">ip = objects.IP.create(ip='22.0.0.2', mac='fa:16:3e:29:87:70')
 
 host_record = objects.HostRecord.create(
@@ -1407,12 +1410,12 @@ host_record = objects.HostRecord.create(
 )
 </code></pre>
 <ul>
-<li><code>objects.IP.create(ip='22.0.0.2', mac='fa:16:3e:29:87:70')</code> must return an <code>objects.IPv4</code> instance.</li>
-<li><code>objects.HostRecord.create(...)</code> must return an <code>objects.HostRecordV4</code> instance.</li>
-<li>The connector's <code>create_object</code> must be called exactly once with these three positional arguments:
+<li>What <code>objects.IP.create(ip='22.0.0.2', mac='fa:16:3e:29:87:70')</code> must return is an <code>objects.IPv4</code> instance.</li>
+<li>An instance of <code>objects.HostRecordV4</code> is what <code>objects.HostRecord.create(...)</code> must return.</li>
+<li>Exactly one call to the connector's <code>create_object</code> must be made, using these three positional arguments:
 <ol>
 <li><code>'record:host'</code></li>
-<li>The dictionary:<pre><code class="language-python">{
+<li>This dictionary:<pre><code class="language-python">{
     'ttl': 42,
     'ipv4addrs': [
         {'mac': 'fa:16:3e:29:87:70', 'ipv4addr': '22.0.0.2'}
@@ -1425,76 +1428,76 @@ host_record = objects.HostRecord.create(
 </ol>
 </li>
 </ul>
-<p>The key requirement introduced by this task is that <code>ttl=42</code> appears in the field dictionary as <code>'ttl': 42</code>. The other keys (<code>ipv4addrs</code>, <code>view</code>) and the return-fields list (<code>['ipv4addrs', 'extattrs']</code>) must remain as shown, unaffected by the addition of <code>ttl</code>.</p>
+<p>This task brings with it one key requirement: <code>ttl=42</code> shows up in the field dictionary in the form <code>'ttl': 42</code>. Apart from that, the other keys (<code>ipv4addrs</code>, <code>view</code>) together with the return-fields list (<code>['ipv4addrs', 'extattrs']</code>) must remain just as displayed, with the addition of <code>ttl</code> leaving them unaffected.</p>
 <h4>Public API Surface (must remain importable/callable)</h4>
 <ul>
-<li><code>objects.IP.create(ip, mac)</code> → returns <code>objects.IPv4</code> for an IPv4 address.</li>
-<li><code>objects.IPv4</code> — concrete IPv4 class.</li>
-<li><code>objects.HostRecord.create(connector, **kwargs)</code> → returns <code>objects.HostRecordV4</code> when given IPv4 addresses.</li>
-<li><code>objects.HostRecordV4</code> — concrete IPv4 host record class.</li>
+<li><code>objects.IP.create(ip, mac)</code> → returns <code>objects.IPv4</code> when the address is IPv4.</li>
+<li><code>objects.IPv4</code> — the concrete class for IPv4.</li>
+<li><code>objects.HostRecord.create(connector, **kwargs)</code> → returns <code>objects.HostRecordV4</code> if the addresses supplied are IPv4.</li>
+<li><code>objects.HostRecordV4</code> — the concrete host record class for IPv4.</li>
 </ul>
-<p>The <code>ttl</code> keyword must be accepted by <code>HostRecord.create(...)</code> and flow into the <code>create_object</code> payload as described.</p>
+<p><code>HostRecord.create(...)</code> must accept the <code>ttl</code> keyword, and that keyword must flow into the <code>create_object</code> payload as described.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">URL Encoding for Query Parameters in Infoblox Connector</span>
-        <span class="spec-meta muted">436 words · source specification
+        <span class="spec-title">Query-Parameter URL Encoding in the Infoblox Connector</span>
+        <span class="spec-meta muted">493 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-none" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: URL Encoding for Query Parameters in Infoblox Connector</h3>
-<h4>Overview</h4>
-<p>The <code>Connector</code> class (in the <code>infoblox_client.connector</code> module) constructs WAPI request URLs from a base URL, an object type, and a set of query parameters that may include ordinary query options and &quot;extensible attribute&quot; search parameters. The URL construction currently emits query parameter names and values without proper URL encoding. You must ensure that query parameters are properly URL encoded when the request URL is built.</p>
-<h4>Required Behavior</h4>
-<p>When building a request URL, the query string portion (everything after the <code>?</code>) must be produced using standard <code>application/x-www-form-urlencoded</code> encoding of parameter names and values. This means:</p>
+      <div class="spec-body"><h3>Task Specification: Query-Parameter URL Encoding in the Infoblox Connector</h3>
+<h4>Summary</h4>
+<p>Within the <code>infoblox_client.connector</code> module sits the <code>Connector</code> class, which puts WAPI request URLs together; the inputs are a base URL, an object type, and a set of query parameters, and that set may include ordinary query options and &quot;extensible attribute&quot; search parameters. As things stand, the URL construction emits the names and the values of query parameters without applying proper URL encoding. You must ensure that the query parameters end up properly URL encoded when the request URL is put together.</p>
+<h4>Behavior Requirements</h4>
+<p>Whenever a request URL gets built, the query string portion (everything after the <code>?</code>) must be generated by applying standard <code>application/x-www-form-urlencoded</code> encoding to the parameter names and their values. Specifically:</p>
 <ul>
-<li>Special characters in parameter <strong>names</strong> must be percent-encoded. In particular:
+<li>If parameter <strong>names</strong> contain special characters, those characters must be percent-encoded. Namely:
 <ul>
-<li>A leading <code>*</code> (used to prefix extensible-attribute search keys) must be encoded as <code>%2A</code>.</li>
+<li>A leading <code>*</code> (the prefix attached to extensible-attribute search keys) must be encoded as <code>%2A</code>.</li>
 <li>A space character must be encoded as <code>+</code>.</li>
 </ul>
 </li>
-<li>Multiple parameters are joined with <code>&amp;</code>, and each name/value pair is joined with <code>=</code>.</li>
+<li><code>&amp;</code> joins multiple parameters, while <code>=</code> joins each name/value pair.</li>
 </ul>
-<h5>Concrete example</h5>
-<p>Given a base WAPI URL of <code>https://infoblox.example.org/wapi/v1.1</code>, an object type of <code>network</code>, and:</p>
+<h5>Worked example</h5>
+<p>Suppose the base WAPI URL is <code>https://infoblox.example.org/wapi/v1.1</code> and the object type is <code>network</code>. Combine these with:</p>
 <ul>
-<li>An extensible-attribute search parameter with key <code>*Subnet ID</code> and value <code>fake_subnet_id</code>, and</li>
-<li>An additional query parameter <code>ip</code> with value <code>0.0.0.0</code></li>
+<li>an extensible-attribute search parameter, with <code>*Subnet ID</code> as its key and <code>fake_subnet_id</code> as its value, and</li>
+<li>an additional query parameter, <code>ip</code>, carrying the value <code>0.0.0.0</code></li>
 </ul>
-<p>the resulting URL must be:</p>
+<p>The URL that must be produced is:</p>
 <pre><code>https://infoblox.example.org/wapi/v1.1/network?%2ASubnet+ID=fake_subnet_id&amp;ip=0.0.0.0
 </code></pre>
-<p>Similarly, combining the <code>*Subnet ID=fake_subnet_id</code> extensible attribute with:</p>
+<p>In the same way, when the <code>*Subnet ID=fake_subnet_id</code> extensible attribute is combined with:</p>
 <ul>
-<li>a query parameter <code>some_option=some_value</code> must yield:<pre><code>https://infoblox.example.org/wapi/v1.1/network?%2ASubnet+ID=fake_subnet_id&amp;some_option=some_value
+<li>a <code>some_option=some_value</code> query parameter must yield:<pre><code>https://infoblox.example.org/wapi/v1.1/network?%2ASubnet+ID=fake_subnet_id&amp;some_option=some_value
 </code></pre>
 </li>
-<li>the force-proxy flag (which adds <code>_proxy_search=GM</code>) must yield:<pre><code>https://infoblox.example.org/wapi/v1.1/network?%2ASubnet+ID=fake_subnet_id&amp;_proxy_search=GM
+<li>the force-proxy flag (it adds <code>_proxy_search=GM</code>) must yield:<pre><code>https://infoblox.example.org/wapi/v1.1/network?%2ASubnet+ID=fake_subnet_id&amp;_proxy_search=GM
 </code></pre>
 </li>
 </ul>
-<h4>Public API Surface</h4>
-<p>The following must remain importable and callable with these signatures/behaviors so existing callers continue to work:</p>
+<h4>Public API</h4>
+<p>The items listed below must stay importable and callable with these signatures/behaviors, so that existing callers keep working:</p>
 <ul>
 <li>
-<p><code>Connector.get_object(self, objtype, payload=None, return_fields=None, extattrs=None, force_proxy=False, ...)</code> — retrieves objects of the given type. When invoked with an object type, a payload/query mapping, and an <code>extattrs</code> mapping, it must issue an HTTP GET against the encoded URL described above, passing the connector's default headers and configured HTTP request timeout.</p>
+<p><code>Connector.get_object(self, objtype, payload=None, return_fields=None, extattrs=None, force_proxy=False, ...)</code> — fetches objects of the type supplied to it. On invocation with an object type, a payload/query mapping, and an <code>extattrs</code> mapping, an HTTP GET must be issued by the method against the encoded URL laid out above, passing the connector's default headers and the configured HTTP request timeout.</p>
 </li>
 <li>
-<p><code>Connector._construct_url(self, relative_path, query_params=None, extattrs=None, force_proxy=False)</code> — returns the fully constructed request URL string with the query string encoded as described above.</p>
+<p><code>Connector._construct_url(self, relative_path, query_params=None, extattrs=None, force_proxy=False)</code> — returns the request URL in fully constructed form, as a string, with the query string encoded in the manner described above.</p>
 </li>
 </ul>
-<h5>Parameter semantics used by URL construction</h5>
+<h5>Parameter Semantics for URL Construction</h5>
 <ul>
-<li><code>query_params</code>: a mapping of ordinary query option names to values.</li>
-<li><code>extattrs</code>: a mapping of extensible-attribute names to objects each carrying a <code>value</code>; each entry contributes a query parameter whose name is the attribute name prefixed with <code>*</code> and whose value is that attribute's value.</li>
-<li><code>force_proxy</code>: when true, adds a <code>_proxy_search=GM</code> query parameter.</li>
+<li><code>query_params</code>: maps ordinary query option names to their values.</li>
+<li><code>extattrs</code>: maps extensible-attribute names to objects that each carry a <code>value</code>; out of each entry comes a query parameter — its name is the attribute name with <code>*</code> prepended, and its value is that attribute's value.</li>
+<li><code>force_proxy</code>: when true, this causes a <code>_proxy_search=GM</code> query parameter to be added.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>The ordering of the produced query parameters must place extensible-attribute parameters before ordinary query parameters / proxy flags, matching the examples above.</li>
-<li>Only the encoding behavior of the query string is changing; the base URL, path segment (<code>/network</code>), and overall structure remain the same.</li>
+<li>The query parameters produced must be ordered such that extensible-attribute parameters appear before ordinary query parameters / proxy flags, in line with the examples above.</li>
+<li>The change touches only the encoding behavior of the query string; the base URL, the path segment (<code>/network</code>), and the overall structure remain as they were.</li>
 </ul>
 </div>
     </details>

@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/nautobot/pynautobot/compare/fbe152cbe4c2334cebbb6d7a46a238b455c84e60...ff3ee55146ac03566768c9437851951048ad1a04" target="_blank" rel="noopener" class="mono">fbe152cbe4 … ff3ee55146</a> · 118 commits by 11 authors over 16 mo (2018-07-03 to 2019-11-11)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 51 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>2,216 lines of code in 131 files when the chain starts · over the 20 requests the developers added 1,136 and removed 735 lines of code, plus 1,776 lines of tests (733 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.0k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 16 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>9.9k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 16 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,49 +144,49 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Handle Selection-Type Custom Fields in Record Serialization</span>
-        <span class="spec-meta muted">666 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Handling Selection-Type Custom Fields in Record Serialization</span>
+        <span class="spec-meta muted">711 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Handle Selection-Type Custom Fields in Record Serialization</h3>
+      <div class="spec-body"><h3>Task Specification: Handling Selection-Type Custom Fields in Record Serialization</h3>
 <h4>Background</h4>
-<p>API records are represented by record objects, such as those returned by <code>getattr(nb, &lt;endpoint_name&gt;).get(&lt;id&gt;)</code>. These objects expose a mutable <code>custom_fields</code> dictionary and a <code>serialize()</code> method that produces a plain dictionary suitable for sending back to the API.</p>
-<p>Custom fields may contain simple scalar values, such as strings or numbers, or selection-type values. A selection-type value is returned by the API as a dictionary containing both the selected value and its human-readable label:</p>
+<p>API records are represented by record objects — for example, the objects returned by <code>getattr(nb, &lt;endpoint_name&gt;).get(&lt;id&gt;)</code>. Such objects expose a mutable <code>custom_fields</code> dictionary together with a <code>serialize()</code> method that produces a plain dictionary suitable for sending back to the API.</p>
+<p>Custom fields may hold simple scalar values, such as strings or numbers, or selection-type values. When the API returns a selection-type value, it does so as a dictionary containing both the selected value and its human-readable label:</p>
 <pre><code class="language-python">{
     &quot;value&quot;: &lt;the selected value&gt;,
     &quot;label&quot;: &lt;a human-readable label&gt;
 }
 </code></pre>
-<p>The API's read representation is therefore different from the write representation expected when a record is serialized.</p>
-<h4>Required Behavior</h4>
-<h5>Custom-field representation on records</h5>
-<p>A record populated from an API response must expose its custom fields through its mutable <code>custom_fields</code> dictionary. Entries may include:</p>
+<p>The read representation used by the API therefore differs from the write representation expected when a record is serialized.</p>
+<h4>Behavior Requirements</h4>
+<h5>How custom fields are represented on a record</h5>
+<p>A record populated from an API response must expose its custom fields via its mutable <code>custom_fields</code> dictionary. Entries may include:</p>
 <ul>
-<li>Scalar values, including strings, numbers, and other non-selection values.</li>
-<li>Selection-type dictionaries containing <code>&quot;value&quot;</code> and <code>&quot;label&quot;</code>.</li>
+<li>Scalar values, among them strings, numbers, and other non-selection values.</li>
+<li>Selection-type dictionaries that contain <code>&quot;value&quot;</code> and <code>&quot;label&quot;</code>.</li>
 </ul>
-<p>Callers must continue to be able to modify individual entries directly, for example:</p>
+<p>Callers must remain able to modify individual entries directly, for example:</p>
 <pre><code class="language-python">record.custom_fields[&quot;test_custom&quot;] = &quot;Testing&quot;
 </code></pre>
-<h5>Serialization</h5>
-<p>Calling <code>record.serialize()</code> with no required arguments must return a dictionary containing a <code>&quot;custom_fields&quot;</code> dictionary. Each custom-field entry must be serialized independently as follows:</p>
+<h5>Serializing records</h5>
+<p>Invoking <code>record.serialize()</code> with no required arguments must return a dictionary containing a <code>&quot;custom_fields&quot;</code> dictionary. Every custom-field entry must be serialized independently, as follows:</p>
 <ul>
-<li>A scalar custom-field value must be returned unchanged.</li>
-<li>A selection-type custom-field dictionary containing <code>&quot;value&quot;</code> and <code>&quot;label&quot;</code> must be flattened to the contents of its <code>&quot;value&quot;</code> key. The label and the enclosing selection dictionary must not appear in the serialized custom-field value. This applies even when the selected value is falsy, such as <code>0</code>, <code>False</code>, an empty string, or <code>None</code>.</li>
+<li>A custom-field value that is scalar must be returned unchanged.</li>
+<li>A selection-type custom-field dictionary that contains <code>&quot;value&quot;</code> and <code>&quot;label&quot;</code> must be flattened to the contents of its <code>&quot;value&quot;</code> key. The serialized custom-field value must not contain the label or the enclosing selection dictionary. This holds even when the selected value is falsy, such as <code>0</code>, <code>False</code>, an empty string, or <code>None</code>.</li>
 </ul>
-<p>Flattening is specific to selection-type values inside <code>custom_fields</code>; it must not change existing serialization behavior for unrelated record attributes.</p>
-<h5>Modification detection and idempotent saves</h5>
-<p>Selection-value normalization must be consistent between the record's serialized output and the initial state used by the library to determine whether a record has changed. A record freshly retrieved from the API must be considered unmodified even when its API response contains nested selection-type custom-field dictionaries.</p>
-<p>Consequently:</p>
+<p>Flattening applies only to selection-type values inside <code>custom_fields</code>; it must not change how existing serialization behaves for record attributes unrelated to this change.</p>
+<h5>Detecting modifications and idempotent saves</h5>
+<p>The normalization of selection values must be consistent between the record's serialized output and the initial state the library uses to determine whether a record has changed. Even when its API response contains nested selection-type custom-field dictionaries, a record freshly retrieved from the API must be considered unmodified.</p>
+<p>As a consequence:</p>
 <ul>
-<li>Before any user modification, the record's current serialized state must compare equal to its captured initial state.</li>
-<li>Existing change detection must report an untouched record as unchanged; where <code>_compare()</code> is used for this comparison, it must return <code>True</code>.</li>
-<li>Calling the existing idempotent save flow on such an untouched record must not issue an update merely because serialization flattened a selection value. Its behavior must remain the same as for any other unchanged record.</li>
-<li>A real user change, including assigning a different scalar value to a custom field, must still be detected normally. Selection fields present alongside that changed field must still be flattened in the resulting serialization.</li>
+<li>Before any user modification, the record's current serialized state must compare equal to the initial state captured for it.</li>
+<li>The existing change detection must report an untouched record as unchanged; where <code>_compare()</code> is used for this comparison, it must return <code>True</code>.</li>
+<li>Invoking the existing idempotent save flow on such an untouched record must not issue an update merely because serialization flattened a selection value. Its behavior must stay the same as for any other unchanged record.</li>
+<li>A real user change — including assigning a different scalar value to a custom field — must still be detected normally. Selection fields present alongside that changed field must still be flattened in the serialization that results.</li>
 </ul>
-<p>In short, the nested read representation and flattened write representation must not by themselves create a false modification.</p>
-<h4>Example</h4>
-<p>Given a freshly retrieved record whose <code>custom_fields</code> contains:</p>
+<p>In short, the nested read representation and the flattened write representation must not, by themselves, create a false modification.</p>
+<h4>Worked Example</h4>
+<p>Start from a freshly retrieved record whose <code>custom_fields</code> contains:</p>
 <pre><code class="language-python">{
     &quot;test_custom&quot;: &quot;Hello&quot;,
     &quot;test_selection&quot;: {&quot;value&quot;: 2, &quot;label&quot;: &quot;second&quot;}
@@ -202,223 +202,224 @@ serialized = record.serialize()
     &quot;test_selection&quot;: 2
 }
 </code></pre>
-<p>The assigned plain string remains unchanged, while the selection-type value is represented by its underlying value.</p>
+<p>The plain string that was assigned remains unchanged, while the selection-type value is represented by its underlying value.</p>
 <h4>API Surface and Compatibility</h4>
-<p>Record objects returned by endpoint retrieval must continue to expose:</p>
+<p>Record objects that endpoint retrieval returns must continue to expose:</p>
 <ul>
-<li>A mutable <code>custom_fields</code> dictionary attribute populated from the API response.</li>
-<li>A <code>serialize()</code> method with no required arguments that returns a dictionary containing the normalized <code>&quot;custom_fields&quot;</code> mapping described above.</li>
-<li>Existing modification-detection and save behavior, with selection flattening accounted for consistently.</li>
+<li>A mutable <code>custom_fields</code> dictionary attribute that is populated from the API response.</li>
+<li>A <code>serialize()</code> method taking no required arguments, which returns a dictionary containing the normalized <code>&quot;custom_fields&quot;</code> mapping described above.</li>
+<li>The existing modification-detection and save behavior, with selection flattening taken into account consistently.</li>
 </ul>
-<p>The existing public access pattern remains unchanged: API/app objects expose endpoint attributes, and endpoint objects continue to provide <code>.get(&lt;id&gt;)</code>. This task must not alter endpoint lookup, retrieval, unrelated record serialization, or other existing public behavior.</p>
+<p>The public access pattern that already exists stays the same: API/app objects expose endpoint attributes, and endpoint objects continue to provide <code>.get(&lt;id&gt;)</code>. This task must not alter endpoint lookup, retrieval, record serialization unrelated to this change, or other existing public behavior.</p>
 <h4>Scope</h4>
-<p>The required change is limited to flattening selection-type custom fields from their <code>value</code>/<code>label</code> read representation to their underlying <code>value</code> in serialized output, while preserving scalar custom fields and ensuring that this representational conversion does not make untouched records appear modified.</p>
+<p>The change that is required is limited to flattening selection-type custom fields from their <code>value</code>/<code>label</code> read representation to their underlying <code>value</code> in serialized output, while preserving scalar custom fields and ensuring that this representational conversion does not make untouched records appear modified.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You are working on pynetbox, a Python client library for the NetBox API.</span>
-        <span class="spec-meta muted">458 words · source specification
+        <span class="spec-title">The library you are working on is pynetbox, a Python client library for the NetBox API.</span>
+        <span class="spec-meta muted">512 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>pynetbox</code>, a Python client library for the NetBox API. This task involves fixing a bug in how record objects detect changes to their fields, which affects idempotent save operations for records containing IP network values.</p>
-<h4>Background: Record Save Semantics</h4>
-<p>Record objects (retrieved via endpoint accessors like <code>nb.prefixes.get(1)</code>) expose a <code>save()</code> method. Calling <code>save()</code> must:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The library you are working on is <code>pynetbox</code>, a Python client library for the NetBox API. The task is to fix a bug in how record objects detect changes to their fields; this bug affects idempotent save operations for records containing IP network values.</p>
+<h4>Background: Semantics of Record Saving</h4>
+<p>Record objects (obtained through endpoint accessors such as <code>nb.prefixes.get(1)</code>) expose a <code>save()</code> method. Calling <code>save()</code> must:</p>
 <ul>
-<li>Compare the record's current field values against the values it originally held when fetched from the API.</li>
-<li>If <strong>no fields have changed</strong>, <code>save()</code> must return a falsy value (specifically <code>False</code>) and must NOT perform a meaningful update.</li>
-<li>The change-detection comparison must correctly recognize that an unmodified record is unchanged — i.e., re-serializing the object's current state must produce the same values that were originally received.</li>
+<li>Compare the values currently held by the record's fields against the values the record originally held when it was fetched from the API.</li>
+<li>If <strong>no fields have changed</strong>, <code>save()</code> must return a falsy value (specifically <code>False</code>) and must NOT carry out a meaningful update.</li>
+<li>The comparison used for change detection must correctly recognize that an unmodified record is unchanged — that is, the values produced by re-serializing the object's current state must be the same as the values originally received.</li>
 </ul>
-<h4>The Bug to Fix</h4>
-<p>Some record fields represent IP networks and are internally held as <code>netaddr.IPNetwork</code> objects. When a record's current state is serialized for comparison against its original state, values that are <code>IPNetwork</code> objects were being handled incorrectly: instead of using the object's string representation (which matches the original API value, e.g. <code>&quot;10.1.2.0/24&quot;</code>), some other attribute was being used, so the comparison never matched.</p>
-<p>The required behavior:</p>
+<h4>The Bug That Needs Fixing</h4>
+<p>Some fields of a record represent IP networks and are held internally as <code>netaddr.IPNetwork</code> objects. When the current state of a record is serialized for comparison against its original state, values that are <code>IPNetwork</code> objects were being handled incorrectly: rather than using the object's string representation (which matches the original API value, e.g. <code>&quot;10.1.2.0/24&quot;</code>), some other attribute was being used in its place, so the comparison never matched.</p>
+<p>The behavior that is required:</p>
 <ul>
-<li>When serializing a record's fields for change comparison, any field whose value is a <code>netaddr.IPNetwork</code> object must be represented by its string form (equivalent to <code>str(IPNetwork_instance)</code>), which matches the original API-provided string.</li>
-<li>As a consequence, a record fetched from the API and immediately saved with no modifications must be detected as unchanged, and <code>save()</code> must return <code>False</code>.</li>
+<li>When a record's fields are serialized for change comparison, any field whose value is a <code>netaddr.IPNetwork</code> object must be represented by its string form (equivalent to <code>str(IPNetwork_instance)</code>), which matches the string the API originally provided.</li>
+<li>As a consequence, when a record is fetched from the API and immediately saved with no modifications, it must be detected as unchanged, and <code>save()</code> must return <code>False</code>.</li>
 </ul>
-<h4>Concrete Scenario That Must Work</h4>
-<p>Given a prefix record fetched from the API whose data includes a <code>prefix</code> field with value <code>&quot;10.1.2.0/24&quot;</code>:</p>
+<h4>A Concrete Scenario That Must Work</h4>
+<p>Consider a prefix record fetched from the API whose data includes a <code>prefix</code> field with the value <code>&quot;10.1.2.0/24&quot;</code>:</p>
 <ol>
-<li>Fetch the record (via the prefixes endpoint <code>get</code> by id).</li>
-<li>Call <code>.save()</code> on it without changing any fields.</li>
-<li>The call must return <code>False</code>, indicating nothing was updated because the current serialized state matches the original state.</li>
+<li>Fetch the record (using the prefixes endpoint <code>get</code> by id).</li>
+<li>Call <code>.save()</code> on the record without changing any fields.</li>
+<li>The call must return <code>False</code>, which indicates nothing was updated because the current serialized state matches the original state.</li>
 </ol>
-<h4>HTTP Response Object Contract</h4>
-<p>The library's request handling consumes HTTP response objects. Response objects used for both GET and PUT requests must support:</p>
+<h4>Contract for HTTP Response Objects</h4>
+<p>Request handling in the library consumes HTTP response objects. Response objects that are used for both GET and PUT requests must support:</p>
 <ul>
-<li>A <code>.status_code</code> attribute (integer, e.g. <code>200</code>).</li>
-<li>An <code>.ok</code> attribute (boolean).</li>
-<li>A <code>.content</code> attribute holding the raw response body text.</li>
-<li>A <code>.json()</code> method that parses the response body and returns the corresponding Python object (i.e. <code>json.loads</code> of the body content).</li>
+<li>An attribute <code>.status_code</code> (integer, e.g. <code>200</code>).</li>
+<li>An attribute <code>.ok</code> (boolean).</li>
+<li>An attribute <code>.content</code> that holds the raw response body text.</li>
+<li>A method <code>.json()</code> that parses the response body and returns the corresponding Python object (that is, <code>json.loads</code> of the body content).</li>
 </ul>
-<p>Note: response consumption must rely on <code>.json()</code> (and/or <code>.content</code>) rather than a <code>.text</code> attribute — do not depend on a <code>.text</code> attribute existing on response objects.</p>
+<p>Note: consuming responses must rely on <code>.json()</code> (and/or <code>.content</code>) rather than a <code>.text</code> attribute — do not depend on a <code>.text</code> attribute being present on response objects.</p>
 <h4>Scope</h4>
 <ul>
-<li>The public API surface remains: endpoint accessors returning record objects with a <code>save()</code> method (as in <code>nb.prefixes.get(1).save()</code>).</li>
-<li>Do not change behavior beyond correcting the <code>IPNetwork</code> serialization in change detection and ensuring response objects are consumed via <code>.json()</code>/<code>.content</code> as described.</li>
+<li>The public API surface remains unchanged: endpoint accessors that return record objects with a <code>save()</code> method (as in <code>nb.prefixes.get(1).save()</code>).</li>
+<li>Do not change behavior beyond fixing the <code>IPNetwork</code> serialization in change detection and ensuring that response objects are consumed via <code>.json()</code>/<code>.content</code> as described.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Custom String Representation for Circuit Records</span>
-        <span class="spec-meta muted">253 words · source specification
+        <span class="spec-title">A Custom String Representation for Circuit Records</span>
+        <span class="spec-meta muted">260 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Custom String Representation for Circuit Records</h3>
-<h4>Overview</h4>
-<p>The <code>pynetbox</code> library provides an ORM-style interface to a NetBox API. Records returned from various API endpoints are represented as Python objects. This task requires adding a custom string representation for records returned from the <strong>circuits</strong> endpoint.</p>
-<h4>Required Behavior</h4>
-<p>Records retrieved from the circuits endpoint must produce a string representation equal to the value of the record's <code>cid</code> field.</p>
-<p>Specifically, when a circuit record is fetched (e.g., via <code>nb.circuits.get(1)</code>), calling <code>str()</code> on the resulting object must return the record's <code>cid</code> attribute value as a string.</p>
-<p>For example, if a circuit record has a <code>cid</code> field with the value <code>&quot;123456&quot;</code>, then:</p>
+      <div class="spec-body"><h3>Task Specification: A Custom String Representation for Circuit Records</h3>
+<h4>Summary</h4>
+<p>The <code>pynetbox</code> library offers an ORM-style interface to a NetBox API. The records that the various API endpoints return are represented as Python objects. What this task requires is adding a custom string representation for records returned from the <strong>circuits</strong> endpoint.</p>
+<h4>Behavior Requirements</h4>
+<p>Records obtained from the circuits endpoint must produce a string representation equal to the value of the record's <code>cid</code> field.</p>
+<p>Concretely, when a circuit record has been fetched (e.g., via <code>nb.circuits.get(1)</code>), calling <code>str()</code> on the resulting object must return the record's <code>cid</code> attribute value as a string.</p>
+<p>As an example, take a circuit record whose <code>cid</code> field holds the value <code>&quot;123456&quot;</code>:</p>
 <ul>
 <li><code>str(circuit_record)</code> must equal <code>&quot;123456&quot;</code></li>
 </ul>
-<h4>API Surface</h4>
-<p>The circuits endpoint is accessed through an API object (conventionally instantiated and referred to as <code>nb</code>) via the <code>circuits</code> attribute. The <code>get</code> method on this endpoint accepts a record ID and returns a single circuit record object.</p>
-<p>The circuit record object must define its string representation such that <code>str(obj)</code> yields the <code>cid</code> field value.</p>
-<h4>Data Model Notes</h4>
-<p>A circuit record includes a <code>cid</code> field. This is the field whose value must be surfaced by the record's string representation.</p>
-<h4>Scope Constraints</h4>
+<h4>API Access</h4>
+<p>An API object (conventionally instantiated and referred to as <code>nb</code>) provides access to the circuits endpoint via the <code>circuits</code> attribute. This endpoint's <code>get</code> method accepts a record ID and returns a single circuit record object.</p>
+<p>Such a circuit record object must define its string representation so that <code>str(obj)</code> yields the value of the <code>cid</code> field.</p>
+<h4>Notes on the Data Model</h4>
+<p>A circuit record has a <code>cid</code> field. The record's string representation must surface the value of this field.</p>
+<h4>Constraints on Scope</h4>
 <ul>
-<li>The custom string behavior applies specifically to records from the circuits endpoint. Do not alter the string representation behavior of records from other endpoints.</li>
-<li>Only the string representation needs to reflect the <code>cid</code> value. No other behavioral changes to record fetching, serialization, or saving are required by this task.</li>
+<li>This custom string behavior is specific to records from the circuits endpoint. Do not modify the string representation behavior of records from other endpoints.</li>
+<li>It is only the string representation that needs to reflect the <code>cid</code> value. This task requires no other behavioral changes to record fetching, serialization, or saving.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Fix Prefix Idempotence in Record Serialization</span>
-        <span class="spec-meta muted">503 words · source specification
+        <span class="spec-title">Repair Prefix Idempotence in Record Serialization</span>
+        <span class="spec-meta muted">527 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Fix Prefix Idempotence in Record Serialization</h3>
-<h4>Context</h4>
-<p>You are working on <code>pynetbox</code>, a Python client library for the NetBox API. Records fetched from the API are represented as objects that track their field values, and support a <code>.save()</code> method that issues an HTTP PUT to update the record on the server.</p>
-<p>A record's <code>.save()</code> method must detect whether any fields have actually changed since the record was fetched. If nothing has changed, <code>.save()</code> must not send an update and must report that no change occurred. This is the idempotence guarantee.</p>
-<p>The bug being fixed: fields whose values are <code>netaddr.IPNetwork</code> objects are not compared correctly, causing the change-detection logic to always report a difference even when the value is unchanged. This makes an otherwise-unchanged record report a change and behave as if it needs saving.</p>
+      <div class="spec-body"><h3>Task Specification: Repair Prefix Idempotence in Record Serialization</h3>
+<h4>Background</h4>
+<p>You are working on <code>pynetbox</code>, a Python client library for the NetBox API. The objects used to represent records fetched from the API track their field values and support a <code>.save()</code> method that performs an HTTP PUT to update the record on the server.</p>
+<p>The <code>.save()</code> method of a record must detect whether any of its fields have actually changed since the record was fetched. If nothing has changed, <code>.save()</code> must not send an update and must report that no change occurred. This is the idempotence guarantee.</p>
+<p>The bug being fixed is that fields whose values are <code>netaddr.IPNetwork</code> objects are not compared correctly, so the change-detection logic always reports a difference even when the value is unchanged. Because of this, an otherwise-unchanged record reports a change and behaves as if it needs saving.</p>
 <h4>Required Behavior</h4>
-<h5>Idempotent <code>save()</code> on prefix records</h5>
-<p>When a record (e.g. a prefix object obtained via <code>nb.prefixes.get(...)</code>) is retrieved from the API and then <code>.save()</code> is called immediately without modifying any of its fields:</p>
+<h5>Idempotent <code>save()</code> for prefix records</h5>
+<p>Suppose a record (e.g. a prefix object obtained via <code>nb.prefixes.get(...)</code>) is retrieved from the API and then <code>.save()</code> is called immediately without any of its fields being modified:</p>
 <ul>
-<li><code>.save()</code> MUST return a value that is falsy (specifically <code>False</code>).</li>
-<li>No difference between the record's original state and its current serialized state may be detected.</li>
+<li><code>.save()</code> MUST return a falsy value (specifically <code>False</code>).</li>
+<li>No difference may be detected between the record's original state and its current serialized state.</li>
 </ul>
-<p>This must hold for records whose fields include IP network values (such as a <code>prefix</code> field containing a CIDR string like <code>&quot;10.1.2.0/24&quot;</code>). Internally such fields may be represented as <code>netaddr.IPNetwork</code> instances, but for the purpose of comparing the record's current state against its original fetched state, these values must compare as equal to their original (unchanged) representation. The correct serialized representation of such a field is its string form (e.g. <code>&quot;10.1.2.0/24&quot;</code>), not the numeric <code>.value</code> of the IP network object.</p>
-<h4>Serialization of IP-network-typed fields</h4>
-<p>When a record is serialized (for the purpose of building the payload to compare against the original and/or send in a PUT), any field represented as a <code>netaddr.IPNetwork</code> must be serialized to its CIDR string representation. That is, for a value <code>v</code> that is an <code>IPNetwork</code>, the serialized value is <code>str(v)</code> (e.g. <code>&quot;10.1.2.0/24&quot;</code>), and this serialized string must itself be a valid input to <code>netaddr.IPNetwork(...)</code>.</p>
+<p>For records whose fields include IP network values (such as a <code>prefix</code> field containing a CIDR string like <code>&quot;10.1.2.0/24&quot;</code>), this must hold. Such fields may be represented internally as <code>netaddr.IPNetwork</code> instances, but when the record's current state is compared against its original fetched state, these values must compare as equal to their original (unchanged) representation. For such a field, the correct serialized representation is its string form (e.g. <code>&quot;10.1.2.0/24&quot;</code>), not the numeric <code>.value</code> of the IP network object.</p>
+<h4>Serializing IP-network-typed fields</h4>
+<p>During the serialization of a record (in order to build the payload to compare against the original and/or send in a PUT), any field that is represented as a <code>netaddr.IPNetwork</code> must be serialized to its CIDR string representation. That is, for a value <code>v</code> that is an <code>IPNetwork</code>, the serialized value is <code>str(v)</code> (e.g. <code>&quot;10.1.2.0/24&quot;</code>), and this serialized string must itself be a valid input to <code>netaddr.IPNetwork(...)</code>.</p>
 <h4>Removed Behavior</h4>
-<p>The circuit record type must <strong>not</strong> define a custom <code>__str__</code>/<code>__repr__</code> that returns a circuit's <code>cid</code> value. A circuit record's string representation should follow the default/generic record string representation behavior rather than returning the circuit ID string (e.g. <code>&quot;123456&quot;</code>). Remove any circuit-specific string-representation override.</p>
+<p>A custom <code>__str__</code>/<code>__repr__</code> that returns a circuit's <code>cid</code> value must <strong>not</strong> be defined on the circuit record type. Instead of returning the circuit ID string (e.g. <code>&quot;123456&quot;</code>), a circuit record's string representation should follow the default/generic record string representation behavior. Remove any string-representation override that is circuit-specific.</p>
 <h4>Public API Surface</h4>
-<p>The following must remain importable and callable exactly as described:</p>
+<p>It must remain possible to import and call the following exactly as described:</p>
 <ul>
 <li><code>pynetbox.prefixes.get(id)</code> → returns a prefix record object.</li>
-<li>The prefix record object exposes a <code>.save()</code> method taking no required arguments, returning <code>False</code> when no fields have changed.</li>
-<li>Prefix record serialization must render <code>netaddr.IPNetwork</code> fields as their CIDR string.</li>
+<li>The prefix record object exposes a <code>.save()</code> method that takes no required arguments and returns <code>False</code> when no fields have changed.</li>
+<li>The serialization of a prefix record must render <code>netaddr.IPNetwork</code> fields as their CIDR string.</li>
 </ul>
-<p>(Assume <code>nb</code> is the top-level API entry point object already used to access <code>.prefixes</code> and <code>.circuits</code>.)</p>
+<p>(Assume that <code>nb</code> is the top-level API entry point object that has already been used to access <code>.prefixes</code> and <code>.circuits</code>.)</p>
 <h4>Notes</h4>
 <ul>
-<li>Do not introduce a circuit-specific string representation.</li>
-<li>The change-detection comparison used by <code>.save()</code> must treat an <code>IPNetwork</code> field equal to its unchanged original state, so that unmodified records are recognized as unchanged.</li>
+<li>Do not introduce a string representation that is circuit-specific.</li>
+<li>The comparison used by <code>.save()</code> for change detection must treat an <code>IPNetwork</code> field equal to its unchanged original state, so that unmodified records are recognized as unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Custom String Representation for Circuit Records</span>
-        <span class="spec-meta muted">226 words · source specification
+        <span class="spec-title">Circuit Records with a Custom String Representation</span>
+        <span class="spec-meta muted">238 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Custom String Representation for Circuit Records</h3>
+      <div class="spec-body"><h3>Task Specification: Circuit Records with a Custom String Representation</h3>
 <h4>Overview</h4>
-<p>The pynetbox library models Netbox API objects as record classes. The circuits endpoint returns circuit objects that have a <code>cid</code> (circuit ID) field. You must implement a custom string representation for circuit records so that converting a circuit record to a string yields its circuit ID (<code>cid</code>) value.</p>
-<h4>Required Behavior</h4>
-<p>When a circuit record is retrieved from the circuits endpoint and converted to a string (via <code>str()</code>), the result must be the value of that record's <code>cid</code> attribute.</p>
+<p>In the pynetbox library, Netbox API objects are modeled as record classes. The circuits endpoint returns circuit objects that carry a <code>cid</code> (circuit ID) field. You must implement a custom string representation for circuit records such that converting a circuit record to a string yields its circuit ID (<code>cid</code>) value.</p>
+<h4>Behavior Requirements</h4>
+<p>Whenever a circuit record is retrieved from the circuits endpoint and converted to a string (via <code>str()</code>), the result must be the value of that record's <code>cid</code> attribute.</p>
 <h5>Example</h5>
-<p>Given a circuit record retrieved via:</p>
+<p>Consider a circuit record obtained as follows:</p>
 <pre><code class="language-python">import pynetbox
 nb = pynetbox.api(...)
 circuit = nb.circuits.get(1)
 </code></pre>
-<p>where the underlying circuit object has a <code>cid</code> value of <code>&quot;123456&quot;</code>, the following must hold:</p>
+<p>with the underlying circuit object having <code>&quot;123456&quot;</code> as its <code>cid</code> value, the following must hold:</p>
 <pre><code class="language-python">str(circuit) == &quot;123456&quot;
 </code></pre>
 <h4>API Surface</h4>
 <ul>
-<li>The circuits endpoint must be accessible as <code>nb.circuits</code> on the pynetbox API object, supporting a <code>.get(&lt;id&gt;)</code> method that returns a single circuit record.</li>
-<li>The record object returned for circuits must be a dedicated record type that overrides its string conversion behavior so that <code>str(record)</code> returns the record's <code>cid</code> field value.</li>
+<li>On the pynetbox API object, the circuits endpoint must be accessible as <code>nb.circuits</code>, with support for a <code>.get(&lt;id&gt;)</code> method that returns a single circuit record.</li>
+<li>For circuits, the record object that is returned must be a dedicated record type that overrides its string conversion behavior so that <code>str(record)</code> returns the record's <code>cid</code> field value.</li>
 </ul>
-<h4>Scope Constraints</h4>
+<h4>Constraints on Scope</h4>
 <ul>
-<li>Only the string representation of circuit records is affected. The circuit record must return its <code>cid</code> field value when converted to a string.</li>
-<li>No other endpoints or record types should have their string behavior changed by this task.</li>
+<li>The string representation of circuit records is the only aspect affected. When converted to a string, the circuit record must return its <code>cid</code> field value.</li>
+<li>The string behavior of no other endpoints or record types should be changed by this task.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Circuit Termination String Representation</span>
-        <span class="spec-meta muted">468 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">String Representation of Circuit Terminations</span>
+        <span class="spec-meta muted">500 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Circuit Termination String Representation</h3>
+      <div class="spec-body"><h3>Task Specification: String Representation of Circuit Terminations</h3>
 <h4>Background</h4>
-<p>This codebase is a Python client library for a network management API. It provides record model classes that wrap API responses for resources such as circuit terminations. Circuit termination records do not have a meaningful <code>name</code> attribute, so the generic record string representation does not provide a useful value for them.</p>
-<p>Circuit resources are exposed through the top-level client's <code>circuits</code> application namespace. Circuit terminations are available from the <code>circuit_terminations</code> endpoint within that namespace.</p>
+<p>The codebase in question is a Python client library for a network management API. It supplies record model classes that wrap API responses for resources such as circuit terminations. Circuit termination records have no meaningful <code>name</code> attribute, so the generic record string representation does not give a useful value for them.</p>
+<p>Circuit resources are exposed via the top-level client's <code>circuits</code> application namespace. Within that namespace, circuit terminations are available from the <code>circuit_terminations</code> endpoint.</p>
 <h4>Objective</h4>
-<p>Implement or correct the string representation (<code>__str__</code>) of the circuit termination record model so that a circuit termination is represented by the CID of its associated circuit.</p>
+<p>The string representation (<code>__str__</code>) of the circuit termination record model is to be implemented or corrected such that a circuit termination is represented by the CID of the circuit associated with it.</p>
 <h4>Required Behavior</h4>
-<p>When a circuit termination record's response data contains a nested <code>circuit</code> object with a <code>cid</code> field, calling <code>str(record)</code> must return that <code>cid</code> coerced to a string. In equivalent terms:</p>
+<p>If a circuit termination record's response data contains a nested <code>circuit</code> object with a <code>cid</code> field, then calling <code>str(record)</code> must return that <code>cid</code> coerced to a string. Stated in equivalent terms:</p>
 <pre><code class="language-python">str(record) == str(record.circuit.cid)
 </code></pre>
-<p>The value must come specifically from <code>record.circuit.cid</code>, not from the circuit termination's own <code>id</code>, the nested circuit's database <code>id</code>, or unrelated fields such as the termination side, site, or interface. The result must contain the CID itself without added prefixes, suffixes, or formatting.</p>
-<p>If the CID is already a string, that string is returned. If it is another string-convertible value, such as an integer, its string value is returned.</p>
+<p>That value must come specifically from <code>record.circuit.cid</code>, and not from the circuit termination's own <code>id</code>, the nested circuit's database <code>id</code>, or unrelated fields such as the termination side, site, or interface. The result must contain the CID itself, with no added prefixes, suffixes, or formatting.</p>
+<p>Where the CID is already a string, that string is what is returned. If it is another string-convertible value, such as an integer, its string value is returned.</p>
 <h4>Public API Surface</h4>
-<p>Circuit termination responses must be wrapped by the circuit-termination-specific record model so that records returned by the existing endpoint exhibit the required string behavior. The supported access path is through the <code>circuits</code> application namespace:</p>
+<p>Circuit termination responses must be wrapped by the circuit-termination-specific record model, so that records returned by the existing endpoint exhibit the required string behavior. The access path that is supported runs through the <code>circuits</code> application namespace:</p>
 <pre><code class="language-python">import pynetbox
 
 api = pynetbox.api('http://localhost:8000', version='2.0')
 record = api.circuits.circuit_terminations.get(1)
 value = str(record)
 </code></pre>
-<p>The endpoint chain is therefore:</p>
+<p>Hence the endpoint chain is:</p>
 <pre><code class="language-text">api.circuits.circuit_terminations.get(id)
 </code></pre>
-<p>The <code>.get(id)</code> call continues to return one circuit termination record. A direct top-level <code>api.circuit_terminations</code> endpoint is not part of this requirement and must not be needed for this behavior.</p>
+<p>Calling <code>.get(id)</code> continues to return a single circuit termination record. This requirement does not include a direct top-level <code>api.circuit_terminations</code> endpoint, and such an endpoint must not be needed for this behavior.</p>
 <h4>Data Shape</h4>
-<p>The relevant portion of a circuit termination response has this form:</p>
+<p>Within a circuit termination response, the relevant portion has this form:</p>
 <pre><code class="language-json">{
   &quot;circuit&quot;: {
     &quot;cid&quot;: &quot;123456&quot;
   }
 }
 </code></pre>
-<p>The nested circuit data must remain accessible as <code>record.circuit</code>, with its identifier accessible as <code>record.circuit.cid</code>.</p>
+<p>The nested circuit data must remain accessible as <code>record.circuit</code>, and its identifier must remain accessible as <code>record.circuit.cid</code>.</p>
 <h4>Examples</h4>
-<p>For a string CID:</p>
+<p>With a string CID:</p>
 <pre><code class="language-python">record.circuit.cid == '123456'
 str(record) == '123456'
 </code></pre>
-<p>For a numeric CID:</p>
+<p>With a numeric CID:</p>
 <pre><code class="language-python">record.circuit.cid == 123456
 str(record) == '123456'
 </code></pre>
 <h4>Compatibility and Scope</h4>
 <ul>
-<li>Only the string representation of circuit termination records is affected.</li>
-<li>Preserve the existing behavior of the circuit termination endpoint, including its location beneath the <code>circuits</code> application namespace and its existing retrieval operations.</li>
-<li>Do not change the string representation or other behavior of circuit records or any other record model.</li>
-<li>Do not add or modify unrelated endpoints, methods, or fields.</li>
-<li>No direct top-level alias for the circuit termination endpoint is required.</li>
-<li>Behavior for response data that does not contain the stated nested <code>circuit.cid</code> value is outside this task's scope.</li>
+<li>The only aspect affected is the string representation of circuit termination records.</li>
+<li>The existing behavior of the circuit termination endpoint must be preserved, including its location beneath the <code>circuits</code> application namespace and its existing retrieval operations.</li>
+<li>The string representation and other behavior of circuit records, as well as those of any other record model, must not be changed.</li>
+<li>Unrelated endpoints, methods, or fields must not be added or modified.</li>
+<li>A direct top-level alias for the circuit termination endpoint is not required.</li>
+<li>Behavior in the case of response data that does not contain the stated nested <code>circuit.cid</code> value falls outside this task's scope.</li>
 </ul>
 </div>
     </details>
@@ -426,24 +427,24 @@ str(record) == '123456'
       <summary class="spec-summary">
         <span class="spec-num">07</span>
         <span class="spec-title">pynetbox.api(url)</span>
-        <span class="spec-meta muted">102 words · source specification
+        <span class="spec-meta muted">115 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Preserve dictionary-valued fields on DCIM device records</h4>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Preservation of dictionary-valued fields on DCIM device records</h4>
+<h5>Public API surface</h5>
 <ul>
 <li><code>pynetbox.api(url)</code></li>
 <li><code>api.dcim.devices.get(id)</code></li>
-<li>Returned record type: <code>pynetbox.dcim.Devices</code></li>
-<li>Record attributes:
+<li>Type of the returned record: <code>pynetbox.dcim.Devices</code></li>
+<li>Attributes of the record:
 <ul>
 <li><code>Devices.config_context</code></li>
 <li><code>Devices.custom_fields</code></li>
 </ul>
 </li>
 </ul>
-<h5>Required behavior</h5>
-<p>When <code>api.dcim.devices.get(id)</code> processes a device response containing:</p>
+<h5>Behavior that is required</h5>
+<p>When a device response containing the following is processed by <code>api.dcim.devices.get(id)</code>:</p>
 <pre><code class="language-json">{
   &quot;config_context&quot;: {
     &quot;test_key&quot;: &quot;test_val&quot;
@@ -451,41 +452,41 @@ str(record) == '123456'
   &quot;custom_fields&quot;: {}
 }
 </code></pre>
-<p>the returned <code>pynetbox.dcim.Devices</code> record must expose both <code>config_context</code> and <code>custom_fields</code> as dictionary objects. In particular:</p>
+<p>the <code>pynetbox.dcim.Devices</code> record that is returned must expose both <code>config_context</code> and <code>custom_fields</code> as dictionary objects. Specifically:</p>
 <ul>
-<li><code>isinstance(device.config_context, dict)</code> must be true for a non-empty JSON object.</li>
-<li><code>isinstance(device.custom_fields, dict)</code> must be true for an empty JSON object.</li>
+<li>For a non-empty JSON object, <code>isinstance(device.config_context, dict)</code> must be true.</li>
+<li>For an empty JSON object, <code>isinstance(device.custom_fields, dict)</code> must be true.</li>
 </ul>
-<p>These fields must not be converted into the nested record-object type used for other dictionary-valued response fields.</p>
+<p>These fields must not be converted into the nested record-object type that other dictionary-valued response fields use.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Update the public class Record in pynetbox.lib.response.</span>
-        <span class="spec-meta muted">132 words · source specification
+        <span class="spec-title">The public class Record in pynetbox.lib.response must be updated.</span>
+        <span class="spec-meta muted">153 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public class <code>Record</code> in <code>pynetbox.lib.response</code>.</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>The public class <code>Record</code> in <code>pynetbox.lib.response</code> must be updated.</p>
 <h5>Public API</h5>
 <ul>
 <li><code>Record(values)</code>
 <ul>
-<li>Must accept a mapping as its positional input.</li>
+<li>It must accept a mapping as the input passed to it positionally.</li>
 </ul>
 </li>
 <li><code>Record.serialize()</code>
 <ul>
-<li>Takes no required arguments.</li>
-<li>Returns a mapping containing the record’s serialized fields.</li>
+<li>It has no required arguments.</li>
+<li>It returns a mapping that contains the record’s serialized fields.</li>
 </ul>
 </li>
 </ul>
-<h5>List serialization behavior</h5>
+<h5>Serialization behavior for lists</h5>
 <ol>
 <li>
-<p>When an input field is a list of record-like mappings containing <code>id</code> fields, <code>serialize()</code> must return that field as a list of those IDs, preserving order.</p>
+<p>If an input field is a list in which every element is a record-like mapping that contains an <code>id</code> field, <code>serialize()</code> must return that field as a list of those IDs, with the order preserved.</p>
 <p>Example:</p>
 <pre><code class="language-python">record = Record({
     &quot;id&quot;: 123,
@@ -499,7 +500,7 @@ record.serialize()[&quot;tagged_vlans&quot;] == [1, 2]
 </code></pre>
 </li>
 <li>
-<p>When an input field is already a list of integers, <code>serialize()</code> must preserve it unchanged rather than treating its elements as records.</p>
+<p>If an input field is already a list whose elements are integers, <code>serialize()</code> must preserve it unchanged instead of treating its elements as records.</p>
 <p>Example:</p>
 <pre><code class="language-python">record = Record({
     &quot;id&quot;: 123,
@@ -515,89 +516,90 @@ record.serialize()[&quot;units&quot;] == [12]
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Expose a rack&#39;s unit occupancy through the rack record returned by the DCIM application.</span>
-        <span class="spec-meta muted">432 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Expose a rack&#39;s unit occupancy by way of the rack record returned by the DCIM application.</span>
+        <span class="spec-meta muted">464 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Rack unit detail access</h4>
-<p>Expose a rack's unit occupancy through the rack record returned by the DCIM application.</p>
-<h4>Public API</h4>
-<p>Rack lookup is application-scoped:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Access to rack unit details</h4>
+<p>Expose a rack's unit occupancy by way of the rack record returned by the DCIM application.</p>
+<h4>Public API surface</h4>
+<p>Rack lookups are scoped to the application:</p>
 <pre><code class="language-python">api = pynetbox.api(&quot;http://localhost:8000&quot;, version=&quot;2.0&quot;)
 rack = api.dcim.racks.get(1)
 units = rack.units.list()
 </code></pre>
-<p>When <code>nb</code> is bound to the DCIM application, the equivalent form is:</p>
+<p>With <code>nb</code> bound to the DCIM application, the equivalent form is:</p>
 <pre><code class="language-python">nb = api.dcim
 rack = nb.racks.get(1)
 units = rack.units.list()
 </code></pre>
-<p>The supported public surfaces for this behavior are:</p>
+<p>The public surfaces supported for this behavior are:</p>
 <ul>
-<li><code>api.dcim.racks.get(id)</code>, or equivalently <code>nb.racks.get(id)</code> when <code>nb</code> denotes <code>api.dcim</code></li>
-<li>The returned rack record's <code>units</code> attribute</li>
+<li><code>api.dcim.racks.get(id)</code>, or equivalently <code>nb.racks.get(id)</code> when <code>nb</code> stands for <code>api.dcim</code></li>
+<li>The <code>units</code> attribute of the returned rack record</li>
 <li><code>rack.units.list()</code> called with no arguments</li>
 <li><code>pynetbox.dcim.Devices</code>, which must remain importable as a class</li>
 </ul>
-<p><code>racks</code> is not a direct attribute of the root API client. This feature must not require or introduce an <code>api.racks</code> alias. The <code>units</code> attribute must be available after a normal rack lookup even if the rack response does not itself contain a field named <code>units</code>.</p>
-<h4>Required behavior</h4>
+<p><code>racks</code> does not exist as a direct attribute on the root API client. An <code>api.racks</code> alias must not be required or introduced by this feature. Even when the rack response does not itself contain a field named <code>units</code>, the <code>units</code> attribute must be available after a normal rack lookup.</p>
+<h4>Behavior requirements</h4>
 <ol>
 <li>
-<p>For a client whose base URL is <code>http://localhost:8000</code>, fetching rack ID <code>1</code> through the DCIM application and then calling <code>rack.units.list()</code> must issue an HTTP GET to:</p>
+<p>When the client's base URL is <code>http://localhost:8000</code>, fetching rack ID <code>1</code> via the DCIM application and subsequently calling <code>rack.units.list()</code> must issue an HTTP GET to:</p>
 <pre><code class="language-text">http://localhost:8000/api/dcim/racks/1/units/
 </code></pre>
 </li>
 <li>
-<p>The units request must inherit the API client's normal GET request context, including its configured API-version/authentication headers and its exact TLS verification setting. With verification enabled, the GET must use <code>verify=True</code>. Other supported verification values, such as <code>False</code> or a CA-bundle path, must likewise be propagated unchanged.</p>
+<p>The request for the units must inherit the API client's normal GET request context, including the configured API-version/authentication headers and the exact TLS verification setting. When verification is enabled, the GET must use <code>verify=True</code>. Other supported verification values, such as <code>False</code> or a CA-bundle path, must likewise be propagated unchanged.</p>
 </li>
 <li>
-<p>Calling <code>rack.units.list()</code> with no arguments must not add query parameters; the request URL must end at <code>/units/</code> with no query string.</p>
+<p>A call to <code>rack.units.list()</code> with no arguments must not add query parameters; the request URL must end at <code>/units/</code> and carry no query string.</p>
 </li>
 <li>
-<p>The units endpoint must accept the standard paginated response envelope containing <code>count</code>, <code>next</code>, <code>previous</code>, and <code>results</code>. The envelope must be processed using the client's existing pagination behavior, and the entries in <code>results</code> must be returned as the units collection. A non-empty <code>results</code> array must produce a non-empty collection.</p>
+<p>The units endpoint must accept the standard paginated response envelope containing <code>count</code>, <code>next</code>, <code>previous</code>, and <code>results</code>. The envelope must be processed by means of the client's existing pagination behavior, and the entries in <code>results</code> must be returned as the units collection. A <code>results</code> array that is non-empty must produce a non-empty collection.</p>
 </li>
 <li>
-<p>Unit entries must be converted to record-like objects rather than left as raw mappings. Every field supplied for a unit must be accessible as an attribute on that unit object.</p>
+<p>Unit entries must be converted to record-like objects instead of being left as raw mappings. Every field supplied for a unit must be accessible as an attribute on that unit object.</p>
 </li>
 <li>
-<p>When a unit's <code>device</code> field contains an object, the unit's <code>.device</code> attribute must be an instance of <code>pynetbox.dcim.Devices</code>, with the nested device fields available through that object.</p>
+<p>If a unit's <code>device</code> field contains an object, the unit's <code>.device</code> attribute must be an instance of <code>pynetbox.dcim.Devices</code>, with the nested device fields available through that object.</p>
 </li>
 <li>
-<p>A unit whose <code>device</code> field is <code>null</code> must be accepted without disrupting conversion or retrieval of the collection. Its <code>.device</code> attribute must remain <code>None</code>, and other units must still be returned normally.</p>
+<p>A unit whose <code>device</code> field is <code>null</code> must be accepted without the conversion or retrieval of the collection being disrupted. Its <code>.device</code> attribute must remain <code>None</code>, and other units must still be returned normally.</p>
 </li>
 </ol>
-<h4>Compatibility and scope</h4>
-<p>Existing DCIM endpoint behavior and request configuration propagation must remain intact. Rack units are retrieved through the established DCIM namespace and the rack's nested <code>units</code> interface; no new root-level rack endpoint is part of this contract.</p>
+<h4>Scope and compatibility</h4>
+<p>DCIM endpoint behavior and the propagation of request configuration, as they exist today, must remain intact. Rack units are retrieved through the established DCIM namespace and the rack's nested <code>units</code> interface; no new root-level rack endpoint is included in this contract.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Update the public Record API in pynetbox.lib.response.</span>
-        <span class="spec-meta muted">134 words · source specification
+        <span class="spec-title">Amend the public Record API located in pynetbox.lib.response.</span>
+        <span class="spec-meta muted">158 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public <code>Record</code> API in <code>pynetbox.lib.response</code>.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Amend the public <code>Record</code> API located in <code>pynetbox.lib.response</code>.</p>
+<h5>Public interface</h5>
 <ul>
-<li>Class: <code>pynetbox.lib.response.Record</code></li>
-<li>Construction must support:<pre><code class="language-python">Record(values)
+<li>The relevant class is <code>pynetbox.lib.response.Record</code>.</li>
+<li>Instantiation must support:<pre><code class="language-python">Record(values)
 </code></pre>
-where <code>values</code> is a mapping.</li>
-<li>Method:<pre><code class="language-python">Record.serialize()
+in which <code>values</code> is a mapping.</li>
+<li>The method:<pre><code class="language-python">Record.serialize()
 </code></pre>
-must return a dictionary representation.</li>
+must return a representation in dictionary form.</li>
 </ul>
-<h5>List serialization behavior</h5>
-<p>For any list-valued field in the input mapping:</p>
+<h5>Behavior when serializing lists</h5>
+<p>For any field in the input mapping whose value is a list:</p>
 <ol>
 <li>
-<p><strong>List of nested record mappings</strong></p>
+<p><strong>List made up of nested record mappings</strong></p>
 <ul>
-<li>Nested mappings containing an <code>id</code> must serialize as their IDs.</li>
-<li>Preserve list order.</li>
-<li>Other properties of those nested mappings must not appear in the serialized list.</li>
+<li>Nested mappings that contain an <code>id</code> must serialize as their IDs.</li>
+<li>Retain the order of the list.</li>
+<li>The other properties of those nested mappings must not show up in the serialized list.</li>
 </ul>
 <p>Example:</p>
 <pre><code class="language-python">Record({
@@ -613,9 +615,9 @@ must return a dictionary representation.</li>
 </code></pre>
 </li>
 <li>
-<p><strong>List of integer values</strong></p>
+<p><strong>List made up of integer values</strong></p>
 <ul>
-<li>Integer elements must remain unchanged.</li>
+<li>Integer elements must be left unchanged.</li>
 </ul>
 <p>Example:</p>
 <pre><code class="language-python">Record({
@@ -633,202 +635,204 @@ must return a dictionary representation.</li>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Add support for retrieving the rack units of a Rack object in the pynetbox library.</span>
-        <span class="spec-meta muted">378 words · source specification
+        <span class="spec-title">Add support to the pynetbox library for retrieving the rack units of a Rack object.</span>
+        <span class="spec-meta muted">398 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add support for retrieving the rack units of a Rack object in the <code>pynetbox</code> library. This requires introducing a new detail endpoint mechanism and a custom record type for Rack objects.</p>
-<h4>Required Behavior</h4>
-<h5>Rack record <code>units</code> detail endpoint</h5>
-<p>When a Rack object is retrieved (e.g. via <code>nb.dcim.racks.get(&lt;id&gt;)</code>), the returned record object must expose an attribute named <code>units</code>. This attribute must be a read-only detail endpoint object that provides a <code>list()</code> method.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Add support to the <code>pynetbox</code> library for retrieving the rack units of a Rack object. Doing so requires the introduction of a new detail endpoint mechanism and a custom record type for Rack objects.</p>
+<h4>Behavior Requirements</h4>
+<h5><code>units</code> detail endpoint of a Rack record</h5>
+<p>When a Rack object is retrieved (e.g. via <code>nb.dcim.racks.get(&lt;id&gt;)</code>), the record object that is returned must expose an attribute named <code>units</code>. This attribute must be a detail endpoint object that is read-only and that provides a <code>list()</code> method.</p>
 <p>Calling <code>record.units.list()</code> must:</p>
 <ol>
 <li>
-<p>Issue an HTTP GET request to the rack's detail URL with <code>/units/</code> appended. For a rack with id <code>1</code> served from base API <code>http://localhost:8000/api/</code>, the request URL must be exactly:</p>
+<p>Issue an HTTP GET request to the detail URL of the rack with <code>/units/</code> appended. For a rack with id <code>1</code> that is served from base API <code>http://localhost:8000/api/</code>, the request URL must be exactly:</p>
 <pre><code>http://localhost:8000/api/dcim/racks/1/units/
 </code></pre>
-<p>The request must be made using the same request headers and TLS verification settings used elsewhere in the library.</p>
+<p>The request must be made with the same request headers and TLS verification settings that are used elsewhere in the library.</p>
 </li>
 <li>
-<p>Parse the JSON response, which is a paginated result set containing a <code>results</code> list. Each entry in <code>results</code> is an object describing a rack unit with fields such as <code>id</code>, <code>name</code>, <code>face</code>, and <code>device</code> (where <code>device</code> may be an object or <code>null</code>).</p>
+<p>Parse the JSON response, a paginated result set that contains a <code>results</code> list. Each entry in <code>results</code> is an object that describes a rack unit and has fields such as <code>id</code>, <code>name</code>, <code>face</code>, and <code>device</code> (where <code>device</code> may be an object or <code>null</code>).</p>
 </li>
 <li>
-<p>Return a list of record objects, one per entry in <code>results</code>.</p>
+<p>Return a list of record objects — one per entry in <code>results</code>.</p>
 </li>
 </ol>
-<h5>Custom record type for rack units</h5>
-<p>The record objects returned by <code>record.units.list()</code> must be instances of a Rack-specific record class (not the generic base record class). Within these rack-unit records, the nested <code>device</code> field, when it is a non-null object, must be represented as an instance of the Devices record class (<code>pynetbox.dcim.Devices</code>). When <code>device</code> is <code>null</code>, it must not be a Devices instance.</p>
+<h5>Custom record type for the rack units</h5>
+<p>The record objects that <code>record.units.list()</code> returns must be instances of a Rack-specific record class (not the generic base record class). In these rack-unit records, the nested <code>device</code> field must be represented as an instance of the Devices record class (<code>pynetbox.dcim.Devices</code>) when it is a non-null object. If <code>device</code> is <code>null</code>, it must not be a Devices instance.</p>
 <h4>Public API Surface</h4>
 <ul>
-<li><code>pynetbox.dcim.Devices</code> — the record class used to represent devices; nested <code>device</code> data on rack-unit records must be instances of this class.</li>
-<li>The record class returned by <code>nb.dcim.racks.get(...)</code> must be a Rack-specific record type exposing a read-only detail endpoint attribute <code>units</code> with a <code>.list()</code> method as described above.</li>
-<li>The detail endpoint returned by <code>.list()</code> must yield record objects of a custom type such that their <code>device</code> attribute is a <code>pynetbox.dcim.Devices</code> instance when device data is present.</li>
+<li><code>pynetbox.dcim.Devices</code> — the record class used to represent devices; on rack-unit records, nested <code>device</code> data must be instances of this class.</li>
+<li>The record class that <code>nb.dcim.racks.get(...)</code> returns must be a Rack-specific record type that exposes a read-only detail endpoint attribute <code>units</code> with a <code>.list()</code> method, as described above.</li>
+<li>The detail endpoint returned by <code>.list()</code> must yield record objects of a custom type whose <code>device</code> attribute is a <code>pynetbox.dcim.Devices</code> instance when device data is present.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li><code>.list()</code> returns a non-empty list when the response <code>results</code> is non-empty.</li>
-<li>The mechanism must allow a detail endpoint to return records of a custom (non-generic) record type, and to construct nested attributes (<code>device</code>) as the appropriate custom record type.</li>
+<li>When the response <code>results</code> is non-empty, <code>.list()</code> returns a non-empty list.</li>
+<li>The mechanism must allow a detail endpoint to return records of a custom (non-generic) record type, as well as to construct nested attributes (<code>device</code>) as the appropriate custom record type.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Implement a Record class that wraps a dictionary of values and provides a serialize() method.</span>
-        <span class="spec-meta muted">292 words · source specification
+        <span class="spec-title">Build a Record class that wraps a dictionary of values and makes a serialize() method available.</span>
+        <span class="spec-meta muted">311 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a <code>Record</code> class that wraps a dictionary of values and provides a <code>serialize()</code> method. The serialization must ensure that the <code>tags</code> field contains no duplicate values.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Build a <code>Record</code> class that wraps a dictionary of values and makes a <code>serialize()</code> method available. Serialization must ensure that no duplicate values are present in the <code>tags</code> field.</p>
 <h4>Public API</h4>
-<p>Create a class named <code>Record</code> importable as:</p>
+<p>Provide a class named <code>Record</code> that is importable as:</p>
 <pre><code class="language-python">from &lt;appropriate module&gt; import Record
 </code></pre>
-<p>The module must be importable such that <code>from ... import Record</code> resolves. Based on the existing test layout, <code>Record</code> is imported into the response-handling area of the codebase; place it where it is accessible via the same import path used elsewhere in the project's response module.</p>
+<p>The module must be importable such that <code>from ... import Record</code> resolves. Judging by the existing test layout, <code>Record</code> is imported into the response-handling area of the codebase; position it so that it is accessible through the same import path used elsewhere in the project's response module.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">Record(values)
 </code></pre>
 <ul>
-<li><code>values</code>: a dictionary of field names to values.</li>
-<li>The constructor accepts this dictionary and retains its data for later serialization.</li>
+<li><code>values</code>: a dictionary mapping field names to values.</li>
+<li>The constructor accepts this dictionary and keeps its data for use in later serialization.</li>
 </ul>
 <h5>Method: <code>serialize()</code></h5>
 <pre><code class="language-python">record.serialize() -&gt; dict
 </code></pre>
-<p>Returns a dictionary representation of the record's values.</p>
+<p>Returns a dictionary representation of the values the record holds.</p>
 <h4>Required Behavior</h4>
-<h5>Tag deduplication</h5>
-<p>When the input values contain a <code>tags</code> key whose value is a list, the serialized output's <code>tags</code> value must be a <strong>list</strong> containing only the <strong>unique</strong> elements from the original list (duplicates removed).</p>
+<h5>Deduplication of tags</h5>
+<p>If the input values contain a <code>tags</code> key whose value is a list, the <code>tags</code> value in the serialized output must be a <strong>list</strong> that contains only the <strong>unique</strong> elements of the original list (with duplicates removed).</p>
 <ul>
 <li>Input: <code>{'id': 123, 'tags': ['foo', 'bar', 'foo']}</code></li>
-<li>The serialized output's <code>tags</code> value must be a list with a length of <code>2</code> (the duplicate <code>'foo'</code> collapsed to a single entry).</li>
+<li>The <code>tags</code> value in the serialized output must be a list whose length is <code>2</code> (with the duplicate <code>'foo'</code> collapsed to a single entry).</li>
 <li>The resulting <code>tags</code> value must be a <code>list</code> type (not a set or other collection).</li>
 </ul>
-<h5>Preservation of other fields</h5>
-<p>Fields other than <code>tags</code> must be carried through to the serialized output unchanged. For example, a <code>units</code> field holding a list value such as <code>[12]</code> must appear unchanged in the serialized result.</p>
+<h5>Keeping other fields intact</h5>
+<p>Fields other than <code>tags</code> must pass through into the serialized output unchanged. To illustrate, a <code>units</code> field holding a list value such as <code>[12]</code> must appear in the serialized result unchanged.</p>
 <h4>Notes</h4>
 <ul>
-<li>Ordering of the deduplicated <code>tags</code> list is not constrained; only the count of unique elements and the list type matter.</li>
-<li>Only the behavior described above is required.</li>
+<li>The order of elements in the deduplicated <code>tags</code> list is not constrained; only the count of unique elements and the list type matter.</li>
+<li>Only the behavior laid out above is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">pynetbox Library Changes</span>
-        <span class="spec-meta muted">1255 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Changes to the pynetbox Library</span>
+        <span class="spec-meta muted">1393 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: pynetbox Library Changes</h3>
-<p>Implement the following behavior in <code>pynetbox</code>, the Python client for the NetBox API. All public objects and methods named below must remain importable and callable as shown.</p>
-<h4>1. Resource endpoint <code>create()</code> returns record objects</h4>
-<p>For a normal resource endpoint such as <code>api.dcim.devices</code>, <code>api.dcim.sites</code>, or <code>api.ipam.prefixes</code>, <code>create()</code> must support all existing invocation forms:</p>
+      <div class="spec-body"><h3>Task Specification: Changes to the pynetbox Library</h3>
+<p>The following behavior must be implemented in <code>pynetbox</code>, the Python client for the NetBox API. Every public object and method named below must remain importable and callable in the way shown.</p>
+<h4>1. <code>create()</code> on resource endpoints returns record objects</h4>
+<p>For an ordinary resource endpoint such as <code>api.dcim.devices</code>, <code>api.dcim.sites</code>, or <code>api.ipam.prefixes</code>, <code>create()</code> must support every invocation form that already exists:</p>
 <ul>
-<li><code>create(**fields)</code> for one object; the keyword arguments form the JSON object sent in the request body.</li>
-<li><code>create(data)</code> where <code>data</code> is a dictionary for one object.</li>
+<li><code>create(**fields)</code> for a single object; the keyword arguments make up the JSON object that is sent in the request body.</li>
+<li><code>create(data)</code> where <code>data</code> is a dictionary describing a single object.</li>
 <li><code>create(data)</code> where <code>data</code> is a list of dictionaries for bulk creation.</li>
-<li>If positional data and keyword arguments are both supplied, the positional data takes precedence, preserving existing behavior.</li>
+<li>If positional data and keyword arguments are both supplied, the positional data takes precedence; this preserves the existing behavior.</li>
 </ul>
-<p>The selected body must still be JSON-encoded and POSTed to the endpoint collection URL with its trailing slash, using the existing versioned write headers, authentication/session information, and configured SSL verification setting. This task must not otherwise change the POST URL, headers, or body.</p>
-<p>Convert the decoded POST response in the same manner as resource data returned by GET operations:</p>
+<p>The body that is selected must still be JSON-encoded and POSTed to the endpoint collection URL with its trailing slash, using the existing versioned write headers, the authentication/session information, and the configured SSL verification setting. Beyond this, the task must not change the POST URL, headers, or body.</p>
+<p>The decoded POST response must be converted in the same manner as resource data that GET operations return:</p>
 <ul>
-<li>A response dictionary produces one endpoint-appropriate record object that is an instance of <code>pynetbox.lib.response.Record</code>.</li>
-<li>A response list produces a list of such record objects, one per response dictionary.</li>
-<li>The result is truthy when the response contains data.</li>
+<li>A dictionary response produces one record object suited to the endpoint, and that object is an instance of <code>pynetbox.lib.response.Record</code>.</li>
+<li>A list response produces a list of such record objects, one for each dictionary in the response.</li>
+<li>When the response contains data, the result is truthy.</li>
 </ul>
-<p>The response shape, rather than the input form, determines whether the return value is one record or a list. Endpoint-specific record subclasses may retain their specialized behavior, but every returned resource object must satisfy <code>isinstance(value, pynetbox.lib.response.Record)</code>.</p>
-<h5>Detail-endpoint compatibility exception</h5>
-<p>Creation through a record's detail endpoints is intentionally different. In particular:</p>
+<p>It is the shape of the response, rather than the form of the input, that decides whether the return value is one record or a list. Endpoint-specific record subclasses may keep their specialized behavior, but every returned resource object must satisfy <code>isinstance(value, pynetbox.lib.response.Record)</code>.</p>
+<h5>Compatibility exception for detail endpoints</h5>
+<p>Creating through the detail endpoints of a record is deliberately different. Specifically:</p>
 <ul>
 <li><code>prefix.available_ips.create(data)</code> POSTs to <code>.../api/ipam/prefixes/&lt;id&gt;/available-ips/</code>.</li>
 <li><code>prefix.available_prefixes.create(data)</code> POSTs to <code>.../api/ipam/prefixes/&lt;id&gt;/available-prefixes/</code>.</li>
-<li><code>data</code> may be a dictionary or list; omitting it retains the existing empty-dictionary default where supported.</li>
+<li><code>data</code> may be a dictionary or a list; when it is omitted, the existing empty-dictionary default is retained where supported.</li>
 </ul>
-<p>These detail operations must return the decoded response body directly: a plain dictionary for a single-object response or a plain list of dictionaries for a bulk response. They must not wrap their results in <code>Record</code>. Exact response field values and normal dictionary/list equality must therefore be preserved.</p>
-<h4>2. Use <code>Record</code> semantics for every application's resource records</h4>
-<p>Resource records returned across the <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, <code>circuits</code>, and <code>virtualization</code> applications, including values from <code>all()</code>, <code>filter()</code>, <code>get()</code>, and normal endpoint <code>create()</code>, must be instances of <code>pynetbox.lib.response.Record</code>. This includes IPAM endpoints such as <code>prefixes</code>, <code>ip_addresses</code>, <code>aggregates</code>, <code>roles</code>, <code>rirs</code>, <code>vlans</code>, <code>vlan_groups</code>, and <code>vrfs</code>.</p>
-<h5>Plain IP field values</h5>
-<p>IPAM records must use the same ordinary field semantics as other records:</p>
+<p>These detail operations must return the decoded response body directly: a plain dictionary for a single-object response, or a plain list of dictionaries for a bulk response. Their results must not be wrapped in <code>Record</code>. Because of this, exact response field values and normal dictionary/list equality must be preserved.</p>
+<h4>2. Apply <code>Record</code> semantics to every application's resource records</h4>
+<p>Resource records returned across the <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, <code>circuits</code>, and <code>virtualization</code> applications — including values from <code>all()</code>, <code>filter()</code>, <code>get()</code>, and normal endpoint <code>create()</code> — must be instances of <code>pynetbox.lib.response.Record</code>. This covers IPAM endpoints such as <code>prefixes</code>, <code>ip_addresses</code>, <code>aggregates</code>, <code>roles</code>, <code>rirs</code>, <code>vlans</code>, <code>vlan_groups</code>, and <code>vrfs</code>.</p>
+<h5>IP field values stay plain</h5>
+<p>IPAM records must follow the same ordinary field semantics as other records:</p>
 <ul>
-<li>IP-bearing response fields such as <code>prefix</code> and <code>address</code> remain in the raw value form supplied by NetBox, normally a string.</li>
-<li>Accessing <code>record.prefix</code> or <code>record.address</code> returns that plain value, not a <code>netaddr.IPNetwork</code> or another special IP object.</li>
-<li><code>dict(record)</code> contains the raw plain values for those fields.</li>
-<li>If an IP field is assigned a new value, <code>serialize()</code> returns exactly that assigned value. For example, after <code>record.prefix = '10.1.2.0/24'</code>, <code>record.serialize()['prefix']</code> is exactly <code>'10.1.2.0/24'</code>.</li>
-<li>No parsing, normalization, or conversion to an IP-specific object is performed.</li>
+<li>Response fields that bear an IP, such as <code>prefix</code> and <code>address</code>, remain in the raw value form supplied by NetBox, which is normally a string.</li>
+<li>Accessing <code>record.prefix</code> or <code>record.address</code> returns the plain value — not a <code>netaddr.IPNetwork</code> and not some other special IP object.</li>
+<li>The raw plain values for those fields are contained in <code>dict(record)</code>.</li>
+<li>When a new value is assigned to an IP field, <code>serialize()</code> returns exactly that assigned value. For instance, after <code>record.prefix = '10.1.2.0/24'</code>, <code>record.serialize()['prefix']</code> is exactly <code>'10.1.2.0/24'</code>.</li>
+<li>No parsing, normalization, or conversion to an IP-specific object takes place.</li>
 </ul>
-<p>A separate IP-specific record type is not required for endpoint results; the public behavior above is provided by the common <code>Record</code> contract.</p>
-<h5>Existing <code>Record</code> behavior</h5>
-<p>Preserve the following behavior:</p>
+<p>For endpoint results, no separate IP-specific record type is required; the common <code>Record</code> contract supplies the public behavior described above.</p>
+<h5><code>Record</code> behavior that already exists</h5>
+<p>The following behavior must be preserved:</p>
 <ul>
-<li><code>str(record)</code> and <code>repr(record)</code> produce strings, including any endpoint-specific string representation.</li>
-<li><code>dict(record)</code> produces a dictionary. Nested API resource dictionaries and dictionaries inside ordinary lists are recursively represented as record objects when accessed, and nested records become dictionaries when the parent is converted with <code>dict()</code>.</li>
-<li>Opaque JSON fields such as <code>custom_fields</code>, <code>data</code>, and <code>config_context</code> remain dictionaries rather than being converted to records.</li>
-<li><code>serialize()</code> returns a dictionary suitable for a write request. A nested record serializes to its simple identifier/value, lists of records serialize to lists of IDs, lists of primitive values remain primitive lists, and duplicate tag values are removed.</li>
-<li>Custom fields remain readable and mutable. Custom selection values represented by a mapping containing a <code>value</code> are flattened to that value during serialization.</li>
-<li><code>_compare()</code> is truthy while the record is unchanged and falsy after a normal field or custom field has been modified.</li>
-<li><code>save()</code> remains idempotent: it returns a falsy value and does not write when nothing changed; after a change, it serializes the record and performs the existing detail update behavior.</li>
-<li><code>delete()</code> issues an HTTP DELETE to the resource's detail URL using the existing authenticated request form and returns a truthy value on success.</li>
+<li><code>str(record)</code> and <code>repr(record)</code> produce strings, including any string representation specific to the endpoint.</li>
+<li><code>dict(record)</code> produces a dictionary. When accessed, nested API resource dictionaries and dictionaries inside ordinary lists are represented recursively as record objects, and nested records become dictionaries when the parent is converted with <code>dict()</code>.</li>
+<li>Fields of opaque JSON, such as <code>custom_fields</code>, <code>data</code>, and <code>config_context</code>, remain dictionaries rather than being converted into records.</li>
+<li><code>serialize()</code> returns a dictionary fit for a write request. A nested record serializes to its simple identifier/value, lists of records serialize to lists of IDs, lists of primitive values remain lists of primitives, and duplicate tag values are removed.</li>
+<li>Custom fields stay readable and mutable. A custom selection value that is represented by a mapping containing a <code>value</code> is flattened to that value during serialization.</li>
+<li><code>_compare()</code> is truthy while the record is unchanged, and falsy after a normal field or a custom field has been modified.</li>
+<li><code>save()</code> remains idempotent: when nothing changed, it returns a falsy value and does not write; after a change, it serializes the record and performs the existing detail update behavior.</li>
+<li><code>delete()</code> issues an HTTP DELETE to the detail URL of the resource using the existing authenticated request form and returns a truthy value on success.</li>
 </ul>
-<h4>3. Add application-level <code>choices()</code></h4>
-<p>Expose <code>choices()</code> as a callable operation on the per-application object obtained from the root API object. The required DCIM usage is:</p>
+<h4>3. Add <code>choices()</code> at the application level</h4>
+<p><code>choices()</code> must be exposed as a callable operation on the per-application object obtained from the root API object. The usage required for DCIM is:</p>
 <pre><code class="language-python">api = pynetbox.api('http://host', version='2.0')
 choices = api.dcim.choices()
 </code></pre>
-<p>The application-level placement is part of the public API: providing <code>choices()</code> only on the root object returned by <code>pynetbox.api(...)</code> is insufficient. No root-level alias is required.</p>
-<p>Calling <code>api.dcim.choices()</code> must issue a GET to:</p>
+<p>The application-level placement belongs to the public API: it is insufficient to provide <code>choices()</code> only on the root object returned by <code>pynetbox.api(...)</code>. A root-level alias is not required.</p>
+<p>A call to <code>api.dcim.choices()</code> must issue a GET to:</p>
 <pre><code class="language-text">http://&lt;host&gt;/api/dcim/_choices/
 </code></pre>
-<p>The <code>_choices</code> path is literal, including its leading underscore and trailing slash. Return the decoded JSON response directly, without converting it to <code>Record</code>. The expected response is a mapping from choice-set names such as <code>device:status</code>, <code>rack:width</code>, <code>site:status</code>, and <code>interface:form_factor</code> to lists of entries shaped like <code>{&quot;label&quot;: ..., &quot;value&quot;: ...}</code>. The returned mapping is truthy when the service supplies choice data.</p>
-<p><code>choices()</code> uses the same GET request contract as other application reads. For an API configured with version <code>2.0</code>, no token, and no session key, it sends exactly:</p>
+<p>The <code>_choices</code> path is literal, leading underscore and trailing slash included. The decoded JSON response must be returned directly, without converting it to <code>Record</code>. The response to expect is a mapping from choice-set names such as <code>device:status</code>, <code>rack:width</code>, <code>site:status</code>, and <code>interface:form_factor</code> to lists of entries shaped like <code>{&quot;label&quot;: ..., &quot;value&quot;: ...}</code>. When the service supplies choice data, the returned mapping is truthy.</p>
+<p><code>choices()</code> uses the same GET request contract as the other application reads. For an API configured with version <code>2.0</code>, with no token and no session key, it sends exactly:</p>
 <pre><code class="language-python">{'accept': 'application/json; version=2.0;'}
 </code></pre>
-<p>and uses the configured SSL verification value, which is <code>True</code> by default.</p>
-<h4>4. Preserve endpoint and request behavior</h4>
-<h5>API configuration and applications</h5>
+<p>and it uses the configured SSL verification value, which is <code>True</code> by default.</p>
+<h4>4. Keep endpoint and request behavior</h4>
+<h5>API configuration and its applications</h5>
 <ul>
-<li>A trailing slash on the URL passed to <code>pynetbox.api()</code> is removed before <code>/api</code> is appended, so both base URL forms address the same API root.</li>
-<li><code>ssl_verify</code> defaults to <code>True</code>, accepts boolean values or a CA-bundle path string, and is propagated unchanged to endpoint and application requests, including <code>choices()</code>.</li>
-<li>Addressable applications include at least <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, <code>circuits</code>, and <code>virtualization</code>.</li>
-<li>Endpoint attribute underscores map to URL hyphens; for example, <code>api.ipam.ip_addresses</code> addresses <code>ip-addresses</code>.</li>
+<li>A trailing slash on the URL given to <code>pynetbox.api()</code> is removed before <code>/api</code> is appended, so both base URL forms address the same API root.</li>
+<li><code>ssl_verify</code> has a default of <code>True</code>, accepts boolean values or a CA-bundle path string, and is propagated unchanged to endpoint and application requests, <code>choices()</code> included.</li>
+<li>The applications that can be addressed include at least <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, <code>circuits</code>, and <code>virtualization</code>.</li>
+<li>Underscores in endpoint attributes map to hyphens in URLs; for example, <code>api.ipam.ip_addresses</code> addresses <code>ip-addresses</code>.</li>
 </ul>
-<h5>GET headers</h5>
-<p>Every ordinary API GET uses a versioned <code>Accept</code> header:</p>
+<h5>Headers for GET requests</h5>
+<p>Each ordinary API GET carries a versioned <code>Accept</code> header:</p>
 <pre><code class="language-python">{'accept': 'application/json; version=&lt;effective-version&gt;;'}
 </code></pre>
-<p>Do not use <code>Content-Type</code> in place of <code>accept</code> for these reads. Authentication-related GET headers are conditional:</p>
+<p>For these reads, do not use <code>Content-Type</code> in place of <code>accept</code>. The GET headers relating to authentication are conditional:</p>
 <ul>
-<li>Add <code>authorization: Token &lt;token&gt;</code> only when a token exists.</li>
-<li>Add <code>X-Session-Key: &lt;session-key&gt;</code> only when a session key exists.</li>
-<li>With neither credential configured, send neither header; in particular, do not send <code>authorization: Token None</code>.</li>
+<li><code>authorization: Token &lt;token&gt;</code> is added only when a token exists.</li>
+<li><code>X-Session-Key: &lt;session-key&gt;</code> is added only when a session key exists.</li>
+<li>When neither credential is configured, neither header is sent; in particular, <code>authorization: Token None</code> must not be sent.</li>
 </ul>
-<p>The effective version is the configured API version, or the version discovered through the library's existing version-discovery behavior.</p>
-<h5>Collection and detail operations</h5>
+<p>The effective version is the API version as configured, or the version that is discovered through the library's existing version-discovery behavior.</p>
+<h5>Operations on collections and details</h5>
 <p>For <code>api.&lt;app&gt;.&lt;endpoint&gt;</code>:</p>
 <ul>
-<li><code>all()</code> GETs <code>http://&lt;host&gt;/api/&lt;app&gt;/&lt;endpoint-name&gt;/</code> and returns a list of <code>Record</code> instances.</li>
-<li><code>filter(**kwargs)</code> GETs the same collection URL with URL-encoded query parameters and returns a list of records. List-valued filters become repeated parameters, and reserved characters are percent-encoded. A supported positional free-form search term is sent as <code>q</code>.</li>
-<li><code>get(id)</code> GETs <code>http://&lt;host&gt;/api/&lt;app&gt;/&lt;endpoint-name&gt;/&lt;id&gt;/</code> and returns one record.</li>
-<li>Existing lookup-by-filter behavior of <code>get(**kwargs)</code> is retained: one match returns that record, no matches returns <code>None</code>, and multiple matches raise <code>ValueError</code>.</li>
+<li><code>all()</code> issues a GET to <code>http://&lt;host&gt;/api/&lt;app&gt;/&lt;endpoint-name&gt;/</code> and returns a list of <code>Record</code> instances.</li>
+<li><code>filter(**kwargs)</code> issues a GET to the same collection URL with URL-encoded query parameters and returns a list of records. Filters whose values are lists become repeated parameters, and reserved characters are percent-encoded. A positional free-form search term that is supported is sent as <code>q</code>.</li>
+<li><code>get(id)</code> issues a GET to <code>http://&lt;host&gt;/api/&lt;app&gt;/&lt;endpoint-name&gt;/&lt;id&gt;/</code> and returns one record.</li>
+<li>The existing lookup-by-filter behavior of <code>get(**kwargs)</code> is retained: with one match, that record is returned; with no matches, <code>None</code> is returned; and with multiple matches, <code>ValueError</code> is raised.</li>
 </ul>
-<p>For example, <code>filter(pk=1)</code> uses <code>...?pk=1</code>. All these GETs use the headers and SSL behavior described above.</p>
-<p>Paginated collection responses must be fully resolved and returned as one record list. Continue requesting subsequent pages until <code>next</code> is empty; compatibility includes pagination requests such as <code>.../interfaces/?limit=221&amp;offset=50</code>.</p>
-<p>Nested and related response fields continue to recurse into record objects, including endpoint-specific record subclasses where applicable. Existing readable detail operations also remain intact: detail query keyword arguments become URL parameters, ordinary detail responses remain decoded dictionaries/lists unless a custom record return type is defined, and read-only detail endpoints remain non-writable.</p>
+<p>For example, <code>filter(pk=1)</code> uses <code>...?pk=1</code>. All of these GETs use the headers and SSL behavior described above.</p>
+<p>Paginated collection responses must be resolved in full and returned as a single record list. Keep requesting subsequent pages until <code>next</code> is empty; compatibility includes pagination requests such as <code>.../interfaces/?limit=221&amp;offset=50</code>.</p>
+<p>Nested and related response fields keep recursing into record objects, endpoint-specific record subclasses included where applicable. The existing readable detail operations also remain intact: keyword arguments to a detail query become URL parameters, ordinary detail responses remain decoded dictionaries/lists unless a custom record return type is defined, and read-only detail endpoints remain non-writable.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Remove API-version negotiation and media-type versioning from pynetbox.</span>
-        <span class="spec-meta muted">793 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The pynetbox library is to have API-version negotiation and media-type versioning removed.</span>
+        <span class="spec-meta muted">939 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Remove API-version negotiation and media-type versioning from <code>pynetbox</code>. A client must be constructible without supplying or discovering a NetBox API version, and all normal JSON endpoint requests must use fixed, version-free media-type headers. Existing endpoint, authentication, URL, SSL-verification, and response behavior must otherwise remain compatible.</p>
-<h4>Public API Construction</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Purpose</h4>
+<p>The <code>pynetbox</code> library is to have API-version negotiation and media-type versioning removed. It must be possible to construct a client without a NetBox API version being supplied or discovered, and all normal JSON endpoint requests must send media-type headers that are fixed and contain no version. Apart from this, the existing endpoint, authentication, URL, SSL-verification, and response behavior must stay compatible.</p>
+<h4>Constructing the Public API</h4>
 <h5><code>pynetbox.api</code></h5>
-<p>The top-level client constructor must have the supported interface equivalent to:</p>
+<p>The constructor at the top level must offer a supported interface equivalent to:</p>
 <pre><code class="language-python">pynetbox.api(
     url,
     token=None,
@@ -837,17 +841,17 @@ choices = api.dcim.choices()
     ssl_verify=True,
 )
 </code></pre>
-<p>Required behavior:</p>
+<p>The following behavior is required:</p>
 <ul>
-<li><code>url</code> remains the first positional argument and identifies the NetBox base URL.</li>
-<li><code>token</code>, <code>private_key</code>, <code>private_key_file</code>, and <code>ssl_verify</code> remain supported.</li>
-<li><code>version</code> is no longer a supported positional or keyword parameter. Supplying <code>version=...</code> must be rejected as an unexpected argument rather than accepted, ignored, or used.</li>
-<li>Constructing a client with only a URL, or with any supported combination of the remaining options, must not require an API version. In particular, construction must not make an API-root request to discover an <code>API-Version</code> header.</li>
-<li>Version information must not be stored in the client's propagated configuration, copied into endpoints or records, or consulted as a fallback when a later request is made. No normal request may perform a preliminary version-discovery call.</li>
-<li>A URL ending in <code>/</code> must continue to be normalized before <code>/api</code> is appended. For example, both <code>http://localhost:8000</code> and <code>http://localhost:8000/</code> produce the API base URL <code>http://localhost:8000/api</code>.</li>
-<li><code>ssl_verify</code> defaults to <code>True</code>. Boolean values and CA-bundle path strings must be retained unchanged, exposed to created endpoints, and passed through as the HTTP request's verification setting.</li>
-<li>Existing private-key behavior remains unchanged: <code>private_key</code> and <code>private_key_file</code> are mutually exclusive, a key file is read when supplied, and a token/key pair may still perform the existing secrets session-key exchange. Removing version discovery must not remove that separate authentication exchange.</li>
-<li>The returned client must continue to expose the application attributes <code>circuits</code>, <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, and <code>virtualization</code>, with endpoint access beneath each one. Existing additional applications, including <code>secrets</code> and <code>extras</code>, must not be removed.</li>
+<li>The first positional argument is still <code>url</code>, which names the NetBox base URL.</li>
+<li>Support for <code>token</code>, <code>private_key</code>, <code>private_key_file</code>, and <code>ssl_verify</code> is retained.</li>
+<li><code>version</code> is not a supported parameter any longer, neither positionally nor as a keyword. Supplying <code>version=...</code> must be rejected as an unexpected argument — accepting, ignoring, or using it is not permitted.</li>
+<li>For a client built with only a URL, or with any supported combination of the remaining options, an API version must not be required. In particular, an API-root request aimed at discovering an <code>API-Version</code> header must not be made during construction.</li>
+<li>The client's propagated configuration must not hold stored version information, endpoints and records must not receive copies of it, and when a later request is made it must not be consulted as a fallback. No preliminary version-discovery call may be performed by a normal request.</li>
+<li>A URL that ends in <code>/</code> must still be normalized before <code>/api</code> gets appended. For example, both <code>http://localhost:8000</code> and <code>http://localhost:8000/</code> lead to the API base URL <code>http://localhost:8000/api</code>.</li>
+<li>The default of <code>ssl_verify</code> is <code>True</code>. Boolean values and CA-bundle path strings must be kept unchanged, exposed to the endpoints that get created, and passed through as the verification setting of the HTTP request.</li>
+<li>Private-key behavior stays as it is today: <code>private_key</code> and <code>private_key_file</code> are mutually exclusive, the contents of a key file are read when one is supplied, and a token/key pair may still carry out the existing secrets session-key exchange. Removing version discovery must not do away with that separate authentication exchange.</li>
+<li>Exposure of the application attributes <code>circuits</code>, <code>dcim</code>, <code>ipam</code>, <code>tenancy</code>, and <code>virtualization</code> must continue on the returned client, with endpoint access available beneath each of them. Existing additional applications, <code>secrets</code> and <code>extras</code> included, must not be removed.</li>
 </ul>
 <p>Example:</p>
 <pre><code class="language-python">import pynetbox
@@ -859,46 +863,46 @@ nb = pynetbox.api(
 )
 nb.dcim.devices.all()
 </code></pre>
-<h4>Version-Free HTTP Headers</h4>
-<p>No HTTP media-type header emitted by the client may contain a <code>version</code> parameter. In particular, values such as <code>application/json; version=2.0;</code> are no longer valid. The trailing semicolon in the standard JSON media type is intentional and required.</p>
-<p>For normal NetBox JSON endpoints:</p>
+<h4>HTTP Headers Without a Version</h4>
+<p>A <code>version</code> parameter may not appear in any HTTP media-type header that the client emits. Value forms such as <code>application/json; version=2.0;</code> are no longer valid. Note that the semicolon at the end of the standard JSON media type is deliberate and required.</p>
+<p>When a normal NetBox JSON endpoint is the target:</p>
 <ul>
 <li>
-<p>Data-reading GET requests must use the lowercase <code>accept</code> header with the exact value:</p>
+<p>GET requests that read data must carry the lowercase <code>accept</code> header with this exact value:</p>
 <pre><code class="language-text">application/json;
 </code></pre>
 </li>
 <li>
-<p>Body-writing POST and PUT requests must use <code>Content-Type</code> with the exact value:</p>
+<p>POST and PUT requests that write a body must send <code>Content-Type</code> set to the exact value:</p>
 <pre><code class="language-text">application/json;
 </code></pre>
 </li>
 <li>
-<p>DELETE requests must use the lowercase <code>accept</code> header with the exact value <code>application/json;</code>.</p>
+<p>For DELETE requests, the lowercase <code>accept</code> header must be used with the exact value <code>application/json;</code>.</p>
 </li>
 <li>
-<p>These rules apply consistently to application and endpoint reads, <code>all()</code>, <code>get()</code>, <code>filter()</code>, choices, pagination requests, record detail loading, detail-endpoint reads and writes, creates, saves, and deletes.</p>
+<p>Consistently, the rules above govern application and endpoint reads, <code>all()</code>, <code>get()</code>, <code>filter()</code>, choices, pagination requests, record detail loading, detail-endpoint reads and writes, creates, saves, and deletes.</p>
 </li>
 <li>
-<p>Specialized requests that already use another media type, such as the form-encoded secrets session-key exchange, retain that media type but likewise must not introduce API-version information.</p>
+<p>Where a specialized request already runs on another media type — for instance the form-encoded secrets session-key exchange — that media type is retained, but here too the request must not introduce API-version information.</p>
 </li>
 </ul>
-<h4>Authorization Behavior</h4>
-<p>Authorization remains method-specific. For ordinary requests with no token and no session-key extension, the complete required header sets are:</p>
+<h4>Authorization Handling</h4>
+<p>Authorization remains specific to the HTTP method used. When an ordinary request has neither a token nor a session-key extension, the complete sets of required headers are:</p>
 <table>
 <thead>
 <tr>
-<th>Request kind</th>
-<th>Required headers when <code>token</code> is <code>None</code></th>
+<th>Kind of request</th>
+<th>Headers that are required when <code>token</code> is <code>None</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Data-reading GET</td>
+<td>GET used for reading data</td>
 <td><code>{'accept': 'application/json;'}</code></td>
 </tr>
 <tr>
-<td>JSON POST or PUT</td>
+<td>POST or PUT with a JSON body</td>
 <td><code>{'Content-Type': 'application/json;', 'authorization': 'Token None'}</code></td>
 </tr>
 <tr>
@@ -907,295 +911,297 @@ nb.dcim.devices.all()
 </tr>
 </tbody>
 </table>
-<p>Therefore:</p>
+<p>Accordingly:</p>
 <ul>
-<li>An ordinary unauthenticated GET must omit the <code>authorization</code> header entirely; it must not send <code>Token None</code>.</li>
-<li>JSON body writes continue to send <code>authorization: Token None</code> when no token was configured.</li>
-<li>DELETE requests likewise continue to send <code>authorization: Token None</code> alongside the version-free <code>accept</code> header when no token was configured.</li>
-<li>When a token is provided, the existing <code>authorization: Token &lt;token&gt;</code> behavior remains unchanged.</li>
-<li>Existing <code>X-Session-Key</code> handling for the secrets workflow remains unchanged and may add that header on request paths where it already applies. It does not alter the required media-type values above.</li>
+<li>For an ordinary GET with no authentication, the <code>authorization</code> header must be omitted entirely, and <code>Token None</code> must not be sent.</li>
+<li>When no token was configured, writes that carry a JSON body keep sending <code>authorization: Token None</code>.</li>
+<li>In the same way, when no token was configured, DELETE requests keep sending <code>authorization: Token None</code> next to the version-free <code>accept</code> header.</li>
+<li>If a token is provided, <code>authorization: Token &lt;token&gt;</code> continues to behave as before.</li>
+<li>How <code>X-Session-Key</code> is handled for the secrets workflow is unchanged; on request paths where it already applies, that header may be added. The media-type values required above are not altered by it.</li>
 </ul>
-<h4>Compatibility and Non-Goals</h4>
+<h4>Compatibility Notes and Non-Goals</h4>
 <ul>
-<li>This change removes API version configuration and discovery only; it does not replace them with a differently named version option.</li>
-<li>Endpoint URLs, underscore-to-hyphen endpoint mapping, filtering and query encoding, pagination, object creation, record serialization, response object types, and error handling remain unchanged.</li>
-<li>The exact casing of the existing header names described above and the existing distinction between read, write, and delete authorization behavior must be preserved.</li>
+<li>API version configuration and discovery are the only things this change removes; a differently named version option does not replace them.</li>
+<li>None of the following is altered: endpoint URLs, underscore-to-hyphen endpoint mapping, filtering and query encoding, pagination, object creation, record serialization, response object types, and error handling.</li>
+<li>The header names described above must keep their exact existing casing, and the existing distinction between read, write, and delete authorization behavior must also be preserved.</li>
 </ul>
-<h4>Acceptance Summary</h4>
+<h4>Acceptance Criteria</h4>
 <ol>
-<li><code>pynetbox.api(...)</code> no longer accepts a <code>version</code> argument and does not discover an API version during construction or request execution.</li>
-<li>Standard JSON request media types are exactly <code>application/json;</code>, with no version component.</li>
-<li>No-token GET requests omit authorization, while no-token POST/PUT and DELETE requests retain <code>authorization: Token None</code>.</li>
-<li>Existing URL normalization, SSL verification, authentication, applications, endpoints, and response behavior continue to work.</li>
+<li>A <code>version</code> argument is no longer accepted by <code>pynetbox.api(...)</code>, and no API version is discovered during construction or request execution.</li>
+<li>The media types used for standard JSON requests are exactly <code>application/json;</code>, and no version component forms part of them.</li>
+<li>GET requests sent without a token omit authorization, whereas POST/PUT and DELETE requests sent without a token keep <code>authorization: Token None</code>.</li>
+<li>Existing URL normalization, SSL verification, authentication, applications, endpoints, and response behavior all go on working.</li>
 </ol>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Restructure pynetbox Package and Add Cable Support</span>
-        <span class="spec-meta muted">1334 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Restructuring the pynetbox Package and Adding Cable Support</span>
+        <span class="spec-meta muted">1420 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Restructure <code>pynetbox</code> Package and Add Cable Support</h3>
+      <div class="spec-body"><h3>Task Specification: Restructuring the <code>pynetbox</code> Package and Adding Cable Support</h3>
 <h4>Overview</h4>
-<p>Reorganize the <code>pynetbox</code> package module layout and implement the behavioral changes described below while preserving the client’s existing NetBox REST API functionality and Python 2/3 compatibility.</p>
-<h4>Required Module Structure</h4>
-<p>The following importable module paths and public members must exist:</p>
+<p>Reorganize the module layout of the <code>pynetbox</code> package and implement the behavioral changes described below, with the client's existing NetBox REST API functionality and Python 2/3 compatibility preserved.</p>
+<h4>Module Structure Requirements</h4>
+<p>The importable module paths and public members listed below must exist:</p>
 <h5><code>pynetbox.core.query</code></h5>
 <ul>
-<li>Expose the standard <code>requests</code> library as <code>requests</code>. All HTTP operations must resolve through <code>pynetbox.core.query.requests.get</code>, <code>.post</code>, <code>.put</code>, and <code>.delete</code> so they can be intercepted or replaced at that location.</li>
-<li>Expose <code>url_param_builder(params)</code>. It accepts a mapping such as a <code>dict</code> or <code>OrderedDict</code> and returns a URL query string, including the leading <code>?</code>, with conventional URL encoding. For example, a <code>name</code> value of <code>test</code> produces <code>?name=test</code>, and <code>#</code> is encoded as <code>%23</code>.</li>
-<li>Expose a <code>Request</code> class whose <code>get()</code> method is used by endpoints to retrieve parsed dict-like records or iterables/lists of such records.</li>
+<li>Expose the standard <code>requests</code> library as <code>requests</code>. All HTTP operations must resolve through <code>pynetbox.core.query.requests.get</code>, <code>.post</code>, <code>.put</code>, and <code>.delete</code> so that they can be intercepted or replaced at that location.</li>
+<li>Expose <code>url_param_builder(params)</code>. It accepts a mapping such as a <code>dict</code> or <code>OrderedDict</code> and returns a URL query string, including the leading <code>?</code>, using conventional URL encoding. For example, a <code>name</code> value of <code>test</code> produces <code>?name=test</code>, and <code>#</code> is encoded as <code>%23</code>.</li>
+<li>Expose a <code>Request</code> class; endpoints use its <code>get()</code> method to retrieve parsed dict-like records or iterables/lists of such records.</li>
 </ul>
 <h5><code>pynetbox.core.response</code></h5>
 <ul>
-<li>Expose the <code>Record</code> class described below.</li>
+<li>Expose the <code>Record</code> class as specified below.</li>
 </ul>
 <h5><code>pynetbox.core.endpoint</code></h5>
 <ul>
-<li>Expose the <code>Endpoint</code> class described below.</li>
+<li>Expose the <code>Endpoint</code> class as specified below.</li>
 </ul>
 <h5><code>pynetbox.models.ipam</code></h5>
 <ul>
-<li>Expose <code>IpAddresses</code>, a <code>Record</code> subclass used for IPAM IP address objects.</li>
+<li>Expose <code>IpAddresses</code>, a subclass of <code>Record</code> used for IPAM IP address objects.</li>
 </ul>
 <h5><code>pynetbox.models.dcim</code></h5>
 <ul>
-<li>Expose <code>Devices</code>, a <code>Record</code> subclass used for DCIM device objects.</li>
+<li>Expose <code>Devices</code>, a subclass of <code>Record</code> used for DCIM device objects.</li>
 </ul>
-<p>The top-level <code>pynetbox</code> package must remain importable and must continue to expose the API entry point used to construct a client.</p>
+<p>The top-level <code>pynetbox</code> package must remain importable and must continue to expose the API entry point for constructing a client.</p>
 <h4>API Object</h4>
-<p>The client object is constructed from a host URL and supported keyword arguments such as authentication/session information and SSL verification settings.</p>
+<p>The client object is built from a host URL and supported keyword arguments such as authentication/session information and SSL verification settings.</p>
 <ul>
-<li>Expose the resolved API base URL as <code>base_url</code>. The supplied host must be normalized so that a trailing slash does not produce a duplicate slash; for example, <code>http://localhost:8000/</code> resolves to <code>http://localhost:8000/api</code>.</li>
-<li>Expose supported construction options, including <code>ssl_verify</code> and similar pass-through values, directly as attributes. <code>getattr(api, option)</code> must return the supplied value, and the identical value must propagate to the corresponding application and endpoint objects so it is available through <code>getattr(endpoint, option)</code>.</li>
-<li>Expose application attributes including <code>dcim</code>, <code>ipam</code>, <code>circuits</code>, <code>tenancy</code>, and <code>virtualization</code>; each application exposes its endpoints by attribute name.</li>
-<li>When session-key acquisition is needed, perform it through <code>pynetbox.core.query.requests.post</code>.</li>
+<li>Expose the resolved API base URL as <code>base_url</code>. The supplied host must be normalized such that a trailing slash does not create a duplicate slash; for example, <code>http://localhost:8000/</code> resolves to <code>http://localhost:8000/api</code>.</li>
+<li>Expose supported construction options directly as attributes, including <code>ssl_verify</code> and similar pass-through values. <code>getattr(api, option)</code> must return the supplied value, and that identical value must propagate to the corresponding application and endpoint objects, so that it is available through <code>getattr(endpoint, option)</code>.</li>
+<li>Expose application attributes including <code>dcim</code>, <code>ipam</code>, <code>circuits</code>, <code>tenancy</code>, and <code>virtualization</code>; the endpoints of each application are exposed by attribute name.</li>
+<li>When session-key acquisition is needed, carry it out through <code>pynetbox.core.query.requests.post</code>.</li>
 </ul>
-<h5>DCIM choices</h5>
-<p>The DCIM application object must expose a callable <code>choices()</code> method at <code>api.dcim.choices()</code>.</p>
+<h5>DCIM Choices</h5>
+<p>A callable <code>choices()</code> method must be exposed by the DCIM application object at <code>api.dcim.choices()</code>.</p>
 <ul>
-<li>Calling it performs a GET against <code>&lt;base_url&gt;/dcim/_choices/</code>.</li>
-<li>It returns the parsed payload from that endpoint.</li>
+<li>Calling it issues a GET against <code>&lt;base_url&gt;/dcim/_choices/</code>.</li>
+<li>It returns the parsed payload of that endpoint.</li>
 </ul>
 <h4>Endpoint Class</h4>
 <p><code>pynetbox.core.endpoint.Endpoint</code></p>
 <h5>Constructor</h5>
-<p><code>Endpoint(api, app, name)</code> takes the API object, the application object, and the endpoint name string.</p>
-<p>The endpoint URL is derived from <code>api.base_url</code>, the application name, and the endpoint name. Underscores in the Python endpoint name become hyphens in the URL segment. For example, <code>console_ports</code> maps to <code>console-ports</code>.</p>
+<p><code>Endpoint(api, app, name)</code> accepts the API object, the application object, and the endpoint name string.</p>
+<p>The endpoint URL is built from <code>api.base_url</code>, the application name, and the endpoint name. Underscores in the Python endpoint name turn into hyphens in the URL segment. For example, <code>console_ports</code> maps to <code>console-ports</code>.</p>
 <h5><code>get(id)</code></h5>
 <ul>
-<li>Perform a GET against <code>&lt;base_url&gt;/&lt;app&gt;/&lt;endpoint-name&gt;/&lt;id&gt;/</code>.</li>
-<li>Return one <code>Record</code> or the endpoint’s appropriate <code>Record</code> subclass.</li>
-<li>Return a falsy value or <code>None</code> when no object is found.</li>
-<li>A fetched record’s <code>delete()</code> method must issue a DELETE for that record’s detail URL.</li>
+<li>A GET against <code>&lt;base_url&gt;/&lt;app&gt;/&lt;endpoint-name&gt;/&lt;id&gt;/</code> is performed.</li>
+<li>Return one <code>Record</code> or the appropriate <code>Record</code> subclass for the endpoint.</li>
+<li>Return <code>None</code> or a falsy value when no object is found.</li>
+<li>The <code>delete()</code> method of a fetched record must issue a DELETE for that record's detail URL.</li>
 </ul>
 <h5><code>filter(**kwargs)</code></h5>
 <ul>
-<li>Perform a GET against <code>&lt;base_url&gt;/&lt;app&gt;/&lt;endpoint-name&gt;/?&lt;query-string&gt;</code>, with the query string built from the supplied keyword arguments. For example, <code>filter(name='test')</code> requests <code>...?name=test</code>.</li>
-<li>Return a <code>list</code> containing one record object for every returned record dict.</li>
-<li>Calling <code>filter()</code> without keyword arguments must raise <code>ValueError</code>.</li>
-<li>Supplying the reserved keyword <code>id</code> must raise <code>ValueError</code>.</li>
+<li>A GET against <code>&lt;base_url&gt;/&lt;app&gt;/&lt;endpoint-name&gt;/?&lt;query-string&gt;</code> is performed, with the query string built from the supplied keyword arguments. For example, <code>filter(name='test')</code> requests <code>...?name=test</code>.</li>
+<li>Return a <code>list</code> that contains one record object for every returned record dict.</li>
+<li><code>filter()</code> called without keyword arguments must raise <code>ValueError</code>.</li>
+<li>Passing the reserved keyword <code>id</code> must raise <code>ValueError</code>.</li>
 </ul>
 <h5><code>all()</code></h5>
-<p>Retrieve all records for the endpoint and return them as a list of record objects.</p>
+<p>Retrieve all records belonging to the endpoint and return them as a list of record objects.</p>
 <h5><code>create(...)</code></h5>
-<p>Issue a POST to create objects. Support both a single object and bulk creation from a list of dictionaries.</p>
+<p>Issue a POST in order to create objects. Support both single-object creation and bulk creation from a list of dictionaries.</p>
 <h4>Record Class</h4>
 <p><code>pynetbox.core.response.Record</code></p>
 <h5>Constructor</h5>
-<p><code>Record(values, api, endpoint)</code> takes exactly three required positional arguments: the raw values dictionary, an API object (which may be <code>None</code>), and an endpoint object (which may be <code>None</code>).</p>
-<h5>Attribute conversion and representation</h5>
+<p><code>Record(values, api, endpoint)</code> accepts exactly three required positional arguments: a dictionary of raw values, an API object (which may be <code>None</code>), and an endpoint object (which may be <code>None</code>).</p>
+<h5>Attribute Conversion and Representation</h5>
 <ul>
-<li>Populate attributes from <code>values</code>.</li>
-<li>Wrap nested dictionaries that represent related objects as nested <code>Record</code> instances or the appropriate specialized subclass.</li>
-<li>Convert lists of related-object dictionaries to lists of record objects.</li>
-<li>Preserve JSON-style fields such as <code>custom_fields</code> and <code>config_context</code> as plain dictionaries.</li>
+<li>Attributes are populated from <code>values</code>.</li>
+<li>Nested dictionaries that represent related objects are wrapped as nested <code>Record</code> instances or the appropriate specialized subclass.</li>
+<li>Lists of related-object dictionaries are converted to lists of record objects.</li>
+<li>JSON-style fields such as <code>custom_fields</code> and <code>config_context</code> are preserved as plain dictionaries.</li>
 <li><code>str(record)</code> must return a string, and <code>dict(record)</code> must return a dictionary.</li>
 </ul>
 <h5><code>serialize()</code></h5>
-<p>Return a plain dictionary suitable for sending to NetBox.</p>
+<p>Return a plain dictionary that is suitable for sending to NetBox.</p>
 <ul>
-<li>Serialize a list of related records to their <code>id</code> values. For example, related VLANs with IDs 1 and 2 serialize as <code>[1, 2]</code>.</li>
-<li>Preserve a plain list of scalar values; for example, <code>units=[12]</code> remains <code>[12]</code>.</li>
-<li>De-duplicate a list of tag strings. Ordering of the de-duplicated result is not specified.</li>
-<li>Preserve scalar fields.</li>
-<li>Reflect assignments made after construction. For example, changing <code>serial</code> or <code>form_factor</code> must cause the serialized field to contain the new value.</li>
+<li>A list of related records is serialized to its <code>id</code> values. For example, related VLANs with IDs 1 and 2 serialize as <code>[1, 2]</code>.</li>
+<li>A plain list of scalar values is preserved; for example, <code>units=[12]</code> remains <code>[12]</code>.</li>
+<li>A list of tag strings is de-duplicated. The ordering of the de-duplicated result is not specified.</li>
+<li>Scalar fields are preserved.</li>
+<li>Assignments made after construction are reflected. For example, changing <code>serial</code> or <code>form_factor</code> must cause the serialized field to contain the new value.</li>
 </ul>
 <h5><code>_diff()</code></h5>
-<p>Return a <code>set</code> containing the names of top-level fields whose current values differ from their initialized values.</p>
-<p>Difference detection must include:</p>
+<p>Return a <code>set</code> holding the names of the top-level fields whose current values differ from their initialized values.</p>
+<p>Difference detection must include the following:</p>
 <ul>
 <li>in-place mutation of a list, such as appending to <code>tags</code>;</li>
-<li>replacing a nested-record field with a scalar; and</li>
-<li>changing a scalar string.</li>
+<li>replacement of a nested-record field with a scalar; and</li>
+<li>a change to a scalar string.</li>
 </ul>
-<p>For example, given initialized fields <code>custom_fields</code>, <code>string_field</code>, <code>int_field</code>, <code>nested_dict</code>, and <code>tags</code>, then appending <code>baz</code> to <code>tags</code>, assigning <code>1</code> to <code>nested_dict</code>, and changing <code>string_field</code> to <code>foobaz</code> must produce exactly <code>{'tags', 'nested_dict', 'string_field'}</code>.</p>
-<h5>Saving and deletion</h5>
+<p>For example, given initialized fields <code>custom_fields</code>, <code>string_field</code>, <code>int_field</code>, <code>nested_dict</code>, and <code>tags</code>, appending <code>baz</code> to <code>tags</code>, assigning <code>1</code> to <code>nested_dict</code>, and changing <code>string_field</code> to <code>foobaz</code> must produce exactly <code>{'tags', 'nested_dict', 'string_field'}</code>.</p>
+<h5>Saving and Deletion</h5>
 <ul>
-<li>Saving a changed existing record must issue a PUT.</li>
-<li>Saving a record whose state is unchanged must perform no update and return a falsy value.</li>
-<li>Deleting a fetched record must issue a DELETE and report success according to the underlying request result.</li>
+<li>When a changed existing record is saved, a PUT must be issued.</li>
+<li>When the state of a record is unchanged, saving it must perform no update and return a falsy value.</li>
+<li>When a fetched record is deleted, a DELETE must be issued, and success must be reported according to the underlying request result.</li>
 </ul>
 <h4>DCIM Device Records</h4>
-<p><code>pynetbox.models.dcim.Devices</code> is a <code>Record</code> subclass.</p>
-<p>For a fetched device:</p>
+<p><code>pynetbox.models.dcim.Devices</code> is a subclass of <code>Record</code>.</p>
+<p>For a device that has been fetched:</p>
 <ul>
-<li><code>primary_ip</code> and <code>primary_ip4</code> must be instances of <code>pynetbox.models.ipam.IpAddresses</code> when those values are present.</li>
+<li>When those values are present, <code>primary_ip</code> and <code>primary_ip4</code> must be instances of <code>pynetbox.models.ipam.IpAddresses</code>.</li>
 <li><code>config_context</code> must be a plain dictionary.</li>
 <li><code>custom_fields</code> must be a plain dictionary.</li>
-<li>Methods that retrieve related device resources, such as rack-unit information or NAPALM data, must issue the corresponding follow-up GET requests and return the parsed results.</li>
+<li>Methods retrieving related device resources, such as rack-unit information or NAPALM data, must issue the corresponding follow-up GET requests and return the parsed results.</li>
 </ul>
 <h4>DCIM Rack Records</h4>
-<p>When a rack’s units are retrieved, each populated unit’s <code>device</code> attribute must be an instance of <code>pynetbox.models.dcim.Devices</code>.</p>
+<p>When the units of a rack are retrieved, each populated unit's <code>device</code> attribute must be an instance of <code>pynetbox.models.dcim.Devices</code>.</p>
 <h4>DCIM Interface Records</h4>
-<p>Interfaces use the current NetBox connection representation. A fetched interface may include:</p>
+<p>Interfaces make use of the current NetBox connection representation. A fetched interface may include:</p>
 <ul>
 <li><code>connected_endpoint</code>, wrapped as a nested related-object record;</li>
-<li><code>connection_status</code>, wrapped as a nested object with <code>value</code> and <code>label</code>; and</li>
-<li><code>cable</code>, wrapped as a nested related-object record with <code>id</code>, <code>url</code>, and <code>label</code>.</li>
+<li><code>connection_status</code>, wrapped as a nested object that has <code>value</code> and <code>label</code>; and</li>
+<li><code>cable</code>, wrapped as a nested related-object record carrying <code>id</code>, <code>url</code>, and <code>label</code>.</li>
 </ul>
-<p>These fields must be exposed normally. Interface records must remain mutable and serializable; for example, assigning a new <code>form_factor</code> and then serializing must return that new value. No special handling for legacy <code>interface_connection</code> or <code>circuit_termination</code> fields is required.</p>
+<p>These fields must be exposed in the normal way. Interface records must remain mutable and serializable; for example, assigning a new <code>form_factor</code> and then serializing must return that new value. No special handling is required for the legacy <code>interface_connection</code> or <code>circuit_termination</code> fields.</p>
 <h4>DCIM Cables Endpoint</h4>
-<p>Expose a DCIM endpoint named <code>cables</code> at <code>api.dcim.cables</code>, mapped to the URL segment <code>cables</code>.</p>
-<p>A cable record supports the common endpoint and record operations, including <code>get</code>, <code>all</code>, <code>filter</code>, deletion, state comparison, string/dictionary conversion, and serialization. Its data shape includes:</p>
+<p>Expose a DCIM endpoint called <code>cables</code> at <code>api.dcim.cables</code>, mapped to the URL segment <code>cables</code>.</p>
+<p>The common endpoint and record operations are supported by a cable record, including <code>get</code>, <code>all</code>, <code>filter</code>, deletion, state comparison, string/dictionary conversion, and serialization. Its data shape includes the following:</p>
 <ul>
 <li><code>id</code>;</li>
 <li><code>termination_a_type</code>, <code>termination_a_id</code>, and <code>termination_a</code>;</li>
 <li><code>termination_b_type</code>, <code>termination_b_id</code>, and <code>termination_b</code>;</li>
 <li><code>type</code>;</li>
-<li><code>status</code>, represented by a nested object with <code>value</code> and <code>label</code>;</li>
+<li><code>status</code>, represented as a nested object with <code>value</code> and <code>label</code>;</li>
 <li><code>label</code>, <code>color</code>, <code>length</code>, and <code>length_unit</code>.</li>
 </ul>
 <p>A single-cable lookup for ID 1 must request <code>&lt;base_url&gt;/dcim/cables/1/</code>, return a <code>Record</code>, and produce a value convertible through both <code>str()</code> and <code>dict()</code>.</p>
-<p>Cable termination objects vary in shape and must be wrapped generically rather than requiring termination-specific classes:</p>
+<p>The shapes of cable termination objects vary, and they must be wrapped generically rather than in a manner requiring termination-specific classes:</p>
 <ul>
 <li>A DCIM port termination can contain <code>device</code>, <code>name</code>, and <code>cable</code>.</li>
-<li>A circuits termination, identified by <code>termination_a_type == 'circuits.circuittermination'</code>, can contain a nested <code>circuit</code> object with <code>id</code>, <code>url</code>, and <code>cid</code>, plus <code>term_side</code>.</li>
-<li>A DCIM interface termination, identified by <code>dcim.interface</code>, can contain <code>device</code>, <code>name</code>, and <code>cable</code>.</li>
+<li>A circuits termination, identified by <code>termination_a_type == 'circuits.circuittermination'</code>, can contain a nested <code>circuit</code> object having <code>id</code>, <code>url</code>, and <code>cid</code>, plus <code>term_side</code>.</li>
+<li>Identified by <code>dcim.interface</code>, a DCIM interface termination can contain <code>device</code>, <code>name</code>, and <code>cable</code>.</li>
 </ul>
-<h4>Response-Object Compatibility and Support Utility</h4>
-<p>A fake HTTP response object must be constructible from either an external JSON fixture or an in-memory <code>content</code> value.</p>
+<h4>Response-Object Compatibility and the Support Utility</h4>
+<p>It must be possible to construct a fake HTTP response object from either an external JSON fixture or an in-memory <code>content</code> value.</p>
 <ul>
-<li>When an in-memory dictionary is supplied as <code>content</code>, the response object's <code>content</code> attribute must contain the JSON-serialized string for that dictionary.</li>
-<li>When a fixture path is supplied instead, the referenced content must be loaded.</li>
-<li>The response object must expose <code>status_code</code>, <code>content</code>, and <code>ok</code>.</li>
+<li>When an in-memory dictionary is supplied as <code>content</code>, the response object's <code>content</code> attribute must hold the JSON-serialized string for that dictionary.</li>
+<li>When a fixture path is supplied instead, the content that is referenced must be loaded.</li>
+<li><code>status_code</code>, <code>content</code>, and <code>ok</code> must be exposed by the response object.</li>
 </ul>
-<p>Response parsing must correctly consume these JSON-string <code>content</code> values.</p>
+<p>Response parsing must consume these JSON-string <code>content</code> values correctly.</p>
 <h4>Compatibility Requirements</h4>
 <ul>
-<li>HTTP GET, POST, PUT, and DELETE calls must be made through <code>pynetbox.core.query.requests</code>.</li>
-<li>Requests must continue to carry the appropriate authorization headers and <code>verify</code> value.</li>
-<li>The package must support both Python 2 and Python 3; <code>six</code> is available for compatibility code.</li>
+<li>Calls for HTTP GET, POST, PUT, and DELETE must be made through <code>pynetbox.core.query.requests</code>.</li>
+<li>The appropriate authorization headers and the <code>verify</code> value must continue to be carried by requests.</li>
+<li>Both Python 2 and Python 3 must be supported by the package; <code>six</code> is available for compatibility code.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Fix the serialization logic in the Record class located in pynetbox/core/response.py so that it correctly handles list-valued fields whose elements are not…</span>
-        <span class="spec-meta muted">271 words · source specification
+        <span class="spec-title">Correct the serialization logic of the Record class located in pynetbox/core/response.py so that list-valued fields whose elements are not strings (for example</span>
+        <span class="spec-meta muted">279 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Fix the serialization logic in the <code>Record</code> class located in <code>pynetbox/core/response.py</code> so that it correctly handles list-valued fields whose elements are not strings (for example, lists of integers).</p>
-<h4>Background</h4>
-<p>The <code>Record</code> class (importable as <code>from pynetbox.core.response import Record</code>) is constructed with a dictionary of field values:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Correct the serialization logic of the <code>Record</code> class located in <code>pynetbox/core/response.py</code> so that list-valued fields whose elements are not strings (for example, lists of integers) are handled correctly.</p>
+<h4>Context</h4>
+<p>The <code>Record</code> class (importable as <code>from pynetbox.core.response import Record</code>) takes a dictionary of field values at construction:</p>
 <pre><code class="language-python">Record(values: dict, api, endpoint)
 </code></pre>
-<p>The class provides serialization/diffing functionality that formats each field value. As part of formatting, when a field's value is a list, the elements of that list are joined together into a single string.</p>
-<h4>Required Behavior</h4>
-<p>When a <code>Record</code> is constructed from a dictionary that contains a field whose value is a list, the list-joining/formatting operation must succeed regardless of the element types in the list. Specifically:</p>
+<p>The class offers serialization/diffing functionality that formats each field value. During this formatting, when a field's value is a list, the elements of that list are joined together into a single string.</p>
+<h4>Expected Behavior</h4>
+<p>When a dictionary containing a field whose value is a list is used to construct a <code>Record</code>, the list-joining/formatting operation must succeed regardless of the types of the list's elements. Specifically:</p>
 <ul>
-<li>A list of strings must continue to be handled correctly.</li>
-<li>A list of integers (or other non-string values) must also be handled without raising an error. Each element must be converted to its string form before being joined.</li>
+<li>Correct handling must continue for a list of strings.</li>
+<li>A list of integers (or other non-string values) must also be handled without an error being raised. Each element must be converted to its string form before the join takes place.</li>
 </ul>
-<p>Currently, joining a list whose elements are not strings raises:</p>
+<p>At present, joining a list whose elements are not strings raises:</p>
 <pre><code>TypeError: sequence item 0: expected str instance, int found
 </code></pre>
-<p>This must no longer occur. The fix must ensure any list element is coerced to a string prior to the join so that construction, serialization, and diffing of a <code>Record</code> containing mixed-type or non-string list fields completes successfully.</p>
-<h4>Constraints</h4>
+<p>This must no longer happen. The fix must ensure any list element is coerced to a string prior to the join, so that the construction, serialization, and diffing of a <code>Record</code> that contains mixed-type or non-string list fields completes successfully.</p>
+<h4>Restrictions</h4>
 <ul>
-<li>The public API surface is unchanged: <code>Record</code> remains importable from <code>pynetbox.core.response</code> and is constructed with the same signature.</li>
-<li>Existing behavior for string lists and for appending values to list fields (e.g., mutating a list attribute of a <code>Record</code> after construction) must remain intact.</li>
+<li>The public API surface stays the same: <code>Record</code> is still importable from <code>pynetbox.core.response</code> and is constructed with the same signature.</li>
+<li>Behavior that already exists for string lists, and for appending values to list fields (e.g., mutating a list attribute of a <code>Record</code> after construction), must remain intact.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Fix the iteration behavior of the Record class so that converting a Record instance back to a dictionary faithfully reproduces the original input data,…</span>
-        <span class="spec-meta muted">473 words · source specification
+        <span class="spec-title">The task here is to fix the iteration behavior of the Record class so that a Record instance, when taken back to dictionary form, reproduces the original…</span>
+        <span class="spec-meta muted">531 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Fix the iteration behavior of the <code>Record</code> class so that converting a <code>Record</code> instance back to a dictionary faithfully reproduces the original input data, including nested structures and lists of nested records.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>The task here is to fix the iteration behavior of the <code>Record</code> class so that a <code>Record</code> instance, when taken back to dictionary form, reproduces the original input data faithfully — nested structures as well as lists of nested records.</p>
 <h4>Public API</h4>
 <ul>
-<li><strong>Module:</strong> the <code>Record</code> class must be importable such that it is available as <code>Record</code> in the response module (<code>tests/unit/test_response.py</code> imports it directly by name — provide it at its existing location, <code>pynetbox/core/response.py</code>, exposing the class <code>Record</code>).</li>
-<li><strong>Constructor signature:</strong> <code>Record(values, api, endpoint)</code> — the class must be constructible with a source dictionary as the first positional argument and two additional positional arguments (which may be <code>None</code>).</li>
-<li><strong>Iteration:</strong> <code>Record</code> must support <code>__iter__</code> so that <code>dict(record_instance)</code> yields a dictionary.</li>
+<li><strong>Module:</strong> the <code>Record</code> class must be importable, so that <code>Record</code> is available in the response module (<code>tests/unit/test_response.py</code> imports the class directly by name — the class <code>Record</code> is to be exposed from its existing location, <code>pynetbox/core/response.py</code>).</li>
+<li><strong>Constructor signature:</strong> <code>Record(values, api, endpoint)</code> — the class must be constructible by passing a source dictionary as the first positional argument, plus two further positional arguments (which may be <code>None</code>).</li>
+<li><strong>Iteration:</strong> <code>__iter__</code> must be supported by <code>Record</code>, so that <code>dict(record_instance)</code> yields a dictionary.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>When a <code>Record</code> is constructed from a source dictionary and then converted back into a dictionary via <code>dict(record_instance)</code>, the result must be <strong>equal</strong> to the original source dictionary. This round-trip equality must hold for all of the following value types appearing in the source dictionary:</p>
+<p>Construct a <code>Record</code> from a source dictionary and then turn it back into a dictionary using <code>dict(record_instance)</code> — what comes back must be <strong>equal</strong> to the source dictionary the <code>Record</code> was built from. This round-trip equality must hold for all of the following value types found in the source dictionary:</p>
 <ol>
 <li>
-<p><strong>Scalar values</strong> — integers and strings stored under top-level keys must be reproduced unchanged (e.g. an <code>id</code> integer, a string field, an int field).</p>
+<p><strong>Scalar values</strong> — integers and strings stored under top-level keys must come back unchanged (for example, an <code>id</code> integer, a string field, an int field).</p>
 </li>
 <li>
-<p><strong>Plain (non-record) dictionaries</strong> — a dictionary value that does <em>not</em> represent a nested record (e.g. a <code>custom_fields</code> mapping like <code>{'foo': 'bar'}</code>) must be reproduced unchanged as a plain dictionary.</p>
+<p><strong>Plain (non-record) dictionaries</strong> — a dictionary value that does <em>not</em> stand for a nested record (e.g. a <code>custom_fields</code> mapping like <code>{'foo': 'bar'}</code>) must emerge as a plain dictionary, unchanged.</p>
 </li>
 <li>
-<p><strong>Nested record dictionaries</strong> — a dictionary value that represents a nested record (a mapping containing record-identifying keys such as <code>id</code> and <code>name</code>, e.g. <code>{'id': 222, 'name': 'bar'}</code>) must be reproduced as an equal dictionary containing the same keys and values.</p>
+<p><strong>Nested record dictionaries</strong> — when a dictionary value represents a nested record (a mapping with record-identifying keys such as <code>id</code> and <code>name</code>, e.g. <code>{'id': 222, 'name': 'bar'}</code>), the output must be an equal dictionary that holds the same keys and values.</p>
 </li>
 <li>
-<p><strong>Lists of scalars</strong> — a list whose elements are scalars (e.g. a list of integers, or a list of string tags) must be reproduced as an equal list with the same elements in the same order.</p>
+<p><strong>Lists of scalars</strong> — for a list in which every element is a scalar (e.g. a list of integers, or a list of string tags), the round trip must end with an equal list that has the same elements in the same order.</p>
 </li>
 <li>
-<p><strong>Lists of record dictionaries</strong> — a list whose elements are dictionaries representing nested records must be reproduced as an equal list of dictionaries, preserving order. Each element dictionary must round-trip back to a dictionary equal to its original, including its own scalar fields, its own plain nested dictionaries (e.g. <code>custom_fields</code>), and its own scalar lists (e.g. <code>tags</code>).</p>
+<p><strong>Lists of record dictionaries</strong> — a list in which every element is a dictionary representing a nested record must be turned back into an equal list of dictionaries, its order preserved. As part of the enclosing list's round trip, each element dictionary must come back as a dictionary equal to its original, including its own scalar fields, its own plain nested dictionaries (e.g. <code>custom_fields</code>), and its own scalar lists (e.g. <code>tags</code>).</p>
 </li>
 </ol>
 <h4>Edge Cases</h4>
 <ul>
-<li>The round-trip must produce a result that compares <strong>equal</strong> to the original input dictionary as a whole (<code>dict(test) == test_values</code>). No keys may be added, dropped, renamed, or reordered in a way that breaks dictionary equality, and no values may be altered in type or content that breaks equality.</li>
-<li>The primary fix concerns lists containing record-like dictionaries: such lists must be converted element-by-element back into plain dictionaries, rather than left as record objects or otherwise mangled, so that the containing list compares equal to the original list of dictionaries.</li>
+<li>As a whole, the outcome of the round-trip must compare <strong>equal</strong> to the original input dictionary (<code>dict(test) == test_values</code>). No keys may be added, dropped, renamed, or reordered in any manner that breaks dictionary equality, and no values may be altered in type or content in a fashion that breaks equality.</li>
+<li>What this fix mainly targets is lists that hold record-like dictionaries: each element of such a list must be converted back into a plain dictionary — not left as a record object, and not mangled in some other way — so that the list containing them ends up equal to the original list of dictionaries.</li>
 </ul>
 <h4>Out of Scope</h4>
-<p>Only the dictionary round-trip behavior described above is required. Do not add or alter any other behavior.</p>
+<p>The only behavior required is the dictionary round-trip behavior described above. No other behavior may be added or altered.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on a Record class that wraps a dictionary-like data structure returned from a response.</span>
-        <span class="spec-meta muted">297 words · source specification
+        <span class="spec-title">Your work centers on a Record class — a wrapper placed around a dictionary-style data structure that comes back from a response.</span>
+        <span class="spec-meta muted">375 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a <code>Record</code> class that wraps a dictionary-like data structure returned from a response. This class provides access to the fields of the underlying data. Your task is to fix a bug in how the class handles fields whose value is an <strong>empty list</strong>.</p>
-<h4>Public API</h4>
-<p>The relevant class is <code>Record</code>, located in the module under test (<code>response</code> module). It is constructed from a mapping of field names to values, where values may be:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Background</h4>
+<p>Your work centers on a <code>Record</code> class — a wrapper placed around a dictionary-style data structure that comes back from a response. Access to the fields of the underlying data is provided by this class. What you need to do is repair a defect in the way the class deals with fields that carry an <strong>empty list</strong> as their value.</p>
+<h4>Public Interface</h4>
+<p>Here the class to focus on is <code>Record</code>, found inside the module under test (the <code>response</code> module). A <code>Record</code> is created by handing it a mapping in which field names are paired with values; a value may be:</p>
 <ul>
-<li>Scalars (e.g., integers, strings)</li>
-<li>Lists of scalars</li>
-<li>Lists of nested mappings (which represent nested records)</li>
+<li>Scalar values (for example: integers, strings)</li>
+<li>Lists consisting of scalars</li>
+<li>Lists made up of nested mappings (these stand for nested records)</li>
 <li><strong>Empty lists</strong></li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When a <code>Record</code> is constructed from data that contains a field whose value is an <strong>empty list</strong> (<code>[]</code>), the construction and any subsequent access to that field must succeed without raising an error.</p>
-<p>Specifically:</p>
+<h4>Behavior Requirements</h4>
+<p>If the data used to build a <code>Record</code> contains a field holding an <strong>empty list</strong> (<code>[]</code>) as its value, then building that <code>Record</code> — and any access made later to the field — must succeed, with no error being raised.</p>
+<p>More precisely:</p>
 <ul>
-<li>A field mapped to an empty list must be handled gracefully.</li>
-<li>Constructing a <code>Record</code> from data that includes one or more empty-list fields must not raise an <code>IndexError</code> (or any other exception) as a result of those empty lists.</li>
-<li>The empty-list field must remain accessible and reflect its empty state (i.e., it stays an empty collection with no elements).</li>
+<li>A field that is mapped to an empty list must be dealt with gracefully.</li>
+<li>Where data used to build a <code>Record</code> contains one or more fields holding empty lists, the construction must not raise an <code>IndexError</code> (or any other exception) because of those empty lists.</li>
+<li>The empty-list field must stay accessible, and it must mirror its state of emptiness (that is, it remains a collection that is empty and has no elements).</li>
 </ul>
-<h4>Edge Case Being Fixed</h4>
-<p>Previously, processing a field whose value was an empty list caused an <code>IndexError</code> — likely because logic assumed a list contained at least one element (e.g., inspecting the first element to determine whether the list holds nested records). The fix must ensure that an empty list is treated as a valid, empty collection and does not trigger element-index access.</p>
+<h4>Edge Case Being Addressed</h4>
+<p>Before this correction, an <code>IndexError</code> was the outcome of processing a field whose mapped value was an empty list. The probable cause is that the logic took it for granted that a list holds at least one element (for instance, by checking the first element to work out whether the list contains nested records). What the fix must ensure is that an empty list is regarded as a collection that is valid and empty, and that element-index access is not triggered.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Existing behavior for scalar fields, non-empty lists of scalars, and lists of nested records must remain unchanged.</li>
-<li>Only the handling of empty-list fields is being corrected.</li>
+<li>The behavior already in place for scalar fields, for non-empty lists of scalars, and for lists of nested records must not be altered.</li>
+<li>The correction covers only the handling of empty-list fields.</li>
 </ul>
 </div>
     </details>
@@ -1203,38 +1209,38 @@ nb.dcim.devices.all()
       <summary class="spec-summary">
         <span class="spec-num">19</span>
         <span class="spec-title">Module: pynetbox.core.response</span>
-        <span class="spec-meta muted">306 words · source specification
+        <span class="spec-meta muted">339 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change: <code>Record</code> serialization and change detection</h3>
+      <div class="spec-body"><h3>Required change: serialization and change detection for <code>Record</code></h3>
 <h4>Public API</h4>
 <p>Module: <code>pynetbox.core.response</code></p>
-<p>Class and callable surface:</p>
+<p>Classes and callables:</p>
 <pre><code class="language-python">Record(values, api, endpoint)
 Record.serialize()
 Record._diff()
 dict(record)
 </code></pre>
-<p>The <code>api</code> and <code>endpoint</code> constructor arguments must accept <code>None</code>. Fields supplied in <code>values</code> must be accessible and assignable as attributes.</p>
-<h4>Required behavior</h4>
+<p>The constructor arguments <code>api</code> and <code>endpoint</code> must accept <code>None</code>. Fields supplied in <code>values</code> must be usable as attributes, both for access and for assignment.</p>
+<h4>Behavior that is required</h4>
 <h5>Serialization</h5>
-<p><code>Record.serialize()</code> must return a dictionary-like serialized representation.</p>
+<p><code>Record.serialize()</code> must return a serialized representation that is dictionary-like.</p>
 <ul>
 <li>
-<p>A field containing a list of nested record dictionaries must serialize each nested item to its <code>id</code>. For example, a <code>tagged_vlans</code> list whose entries have IDs <code>1</code> and <code>2</code> must serialize as:</p>
+<p>When a field contains a list of nested record dictionaries, each nested item must be serialized to its <code>id</code>. For example, given a <code>tagged_vlans</code> list whose entries have IDs <code>1</code> and <code>2</code>, it must serialize as:</p>
 <pre><code class="language-python">{&quot;tagged_vlans&quot;: [1, 2]}
 </code></pre>
 </li>
 <li>
-<p>Lists of integers must remain integer lists. For example, <code>units=[12]</code> must serialize as <code>[12]</code>.</p>
+<p>A list made up of integers must remain a list of integers. As an example, <code>units=[12]</code> must serialize as <code>[12]</code>.</p>
 </li>
 <li>
-<p>Duplicate values in a <code>tags</code> list must be removed during serialization. Serializing <code>[&quot;foo&quot;, &quot;bar&quot;, &quot;foo&quot;]</code> must produce a <code>tags</code> list containing two entries. No ordering requirement is imposed.</p>
+<p>During serialization, duplicate values within a <code>tags</code> list must be removed. Serializing <code>[&quot;foo&quot;, &quot;bar&quot;, &quot;foo&quot;]</code> must produce a <code>tags</code> list with two entries. No requirement is placed on the ordering.</p>
 </li>
 </ul>
 <h5>Change detection</h5>
-<p><code>Record._diff()</code> must report changed top-level field names as a set.</p>
-<p>Given a record containing fields such as:</p>
+<p><code>Record._diff()</code> must report, as a set, the names of top-level fields that have changed.</p>
+<p>Take a record containing fields such as:</p>
 <pre><code class="language-python">{
     &quot;id&quot;: 123,
     &quot;custom_fields&quot;: {&quot;foo&quot;: &quot;bar&quot;},
@@ -1250,15 +1256,15 @@ dict(record)
 record.nested_dict = 1
 record.string_field = &quot;foobaz&quot;
 </code></pre>
-<p><code>record._diff()</code> must return exactly:</p>
+<p>a call to <code>record._diff()</code> must return exactly:</p>
 <pre><code class="language-python">{&quot;tags&quot;, &quot;nested_dict&quot;, &quot;string_field&quot;}
 </code></pre>
-<p>For <code>tagged_vlans</code>, appending an ID already represented by an existing nested record must not count as a change. For example, if the original value contains one VLAN dictionary with <code>&quot;id&quot;: 1</code>, then:</p>
+<p>For <code>tagged_vlans</code>, appending an ID that an existing nested record already represents must not count as a change. As an example, if the original value contains a single VLAN dictionary with <code>&quot;id&quot;: 1</code>, then:</p>
 <pre><code class="language-python">record.tagged_vlans.append(1)
 </code></pre>
 <p>must leave <code>record._diff()</code> falsey.</p>
 <h5>Dictionary conversion</h5>
-<p><code>dict(record)</code> must reproduce the original value structure, including:</p>
+<p><code>dict(record)</code> must reproduce the structure of the original value, including:</p>
 <ul>
 <li>scalar fields;</li>
 <li>nested dictionaries;</li>
@@ -1267,44 +1273,45 @@ record.string_field = &quot;foobaz&quot;
 <li>tag lists;</li>
 <li>lists of nested record dictionaries.</li>
 </ul>
-<p>For example, nested records in a <code>record_list</code> must be converted back to dictionaries with their original fields and values, so the resulting dictionary compares equal to the dictionary passed to the constructor.</p>
+<p>As an example, the nested records in a <code>record_list</code> must be converted back into dictionaries carrying their original fields and values, so the resulting dictionary compares equal to the dictionary passed to the constructor.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add a version property to the main API object in the pynetbox package.</span>
-        <span class="spec-meta muted">254 words · source specification
+        <span class="spec-title">Introduce a version property on the main API object of the pynetbox package.</span>
+        <span class="spec-meta muted">278 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add a <code>version</code> property to the main API object in the <code>pynetbox</code> package. This property determines the running version of the remote NetBox instance by inspecting the HTTP response headers returned from a request to the API root.</p>
-<h4>Public API Surface</h4>
-<p>The <code>pynetbox</code> package must expose its API factory function such that:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Introduce a <code>version</code> property on the main API object of the <code>pynetbox</code> package. The property's purpose is to determine the running version of the remote NetBox instance by inspecting the HTTP response headers that a request to the API root returns.</p>
+<h4>Public API</h4>
+<p>The <code>pynetbox</code> package must expose its API factory function in a way that makes the following possible:</p>
 <pre><code class="language-python">import pynetbox
 api = pynetbox.api(host)
 </code></pre>
-<p>creates an API object, where <code>host</code> is a base URL string (positional first argument).</p>
-<p>The resulting API object must expose a read-only property:</p>
+<p>Running this code creates an API object, with <code>host</code> being a base URL string supplied as the positional first argument.</p>
+<p>The API object that results must expose a read-only property:</p>
 <pre><code class="language-python">api.version
 </code></pre>
-<h4>Required Behavior</h4>
-<p>When <code>api.version</code> is accessed:</p>
+<h4>Behavior Requirements</h4>
+<p>Whenever <code>api.version</code> is accessed:</p>
 <ol>
-<li>The API object must perform an HTTP GET request to the API root URL (via <code>requests.get</code>).</li>
-<li>It must read the response's <code>headers</code> mapping.</li>
-<li>If the response headers contain an <code>&quot;API-Version&quot;</code> key, <code>api.version</code> must return its value (a string), exactly as provided in the header.</li>
-<li>If the response headers do not contain an <code>&quot;API-Version&quot;</code> key, <code>api.version</code> must return an empty string <code>&quot;&quot;</code>.</li>
+<li>The API object must issue an HTTP GET request to the API root URL (using <code>requests.get</code>).</li>
+<li>It must read the <code>headers</code> mapping of the response.</li>
+<li>If an <code>&quot;API-Version&quot;</code> key is present in the response headers, <code>api.version</code> must return its value (a string), exactly as provided in the header.</li>
+<li>If the response headers contain no <code>&quot;API-Version&quot;</code> key, <code>api.version</code> must return an empty string <code>&quot;&quot;</code>.</li>
 </ol>
-<h5>Details / Edge Cases</h5>
+<h5>Details and Edge Cases</h5>
 <ul>
-<li>The header lookup key is the literal string <code>&quot;API-Version&quot;</code>.</li>
-<li>The return value is always a string: either the header's value or <code>&quot;&quot;</code> when the header is absent.</li>
-<li>Accessing <code>api.version</code> triggers the GET request each time it is evaluated; the response object is expected to provide a <code>headers</code> attribute (a mapping) and an <code>ok</code> attribute.</li>
+<li>The key used for the header lookup is the literal string <code>&quot;API-Version&quot;</code>.</li>
+<li>The value that is returned is always a string: either the header's value, or <code>&quot;&quot;</code> when the header is absent.</li>
+<li>Every evaluation of <code>api.version</code> triggers the GET request; the response object is expected to provide a <code>headers</code> attribute (a mapping) and an <code>ok</code> attribute.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Constructing the API object via <code>pynetbox.api(host)</code> must not itself require the version request to succeed; the version request only occurs when the <code>version</code> property is accessed.</li>
+<li>Creating the API object by way of <code>pynetbox.api(host)</code> must not itself require the version request to succeed; the version request only takes place when the <code>version</code> property is accessed.</li>
 </ul>
 </div>
     </details>

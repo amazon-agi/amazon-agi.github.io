@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/Jackhammer9/Reduino/compare/311107adbd446c8a2e8509f3aabf7768a209fc50...1c1405d7c010a5a4c92165e11a99823d3cf15757" target="_blank" rel="noopener" class="mono">311107adbd … 1c1405d7c0</a> · 43 commits by 1 author over 5 d (2025-10-26 to 2025-10-31)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 34 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>3,151 lines of code in 22 files when the chain starts · over the 20 requests the developers added 2,798 and removed 331 lines of code, plus 861 lines of tests (174 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>10.0k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 14 and symbols introduced by earlier ones to depth 5</dd></div>
+      <div><dt>Specifications:</dt><dd>11.0k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 14 and symbols introduced by earlier ones to depth 5</dd></div>
     </dl>
   </header>
 </section>
@@ -144,251 +144,252 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Reduino Led Declaration Transpilation</span>
-        <span class="spec-meta muted">575 words · source specification
+        <span class="spec-title">Transpiling Reduino Led Declarations</span>
+        <span class="spec-meta muted">634 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Reduino Led Declaration Transpilation</h3>
+      <div class="spec-body"><h3>Task Specification: Transpiling Reduino Led Declarations</h3>
 <h4>Overview</h4>
-<p>You are implementing part of a Python-to-C++ (Arduino) transpiler within the <code>Reduino</code> package. The transpiler parses Python source code that uses Reduino's high-level actuator helpers and emits equivalent Arduino C++ code. This task covers the <code>Led</code> actuator: its runtime helper behavior, its representation in the transpiler AST, parsing of its declaration, and emission of the corresponding C++ code.</p>
-<h4>Test Fixtures Available</h4>
-<p>Two fixtures are available to the calling code and must be supported by your implementation's behavior (you do not implement the fixtures themselves, but your API must work with them):</p>
+<p>You will implement one portion of a Python-to-C++ (Arduino) transpiler that lives inside the <code>Reduino</code> package. Python source code that uses Reduino's high-level actuator helpers is parsed by this transpiler, which emits equivalent Arduino C++ code. The scope of this task is the <code>Led</code> actuator: the behavior of its runtime helper, how it is represented in the transpiler AST, the parsing of its declaration, and the emission of the corresponding C++ code.</p>
+<h4>Available Test Fixtures</h4>
+<p>The calling code has two fixtures available, and your implementation's behavior must support them (you do not implement the fixtures themselves, but your API must work with them):</p>
 <ul>
-<li>A <code>src</code> fixture: takes a string of Python source (which may be indented as a multi-line block) and returns a normalized version suitable for parsing. Your parser must accept the source strings passed to it.</li>
-<li>A <code>norm</code> fixture: takes emitted C++ text and returns a normalized version (whitespace-collapsed) for substring checks. Your emitter output must contain the required substrings after normalization.</li>
+<li>A <code>src</code> fixture: takes Python source as a string (which may be indented as a multi-line block) and returns a normalized version suitable for parsing. Your parser must accept the source strings that are passed to it.</li>
+<li>A <code>norm</code> fixture: takes emitted C++ text and returns a normalized version (whitespace-collapsed) for substring checks. After normalization, your emitter output must contain the required substrings.</li>
 </ul>
 <h4>Required Public API</h4>
-<h5>1. <code>Reduino.Actuators</code> module</h5>
-<p>Provide a class <code>Led</code>:</p>
+<h5>1. The <code>Reduino.Actuators</code> module</h5>
+<p>Supply a class <code>Led</code>:</p>
 <ul>
-<li><strong>Constructor</strong> <code>Led(pin=13)</code> — the <code>pin</code> argument is optional and defaults to <code>13</code>.</li>
-<li>The Led maintains an internal on/off boolean state, initialized to <code>False</code> (off).</li>
-<li><strong><code>get_state() -&gt; bool</code></strong> — returns the current state (<code>True</code> = on, <code>False</code> = off).</li>
-<li><strong><code>toggle()</code></strong> — flips the current state (on becomes off, off becomes on).</li>
-<li>The pin used by the Led is accessible/defaults to <code>13</code> when not specified.</li>
+<li><strong>Constructor</strong> <code>Led(pin=13)</code> — the <code>pin</code> argument is optional; when it is not supplied, it defaults to <code>13</code>.</li>
+<li>The Led keeps an internal boolean on/off state, initialized to <code>False</code> (off).</li>
+<li><strong><code>get_state() -&gt; bool</code></strong> — returns the state as it currently is (<code>True</code> = on, <code>False</code> = off).</li>
+<li><strong><code>toggle()</code></strong> — flips the current state (on turns into off, off turns into on).</li>
+<li>The Led's pin is accessible and defaults to <code>13</code> when it is not specified.</li>
 </ul>
-<p>Expected behavior:</p>
+<p>Behavior expected:</p>
 <ul>
-<li>A freshly constructed <code>Led()</code> (or <code>Led</code> with any pin) starts in state <code>False</code>.</li>
-<li>Calling <code>toggle()</code> on a Led in state <code>False</code> sets it to <code>True</code>; calling <code>toggle()</code> again returns it to <code>False</code>.</li>
+<li>A <code>Led()</code> fresh out of construction (or a <code>Led</code> built with any pin) starts in state <code>False</code>.</li>
+<li>When <code>toggle()</code> is called on a Led whose state is <code>False</code>, the state becomes <code>True</code>; a second <code>toggle()</code> call returns it to <code>False</code>.</li>
 </ul>
-<h5>2. <code>Reduino.transpile.ast</code> module</h5>
-<p>Provide a class <code>LedDecl</code> representing a parsed Led declaration node in the transpiler AST. Instances must expose:</p>
+<h5>2. The <code>Reduino.transpile.ast</code> module</h5>
+<p>Supply a class <code>LedDecl</code> that represents a parsed Led declaration node in the transpiler AST. Instances must expose:</p>
 <ul>
-<li>A <code>pin</code> attribute holding the integer pin number for the declared Led.</li>
+<li>A <code>pin</code> attribute that holds the declared Led's integer pin number.</li>
 </ul>
-<h5>3. <code>Reduino.transpile.parser</code> module</h5>
-<p>Provide a function <code>parse(source: str)</code> that accepts a string of Python source code and returns a program object.</p>
-<p>The returned program object must expose an attribute <code>setup_body</code>, which is an iterable (e.g., list) of AST nodes representing statements that belong to the Arduino <code>setup()</code> section.</p>
-<p>Parsing behavior required:</p>
+<h5>3. The <code>Reduino.transpile.parser</code> module</h5>
+<p>Supply a function <code>parse(source: str)</code> that accepts Python source code given as a string and returns a program object.</p>
+<p>The program object that is returned must expose an attribute <code>setup_body</code>; this attribute is an iterable (e.g., list) of AST nodes for the statements that belong to the Arduino <code>setup()</code> section.</p>
+<p>Required parsing behavior:</p>
 <ul>
-<li>Given Python source that imports <code>Led</code> from <code>Reduino.Actuators</code> and constructs a Led with no arguments (e.g., <code>led = Led()</code>), the resulting program's <code>setup_body</code> must contain exactly one <code>LedDecl</code> node.</li>
-<li>That <code>LedDecl</code> node's <code>pin</code> attribute must be <code>13</code> (the default pin, since no pin argument was supplied).</li>
+<li>When the Python source imports <code>Led</code> from <code>Reduino.Actuators</code> and constructs a Led with no arguments (e.g., <code>led = Led()</code>), the <code>setup_body</code> of the resulting program must contain exactly one <code>LedDecl</code> node.</li>
+<li>The <code>pin</code> attribute of that <code>LedDecl</code> node must be <code>13</code> (the default pin, because no pin argument was supplied).</li>
 </ul>
-<h5>4. <code>Reduino.transpile.emitter</code> module</h5>
-<p>Provide a function <code>emit(program) -&gt; str</code> that accepts a program object (as returned by <code>parse</code>) and returns a string of Arduino C++ source code.</p>
-<p>Emission behavior required for a Led declared with no arguments:</p>
+<h5>4. The <code>Reduino.transpile.emitter</code> module</h5>
+<p>Supply a function <code>emit(program) -&gt; str</code> that accepts a program object (of the kind returned by <code>parse</code>) and returns Arduino C++ source code as a string.</p>
+<p>Required emission behavior for a Led declared with no arguments:</p>
 <ul>
-<li>The emitted C++ must include a global state declaration for the Led. For a Led assigned to the Python variable <code>led</code>, this is a boolean global initialized to false. After whitespace normalization, the output must contain:<pre><code>bool __state_led = false;
+<li>The emitted C++ must include a global declaration of the Led's state. When the Led is assigned to the Python variable <code>led</code>, this is a boolean global initialized to false. After whitespace normalization, the output must contain:<pre><code>bool __state_led = false;
 </code></pre>
-(i.e., the global variable name is <code>__state_led</code> where <code>led</code> is the source variable name.)</li>
-<li>The emitted C++ must include a <code>pinMode</code> call configuring the Led's pin as an output. The output must contain the exact substring:<pre><code>pinMode(13, OUTPUT);
+(that is, the global variable is named <code>__state_led</code>, where <code>led</code> is the name of the source variable.)</li>
+<li>The emitted C++ must include a <code>pinMode</code> call that configures the Led's pin as an output. The output must contain this exact substring:<pre><code>pinMode(13, OUTPUT);
 </code></pre>
 </li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>Only the no-argument <code>Led()</code> declaration path (defaulting to pin 13) is exercised and required.</li>
-<li>Variable-name-derived naming: the global state variable is named by prefixing <code>__state_</code> to the Python variable name the Led is assigned to.</li>
+<li>Only the no-argument <code>Led()</code> declaration path (which defaults to pin 13) is exercised and required.</li>
+<li>Naming derived from the variable name: the global state variable is named by prefixing <code>__state_</code> onto the Python variable name to which the Led is assigned.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Add List Support to the Reduino Transpiler</span>
-        <span class="spec-meta muted">778 words · source specification
+        <span class="spec-title">Adding List Support to the Reduino Transpiler</span>
+        <span class="spec-meta muted">842 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add List Support to the Reduino Transpiler</h3>
-<h4>Overview</h4>
-<p>You must extend a Python-to-C++ (Arduino) transpiler to support Python lists. The transpiler has two public stages that must be modified:</p>
+      <div class="spec-body"><h3>Task Specification: Adding List Support to the Reduino Transpiler</h3>
+<h4>Task Overview</h4>
+<p>A Python-to-C++ (Arduino) transpiler must be extended so that it supports Python lists. The transpiler has two public stages, both of which must be modified:</p>
 <ol>
-<li>A <strong>parser</strong> stage: <code>parse(source: str) -&gt; Program</code></li>
-<li>An <strong>emitter</strong> stage: <code>emit(program) -&gt; str</code></li>
+<li>The <strong>parser</strong> stage: <code>parse(source: str) -&gt; Program</code></li>
+<li>The <strong>emitter</strong> stage: <code>emit(program) -&gt; str</code></li>
 </ol>
-<p>Both <code>parse</code> and <code>emit</code> are importable from the transpiler package (the same module from which the existing <code>parse</code>, <code>emit</code>, <code>Program</code>, <code>VarAssign</code>, and <code>ExprStmt</code> symbols are already imported). You must extend their behavior to handle Python list constructs as described below.</p>
-<h4>Relevant Data Structures (already existing, must be produced correctly)</h4>
+<p>Both <code>parse</code> and <code>emit</code> can be imported from the transpiler package (the same module from which the existing <code>parse</code>, <code>emit</code>, <code>Program</code>, <code>VarAssign</code>, and <code>ExprStmt</code> symbols have already been imported). The behavior of these stages must be extended so that Python list constructs are handled as described below.</p>
+<h4>Data Structures Involved (already existing, must be produced correctly)</h4>
 <ul>
-<li><code>Program</code> — the parse result. It has the following attributes that are relevant here:
+<li><code>Program</code> — the result of parsing. The attributes relevant here are:
 <ul>
-<li><code>.helpers</code> — a container supporting the <code>in</code> operator (e.g. a set/dict of feature names).</li>
-<li><code>.global_decls</code> — a list of declaration objects, each with attributes <code>.name</code> (str), <code>.c_type</code> (str), and <code>.expr</code> (str).</li>
+<li><code>.helpers</code> — a container that supports the <code>in</code> operator (e.g. a set/dict of feature names).</li>
+<li><code>.global_decls</code> — a list of declaration objects, each of which has attributes <code>.name</code> (str), <code>.c_type</code> (str), and <code>.expr</code> (str).</li>
 <li><code>.setup_body</code> — a list of statement nodes.</li>
 </ul>
 </li>
-<li><code>VarAssign</code> — a statement node with attributes <code>.name</code> (str) and <code>.expr</code> (str). Represents assignment to an already-declared variable.</li>
-<li><code>ExprStmt</code> — a statement node with attribute <code>.expr</code> (str). Represents a standalone expression used as a statement.</li>
+<li><code>VarAssign</code> — a statement node carrying the attributes <code>.name</code> (str) and <code>.expr</code> (str). It represents assignment to a variable that has already been declared.</li>
+<li><code>ExprStmt</code> — a statement node with the attribute <code>.expr</code> (str). It represents a standalone expression used as a statement.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. List literal declaration</h5>
-<p>A Python assignment of a list literal to a new variable, e.g.:</p>
+<h4>Required Functionality</h4>
+<h5>1. List literal declarations</h5>
+<p>Assigning a list literal to a new variable in Python, e.g.:</p>
 <pre><code class="language-python">values = [1, 2, 3]
 </code></pre>
-<p>must create a global declaration where:</p>
+<p>must create a global declaration in which:</p>
 <ul>
-<li><code>.name</code> is the variable name (<code>values</code>).</li>
-<li><code>.c_type</code> is <code>__redu_list&lt;int&gt;</code> (element type inferred from the literal's elements; integer elements yield <code>int</code>).</li>
-<li><code>.expr</code> contains <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code> (the exact substring, with the elements comma-space separated inside the braces).</li>
+<li><code>.name</code> is the variable's name (<code>values</code>).</li>
+<li><code>.c_type</code> is <code>__redu_list&lt;int&gt;</code> (the element type is inferred from the literal's elements; integer elements yield <code>int</code>).</li>
+<li><code>.expr</code> contains <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code> (this exact substring, with the elements separated by comma-space inside the braces).</li>
 </ul>
-<p>When any list feature is used, the string <code>&quot;list&quot;</code> must be present in <code>Program.helpers</code>.</p>
-<h5>2. Appending to a list</h5>
-<p><code>values.append(4)</code> must produce an <code>ExprStmt</code> in <code>setup_body</code> whose <code>.expr</code> contains <code>__redu_list_append(values, 4)</code>.</p>
-<h5>3. Removing from a list</h5>
-<p><code>values.remove(2)</code> must produce an <code>ExprStmt</code> in <code>setup_body</code> whose <code>.expr</code> contains <code>__redu_list_remove(values, 2)</code>.</p>
-<h5>4. Indexing a list</h5>
-<p>Reading an element by index, e.g.:</p>
+<p>Whenever any list feature is used, the string <code>&quot;list&quot;</code> must be present in <code>Program.helpers</code>.</p>
+<h5>2. Appending to lists</h5>
+<p><code>values.append(4)</code> must result in an <code>ExprStmt</code> in <code>setup_body</code> whose <code>.expr</code> contains <code>__redu_list_append(values, 4)</code>.</p>
+<h5>3. Removing from lists</h5>
+<p><code>values.remove(2)</code> must result in an <code>ExprStmt</code> in <code>setup_body</code> whose <code>.expr</code> contains <code>__redu_list_remove(values, 2)</code>.</p>
+<h5>4. Indexed access into a list</h5>
+<p>Reading an element at an index, e.g.:</p>
 <pre><code class="language-python">total = values[0]
 </code></pre>
-<p>must produce a <code>VarAssign</code> with <code>.name == &quot;total&quot;</code> and <code>.expr</code> containing <code>__redu_list_get(values, 0)</code>.</p>
-<h5>5. List comprehension over <code>range</code></h5>
-<p>A list comprehension of the form:</p>
+<p>must produce a <code>VarAssign</code> whose <code>.name == &quot;total&quot;</code> and whose <code>.expr</code> contains <code>__redu_list_get(values, 0)</code>.</p>
+<h5>5. List comprehensions over <code>range</code></h5>
+<p>A list comprehension of the following form:</p>
 <pre><code class="language-python">other = [i * 2 for i in range(3)]
 </code></pre>
-<p>must produce a <code>VarAssign</code> with <code>.name == &quot;other&quot;</code> whose <code>.expr</code> contains <code>__redu_list_from_range&lt;int&gt;</code>.</p>
-<p>The full emitted form of this expression must be:</p>
+<p>must produce a <code>VarAssign</code> whose <code>.name == &quot;other&quot;</code> and whose <code>.expr</code> contains <code>__redu_list_from_range&lt;int&gt;</code>.</p>
+<p>The complete emitted form of this expression must be:</p>
 <pre><code>__redu_list_from_range&lt;int&gt;(0, 3, 1, [&amp;](int i) { return (i * 2); })
 </code></pre>
 <p>where:</p>
 <ul>
-<li>The three numeric arguments are the range's start, stop, and step. For <code>range(3)</code>, start is <code>0</code>, stop is <code>3</code>, step is <code>1</code>.</li>
-<li>The final argument is a lambda <code>[&amp;](int &lt;var&gt;) { return (&lt;body&gt;); }</code> where <code>&lt;var&gt;</code> is the comprehension loop variable and <code>&lt;body&gt;</code> is the transpiled comprehension expression, parenthesized. For <code>i * 2</code>, the body is <code>(i * 2)</code>.</li>
+<li>The three numeric arguments correspond to the range's start, stop, and step. For <code>range(3)</code>, the start is <code>0</code>, the stop is <code>3</code>, and the step is <code>1</code>.</li>
+<li>The final argument is a lambda of the form <code>[&amp;](int &lt;var&gt;) { return (&lt;body&gt;); }</code>, where <code>&lt;var&gt;</code> is the comprehension's loop variable and <code>&lt;body&gt;</code> is the transpiled comprehension expression wrapped in parentheses. For <code>i * 2</code>, the body is <code>(i * 2)</code>.</li>
 <li>The element type parameter (<code>int</code>) is inferred from the comprehension expression.</li>
 </ul>
-<h5>6. Assigning one list variable to another</h5>
-<p>Reassigning an existing list variable to another list variable:</p>
+<h5>6. Assigning a list variable to another list variable</h5>
+<p>Reassigning an existing list variable to another list variable, as in:</p>
 <pre><code class="language-python">values = other
 </code></pre>
 <p>must produce an <code>ExprStmt</code> in <code>setup_body</code> whose <code>.expr</code> contains <code>__redu_list_assign(values, other)</code>.</p>
-<h5>7. Length of a list</h5>
-<p><code>len(other)</code> used in an assignment context, e.g.:</p>
+<h5>7. List length</h5>
+<p><code>len(other)</code> appearing in an assignment context, e.g.:</p>
 <pre><code class="language-python">size = len(other)
 </code></pre>
-<p>must produce a <code>VarAssign</code> with <code>.name == &quot;size&quot;</code> whose <code>.expr</code> contains <code>__redu_len(other)</code>. In the emitted C++, this must appear as <code>static_cast&lt;int&gt;(__redu_len(other))</code>.</p>
-<h4>Error Conditions</h4>
-<p>The parser (<code>parse</code>) must raise <code>ValueError</code> in the following cases:</p>
-<h5>A. List reassignment size mismatch</h5>
-<p>Reassigning a list variable to a list literal of a different length:</p>
+<p>must produce a <code>VarAssign</code> whose <code>.name == &quot;size&quot;</code> and whose <code>.expr</code> contains <code>__redu_len(other)</code>. In the emitted C++, this must appear in the form <code>static_cast&lt;int&gt;(__redu_len(other))</code>.</p>
+<h4>Error Cases</h4>
+<p>In the following cases, the parser (<code>parse</code>) must raise <code>ValueError</code>:</p>
+<h5>A. Size mismatch on list reassignment</h5>
+<p>Reassigning a list variable to a list literal of a different length, as in:</p>
 <pre><code class="language-python">values = [1, 2]
 values = [3]
 </code></pre>
 <p>must raise <code>ValueError</code>.</p>
-<h5>B. List reassignment element-type mismatch</h5>
-<p>Reassigning a list variable to a list literal whose elements have a different type:</p>
+<h5>B. Element-type mismatch on list reassignment</h5>
+<p>Reassigning a list variable to a list literal whose elements are of a different type, as in:</p>
 <pre><code class="language-python">values = [1, 2]
 values = [&quot;a&quot;, &quot;b&quot;]
 </code></pre>
 <p>must raise <code>ValueError</code>.</p>
-<h4>Emitter Output Requirements</h4>
-<p>When <code>emit</code> is called on a <code>Program</code> that uses lists, the produced C++ string must include:</p>
+<h4>Requirements for the Emitter Output</h4>
+<p>When <code>emit</code> is called on a <code>Program</code> that makes use of lists, the produced C++ string must include:</p>
 <ul>
 <li>The line <code>#include &lt;initializer_list&gt;</code>.</li>
-<li>List declarations rendered using <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code>.</li>
-<li>Append operations rendered as <code>__redu_list_append(values, 4);</code>.</li>
-<li>Remove operations rendered as <code>__redu_list_remove(values, 2);</code>.</li>
-<li>Indexed reads rendered using <code>__redu_list_get(values, 0)</code>.</li>
-<li>Comprehensions rendered as <code>__redu_list_from_range&lt;int&gt;(0, 3, 1, [&amp;](int i) { return (i * 2); })</code>.</li>
-<li>List-to-list reassignment rendered as <code>__redu_list_assign(values, other);</code>.</li>
-<li>Length calls rendered as <code>static_cast&lt;int&gt;(__redu_len(other))</code>.</li>
+<li>List declarations are rendered using <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code>.</li>
+<li>Append operations are rendered as <code>__redu_list_append(values, 4);</code>.</li>
+<li>Remove operations are rendered as <code>__redu_list_remove(values, 2);</code>.</li>
+<li>Indexed reads are rendered using <code>__redu_list_get(values, 0)</code>.</li>
+<li>Comprehensions are rendered as <code>__redu_list_from_range&lt;int&gt;(0, 3, 1, [&amp;](int i) { return (i * 2); })</code>.</li>
+<li>List-to-list reassignment is rendered as <code>__redu_list_assign(values, other);</code>.</li>
+<li>Length calls are rendered as <code>static_cast&lt;int&gt;(__redu_len(other))</code>.</li>
 </ul>
-<p>(The emitter output may be subjected to whitespace normalization before these substrings are checked; the exact substrings above, aside from insignificant surrounding whitespace, must be present.)</p>
-<h4>Notes / Scope</h4>
+<p>(The emitter output may undergo whitespace normalization before these substrings are checked; apart from insignificant surrounding whitespace, the exact substrings above must be present.)</p>
+<h4>Scope and Notes</h4>
 <ul>
-<li>Only the list constructs described above need to work. Element type inference is required only for integer element lists (<code>int</code>) as exercised above.</li>
-<li>Do not change unrelated existing behavior (e.g. existing variable, string, f-string, or function support must continue to work as before).</li>
+<li>The only list constructs that need to work are the ones described above. Element type inference is required only for lists with integer elements (<code>int</code>), as exercised above.</li>
+<li>Do not modify unrelated existing behavior (e.g. existing variable, string, f-string, or function support must keep working as before).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You are modifying a source-to-C++ transpiler.</span>
-        <span class="spec-meta muted">324 words · source specification
+        <span class="spec-title">You are making a modification to a source-to-C++ transpiler.</span>
+        <span class="spec-meta muted">359 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are modifying a source-to-C++ transpiler. The change concerns how list literals are lowered into C++ code. The current implementation emits list construction using a C++ <code>std::initializer_list</code> (brace-enclosed) argument; you must change it to pass the list elements as direct variadic arguments instead.</p>
-<h5>Required Behavior Change</h5>
-<p>When the transpiler processes a list literal such as <code>[1, 2, 3]</code> (a list of integers), it must lower it to a call to the helper <code>__redu_make_list</code> where:</p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<p>You are making a modification to a source-to-C++ transpiler. What is being changed is the manner in which list literals are lowered into C++ code. At the moment, list construction is emitted with a C++ <code>std::initializer_list</code> (brace-enclosed) argument; the change you must make is to pass the list elements as direct variadic arguments instead.</p>
+<h5>Behavior Change Required</h5>
+<p>When a list literal such as <code>[1, 2, 3]</code> (a list of integers) is processed, the transpiler must lower it to a call to the helper <code>__redu_make_list</code> where:</p>
 <ul>
-<li>The element type is passed as a template argument (e.g. <code>__redu_make_list&lt;int&gt;</code>).</li>
-<li>The list elements are passed as <strong>separate, comma-separated positional arguments</strong> — NOT wrapped in curly braces / an initializer list.</li>
+<li>The element type is supplied as a template argument (e.g. <code>__redu_make_list&lt;int&gt;</code>).</li>
+<li>The list elements are passed as <strong>separate, comma-separated positional arguments</strong>; they are NOT wrapped in curly braces / an initializer list.</li>
 </ul>
-<p>Specifically, a three-element integer list literal <code>[1, 2, 3]</code> must lower to exactly:</p>
+<p>To be specific, the three-element integer list literal <code>[1, 2, 3]</code> must lower to exactly:</p>
 <pre><code>__redu_make_list&lt;int&gt;(1, 2, 3)
 </code></pre>
-<p>and must <strong>not</strong> produce the brace-wrapped form <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code>.</p>
-<h5>Emitter Output Requirements</h5>
-<p>The generated C++ output must:</p>
+<p>and the brace-wrapped form <code>__redu_make_list&lt;int&gt;({1, 2, 3})</code> must <strong>not</strong> be produced.</p>
+<h5>Requirements for Emitter Output</h5>
+<p>The C++ output that is generated must:</p>
 <ul>
-<li>Contain the direct-argument form <code>__redu_make_list&lt;int&gt;(1, 2, 3)</code> for the corresponding list literal.</li>
-<li><strong>Not</strong> include <code>#include &lt;initializer_list&gt;</code>. The list-construction helper must no longer depend on <code>&lt;initializer_list&gt;</code>, and the emitter must not emit that include for this feature.</li>
+<li>Contain the direct-argument form <code>__redu_make_list&lt;int&gt;(1, 2, 3)</code> for the list literal that corresponds to it.</li>
+<li><strong>Not</strong> include <code>#include &lt;initializer_list&gt;</code>. The list-construction helper must no longer be dependent on <code>&lt;initializer_list&gt;</code>, and, for this feature, the emitter must not emit that include.</li>
 </ul>
-<p>The following existing list-operation lowerings must remain unchanged and continue to appear in the output:</p>
+<p>The following list-operation lowerings, which already exist, must remain unchanged and continue to appear in the output:</p>
 <ul>
 <li><code>__redu_list_append(values, 4);</code></li>
 <li><code>__redu_list_remove(values, 2);</code></li>
 <li><code>__redu_list_get(values, 0)</code></li>
 </ul>
-<h5>Parser / Intermediate Representation Requirements</h5>
-<p>For a global declaration bound to a list literal:</p>
+<h5>Requirements for the Parser / Intermediate Representation</h5>
+<p>For a global declaration that is bound to a list literal:</p>
 <ul>
-<li>The declaration's inferred C++ type (<code>c_type</code> attribute) for a list-of-int must be <code>__redu_list&lt;int&gt;</code>.</li>
-<li>The declaration's initializer expression (<code>expr</code> attribute) must contain the direct-argument form <code>__redu_make_list&lt;int&gt;(1, 2, 3)</code> (again, not the brace-wrapped form).</li>
+<li>For a list-of-int, the declaration's inferred C++ type (its <code>c_type</code> attribute) must be <code>__redu_list&lt;int&gt;</code>.</li>
+<li>The initializer expression of the declaration (its <code>expr</code> attribute) must contain the direct-argument form <code>__redu_make_list&lt;int&gt;(1, 2, 3)</code> (once again, not the brace-wrapped form).</li>
 </ul>
-<p>Global declarations continue to be accessible by name (via their <code>name</code> attribute) from the parsed program's collection of global declarations.</p>
+<p>Global declarations remain accessible by name (via their <code>name</code> attribute) from the parsed program's collection of global declarations.</p>
 <h5>Scope</h5>
-<p>Only the lowering of list literals from the brace/initializer-list form to the direct variadic-argument form is affected, along with the removal of the now-unnecessary <code>&lt;initializer_list&gt;</code> include. All other transpilation behavior, including the append/remove/get list operations and the declared list type, must be preserved.</p>
+<p>The only parts affected are the lowering of list literals from the brace/initializer-list form to the direct variadic-argument form, together with the removal of the now-unnecessary <code>&lt;initializer_list&gt;</code> include. All other transpilation behavior, the append/remove/get list operations and the declared list type included, must be preserved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
         <span class="spec-title">reduino.parser.parse(source</span>
-        <span class="spec-meta muted">157 words · source specification
+        <span class="spec-meta muted">176 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Support list-index expressions as LED keyword pins</h4>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Permit list-index expressions to serve as LED keyword pins</h4>
+<h5>Public interface</h5>
 <ul>
 <li><code>reduino.parser.parse(source: str) -&gt; Program</code></li>
 <li><code>reduino.emitter.emit(program: Program) -&gt; str</code></li>
-<li><code>reduino.ast.LedDecl</code>, as the AST node representing an LED declaration</li>
+<li><code>reduino.ast.LedDecl</code>, the AST node that represents an LED declaration</li>
 </ul>
-<h5>Required behavior</h5>
-<p>The parser must accept an LED declaration whose keyword <code>pin</code> argument indexes a named list:</p>
+<h5>Behavior that is required</h5>
+<p>The parser must accept an LED declaration in which the keyword <code>pin</code> argument indexes a named list:</p>
 <pre><code class="language-python">from Reduino.Actuators import Led
 
 values = [1, 2, 3]
 led = Led(pin=values[2])
 </code></pre>
-<p>The returned program must contain one <code>LedDecl</code> in <code>program.setup_body</code>. Its <code>pin</code> value must be the canonical emitted expression:</p>
+<p>The program that is returned must contain one <code>LedDecl</code> inside <code>program.setup_body</code>. The <code>pin</code> value on that node must be the canonical emitted expression:</p>
 <pre><code class="language-text">__redu_list_get(values, 2)
 </code></pre>
-<p>The integer index must be preserved. For example, <code>values[1]</code> must become <code>__redu_list_get(values, 1)</code>.</p>
-<p>When such a parsed program is passed to <code>reduino.emitter.emit</code>, the generated C++ must:</p>
+<p>The integer index must be preserved. As an example, <code>values[1]</code> must become <code>__redu_list_get(values, 1)</code>.</p>
+<p>If a program parsed this way is passed to <code>reduino.emitter.emit</code>, the C++ that is generated must:</p>
 <ul>
 <li>
-<p>Emit the integer list using the existing typed list helper, including:</p>
+<p>Emit the integer list by means of the existing typed list helper, including:</p>
 <pre><code class="language-cpp">__redu_make_list&lt;int&gt;(1, 2, 3)
 </code></pre>
 </li>
 <li>
-<p>Emit the LED state declaration:</p>
+<p>Emit the declaration of the LED state:</p>
 <pre><code class="language-cpp">bool __state_led = false;
 </code></pre>
 </li>
 <li>
-<p>Use the translated list-index expression directly when configuring the LED pin:</p>
+<p>Use the translated list-index expression directly while configuring the LED pin:</p>
 <pre><code class="language-cpp">pinMode(__redu_list_get(values, 1), OUTPUT);
 </code></pre>
 </li>
@@ -398,276 +399,277 @@ led = Led(pin=values[2])
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">The following imports must be available</span>
-        <span class="spec-meta muted">333 words · source specification
+        <span class="spec-title">The imports below must be available</span>
+        <span class="spec-meta muted">376 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>SerialMonitor utility and transpiler support</h3>
 <h4>Public API</h4>
-<p>The following imports must be available:</p>
+<p>The imports below must be available:</p>
 <pre><code class="language-python">from Reduino.Utils import SerialMonitor
 from Reduino.transpile.ast import SerialMonitorDecl, SerialWrite
 from Reduino.transpile.parser import parse
 from Reduino.transpile.emitter import emit
 </code></pre>
-<p>Existing equivalent exports of <code>parse</code> and <code>emit</code> should continue to support the behavior below.</p>
+<p>Support for the behavior described below should continue to be provided by the existing equivalent exports of <code>parse</code> and <code>emit</code>.</p>
 <h4>Runtime <code>SerialMonitor</code></h4>
-<p><code>SerialMonitor</code> must support construction with a baud rate supplied positionally or by the <code>baud_rate</code> keyword:</p>
+<p><code>SerialMonitor</code> must support being constructed with a baud rate that is passed positionally or through the <code>baud_rate</code> keyword:</p>
 <pre><code class="language-python">monitor = SerialMonitor(9600)
 monitor = SerialMonitor(baud_rate=9600)
 </code></pre>
-<p>Required behavior:</p>
+<p>Behavior requirements:</p>
 <ul>
-<li>Constructing <code>SerialMonitor(0)</code> raises <code>ValueError</code>.</li>
-<li><code>write(value)</code> appends string values to an internal FIFO buffer.</li>
+<li>Creating <code>SerialMonitor(0)</code> raises <code>ValueError</code>.</li>
+<li><code>write(value)</code> appends string values to an internally held FIFO buffer.</li>
 <li><code>read()</code>:
 <ul>
-<li>Returns buffered values in insertion order.</li>
-<li>Makes the returned value available on standard output followed by a newline.</li>
-<li>Returns <code>&quot;&quot;</code> when no buffered values remain.</li>
+<li>Returns the buffered values in the order they were inserted.</li>
+<li>The returned value is made available on standard output followed by a newline.</li>
+<li>Returns <code>&quot;&quot;</code> when there are no buffered values left.</li>
 </ul>
 </li>
 </ul>
-<p>For example, after writing <code>&quot;hello&quot;</code> and then <code>&quot;world&quot;</code>, successive reads return <code>&quot;hello&quot;</code>, <code>&quot;world&quot;</code>, and <code>&quot;&quot;</code>; the first two reads produce corresponding newline-terminated output.</p>
-<h4>Parser support</h4>
-<p><code>parse(source: str)</code> must recognize programs using:</p>
+<p>For example, after writing <code>&quot;hello&quot;</code> and then <code>&quot;world&quot;</code>, consecutive reads return <code>&quot;hello&quot;</code>, <code>&quot;world&quot;</code>, and <code>&quot;&quot;</code>; the first two reads produce the corresponding newline-terminated output.</p>
+<h4>Support in the parser</h4>
+<p><code>parse(source: str)</code> must recognize programs that use this pattern:</p>
 <pre><code class="language-python">from Reduino.Utils import SerialMonitor
 
 monitor = SerialMonitor(...)
 monitor.write(...)
 </code></pre>
-<p>Both positional and <code>baud_rate=</code> constructor arguments must be recognized.</p>
+<p>Constructor arguments in both positional and <code>baud_rate=</code> form must be recognized.</p>
 <h5><code>SerialMonitorDecl</code></h5>
-<p>A <code>SerialMonitor(...)</code> assignment at module level must add one <code>SerialMonitorDecl</code> instance to the returned program’s <code>setup_body</code>.</p>
-<p><code>SerialMonitorDecl</code> must expose a public <code>baud</code> attribute:</p>
+<p>An assignment of <code>SerialMonitor(...)</code> at module level must add one <code>SerialMonitorDecl</code> instance to the <code>setup_body</code> of the returned program.</p>
+<p>A public <code>baud</code> attribute must be exposed by <code>SerialMonitorDecl</code>:</p>
 <ul>
 <li>
-<p>Integer literals are stored as integers:</p>
+<p>Integer literals are stored in integer form:</p>
 <pre><code class="language-python">monitor = SerialMonitor(baud_rate=115200)
 </code></pre>
-<p>produces <code>baud == 115200</code>.</p>
+<p>which produces <code>baud == 115200</code>.</p>
 </li>
 <li>
-<p>Symbolic arithmetic expressions use the parser’s expression representation:</p>
+<p>For symbolic arithmetic expressions, the parser's expression representation is used:</p>
 <pre><code class="language-python">monitor = SerialMonitor(base_rate * 2)
 </code></pre>
-<p>produces <code>baud == &quot;(base_rate * 2)&quot;</code>.</p>
+<p>which produces <code>baud == &quot;(base_rate * 2)&quot;</code>.</p>
 </li>
 </ul>
 <h5><code>SerialWrite</code></h5>
-<p>A call to <code>write</code> on the declared monitor must add one <code>SerialWrite</code> instance to <code>setup_body</code>.</p>
-<p><code>SerialWrite</code> must expose a public <code>value</code> attribute:</p>
+<p>A <code>write</code> call made on the declared monitor must add one <code>SerialWrite</code> instance to <code>setup_body</code>.</p>
+<p>A public <code>value</code> attribute must be exposed by <code>SerialWrite</code>:</p>
 <ul>
 <li>
-<p>A string literal retains its C++-ready quoted representation:</p>
+<p>A string literal keeps its C++-ready quoted representation:</p>
 <pre><code class="language-python">monitor.write(&quot;hello&quot;)
 </code></pre>
-<p>produces <code>value == '&quot;hello&quot;'</code>.</p>
+<p>which produces <code>value == '&quot;hello&quot;'</code>.</p>
 </li>
 <li>
-<p>A variable expression is represented by its symbol:</p>
+<p>A variable expression is represented via its symbol:</p>
 <pre><code class="language-python">monitor.write(base_rate)
 </code></pre>
-<p>produces <code>value == &quot;base_rate&quot;</code>.</p>
+<p>which produces <code>value == &quot;base_rate&quot;</code>.</p>
 </li>
 </ul>
 <h4>C++ emission</h4>
-<p>Given the parsed source:</p>
+<p>With the parsed source below:</p>
 <pre><code class="language-python">from Reduino.Utils import SerialMonitor
 
 monitor = SerialMonitor(115200)
 monitor.write(&quot;hi&quot;)
 </code></pre>
-<p><code>emit(...)</code> must return C++ containing:</p>
+<p>The C++ that <code>emit(...)</code> returns must contain:</p>
 <pre><code class="language-cpp">Serial.begin(115200);
 Serial.println(&quot;hi&quot;);
 </code></pre>
-<p>The <code>Serial.begin(115200);</code> statement must appear in the generated setup portion, before the generated <code>void loop()</code> definition.</p>
+<p>The <code>Serial.begin(115200);</code> statement must be present in the generated setup portion, before the generated <code>void loop()</code> definition.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Connect SerialMonitor to a Physical Serial Port</span>
-        <span class="spec-meta muted">515 words · source specification
+        <span class="spec-title">Connecting SerialMonitor to a Physical Serial Port</span>
+        <span class="spec-meta muted">566 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Connect <code>SerialMonitor</code> to a Physical Serial Port</h3>
-<h4>Overview</h4>
-<p>Implement a <code>SerialMonitor</code> class in the module <code>Reduino.Utils</code> that communicates with a physical serial port. The class must be importable as:</p>
+      <div class="spec-body"><h3>Task Specification: Connecting <code>SerialMonitor</code> to a Physical Serial Port</h3>
+<h4>Summary</h4>
+<p>The task is to implement a <code>SerialMonitor</code> class in the module <code>Reduino.Utils</code> for communicating with a physical serial port. It must be possible to import the class as:</p>
 <pre><code class="language-python">from Reduino.Utils import SerialMonitor
 </code></pre>
-<h4>Serial Library Dependency</h4>
-<p>The module <code>Reduino.Utils</code> must reference the <code>serial</code> library through a module-level name <code>serial</code>. This name is accessed at runtime (not captured at definition time) so that operations use whatever object <code>Reduino.Utils.serial</code> currently refers to. When a serial connection is opened, it must be created by calling <code>serial.Serial(...)</code>.</p>
-<h4>Constructor</h4>
+<h4>Dependency on the Serial Library</h4>
+<p>Inside the module <code>Reduino.Utils</code>, the <code>serial</code> library must be referenced through a module-level name <code>serial</code>. That name is looked up at runtime (it is not captured at definition time), so that operations use whatever object <code>Reduino.Utils.serial</code> currently refers to. Whenever a serial connection is opened, creating it must be done via a call to <code>serial.Serial(...)</code>.</p>
+<h4>The Constructor</h4>
 <pre><code class="language-python">SerialMonitor(baud_rate=..., port=..., timeout=...)
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>baud_rate</code> (first positional argument) — the baud rate for the connection. Must default to a reasonable value when not provided (the class must be constructible with no arguments and with only <code>baud_rate</code> given positionally).</li>
-<li><code>port</code> — the serial port identifier (e.g. a device path string). Optional; may be omitted/left unset.</li>
-<li><code>timeout</code> — the read timeout in seconds. Optional.</li>
+<li><code>baud_rate</code> (first positional argument) — the connection's baud rate. When it is not provided, it must default to a reasonable value (the class must be constructible with no arguments and with only <code>baud_rate</code> given positionally).</li>
+<li><code>port</code> — the identifier of the serial port (e.g. a device path string). Optional; it may be omitted or left unset.</li>
+<li><code>timeout</code> — the read timeout, in seconds. Optional.</li>
 </ul>
 <p>Behavior:</p>
 <ul>
-<li>The provided <code>baud_rate</code> must be exposed as a public attribute <code>monitor.baud_rate</code>.</li>
-<li>The provided <code>port</code> must be exposed as a public attribute <code>monitor.port</code>.</li>
+<li>The <code>baud_rate</code> that is provided must be exposed as a public attribute <code>monitor.baud_rate</code>.</li>
+<li>The <code>port</code> that is provided must be exposed as a public attribute <code>monitor.port</code>.</li>
 <li>If <code>baud_rate</code> is not strictly positive (e.g. <code>0</code>), the constructor must raise <code>ValueError</code>.</li>
-<li>Construction must <strong>not</strong> open the serial port immediately, and must succeed even when <code>Reduino.Utils.serial</code> is <code>None</code>.</li>
+<li>Constructing an instance must <strong>not</strong> open the serial port immediately, and it must succeed even when <code>Reduino.Utils.serial</code> is <code>None</code>.</li>
 </ul>
-<h4>Opening / Using the Connection</h4>
-<p>When a serial connection is needed and a <code>port</code> was configured, the connection must be created via:</p>
+<h4>Opening and Using the Connection</h4>
+<p>Whenever a serial connection is needed and a <code>port</code> was configured, that connection must be created via:</p>
 <pre><code class="language-python">serial.Serial(port=&lt;port&gt;, baudrate=&lt;baud_rate&gt;, timeout=&lt;timeout&gt;)
 </code></pre>
-<p>using keyword arguments with exactly these names (<code>port</code>, <code>baudrate</code>, <code>timeout</code>) and the corresponding configured values.</p>
-<h4><code>write(text)</code> Method</h4>
+<p>passing keyword arguments with exactly these names (<code>port</code>, <code>baudrate</code>, <code>timeout</code>) and the corresponding configured values.</p>
+<h4>The <code>write(text)</code> Method</h4>
 <pre><code class="language-python">monitor.write(text: str) -&gt; ...
 </code></pre>
 <ul>
-<li>Sends the given text over the serial port.</li>
-<li>The text must be transmitted as bytes with a single trailing newline (<code>&quot;\n&quot;</code>) appended, encoded to bytes. For input <code>&quot;ping&quot;</code>, the exact bytes written to the serial port must be <code>b&quot;ping\n&quot;</code>.</li>
-<li>Writing is performed by calling the serial object's <code>write(payload: bytes)</code> method.</li>
+<li>The given text is sent over the serial port.</li>
+<li>The text must be transmitted as bytes — encoded to bytes — with a single trailing newline (<code>&quot;\n&quot;</code>) appended. For the input <code>&quot;ping&quot;</code>, the bytes written to the serial port must be exactly <code>b&quot;ping\n&quot;</code>.</li>
+<li>The write is carried out by calling the serial object's <code>write(payload: bytes)</code> method.</li>
 </ul>
-<h4><code>read()</code> Method</h4>
+<h4>The <code>read()</code> Method</h4>
 <pre><code class="language-python">monitor.read() -&gt; str
 </code></pre>
 <ul>
-<li>Reads one line from the serial port by calling the serial object's <code>readline()</code> method, which returns <code>bytes</code>.</li>
-<li>Decodes the returned bytes to a <code>str</code> and strips trailing line-ending/whitespace characters (both <code>\r</code> and <code>\n</code> must be removed). For raw bytes <code>b&quot;hello world\r\n&quot;</code>, the returned string must be <code>&quot;hello world&quot;</code>.</li>
-<li>If <code>readline()</code> returns empty bytes (<code>b&quot;&quot;</code>), <code>read()</code> must return the empty string <code>&quot;&quot;</code>.</li>
-<li>Every call to <code>read()</code> (including when it returns the empty string) must print the resulting string followed by a newline to standard output. For a read result of <code>&quot;hello world&quot;</code>, standard output must receive exactly <code>&quot;hello world\n&quot;</code>.</li>
-<li><strong>Error condition:</strong> If no serial connection is available because none can be established (i.e. no serial port is configured / the serial library is unavailable), <code>read()</code> must raise <code>RuntimeError</code> whose message contains the text <code>No serial port configured</code>.</li>
+<li>Reads one line from the serial port via a call to the serial object's <code>readline()</code> method, which returns <code>bytes</code>.</li>
+<li>The returned bytes are decoded to a <code>str</code>, and trailing line-ending/whitespace characters are stripped (both <code>\r</code> and <code>\n</code> must be removed). For raw bytes <code>b&quot;hello world\r\n&quot;</code>, the string that is returned must be <code>&quot;hello world&quot;</code>.</li>
+<li>When <code>readline()</code> returns empty bytes (<code>b&quot;&quot;</code>), <code>read()</code> must return the empty string <code>&quot;&quot;</code>.</li>
+<li>Each call to <code>read()</code> (including a call that returns the empty string) must print the resulting string, followed by a newline, to standard output. If the read result is <code>&quot;hello world&quot;</code>, standard output must receive exactly <code>&quot;hello world\n&quot;</code>.</li>
+<li><strong>Error condition:</strong> If no serial connection is available because establishing one is impossible (i.e. no serial port is configured / the serial library is unavailable), <code>read()</code> must raise <code>RuntimeError</code> whose message contains the text <code>No serial port configured</code>.</li>
 </ul>
-<h4>Notes on the Serial Object Interface</h4>
-<p>The serial object obtained from <code>serial.Serial(...)</code> provides:</p>
+<h4>Notes About the Serial Object Interface</h4>
+<p>The serial object that comes back from <code>serial.Serial(...)</code> provides:</p>
 <ul>
 <li><code>write(payload: bytes) -&gt; int</code></li>
 <li><code>readline() -&gt; bytes</code></li>
 <li><code>close() -&gt; None</code></li>
 <li>an <code>is_open</code> attribute</li>
 </ul>
-<p>Only <code>write</code> and <code>readline</code> are required to be exercised by the <code>write</code>/<code>read</code> methods described above.</p>
+<p>Of that interface, only <code>write</code> and <code>readline</code> are required to be exercised by the <code>write</code>/<code>read</code> methods described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You are extending a source-to-target parser/translator that converts a Python-like DSL (the &#34;Reduino&#34; language) into an intermediate program representation.</span>
-        <span class="spec-meta muted">457 words · source specification
+        <span class="spec-title">Your job is to extend a parser/translator that works from source to target, turning a DSL similar to Python (the &#34;Reduino&#34; language) into an intermediate…</span>
+        <span class="spec-meta muted">524 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are extending a source-to-target parser/translator that converts a Python-like DSL (the &quot;Reduino&quot; language) into an intermediate program representation. The parser is invoked via a <code>parse(source_code_string)</code> function, which returns a program object.</p>
-<h4>Existing Program Object Structure</h4>
-<p>The object returned by <code>parse(...)</code> exposes at least the following attributes:</p>
+      <div class="spec-body"><h3>Specification for the Task</h3>
+<p>Your job is to extend a parser/translator that works from source to target, turning a DSL similar to Python (the &quot;Reduino&quot; language) into an intermediate representation of a program. The parser is invoked by means of a <code>parse(source_code_string)</code> function, which returns a program object.</p>
+<h4>Structure of the Existing Program Object</h4>
+<p>The object returned by <code>parse(...)</code> exposes at least the attributes below:</p>
 <ul>
-<li><code>setup_body</code>: a list of statement nodes representing the program's setup section.</li>
-<li><code>global_decls</code>: a list of declaration nodes representing global variable declarations.</li>
+<li><code>setup_body</code>: a list of statement nodes that represents the setup section of the program.</li>
+<li><code>global_decls</code>: a list of declaration nodes that represent global variable declarations.</li>
 </ul>
-<p>The following node types already exist and must continue to be usable/importable from their current locations:</p>
+<p>The node types listed next already exist and must continue to be usable/importable from the locations they currently occupy:</p>
 <ul>
-<li><code>SerialWrite</code> — a node representing a serial-monitor write operation. It has a <code>.value</code> attribute (a string containing the C expression/identifier to be written).</li>
-<li><code>VarDecl</code> — a node representing a global variable declaration. It has a <code>.name</code> attribute (string) and a <code>.c_type</code> attribute (string).</li>
-<li><code>VarAssign</code> — a node representing a variable assignment statement. It has a <code>.name</code> attribute (string) and an <code>.expr</code> attribute (string containing the C expression assigned).</li>
+<li><code>SerialWrite</code> — a node for a serial-monitor write operation. It has a <code>.value</code> attribute (a string containing the C expression/identifier that is to be written).</li>
+<li><code>VarDecl</code> — a node for a global variable declaration. It has a <code>.name</code> attribute (string) and a <code>.c_type</code> attribute (string).</li>
+<li><code>VarAssign</code> — a node for a variable assignment statement. It has a <code>.name</code> attribute (string) and an <code>.expr</code> attribute (a string containing the C expression that is assigned).</li>
 </ul>
-<h4>Required New Behavior</h4>
-<p>You must add support for two new expression forms in the DSL. Both involve objects imported from the Reduino package.</p>
-<h5>1. Writing an LED's state through the SerialMonitor</h5>
-<p>The DSL supports <code>Led</code> objects (imported as <code>from Reduino.Actuators import Led</code>) and <code>SerialMonitor</code> objects (imported as <code>from Reduino.Utils import SerialMonitor</code>).</p>
-<p>An LED object created via an assignment such as <code>led = Led()</code> supports a method call <code>led.get_state()</code>. This call represents the LED's current state and must translate to the C identifier formed by prefixing <code>__state_</code> to the variable name of the LED object.</p>
-<p>For example, for an LED bound to the name <code>led</code>, <code>led.get_state()</code> corresponds to the C identifier <code>__state_led</code>.</p>
-<p>When such a <code>get_state()</code> call is passed as the argument to a SerialMonitor's <code>write(...)</code> method (e.g. <code>monitor.write(led.get_state())</code>), the parser must produce a single <code>SerialWrite</code> node in <code>setup_body</code> whose <code>.value</code> equals the corresponding state identifier (e.g. <code>&quot;__state_led&quot;</code>).</p>
+<h4>New Behavior That Is Required</h4>
+<p>You must add support for two new expression forms in the DSL. Both of them involve objects that are imported from the Reduino package.</p>
+<h5>1. Writing the state of an LED through the SerialMonitor</h5>
+<p>The DSL has support for <code>Led</code> objects (imported via <code>from Reduino.Actuators import Led</code>) and for <code>SerialMonitor</code> objects (imported via <code>from Reduino.Utils import SerialMonitor</code>).</p>
+<p>A method call <code>led.get_state()</code> is supported by an LED object created via an assignment such as <code>led = Led()</code>. This call represents the current state of the LED and must translate to the C identifier formed by prefixing <code>__state_</code> to the variable name of the LED object.</p>
+<p>For example, when an LED is bound to the name <code>led</code>, the call <code>led.get_state()</code> corresponds to the C identifier <code>__state_led</code>.</p>
+<p>If a <code>get_state()</code> call of this kind is passed as the argument to the <code>write(...)</code> method of a SerialMonitor (e.g. <code>monitor.write(led.get_state())</code>), the parser must produce a single <code>SerialWrite</code> node in <code>setup_body</code> whose <code>.value</code> equals the corresponding state identifier (e.g. <code>&quot;__state_led&quot;</code>).</p>
 <h5>2. Reading a message from the SerialMonitor</h5>
-<p>A SerialMonitor object created via <code>monitor = SerialMonitor()</code> supports a method call <code>monitor.read()</code>.</p>
-<p>When the result of <code>monitor.read()</code> is assigned to a variable (e.g. <code>message = monitor.read()</code>), the parser must:</p>
+<p>A method call <code>monitor.read()</code> is supported by a SerialMonitor object created via <code>monitor = SerialMonitor()</code>.</p>
+<p>When a variable is assigned the result of <code>monitor.read()</code> (e.g. <code>message = monitor.read()</code>), the parser must:</p>
 <ul>
 <li>
-<p>Produce exactly one global variable declaration (<code>VarDecl</code>) for that variable in <code>global_decls</code>, with:</p>
+<p>Generate exactly one global variable declaration (<code>VarDecl</code>) for that variable in <code>global_decls</code>, with:</p>
 <ul>
-<li><code>.name</code> equal to the target variable name (e.g. <code>&quot;message&quot;</code>).</li>
+<li><code>.name</code> equal to the name of the target variable (e.g. <code>&quot;message&quot;</code>).</li>
 <li><code>.c_type</code> equal to <code>&quot;String&quot;</code>.</li>
 </ul>
 </li>
 <li>
-<p>Produce a variable assignment (<code>VarAssign</code>) in <code>setup_body</code> with:</p>
+<p>Generate a variable assignment (<code>VarAssign</code>) in <code>setup_body</code> with:</p>
 <ul>
-<li><code>.name</code> equal to the target variable name (e.g. <code>&quot;message&quot;</code>).</li>
-<li><code>.expr</code> equal to the string <code>Serial.readStringUntil('\n')</code> (i.e. the literal C expression <code>Serial.readStringUntil('\n')</code>, where <code>\n</code> is a two-character escape sequence: backslash followed by <code>n</code>).</li>
+<li><code>.name</code> equal to the name of the target variable (e.g. <code>&quot;message&quot;</code>).</li>
+<li><code>.expr</code> equal to the string <code>Serial.readStringUntil('\n')</code> (that is, the literal C expression <code>Serial.readStringUntil('\n')</code>, in which <code>\n</code> is a two-character escape sequence: a backslash followed by <code>n</code>).</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>All existing importable names (<code>parse</code>, <code>SerialWrite</code>, <code>VarDecl</code>, <code>VarAssign</code>) must remain available from their current module locations.</li>
-<li>The two new forms must integrate with the existing <code>Led</code> and <code>SerialMonitor</code> support without breaking prior behavior.</li>
+<li>All importable names that already exist (<code>parse</code>, <code>SerialWrite</code>, <code>VarDecl</code>, <code>VarAssign</code>) must remain available from the module locations they currently occupy.</li>
+<li>The two new forms must integrate with the existing <code>Led</code> and <code>SerialMonitor</code> support in a way that does not break prior behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Extend the Led class in the Reduino.Actuators module with brightness control and several timing-based animation helpers.</span>
-        <span class="spec-meta muted">723 words · source specification
+        <span class="spec-title">The Led class in the Reduino.Actuators module is to be extended with brightness control plus several timing-based animation helpers.</span>
+        <span class="spec-meta muted">762 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add Advanced LED Control Helpers</h3>
-<h4>Overview</h4>
-<p>Extend the <code>Led</code> class in the <code>Reduino.Actuators</code> module with brightness control and several timing-based animation helpers. The existing <code>Led</code> behavior (construction, on/off, toggle, <code>get_state</code>) must be preserved.</p>
-<h4>Context / Dependencies</h4>
+      <div class="spec-body"><h3>Task: Provide Advanced LED Control Helpers</h3>
+<h4>Summary</h4>
+<p>The <code>Led</code> class in the <code>Reduino.Actuators</code> module is to be extended with brightness control plus several timing-based animation helpers. The behavior <code>Led</code> already provides (construction, on/off, toggle, <code>get_state</code>) must be preserved.</p>
+<h4>Context and Dependencies</h4>
 <ul>
-<li>The <code>Led</code> class lives at <code>Reduino.Actuators.Led</code> and can be constructed with no arguments: <code>Led()</code>.</li>
-<li>The module <code>Reduino.Actuators</code> references a <code>Sleep</code> symbol (i.e. <code>Reduino.Actuators.Sleep</code>) which is used to perform delays. Timing helpers below must obtain the sleep utility through this module-level <code>Sleep</code> name so it can be substituted.
+<li>The <code>Led</code> class is found at <code>Reduino.Actuators.Led</code> and can be constructed with no arguments: <code>Led()</code>.</li>
+<li>The module <code>Reduino.Actuators</code> refers to a <code>Sleep</code> symbol (i.e. <code>Reduino.Actuators.Sleep</code>) that is used to perform delays. The timing helpers below must obtain the sleep utility through this module-level <code>Sleep</code> name so that it can be substituted.
 <ul>
-<li><code>Sleep</code> is constructed as <code>Sleep(duration, sleep_func=...)</code> where <code>duration</code> is an integer number of milliseconds, and the resulting object exposes a <code>wait()</code> method that performs the delay. Each delay in the helpers below must be realized by constructing a <code>Sleep(duration)</code> and calling its <code>wait()</code>.</li>
+<li>A <code>Sleep</code> is constructed as <code>Sleep(duration, sleep_func=...)</code>, where <code>duration</code> is an integer number of milliseconds, and the object produced exposes a <code>wait()</code> method that performs the delay. Each delay in the helpers below must be carried out by constructing a <code>Sleep(duration)</code> and calling its <code>wait()</code>.</li>
 </ul>
 </li>
 </ul>
-<h4>Required State</h4>
-<p>The <code>Led</code> must track a numeric brightness in addition to its on/off state:</p>
+<h4>State Requirements</h4>
+<p>In addition to its on/off state, the <code>Led</code> must track a numeric brightness:</p>
 <ul>
-<li><code>get_state() -&gt; bool</code> — existing behavior; returns whether the LED is currently on.</li>
-<li><code>get_brightness() -&gt; int</code> — returns the current brightness value (0–255).</li>
+<li><code>get_state() -&gt; bool</code> — pre-existing behavior; returns whether the LED is currently on.</li>
+<li><code>get_brightness() -&gt; int</code> — returns the brightness value currently held (0–255).</li>
 </ul>
-<p>The relationship between state and brightness:</p>
+<p>How state and brightness relate:</p>
 <ul>
-<li>Brightness <code>0</code> corresponds to state <code>False</code> (off).</li>
+<li>A brightness of <code>0</code> corresponds to state <code>False</code> (off).</li>
 <li>Any brightness greater than <code>0</code> corresponds to state <code>True</code> (on).</li>
 </ul>
-<h4>Required Methods</h4>
+<h4>Methods to Implement</h4>
 <h5><code>set_brightness(value: int) -&gt; None</code></h5>
 <ul>
-<li>Sets the current brightness to <code>value</code>.</li>
-<li>Updates the on/off state accordingly: state becomes <code>False</code> when <code>value == 0</code>, and <code>True</code> when <code>value &gt; 0</code>.</li>
-<li>Valid range is <code>0</code> through <code>255</code> inclusive. A <code>value</code> outside this range (e.g. <code>300</code>) must raise <code>ValueError</code>.</li>
+<li>Assigns <code>value</code> as the current brightness.</li>
+<li>Brings the on/off state in line with it: the state becomes <code>False</code> when <code>value == 0</code>, and <code>True</code> when <code>value &gt; 0</code>.</li>
+<li>The valid range spans <code>0</code> through <code>255</code> inclusive. A <code>value</code> outside this range (e.g. <code>300</code>) must raise <code>ValueError</code>.</li>
 </ul>
 <h5><code>blink(duration_ms: int, times: int) -&gt; None</code></h5>
 <ul>
-<li>Blinks the LED <code>times</code> times. Each blink turns the LED on, waits, turns it off, and waits — i.e. each blink performs two delays of <code>duration_ms</code> each (on-phase delay and off-phase delay).</li>
-<li>Every delay uses <code>duration_ms</code> as its duration. For <code>times</code> blinks there must be exactly <code>2 * times</code> delays, each equal to <code>duration_ms</code>.</li>
-<li>After completion the LED must be off: <code>get_state()</code> is <code>False</code> and <code>get_brightness()</code> is <code>0</code>.</li>
+<li>Makes the LED blink <code>times</code> times. A single blink turns the LED on, waits, turns it off, and waits — i.e. each blink performs two delays of <code>duration_ms</code> each (on-phase delay and off-phase delay).</li>
+<li>Every delay takes <code>duration_ms</code> as its duration. With <code>times</code> blinks there must be exactly <code>2 * times</code> delays, each equal to <code>duration_ms</code>.</li>
+<li>After the blinking completes, the LED must be off: <code>get_state()</code> is <code>False</code> and <code>get_brightness()</code> is <code>0</code>.</li>
 </ul>
 <h5><code>fade_in(step: int, delay_ms: int) -&gt; None</code></h5>
 <ul>
-<li>Gradually increases brightness from its current level up to full brightness (<code>255</code>), incrementing by <code>step</code> each iteration, and delaying <code>delay_ms</code> between steps.</li>
-<li>After completion the LED is on with brightness exactly <code>255</code> (state <code>True</code>).</li>
-<li>Each delay performed uses <code>delay_ms</code> as its duration.</li>
+<li>Increases the brightness gradually from its current level up to full brightness (<code>255</code>), adding <code>step</code> each iteration and delaying <code>delay_ms</code> between steps.</li>
+<li>After the fade completes, the LED is on with brightness exactly <code>255</code> (state <code>True</code>).</li>
+<li>Every delay that is performed uses <code>delay_ms</code> as its duration.</li>
 <li><code>step</code> must be a positive integer; a <code>step</code> of <code>0</code> or negative must raise <code>ValueError</code>.</li>
 </ul>
 <h5><code>fade_out(step: int, delay_ms: int) -&gt; None</code></h5>
 <ul>
-<li>Gradually decreases brightness from its current level down to <code>0</code>, decrementing by <code>step</code> each iteration, and delaying <code>delay_ms</code> between steps.</li>
-<li>After completion the LED is off with brightness exactly <code>0</code> (state <code>False</code>).</li>
-<li>Each delay performed uses <code>delay_ms</code> as its duration.</li>
+<li>Decreases the brightness gradually from its current level down to <code>0</code>, subtracting <code>step</code> each iteration and delaying <code>delay_ms</code> between steps.</li>
+<li>After the fade completes, the LED is off with brightness exactly <code>0</code> (state <code>False</code>).</li>
+<li>Every delay that is performed uses <code>delay_ms</code> as its duration.</li>
 <li><code>step</code> must be a positive integer; a <code>step</code> of <code>0</code> or negative must raise <code>ValueError</code>.</li>
 </ul>
 <h5><code>flash_pattern(pattern: list[int], delay_ms: int) -&gt; None</code></h5>
 <ul>
-<li>Applies each brightness value in <code>pattern</code> in sequence, setting the brightness to each value in turn.</li>
-<li>A delay of <code>delay_ms</code> is performed <em>between</em> consecutive values (not after the final value). For a pattern of length <code>n</code>, exactly <code>n - 1</code> delays are performed, each equal to <code>delay_ms</code>.</li>
-<li>After completion the LED reflects the final value in the pattern. (For a pattern ending in <code>0</code>, this means state <code>False</code> and brightness <code>0</code>.)</li>
-<li>Every value in <code>pattern</code> is subject to the same validity range as <code>set_brightness</code> (0–255). If any value is out of range (e.g. <code>300</code>), a <code>ValueError</code> must be raised.</li>
+<li>Steps through each brightness value in <code>pattern</code> in sequence, setting the brightness to each value in turn.</li>
+<li>A delay of <code>delay_ms</code> is carried out <em>between</em> consecutive values (not after the final value). With a pattern of length <code>n</code>, exactly <code>n - 1</code> delays are performed, each equal to <code>delay_ms</code>.</li>
+<li>After the pattern has been applied, the LED reflects the final value in the pattern. (For a pattern that ends in <code>0</code>, this means state <code>False</code> and brightness <code>0</code>.)</li>
+<li>Every value in <code>pattern</code> falls under the same validity range as <code>set_brightness</code> (0–255). If any value is out of range (e.g. <code>300</code>), a <code>ValueError</code> must be raised.</li>
 </ul>
-<h4>Method Signatures</h4>
-<p>Where keyword arguments are used at call sites, the following parameter names must be supported:</p>
+<h4>Signatures</h4>
+<p>At call sites using keyword arguments, the following parameter names must be supported:</p>
 <ul>
 <li><code>set_brightness(value)</code></li>
 <li><code>get_brightness()</code></li>
@@ -676,338 +678,339 @@ Serial.println(&quot;hi&quot;);
 <li><code>fade_out(step, delay_ms)</code></li>
 <li><code>flash_pattern(pattern, delay_ms)</code></li>
 </ul>
-<p><code>delay_ms</code> in <code>fade_in</code>, <code>fade_out</code>, and <code>flash_pattern</code>, and <code>step</code>/<code>duration_ms</code>/<code>times</code> should have sensible defaults or be freely callable both positionally and by keyword as shown above (e.g. <code>set_brightness(128)</code>, <code>blink(duration_ms=50, times=2)</code>, <code>fade_in(step=50, delay_ms=5)</code>, <code>fade_out(step=50, delay_ms=5)</code>, <code>flash_pattern([1, 0, 128, 0], delay_ms=25)</code>, <code>fade_in(step=0)</code>, <code>fade_out(step=-1)</code>, <code>flash_pattern([300])</code>).</p>
-<h4>Notes on Timing</h4>
-<p>All delays must be issued by constructing the module-level <code>Sleep</code> type with the integer millisecond duration and invoking <code>wait()</code> on it, so that replacing <code>Reduino.Actuators.Sleep</code> changes the timing behavior. The number and duration of delays for each helper is as specified above and must match exactly.</p>
+<p>The <code>delay_ms</code> of <code>fade_in</code>, <code>fade_out</code>, and <code>flash_pattern</code>, together with <code>step</code>/<code>duration_ms</code>/<code>times</code>, should have sensible defaults or be freely callable both positionally and by keyword as shown above (e.g. <code>set_brightness(128)</code>, <code>blink(duration_ms=50, times=2)</code>, <code>fade_in(step=50, delay_ms=5)</code>, <code>fade_out(step=50, delay_ms=5)</code>, <code>flash_pattern([1, 0, 128, 0], delay_ms=25)</code>, <code>fade_in(step=0)</code>, <code>fade_out(step=-1)</code>, <code>flash_pattern([300])</code>).</p>
+<h4>Timing Notes</h4>
+<p>All delays must be issued via construction of the module-level <code>Sleep</code> type with the integer millisecond duration, followed by invoking <code>wait()</code> on it, so that replacing <code>Reduino.Actuators.Sleep</code> changes the timing behavior. For each helper, the number of delays and their duration is as specified above and must match exactly.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not change the existing <code>Led</code> API surface or the behaviors already provided.</li>
-<li>No behavior beyond what is described here is required.</li>
+<li>The existing <code>Led</code> API surface, as well as the behaviors already provided, must not be changed.</li>
+<li>Nothing beyond the behavior described here is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You are extending a Python-to-C++ (Arduino) transpiler.</span>
-        <span class="spec-meta muted">571 words · source specification
+        <span class="spec-title">Your job is to extend a transpiler that converts Python into C++ (Arduino).</span>
+        <span class="spec-meta muted">640 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement PWM LED Control in the Reduino Transpiler</h3>
+      <div class="spec-body"><h3>Task: Add PWM LED Control to the Reduino Transpiler</h3>
 <h4>Overview</h4>
-<p>You are extending a Python-to-C++ (Arduino) transpiler. The transpiler parses Python source code that uses a <code>Reduino</code> library and emits equivalent Arduino/C++ code. Your task is to add PWM (brightness) control and related helper behaviors for LED actuators.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable so that source code can be transpiled:</p>
+<p>Your job is to extend a transpiler that converts Python into C++ (Arduino). Its input is Python source code that uses a <code>Reduino</code> library, which it parses, and its output is equivalent Arduino/C++ code. What you are to add is PWM (brightness) control and related helper behaviors for LED actuators.</p>
+<h4>Public API</h4>
+<p>The items below must be importable and callable so that source code can be transpiled:</p>
 <ul>
-<li>A parse function: <code>parse(src_code: str)</code> — parses Python source into an intermediate representation.</li>
-<li>An emit function: <code>emit(parsed)</code> — takes the result of <code>parse</code> and returns a string of generated C++ code.</li>
+<li>A parse function, <code>parse(src_code: str)</code> — takes Python source and parses it into an intermediate representation.</li>
+<li>An emit function, <code>emit(parsed)</code> — receives the result of <code>parse</code> and returns the generated C++ code as a string.</li>
 </ul>
-<p>Both <code>parse</code> and <code>emit</code> are used together as <code>emit(parse(src_code))</code>.</p>
-<p>Within the Python source being transpiled, an LED is declared via:</p>
+<p>Both <code>parse</code> and <code>emit</code> are used in combination as <code>emit(parse(src_code))</code>.</p>
+<p>In the Python source that is being transpiled, an LED is declared in the following way:</p>
 <pre><code class="language-python">from Reduino.Actuators import Led
 </code></pre>
-<p>The <code>Led</code> class supports the following construction and methods (as they appear in the transpiled source, not as runtime Python):</p>
+<p>The <code>Led</code> class supports the following constructor forms and methods (these appear as written in the transpiled source, not as runtime Python):</p>
 <ul>
-<li><code>Led(pin=&lt;int&gt;)</code> — construct with an explicit pin.</li>
-<li><code>Led()</code> — construct without arguments (uses a default pin of <code>13</code>).</li>
+<li><code>Led(pin=&lt;int&gt;)</code> — construct with a pin given explicitly.</li>
+<li><code>Led()</code> — construct with no arguments (this uses a default pin of <code>13</code>).</li>
 <li><code>led.set_brightness(&lt;int&gt;)</code></li>
 <li><code>led.blink(duration_ms=&lt;int&gt;, times=&lt;int&gt;)</code></li>
 <li><code>led.fade_in(step=&lt;int&gt;, delay_ms=&lt;int&gt;)</code></li>
 <li><code>led.fade_out(step=&lt;int&gt;, delay_ms=&lt;int&gt;)</code></li>
 <li><code>led.flash_pattern(&lt;list of ints&gt;, delay_ms=&lt;int&gt;)</code></li>
 </ul>
-<h4>Generated C++ Behavior</h4>
-<p>Note: the generated code is compared after whitespace normalization, so exact spacing between tokens is not significant, but token content, ordering within statements, and punctuation are. A single named LED variable produces C++ identifiers suffixed with <code>_led</code> (i.e., the variable name).</p>
-<h5>LED Declaration</h5>
-<p>Declaring an LED (with or without a pin argument) must emit the following global declarations and pin setup:</p>
+<h4>Behavior of the Generated C++</h4>
+<p>Note: the generated code is compared after whitespace has been normalized, so the exact spacing between tokens is not significant; what is significant is token content, ordering within statements, and punctuation. A single named LED variable produces C++ identifiers that carry the suffix <code>_led</code> (i.e., the variable name).</p>
+<h5>Declaring an LED</h5>
+<p>When an LED is declared (whether with or without a pin argument), the following global declarations and pin setup must be emitted:</p>
 <ul>
-<li>A boolean state global initialized to false:
+<li>A global for the boolean state, initialized to false:
 <code>bool __state_led = false;</code></li>
-<li>An integer brightness global initialized to zero:
+<li>A global for the integer brightness, initialized to zero:
 <code>int __brightness_led = 0;</code></li>
-<li>A pin mode setup call for the LED's pin as an OUTPUT. For a default (no-argument) construction, the pin is <code>13</code>:
+<li>A call that sets up the pin mode of the LED's pin as an OUTPUT. For a default (no-argument) construction, the pin is <code>13</code>:
 <code>pinMode(13, OUTPUT);</code></li>
 </ul>
 <h5><code>set_brightness(value)</code></h5>
-<p>Setting brightness must:</p>
+<p>Setting the brightness must:</p>
 <ul>
-<li>Assign the given value to the brightness global (so the brightness global reflects the requested value).</li>
-<li>Write the brightness to the pin using PWM:
+<li>Assign the given value to the brightness global (so that the brightness global reflects the requested value).</li>
+<li>Write the brightness to the pin by means of PWM:
 <code>analogWrite(&lt;pin&gt;, __brightness_led);</code></li>
-<li>Update the boolean state to reflect whether the LED is on (brightness greater than zero):
+<li>Update the boolean state so that it reflects whether the LED is on (brightness greater than zero):
 <code>__state_led = __brightness_led &gt; 0;</code></li>
 </ul>
-<p>For an LED constructed with <code>pin=5</code>, this produces (among the declarations):</p>
+<p>For an LED constructed with <code>pin=5</code>, the result is (among the declarations):</p>
 <ul>
 <li><code>int __brightness_led = 0;</code></li>
 <li><code>analogWrite(5, __brightness_led);</code></li>
 <li><code>__state_led = __brightness_led &gt; 0;</code></li>
 </ul>
 <h5><code>blink(duration_ms, times)</code></h5>
-<p>Blinking must generate a counted loop:</p>
+<p>A blink must generate a counted loop:</p>
 <ul>
-<li>An integer holding the repeat count:
+<li>An integer that holds the repeat count:
 <code>int __redu_times = &lt;times&gt;;</code></li>
-<li>A <code>for</code> loop over that count:
+<li>A <code>for</code> loop that runs over that count:
 <code>for (int __redu_i = 0; __redu_i &lt; __redu_times; ++__redu_i) {</code></li>
-<li>Within each iteration, the LED is toggled on and off with delays, producing at least two <code>delay(&lt;duration_ms&gt;);</code> calls per blink (e.g., <code>delay(200);</code> appearing two or more times for <code>duration_ms=200</code>).</li>
+<li>Within each iteration, the LED is toggled on and off with delays, so at least two <code>delay(&lt;duration_ms&gt;);</code> calls appear per blink (e.g., <code>delay(200);</code> appearing two or more times for <code>duration_ms=200</code>).</li>
 </ul>
 <h5><code>fade_in(step, delay_ms)</code> and <code>fade_out(step, delay_ms)</code></h5>
-<p>These fade helpers must ramp the brightness up/down using PWM writes to the LED pin:</p>
+<p>These fade helpers must ramp the brightness up/down via PWM writes to the LED pin:</p>
 <ul>
-<li><code>analogWrite(&lt;pin&gt;, __brightness_led);</code> (for an LED on <code>pin=9</code>, this is <code>analogWrite(9, __brightness_led);</code>)</li>
+<li><code>analogWrite(&lt;pin&gt;, __brightness_led);</code> (for an LED on <code>pin=9</code>, this becomes <code>analogWrite(9, __brightness_led);</code>)</li>
 </ul>
 <h5><code>flash_pattern(pattern_list, delay_ms)</code></h5>
-<p>Flashing a pattern must:</p>
+<p>Flashing a pattern must do the following:</p>
 <ul>
-<li>Emit the pattern as a constant integer array literal, preserving order and values:
+<li>Emit the pattern as a constant integer array literal, with order and values preserved:
 <code>const int __redu_pattern[] = {1, 0, 64};</code> (for the list <code>[1, 0, 64]</code>)</li>
-<li>Emit a <code>delay(&lt;delay_ms&gt;);</code> call for the pattern's timing (e.g., <code>delay(50);</code> for <code>delay_ms=50</code>).</li>
+<li>Emit a <code>delay(&lt;delay_ms&gt;);</code> call that supplies the pattern's timing (e.g., <code>delay(50);</code> for <code>delay_ms=50</code>).</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The <code>_led</code> suffix on the state/brightness identifiers corresponds to the Python variable name (<code>led</code>).</li>
-<li>The default pin when no <code>pin</code> argument is supplied is <code>13</code>.</li>
-<li>Numeric arguments passed in the Python source are emitted directly as their literal values in the generated C++.</li>
+<li>The <code>_led</code> suffix found on the state/brightness identifiers corresponds to the Python variable name (<code>led</code>).</li>
+<li>When no <code>pin</code> argument is supplied, the default pin is <code>13</code>.</li>
+<li>Numeric arguments that are passed in the Python source get emitted directly as their literal values in the generated C++.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Support Flash Patterns from List Variables in the Reduino Transpiler</span>
-        <span class="spec-meta muted">334 words · source specification
+        <span class="spec-title">Supporting Flash Patterns Taken from List Variables in the Reduino Transpiler</span>
+        <span class="spec-meta muted">377 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support Flash Patterns from List Variables in the Reduino Transpiler</h3>
+      <div class="spec-body"><h3>Task Specification: Supporting Flash Patterns Taken from List Variables in the Reduino Transpiler</h3>
 <h4>Context</h4>
-<p>You are working on a Python-to-C++ (Arduino) transpiler. Source code written using the <code>Reduino</code> framework is parsed and emitted as C++ code. This task concerns the <code>Led</code> actuator's <code>flash_pattern</code> method and how its pattern argument is transpiled.</p>
-<p>The transpiler exposes two functions used together:</p>
+<p>You are working on a transpiler from Python to C++ (for Arduino). Source code that is written using the <code>Reduino</code> framework gets parsed and emitted as C++ code. This task is about the <code>flash_pattern</code> method of the <code>Led</code> actuator and the way its pattern argument gets transpiled.</p>
+<p>The transpiler exposes two functions that are used together:</p>
 <ul>
-<li><code>parse(source_code: str)</code> — parses Python source into an intermediate representation.</li>
-<li><code>emit(parsed)</code> — takes the parsed result and returns the emitted C++ code as a string.</li>
+<li><code>parse(source_code: str)</code> — takes Python source and parses it into an intermediate representation.</li>
+<li><code>emit(parsed)</code> — given the parsed result, returns the emitted C++ code as a string.</li>
 </ul>
-<p>The <code>Reduino.Actuators</code> module provides a <code>Led</code> class, constructed with a keyword argument <code>pin</code> (e.g. <code>Led(pin=7)</code>).</p>
-<h4>Required Behavior</h4>
-<p>The <code>Led.flash_pattern(pattern, delay_ms=...)</code> method must be transpilable in two additional scenarios.</p>
-<h5>1. Pattern provided via a list variable</h5>
-<p>When the pattern argument to <code>flash_pattern</code> is a name that refers to a list literal defined earlier in the source (rather than an inline list literal passed directly at the call site), the transpiler must resolve that variable to its list value and emit the pattern accordingly.</p>
-<p>For example, given source equivalent to:</p>
+<p>The <code>Reduino.Actuators</code> module makes a <code>Led</code> class available; this class is constructed with a keyword argument <code>pin</code> (e.g. <code>Led(pin=7)</code>).</p>
+<h4>Behavior That Is Required</h4>
+<p>It must be possible to transpile the <code>Led.flash_pattern(pattern, delay_ms=...)</code> method in two additional scenarios.</p>
+<h5>1. Pattern Supplied Through a List Variable</h5>
+<p>When the pattern argument given to <code>flash_pattern</code> is a name that refers to a list literal defined earlier in the source (rather than an inline list literal passed directly at the call site), the transpiler must resolve that variable to its list value and emit the pattern accordingly.</p>
+<p>As an example, for source equivalent to:</p>
 <pre><code class="language-python">pattern = [1, 0, 1, 0]
 led = Led(pin=7)
 led.flash_pattern(pattern, delay_ms=250)
 </code></pre>
-<p>the emitted C++ must contain:</p>
+<p>the emitted C++ code must contain:</p>
 <ul>
-<li>A pattern array declaration whose elements are the list values in order:<pre><code>const int __redu_pattern[] = {1, 0, 1, 0};
+<li>A declaration of a pattern array whose elements are the list values in order:<pre><code>const int __redu_pattern[] = {1, 0, 1, 0};
 </code></pre>
 </li>
-<li>A delay call using the given <code>delay_ms</code> value:<pre><code>delay(250);
+<li>A delay call that uses the given <code>delay_ms</code> value:<pre><code>delay(250);
 </code></pre>
 </li>
 </ul>
-<h5>2. Empty pattern</h5>
-<p>When the pattern passed to <code>flash_pattern</code> is an empty list (whether inline or via a variable), no pattern array should be emitted. Specifically, the emitted C++ must NOT contain the identifier <code>__redu_pattern</code> anywhere.</p>
-<p>For example, given source equivalent to:</p>
+<h5>2. Empty Pattern</h5>
+<p>When the pattern handed to <code>flash_pattern</code> is an empty list (whether inline or via a variable), no pattern array should be emitted. To be specific, the identifier <code>__redu_pattern</code> must NOT be contained anywhere in the emitted C++.</p>
+<p>As an example, for source equivalent to:</p>
 <pre><code class="language-python">led = Led(pin=8)
 led.flash_pattern([], delay_ms=100)
 </code></pre>
 <p>the emitted output must not reference <code>__redu_pattern</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The array declaration format is exactly <code>const int __redu_pattern[] = {&lt;comma-separated values&gt;};</code> with a single space after each comma.</li>
-<li>The delay call format is exactly <code>delay(&lt;delay_ms&gt;);</code>.</li>
-<li>Existing behavior for inline (non-empty) list literals passed directly to <code>flash_pattern</code> must continue to work as before.</li>
+<li>The format of the array declaration is exactly <code>const int __redu_pattern[] = {&lt;comma-separated values&gt;};</code> with a single space after each comma.</li>
+<li>The format of the delay call is exactly <code>delay(&lt;delay_ms&gt;);</code>.</li>
+<li>Behavior that already exists for inline (non-empty) list literals passed directly to <code>flash_pattern</code> must continue to work as it did before.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">You must extend an existing parser for a Python-like source language (the &#34;Reduino&#34; language) so that it correctly handles target(...) directives that…</span>
-        <span class="spec-meta muted">497 words · source specification
+        <span class="spec-title">You must extend a parser that already exists for a source language that resembles Python (the &#34;Reduino&#34; language) so that target(...) directives are handled…</span>
+        <span class="spec-meta muted">539 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must extend an existing parser for a Python-like source language (the &quot;Reduino&quot; language) so that it correctly handles <code>target(...)</code> directives that appear <strong>nested inside expressions</strong>, not just as standalone statements.</p>
-<h4>Context</h4>
-<p>The parser exposes a module-level function:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You must extend a parser that already exists for a source language that resembles Python (the &quot;Reduino&quot; language) so that <code>target(...)</code> directives are handled correctly even when they appear <strong>nested inside expressions</strong>, rather than only as standalone statements.</p>
+<h4>Background</h4>
+<p>The parser exposes this function at module level:</p>
 <pre><code class="language-python">parse(code: str) -&gt; Program
 </code></pre>
-<p>that accepts source code as a string and returns a program object. The program object has:</p>
+<p>The source code is accepted as a string, and a program object is returned. The program object provides:</p>
 <ul>
-<li>An attribute holding the resolved target port, exposed as <strong>either</strong> <code>target_port</code> <strong>or</strong> <code>upload_port</code> (at least one of these must be present and hold the resolved value).</li>
-<li>A <code>setup_body</code> attribute: a list of parsed statement nodes.</li>
+<li>An attribute that carries the resolved target port, exposed as <strong>either</strong> <code>target_port</code> <strong>or</strong> <code>upload_port</code> (at least one of these must be present, and it must hold the resolved value).</li>
+<li>A <code>setup_body</code> attribute, which is a list of parsed statement nodes.</li>
 </ul>
-<p>The following node types are already part of the parser's public API and importable from the same location as <code>parse</code>:</p>
+<p>These node types already belong to the parser's public API and are importable from the same location as <code>parse</code>:</p>
 <ul>
-<li><code>ExprStmt</code> — a statement node wrapping a standalone expression. It exposes an <code>expr</code> attribute containing the string form of the expression.</li>
+<li><code>ExprStmt</code> — a statement node that wraps a standalone expression. It exposes an <code>expr</code> attribute, which contains the expression in string form.</li>
 </ul>
-<p>The <code>target(...)</code> construct is a directive of the form <code>target(&quot;&lt;PORT&gt;&quot;)</code> that designates the upload/target port for the program. The source may import it via <code>from Reduino import target</code>.</p>
+<p>As a directive, <code>target(...)</code> has the form <code>target(&quot;&lt;PORT&gt;&quot;)</code>, and it designates the program's upload/target port. It may be imported by the source via <code>from Reduino import target</code>.</p>
 <h4>Required Behavior</h4>
-<h5>1. Recognize <code>target(...)</code> calls anywhere they appear</h5>
-<p><code>target(&quot;&lt;PORT&gt;&quot;)</code> calls must be recognized and processed regardless of their syntactic position. In particular, they must be handled when they appear:</p>
+<h5>1. Recognize <code>target(...)</code> calls wherever they appear</h5>
+<p>No matter what syntactic position a <code>target(&quot;&lt;PORT&gt;&quot;)</code> call occupies, it must be recognized and processed. Specifically, it must be handled in the situations listed below:</p>
 <ul>
-<li>As arguments inside other expressions (e.g. <code>print(target(&quot;COM9&quot;))</code>).</li>
-<li>On the right-hand side of an assignment (e.g. <code>assigned = target(&quot;COM10&quot;)</code>).</li>
-<li>As standalone statements (e.g. <code>target(&quot;COM11&quot;)</code>).</li>
+<li>As arguments within other expressions (e.g. <code>print(target(&quot;COM9&quot;))</code>).</li>
+<li>As the right-hand side of an assignment (e.g. <code>assigned = target(&quot;COM10&quot;)</code>).</li>
+<li>On their own, as standalone statements (e.g. <code>target(&quot;COM11&quot;)</code>).</li>
 </ul>
-<h5>2. Resolve the target port to the last occurrence</h5>
-<p>When multiple <code>target(...)</code> calls appear in the source, the resolved port value must be the port string from the <strong>last</strong> <code>target(...)</code> call encountered in source order, whether that call was nested in an expression or standalone.</p>
-<p>For example, given a program containing (in this order):</p>
+<h5>2. Resolve the target port from the last occurrence</h5>
+<p>If the source contains multiple <code>target(...)</code> calls, the resolved port value must be the port string from the <strong>last</strong> <code>target(...)</code> call encountered in source order — no matter whether that call was nested inside an expression or was standalone.</p>
+<p>Example: a program contains the following lines, in this order:</p>
 <pre><code>print(target(&quot;COM9&quot;))
 assigned = target(&quot;COM10&quot;)
 target(&quot;COM11&quot;)
 </code></pre>
-<p>the resolved port must be <code>&quot;COM11&quot;</code>.</p>
-<h5>3. Remove <code>target(...)</code> from the parsed expression bodies</h5>
-<p><code>target(...)</code> directives must be stripped out of the expression statements that remain in <code>setup_body</code>. After parsing, no expression statement's string form (its <code>expr</code> attribute) may contain the substring <code>target</code>.</p>
-<p>Concretely, for every node in <code>setup_body</code> that is an <code>ExprStmt</code>, its <code>expr</code> string must not contain <code>target</code>. This applies whether the <code>target(...)</code> call was the whole expression or was nested within a larger expression.</p>
+<p>the port resolved must be <code>&quot;COM11&quot;</code>.</p>
+<h5>3. Strip <code>target(...)</code> out of the parsed expression bodies</h5>
+<p>Out of the expression statements that remain in <code>setup_body</code>, <code>target(...)</code> directives must be stripped. Once parsing is complete, the substring <code>target</code> may not appear in any expression statement's string form (its <code>expr</code> attribute).</p>
+<p>Concretely, for every node in <code>setup_body</code> that is an <code>ExprStmt</code>, the <code>expr</code> string must not contain <code>target</code>. Whether the <code>target(...)</code> call made up the whole expression or was nested within a larger expression, the same applies.</p>
 <h4>Public API Surface</h4>
-<p>From the parser module (the same module that currently provides <code>parse</code>, <code>ExprStmt</code>, and the existing target-handling behavior), the following must be importable and behave as described:</p>
+<p>The following must be importable from the parser module (the same module that currently provides <code>parse</code>, <code>ExprStmt</code>, and the existing target-handling behavior) and behave as described:</p>
 <ul>
 <li><code>parse(code: str) -&gt; Program</code></li>
-<li><code>ExprStmt</code> — with an <code>expr</code> attribute (string form of the wrapped expression)</li>
-<li>The returned program object must expose the resolved port via <code>target_port</code> or <code>upload_port</code>, and must expose <code>setup_body</code> as a list of statement nodes.</li>
+<li><code>ExprStmt</code> — with an <code>expr</code> attribute (the wrapped expression, in string form)</li>
+<li>The program object that <code>parse</code> returns must expose the resolved port via <code>target_port</code> or <code>upload_port</code>, and it must expose <code>setup_body</code> as a list of statement nodes.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The source input to <code>parse</code> may be provided with leading indentation stripped/normalized (i.e., the parser accepts a dedented block of statements).</li>
-<li>Existing behavior for standalone <code>target(...)</code> directives and for capturing the target port must continue to work; this task only adds correct handling for <code>target(...)</code> calls nested within larger expressions.</li>
+<li>The source handed to <code>parse</code> may have its leading indentation stripped/normalized (i.e., a dedented block of statements is accepted by the parser).</li>
+<li>Behavior that already exists for standalone <code>target(...)</code> directives and for capturing the target port must continue to work; the only thing this task adds is correct handling of <code>target(...)</code> calls nested within larger expressions.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Modify the source-code parser so that Python print(...) statements appearing in an input program are ignored (excluded) from the parsed output.</span>
-        <span class="spec-meta muted">234 words · source specification
+        <span class="spec-title">Update the source-code parser so that Python print(...) statements that appear in an input program are ignored (excluded) from the parsed output.</span>
+        <span class="spec-meta muted">264 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the source-code parser so that Python <code>print(...)</code> statements appearing in an input program are ignored (excluded) from the parsed output.</p>
-<h4>Context</h4>
-<p>The parser processes source code written for the &quot;Reduino&quot; framework and produces a program representation object. The relevant public API surface (already present in the codebase, used as follows):</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Update the source-code parser so that Python <code>print(...)</code> statements that appear in an input program are ignored (excluded) from the parsed output.</p>
+<h4>Background</h4>
+<p>The parser takes source code written for the &quot;Reduino&quot; framework as input and generates a program representation object. The relevant public API surface (already present in the codebase; it is used as follows):</p>
 <ul>
-<li><code>parse(code)</code> — a top-level function that accepts a string of source code and returns a parsed program object.</li>
-<li>The returned program object exposes a <code>setup_body</code> attribute: an iterable of statement nodes.</li>
-<li><code>ExprStmt</code> — a node class representing an expression statement. Each <code>ExprStmt</code> instance has an <code>expr</code> attribute holding the expression content.</li>
+<li><code>parse(code)</code> — a function at the top level that accepts a string of source code and returns a parsed program object.</li>
+<li>The program object that is returned exposes a <code>setup_body</code> attribute, which is an iterable of statement nodes.</li>
+<li><code>ExprStmt</code> — a node class that represents an expression statement. Each <code>ExprStmt</code> instance has an <code>expr</code> attribute holding the expression content.</li>
 </ul>
-<p>These names are imported and called directly, so their module paths, names, and signatures must remain compatible with the above usage.</p>
-<h4>Required Behavior</h4>
-<p>When parsing a program, any statement that is a call to <code>print(...)</code> must <strong>not</strong> produce any node in <code>setup_body</code>. This applies regardless of the arguments passed to <code>print</code>, including:</p>
+<p>These names are imported and called directly, so their module paths, names, and signatures must stay compatible with the usage described above.</p>
+<h4>Behavior Requirements</h4>
+<p>While a program is being parsed, any statement that is a call to <code>print(...)</code> must <strong>not</strong> produce any node in <code>setup_body</code>. This holds regardless of the arguments passed to <code>print</code>, including:</p>
 <ul>
-<li><code>print</code> called with a variable/identifier argument, e.g. <code>print(r)</code></li>
-<li><code>print</code> called with a string literal argument, e.g. <code>print(&quot;hello&quot;)</code></li>
+<li><code>print</code> called with a variable/identifier as the argument, e.g. <code>print(r)</code></li>
+<li><code>print</code> called with a string literal as the argument, e.g. <code>print(&quot;hello&quot;)</code></li>
 </ul>
-<p>Concretely: given a program consisting solely of an import, an assignment, and one or more <code>print(...)</code> calls, the resulting <code>setup_body</code> must contain <strong>no</strong> <code>ExprStmt</code> nodes (i.e., the <code>print</code> calls contribute nothing to the parsed statement list).</p>
-<p>All other existing parsing behavior must remain unchanged; only <code>print</code> statements are to be skipped.</p>
+<p>To make this concrete: when a program consists solely of an import, an assignment, and one or more <code>print(...)</code> calls, the resulting <code>setup_body</code> must contain <strong>no</strong> <code>ExprStmt</code> nodes (that is, the <code>print</code> calls contribute nothing to the parsed statement list).</p>
+<p>Apart from this, all existing parsing behavior must remain unchanged; the only statements that are to be skipped are <code>print</code> statements.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Convert Sleep into a Function</span>
-        <span class="spec-meta muted">272 words · source specification
+        <span class="spec-title">Turn Sleep Into a Function</span>
+        <span class="spec-meta muted">283 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Convert <code>Sleep</code> into a Function</h3>
-<h4>Overview</h4>
-<p>Modify the <code>Sleep</code> helper in the <code>Reduino.Time</code> module so that it behaves as a callable <strong>function</strong> that immediately performs a sleep operation when invoked, rather than as a class that must be instantiated and then triggered separately.</p>
-<h4>Public API</h4>
-<p>The module <code>Reduino.Time</code> must expose a callable named <code>Sleep</code> with the following signature:</p>
+      <div class="spec-body"><h3>Task Specification: Turn <code>Sleep</code> Into a Function</h3>
+<h4>Summary</h4>
+<p>Change the <code>Sleep</code> helper inside the <code>Reduino.Time</code> module so that it acts as a callable <strong>function</strong> that, when invoked, immediately carries out a sleep operation, instead of being a class that must be instantiated and then triggered separately.</p>
+<h4>Public Interface</h4>
+<p>The module <code>Reduino.Time</code> must expose a callable named <code>Sleep</code> with this signature:</p>
 <pre><code class="language-python">Sleep(duration, sleep_func=...)
 </code></pre>
-<h5>Parameters</h5>
+<h5>Arguments</h5>
 <ul>
-<li><code>duration</code> (required, numeric): the sleep duration expressed in <strong>milliseconds</strong>.</li>
-<li><code>sleep_func</code> (optional, keyword argument): a callable that accepts a single numeric argument (the duration in <strong>seconds</strong>). When not provided, a suitable default sleep mechanism is used. When provided, this callable is used to perform the actual sleep.</li>
+<li><code>duration</code> (required, numeric): how long to sleep, given in <strong>milliseconds</strong>.</li>
+<li><code>sleep_func</code> (optional, keyword argument): a callable that accepts one numeric argument (the duration in <strong>seconds</strong>). When it is not supplied, a suitable default sleep mechanism is used. When it is supplied, this callable is what performs the actual sleep.</li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <ol>
 <li>
-<p><strong>Immediate execution.</strong> Calling <code>Sleep(duration, ...)</code> must perform the sleep immediately as part of that single call. There is no separate object to store or method to invoke afterward — no instantiation-then-trigger pattern.</p>
+<p><strong>Immediate execution.</strong> Invoking <code>Sleep(duration, ...)</code> must perform the sleep immediately within that single call. There is no separate object to store and no method to invoke afterward — there is no instantiation-then-trigger pattern.</p>
 </li>
 <li>
-<p><strong>Millisecond-to-second conversion.</strong> The <code>duration</code> value is given in milliseconds and must be converted to seconds (divide by 1000) before being passed to the sleep callable. Examples:</p>
+<p><strong>Millisecond-to-second conversion.</strong> The <code>duration</code> value is supplied in milliseconds and must be converted to seconds (divide by 1000) before it is passed to the sleep callable. Examples:</p>
 <ul>
-<li><code>Sleep(250, sleep_func=f)</code> invokes <code>f(0.25)</code>.</li>
-<li><code>Sleep(500, sleep_func=f)</code> invokes <code>f(0.5)</code>.</li>
+<li>Calling <code>Sleep(250, sleep_func=f)</code> invokes <code>f(0.25)</code>.</li>
+<li>Calling <code>Sleep(500, sleep_func=f)</code> invokes <code>f(0.5)</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Single invocation of the sleep callable.</strong> For a single call to <code>Sleep</code>, the provided <code>sleep_func</code> must be invoked exactly once, with the converted (seconds) value as its only argument.</p>
+<p><strong>One invocation of the sleep callable.</strong> Within a single call to <code>Sleep</code>, the supplied <code>sleep_func</code> must be invoked exactly once, receiving the converted (seconds) value as its only argument.</p>
 </li>
 <li>
-<p><strong>Duration validation.</strong> A negative <code>duration</code> must be rejected by raising a <code>ValueError</code>. For example, <code>Sleep(-1)</code> raises <code>ValueError</code>.</p>
+<p><strong>Duration validation.</strong> The function must reject a negative <code>duration</code> by raising a <code>ValueError</code>. As an example, <code>Sleep(-1)</code> raises <code>ValueError</code>.</p>
 </li>
 </ol>
-<h4>Constraints</h4>
+<h4>Restrictions</h4>
 <ul>
-<li><code>Sleep</code> must no longer expose a <code>.seconds</code> attribute, a <code>.wait()</code> method, or require object construction followed by a separate call. It is a function that does its work in one call.</li>
+<li><code>Sleep</code> must no longer expose a <code>.seconds</code> attribute, a <code>.wait()</code> method, or require that an object be constructed and then called separately. It is a function that completes its work in one call.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Implement ultrasonic distance sensor support in the Reduino library.</span>
-        <span class="spec-meta muted">768 words · source specification
+        <span class="spec-title">Implement support for an ultrasonic distance sensor inside the Reduino library.</span>
+        <span class="spec-meta muted">850 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-reg" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add HC-SR04 Ultrasonic Sensor Support</h3>
-<p>Implement ultrasonic distance sensor support in the Reduino library. This spans two areas: a runtime sensor package (<code>Reduino.Sensors</code>) and the Python-to-C++ transpiler (parser and code emitter). Each is described below.</p>
+      <div class="spec-body"><h3>Task: Add Support for the HC-SR04 Ultrasonic Sensor</h3>
+<p>Implement support for an ultrasonic distance sensor inside the Reduino library. Two areas are involved: a runtime sensor package (<code>Reduino.Sensors</code>) and the Python-to-C++ transpiler (parser and code emitter). Each of these is described below.</p>
 <hr />
-<h4>Part 1: Runtime Sensor Package — <code>Reduino.Sensors</code></h4>
-<p>Create a package importable as <code>Reduino.Sensors</code> that publicly exposes the following names:</p>
+<h4>Part 1: The Runtime Sensor Package — <code>Reduino.Sensors</code></h4>
+<p>Build a package that can be imported as <code>Reduino.Sensors</code> and that publicly exposes the following names:</p>
 <ul>
 <li><code>UltrasonicSensor</code> — a base class/type for ultrasonic sensors.</li>
-<li><code>HCSR04UltrasonicSensor</code> — a concrete sensor class that is a subclass of <code>UltrasonicSensor</code>.</li>
-<li><code>Ultrasonic</code> — a factory callable used to construct sensor instances.</li>
+<li><code>HCSR04UltrasonicSensor</code> — a concrete sensor class that subclasses <code>UltrasonicSensor</code>.</li>
+<li><code>Ultrasonic</code> — a factory callable that constructs sensor instances.</li>
 </ul>
 <h5><code>Ultrasonic(trig, echo, *, distance_provider=None, sensor=...)</code></h5>
-<p>A factory that constructs and returns an ultrasonic sensor instance.</p>
+<p>This factory builds an ultrasonic sensor instance and returns it.</p>
 <ul>
-<li><code>trig</code> and <code>echo</code> are the trigger and echo pin numbers (positional).</li>
-<li>The default sensor model produces an <code>HCSR04UltrasonicSensor</code> instance (which is also an instance of <code>UltrasonicSensor</code>).</li>
-<li>The returned instance must expose the pin numbers as attributes: <code>.trig</code> (the trigger pin) and <code>.echo</code> (the echo pin). For <code>Ultrasonic(7, 8)</code>, <code>.trig == 7</code> and <code>.echo == 8</code>.</li>
-<li>An optional keyword-only <code>distance_provider</code> argument accepts a zero-argument callable. When supplied, calling <code>.measure_distance()</code> on the returned sensor returns the value produced by that callable.</li>
-<li>An optional keyword argument selecting the sensor model (e.g. <code>sensor=&quot;XYZ&quot;</code>). If an unknown/unsupported model identifier is passed, the factory must raise <code>ValueError</code>.</li>
+<li><code>trig</code> and <code>echo</code> take the trigger and echo pin numbers (passed positionally).</li>
+<li>With the default sensor model, the factory produces an <code>HCSR04UltrasonicSensor</code> instance (one that is also an instance of <code>UltrasonicSensor</code>).</li>
+<li>The instance handed back must expose the pin numbers as attributes: <code>.trig</code> (the trigger pin) and <code>.echo</code> (the echo pin). In the case of <code>Ultrasonic(7, 8)</code>, <code>.trig == 7</code> and <code>.echo == 8</code>.</li>
+<li>There is an optional keyword-only <code>distance_provider</code> argument; it accepts a callable taking zero arguments. When it has been supplied, calling <code>.measure_distance()</code> on the returned sensor returns the value produced by that callable.</li>
+<li>An optional keyword argument selects the sensor model (e.g. <code>sensor=&quot;XYZ&quot;</code>). If the model identifier passed in is unknown/unsupported, the factory must raise <code>ValueError</code>.</li>
 </ul>
 <h5><code>HCSR04UltrasonicSensor</code> / <code>UltrasonicSensor</code></h5>
 <ul>
-<li>Must expose <code>.trig</code> and <code>.echo</code> attributes reflecting the configured pins.</li>
-<li>Must provide a <code>measure_distance()</code> method returning a numeric (float-compatible) distance. When a <code>distance_provider</code> callable was supplied at construction, <code>measure_distance()</code> returns that callable's result.</li>
+<li><code>.trig</code> and <code>.echo</code> attributes must be exposed, reflecting the pins that were configured.</li>
+<li>These classes must provide a <code>measure_distance()</code> method that returns a numeric (float-compatible) distance. When a <code>distance_provider</code> callable was supplied at construction time, <code>measure_distance()</code> returns that callable's result.</li>
 </ul>
 <hr />
-<h4>Part 2: Transpiler AST — <code>Reduino.transpile.ast</code></h4>
-<p>Add a new AST node class named <code>UltrasonicDecl</code> (importable from <code>Reduino.transpile.ast</code>), representing a declaration of an ultrasonic sensor in the parsed program. It must carry:</p>
+<h4>Part 2: The Transpiler AST — <code>Reduino.transpile.ast</code></h4>
+<p>Introduce a new AST node class called <code>UltrasonicDecl</code> (importable from <code>Reduino.transpile.ast</code>) that represents a declaration of an ultrasonic sensor in the parsed program. It must carry:</p>
 <ul>
-<li><code>trig</code> — the trigger pin number (int).</li>
-<li><code>echo</code> — the echo pin number (int).</li>
+<li><code>trig</code> — holds the trigger pin number (int).</li>
+<li><code>echo</code> — holds the echo pin number (int).</li>
 </ul>
 <hr />
-<h4>Part 3: Parser Support</h4>
-<p>The parser (invoked via <code>parse(source)</code> as already used elsewhere in the project) must recognize the following usage pattern in Reduino source code:</p>
+<h4>Part 3: Support in the Parser</h4>
+<p>The parser (the one invoked via <code>parse(source)</code>, as already used elsewhere in the project) must recognize this usage pattern in Reduino source code:</p>
 <pre><code class="language-python">from Reduino.Sensors import Ultrasonic
 
 sensor = Ultrasonic(9, 10)
 distance = sensor.measure_distance()
 </code></pre>
-<h5>Sensor declaration</h5>
-<p>An assignment where the right-hand side is a call to <code>Ultrasonic(trig, echo)</code> creates an <code>UltrasonicDecl</code> node placed into the program's setup body (<code>prog.setup_body</code>). For <code>Ultrasonic(9, 10)</code>, the resulting node has <code>trig == 9</code> and <code>echo == 10</code>.</p>
-<p>The parsed program object must expose an attribute <code>ultrasonic_measurements</code>: a set of the variable names that were assigned an ultrasonic sensor. For the example above, this set contains <code>&quot;sensor&quot;</code>.</p>
-<h5>Required pins / error handling</h5>
-<p>Both trigger and echo pins are required. If an <code>Ultrasonic(...)</code> call does not supply both pins (e.g. <code>Ultrasonic(trig=5)</code> with the echo pin missing), the parser must raise <code>ValueError</code>.</p>
-<h5>Measurement call and its assignment</h5>
-<p>An assignment whose right-hand side is a <code>&lt;sensor&gt;.measure_distance()</code> call — where <code>&lt;sensor&gt;</code> is a variable previously declared as an ultrasonic sensor — is transpiled into an assignment to a helper-function call.</p>
+<h5>Declaring a sensor</h5>
+<p>When the right-hand side of an assignment is a call to <code>Ultrasonic(trig, echo)</code>, an <code>UltrasonicDecl</code> node is created and placed into the program's setup body (<code>prog.setup_body</code>). For <code>Ultrasonic(9, 10)</code>, the node produced has <code>trig == 9</code> and <code>echo == 10</code>.</p>
+<p>The parsed program object must expose an attribute <code>ultrasonic_measurements</code>, a set whose entries are the variable names that were assigned an ultrasonic sensor. In the example above, this set contains <code>&quot;sensor&quot;</code>.</p>
+<h5>Pins that are required / error handling</h5>
+<p>The trigger pin and the echo pin are both required. Should an <code>Ultrasonic(...)</code> call not supply both pins (e.g. <code>Ultrasonic(trig=5)</code> with the echo pin missing), the parser must raise <code>ValueError</code>.</p>
+<h5>The measurement call and its assignment</h5>
+<p>If the right-hand side of an assignment is a <code>&lt;sensor&gt;.measure_distance()</code> call — with <code>&lt;sensor&gt;</code> a variable previously declared as an ultrasonic sensor — the assignment is transpiled into an assignment to a call of a helper function.</p>
 <ul>
-<li>The result variable must be registered as a global declaration (in <code>prog.global_decls</code>, keyed by name) with <code>c_type == &quot;float&quot;</code>.</li>
-<li>The corresponding assignment node in <code>prog.setup_body</code> must be a <code>VarAssign</code> for that variable whose <code>expr</code> is the string <code>__redu_ultrasonic_measure_&lt;sensorname&gt;()</code>. For a sensor variable named <code>sensor</code>, the expression is exactly <code>__redu_ultrasonic_measure_sensor()</code>.</li>
+<li>The result variable must be registered as a global declaration (in <code>prog.global_decls</code>, keyed by name) carrying <code>c_type == &quot;float&quot;</code>.</li>
+<li>The corresponding assignment node in <code>prog.setup_body</code> must be a <code>VarAssign</code> for that variable, and its <code>expr</code> must be the string <code>__redu_ultrasonic_measure_&lt;sensorname&gt;()</code>. For a sensor variable called <code>sensor</code>, the expression is exactly <code>__redu_ultrasonic_measure_sensor()</code>.</li>
 </ul>
 <hr />
-<h4>Part 4: Code Emission</h4>
-<p>The emitter (invoked via <code>emit(parse(source))</code> as already used elsewhere) must generate C++/Arduino code for the ultrasonic sensor. Given source such as:</p>
+<h4>Part 4: Emitting Code</h4>
+<p>The emitter (invoked via <code>emit(parse(source))</code>, as already used elsewhere) must generate C++/Arduino code for the ultrasonic sensor. For source like:</p>
 <pre><code class="language-python">from Reduino.Sensors import Ultrasonic
 
 sensor = Ultrasonic(12, 11)
@@ -1016,260 +1019,260 @@ distance = sensor.measure_distance()
 <p>the emitted C++ must include the following:</p>
 <ol>
 <li>
-<p>Pin configuration in the setup section:</p>
+<p>Pin configuration inside the setup section:</p>
 <ul>
-<li><code>pinMode(12, OUTPUT);</code> — the trigger pin configured as <code>OUTPUT</code>.</li>
-<li><code>pinMode(11, INPUT);</code> — the echo pin configured as <code>INPUT</code>.</li>
+<li><code>pinMode(12, OUTPUT);</code> — the trigger pin, configured as <code>OUTPUT</code>.</li>
+<li><code>pinMode(11, INPUT);</code> — the echo pin, configured as <code>INPUT</code>.</li>
 </ul>
 </li>
 <li>
-<p>A measurement helper function, one per sensor variable, named <code>__redu_ultrasonic_measure_&lt;sensorname&gt;</code> returning <code>float</code>. For a sensor named <code>sensor</code>, the emitted definition includes the signature text:</p>
+<p>One measurement helper function per sensor variable, named <code>__redu_ultrasonic_measure_&lt;sensorname&gt;</code> and returning <code>float</code>. For a sensor named <code>sensor</code>, the emitted definition has to include the signature text:</p>
 <ul>
 <li><code>float __redu_ultrasonic_measure_sensor()</code></li>
 </ul>
 </li>
 <li>
-<p>The helper body must perform an ultrasonic pulse measurement using the echo pin, including:</p>
+<p>The helper body must carry out an ultrasonic pulse measurement that uses the echo pin, and it must include:</p>
 <ul>
-<li><code>delayMicroseconds(10);</code> — the trigger pulse timing.</li>
-<li><code>pulseIn(11, HIGH);</code> — reading the echo pulse duration on the echo pin at <code>HIGH</code>.</li>
+<li><code>delayMicroseconds(10);</code> — the timing of the trigger pulse.</li>
+<li><code>pulseIn(11, HIGH);</code> — reading the duration of the echo pulse on the echo pin at <code>HIGH</code>.</li>
 </ul>
 </li>
 <li>
-<p>The measurement assignment must appear as a call to the helper:</p>
+<p>The measurement assignment has to appear as a call to the helper:</p>
 <ul>
 <li><code>distance = __redu_ultrasonic_measure_sensor();</code>
-(When whitespace is normalized, this exact statement text is present.)</li>
+(Once whitespace is normalized, this exact statement text is present.)</li>
 </ul>
 </li>
 </ol>
-<p>The generated code must remain valid alongside the existing transpiler output structure (proper <code>void setup()</code> / <code>void loop()</code> layout, helper functions declared outside the setup/loop bodies).</p>
+<p>The code that is generated must stay valid alongside the existing transpiler output structure (a proper <code>void setup()</code> / <code>void loop()</code> layout, with the helper functions declared outside the setup/loop bodies).</p>
 <hr />
-<h4>Part 5: LED Package Compatibility (backward-compatible refactor)</h4>
-<p>The existing LED runtime helper is being relocated into an <code>Actuators</code> package. Regardless of internal layout, the names <code>Led</code> and <code>Sleep</code> must remain importable exactly as before (existing import paths must continue to work unchanged).</p>
+<h4>Part 5: Compatibility of the LED Package (backward-compatible refactor)</h4>
+<p>The LED runtime helper that already exists is being relocated into an <code>Actuators</code> package. Regardless of how the internals are arranged, the names <code>Led</code> and <code>Sleep</code> must remain importable exactly as before (the existing import paths must continue to work unchanged).</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Fix Ultrasonic Emitter Duration Calculation</span>
-        <span class="spec-meta muted">300 words · source specification
+        <span class="spec-title">Fix the Ultrasonic Emitter&#39;s Duration Calculation</span>
+        <span class="spec-meta muted">332 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Fix Ultrasonic Emitter Duration Calculation</h3>
-<h4>Context</h4>
-<p>The codebase includes a C++ code emitter that generates Arduino-compatible C++ source from a higher-level program representation. Part of this emitter produces a helper function for taking ultrasonic distance measurements from a sensor.</p>
-<h4>Required Behavior</h4>
-<p>When the emitter generates the ultrasonic measurement helper function, the generated C++ code must compute the measured distance from a pulse duration value and return it. The distance computation must convert the raw duration into a distance using the following exact formula, emitted verbatim as a <code>return</code> statement in the generated C++ source:</p>
+      <div class="spec-body"><h3>Task Specification: Fix the Ultrasonic Emitter's Duration Calculation</h3>
+<h4>Background</h4>
+<p>Within the codebase there is a C++ code emitter that turns a higher-level program representation into Arduino-compatible C++ source. One portion of this emitter generates a helper function that takes ultrasonic distance measurements from a sensor.</p>
+<h4>Behavior That Is Required</h4>
+<p>When the ultrasonic measurement helper function is generated by the emitter, the resulting C++ code must compute the measured distance from a pulse duration value and return it. The computation of the distance must convert the raw duration into a distance by applying the following exact formula, which is emitted verbatim as a <code>return</code> statement within the generated C++ source:</p>
 <pre><code class="language-cpp">return (static_cast&lt;float&gt;(__redu_duration_sensor) * 0.0343f) / 2.0f;
 </code></pre>
-<p>Specifically:</p>
+<p>In particular:</p>
 <ul>
-<li>The duration variable named <code>__redu_duration_sensor</code> must be cast to <code>float</code> using <code>static_cast&lt;float&gt;(...)</code>.</li>
-<li>The cast duration is multiplied by the speed-of-sound factor <code>0.0343f</code>.</li>
-<li>That product is divided by <code>2.0f</code>.</li>
-<li>The result is returned via a <code>return</code> statement.</li>
+<li>The duration variable called <code>__redu_duration_sensor</code> must be cast to <code>float</code> by means of <code>static_cast&lt;float&gt;(...)</code>.</li>
+<li>The duration, once cast, is multiplied by the speed-of-sound factor <code>0.0343f</code>.</li>
+<li>This product is divided by <code>2.0f</code>.</li>
+<li>The result is returned by way of a <code>return</code> statement.</li>
 </ul>
-<p>The exact substring shown above (including spacing, <code>static_cast</code>, the <code>f</code> float-literal suffixes, and the parenthesization) must appear in the emitted C++ source.</p>
-<h4>Existing Behavior That Must Be Preserved</h4>
-<p>The ultrasonic measurement helper generation must continue to produce, in the emitted C++ source, all of the following:</p>
+<p>The emitted C++ source must contain the exact substring shown above, including its spacing, <code>static_cast</code>, the <code>f</code> float-literal suffixes, and its parenthesization.</p>
+<h4>Existing Behavior That Must Be Kept</h4>
+<p>Generation of the ultrasonic measurement helper must keep producing, within the emitted C++ source, all of the following:</p>
 <ul>
-<li>A helper function declaration/definition of the form:<pre><code class="language-cpp">float __redu_ultrasonic_measure_sensor()
+<li>A declaration/definition of the helper function having the form:<pre><code class="language-cpp">float __redu_ultrasonic_measure_sensor()
 </code></pre>
 </li>
-<li>A call site that assigns the helper's result to a distance variable:<pre><code class="language-cpp">distance = __redu_ultrasonic_measure_sensor();
+<li>A call site which assigns the result of the helper to a distance variable:<pre><code class="language-cpp">distance = __redu_ultrasonic_measure_sensor();
 </code></pre>
 </li>
-<li>A pulse read on pin 11:<pre><code class="language-cpp">pulseIn(11, HIGH);
+<li>A read of a pulse on pin 11:<pre><code class="language-cpp">pulseIn(11, HIGH);
 </code></pre>
 </li>
-<li>A microsecond delay:<pre><code class="language-cpp">delayMicroseconds(10);
+<li>A delay in microseconds:<pre><code class="language-cpp">delayMicroseconds(10);
 </code></pre>
 </li>
 </ul>
 <h4>Scope</h4>
-<p>The only functional change required is ensuring the returned distance is computed using the exact formula given above. No other emitter behavior should change. The public API surface used to trigger emission and the program representation consumed by the emitter remain as they already exist in the codebase; do not rename or alter their signatures.</p>
+<p>The only functional change that is required is to ensure the returned distance is computed using the exact formula given above. Other emitter behavior should not change. The public API surface that is used to trigger emission and the program representation that the emitter consumes remain as they already exist within the codebase; do not rename them or alter their signatures.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Cache HC-SR04 Distance on Pulse Timeout</span>
-        <span class="spec-meta muted">322 words · source specification
+        <span class="spec-title">Cache the HC-SR04 Distance When a Pulse Times Out</span>
+        <span class="spec-meta muted">345 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Cache HC-SR04 Distance on Pulse Timeout</h3>
+      <div class="spec-body"><h3>Task Specification: Cache the HC-SR04 Distance When a Pulse Times Out</h3>
 <h4>Overview</h4>
-<p>Modify the C++ code generation for ultrasonic (HC-SR04) distance measurements so that the generated measurement function caches the last valid distance and reuses it when a pulse-timeout occurs.</p>
+<p>Change the C++ code generation for ultrasonic (HC-SR04) distance measurements such that the generated measurement function caches the last valid distance and reuses it when a pulse-timeout happens.</p>
 <h4>Context</h4>
-<p>The code emitter produces a C++ helper function that measures distance using an HC-SR04 ultrasonic sensor. For a sensor named <code>sensor</code>, the emitter generates a function named <code>__redu_ultrasonic_measure_sensor()</code> returning <code>float</code>. The function triggers a pulse and reads the echo duration via <code>pulseIn(...)</code> into a duration variable named <code>__redu_duration_sensor</code>.</p>
-<h4>Required Change</h4>
-<p>The generated measurement function for a sensor (with the name suffix derived from the sensor, e.g. <code>sensor</code>) must include the following behavior in the emitted C++ source:</p>
+<p>The code emitter outputs a C++ helper function that measures distance with an HC-SR04 ultrasonic sensor. For a sensor named <code>sensor</code>, the emitter generates a function called <code>__redu_ultrasonic_measure_sensor()</code> that returns <code>float</code>. The function triggers a pulse and reads the echo duration through <code>pulseIn(...)</code> into a duration variable called <code>__redu_duration_sensor</code>.</p>
+<h4>Required Modification</h4>
+<p>In the emitted C++ source, the generated measurement function for a sensor (the name suffix being derived from the sensor, e.g. <code>sensor</code>) must include the following behavior:</p>
 <ol>
 <li>
-<p><strong>A static cached-distance variable</strong> initialized to <code>-1.0f</code>:</p>
+<p><strong>A static variable holding the cached distance</strong>, initialized to <code>-1.0f</code>:</p>
 <pre><code>static float __redu_last_distance_sensor = -1.0f;
 </code></pre>
 </li>
 <li>
-<p><strong>A timeout check</strong> on the measured duration. When the duration is zero (pulse timed out), the function must not update the cached distance from a fresh computation:</p>
+<p><strong>A timeout check</strong> on the duration that was measured. When the duration is zero (the pulse timed out), the function must not update the cached distance from a fresh computation:</p>
 <pre><code>if (__redu_duration_sensor == 0UL) {
 </code></pre>
 </li>
 <li>
-<p><strong>A cache-update assignment</strong> that stores the freshly computed distance into the cached variable when a valid pulse is received:</p>
+<p><strong>A cache-update assignment</strong> storing the freshly computed distance into the cached variable when a valid pulse is received:</p>
 <pre><code>__redu_last_distance_sensor = __redu_distance_sensor;
 </code></pre>
-<p>where <code>__redu_distance_sensor</code> holds the computed distance value.</p>
+<p>in which <code>__redu_distance_sensor</code> holds the computed distance value.</p>
 </li>
 </ol>
 <h4>Naming Conventions</h4>
-<p>All generated identifiers use the sensor name as a suffix:</p>
+<p>Every generated identifier takes the sensor name as its suffix:</p>
 <ul>
-<li>Measurement function: <code>__redu_ultrasonic_measure_&lt;name&gt;()</code> returning <code>float</code></li>
+<li>Measurement function: <code>__redu_ultrasonic_measure_&lt;name&gt;()</code>, which returns <code>float</code></li>
 <li>Duration variable: <code>__redu_duration_&lt;name&gt;</code></li>
 <li>Computed distance variable: <code>__redu_distance_&lt;name&gt;</code></li>
 <li>Static cached distance variable: <code>__redu_last_distance_&lt;name&gt;</code></li>
 </ul>
-<h4>Preserved Behavior</h4>
-<p>The existing emission behavior must remain intact, including:</p>
+<h4>Behavior to Preserve</h4>
+<p>The emission behavior that already exists must remain intact, including:</p>
 <ul>
-<li>The function declaration/definition <code>float __redu_ultrasonic_measure_&lt;name&gt;()</code>.</li>
-<li>The measurement being assigned via <code>distance = __redu_ultrasonic_measure_&lt;name&gt;();</code> at the call site.</li>
-<li>The trigger sequence, including <code>delayMicroseconds(10);</code> and the <code>pulseIn(&lt;pin&gt;, HIGH);</code> call (pin number as configured, e.g. <code>11</code>).</li>
+<li>The declaration/definition of the function <code>float __redu_ultrasonic_measure_&lt;name&gt;()</code>.</li>
+<li>The measurement being assigned at the call site by means of <code>distance = __redu_ultrasonic_measure_&lt;name&gt;();</code>.</li>
+<li>The trigger sequence, which includes <code>delayMicroseconds(10);</code> and the call to <code>pulseIn(&lt;pin&gt;, HIGH);</code> (with the pin number as configured, e.g. <code>11</code>).</li>
 </ul>
-<p>The previously emitted single-line direct return expression that computed and returned the distance without caching (of the form <code>return (static_cast&lt;float&gt;(...) * 0.0343f) / 2.0f;</code>) is no longer produced; the distance computation is now folded into the caching logic described above.</p>
+<p>The single-line direct return expression emitted previously, which computed and returned the distance without caching (of the form <code>return (static_cast&lt;float&gt;(...) * 0.0343f) / 2.0f;</code>), is no longer produced; the distance computation has now been folded into the caching logic described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Stabilize HC-SR04 Ultrasonic Measurement Code Generation</span>
-        <span class="spec-meta muted">669 words · source specification
+        <span class="spec-title">Stabilizing HC-SR04 Ultrasonic Measurement Code Generation</span>
+        <span class="spec-meta muted">696 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Stabilize HC-SR04 Ultrasonic Measurement Code Generation</h3>
+      <div class="spec-body"><h3>Task Specification: Stabilizing HC-SR04 Ultrasonic Measurement Code Generation</h3>
 <h4>Overview</h4>
-<p>You are modifying a code emitter that generates C++ (Arduino) source code from an intermediate representation. Specifically, you must change how the emitter produces the helper function used to measure distance from an HC-SR04 ultrasonic sensor. The goal is to make the generated measurement logic more robust: enforce a minimum interval between trigger pulses, bound the pulse-reading duration with a timeout, and track the last known good distance.</p>
+<p>Your task is to modify a code emitter that generates C++ (Arduino) source code from an intermediate representation. Specifically, you must change the way the emitter produces the helper function used to measure distance from an HC-SR04 ultrasonic sensor. The goal is for the generated measurement logic to be more robust: enforce a minimum interval between trigger pulses, bound the pulse-reading duration with a timeout, and track the last known good distance.</p>
 <h4>Context</h4>
-<p>The emitter already produces:</p>
+<p>The emitter already emits:</p>
 <ul>
-<li>A <code>pinMode(...)</code> call configuring the sensor's echo pin as <code>INPUT</code>.</li>
-<li>A per-sensor measurement helper function whose name is derived from the sensor's identifier, of the form:<pre><code>float __redu_ultrasonic_measure_&lt;sensor&gt;()
+<li>A <code>pinMode(...)</code> call that configures the sensor's echo pin as <code>INPUT</code>.</li>
+<li>One measurement helper function per sensor, whose name is derived from the sensor's identifier, of the form:<pre><code>float __redu_ultrasonic_measure_&lt;sensor&gt;()
 </code></pre>
-where <code>&lt;sensor&gt;</code> is the sensor name (e.g. for a sensor named <code>sensor</code>, the function is <code>__redu_ultrasonic_measure_sensor</code>).</li>
-<li>A call site that assigns the result of this helper to a distance variable, of the form:<pre><code>distance = __redu_ultrasonic_measure_sensor();
+where <code>&lt;sensor&gt;</code> stands for the sensor name (e.g. for a sensor called <code>sensor</code>, the function is <code>__redu_ultrasonic_measure_sensor</code>).</li>
+<li>A call site at which the result of this helper is assigned to a distance variable, of the form:<pre><code>distance = __redu_ultrasonic_measure_sensor();
 </code></pre>
 </li>
-<li>A <code>delayMicroseconds(10);</code> call as part of the trigger pulse sequence.</li>
+<li>A <code>delayMicroseconds(10);</code> call that is part of the trigger pulse sequence.</li>
 </ul>
-<p>All of the above must continue to be emitted unchanged.</p>
+<p>Every item listed above must continue to be emitted unchanged.</p>
 <h4>Required Change</h4>
-<p>Rewrite the body of the generated <code>__redu_ultrasonic_measure_&lt;sensor&gt;()</code> helper function so that it contains the following elements. All identifiers are suffixed with the sensor name (<code>_&lt;sensor&gt;</code>); the examples below use a sensor named <code>sensor</code>.</p>
-<h5>Static state (persisted across calls)</h5>
-<p>The generated helper must declare these static variables:</p>
+<p>The body of the generated <code>__redu_ultrasonic_measure_&lt;sensor&gt;()</code> helper function must be rewritten so that it contains the elements below. Every identifier is suffixed with the sensor name (<code>_&lt;sensor&gt;</code>); the examples below assume a sensor named <code>sensor</code>.</p>
+<h5>Static state (persists across calls)</h5>
+<p>The generated helper must declare the following static variables:</p>
 <ul>
-<li>A static timestamp (in milliseconds) recording when the sensor was last triggered, initialized to zero:<pre><code>static unsigned long __redu_last_trigger_ms_sensor = 0UL;
+<li>A static timestamp (in milliseconds) that records when the sensor was last triggered, initialized to zero:<pre><code>static unsigned long __redu_last_trigger_ms_sensor = 0UL;
 </code></pre>
 </li>
-<li>A static last-known distance value, initialized to <code>400.0f</code> (the maximum sensible distance):<pre><code>static float __redu_last_distance_sensor = 400.0f;
+<li>A static value holding the last-known distance, initialized to <code>400.0f</code> (the maximum sensible distance):<pre><code>static float __redu_last_distance_sensor = 400.0f;
 </code></pre>
 </li>
-<li>A static boolean flag indicating whether a valid distance has ever been recorded, initialized to <code>false</code>:<pre><code>static bool __redu_has_distance_sensor = false;
+<li>A static boolean flag that indicates whether a valid distance has ever been recorded, initialized to <code>false</code>:<pre><code>static bool __redu_has_distance_sensor = false;
 </code></pre>
 </li>
 </ul>
-<h5>Minimum interval enforcement</h5>
-<p>Before triggering, the helper must ensure a minimum time interval has elapsed since the last trigger. When insufficient time has elapsed, it must delay for the remaining time using an expression of the form:</p>
+<h5>Enforcing the minimum interval</h5>
+<p>The helper must ensure, before triggering, that a minimum time interval has elapsed since the last trigger. If the elapsed time is insufficient, it must delay for the remaining time using an expression of the form:</p>
 <pre><code>delay(__redu_min_interval_ms_sensor - __redu_elapsed_ms_sensor);
 </code></pre>
-<p>This implies the presence of a minimum-interval value (<code>__redu_min_interval_ms_sensor</code>) and a computed elapsed-time value (<code>__redu_elapsed_ms_sensor</code>) used in the enforcement logic.</p>
+<p>This implies that the enforcement logic uses a minimum-interval value (<code>__redu_min_interval_ms_sensor</code>) and a computed elapsed-time value (<code>__redu_elapsed_ms_sensor</code>).</p>
 <h5>Retry loop</h5>
-<p>The measurement must be attempted inside a bounded loop, controlled by an attempt counter declared as:</p>
+<p>The measurement must be attempted inside a bounded loop, with control provided by an attempt counter declared as:</p>
 <pre><code>for (unsigned int __redu_attempt_sensor = 0U;
 </code></pre>
 <h5>Bounded pulse reading</h5>
-<p>The echo pulse must be read with a timeout of 30000 microseconds. The pulse-read call must be:</p>
+<p>The echo pulse must be read using a timeout of 30000 microseconds. The call that reads the pulse must be:</p>
 <pre><code>pulseIn(11, HIGH, 30000UL);
 </code></pre>
-<p>(The pin number <code>11</code> here corresponds to the sensor's echo pin in the tested configuration.)</p>
+<p>(Here the pin number <code>11</code> corresponds to the sensor's echo pin in the tested configuration.)</p>
 <h5>Recording a valid measurement</h5>
-<p>When a valid measurement is obtained, the helper must set the has-distance flag:</p>
+<p>Once a valid measurement has been obtained, the helper must set the has-distance flag:</p>
 <pre><code>__redu_has_distance_sensor = true;
 </code></pre>
 <h5>Fallback return value</h5>
-<p>The helper must include a return statement yielding the maximum sensible distance when no valid measurement is available:</p>
+<p>The helper must include a return statement that yields the maximum sensible distance when no valid measurement is available:</p>
 <pre><code>return 400.0f;
 </code></pre>
 <h4>Behavior That Must Be Removed</h4>
-<p>The previous implementation contained the following, which must NO LONGER appear in the generated code:</p>
+<p>The following were present in the previous implementation and must NO LONGER appear in the generated code:</p>
 <ul>
-<li>An unbounded <code>pulseIn(11, HIGH);</code> call (i.e., a <code>pulseIn</code> call with only two arguments — it must now always include the <code>30000UL</code> timeout argument).</li>
-<li>A static last-distance variable initialized to <code>-1.0f</code> (the initializer is now <code>400.0f</code>, and the variable name is now <code>__redu_last_distance_sensor</code> with the new initializer).</li>
-<li>A zero-duration guard of the form <code>if (__redu_duration_sensor == 0UL) {</code>.</li>
-<li>An assignment of the form <code>__redu_last_distance_sensor = __redu_distance_sensor;</code>.</li>
+<li>An unbounded <code>pulseIn(11, HIGH);</code> call (that is, a <code>pulseIn</code> call with only two arguments — it must now always include the <code>30000UL</code> timeout argument).</li>
+<li>A static last-distance variable with the initializer <code>-1.0f</code> (the initializer is now <code>400.0f</code>, and the variable name is now <code>__redu_last_distance_sensor</code> with the new initializer).</li>
+<li>A zero-duration guard, of the form <code>if (__redu_duration_sensor == 0UL) {</code>.</li>
+<li>An assignment taking the form <code>__redu_last_distance_sensor = __redu_distance_sensor;</code>.</li>
 </ul>
 <h4>API Surface</h4>
-<p>No changes to public module paths, class names, or function signatures are introduced by this task. The emitter's existing public entry point for generating C++ from the intermediate representation remains the same; only the emitted text for the ultrasonic measurement helper changes.</p>
+<p>This task introduces no changes to public module paths, class names, or function signatures. The emitter's existing public entry point for generating C++ from the intermediate representation is unchanged; only the emitted text for the ultrasonic measurement helper changes.</p>
 <h4>Acceptance Summary</h4>
-<p>For a configuration with an HC-SR04 sensor named <code>sensor</code> whose echo pin is <code>11</code>, the generated C++ source must contain all of the exact substrings listed under &quot;Required Change&quot; (pinMode, helper function declaration, call site, <code>delayMicroseconds(10);</code>, and every new snippet above) and must NOT contain any of the substrings listed under &quot;Behavior That Must Be Removed.&quot;</p>
+<p>For a configuration in which an HC-SR04 sensor named <code>sensor</code> has <code>11</code> as its echo pin, the generated C++ source must contain all of the exact substrings appearing under &quot;Required Change&quot; (pinMode, helper function declaration, call site, <code>delayMicroseconds(10);</code>, and every new snippet above) and must NOT contain any of the substrings appearing under &quot;Behavior That Must Be Removed.&quot;</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Add emit Mode Selector to SerialMonitor.read</span>
-        <span class="spec-meta muted">665 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Adding an emit Mode Selector to SerialMonitor.read</span>
+        <span class="spec-meta muted">728 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>emit</code> Mode Selector to <code>SerialMonitor.read</code></h3>
-<h4>Overview</h4>
-<p>The <code>SerialMonitor</code> class in <code>Reduino.Utils</code> provides a <code>read</code> method for serial input. Extend this method with an <code>emit</code> parameter that independently controls:</p>
+      <div class="spec-body"><h3>Task Specification: Adding an <code>emit</code> Mode Selector to <code>SerialMonitor.read</code></h3>
+<h4>Summary</h4>
+<p>In <code>Reduino.Utils</code>, the <code>SerialMonitor</code> class offers a <code>read</code> method for serial input. This method is to be extended with an <code>emit</code> parameter that independently controls:</p>
 <ol>
-<li><strong>Host-side runtime behavior</strong>: whether Python reads from the configured host serial connection and echoes a value to standard output.</li>
-<li><strong>Transpiled MCU behavior</strong>: which Arduino/C++ expression is emitted when the result of <code>read(...)</code> is assigned to a variable.</li>
+<li><strong>Host-side runtime behavior</strong>: whether Python reads from the host serial connection that has been configured and echoes a value to standard output.</li>
+<li><strong>Transpiled MCU behavior</strong>: which Arduino/C++ expression gets emitted when the result of <code>read(...)</code> is assigned to a variable.</li>
 </ol>
-<p>The three modes are <code>&quot;host&quot;</code>, <code>&quot;mcu&quot;</code>, and <code>&quot;both&quot;</code>. The default must remain compatible with the existing behavior.</p>
+<p>There are three modes: <code>&quot;host&quot;</code>, <code>&quot;mcu&quot;</code>, and <code>&quot;both&quot;</code>. The default must stay compatible with the existing behavior.</p>
 <h4>Public API</h4>
 <h5><code>Reduino.Utils.SerialMonitor.read</code></h5>
 <pre><code class="language-python">def read(self, emit: str = &quot;both&quot;) -&gt; str
 </code></pre>
 <ul>
 <li>
-<p><code>emit</code> is a positional-or-keyword argument. For example, both <code>read(&quot;host&quot;)</code> and <code>read(emit=&quot;host&quot;)</code> are supported.</p>
+<p><code>emit</code> is a positional-or-keyword argument. For example, <code>read(&quot;host&quot;)</code> and <code>read(emit=&quot;host&quot;)</code> are both supported.</p>
 </li>
 <li>
-<p>The default is <code>&quot;both&quot;</code>.</p>
+<p>Its default value is <code>&quot;both&quot;</code>.</p>
 </li>
 <li>
-<p>The only valid values are exactly <code>&quot;host&quot;</code>, <code>&quot;mcu&quot;</code>, and <code>&quot;both&quot;</code>.</p>
+<p>Exactly <code>&quot;host&quot;</code>, <code>&quot;mcu&quot;</code>, and <code>&quot;both&quot;</code> are the only valid values.</p>
 </li>
 <li>
-<p>Any other value must raise <code>ValueError</code>. Its message must contain:</p>
+<p>Any other value must raise <code>ValueError</code>. The exception message must contain:</p>
 <pre><code class="language-text">emit must be 'host', 'mcu', or 'both'
 </code></pre>
 </li>
 </ul>
-<h4>Validation and Connection Requirements</h4>
-<p>Validation order is part of the contract:</p>
+<h4>Validation Order and Connection Checks</h4>
+<p>The order in which validation happens is part of the contract:</p>
 <ol>
 <li>Validate <code>emit</code>.</li>
 <li>Check that a serial port has been configured.</li>
-<li>Perform the mode-specific operation.</li>
+<li>Carry out the mode-specific operation.</li>
 </ol>
-<p>Consequently, an invalid <code>emit</code> value must raise the specified <code>ValueError</code> even if no serial port is configured.</p>
-<p>For every valid mode, including <code>emit=&quot;mcu&quot;</code>, calling <code>read</code> without a configured serial port must raise <code>RuntimeError</code>. Its message must contain:</p>
+<p>As a result, an invalid <code>emit</code> value must raise the specified <code>ValueError</code> even if no serial port is configured.</p>
+<p>For every valid mode — including <code>emit=&quot;mcu&quot;</code> — calling <code>read</code> when no serial port is configured must raise <code>RuntimeError</code>. The message must contain:</p>
 <pre><code class="language-text">No serial port configured
 </code></pre>
 <h4>Host-Side Runtime Behavior</h4>
-<p>Once validation and the connection check succeed, behavior depends on <code>emit</code>:</p>
+<p>After validation and the connection check have succeeded, the behavior depends on <code>emit</code>:</p>
 <table>
 <thead>
 <tr>
-<th><code>emit</code> value</th>
-<th>Read or consume host serial data</th>
-<th>Write to standard output</th>
-<th>Return value</th>
+<th>Value of <code>emit</code></th>
+<th>Reads or consumes host serial data</th>
+<th>Writes to standard output</th>
+<th>Value returned</th>
 </tr>
 </thead>
 <tbody>
@@ -1277,7 +1280,7 @@ where <code>&lt;sensor&gt;</code> is the sensor name (e.g. for a sensor named <c
 <td><code>&quot;host&quot;</code></td>
 <td>Yes</td>
 <td>Echo a non-empty value followed by a newline</td>
-<td>The string read from the serial port</td>
+<td>The string that was read from the serial port</td>
 </tr>
 <tr>
 <td><code>&quot;mcu&quot;</code></td>
@@ -1289,30 +1292,30 @@ where <code>&lt;sensor&gt;</code> is the sensor name (e.g. for a sensor named <c
 <td><code>&quot;both&quot;</code></td>
 <td>Yes</td>
 <td>Echo a non-empty value followed by a newline</td>
-<td>The string read from the serial port</td>
+<td>The string that was read from the serial port</td>
 </tr>
 </tbody>
 </table>
 <p>The following details are required:</p>
 <ul>
-<li><code>&quot;both&quot;</code> is the default and preserves the existing host-side behavior of <code>read()</code>.</li>
-<li>In <code>&quot;host&quot;</code> and <code>&quot;both&quot;</code> modes, the existing line-reading and string-return behavior is preserved.</li>
-<li>If a host-side read returns an empty value, <code>read</code> returns <code>&quot;&quot;</code> and writes nothing to standard output; it must not emit a newline by itself. This includes the default <code>&quot;both&quot;</code> mode.</li>
-<li><code>emit=&quot;mcu&quot;</code> is MCU-only. At host runtime it must return <code>&quot;&quot;</code> without calling the serial connection's line-reading operation and without printing anything. Any pending serial input must remain unconsumed and available to a later <code>&quot;host&quot;</code> or <code>&quot;both&quot;</code> read.</li>
+<li><code>&quot;both&quot;</code> is the default and it preserves the host-side behavior <code>read()</code> has today.</li>
+<li>The <code>&quot;host&quot;</code> and <code>&quot;both&quot;</code> modes preserve the existing line-reading and string-return behavior.</li>
+<li>If a host-side read returns an empty value, <code>read</code> returns <code>&quot;&quot;</code> and writes nothing to standard output; on its own it must not emit a newline. This applies to the default <code>&quot;both&quot;</code> mode as well.</li>
+<li>The <code>emit=&quot;mcu&quot;</code> mode is MCU-only. At host runtime it must return <code>&quot;&quot;</code> without calling the serial connection's line-reading operation and without printing anything. Serial input that is still pending must remain unconsumed and stay available to a later <code>&quot;host&quot;</code> or <code>&quot;both&quot;</code> read.</li>
 </ul>
-<h4>Parser and Transpiled Expression Behavior</h4>
-<p><code>parse</code> already recognizes calls to <code>read</code> on a declared <code>SerialMonitor</code> and supports assignments such as:</p>
+<h4>Parser Behavior and the Transpiled Expression</h4>
+<p><code>parse</code> already recognizes <code>read</code> calls made on a declared <code>SerialMonitor</code> and supports assignments such as:</p>
 <pre><code class="language-python">from Reduino.Utils import SerialMonitor
 
 monitor = SerialMonitor()
 payload = monitor.read(...)
 </code></pre>
-<p>The assigned expression in the parsed program must depend on <code>emit</code> as follows:</p>
+<p>Within the parsed program, the assigned expression must depend on <code>emit</code> in the following way:</p>
 <table>
 <thead>
 <tr>
-<th>Source mode</th>
-<th>Emitted expression string</th>
+<th>Mode in the source</th>
+<th>Expression string emitted</th>
 </tr>
 </thead>
 <tbody>
@@ -1329,215 +1332,215 @@ payload = monitor.read(...)
 <td><code>Serial.readStringUntil('\n')</code></td>
 </tr>
 <tr>
-<td>Argument omitted</td>
+<td>Argument not provided</td>
 <td><code>Serial.readStringUntil('\n')</code></td>
 </tr>
 </tbody>
 </table>
-<p>These mappings apply whether the mode is supplied positionally or by keyword. In particular:</p>
+<p>These mappings apply regardless of whether the mode is supplied positionally or by keyword. In particular:</p>
 <ul>
-<li><code>monitor.read(&quot;host&quot;)</code> and <code>monitor.read(emit=&quot;host&quot;)</code> emit the empty C++ string literal <code>&quot;&quot;</code>, so no MCU serial read is generated for that value.</li>
-<li><code>monitor.read(&quot;mcu&quot;)</code> and <code>monitor.read(emit=&quot;mcu&quot;)</code> emit <code>Serial.readStringUntil('\n')</code>.</li>
-<li>Explicit <code>&quot;both&quot;</code> and the no-argument default emit <code>Serial.readStringUntil('\n')</code>, preserving existing generated behavior.</li>
+<li>Both <code>monitor.read(&quot;host&quot;)</code> and <code>monitor.read(emit=&quot;host&quot;)</code> emit the empty C++ string literal <code>&quot;&quot;</code>; as a result, no MCU serial read is generated for that value.</li>
+<li><code>monitor.read(&quot;mcu&quot;)</code> together with <code>monitor.read(emit=&quot;mcu&quot;)</code> emit <code>Serial.readStringUntil('\n')</code>.</li>
+<li>An explicit <code>&quot;both&quot;</code> and the default taken when no argument is passed emit <code>Serial.readStringUntil('\n')</code>, which preserves the existing generated behavior.</li>
 </ul>
-<p>The parser's variable-assignment node must continue to expose:</p>
+<p>The parser's variable-assignment node must keep exposing:</p>
 <ul>
-<li><code>name</code>: the assigned variable name.</li>
-<li><code>expr</code>: the exact emitted expression string selected above.</li>
+<li><code>name</code>: the name of the assigned variable.</li>
+<li><code>expr</code>: the exact emitted expression string selected as described above.</li>
 </ul>
-<p>For top-level source such as the example above, the assignment remains in the parsed program's setup portion (<code>prog.setup_body</code>). The read expression continues to represent a string value.</p>
+<p>For top-level source like the example above, the assignment remains in the parsed program's setup portion (<code>prog.setup_body</code>). The read expression continues to represent a string value.</p>
 <h4>Compatibility Expectations</h4>
 <ul>
-<li>Existing no-argument calls to <code>read()</code> retain <code>&quot;both&quot;</code> behavior.</li>
-<li>Existing serial-port configuration errors and host line-reading behavior remain unchanged for modes that perform a host read.</li>
-<li>Runtime and transpilation semantics are intentionally asymmetric for <code>&quot;mcu&quot;</code>: direct Python execution performs no host read and returns <code>&quot;&quot;</code>, while transpilation generates the MCU serial-read expression.</li>
+<li>Pre-existing calls to <code>read()</code> with no arguments retain <code>&quot;both&quot;</code> behavior.</li>
+<li>For modes that perform a host read, the existing serial-port configuration errors and the host line-reading behavior remain unchanged.</li>
+<li>For <code>&quot;mcu&quot;</code>, the runtime and transpilation semantics are intentionally asymmetric: direct Python execution performs no host read and returns <code>&quot;&quot;</code>, whereas transpilation generates the MCU serial-read expression.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Add a new public class RGBLed to the Reduino.Actuators module.</span>
-        <span class="spec-meta muted">739 words · source specification
+        <span class="spec-title">A new public class RGBLed is to be added to the Reduino.Actuators module.</span>
+        <span class="spec-meta muted">792 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement an <code>RGBLed</code> Actuator Helper</h3>
-<h4>Objective</h4>
-<p>Add a new public class <code>RGBLed</code> to the <code>Reduino.Actuators</code> module. It must be importable as:</p>
+      <div class="spec-body"><h3>Task: Build an <code>RGBLed</code> Actuator Helper</h3>
+<h4>Goal</h4>
+<p>A new public class <code>RGBLed</code> is to be added to the <code>Reduino.Actuators</code> module. It must be importable as:</p>
 <pre><code class="language-python">from Reduino.Actuators import RGBLed
 </code></pre>
-<p>The class models an RGB LED controlled by three pins (red, green, blue) and tracks a color state and on/off state. It relies on an existing <code>Sleep</code> helper (<code>Reduino.Actuators.Sleep</code>) for timing delays.</p>
+<p>The class models an RGB LED driven by three pins (red, green, blue), and it tracks a color state and an on/off state. For timing delays it relies on the existing <code>Sleep</code> helper (<code>Reduino.Actuators.Sleep</code>).</p>
 <h4>Constructor</h4>
 <pre><code class="language-python">RGBLed(red_pin, green_pin, blue_pin)
 </code></pre>
 <ul>
-<li>Each pin argument must be an <code>int</code>. If any pin argument is not an <code>int</code>, raise <code>TypeError</code>.
+<li>Every pin argument must be an <code>int</code>. When any pin argument is not an <code>int</code>, raise <code>TypeError</code>.
 <ul>
-<li>Note: <code>bool</code> should not be treated as a valid pin type distinct from this rule; standard int-type checking is expected. (Only genuine ints are valid.)</li>
+<li>Note: <code>bool</code> should not be handled as a valid pin type distinct from this rule; standard int-type checking is expected. (Only genuine ints are valid.)</li>
 </ul>
 </li>
-<li>Each pin must be a non-negative integer (<code>&gt;= 0</code>). If any pin is negative, raise <code>ValueError</code>.</li>
-<li>Pin type validation takes precedence appropriately for the given inputs (a non-int pin raises <code>TypeError</code>).</li>
+<li>Every pin must be a non-negative integer (<code>&gt;= 0</code>). When any pin is negative, raise <code>ValueError</code>.</li>
+<li>For the given inputs, pin type validation takes precedence appropriately (a non-int pin raises <code>TypeError</code>).</li>
 </ul>
-<p>Initial state after construction:</p>
+<p>Initial state once construction has finished:</p>
 <ul>
-<li><code>pins</code> attribute equals the tuple <code>(red_pin, green_pin, blue_pin)</code>.</li>
-<li>Current color is <code>(0, 0, 0)</code>.</li>
-<li>On/off state is <code>False</code>.</li>
+<li>The <code>pins</code> attribute is equal to the tuple <code>(red_pin, green_pin, blue_pin)</code>.</li>
+<li>The color currently set is <code>(0, 0, 0)</code>.</li>
+<li>The on/off state is <code>False</code>.</li>
 </ul>
-<h4>State Accessors</h4>
+<h4>Accessors for State</h4>
 <ul>
-<li><code>get_color()</code> → returns the current color as a 3-tuple <code>(r, g, b)</code> of ints.</li>
-<li><code>get_state()</code> → returns a <code>bool</code>: <code>True</code> when the LED is considered on, <code>False</code> when off.</li>
+<li><code>get_color()</code> → returns the color currently held as a 3-tuple <code>(r, g, b)</code> of ints.</li>
+<li><code>get_state()</code> → returns a <code>bool</code>: <code>True</code> when the LED is regarded as on, <code>False</code> when it is off.</li>
 </ul>
-<h4>Color Validation Rules (shared by all color-setting methods)</h4>
-<p>For any method that accepts red/green/blue channel values:</p>
+<h4>Rules for Validating Colors (shared by every color-setting method)</h4>
+<p>In any method that accepts red/green/blue channel values:</p>
 <ul>
-<li>Each channel value must be an <code>int</code>. If any channel is not an <code>int</code> (e.g. a <code>float</code>), raise <code>TypeError</code>.</li>
-<li>Each channel value must be in the inclusive range <code>0</code>–<code>255</code>. If any channel is out of range, raise <code>ValueError</code>.</li>
+<li>Every channel value must be an <code>int</code>. When any channel is not an <code>int</code> (e.g. a <code>float</code>), raise <code>TypeError</code>.</li>
+<li>Every channel value must sit within the inclusive range <code>0</code>–<code>255</code>. When any channel is out of range, raise <code>ValueError</code>.</li>
 </ul>
 <h4>Methods</h4>
 <h5><code>set_color(r, g, b)</code></h5>
 <ul>
-<li>Validates <code>r, g, b</code> per the color validation rules above.</li>
-<li>Updates the current color to <code>(r, g, b)</code>.</li>
-<li>Does not change the on/off state.</li>
+<li>Validates <code>r, g, b</code> according to the color validation rules above.</li>
+<li>The current color is updated to <code>(r, g, b)</code>.</li>
+<li>The on/off state is not changed.</li>
 </ul>
 <h5><code>on(r, g, b)</code></h5>
 <ul>
-<li>Validates <code>r, g, b</code> per the color validation rules.</li>
-<li>Sets the current color to <code>(r, g, b)</code>.</li>
-<li>Sets the on/off state to <code>True</code>.</li>
+<li>Validates <code>r, g, b</code> against the color validation rules.</li>
+<li>The current color is set to <code>(r, g, b)</code>.</li>
+<li>The on/off state is set to <code>True</code>.</li>
 </ul>
 <h5><code>off()</code></h5>
 <ul>
-<li>Sets the current color to <code>(0, 0, 0)</code>.</li>
-<li>Sets the on/off state to <code>False</code>.</li>
+<li>The current color is set to <code>(0, 0, 0)</code>.</li>
+<li>The on/off state is set to <code>False</code>.</li>
 </ul>
 <h5><code>fade(r, g, b, duration_ms=..., steps=...)</code></h5>
-<p>Gradually transitions to the target color <code>(r, g, b)</code> over a number of steps, sleeping between steps.</p>
+<p>Transitions gradually to the target color <code>(r, g, b)</code> across a number of steps, sleeping between steps.</p>
 <ul>
-<li><code>r, g, b</code> are validated per the color validation rules.</li>
-<li><code>duration_ms</code> must be <code>&gt;= 0</code>; if negative, raise <code>ValueError</code>.</li>
-<li><code>steps</code> must be <code>&gt;= 1</code>; if <code>0</code> (or less), raise <code>ValueError</code>.</li>
-<li>Behavior when valid:
+<li><code>r, g, b</code> are validated against the color validation rules.</li>
+<li><code>duration_ms</code> must be <code>&gt;= 0</code>; when negative, raise <code>ValueError</code>.</li>
+<li><code>steps</code> must be <code>&gt;= 1</code>; when the value is <code>0</code> (or less), raise <code>ValueError</code>.</li>
+<li>Behavior when the inputs are valid:
 <ul>
-<li>Performs the fade using <code>Sleep</code> instances for delays. For each delay, a <code>Sleep</code> object is constructed with the per-step delay duration and then its <code>wait()</code> method is called.</li>
-<li>The per-step delay passed to <code>Sleep</code> is a float equal to <code>duration_ms / steps</code>.</li>
-<li>The number of sleep delays performed is <code>steps - 1</code> (delays occur <em>between</em> steps, not after the final step). For example, <code>duration_ms=40, steps=4</code> produces three delays of <code>10.0</code> each.</li>
-<li>After completion, the current color equals the target color <code>(r, g, b)</code> and the on/off state is <code>True</code>.</li>
+<li>The fade is performed using <code>Sleep</code> instances for the delays. For each delay, a <code>Sleep</code> object is constructed with the per-step delay duration and its <code>wait()</code> method is then called.</li>
+<li>The per-step delay given to <code>Sleep</code> is a float equal to <code>duration_ms / steps</code>.</li>
+<li>The count of sleep delays performed is <code>steps - 1</code> (delays happen <em>between</em> steps, not after the final step). For example, <code>duration_ms=40, steps=4</code> produces three delays of <code>10.0</code> each.</li>
+<li>After the fade finishes, the current color equals the target color <code>(r, g, b)</code> and the on/off state is <code>True</code>.</li>
 </ul>
 </li>
-<li><code>Sleep</code> is referenced via the module-level name <code>Sleep</code> in <code>Reduino.Actuators</code> (so it must be constructed as <code>Sleep(duration)</code> with the duration as a positional argument; the <code>wait()</code> method is then invoked on it).</li>
+<li><code>Sleep</code> is referenced through the module-level name <code>Sleep</code> in <code>Reduino.Actuators</code> (so it must be constructed as <code>Sleep(duration)</code> with the duration as a positional argument; the <code>wait()</code> method is then invoked on it).</li>
 </ul>
 <h5><code>blink(r, g, b, times=..., delay_ms=...)</code></h5>
-<p>Blinks the LED to color <code>(r, g, b)</code> a given number of times, then restores the color that was set before blinking.</p>
+<p>Blinks the LED to color <code>(r, g, b)</code> a specified number of times, then restores the color that was set before blinking.</p>
 <ul>
-<li><code>r, g, b</code> are validated per the color validation rules.</li>
-<li><code>times</code> must be <code>&gt;= 1</code>; if <code>0</code> (or less), raise <code>ValueError</code>.</li>
-<li><code>delay_ms</code> must be <code>&gt;= 0</code>; if negative, raise <code>ValueError</code>.</li>
-<li>Behavior when valid:
+<li><code>r, g, b</code> are validated against the color validation rules.</li>
+<li><code>times</code> must be <code>&gt;= 1</code>; when the value is <code>0</code> (or less), raise <code>ValueError</code>.</li>
+<li><code>delay_ms</code> must be <code>&gt;= 0</code>; when negative, raise <code>ValueError</code>.</li>
+<li>Behavior when the inputs are valid:
 <ul>
-<li>Records the current color before blinking.</li>
-<li>For each blink cycle, the LED is turned to the target color and then off, with a delay after each. This results in <code>times * 2</code> total delays, each performed by constructing a <code>Sleep</code> with the <code>delay_ms</code> value (as passed, an int) and calling its <code>wait()</code>. For example, <code>times=2, delay_ms=25</code> produces four delays of <code>25</code> each.</li>
-<li>After completion, the current color is restored to whatever it was immediately before <code>blink</code> was called.</li>
+<li>Before blinking, the current color is recorded.</li>
+<li>In each blink cycle, the LED is turned to the target color and then off, with a delay after each. The total number of delays is <code>times * 2</code>, each one performed by constructing a <code>Sleep</code> with the <code>delay_ms</code> value (as passed, an int) and calling its <code>wait()</code>. For example, <code>times=2, delay_ms=25</code> produces four delays of <code>25</code> each.</li>
+<li>After the blinking finishes, the current color is restored to whatever it was immediately before <code>blink</code> was called.</li>
 </ul>
 </li>
 </ul>
-<h4>Notes on <code>Sleep</code> Usage</h4>
-<p>All timed delays in <code>fade</code> and <code>blink</code> must go through the module-level <code>Sleep</code> symbol in <code>Reduino.Actuators</code>, constructed positionally with the delay value and driven by calling <code>.wait()</code>. This symbol must be resolvable/patchable at <code>Reduino.Actuators.Sleep</code>.</p>
-<h4>Validation Ordering Summary</h4>
+<h4>Notes on How <code>Sleep</code> Is Used</h4>
+<p>Every timed delay in <code>fade</code> and <code>blink</code> must pass through the module-level <code>Sleep</code> symbol in <code>Reduino.Actuators</code>, which is constructed positionally with the delay value and driven by calling <code>.wait()</code>. This symbol must be resolvable/patchable at <code>Reduino.Actuators.Sleep</code>.</p>
+<h4>Summary of Validation Ordering</h4>
 <ul>
-<li>Type errors (<code>TypeError</code>) for non-int pins/channels.</li>
-<li>Value errors (<code>ValueError</code>) for out-of-range pins, out-of-range channels, negative durations/delays, and non-positive <code>steps</code>/<code>times</code>.</li>
+<li>Type errors (<code>TypeError</code>) apply to non-int pins/channels.</li>
+<li>Value errors (<code>ValueError</code>) apply to out-of-range pins, out-of-range channels, negative durations/delays, and non-positive <code>steps</code>/<code>times</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">The Reduino transpiler converts a Python-like source language into Arduino C++ code.</span>
-        <span class="spec-meta muted">816 words · source specification
+        <span class="spec-title">The Reduino transpiler takes a Python-like source language and translates it into Arduino C++ code.</span>
+        <span class="spec-meta muted">881 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add RGB LED Actuator Support to the Reduino Transpiler</h3>
+      <div class="spec-body"><h3>Task: Add Support for the RGB LED Actuator to the Reduino Transpiler</h3>
 <h4>Overview</h4>
-<p>The Reduino transpiler converts a Python-like source language into Arduino C++ code. You must add support for an <code>RGBLed</code> actuator to two stages of the pipeline: the parser (which builds an AST) and the emitter (which generates C++ text from that AST).</p>
-<p>The relevant source language recognizes objects imported via <code>from Reduino.Actuators import RGBLed</code>, constructed and then manipulated through method calls.</p>
-<h4>Part 1: AST Node Types</h4>
-<p>In the module <code>Reduino.transpile.ast</code>, define the following new AST node classes, all importable by name:</p>
+<p>The Reduino transpiler takes a Python-like source language and translates it into Arduino C++ code. Support for an <code>RGBLed</code> actuator must be added at two stages of the pipeline: the parser (which builds an AST) and the emitter (which turns that AST into C++ text).</p>
+<p>In the relevant source language, objects imported via <code>from Reduino.Actuators import RGBLed</code> are recognized; they are then constructed and manipulated through method calls.</p>
+<h4>Part 1: New AST Node Types</h4>
+<p>Within the module <code>Reduino.transpile.ast</code>, define the new AST node classes listed below, all of them importable by name:</p>
 <ul>
-<li><code>RGBLedDecl</code> — represents construction of an RGB LED. Must expose attributes <code>red_pin</code>, <code>green_pin</code>, and <code>blue_pin</code>.</li>
-<li><code>RGBLedSetColor</code> — represents a <code>set_color(...)</code> call.</li>
-<li><code>RGBLedOn</code> — represents an <code>on()</code> call.</li>
-<li><code>RGBLedOff</code> — represents an <code>off()</code> call.</li>
-<li><code>RGBLedFade</code> — represents a <code>fade(...)</code> call. Must expose attributes <code>duration_ms</code> and <code>steps</code>.</li>
-<li><code>RGBLedBlink</code> — represents a <code>blink(...)</code> call. Must expose attributes <code>times</code> and <code>delay_ms</code>.</li>
+<li><code>RGBLedDecl</code> — models the construction of an RGB LED. It must expose the attributes <code>red_pin</code>, <code>green_pin</code>, and <code>blue_pin</code>.</li>
+<li><code>RGBLedSetColor</code> — models a <code>set_color(...)</code> call.</li>
+<li><code>RGBLedOn</code> — models an <code>on()</code> call.</li>
+<li><code>RGBLedOff</code> — models an <code>off()</code> call.</li>
+<li><code>RGBLedFade</code> — models a <code>fade(...)</code> call. It must expose the attributes <code>duration_ms</code> and <code>steps</code>.</li>
+<li><code>RGBLedBlink</code> — models a <code>blink(...)</code> call. It must expose the attributes <code>times</code> and <code>delay_ms</code>.</li>
 </ul>
-<p>Each node should also retain whatever additional data (e.g. the variable name it applies to, and color arguments) needed by the emitter described below.</p>
-<h4>Part 2: Parser</h4>
-<p>The function <code>parse(source)</code> in <code>Reduino.transpile.parser</code> returns a program object with a <code>setup_body</code> attribute (a list of AST nodes). The parser must recognize the following statements and produce the corresponding AST nodes, in source order, within <code>setup_body</code>.</p>
+<p>Beyond that, each node should retain whatever additional data (e.g. the variable name it applies to, and color arguments) is needed by the emitter described below.</p>
+<h4>Part 2: Parser Stage</h4>
+<p>In <code>Reduino.transpile.parser</code>, the function <code>parse(source)</code> returns a program object having a <code>setup_body</code> attribute (a list of AST nodes). The parser must recognize the statements listed below and produce their corresponding AST nodes within <code>setup_body</code>, in source order.</p>
 <h5>Construction</h5>
 <pre><code class="language-python">rgb = RGBLed(3, 4, 5)
 </code></pre>
-<p>Produces an <code>RGBLedDecl</code>. Positional arguments map to <code>red_pin</code>, <code>green_pin</code>, <code>blue_pin</code> respectively.</p>
-<p>Keyword arguments are also supported:</p>
+<p>This statement produces an <code>RGBLedDecl</code>. Its positional arguments map to <code>red_pin</code>, <code>green_pin</code>, and <code>blue_pin</code>, respectively.</p>
+<p>Keyword arguments are supported as well:</p>
 <pre><code class="language-python">rgb = RGBLed(red_pin=base + 1, green_pin=base + 2, blue_pin=base + 3)
 </code></pre>
-<h5>Pin value representation</h5>
+<h5>Representing pin values</h5>
 <ul>
-<li>A literal integer pin argument is stored as an <code>int</code> (e.g. <code>RGBLed(3, 4, 5)</code> → <code>red_pin == 3</code>, <code>green_pin == 4</code>, <code>blue_pin == 5</code>).</li>
-<li>A non-literal (symbolic) pin expression is stored as a <strong>string</strong> containing the expression wrapped in a single pair of parentheses, with a single space around binary operators. For example, <code>red_pin=base + 1</code> → <code>red_pin == &quot;(base + 1)&quot;</code>, and likewise <code>&quot;(base + 2)&quot;</code>, <code>&quot;(base + 3)&quot;</code>.</li>
+<li>When a pin argument is a literal integer, it is stored as an <code>int</code> (e.g. <code>RGBLed(3, 4, 5)</code> → <code>red_pin == 3</code>, <code>green_pin == 4</code>, <code>blue_pin == 5</code>).</li>
+<li>When the pin expression is non-literal (symbolic), it is stored as a <strong>string</strong> holding the expression wrapped in a single pair of parentheses, with a single space around binary operators. For instance, <code>red_pin=base + 1</code> → <code>red_pin == &quot;(base + 1)&quot;</code>, and likewise <code>&quot;(base + 2)&quot;</code>, <code>&quot;(base + 3)&quot;</code>.</li>
 </ul>
 <h5>Method calls</h5>
-<p>For an RGB LED object bound to a variable (e.g. <code>rgb</code>), the following method calls each produce one AST node:</p>
+<p>For an RGB LED object bound to a variable (e.g. <code>rgb</code>), each of the following method calls produces one AST node:</p>
 <ul>
 <li><code>rgb.set_color(r, g, b)</code> → <code>RGBLedSetColor</code></li>
 <li><code>rgb.on()</code> → <code>RGBLedOn</code></li>
 <li><code>rgb.off()</code> → <code>RGBLedOff</code></li>
-<li><code>rgb.fade(r, g, b, duration_ms=..., steps=...)</code> → <code>RGBLedFade</code>, where <code>duration_ms</code> and <code>steps</code> are the integer values of the corresponding keyword arguments (e.g. <code>duration_ms=750, steps=5</code> → <code>duration_ms == 750</code>, <code>steps == 5</code>).</li>
-<li><code>rgb.blink(r, g, b, times=..., delay_ms=...)</code> → <code>RGBLedBlink</code>, where <code>times</code> and <code>delay_ms</code> are the integer values of the corresponding keyword arguments (e.g. <code>times=2, delay_ms=150</code> → <code>times == 2</code>, <code>delay_ms == 150</code>).</li>
+<li><code>rgb.fade(r, g, b, duration_ms=..., steps=...)</code> → <code>RGBLedFade</code>, with <code>duration_ms</code> and <code>steps</code> holding the integer values of the corresponding keyword arguments (e.g. <code>duration_ms=750, steps=5</code> → <code>duration_ms == 750</code>, <code>steps == 5</code>).</li>
+<li><code>rgb.blink(r, g, b, times=..., delay_ms=...)</code> → <code>RGBLedBlink</code>, with <code>times</code> and <code>delay_ms</code> holding the integer values of the corresponding keyword arguments (e.g. <code>times=2, delay_ms=150</code> → <code>times == 2</code>, <code>delay_ms == 150</code>).</li>
 </ul>
-<h4>Part 3: Emitter</h4>
-<p>The emitter (invoked as <code>emit(parse(source))</code>, returning C++ source text as a string) must generate the following C++ from the RGB LED AST nodes.</p>
-<p>Terminology below: given an RGB LED variable named <code>&lt;var&gt;</code> (e.g. <code>rgb</code>) with red/green/blue pins <code>&lt;R&gt;</code>, <code>&lt;G&gt;</code>, <code>&lt;B&gt;</code>.</p>
+<h4>Part 3: Emitter Stage</h4>
+<p>The emitter (invoked as <code>emit(parse(source))</code>, which returns the C++ source text as a string) must generate the C++ shown below from the RGB LED AST nodes.</p>
+<p>Notation for what follows: take an RGB LED variable named <code>&lt;var&gt;</code> (e.g. <code>rgb</code>) whose red/green/blue pins are <code>&lt;R&gt;</code>, <code>&lt;G&gt;</code>, <code>&lt;B&gt;</code>.</p>
 <h5>Global state variables</h5>
-<p>For each declared RGB LED, emit the following global declarations:</p>
+<p>For each declared RGB LED, emit the global declarations shown below:</p>
 <pre><code class="language-cpp">bool __rgb_state_&lt;var&gt; = false;
 int __rgb_red_&lt;var&gt; = 0;
 </code></pre>
-<p>(A green and blue current-value global following the same <code>__rgb_green_&lt;var&gt;</code> / <code>__rgb_blue_&lt;var&gt;</code> naming are used by the analog writes below.)</p>
-<h5>Pin setup</h5>
-<p>For each declared RGB LED, configure all three pins as outputs:</p>
+<p>(Green and blue current-value globals that follow the same <code>__rgb_green_&lt;var&gt;</code> / <code>__rgb_blue_&lt;var&gt;</code> naming are used by the analog writes below.)</p>
+<h5>Setting up pins</h5>
+<p>For each declared RGB LED, set up all three pins as outputs:</p>
 <pre><code class="language-cpp">pinMode(&lt;R&gt;, OUTPUT);
 pinMode(&lt;G&gt;, OUTPUT);
 pinMode(&lt;B&gt;, OUTPUT);
 </code></pre>
-<p>Pin values that were stored as symbolic expression strings must be emitted literally as that string (without surrounding quotes) in place of the numeric pin.</p>
-<h5>Applying a color (<code>set_color</code>)</h5>
-<p>Writing a color to the LED emits analog writes to each pin using the current-value globals:</p>
+<p>Where a pin value was stored as a symbolic expression string, it must be emitted literally as that string (without the surrounding quotes) in place of the numeric pin.</p>
+<h5>Writing a color (<code>set_color</code>)</h5>
+<p>Applying a color to the LED emits analog writes to each pin that use the current-value globals:</p>
 <pre><code class="language-cpp">analogWrite(&lt;R&gt;, __rgb_red_&lt;var&gt;);
 analogWrite(&lt;G&gt;, __rgb_green_&lt;var&gt;);
 analogWrite(&lt;B&gt;, __rgb_blue_&lt;var&gt;);
 </code></pre>
 <h5>Fade</h5>
-<p>A <code>fade</code> emits a stepped loop that ramps toward the target color over the given number of steps, delaying between steps, and updating the pins via the current-value globals. The generated code must include:</p>
+<p>A <code>fade</code> emits a stepped loop that ramps toward the target color across the given number of steps, delays between the steps, and updates the pins via the current-value globals. The generated code must contain:</p>
 <pre><code class="language-cpp">for (int __redu_i = 1; __redu_i &lt;= __redu_steps; ++__redu_i) {
 </code></pre>
-<p>within which the color is written using <code>analogWrite(&lt;R&gt;, __rgb_red_&lt;var&gt;);</code> … <code>analogWrite(&lt;B&gt;, __rgb_blue_&lt;var&gt;);</code> and a <code>delay(__redu_delay_ms);</code> is issued.</p>
+<p>Within that loop, the color is written using <code>analogWrite(&lt;R&gt;, __rgb_red_&lt;var&gt;);</code> … <code>analogWrite(&lt;B&gt;, __rgb_blue_&lt;var&gt;);</code> and a <code>delay(__redu_delay_ms);</code> is issued.</p>
 <h5>Blink</h5>
-<p>A <code>blink</code> emits a counted loop that toggles the LED on and off a number of times with a delay between transitions. The generated code must include:</p>
+<p>A <code>blink</code> emits a counted loop that toggles the LED on and off a number of times, with a delay between transitions. The generated code must contain:</p>
 <pre><code class="language-cpp">for (int __redu_i = 0; __redu_i &lt; __redu_times; ++__redu_i) {
 </code></pre>
-<p>a delay-tracking declaration:</p>
+<p>a declaration for tracking the delay:</p>
 <pre><code class="language-cpp">unsigned long __redu_delay_ms = 0UL;
 </code></pre>
-<p>and <code>delay(__redu_delay_ms);</code> calls, along with analog writes to the pins using the current-value globals.</p>
+<p>and <code>delay(__redu_delay_ms);</code> calls, along with analog writes to the pins that use the current-value globals.</p>
 <h4>Notes</h4>
 <ul>
-<li>The parser and emitter must continue to support existing actuators unchanged; RGB LED support is additive.</li>
-<li>All named AST classes must be importable directly from <code>Reduino.transpile.ast</code>.</li>
-<li>Whitespace normalization is applied when comparing some emitter output, so exact spacing between tokens in generated C++ is not critical except where a specific normalized form is shown; however, statements involving <code>pinMode</code>, <code>analogWrite</code>, and the two <code>for</code> loop headers are matched against raw output and must appear exactly as written above (with the appropriate pin/variable substitutions).</li>
+<li>The parser and emitter must continue to support existing actuators without change; RGB LED support is additive.</li>
+<li>Every one of the named AST classes must be importable directly from <code>Reduino.transpile.ast</code>.</li>
+<li>When some emitter output is compared, whitespace normalization is applied, so the exact spacing between tokens in the generated C++ is not critical except where a specific normalized form is shown; however, statements involving <code>pinMode</code>, <code>analogWrite</code>, and the two <code>for</code> loop headers are matched against raw output and must appear exactly as shown above (with the appropriate pin/variable substitutions).</li>
 </ul>
 </div>
     </details>

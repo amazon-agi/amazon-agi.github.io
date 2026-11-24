@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/Picterra/picterra-python/compare/df23100b68b7697dab9a843cd052dab85436edfd...faf681bbbe00f06b7043100ab7711f048b3df71f" target="_blank" rel="noopener" class="mono">df23100b68 … faf681bbbe</a> · 34 commits by 4 authors over 12 mo (2022-09-12 to 2023-09-22)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 28 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>2,656 lines of code in 44 files when the chain starts · over the 20 requests the developers added 742 and removed 1,152 lines of code, plus 926 lines of tests (27 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.8k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
+      <div><dt>Specifications:</dt><dd>7.3k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
     </dl>
   </header>
 </section>
@@ -144,40 +144,41 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">You are working on the picterra Python package, which provides a client for interacting with the Picterra REST API.</span>
-        <span class="spec-meta muted">586 words · source specification
+        <span class="spec-title">The codebase you will be modifying is the picterra Python package, a client library for the Picterra REST API.</span>
+        <span class="spec-meta muted">658 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>picterra</code> Python package, which provides a client for interacting with the Picterra REST API. This task requires you to <strong>add a new method</strong> to the API client and <strong>remove an existing method</strong> and its associated command-line interface.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Background</h4>
+<p>The codebase you will be modifying is the <code>picterra</code> Python package, a client library for the Picterra REST API. The assignment comes down to two actions: <strong>adding a new method</strong> to the API client, and <strong>removing an existing method</strong> plus the command-line interface that belongs to it.</p>
 <h4>Public API Surface</h4>
-<p>The client class is exposed as <code>APIClient</code> and is importable directly from the package:</p>
+<p>To get the client class, <code>APIClient</code>, you import it directly from the package:</p>
 <pre><code class="language-python">from picterra import APIClient
 </code></pre>
-<p>The client is configured via environment variables. In particular, the base API URL is read from the environment variable <code>PICTERRA_BASE_URL</code>, and requests are authenticated by sending an <code>X-Api-Key</code> HTTP header. All API endpoints are formed by joining paths onto the base URL.</p>
+<p>Configuration happens through environment variables. Specifically, the environment variable <code>PICTERRA_BASE_URL</code> supplies the base API URL, while authentication of requests happens through an <code>X-Api-Key</code> HTTP header. Every API endpoint is the result of joining paths onto the base URL.</p>
 <h4>Required Change 1: Add <code>run_advanced_tool</code></h4>
-<p>Add a new public method to <code>APIClient</code>:</p>
+<p>You must add the following new public method to <code>APIClient</code>:</p>
 <pre><code class="language-python">def run_advanced_tool(self, tool_id, inputs, outputs):
     ...
 </code></pre>
-<h5>Behavior</h5>
-<p>Calling <code>run_advanced_tool</code> must:</p>
+<h5>What the method has to do</h5>
+<p>When invoked, <code>run_advanced_tool</code> has to do the following:</p>
 <ol>
 <li>
-<p>Issue an HTTP <code>POST</code> request to the API endpoint at the relative path:</p>
+<p>Make an HTTP <code>POST</code> request against the API endpoint whose relative path is:</p>
 <pre><code>advanced_tools/{tool_id}/run/
 </code></pre>
-<p>where <code>{tool_id}</code> is the first argument. The request must include the standard <code>X-Api-Key</code> authentication header.</p>
+<p>with <code>{tool_id}</code> standing for the method's first argument. Attaching the standard <code>X-Api-Key</code> authentication header to this request is required.</p>
 </li>
 <li>
-<p>The JSON body of the POST request must be exactly:</p>
+<p>Exactly the following JSON has to form the body of this POST request:</p>
 <pre><code class="language-json">{
   &quot;inputs&quot;: &lt;inputs&gt;,
   &quot;outputs&quot;: &lt;outputs&gt;
 }
 </code></pre>
-<p>where <code>&lt;inputs&gt;</code> is the <code>inputs</code> argument and <code>&lt;outputs&gt;</code> is the <code>outputs</code> argument, passed through verbatim. These arguments are arbitrary JSON-serializable structures (dicts containing nested dicts, lists, strings, integers, and <code>null</code>/<code>None</code> values) and must be forwarded without modification.</p>
-<p>The endpoint responds (HTTP 201) with a JSON object of the form:</p>
+<p>Here <code>&lt;inputs&gt;</code> stands for the <code>inputs</code> argument and <code>&lt;outputs&gt;</code> for the <code>outputs</code> argument, included verbatim. In terms of content, the two arguments are arbitrary JSON-serializable structures (dicts containing nested dicts, lists, strings, integers, and <code>null</code>/<code>None</code> values), and they must be forwarded without modification.</p>
+<p>What the endpoint sends back is HTTP 201 together with a JSON object of this form:</p>
 <pre><code class="language-json">{
   &quot;operation_id&quot;: &lt;int&gt;,
   &quot;poll_interval&quot;: &lt;float&gt;
@@ -185,182 +186,183 @@
 </code></pre>
 </li>
 <li>
-<p>After starting the operation, the method must <strong>poll the operation to completion</strong>. Polling is performed by issuing <code>GET</code> requests to:</p>
+<p>Once the operation has been started, the method must <strong>poll the operation until it completes</strong>. Polling here means sending <code>GET</code> requests to:</p>
 <pre><code>operations/{operation_id}/
 </code></pre>
-<p>using the <code>operation_id</code> from the run response. Each poll response is a JSON object that includes at least a <code>status</code> field and a <code>type</code> field. Polling repeats (respecting the returned <code>poll_interval</code> as the interval between checks) until the operation reaches a successful terminal state (<code>status</code> equal to <code>&quot;success&quot;</code>).</p>
+<p>with the <code>operation_id</code> taken from the run response. Every response to a poll is a JSON object that has at least a <code>status</code> field and a <code>type</code> field. The polling keeps going — with the returned <code>poll_interval</code> respected as the interval between checks — until the operation arrives at a successful terminal state (<code>status</code> equal to <code>&quot;success&quot;</code>).</p>
 </li>
 <li>
-<p>On successful completion, the method must <strong>return the final operation object</strong> (the parsed JSON body of the final polling response). This returned object is a dictionary that includes the operation's <code>type</code> field, and callers rely on being able to read that field from the return value.</p>
+<p>After a successful completion, the final operation object — that is, the parsed JSON body of the final polling response — must be <strong>returned</strong> by the method. That returned value is a dictionary which includes the operation's <code>type</code> field, and callers rely on that field being readable from the return value.</p>
 </li>
 </ol>
-<h5>Notes on the operation object</h5>
-<p>The final operation response used to determine success contains a <code>status</code> of <code>&quot;success&quot;</code> and additional metadata fields. The full JSON body of that operation response is what must be returned to the caller.</p>
-<h4>Required Change 2: Remove <code>upload_remote_raster</code></h4>
-<p>Remove the <code>upload_remote_raster</code> method from <code>APIClient</code> entirely. This method (which previously uploaded a raster from a remote source such as an <code>xyz</code> or <code>wms</code> tile service) is no longer part of the client and should not exist.</p>
-<h4>Required Change 3: Remove the command-line interface</h4>
-<p>The package previously shipped a command-line interface built on top of the client. Remove it entirely. Specifically:</p>
+<h5>Remarks about the operation object</h5>
+<p>The final operation response, from which success is determined, contains a <code>status</code> of <code>&quot;success&quot;</code> alongside additional metadata fields. What must be returned to the caller is the full JSON body of that operation response.</p>
+<h4>Required Change 2: Delete <code>upload_remote_raster</code></h4>
+<p>Take the <code>upload_remote_raster</code> method out of <code>APIClient</code> completely. Its former job was uploading a raster from a remote source such as an <code>xyz</code> or <code>wms</code> tile service; it is not part of the client any longer and should not exist.</p>
+<h4>Required Change 3: Delete the command-line interface</h4>
+<p>A command-line interface, built on top of the client, used to ship with the package; that entire layer has to be removed. Concretely:</p>
 <ul>
-<li>Remove the <code>picterra.__main__</code> module (including its <code>parse_args</code> entry point).</li>
-<li>Remove the <code>picterra.command_parsers</code> package/module and its submodules (e.g. <code>detect</code>, <code>create</code>).</li>
-<li>Remove the <code>picterra.helpers</code> module if it exists solely to re-export the client for the CLI.</li>
+<li>The <code>picterra.__main__</code> module must be deleted, its <code>parse_args</code> entry point included.</li>
+<li>The <code>picterra.command_parsers</code> package/module must be deleted, together with its submodules (e.g. <code>detect</code>, <code>create</code>).</li>
+<li>If the only reason <code>picterra.helpers</code> exists is to re-export the client for the CLI, that module must be deleted too.</li>
 </ul>
-<p>The client itself (<code>from picterra import APIClient</code>) must continue to import and function correctly after these removals. No CLI-related modules should remain importable.</p>
+<p>Once these removals are in place, the client itself (<code>from picterra import APIClient</code>) must still import and work correctly. No CLI-related modules should be left importable.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The <code>APIClient</code> public API surface used elsewhere (raster upload from local file, listing rasters/detectors, creating/editing/deleting detectors and rasters, training detectors, running detectors, managing annotations and detection areas, downloading results and rasters, etc.) must remain unchanged in behavior.</li>
-<li>Do not add any other new public methods or endpoints beyond <code>run_advanced_tool</code>.</li>
+<li>Wherever else the <code>APIClient</code> public API surface is used (raster upload from local file, listing rasters/detectors, creating/editing/deleting detectors and rasters, training detectors, running detectors, managing annotations and detection areas, downloading results and rasters, etc.), its behavior must remain unchanged.</li>
+<li>Beyond <code>run_advanced_tool</code>, you must not add any other new public methods or endpoints.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Upload a Vector Layer</span>
-        <span class="spec-meta muted">459 words · source specification
+        <span class="spec-title">Uploading a Vector Layer</span>
+        <span class="spec-meta muted">479 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Upload a Vector Layer</h3>
-<h4>Objective</h4>
-<p>Add a public method <code>upload_vector_layer</code> to the API client class that uploads a vector layer file to a raster and returns the resulting vector layer ID.</p>
-<h4>API Surface</h4>
-<p>Add the following method to the existing client class (the same class exposed by the test helper <code>_client()</code> in the client module — i.e., the primary API client class in the package):</p>
+      <div class="spec-body"><h3>Task Specification: Uploading a Vector Layer</h3>
+<h4>Goal</h4>
+<p>Implement a public method <code>upload_vector_layer</code> on the API client class; the method uploads a vector layer file to a raster and returns the vector layer ID that results.</p>
+<h4>API Interface</h4>
+<p>Add the method shown below to the existing client class (the very class that the test helper <code>_client()</code> in the client module exposes — that is, the package's primary API client class):</p>
 <pre><code class="language-python">def upload_vector_layer(self, raster_id, file_path, name=None):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>raster_id</code>: identifier of the raster the vector layer belongs to.</li>
-<li><code>file_path</code>: path to a local file whose contents are the vector layer data to upload.</li>
-<li><code>name</code> (optional, default <code>None</code>): a human-readable name for the vector layer.</li>
+<li><code>raster_id</code>: identifier of the raster to which the vector layer belongs.</li>
+<li><code>file_path</code>: path to a local file containing the vector layer data to upload.</li>
+<li><code>name</code> (optional, defaults to <code>None</code>): a human-readable name for the vector layer.</li>
 </ul>
-<h5>Return value</h5>
+<h5>Value returned</h5>
 <ul>
-<li>Returns the vector layer ID (a string) produced by the completed upload operation.</li>
+<li>Returns the vector layer ID (a string) that the completed upload operation produces.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The method must perform a three-phase upload workflow against the API, using the same HTTP client/session and base URL configuration already used by the other client methods.</p>
-<h5>Phase 1 — Request an upload URL</h5>
-<p>Issue a <code>POST</code> request to the relative endpoint:</p>
+<h4>Behavior Requirements</h4>
+<p>The method must carry out a three-phase upload workflow against the API, relying on the same HTTP client/session and base URL configuration that the other client methods already use.</p>
+<h5>Phase 1 — Requesting an upload URL</h5>
+<p>Send a <code>POST</code> request to the relative endpoint:</p>
 <pre><code>vector_layers/{raster_id}/upload/
 </code></pre>
-<p>The JSON response contains:</p>
+<p>Contained in the JSON response are:</p>
 <ul>
-<li><code>upload_url</code>: an absolute URL to which the file contents must be uploaded.</li>
-<li><code>upload_id</code>: an identifier used to commit the upload.</li>
+<li><code>upload_url</code>: an absolute URL that the file contents must be uploaded to.</li>
+<li><code>upload_id</code>: an identifier used for committing the upload.</li>
 </ul>
-<h5>Phase 2 — Upload the file contents</h5>
-<p>Issue a <code>PUT</code> request to the <code>upload_url</code> returned in Phase 1, sending the raw contents of the file located at <code>file_path</code>.</p>
-<h5>Phase 3 — Commit the upload</h5>
-<p>Issue a <code>POST</code> request to the relative endpoint:</p>
+<h5>Phase 2 — Uploading the file contents</h5>
+<p>Make a <code>PUT</code> request to the <code>upload_url</code> obtained in Phase 1, sending the raw contents of the file found at <code>file_path</code>.</p>
+<h5>Phase 3 — Committing the upload</h5>
+<p>Send a <code>POST</code> request to the relative endpoint:</p>
 <pre><code>vector_layers/{raster_id}/upload/{upload_id}/commit/
 </code></pre>
-<p>The JSON body of this request depends on <code>name</code>:</p>
+<p>The JSON body of this request is determined by <code>name</code>:</p>
 <ul>
-<li>If <code>name</code> is provided (truthy), the request body must be a JSON object <code>{&quot;name&quot;: &lt;name&gt;}</code>.</li>
-<li>If <code>name</code> is <code>None</code> (or otherwise falsy), the request must contain no such body payload (no <code>name</code> key sent).</li>
+<li>When <code>name</code> is provided (truthy), the request body must be the JSON object <code>{&quot;name&quot;: &lt;name&gt;}</code>.</li>
+<li>When <code>name</code> is <code>None</code> (or is falsy in any other way), the request must carry no such body payload (the <code>name</code> key is not sent).</li>
 </ul>
 <p>The JSON response contains:</p>
 <ul>
-<li><code>operation_id</code>: identifier of an asynchronous operation to poll.</li>
-<li><code>poll_interval</code>: interval to wait between polls.</li>
+<li><code>operation_id</code>: identifier of an asynchronous operation to be polled.</li>
+<li><code>poll_interval</code>: how long to wait between polls.</li>
 </ul>
-<h5>Phase 4 — Poll the operation until completion</h5>
-<p>Poll the operation identified by <code>operation_id</code> using the standard operation-polling behavior already used elsewhere in the client. Poll the endpoint:</p>
+<h5>Phase 4 — Polling the operation until it completes</h5>
+<p>Using the standard operation-polling behavior already applied elsewhere in the client, poll the operation identified by <code>operation_id</code>. The endpoint to poll is:</p>
 <pre><code>operations/{operation_id}/
 </code></pre>
-<p>Each poll returns a JSON object with at least a <code>status</code> field. Continue polling (respecting the returned <code>poll_interval</code> between polls) while the status is <code>running</code>, and stop when the status is <code>success</code>.</p>
-<p>When the operation succeeds, its response body includes a <code>vector_layer_id</code> field. The method must return the value of <code>vector_layer_id</code>.</p>
+<p>Every poll returns a JSON object that has at least a <code>status</code> field. Keep polling (honoring the returned <code>poll_interval</code> between polls) while the status is <code>running</code>, and stop once the status is <code>success</code>.</p>
+<p>Once the operation succeeds, its response body includes a <code>vector_layer_id</code> field. The method must return the value of <code>vector_layer_id</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The relative endpoints are resolved against the client's configured API base URL; <code>upload_url</code> is used as an absolute URL as-is.</li>
-<li>The total sequence of HTTP interactions for a successful upload is: the upload-request POST, the file PUT, the commit POST, followed by operation polling requests until success is reported.</li>
+<li>Relative endpoints are resolved against the API base URL configured on the client; <code>upload_url</code> is used as an absolute URL, as-is.</li>
+<li>For a successful upload, the complete sequence of HTTP interactions is: the upload-request POST, the file PUT, the commit POST, followed by operation polling requests until success is reported.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Add Cloud Coverage Support to Raster Operations</span>
-        <span class="spec-meta muted">327 words · source specification
+        <span class="spec-title">Adding Cloud Coverage Support to Raster Operations</span>
+        <span class="spec-meta muted">334 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Cloud Coverage Support to Raster Operations</h3>
+      <div class="spec-body"><h3>Task Specification: Adding Cloud Coverage Support to Raster Operations</h3>
 <h4>Overview</h4>
-<p>Extend the raster client to support specifying a <strong>cloud coverage</strong> value when uploading (creating) a raster and when editing an existing raster.</p>
+<p>Extend the raster client to support giving a <strong>cloud coverage</strong> value when a raster is uploaded (created) and when an existing raster is edited.</p>
 <h4>API Surface</h4>
-<p>The changes affect the client class used to interact with the raster API. Two methods must accept and forward a cloud coverage value.</p>
+<p>The changes touch the client class used to communicate with the raster API. Two methods must accept a cloud coverage value and forward it.</p>
 <h5>1. Raster Upload</h5>
-<p>The raster upload method (<code>upload_raster</code>) must accept a new <strong>optional</strong> keyword argument named <code>cloud_coverage</code>.</p>
-<p>Existing relevant parameters that this method already accepts include (at least): the file path, a raster name, <code>folder_id</code>, <code>captured_at</code>, <code>identity_key</code>, and <code>multispectral</code>.</p>
-<p>Behavior for <code>cloud_coverage</code>:</p>
+<p>The raster upload method (<code>upload_raster</code>) must accept a new keyword argument named <code>cloud_coverage</code>, which is <strong>optional</strong>.</p>
+<p>Relevant parameters that this method already accepts include (at least): the file's path, a name for the raster, <code>folder_id</code>, <code>captured_at</code>, <code>identity_key</code>, and <code>multispectral</code>.</p>
+<p>Behavior of <code>cloud_coverage</code>:</p>
 <ul>
-<li>It defaults to <code>None</code>.</li>
-<li>The upload process begins by issuing a <code>POST</code> request to the <code>rasters/upload/file/</code> endpoint. The JSON body of this request is built from the provided arguments.</li>
-<li>When <code>cloud_coverage</code> is <code>None</code>, the request body <strong>must not</strong> include a <code>cloud_coverage</code> key at all.</li>
-<li>When <code>cloud_coverage</code> is not <code>None</code> (e.g., an integer such as <code>18</code>), the request body <strong>must</strong> include a <code>cloud_coverage</code> key whose value is exactly the value passed in.</li>
+<li>Its default value is <code>None</code>.</li>
+<li>The upload process starts by sending a <code>POST</code> request to the <code>rasters/upload/file/</code> endpoint; the JSON body of that request is assembled from the supplied arguments.</li>
+<li>When <code>cloud_coverage</code> is <code>None</code>, the request body <strong>must not</strong> contain a <code>cloud_coverage</code> key at all.</li>
+<li>When <code>cloud_coverage</code> is not <code>None</code> (e.g., an integer like <code>18</code>), the request body <strong>must</strong> contain a <code>cloud_coverage</code> key whose value is exactly the value that was passed in.</li>
 </ul>
-<p>The value is passed through unchanged (no validation, transformation, or range checking is required).</p>
+<p>The value passes through unchanged (no validation, transformation, or range checking is required).</p>
 <h5>2. Raster Edit</h5>
-<p>The raster edit method must support editing the cloud coverage of an existing raster. When the caller supplies a <code>cloud_coverage</code> field among the editable data (e.g., a value such as <code>88</code>), it must be forwarded as part of the edit request in the same manner as the other editable fields already supported (such as <code>folder_id</code>, <code>identity_key</code>, <code>captured_at</code>, and <code>multispectral_band_specification</code>).</p>
-<p>Cloud coverage must be treated as one of the accepted editable fields alongside those existing fields.</p>
+<p>The raster edit method must support editing the cloud coverage of an existing raster. When the caller includes a <code>cloud_coverage</code> field within the editable data (e.g., a value such as <code>88</code>), it must be forwarded as part of the edit request in the same way as the other editable fields already supported (such as <code>folder_id</code>, <code>identity_key</code>, <code>captured_at</code>, and <code>multispectral_band_specification</code>).</p>
+<p>Cloud coverage must be handled as one of the accepted editable fields, alongside those existing fields.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The addition of <code>cloud_coverage</code> must not change behavior when it is omitted or <code>None</code>: the resulting request body must be identical to the prior behavior (no <code>cloud_coverage</code> key present).</li>
-<li>No new endpoints or request flows are introduced; <code>cloud_coverage</code> is simply an additional field carried in the existing upload-initiation and edit request bodies.</li>
+<li>Adding <code>cloud_coverage</code> must not change behavior when it is omitted or <code>None</code>: the resulting request body must be identical to the prior behavior (no <code>cloud_coverage</code> key present).</li>
+<li>No new endpoints or request flows are introduced; <code>cloud_coverage</code> is merely an extra field carried in the bodies of the existing upload-initiation and edit requests.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">You must extend the raster handling functionality in the client to support an optional user-defined tag.</span>
-        <span class="spec-meta muted">333 words · source specification
+        <span class="spec-title">The raster handling functionality in the client must be extended to support an optional user-defined tag.</span>
+        <span class="spec-meta muted">355 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must extend the raster handling functionality in the client to support an optional user-defined tag. This tag can be set both when uploading (creating) a raster and when editing an existing raster.</p>
-<h4>Required Changes</h4>
+<p>The raster handling functionality in the client must be extended to support an optional user-defined tag. This tag can be set both when a raster is being uploaded (created) and when an existing raster is being edited.</p>
+<h4>Changes Required</h4>
 <h5>1. Raster Upload</h5>
-<p>The client's raster upload method must accept a new optional keyword argument named <code>user_tag</code>.</p>
+<p>The raster upload method of the client must accept a new optional keyword argument named <code>user_tag</code>.</p>
 <ul>
-<li><strong>Signature addition:</strong> Add <code>user_tag</code> as an optional keyword parameter to the existing raster upload method. It must default to <code>None</code> so existing callers are unaffected.</li>
-<li><strong>Behavior:</strong> When <code>user_tag</code> is provided (not <code>None</code>), the value must be included in the JSON body sent to the upload initiation endpoint under the key <code>user_tag</code>. When <code>user_tag</code> is <code>None</code>, the <code>user_tag</code> key must be omitted entirely from the request body.</li>
+<li><strong>Addition to the signature:</strong> Add <code>user_tag</code> as an optional keyword parameter to the existing raster upload method. It must default to <code>None</code> so that existing callers are unaffected.</li>
+<li><strong>Behavior:</strong> When a value is provided for <code>user_tag</code> (not <code>None</code>), that value must be included in the JSON body sent to the upload initiation endpoint under the key <code>user_tag</code>. When <code>user_tag</code> is <code>None</code>, the request body must omit the <code>user_tag</code> key entirely.</li>
 </ul>
-<p>The upload initiation request is a POST to <code>rasters/upload/file/</code>. This new field must be combined with the existing optional fields (such as <code>identity_key</code> and <code>cloud_coverage</code>), following the same convention: each optional field is only added to the body when its value is not <code>None</code>.</p>
-<p>For reference, the upload method also accepts (at least) the following parameters used alongside <code>user_tag</code>: a name, a folder identifier, a <code>captured_at</code> timestamp string, <code>identity_key</code>, <code>multispectral</code> (boolean), and <code>cloud_coverage</code>. Only the handling of <code>user_tag</code> is being added here; the existing behavior for the other parameters must remain unchanged.</p>
+<p>The upload initiation request takes the form of a POST to <code>rasters/upload/file/</code>. The new field must be combined with the existing optional fields (such as <code>identity_key</code> and <code>cloud_coverage</code>) according to the same convention, under which each optional field is only added to the body when its value is not <code>None</code>.</p>
+<p>For reference, the upload method also accepts (at least) the following parameters, used alongside <code>user_tag</code>: a name, a folder identifier, a <code>captured_at</code> timestamp string, <code>identity_key</code>, <code>multispectral</code> (boolean), and <code>cloud_coverage</code>. Only the handling of <code>user_tag</code> is being added here; for the other parameters, the existing behavior must remain unchanged.</p>
 <h5>2. Raster Edit</h5>
-<p>The client's raster edit method must support setting the <code>user_tag</code> field.</p>
+<p>The raster edit method of the client must support setting the <code>user_tag</code> field.</p>
 <ul>
-<li><strong>Behavior:</strong> When the edit data includes a <code>user_tag</code> key, it must be accepted and forwarded as part of the edit request. The edit method must handle a payload consisting solely of <code>{'user_tag': &lt;value&gt;}</code> (in addition to continuing to support the previously accepted edit fields such as <code>folder_id</code>, <code>identity_key</code>, <code>captured_at</code>, <code>cloud_coverage</code>, and <code>multispectral_band_specification</code>).</li>
+<li><strong>Behavior:</strong> If the edit data includes a <code>user_tag</code> key, it must be accepted and forwarded as part of the edit request. The edit method must handle a payload consisting solely of <code>{'user_tag': &lt;value&gt;}</code> (in addition to still supporting the previously accepted edit fields such as <code>folder_id</code>, <code>identity_key</code>, <code>captured_at</code>, <code>cloud_coverage</code>, and <code>multispectral_band_specification</code>).</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Both changes are purely additive; existing behavior for uploads and edits without a <code>user_tag</code> must remain identical.</li>
-<li>The <code>user_tag</code> value is passed through as-is (a string when provided).</li>
-<li>No <code>user_tag</code> field should appear in outgoing requests when it is not supplied.</li>
+<li>Both changes are purely additive; for uploads and edits carried out without a <code>user_tag</code>, the existing behavior must remain identical.</li>
+<li>The <code>user_tag</code> value is passed through as-is (a string when one is provided).</li>
+<li>When it is not supplied, no <code>user_tag</code> field should appear in outgoing requests.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Add a new public method to the API client that retrieves and returns all markers associated with a given raster.</span>
-        <span class="spec-meta muted">311 words · source specification
+        <span class="spec-title">Add a new public method to the API client that fetches and returns all markers belonging to a given raster.</span>
+        <span class="spec-meta muted">321 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Add a new public method to the API client that retrieves and returns all markers associated with a given raster.</p>
-<h5>API Surface</h5>
-<p>Add the following method to the existing client class (the one instantiated in <code>tests/test_client.py</code> via the internal <code>_client()</code> helper, located in the client module):</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Goal</h5>
+<p>Add a new public method to the API client that fetches and returns all markers belonging to a given raster.</p>
+<h5>API Method to Add</h5>
+<p>Add this method to the existing client class (the class found in the client module and instantiated in <code>tests/test_client.py</code> via the internal <code>_client()</code> helper):</p>
 <pre><code class="language-python">def list_raster_markers(self, raster_id):
     ...
 </code></pre>
-<h5>Behavior</h5>
-<p><code>list_raster_markers</code> must fetch all markers for the raster identified by <code>raster_id</code> from the API endpoint:</p>
+<h5>Required Behavior</h5>
+<p><code>list_raster_markers</code> must fetch all markers for the raster identified by <code>raster_id</code> from the API endpoint below:</p>
 <pre><code>rasters/&lt;raster_id&gt;/markers/
 </code></pre>
-<p>The endpoint is <strong>paginated</strong>. The paginated responses have the following JSON shape:</p>
+<p>The endpoint is <strong>paginated</strong>. The JSON shape of the paginated responses is:</p>
 <pre><code class="language-json">{
     &quot;count&quot;: &lt;int&gt;,
     &quot;next&quot;: &lt;url or null&gt;,
@@ -369,53 +371,53 @@
     &quot;results&quot;: [ &lt;marker&gt;, &lt;marker&gt;, ... ]
 }
 </code></pre>
-<p>Pagination works via a <code>page_number</code> query parameter:</p>
+<p>Pagination is controlled by a <code>page_number</code> query parameter:</p>
 <ul>
-<li>The first request must be made with <code>page_number=1</code>.</li>
-<li>Each subsequent request must be made with the next incremented page number (<code>page_number=2</code>, <code>page_number=3</code>, ...), continuing while the response's <code>next</code> field is a non-null URL.</li>
-<li>Pagination stops when a response has a <code>next</code> value of <code>null</code>/<code>None</code>.</li>
+<li>The first request must be sent with <code>page_number=1</code>.</li>
+<li>Each later request must use the next incremented page number (<code>page_number=2</code>, <code>page_number=3</code>, ...), continuing while the response's <code>next</code> field is a non-null URL.</li>
+<li>Pagination stops when a response carries a <code>next</code> value of <code>null</code>/<code>None</code>.</li>
 </ul>
-<p>The method must aggregate the <code>results</code> lists from all pages, in page order, and return a single flat list containing every marker (each marker being the dict as returned by the API), preserving the order in which they appear across pages.</p>
+<p>The method must aggregate the <code>results</code> lists from all pages, in page order, and return a single flat list that contains every marker (each marker being the dict as returned by the API), keeping the order in which the markers appear across pages.</p>
 <h5>Example</h5>
-<p>Given a raster with 4 markers spread across two pages of size 2:</p>
+<p>Take a raster that has 4 markers spread over two pages of size 2:</p>
 <ul>
-<li>Page 1 (<code>page_number=1</code>) returns markers <code>{&quot;id&quot;: &quot;1&quot;}</code>, <code>{&quot;id&quot;: &quot;2&quot;}</code> and a non-null <code>next</code>.</li>
-<li>Page 2 (<code>page_number=2</code>) returns markers <code>{&quot;id&quot;: &quot;3&quot;}</code>, <code>{&quot;id&quot;: &quot;4&quot;}</code> and a <code>next</code> of <code>null</code>.</li>
+<li>Page 1 (<code>page_number=1</code>) returns the markers <code>{&quot;id&quot;: &quot;1&quot;}</code>, <code>{&quot;id&quot;: &quot;2&quot;}</code> and a non-null <code>next</code>.</li>
+<li>Page 2 (<code>page_number=2</code>) returns the markers <code>{&quot;id&quot;: &quot;3&quot;}</code>, <code>{&quot;id&quot;: &quot;4&quot;}</code> and a <code>next</code> of <code>null</code>.</li>
 </ul>
 <p>The call <code>client.list_raster_markers(&lt;raster_id&gt;)</code> must return:</p>
 <pre><code class="language-python">[{&quot;id&quot;: &quot;1&quot;}, {&quot;id&quot;: &quot;2&quot;}, {&quot;id&quot;: &quot;3&quot;}, {&quot;id&quot;: &quot;4&quot;}]
 </code></pre>
-<p>so that indexing the returned list yields the markers in cross-page order (index 0 is the first marker of page 1, index 2 is the first marker of page 2, etc.).</p>
-<p>The <code>raster_id</code> argument is a string that is interpolated directly into the endpoint path.</p>
+<p>so that indexing into the returned list gives the markers in cross-page order (index 0 is the first marker of page 1, index 2 is the first marker of page 2, etc.).</p>
+<p>The <code>raster_id</code> argument is a string that the method interpolates directly into the endpoint path.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add a new public method create_marker to the API client class used throughout the codebase (the same class instantiated to obtain a client instance that…</span>
-        <span class="spec-meta muted">297 words · source specification
+        <span class="spec-title">Introduce a new public method create_marker on the API client class that is used throughout the codebase (the very class that gets instantiated to obtain a…</span>
+        <span class="spec-meta muted">331 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add a new public method <code>create_marker</code> to the API client class used throughout the codebase (the same class instantiated to obtain a client instance that already supports raster upload and marker listing operations).</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Introduce a new public method <code>create_marker</code> on the API client class that is used throughout the codebase (the very class that gets instantiated to obtain a client instance, and which already supports raster upload and marker listing operations).</p>
 <h4>API Surface</h4>
-<p>Add the following method to the existing client class:</p>
+<p>Extend the existing client class with the following method:</p>
 <pre><code class="language-python">def create_marker(self, detector_id, raster_id, lng, lat, text):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>detector_id</code>: identifier of the detector.</li>
-<li><code>raster_id</code>: identifier of the training raster belonging to that detector.</li>
-<li><code>lng</code>: longitude coordinate (numeric).</li>
-<li><code>lat</code>: latitude coordinate (numeric).</li>
-<li><code>text</code>: text string associated with the marker.</li>
+<li><code>detector_id</code>: the identifier of the detector.</li>
+<li><code>raster_id</code>: the identifier of the training raster that belongs to that detector.</li>
+<li><code>lng</code>: the longitude coordinate (numeric).</li>
+<li><code>lat</code>: the latitude coordinate (numeric).</li>
+<li><code>text</code>: the marker's associated text string.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>When called, the method must issue an HTTP <code>POST</code> request to the relative API endpoint:</p>
+<p>When the method is invoked, it must send an HTTP <code>POST</code> request to the relative API endpoint:</p>
 <pre><code>detectors/{detector_id}/training_rasters/{raster_id}/markers/
 </code></pre>
-<p>The request body must be JSON with exactly the following structure:</p>
+<p>The request body must be JSON matching exactly the following structure:</p>
 <pre><code class="language-json">{
     &quot;marker&quot;: {
         &quot;type&quot;: &quot;Point&quot;,
@@ -424,223 +426,224 @@
     &quot;text&quot;: text
 }
 </code></pre>
-<p>where <code>coordinates</code> is a two-element list containing the longitude and latitude values in that order (longitude first, latitude second), and <code>text</code> is the passed-in text string.</p>
-<p>The API responds with a JSON object containing at least an <code>id</code> field. The method must return the parsed JSON response object (a dict-like value), such that the caller can access the created marker's <code>id</code> via the <code>'id'</code> key.</p>
+<p>In this structure, <code>coordinates</code> is a list of two elements holding the longitude and latitude values in that order (longitude first, latitude second), while <code>text</code> is the text string passed in.</p>
+<p>The response from the API is a JSON object that contains at least an <code>id</code> field. The method must return the JSON response object after it has been parsed (a dict-like value), so that the caller can access the created marker's <code>id</code> using the <code>'id'</code> key.</p>
 <h4>Notes</h4>
 <ul>
-<li>The request must go through the client's existing request mechanism / base URL handling (consistent with the client's other operations), so the endpoint above is a relative path.</li>
-<li>No additional query parameters or body fields beyond those specified are required.</li>
+<li>The request must pass through the client's existing request mechanism / base URL handling (in line with the client's other operations), and for that reason the endpoint above is a relative path.</li>
+<li>Beyond the ones specified, no additional query parameters or body fields are required.</li>
 </ul>
 <h4>Additional Requirements</h4>
 <ul>
-<li>For positional calls, interpret the first identifier argument as <code>raster_id</code> and the second as <code>detector_id</code>, despite the parameter names shown in the signature.</li>
-<li>Accordingly, <code>create_marker('foo', 'bar', 12.34, 56.78, 'foobar')</code> must POST to <code>detectors/bar/training_rasters/foo/markers/</code>, with coordinates <code>[12.34, 56.78]</code> and text <code>&quot;foobar&quot;</code>.</li>
+<li>For calls made positionally, treat the first identifier argument as <code>raster_id</code> and the second as <code>detector_id</code>, regardless of the parameter names shown in the signature.</li>
+<li>As a result, the call <code>create_marker('foo', 'bar', 12.34, 56.78, 'foobar')</code> must POST to <code>detectors/bar/training_rasters/foo/markers/</code>, with coordinates <code>[12.34, 56.78]</code> and text <code>&quot;foobar&quot;</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">The client class (the primary API client class in the library, the same one that exposes methods such as list_detectors) must support filtering the detector…</span>
-        <span class="spec-meta muted">350 words · source specification
+        <span class="spec-title">The client class (the library&#39;s primary API client class, the same one that exposes methods such as list_detectors) must make it possible to filter the…</span>
+        <span class="spec-meta muted">413 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Add filtering options to detector listing</h4>
+      <div class="spec-body"><h4>Task: Add filter options for the detector listing</h4>
 <h5>Overview</h5>
-<p>The client class (the primary API client class in the library, the same one that exposes methods such as <code>list_detectors</code>) must support filtering the detector listing by an optional user tag and by an optional shared status.</p>
-<h5>API Surface</h5>
-<p>Modify the existing method:</p>
+<p>The client class (the library's primary API client class, the same one that exposes methods such as <code>list_detectors</code>) must make it possible to filter the detector listing by an optional user tag and by an optional shared status.</p>
+<h5>Method signature</h5>
+<p>The existing method is updated to:</p>
 <pre><code class="language-python">def list_detectors(self, search=None, user_tag=None, is_shared=None):
     ...
 </code></pre>
 <ul>
-<li><code>search</code> (optional): existing free-text search string (unchanged behavior).</li>
-<li><code>user_tag</code> (optional): a string used to filter detectors by user tag.</li>
-<li><code>is_shared</code> (optional): a boolean used to filter detectors by shared status.</li>
+<li><code>search</code> (optional): the free-text search string that already exists (its behavior is unchanged).</li>
+<li><code>user_tag</code> (optional): a string for filtering detectors by user tag.</li>
+<li><code>is_shared</code> (optional): a boolean for filtering detectors by shared status.</li>
 </ul>
-<p>All three parameters are optional and may be passed by keyword.</p>
-<h5>Behavior</h5>
-<p>The method retrieves a paginated list of detectors from the API endpoint <code>detectors/</code> and returns the aggregated list of detector result objects across all pages.</p>
+<p>Each of the three parameters is optional, and each one may be supplied as a keyword argument.</p>
+<h5>How the method behaves</h5>
+<p>A paginated detector list is fetched from the API endpoint <code>detectors/</code>; what the method returns is one aggregated list of detector result objects spanning all pages.</p>
 <p>Pagination:</p>
 <ul>
-<li>Requests are made per page, always including a <code>page_number</code> query parameter (starting at <code>1</code> and incrementing for each subsequent page). The response for each page indicates whether a next page exists; the method continues fetching until all pages are retrieved, then returns the combined list of result records.</li>
-<li>Each returned record is a mapping (e.g., each detector has fields such as <code>name</code>).</li>
+<li>Requests are issued page by page; every request carries a <code>page_number</code> query parameter, which starts at <code>1</code> and is incremented for each subsequent page. Each page's response tells whether a next page exists; fetching continues until all pages have been retrieved, after which the combined list of result records is returned.</li>
+<li>Every record that comes back is a mapping (each detector, for example, has fields such as <code>name</code>).</li>
 </ul>
-<p>Query parameter construction — for <strong>every</strong> page request:</p>
+<p>How the query parameters are assembled — for <strong>every</strong> page request:</p>
 <ul>
-<li><code>page_number</code> is always included.</li>
-<li>If <code>search</code> is provided (truthy), include it as the query parameter <code>search</code>.</li>
-<li>If <code>user_tag</code> is provided (truthy), include it as the query parameter <code>user_tag</code>.</li>
-<li>If <code>is_shared</code> is provided (truthy), include it as the query parameter <code>is_shared</code>.</li>
-<li>Any of the above parameters that are not provided (falsy) must be omitted entirely from the query string.</li>
+<li><code>page_number</code> is present in every request.</li>
+<li>When a truthy value is given for <code>search</code>, pass it along as the query parameter <code>search</code>.</li>
+<li>When a truthy value is given for <code>user_tag</code>, pass it along as the query parameter <code>user_tag</code>.</li>
+<li>When a truthy value is given for <code>is_shared</code>, pass it along as the query parameter <code>is_shared</code>.</li>
+<li>Whenever any of the above parameters is falsy (not provided), it must be left out of the query string completely.</li>
 </ul>
-<p>The filtering parameters must be applied consistently to all page requests, not only the first page.</p>
-<h5>Return value</h5>
-<p>A list containing all detector records collected across every page of results, in order. Indexing into this list yields individual detector mapping objects.</p>
-<h5>Examples of expected request behavior</h5>
+<p>These filtering parameters must be applied consistently across all page requests — the first page is not the only one that receives them.</p>
+<h5>What is returned</h5>
+<p>What comes back is a list that holds all detector records gathered from every page of results, in order. Indexing into this list yields the individual detector mapping objects.</p>
+<h5>Example request behavior</h5>
 <ul>
-<li>Calling with only a search string produces requests carrying <code>page_number</code> and <code>search</code>.</li>
-<li>Calling with <code>user_tag='foobar'</code> and <code>is_shared=True</code> (and no search) produces requests carrying <code>page_number</code>, <code>user_tag=foobar</code>, and <code>is_shared=True</code>, with no <code>search</code> parameter.</li>
+<li>If only a search string is passed, the requests that go out carry <code>page_number</code> together with <code>search</code>.</li>
+<li>A call that passes <code>user_tag='foobar'</code> and <code>is_shared=True</code> (and no search) leads to requests carrying <code>page_number</code>, <code>user_tag=foobar</code>, and <code>is_shared=True</code>, with no <code>search</code> parameter present.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Add User Tag Filtering to Raster Listing</span>
-        <span class="spec-meta muted">256 words · source specification
+        <span class="spec-title">Add Filtering by User Tag to Raster Listing</span>
+        <span class="spec-meta muted">273 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add User Tag Filtering to Raster Listing</h3>
-<h4>Objective</h4>
-<p>Extend the <code>list_rasters</code> method on the client class to support filtering rasters by a user tag, in addition to the existing search-string filtering.</p>
-<h4>API Surface</h4>
-<p>Modify the existing method:</p>
+      <div class="spec-body"><h3>Task Specification: Add Filtering by User Tag to Raster Listing</h3>
+<h4>Goal</h4>
+<p>Extend the <code>list_rasters</code> method on the client class so that, in addition to the existing search-string filtering, it also supports filtering rasters by a user tag.</p>
+<h4>API Method</h4>
+<p>Update the existing method:</p>
 <pre><code class="language-python">def list_rasters(self, folder_id='', search_string='', user_tag='', ...):
 </code></pre>
-<p>The method must be callable with:</p>
+<p>It must be possible to call the method with:</p>
 <ul>
-<li>A positional folder id argument (may be an empty string).</li>
-<li>A keyword argument <code>search_string</code> (string, optional).</li>
-<li>A keyword argument <code>user_tag</code> (string, optional).</li>
+<li>A folder id argument passed positionally (it may be an empty string).</li>
+<li>A keyword argument <code>search_string</code> (a string, optional).</li>
+<li>A keyword argument <code>user_tag</code> (a string, optional).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The method issues a GET request to the <code>rasters/</code> API endpoint and returns the list of raster objects contained in the <code>results</code> field of the JSON response.</p>
-<p>The query parameters sent with the request are constructed conditionally:</p>
+<h4>Behavior Requirements</h4>
+<p>The method sends a GET request to the <code>rasters/</code> API endpoint and returns the list of raster objects found in the <code>results</code> field of the JSON response.</p>
+<p>The query parameters sent with the request are built conditionally:</p>
 <ul>
-<li><code>page_number</code> is always included, with the value <code>'1'</code>.</li>
-<li>If <code>search_string</code> is provided (non-empty), include a <code>search</code> query parameter set to that value.</li>
-<li>If <code>user_tag</code> is provided (non-empty), include a <code>user_tag</code> query parameter set to that value.</li>
-<li>When a filter argument is empty/not provided, its corresponding query parameter must be omitted entirely (it must not be sent with an empty value).</li>
+<li><code>page_number</code> is always included, carrying the value <code>'1'</code>.</li>
+<li>When <code>search_string</code> is supplied (non-empty), a <code>search</code> query parameter set to that value is included.</li>
+<li>When <code>user_tag</code> is supplied (non-empty), a <code>user_tag</code> query parameter set to that value is included.</li>
+<li>If a filter argument is empty/not supplied, the corresponding query parameter must be omitted entirely (it must not be sent with an empty value).</li>
 </ul>
-<h4>Return Value</h4>
-<p>The method returns the <code>results</code> list from the parsed JSON response. Each element is a raster object (a dict-like structure) exposing at least <code>id</code>, <code>status</code>, and <code>name</code> fields as returned by the API.</p>
-<h4>Examples of Query Construction</h4>
+<h4>Returned Value</h4>
+<p>The method returns the <code>results</code> list of the parsed JSON response. Each element is a raster object (a dict-like structure) that exposes at least <code>id</code>, <code>status</code>, and <code>name</code> fields as returned by the API.</p>
+<h4>Query Construction Examples</h4>
 <ul>
-<li>Calling with <code>search_string='spam'</code> and no user tag produces query parameters <code>{'page_number': '1', 'search': 'spam'}</code>.</li>
-<li>Calling with <code>user_tag='foobar'</code> and no search string produces query parameters <code>{'page_number': '1', 'user_tag': 'foobar'}</code>.</li>
+<li>A call with <code>search_string='spam'</code> and no user tag produces the query parameters <code>{'page_number': '1', 'search': 'spam'}</code>.</li>
+<li>A call with <code>user_tag='foobar'</code> and no search string produces the query parameters <code>{'page_number': '1', 'user_tag': 'foobar'}</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Extend the existing list_rasters method on the API client to support filtering rasters by a maximum cloud coverage value.</span>
-        <span class="spec-meta muted">231 words · source specification
+        <span class="spec-title">Extend the existing list_rasters method on the API client so that it supports filtering rasters by a maximum cloud coverage value.</span>
+        <span class="spec-meta muted">253 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Extend the existing <code>list_rasters</code> method on the API client to support filtering rasters by a maximum cloud coverage value.</p>
-<h5>API Surface</h5>
-<p>The client class exposes a method <code>list_rasters</code>. You must add a new optional keyword parameter to its signature:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>Extend the existing <code>list_rasters</code> method on the API client so that it supports filtering rasters by a maximum cloud coverage value.</p>
+<h5>Client API</h5>
+<p>The client class exposes a method called <code>list_rasters</code>. You must add a new optional keyword parameter to the signature of this method:</p>
 <pre><code class="language-python">def list_rasters(self, search=None, user_tag=None, max_cloud_coverage=None, ...):
 </code></pre>
 <ul>
-<li><code>max_cloud_coverage</code>: optional; when provided, it is a numeric value used to filter the returned rasters.</li>
+<li><code>max_cloud_coverage</code>: optional; when it is provided, it is a numeric value that is used to filter the returned rasters.</li>
 </ul>
-<p>The existing parameters (such as <code>search</code> as the first positional argument and <code>user_tag</code>) and their current behavior must remain unchanged.</p>
+<p>The parameters that already exist (such as <code>search</code> as the first positional argument and <code>user_tag</code>), together with their current behavior, must remain unchanged.</p>
 <h5>Required Behavior</h5>
-<p><code>list_rasters</code> issues a GET request to the <code>rasters/</code> API endpoint and returns the list of raster objects contained in the <code>results</code> field of the JSON response.</p>
-<p>Query parameter construction:</p>
+<p><code>list_rasters</code> issues a GET request to the <code>rasters/</code> API endpoint and returns the list of raster objects that the <code>results</code> field of the JSON response contains.</p>
+<p>Construction of the query parameters:</p>
 <ul>
-<li>When <code>user_tag</code> is provided, include the query parameter <code>user_tag</code> with that value.</li>
-<li>When <code>search</code> is provided, include the query parameter <code>search</code> with that value.</li>
-<li>When <code>max_cloud_coverage</code> is provided (truthy), include the query parameter <code>max_cloud_coverage</code> with that value.</li>
-<li>When <code>max_cloud_coverage</code> is not provided (falsy / <code>None</code>), the <code>max_cloud_coverage</code> query parameter must not appear in the request.</li>
+<li>If <code>user_tag</code> is provided, include the query parameter <code>user_tag</code> with that value.</li>
+<li>If <code>search</code> is provided, include the query parameter <code>search</code> with that value.</li>
+<li>If <code>max_cloud_coverage</code> is provided (truthy), include the query parameter <code>max_cloud_coverage</code> with that value.</li>
+<li>If <code>max_cloud_coverage</code> is not provided (falsy / <code>None</code>), the request must not contain the <code>max_cloud_coverage</code> query parameter.</li>
 </ul>
-<p>The method returns the list from the response's <code>results</code> field, where each element is a raster object (a dictionary containing at least a <code>name</code> field).</p>
-<h5>Example</h5>
-<p>Calling <code>list_rasters('', user_tag='foobar', max_cloud_coverage=44)</code> must send a request to <code>rasters/</code> including query parameters <code>user_tag=foobar</code> and <code>max_cloud_coverage=44</code>, and return the list of matching raster objects.</p>
+<p>The method returns the list found in the response's <code>results</code> field; each of its elements is a raster object (a dictionary that contains at least a <code>name</code> field).</p>
+<h5>Example Call</h5>
+<p>Calling <code>list_rasters('', user_tag='foobar', max_cloud_coverage=44)</code> must send a request to <code>rasters/</code> that includes the query parameters <code>user_tag=foobar</code> and <code>max_cloud_coverage=44</code>, and it must return the list of matching raster objects.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Fix Vector Layer Upload Response Parsing</span>
-        <span class="spec-meta muted">301 words · source specification
+        <span class="spec-title">Fix Parsing of the Vector Layer Upload Response</span>
+        <span class="spec-meta muted">324 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Fix Vector Layer Upload Response Parsing</h3>
-<h4>Context</h4>
-<p>There is a client class (instantiated in tests via an internal <code>_client()</code> helper) that provides functionality for uploading vector layers to a remote service. The upload process involves polling an operations endpoint until the operation completes, then extracting an identifier from the completed operation's response.</p>
+      <div class="spec-body"><h3>Task Specification: Fix Parsing of the Vector Layer Upload Response</h3>
+<h4>Background</h4>
+<p>A client class (in tests it is instantiated through an internal <code>_client()</code> helper) provides functionality for uploading vector layers to a remote service. The upload process works by polling an operations endpoint until the operation completes; an identifier is then extracted from the completed operation's response.</p>
 <h4>Required Behavior</h4>
-<h5>Method: <code>upload_vector_layer</code></h5>
-<p>The client class must expose a method with the following signature:</p>
+<h5>The <code>upload_vector_layer</code> Method</h5>
+<p>The client class must expose a method having the following signature:</p>
 <pre><code class="language-python">def upload_vector_layer(self, &lt;target_id&gt;, &lt;file_path&gt;, &lt;name&gt;) -&gt; str
 </code></pre>
-<p>Where:</p>
+<p>Here:</p>
 <ul>
-<li>The first positional argument is a numeric identifier for the target the vector layer is being uploaded to.</li>
-<li>The second positional argument is a path to a file on disk to be uploaded.</li>
+<li>The first positional argument is a numeric identifier for the target to which the vector layer is being uploaded.</li>
+<li>The second positional argument is a path to a file on disk that is to be uploaded.</li>
 <li>The third positional argument is a name for the vector layer.</li>
 </ul>
-<h5>Behavior</h5>
-<p>The method performs the vector layer upload workflow, which includes polling an operations endpoint until the operation reaches a completed/successful state. Once the operation completes successfully, the method must extract and return the vector layer identifier from the operation's response.</p>
-<h5>Response Structure (the fix)</h5>
-<p>When the operation completes successfully, the operation response contains a <code>results</code> object (a nested dictionary). The vector layer identifier is located inside this <code>results</code> object under the key <code>vector_layer_id</code>.</p>
-<p>That is, the identifier must be read from:</p>
+<h5>Behavior of the Method</h5>
+<p>The method carries out the vector layer upload workflow, part of which is polling an operations endpoint until the operation reaches a completed/successful state. When the operation completes successfully, the method must extract and return the vector layer identifier from the operation's response.</p>
+<h5>Structure of the Response (the fix)</h5>
+<p>On successful completion of the operation, the operation response contains a <code>results</code> object (a nested dictionary). The vector layer identifier sits inside this <code>results</code> object, under the key <code>vector_layer_id</code>.</p>
+<p>In other words, the identifier must be read from:</p>
 <pre><code>&lt;operation_response&gt;[&quot;results&quot;][&quot;vector_layer_id&quot;]
 </code></pre>
 <p><strong>not</strong> directly from a top-level <code>vector_layer_id</code> field on the operation response.</p>
-<h5>Return Value</h5>
-<p>The method must return the string value found at <code>results.vector_layer_id</code> in the completed operation's response.</p>
-<p>For example, if a successful operation response carries <code>{&quot;results&quot;: {&quot;vector_layer_id&quot;: &quot;spam&quot;}}</code>, then <code>upload_vector_layer</code> must return <code>&quot;spam&quot;</code>.</p>
-<h4>Scope</h4>
-<p>The only change required is correcting where the vector layer identifier is read from in the successful operation response — it now lives nested under the <code>results</code> key rather than at the top level of the response.</p>
+<h5>Returned Value</h5>
+<p>The method must return the string value found at <code>results.vector_layer_id</code> in the response of the completed operation.</p>
+<p>As an example: if a successful operation response carries <code>{&quot;results&quot;: {&quot;vector_layer_id&quot;: &quot;spam&quot;}}</code>, then <code>upload_vector_layer</code> must return <code>&quot;spam&quot;</code>.</p>
+<h4>Scope of the Change</h4>
+<p>The only change required is to correct where the vector layer identifier is read from in the successful operation response — it now lives nested under the <code>results</code> key instead of at the top level of the response.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">The client class used to interact with the API needs a new public method that deletes a vector layer by issuing an HTTP DELETE request to the appropriate…</span>
-        <span class="spec-meta muted">169 words · source specification
+        <span class="spec-title">A new public method is needed on the client class that is used to interact with the API</span>
+        <span class="spec-meta muted">184 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add a method to delete a vector layer</h3>
-<h4>Overview</h4>
-<p>The client class used to interact with the API needs a new public method that deletes a vector layer by issuing an HTTP DELETE request to the appropriate API endpoint.</p>
-<h4>Required API</h4>
-<p>Add the following method to the existing client class:</p>
+      <div class="spec-body"><h3>Task: Add a method for deleting a vector layer</h3>
+<h4>Summary</h4>
+<p>A new public method is needed on the client class that is used to interact with the API; the method deletes a vector layer by issuing an HTTP DELETE request to the appropriate API endpoint.</p>
+<h4>API to Add</h4>
+<p>Extend the existing client class with the following method:</p>
 <pre><code class="language-python">def delete_vector_layer(self, layer_id):
     ...
 </code></pre>
 <h4>Behavior</h4>
 <ul>
 <li>
-<p><code>delete_vector_layer</code> accepts a single argument, <code>layer_id</code>, which identifies the vector layer to delete.</p>
+<p>The <code>delete_vector_layer</code> method accepts a single argument, <code>layer_id</code>, which identifies the vector layer to be deleted.</p>
 </li>
 <li>
-<p>When called, it must issue exactly one HTTP <code>DELETE</code> request to the API endpoint:</p>
+<p>When the method is called, it must issue exactly one HTTP <code>DELETE</code> request to the API endpoint:</p>
 <pre><code>vector_layers/&lt;layer_id&gt;/
 </code></pre>
-<p>where <code>&lt;layer_id&gt;</code> is the value passed in. This path is relative to the API base URL used by the client for all other requests.</p>
+<p>where <code>&lt;layer_id&gt;</code> stands for the value passed in. The path is relative to the API base URL that the client uses for all other requests.</p>
 </li>
 <li>
-<p>The method makes exactly one API call — no additional requests (e.g., polling or confirmation calls) are performed.</p>
+<p>Exactly one API call is made by the method — no additional requests (e.g., polling or confirmation calls) take place.</p>
 </li>
 <li>
-<p>The method does not need to return any particular value.</p>
+<p>The method does not have to return any particular value.</p>
 </li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The <code>layer_id</code> is used directly to construct the endpoint path (it may be a string such as <code>'foobar'</code>).</li>
+<li><code>layer_id</code> is used directly when the endpoint path is constructed (it may be a string such as <code>'foobar'</code>).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">APIClient.create_detector</span>
-        <span class="spec-meta muted">782 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify APIClient.create_detector so that callers can pass all supported detector configuration fields without client-side validation.</span>
+        <span class="spec-meta muted">839 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>APIClient.create_detector</code></h3>
-<h4>Objective</h4>
-<p>Update <code>APIClient.create_detector</code> so callers can pass all supported detector configuration fields without client-side validation. Detector creation must continue to use the existing detector-creation request and return the created detector identifier, but the client must send only configuration values that the caller explicitly supplied.</p>
-<p>This method remains a beta API. Existing behavior unrelated to detector creation must remain unchanged.</p>
+      <div class="spec-body"><h3>Specification for <code>APIClient.create_detector</code></h3>
+<h4>Goal</h4>
+<p>Modify <code>APIClient.create_detector</code> so that callers can pass all supported detector configuration fields without client-side validation. Detector creation must continue to use the existing detector-creation request and to return the created detector identifier; however, the client must send only configuration values that the caller explicitly supplied.</p>
+<p>This method is still a beta API. Existing behavior unrelated to detector creation must stay unchanged.</p>
 <h4>Public API</h4>
-<p>The method must retain the existing optional <code>name</code> argument and accept six optional configuration arguments:</p>
+<p>The method must keep the existing optional <code>name</code> argument and must accept six optional configuration arguments:</p>
 <pre><code class="language-python">create_detector(
     self,
     name=&quot;&quot;,
@@ -652,65 +655,65 @@
     background_sample_ratio=&lt;omitted&gt;,
 ) -&gt; str
 </code></pre>
-<p><code>&lt;omitted&gt;</code> denotes an optional-argument state, not a detector setting or a value to serialize. The public calling convention must remain compatible with the existing positional order for <code>name</code>, <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>; the three new arguments follow those existing arguments. Keyword calls must be supported for every configuration argument. A value passed either positionally or by keyword is explicitly supplied.</p>
+<p><code>&lt;omitted&gt;</code> stands for an optional-argument state; it is neither a detector setting nor a value to serialize. The public calling convention must stay compatible with the existing positional order for <code>name</code>, <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>; the three new arguments come after those existing arguments. For every configuration argument, keyword calls must be supported. A value is explicitly supplied when it is passed either positionally or by keyword.</p>
 <p>The configuration arguments are:</p>
 <ul>
-<li><code>detection_type</code> — detector type, for example <code>&quot;segmentation&quot;</code>.</li>
-<li><code>output_type</code> — output type, for example <code>&quot;bbox&quot;</code>.</li>
-<li><code>training_steps</code> — training-step value, for example <code>1000</code>.</li>
-<li><code>backbone</code> — model backbone, for example <code>&quot;resnet18&quot;</code>.</li>
-<li><code>tile_size</code> — tile size, for example <code>352</code>.</li>
-<li><code>background_sample_ratio</code> — background sampling ratio, for example <code>0.3</code>.</li>
+<li><code>detection_type</code> — the detector type, for example <code>&quot;segmentation&quot;</code>.</li>
+<li><code>output_type</code> — the output type, for example <code>&quot;bbox&quot;</code>.</li>
+<li><code>training_steps</code> — the training-step value, for example <code>1000</code>.</li>
+<li><code>backbone</code> — the model backbone, for example <code>&quot;resnet18&quot;</code>.</li>
+<li><code>tile_size</code> — the tile size, for example <code>352</code>.</li>
+<li><code>background_sample_ratio</code> — the background sampling ratio, for example <code>0.3</code>.</li>
 </ul>
-<p>The examples above are illustrative only and do not define client-side restrictions.</p>
-<h4>Required Behavior</h4>
-<h5>No client-side argument validation</h5>
-<p><code>create_detector</code> must not validate, reject, clamp, normalize, or otherwise constrain any of the six configuration arguments. In particular, it must not:</p>
+<p>The examples above are for illustration only and do not define client-side restrictions.</p>
+<h4>Behavior Requirements</h4>
+<h5>No argument validation on the client side</h5>
+<p><code>create_detector</code> must not validate, reject, clamp, normalize, or otherwise constrain any of the six configuration arguments. Specifically, it must not:</p>
 <ul>
-<li>restrict <code>detection_type</code> or <code>output_type</code> to a client-maintained allowlist;</li>
-<li>enforce a range for <code>training_steps</code>, <code>tile_size</code>, or <code>background_sample_ratio</code>;</li>
-<li>restrict possible <code>backbone</code> values; or</li>
-<li>coerce supplied values to different values before sending them.</li>
+<li>limit <code>detection_type</code> or <code>output_type</code> to a client-maintained allowlist;</li>
+<li>impose a range on <code>training_steps</code>, <code>tile_size</code>, or <code>background_sample_ratio</code>;</li>
+<li>limit the possible <code>backbone</code> values; or</li>
+<li>coerce supplied values into different values before sending them.</li>
 </ul>
-<p>Previously rejected inputs such as <code>detection_type=&quot;spam&quot;</code>, <code>output_type=&quot;spam&quot;</code>, or <code>training_steps=10**6</code> must be allowed to reach the service. Any explicitly supplied JSON-serializable value for a supported configuration argument must be forwarded unchanged. The service remains responsible for deciding whether a configuration is valid; ordinary serialization, transport, and service errors are not client-side configuration validation.</p>
-<h5>Omitted-argument semantics</h5>
-<p>Each configuration argument must default to an omitted state. Omission must not synthesize or serialize any client-side configuration value.</p>
-<p>In particular, the client must not insert legacy defaults such as:</p>
+<p>Inputs that were previously rejected, such as <code>detection_type=&quot;spam&quot;</code>, <code>output_type=&quot;spam&quot;</code>, or <code>training_steps=10**6</code>, must be allowed to reach the service. Any JSON-serializable value that is explicitly supplied for a supported configuration argument must be forwarded unchanged. Deciding whether a configuration is valid remains the service's responsibility; ordinary serialization, transport, and service errors are not client-side configuration validation.</p>
+<h5>Semantics for omitted arguments</h5>
+<p>The default for each configuration argument must be an omitted state. Omission must not cause any client-side configuration value to be synthesized or serialized.</p>
+<p>Specifically, the client must not insert legacy defaults such as:</p>
 <ul>
 <li><code>detection_type=&quot;count&quot;</code>;</li>
 <li><code>output_type=&quot;polygon&quot;</code>; or</li>
 <li><code>training_steps=500</code>.</li>
 </ul>
-<p>The same omission rule applies to <code>backbone</code>, <code>tile_size</code>, and <code>background_sample_ratio</code>. Supplying one configuration argument must not cause any of the other five arguments to appear in the request.</p>
-<h5>Request payload</h5>
-<p>The method must issue the detector-creation request as a JSON <code>POST</code> to the client's existing <code>detectors/</code> endpoint. The JSON body must always contain a <code>configuration</code> object.</p>
-<p>That object must contain exactly the six supported configuration keys that were explicitly supplied by the caller, with their supplied values. It must contain no omitted keys and no injected defaults.</p>
-<p>The existing <code>name</code> behavior is preserved separately from configuration:</p>
+<p>The same omission rule applies to <code>backbone</code>, <code>tile_size</code>, and <code>background_sample_ratio</code> as well. If one configuration argument is supplied, the request must not contain any of the other five arguments.</p>
+<h5>Payload of the request</h5>
+<p>The method must send the detector-creation request as a JSON <code>POST</code> to the client's existing <code>detectors/</code> endpoint. A <code>configuration</code> object must always be present in the JSON body.</p>
+<p>That object must contain exactly the six supported configuration keys that the caller explicitly supplied, along with their supplied values. It must contain no omitted keys and no injected defaults.</p>
+<p>The existing <code>name</code> behavior is kept separate from the configuration:</p>
 <ul>
-<li>a non-empty <code>name</code> is sent as the top-level <code>name</code> field;</li>
-<li>when <code>name</code> is omitted or empty, the top-level <code>name</code> field is absent; and</li>
-<li><code>name</code> is never nested inside <code>configuration</code>.</li>
+<li>a <code>name</code> that is non-empty is sent as the top-level <code>name</code> field;</li>
+<li>if <code>name</code> is omitted or empty, the top-level <code>name</code> field is absent; and</li>
+<li><code>name</code> is never nested within <code>configuration</code>.</li>
 </ul>
-<p>No configuration arguments:</p>
+<p>When no configuration arguments are supplied:</p>
 <pre><code class="language-python">client.create_detector()
 </code></pre>
-<p>must send:</p>
+<p>the client must send:</p>
 <pre><code class="language-json">{
   &quot;configuration&quot;: {}
 }
 </code></pre>
-<p>A single configuration argument:</p>
+<p>When a single configuration argument is supplied:</p>
 <pre><code class="language-python">client.create_detector(backbone=&quot;resnet18&quot;)
 </code></pre>
-<p>must send:</p>
+<p>the client must send:</p>
 <pre><code class="language-json">{
   &quot;configuration&quot;: {
     &quot;backbone&quot;: &quot;resnet18&quot;
   }
 }
 </code></pre>
-<p>It must not add <code>detection_type</code>, <code>output_type</code>, <code>training_steps</code>, <code>tile_size</code>, or <code>background_sample_ratio</code> to that request.</p>
-<p>Supplying all configuration arguments:</p>
+<p>The client must not add <code>detection_type</code>, <code>output_type</code>, <code>training_steps</code>, <code>tile_size</code>, or <code>background_sample_ratio</code> to that request.</p>
+<p>When all configuration arguments are supplied:</p>
 <pre><code class="language-python">client.create_detector(
     detection_type=&quot;segmentation&quot;,
     output_type=&quot;bbox&quot;,
@@ -720,7 +723,7 @@
     background_sample_ratio=0.3,
 )
 </code></pre>
-<p>must send:</p>
+<p>the client must send:</p>
 <pre><code class="language-json">{
   &quot;configuration&quot;: {
     &quot;detection_type&quot;: &quot;segmentation&quot;,
@@ -732,10 +735,10 @@
   }
 }
 </code></pre>
-<p>If a name is also supplied, it is the only additional top-level field:</p>
+<p>If a name is supplied as well, it is the only additional top-level field:</p>
 <pre><code class="language-python">client.create_detector(&quot;Tree detector&quot;, tile_size=352)
 </code></pre>
-<p>must send:</p>
+<p>the client must send:</p>
 <pre><code class="language-json">{
   &quot;name&quot;: &quot;Tree detector&quot;,
   &quot;configuration&quot;: {
@@ -743,138 +746,138 @@
   }
 }
 </code></pre>
-<h5>Response and errors</h5>
-<p>On a successful creation response, the method must parse the response JSON, read its top-level <code>id</code>, and return that detector identifier as a string. For example, a response containing <code>{&quot;id&quot;: &quot;foobar&quot;}</code> results in the return value <code>&quot;foobar&quot;</code>.</p>
-<p>The existing service-error behavior must remain intact: a detector-creation response with a status other than the expected creation status raises <code>APIError</code> rather than returning an identifier. Removing argument validation must not suppress errors reported by request serialization, the network, or the service.</p>
+<h5>Response and error behavior</h5>
+<p>When the creation response is successful, the method must parse the response JSON, read its top-level <code>id</code>, and return that detector identifier as a string. For example, if the response contains <code>{&quot;id&quot;: &quot;foobar&quot;}</code>, the return value is <code>&quot;foobar&quot;</code>.</p>
+<p>The existing service-error behavior must stay intact: a detector-creation response whose status is other than the expected creation status raises <code>APIError</code> rather than returning an identifier. Removing argument validation must not suppress errors originating from request serialization, the network, or the service.</p>
 <h4>Compatibility and Scope</h4>
 <ul>
-<li>Preserve the existing detector name parameter and existing positional calls.</li>
-<li>Keep the creation endpoint, authentication/session behavior, JSON transport, response parsing, and service-error handling unchanged except where payload construction must change as specified above.</li>
-<li>Do not change <code>edit_detector</code> or its validation behavior; the no-validation requirement applies specifically to <code>create_detector</code>.</li>
-<li>Do not introduce local allowlists, type checks, range checks, fallback configuration values, or other rejection logic for detector creation.</li>
-<li>Do not change unrelated client APIs.</li>
+<li>Keep the existing detector name parameter and the existing positional calls.</li>
+<li>Leave the creation endpoint, authentication/session behavior, JSON transport, response parsing, and service-error handling unchanged except where payload construction must change as specified above.</li>
+<li>Do not modify <code>edit_detector</code> or its validation behavior; the no-validation requirement applies specifically to <code>create_detector</code>.</li>
+<li>Do not add local allowlists, type checks, range checks, fallback configuration values, or other rejection logic for detector creation.</li>
+<li>Leave unrelated client APIs unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">The client class (importable as it currently is from the project&#39;s client module) exposes a method edit_detector used to modify an existing detector&#39;s…</span>
-        <span class="spec-meta muted">330 words · source specification
+        <span class="spec-title">The client class (it can be imported, as it currently is, from the project&#39;s client module) exposes a method edit_detector that is used to modify the…</span>
+        <span class="spec-meta muted">368 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Extend <code>edit_detector</code> to Support Additional Settings</h3>
-<h4>Context</h4>
-<p>The client class (importable as it currently is from the project's client module) exposes a method <code>edit_detector</code> used to modify an existing detector's configuration on a remote service. You must extend this method to accept additional configuration parameters and remove input-side validation that currently rejects certain values.</p>
-<h4>Method Signature</h4>
+      <div class="spec-body"><h3>Task: Extend <code>edit_detector</code> with Support for Additional Settings</h3>
+<h4>Background</h4>
+<p>The client class (it can be imported, as it currently is, from the project's client module) exposes a method <code>edit_detector</code> that is used to modify the configuration of an existing detector on a remote service. You must extend this method so that it accepts additional configuration parameters, and you must remove the input-side validation that currently rejects certain values.</p>
+<h4>Signature of the Method</h4>
 <pre><code class="language-python">def edit_detector(self, detector_id, detection_type=None, output_type=None,
                   training_steps=None, backbone=None, tile_size=None,
                   background_sample_ratio=None):
 </code></pre>
 <ul>
-<li><code>detector_id</code> (str): identifier of the detector to edit.</li>
-<li>All other parameters are optional keyword arguments. When a parameter is <code>None</code>, it is omitted and not sent to the remote service.</li>
+<li><code>detector_id</code> (str): identifier of the detector that is to be edited.</li>
+<li>All of the other parameters are optional keyword arguments. If a parameter is <code>None</code>, it is omitted and is not sent to the remote service.</li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <ol>
 <li>
-<p><strong>New accepted parameters.</strong> In addition to the existing <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>, the method must accept these additional keyword parameters:</p>
+<p><strong>Newly accepted parameters.</strong> Besides the existing <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>, the method must accept the following additional keyword parameters:</p>
 <ul>
-<li><code>backbone</code> (e.g. a string such as <code>'resnet50'</code>)</li>
-<li><code>tile_size</code> (e.g. an integer such as <code>512</code>)</li>
-<li><code>background_sample_ratio</code> (e.g. a float such as <code>0.3</code>)</li>
+<li><code>backbone</code> (for example, a string such as <code>'resnet50'</code>)</li>
+<li><code>tile_size</code> (for example, an integer such as <code>512</code>)</li>
+<li><code>background_sample_ratio</code> (for example, a float such as <code>0.3</code>)</li>
 </ul>
 </li>
 <li>
-<p><strong>No client-side value validation.</strong> The method must NOT validate or reject the values of any of its parameters. Any value passed for any parameter (including <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>) must be accepted and forwarded to the remote service without raising an error. Previously-rejected inputs must now be accepted.</p>
+<p><strong>No client-side validation of values.</strong> The method must NOT validate or reject the values of any of its parameters. Any value passed for any parameter (including <code>detection_type</code>, <code>output_type</code>, and <code>training_steps</code>) must be accepted and forwarded to the remote service without an error being raised. Inputs that were previously rejected must now be accepted.</p>
 </li>
 <li>
-<p><strong>Request dispatch.</strong> Each call must issue exactly one request to the remote edit endpoint for the given <code>detector_id</code>. Only the parameters that are explicitly provided (non-<code>None</code>) are included in that request.</p>
+<p><strong>Dispatching requests.</strong> Each call must result in exactly one request being issued to the remote edit endpoint for the given <code>detector_id</code>. Only parameters that have been explicitly provided (non-<code>None</code>) are included in that request.</p>
 </li>
 <li>
-<p><strong>Calling with no optional parameters.</strong> Calling the method with only <code>detector_id</code> must succeed and issue exactly one request that includes none of the optional settings.</p>
+<p><strong>Calls with no optional parameters.</strong> A call to the method that supplies only <code>detector_id</code> must succeed and issue exactly one request that includes none of the optional settings.</p>
 </li>
 <li>
-<p><strong>Calling with any single optional parameter or any combination.</strong> Calling with any one of the six optional parameters, or with all of them together, must succeed and issue exactly one request carrying exactly those provided settings.</p>
+<p><strong>Calls with any single optional parameter or with any combination.</strong> A call made with any one of the six optional parameters, or with all of them together, must succeed and issue exactly one request carrying exactly those provided settings.</p>
 </li>
 </ol>
 <h4>Constraints</h4>
 <ul>
-<li>Do not introduce any parameter-value validation that would cause a call to raise for any of the parameter values described above.</li>
-<li>Each invocation of <code>edit_detector</code> corresponds to exactly one outbound request.</li>
+<li>Do not add any parameter-value validation that would cause a call to raise for any of the parameter values described above.</li>
+<li>There is exactly one outbound request for each invocation of <code>edit_detector</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Modify the create_marker method on the client class so that it supports creating markers associated with a raster only (not associated with any detector),…</span>
-        <span class="spec-meta muted">248 words · source specification
+        <span class="spec-title">Change the create_marker method on the client class so that it supports creating markers that belong to a raster only (with no detector associated with…</span>
+        <span class="spec-meta muted">273 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>create_marker</code> method on the client class so that it supports creating markers associated with a raster only (not associated with any detector), in addition to its existing behavior of creating markers associated with a detector's training raster.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Change the <code>create_marker</code> method on the client class so that it supports creating markers that belong to a raster only (with no detector associated with them), in addition to its existing behavior of creating markers associated with a detector's training raster.</p>
 <h4>API Surface</h4>
-<p>The client class already exposes a method with the following signature:</p>
+<p>A method with the following signature is already exposed by the client class:</p>
 <pre><code class="language-python">create_marker(self, raster_id, detector_id, lng, lat, text)
 </code></pre>
 <ul>
-<li><code>raster_id</code>: identifier of the raster.</li>
-<li><code>detector_id</code>: identifier of the detector, <strong>or <code>None</code></strong>.</li>
-<li><code>lng</code>, <code>lat</code>: numeric coordinates.</li>
-<li><code>text</code>: a string comment associated with the marker.</li>
+<li><code>raster_id</code>: the raster's identifier.</li>
+<li><code>detector_id</code>: the detector's identifier, <strong>or <code>None</code></strong>.</li>
+<li><code>lng</code>, <code>lat</code>: coordinates given as numbers.</li>
+<li><code>text</code>: a string comment attached to the marker.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>The method issues an HTTP POST request to create the marker. The target endpoint depends on whether <code>detector_id</code> is provided:</p>
+<p>To create the marker, the method issues an HTTP POST request. The endpoint being targeted is determined by whether <code>detector_id</code> is supplied:</p>
 <ul>
 <li>
-<p><strong>When <code>detector_id</code> is <code>None</code></strong>, the request must be sent to:</p>
+<p><strong>When <code>detector_id</code> is <code>None</code></strong>, the request must be directed to:</p>
 <pre><code>rasters/&lt;raster_id&gt;/markers/
 </code></pre>
 </li>
 <li>
-<p><strong>When <code>detector_id</code> is provided</strong> (existing behavior, must be preserved), the request must be sent to:</p>
+<p><strong>When <code>detector_id</code> is supplied</strong> (current behavior that must be preserved), the request must be directed to:</p>
 <pre><code>detectors/&lt;detector_id&gt;/training_rasters/&lt;raster_id&gt;/markers/
 </code></pre>
 </li>
 </ul>
 <h5>Request Body</h5>
-<p>The POST body must contain:</p>
+<p>The body of the POST must contain:</p>
 <ul>
-<li>A <code>marker</code> field: a GeoJSON Point object of the form <code>{&quot;type&quot;: &quot;Point&quot;, &quot;coordinates&quot;: [lng, lat]}</code>, where <code>coordinates</code> is the list <code>[lng, lat]</code> from the given arguments.</li>
-<li>A <code>text</code> field: the given <code>text</code> string.</li>
+<li>A <code>marker</code> field: a GeoJSON Point object having the form <code>{&quot;type&quot;: &quot;Point&quot;, &quot;coordinates&quot;: [lng, lat]}</code>, where <code>coordinates</code> is the list <code>[lng, lat]</code> built from the arguments that were given.</li>
+<li>A <code>text</code> field: the <code>text</code> string that was supplied.</li>
 </ul>
 <h5>Return Value</h5>
-<p>The method returns the created marker object parsed from the server's JSON response. The response payload contains a marker object, and the method returns that object such that accessing its <code>id</code> key yields the marker's identifier returned by the server.</p>
-<h4>Additional Cleanup</h4>
-<p>Remove the leftover CLI helper file from the codebase.</p>
+<p>The method returns the marker object that was created, parsed out of the JSON response from the server. A marker object is contained in the response payload, and the method returns that object so that accessing its <code>id</code> key yields the marker's identifier as returned by the server.</p>
+<h4>Extra Cleanup</h4>
+<p>Delete the CLI helper file that was left behind in the codebase.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add a new public method to the API client that retrieves and returns all detectors associated with a given folder, handling paginated API responses…</span>
-        <span class="spec-meta muted">321 words · source specification
+        <span class="spec-title">Introduce a new public method on the API client that fetches and returns all detectors associated with a given folder, transparently handling the API&#39;s…</span>
+        <span class="spec-meta muted">336 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Add ability to list detectors associated with a folder</h4>
-<h5>Overview</h5>
-<p>Add a new public method to the API client that retrieves and returns all detectors associated with a given folder, handling paginated API responses transparently.</p>
+      <div class="spec-body"><h4>Task: Add the ability to list detectors associated with a folder</h4>
+<h5>Summary</h5>
+<p>Introduce a new public method on the API client that fetches and returns all detectors associated with a given folder, transparently handling the API's paginated responses.</p>
 <h5>API Surface</h5>
-<p>Add a method to the existing client class:</p>
+<p>Add the following method to the existing client class:</p>
 <pre><code class="language-python">def list_folder_detectors(self, folder_id: str) -&gt; list:
 </code></pre>
 <h5>Behavior</h5>
-<p><code>list_folder_detectors(folder_id)</code> must:</p>
+<p>The <code>list_folder_detectors(folder_id)</code> method must:</p>
 <ol>
 <li>
-<p>Issue GET requests to the API endpoint at the relative path:</p>
+<p>Send GET requests to the API endpoint at the relative path:</p>
 <pre><code>folders/{folder_id}/detectors/
 </code></pre>
-<p>where <code>{folder_id}</code> is the provided <code>folder_id</code> argument.</p>
+<p>where <code>{folder_id}</code> denotes the provided <code>folder_id</code> argument.</p>
 </li>
 <li>
-<p>Handle pagination. The endpoint returns paginated JSON responses of the form:</p>
+<p>Handle pagination. The endpoint returns paginated JSON responses with the following shape:</p>
 <pre><code class="language-json">{
   &quot;count&quot;: 4,
   &quot;next&quot;: &quot;&lt;absolute URL to the next page, or null&gt;&quot;,
@@ -884,72 +887,72 @@
 }
 </code></pre>
 <ul>
-<li>The first request must be made with query parameter <code>page_number=1</code>.</li>
-<li>Subsequent pages are requested following the pagination mechanism. In practice, when a page's <code>next</code> field is a non-null URL, the next page must be fetched (the next page in the sequence corresponds to the incremented page number, e.g. <code>page_number=2</code>). When <code>next</code> is <code>null</code>, pagination stops.</li>
+<li>The first request must be sent with the query parameter <code>page_number=1</code>.</li>
+<li>Pages after the first one are requested by following the pagination mechanism. In practice, when a page's <code>next</code> field is a non-null URL, the next page must be fetched (that next page in the sequence corresponds to the incremented page number, e.g. <code>page_number=2</code>). Pagination stops when <code>next</code> is <code>null</code>.</li>
 </ul>
 </li>
 <li>
-<p>Accumulate the items from every page's <code>results</code> array, in page order, and return them as a single flat list. Each item is a dictionary as returned by the API (e.g. containing keys such as <code>id</code>, <code>name</code>, <code>is_runnable</code>, <code>user_tag</code>).</p>
+<p>Collect the items from every page's <code>results</code> array, preserving the page order, and return them as a single flat list. Each item is a dictionary as the API returns it (e.g. containing keys such as <code>id</code>, <code>name</code>, <code>is_runnable</code>, <code>user_tag</code>).</p>
 </li>
 </ol>
-<h5>Expected Result</h5>
-<p>Given a folder whose detector listing spans multiple pages, the returned list must contain every detector from every page, concatenated in order. For example, if page 1 contains detectors with ids <code>id1</code>, <code>id2</code> and page 2 contains detectors with ids <code>id3</code>, <code>id4</code>, the returned list must have length 4, with the first element being the <code>id1</code> detector and the third element being the <code>id3</code> detector.</p>
+<h5>Expected Outcome</h5>
+<p>For a folder whose detector listing spans multiple pages, the returned list must contain every detector from every page, concatenated in order. As an example, if page 1 contains detectors with ids <code>id1</code>, <code>id2</code> and page 2 contains detectors with ids <code>id3</code>, <code>id4</code>, the returned list must have length 4, with the <code>id1</code> detector as its first element and the <code>id3</code> detector as its third element.</p>
 <h5>Notes</h5>
 <ul>
-<li>The endpoint path is relative to the client's configured API base URL; use whatever mechanism the client already uses to build full API URLs and perform authenticated GET requests.</li>
+<li>The endpoint path is relative to the API base URL configured on the client; use whatever mechanism the client already uses to build full API URLs and perform authenticated GET requests.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add a new method edit_vector_layer to the API client class (the same class that already provides methods such as delete_vector_layer).</span>
-        <span class="spec-meta muted">203 words · source specification
+        <span class="spec-title">Introduce a new method, edit_vector_layer, on the API client class — that is, the class which already offers delete_vector_layer, among other methods.</span>
+        <span class="spec-meta muted">232 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>edit_vector_layer</code> Client Method</h3>
-<h4>Overview</h4>
-<p>Add a new method <code>edit_vector_layer</code> to the API client class (the same class that already provides methods such as <code>delete_vector_layer</code>). This method edits an existing vector layer by sending an HTTP request to the API.</p>
+      <div class="spec-body"><h3>Task: Add the <code>edit_vector_layer</code> Client Method</h3>
+<h4>Summary</h4>
+<p>Introduce a new method, <code>edit_vector_layer</code>, on the API client class — that is, the class which already offers <code>delete_vector_layer</code>, among other methods. It edits a vector layer that already exists, doing so by way of an HTTP request to the API.</p>
 <h4>API Surface</h4>
-<p>Add the following method to the existing client class:</p>
+<p>Extend the existing client class with the method shown below:</p>
 <pre><code class="language-python">def edit_vector_layer(self, layer_id, **kwargs):
     ...
 </code></pre>
 <ul>
-<li><code>layer_id</code>: an identifier for the vector layer to edit (a string).</li>
-<li><code>**kwargs</code>: arbitrary keyword arguments representing the fields to update on the vector layer (for example, <code>color</code> and <code>raster_id</code>).</li>
+<li><code>layer_id</code>: a string serving as the identifier of the vector layer that is to be edited.</li>
+<li><code>**kwargs</code>: arbitrary keyword arguments corresponding to the fields to be updated on the vector layer (for instance, <code>color</code> and <code>raster_id</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When <code>edit_vector_layer</code> is called:</p>
+<h4>Behavior Requirements</h4>
+<p>The requirements below apply whenever a call is made to <code>edit_vector_layer</code>:</p>
 <ol>
 <li>
-<p>It must issue a single HTTP <code>PUT</code> request to the API endpoint for the given layer, at the relative path:</p>
+<p>A single HTTP <code>PUT</code> request must be sent to the given layer's API endpoint, at the relative path:</p>
 <pre><code>vector_layers/&lt;layer_id&gt;/
 </code></pre>
-<p>where <code>&lt;layer_id&gt;</code> is the provided <code>layer_id</code>.</p>
+<p>with <code>&lt;layer_id&gt;</code> replaced by the supplied <code>layer_id</code>.</p>
 </li>
 <li>
-<p>The request body must be sent as JSON, containing exactly the keyword arguments passed in <code>**kwargs</code> as top-level key/value pairs. For example, calling <code>edit_vector_layer('foobar', color=&quot;#ffffff&quot;, raster_id=&quot;spam&quot;)</code> must send a JSON body equal to <code>{&quot;color&quot;: &quot;#ffffff&quot;, &quot;raster_id&quot;: &quot;spam&quot;}</code> to <code>vector_layers/foobar/</code>.</p>
+<p>Exactly the keyword arguments passed in <code>**kwargs</code> must make up the top-level key/value pairs of the request body, and the body must be sent as JSON. As an example, when <code>edit_vector_layer('foobar', color=&quot;#ffffff&quot;, raster_id=&quot;spam&quot;)</code> is called, a JSON body equal to <code>{&quot;color&quot;: &quot;#ffffff&quot;, &quot;raster_id&quot;: &quot;spam&quot;}</code> must be sent to <code>vector_layers/foobar/</code>.</p>
 </li>
 <li>
-<p>Exactly one request must be made per call.</p>
+<p>Exactly one request must be issued per call.</p>
 </li>
 </ol>
-<p>The method should follow the same conventions (base URL handling, authentication, request construction) already used by the other vector layer methods on the client.</p>
+<p>This method should follow the same conventions (base URL handling, authentication, request construction) as the client's other vector layer methods already do.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Extend the existing list_rasters method on the client class so that it supports additional filtering parameters when querying the rasters listing API endpoint.</span>
-        <span class="spec-meta muted">404 words · source specification
+        <span class="spec-title">Take the list_rasters method that already exists on the client class and extend it, so that additional filtering parameters are supported when the rasters…</span>
+        <span class="spec-meta muted">424 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Enhance the raster listing method with additional filters</h3>
-<h4>Overview</h4>
-<p>Extend the existing <code>list_rasters</code> method on the client class so that it supports additional filtering parameters when querying the rasters listing API endpoint.</p>
+      <div class="spec-body"><h3>Task: Add extra filters to the raster listing method</h3>
+<h4>Summary</h4>
+<p>Take the <code>list_rasters</code> method that already exists on the client class and extend it, so that additional filtering parameters are supported when the rasters listing API endpoint is queried.</p>
 <h4>API Surface</h4>
-<p>The client class exposes a method with the following signature (parameters shown with their required names and defaults):</p>
+<p>The client class exposes a method with this signature (parameters appear with their required names and defaults):</p>
 <pre><code class="language-python">def list_rasters(
     self,
     folder_id='',
@@ -962,125 +965,125 @@
 ):
     ...
 </code></pre>
-<p>All parameters are optional. <code>folder_id</code> may be passed positionally (e.g. <code>list_rasters('')</code>) or omitted; the remaining parameters are passed by keyword.</p>
-<p>The method returns the list of raster objects contained in the API response (i.e. the <code>results</code> array from the JSON body returned by the endpoint).</p>
+<p>Every parameter is optional. <code>folder_id</code> may be supplied positionally (e.g. <code>list_rasters('')</code>) or left out; the remaining parameters are passed by keyword.</p>
+<p>The method returns the list of raster objects contained in the API response — that is, the <code>results</code> array from the JSON body the endpoint returns.</p>
 <h4>Behavior</h4>
-<p>The method issues a GET request to the <code>rasters/</code> API endpoint. It always includes a <code>page_number</code> query parameter set to <code>1</code>.</p>
-<p>Depending on which optional parameters are supplied, the method adds the following query parameters to the request. Each parameter is included <strong>only when the caller supplies a non-<code>None</code> value</strong> for the corresponding argument, using the following mapping:</p>
+<p>The method sends a GET request to the <code>rasters/</code> API endpoint, and it always includes a <code>page_number</code> query parameter set to <code>1</code>.</p>
+<p>Depending on which optional parameters the caller supplies, the following query parameters are added to the request. Each parameter is added <strong>only when the caller supplies a non-<code>None</code> value</strong> for the corresponding argument, per the following mapping:</p>
 <table>
 <thead>
 <tr>
 <th>Method argument</th>
-<th>Query parameter name</th>
-<th>Value sent</th>
+<th>Query parameter</th>
+<th>Value transmitted</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>search_string</code></td>
 <td><code>search</code></td>
-<td>the given value</td>
+<td>the supplied value</td>
 </tr>
 <tr>
 <td><code>user_tag</code></td>
 <td><code>user_tag</code></td>
-<td>the given value</td>
+<td>the supplied value</td>
 </tr>
 <tr>
 <td><code>max_cloud_coverage</code></td>
 <td><code>max_cloud_coverage</code></td>
-<td>the given value</td>
+<td>the supplied value</td>
 </tr>
 <tr>
 <td><code>captured_before</code></td>
 <td><code>captured_before</code></td>
-<td>the given value</td>
+<td>the supplied value</td>
 </tr>
 <tr>
 <td><code>captured_after</code></td>
 <td><code>captured_after</code></td>
-<td>the given value</td>
+<td>the supplied value</td>
 </tr>
 <tr>
 <td><code>has_vector_layers</code></td>
 <td><code>has_vector_layers</code></td>
-<td>the boolean value of the given argument</td>
+<td>the boolean value of the supplied argument</td>
 </tr>
 </tbody>
 </table>
-<p>Notes on inclusion rules:</p>
+<p>Notes on when each parameter is included:</p>
 <ul>
-<li><code>search</code>, <code>user_tag</code>, and <code>max_cloud_coverage</code> are included whenever their argument is not <code>None</code>.</li>
-<li><code>captured_before</code> and <code>captured_after</code> are included whenever their argument is truthy (a non-empty date/time string).</li>
-<li><code>has_vector_layers</code> is included whenever its argument is not <code>None</code>; its transmitted value is the boolean coercion of the argument (<code>True</code> or <code>False</code>). This means passing <code>False</code> still results in the parameter being sent (with value <code>False</code>).</li>
+<li><code>search</code>, <code>user_tag</code>, and <code>max_cloud_coverage</code> are included whenever the corresponding argument is not <code>None</code>.</li>
+<li><code>captured_before</code> and <code>captured_after</code> are included whenever the argument is truthy (a date/time string that is not empty).</li>
+<li><code>has_vector_layers</code> is included whenever its argument is not <code>None</code>; the value transmitted is the boolean coercion of the argument (<code>True</code> or <code>False</code>). In other words, even when <code>False</code> is passed, the parameter is still sent (with value <code>False</code>).</li>
 </ul>
-<p>The <code>captured_before</code> / <code>captured_after</code> values are ISO-8601 datetime strings (e.g. <code>'2018-11-13T20:20:39+00:00'</code>) and are passed through unchanged.</p>
-<p>Only the parameters explicitly supplied by the caller appear in the request; unsupplied parameters must not be added to the query string. <code>page_number</code> is always present regardless of the other arguments.</p>
-<h4>Existing behavior to preserve</h4>
+<p>The values supplied for <code>captured_before</code> / <code>captured_after</code> are ISO-8601 datetime strings (e.g. <code>'2018-11-13T20:20:39+00:00'</code>) and are forwarded unchanged.</p>
+<p>The request contains only the parameters the caller explicitly supplies; parameters that are not supplied must not be added to the query string. No matter what the other arguments are, <code>page_number</code> is always present.</p>
+<h4>Behavior to keep unchanged</h4>
 <ul>
-<li>Calling the method with no filters returns the raster list from the endpoint.</li>
-<li>Calling with only <code>search_string</code>, only <code>user_tag</code>, or a combination of <code>user_tag</code> and <code>max_cloud_coverage</code> must continue to work as described by the mapping above.</li>
+<li>A call made with no filters returns the raster list from the endpoint.</li>
+<li>Calls that use only <code>search_string</code>, only <code>user_tag</code>, or a combination of <code>user_tag</code> and <code>max_cloud_coverage</code> must continue to work as the mapping above describes.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Add Vector Layer Color on Creation</span>
-        <span class="spec-meta muted">447 words · source specification
+        <span class="spec-title">Add a Color Option for Vector Layer Creation</span>
+        <span class="spec-meta muted">492 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Vector Layer Color on Creation</h3>
-<h4>Objective</h4>
-<p>Modify the <code>upload_vector_layer</code> method of the <code>APIClient</code> class (in the <code>picterra</code> package, importable as <code>from picterra import APIClient</code>) so that a caller can optionally specify a display color for the vector layer at creation time.</p>
-<h4>Required Change</h4>
-<h5>Method: <code>APIClient.upload_vector_layer</code></h5>
-<p>The method must accept an additional optional parameter for color. Its effective signature must support being called positionally as:</p>
+      <div class="spec-body"><h3>Task Specification: Add a Color Option for Vector Layer Creation</h3>
+<h4>Goal</h4>
+<p>Change the <code>upload_vector_layer</code> method of the <code>APIClient</code> class (part of the <code>picterra</code> package, importable as <code>from picterra import APIClient</code>) so that a caller can optionally specify a display color for the vector layer when the layer is created.</p>
+<h4>Change Required</h4>
+<h5>The <code>APIClient.upload_vector_layer</code> method</h5>
+<p>An additional optional parameter for color must be accepted by the method. Its effective signature must support positional calls of the form:</p>
 <pre><code class="language-python">client.upload_vector_layer(raster_id, filename, name, color)
 </code></pre>
-<p>Where the parameters, in order, are:</p>
+<p>The parameters, in order, are:</p>
 <ol>
-<li><code>raster_id</code> — the identifier of the raster the vector layer belongs to.</li>
-<li><code>filename</code> — path to the local file whose contents are uploaded.</li>
-<li><code>name</code> — an optional layer name (may be <code>None</code>).</li>
-<li><code>color</code> — an optional layer color string (may be <code>None</code>), e.g. <code>&quot;#aabbcc&quot;</code>.</li>
+<li><code>raster_id</code> — the identifier of the raster that the vector layer belongs to.</li>
+<li><code>filename</code> — the path of the local file whose contents are uploaded.</li>
+<li><code>name</code> — an optional name for the layer (may be <code>None</code>).</li>
+<li><code>color</code> — an optional string giving the layer color (may be <code>None</code>), e.g. <code>&quot;#aabbcc&quot;</code>.</li>
 </ol>
-<p>Both <code>name</code> and <code>color</code> must be independently optional and may each be <code>None</code>.</p>
-<h5>Behavior</h5>
-<p>The upload flow consists of three HTTP calls plus polling:</p>
+<p><code>name</code> and <code>color</code> must both be optional independently of each other, and each may be <code>None</code>.</p>
+<h5>Behavior of the Upload Flow</h5>
+<p>The upload flow is made up of three HTTP calls plus polling:</p>
 <ol>
-<li><strong>Upload initiation</strong> — a <code>POST</code> to <code>vector_layers/&lt;raster_id&gt;/upload/</code>. The response provides an <code>upload_url</code> and an <code>upload_id</code>.</li>
-<li><strong>File upload</strong> — a <code>PUT</code> of the file contents to the returned <code>upload_url</code>.</li>
-<li><strong>Commit</strong> — a <code>POST</code> to <code>vector_layers/&lt;raster_id&gt;/upload/&lt;upload_id&gt;/commit/</code>.</li>
+<li><strong>Upload initiation</strong> — a <code>POST</code> to <code>vector_layers/&lt;raster_id&gt;/upload/</code>; the response supplies an <code>upload_url</code> and an <code>upload_id</code>.</li>
+<li><strong>File upload</strong> — a <code>PUT</code> that sends the file contents to the returned <code>upload_url</code>.</li>
+<li><strong>Commit</strong> — a <code>POST</code> sent to <code>vector_layers/&lt;raster_id&gt;/upload/&lt;upload_id&gt;/commit/</code>.</li>
 </ol>
-<p>The commit request body must convey the optional <code>name</code> and <code>color</code> as follows:</p>
+<p>The optional <code>name</code> and <code>color</code> must be conveyed by the commit request body as follows:</p>
 <ul>
-<li>If <code>name</code> is not <code>None</code>, include the key <code>&quot;name&quot;</code> with its value in the JSON body.</li>
-<li>If <code>color</code> is not <code>None</code>, include the key <code>&quot;color&quot;</code> with its value in the JSON body.</li>
-<li>If both are <code>None</code>, the commit request must send no JSON body (i.e. an empty/absent body — do not send a body containing <code>name</code>/<code>color</code> keys with null values).</li>
+<li>If <code>name</code> is not <code>None</code>, the JSON body must include the key <code>&quot;name&quot;</code> with its value.</li>
+<li>If <code>color</code> is not <code>None</code>, the JSON body must include the key <code>&quot;color&quot;</code> with its value.</li>
+<li>If both are <code>None</code>, the commit request must send no JSON body (i.e. an empty or absent body — do not send a body that contains <code>name</code>/<code>color</code> keys with null values).</li>
 </ul>
-<p>The commit response returns an operation identifier (<code>operation_id</code>) and a <code>poll_interval</code>. The method must poll the operation at <code>operations/&lt;operation_id&gt;/</code> until it reaches a successful state, then return the created vector layer's identifier extracted from the operation's success results under <code>results[&quot;vector_layer_id&quot;]</code>.</p>
-<h5>Return Value</h5>
-<p>The method returns the value of <code>vector_layer_id</code> from the completed operation's results.</p>
-<h4>Constraints / Notes</h4>
+<p>The commit response returns an operation identifier (<code>operation_id</code>) together with a <code>poll_interval</code>. The method must poll the operation at <code>operations/&lt;operation_id&gt;/</code> until it reaches a successful state, and must then return the identifier of the created vector layer, extracted from the operation's success results under <code>results[&quot;vector_layer_id&quot;]</code>.</p>
+<h5>Returned Value</h5>
+<p>The method returns the <code>vector_layer_id</code> value from the results of the completed operation.</p>
+<h4>Constraints and Notes</h4>
 <ul>
-<li>The total number of HTTP interactions for a successful upload (with two polling iterations before success) is: upload initiation request, upload PUT, commit request, and the operation-status polls.</li>
-<li>Existing methods and behaviors (<code>edit_vector_layer</code>, <code>delete_vector_layer</code>, etc.) are unchanged. In particular <code>edit_vector_layer</code> continues to accept keyword arguments such as <code>color</code> and <code>raster_id</code> and issue a <code>PUT</code> to <code>vector_layers/&lt;layer_id&gt;/</code> with those keys as the JSON body — this is a separate concern and must not be altered.</li>
-<li>All authenticated API requests carry the <code>X-Api-Key</code> header, as already established in the client. No changes to authentication are required.</li>
+<li>For a successful upload (where two polling iterations occur before success), the total number of HTTP interactions is: the upload initiation request, the upload PUT, the commit request, and the operation-status polls.</li>
+<li>Methods and behaviors that already exist (<code>edit_vector_layer</code>, <code>delete_vector_layer</code>, etc.) remain unchanged. In particular, keyword arguments such as <code>color</code> and <code>raster_id</code> are still accepted by <code>edit_vector_layer</code>, which issues a <code>PUT</code> to <code>vector_layers/&lt;layer_id&gt;/</code> with those keys as the JSON body — this is a separate concern and must not be altered.</li>
+<li>Every authenticated API request carries the <code>X-Api-Key</code> header, as already established in the client. No modifications to authentication are required.</li>
 </ul>
-<h4>Out of Scope</h4>
-<p>No other public API surface changes are required. Do not modify the behavior of any other client method.</p>
+<h4>Outside the Scope</h4>
+<p>No other changes to the public API surface are required. Do not change the behavior of any other client method.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Update the public client API</span>
-        <span class="spec-meta muted">107 words · source specification
+        <span class="spec-title">Modify the public client API</span>
+        <span class="spec-meta muted">120 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public client API:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify the public client API:</p>
 <ul>
 <li><strong>Module/class:</strong> <code>picterra.APIClient</code> (defined in <code>picterra.client</code>)</li>
 <li><strong>Method:</strong> <code>APIClient.train_detector(detector_id)</code></li>
@@ -1088,61 +1091,62 @@
 <h5>Behavior</h5>
 <p><code>train_detector</code> must:</p>
 <ol>
-<li>Start training for the supplied detector ID.</li>
-<li>Poll the resulting asynchronous operation until it succeeds.</li>
-<li>Return the completed operation data instead of returning <code>None</code>.</li>
+<li>Begin training for the detector ID that was supplied.</li>
+<li>Poll the asynchronous operation that results, until it succeeds.</li>
+<li>Return the data of the completed operation instead of returning <code>None</code>.</li>
 </ol>
-<p>For a completed operation whose response contains:</p>
+<p>In the case of a completed operation whose response contains:</p>
 <pre><code class="language-python">{
     &quot;results&quot;: {
         &quot;score&quot;: 92
     }
 }
 </code></pre>
-<p>the return value must support:</p>
+<p>the value that is returned must support:</p>
 <pre><code class="language-python">operation = client.train_detector(1)
 operation[&quot;results&quot;][&quot;score&quot;] == 92
 </code></pre>
-<p>If the operation is reported as <code>&quot;running&quot;</code> twice and then <code>&quot;success&quot;</code>, the method must make four HTTP calls in total: one to initiate training and three to poll the operation.</p>
+<p>If the operation is reported as <code>&quot;running&quot;</code> twice and then as <code>&quot;success&quot;</code>, the method must issue four HTTP calls in total: one to initiate training and three to poll the operation.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Extend the existing Picterra APIClient public API with</span>
-        <span class="spec-meta muted">303 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Extend the public API of the existing Picterra APIClient with</span>
+        <span class="spec-meta muted">325 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add vector-layer download support</h4>
-<p>Extend the existing Picterra <code>APIClient</code> public API with:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Add support for vector-layer downloads</h4>
+<p>Extend the public API of the existing Picterra <code>APIClient</code> with:</p>
 <pre><code class="language-python">APIClient.download_vector_layer_to_file(layer_id, filename)
 </code></pre>
-<p>The method must be defined on <code>picterra.client.APIClient</code>. Because that class is re-exported from the package root, it must also be available on clients constructed with <code>picterra.APIClient</code>, including the common import form:</p>
+<p>This method must be defined on <code>picterra.client.APIClient</code>. Since the class is re-exported from the package root, the method must also be available on clients constructed with <code>picterra.APIClient</code>, including this common import form:</p>
 <pre><code class="language-python">from picterra import APIClient
 
 client = APIClient()
 client.download_vector_layer_to_file(layer_id, filename)
 </code></pre>
-<p>Both <code>layer_id</code> and <code>filename</code> must accept positional use. No separate <code>Client</code> class or alias is required.</p>
-<h4>Required behavior</h4>
-<p>Given a vector-layer ID and a destination filename, the method must:</p>
+<p>Positional use must be accepted for both <code>layer_id</code> and <code>filename</code>. A separate <code>Client</code> class or alias is not required.</p>
+<h4>Behavior Requirements</h4>
+<p>When called with a vector-layer ID and a destination filename, the method must:</p>
 <ol>
 <li>
-<p>Send exactly one GET request to the client API endpoint:</p>
+<p>Issue exactly one GET request to the client API endpoint:</p>
 <pre><code class="language-text">vector_layers/{layer_id}/
 </code></pre>
 </li>
 <li>
-<p>Read the ordered <code>geojson_urls</code> array from the returned vector-layer metadata.</p>
+<p>From the returned vector-layer metadata, read the ordered <code>geojson_urls</code> array.</p>
 </li>
 <li>
 <p>Send one GET request to each URL in that array. Each URL entry must be requested once.</p>
 </li>
 <li>
-<p>Treat every downloaded JSON document as a GeoJSON <code>FeatureCollection</code>. Concatenate the documents' <code>features</code> arrays in <code>geojson_urls</code> order while preserving the feature order within each document.</p>
+<p>Treat every JSON document that gets downloaded as a GeoJSON <code>FeatureCollection</code>. Concatenate the documents' <code>features</code> arrays in <code>geojson_urls</code> order, keeping the feature order within each document intact.</p>
 </li>
 <li>
-<p>Write one valid JSON document to <code>filename</code>, truncating and replacing any existing contents rather than appending to them. The output must have exactly this top-level structure:</p>
+<p>Write one valid JSON document to <code>filename</code>, truncating and replacing any contents that already exist rather than appending to them. The top-level structure of the output must be exactly this:</p>
 <pre><code class="language-json">{
   &quot;type&quot;: &quot;FeatureCollection&quot;,
   &quot;features&quot;: [...]
@@ -1150,10 +1154,10 @@ client.download_vector_layer_to_file(layer_id, filename)
 </code></pre>
 </li>
 </ol>
-<p>Only the merged features belong in the output; vector-layer metadata and other top-level fields from downloaded documents must not be copied into it. If <code>geojson_urls</code> is empty, the output is a <code>FeatureCollection</code> with an empty <code>features</code> array.</p>
-<p>For example, if the first downloaded collection contains one feature and the second contains two, the output collection must contain all three features in first-collection-then-second-collection order. In this case there are exactly three GET requests in total: one for the vector-layer metadata and one for each of the two GeoJSON documents.</p>
+<p>Only the merged features belong in the output; vector-layer metadata and the other top-level fields of the downloaded documents must not be copied into it. When <code>geojson_urls</code> is empty, the output is a <code>FeatureCollection</code> whose <code>features</code> array is empty.</p>
+<p>As an example, if the first downloaded collection has one feature and the second has two, the output collection must contain all three features in first-collection-then-second-collection order. In this scenario there are exactly three GET requests in total: one for the vector-layer metadata and one for each of the two GeoJSON documents.</p>
 <h4>Compatibility</h4>
-<p>This is an additive API change. Existing <code>APIClient</code> methods and other public package behavior must remain unchanged.</p>
+<p>This change to the API is additive. Existing <code>APIClient</code> methods and the other public behavior of the package must remain unchanged.</p>
 </div>
     </details>
   </div>

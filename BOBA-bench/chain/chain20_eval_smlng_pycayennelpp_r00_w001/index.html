@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/smlng/pycayennelpp/compare/cc1359ddb2e46ee4096a098e1fa6aea4ac77ac79...b64450f6ce82c368565be1b4d53eb67d740ff722" target="_blank" rel="noopener" class="mono">cc1359ddb2 … b64450f6ce</a> · 76 commits by 2 authors over 16 mo (2020-06-13 to 2021-10-12)</dd></div>
       <div><dt>Window:</dt><dd>requests 18–37 of a run of 37 test-bearing changes (overlaps the previous window by 3) · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,307 lines of code in 19 files when the chain starts · over the 20 requests the developers added 869 and removed 937 lines of code, plus 860 lines of tests (35 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.9k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>7.6k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,50 +144,50 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Update LppFrame in cayennelpp.lpp_frame so that frames can enforce a configurable maximum serialized byte size.</span>
-        <span class="spec-meta muted">683 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify LppFrame in cayennelpp.lpp_frame so that frames can enforce a maximum serialized byte size that is configurable.</span>
+        <span class="spec-meta muted">740 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Update <code>LppFrame</code> in <code>cayennelpp.lpp_frame</code> so that frames can enforce a configurable maximum serialized byte size. Preserve the existing frame API and Cayenne LPP encoding behavior; the size limit is an additional guard on frame data additions.</p>
-<h4><code>maxsize</code> Property</h4>
-<p><code>LppFrame.maxsize</code> must be a readable and writable property, used through normal attribute syntax:</p>
+<p>Modify <code>LppFrame</code> in <code>cayennelpp.lpp_frame</code> so that frames can enforce a maximum serialized byte size that is configurable. The existing frame API and the Cayenne LPP encoding behavior must be preserved; the size limit acts as an additional guard on frame data additions.</p>
+<h4>The <code>maxsize</code> Property</h4>
+<p><code>LppFrame.maxsize</code> must be a property that is readable and writable, used through normal attribute syntax:</p>
 <pre><code class="language-python">limit = frame.maxsize
 frame.maxsize = 12
 </code></pre>
-<p>It is not a method and is not required to support callable syntax.</p>
+<p>It is not a method, and supporting callable syntax is not required.</p>
 <ul>
-<li>A default-constructed <code>LppFrame()</code> has <code>maxsize == 0</code>.</li>
-<li><code>0</code> is the unlimited sentinel. While <code>maxsize</code> is <code>0</code>, no addition may be rejected because of frame size. Existing validation of channels, types, and values remains unchanged.</li>
-<li>A positive integer establishes the maximum permitted serialized size in bytes.</li>
-<li>Reading the property returns the current setting.</li>
+<li>An <code>LppFrame()</code> constructed with defaults has <code>maxsize == 0</code>.</li>
+<li><code>0</code> serves as the unlimited sentinel. As long as <code>maxsize</code> is <code>0</code>, no addition may be rejected on account of frame size. The existing validation of channels, types, and values stays unchanged.</li>
+<li>A positive integer establishes the maximum serialized size in bytes that is permitted.</li>
+<li>The property returns the current setting when read.</li>
 </ul>
-<h5>Assignment validation</h5>
-<p>A value assigned to <code>maxsize</code> must be a valid non-negative integer size. Invalid values, including negative values and non-integer size values, must raise an exception.</p>
-<p>Assignment also depends on the frame's current serialized size:</p>
+<h5>Validation of Assignments</h5>
+<p>Any value assigned to <code>maxsize</code> must be a valid non-negative integer size. Values that are invalid, including negative values and non-integer size values, must raise an exception.</p>
+<p>Assignment additionally depends on the current serialized size of the frame:</p>
 <ul>
 <li>Assigning <code>0</code> is valid and disables the limit.</li>
-<li>Assigning a positive value greater than or equal to the current frame size is valid.</li>
-<li>Assigning a nonzero value smaller than the current frame size must raise an exception. A new limit must never make an already populated frame oversized.</li>
-<li>A failed assignment must not replace the prior <code>maxsize</code> setting.</li>
+<li>A positive value that is greater than or equal to the current frame size is valid to assign.</li>
+<li>Assigning a nonzero value that is smaller than the current frame size must raise an exception. A new limit must never leave an already populated frame oversized.</li>
+<li>When an assignment fails, it must not replace the prior <code>maxsize</code> setting.</li>
 </ul>
-<p>For example, a digital-input item occupies three serialized bytes. After such an item has been added to an unlimited frame, <code>frame.maxsize = 1</code> must fail, whereas a limit equal to the current three-byte size is permitted. A positive value such as <code>1</code> is otherwise a valid limit when the frame's current size does not exceed it.</p>
-<h4>Serialized-Size Semantics</h4>
-<p>The limit applies to the complete serialized frame size, equivalent to the sum of the serialized sizes of its <code>LppData</code> entries. Each entry's channel and type bytes are included along with its payload. The boundary is inclusive: a resulting size equal to <code>maxsize</code> is allowed; only a resulting size greater than <code>maxsize</code> is rejected.</p>
-<p>For reference:</p>
+<p>For example, a digital-input item occupies three serialized bytes. After such an item has been added to an unlimited frame, <code>frame.maxsize = 1</code> must fail, whereas a limit equal to the current three-byte size is permitted. Otherwise, a positive value such as <code>1</code> is a valid limit when the frame's current size does not exceed it.</p>
+<h4>Semantics of the Serialized Size</h4>
+<p>The limit applies to the complete serialized frame size, which is equivalent to the sum of the serialized sizes of its <code>LppData</code> entries. Along with its payload, each entry's channel and type bytes are included. The boundary is inclusive: a resulting size equal to <code>maxsize</code> is allowed; rejection applies only to a resulting size greater than <code>maxsize</code>.</p>
+<p>As a reference:</p>
 <ul>
-<li>A digital input has a one-byte payload and occupies three frame bytes in total.</li>
-<li>A generic value has a four-byte payload and occupies six frame bytes in total.</li>
+<li>A digital input carries a one-byte payload and occupies three frame bytes in total.</li>
+<li>A generic value carries a four-byte payload and occupies six frame bytes in total.</li>
 </ul>
-<h4>Enforcement on Data Addition</h4>
-<p>Every <code>LppFrame</code> data-adding method must apply the same prospective-size check before committing its new entry. This includes all existing convenience methods, such as the digital and analog input/output methods, sensor methods, <code>add_pressure</code> and its <code>add_barometer</code> alias, and <code>add_generic</code>.</p>
-<p>For each addition:</p>
+<h4>Enforcement When Data Is Added</h4>
+<p>Every <code>LppFrame</code> data-adding method must carry out the same prospective-size check before it commits its new entry. This covers all existing convenience methods, such as the digital and analog input/output methods, sensor methods, <code>add_pressure</code> and its <code>add_barometer</code> alias, and <code>add_generic</code>.</p>
+<p>For each addition, the following applies:</p>
 <ol>
-<li>If <code>maxsize == 0</code>, allow the addition without a size-limit check.</li>
-<li>If <code>maxsize &gt; 0</code> and the current frame size plus the new entry's full serialized size is less than or equal to <code>maxsize</code>, add the entry normally.</li>
-<li>If that prospective size is greater than <code>maxsize</code>, raise an exception and do not add the entry. The frame's data, serialized size, and <code>maxsize</code> must remain unchanged by this rejected addition.</li>
+<li>If <code>maxsize == 0</code>, the addition is allowed without a size-limit check.</li>
+<li>If <code>maxsize &gt; 0</code> and the current frame size plus the new entry's full serialized size is less than or equal to <code>maxsize</code>, the entry is added normally.</li>
+<li>If that prospective size is greater than <code>maxsize</code>, an exception is raised and the entry is not added. The frame's data, its serialized size, and <code>maxsize</code> must remain unchanged by this rejected addition.</li>
 </ol>
-<p>The requirement applies to the existing methods:</p>
+<p>The requirement applies to these existing methods:</p>
 <ul>
 <li><code>add_digital_input(channel, value)</code></li>
 <li><code>add_digital_output(channel, value)</code></li>
@@ -207,32 +207,33 @@ frame.maxsize = 12
 <li><code>add_voltage(channel, value)</code></li>
 <li><code>add_load(channel, value)</code></li>
 </ul>
-<p>These methods must retain their existing signatures and data-type behavior. In particular, with the unlimited default, adding a digital input continues to succeed and does not change <code>maxsize</code> from <code>0</code>.</p>
-<h4>Generic Data API</h4>
+<p>These methods must keep their existing signatures and data-type behavior. In particular, with the unlimited default in place, adding a digital input continues to succeed and does not change <code>maxsize</code> from <code>0</code>.</p>
+<h4>The Generic Data API</h4>
 <p><code>LppFrame</code> must expose:</p>
 <pre><code class="language-python">add_generic(self, channel, value)
 </code></pre>
-<p>It adds the existing generic four-byte unsigned-integer LPP data type for the supplied channel and value, subject to the same frame limit as every other addition. Because the complete generic entry occupies six bytes, this operation on an empty frame with <code>maxsize == 3</code> must raise an exception and leave the frame empty.</p>
-<h4>Error Handling</h4>
-<p>Any exception type derived from <code>Exception</code> is acceptable for invalid <code>maxsize</code> assignments and additions that would exceed the limit. No specific exception message is required.</p>
+<p>The method adds the existing generic four-byte unsigned-integer LPP data type for the supplied channel and value, and it is subject to the same frame limit as every other addition. Because the complete generic entry occupies six bytes, performing this operation on an empty frame with <code>maxsize == 3</code> must raise an exception and leave the frame empty.</p>
+<h4>Handling of Errors</h4>
+<p>For invalid <code>maxsize</code> assignments and for additions that would exceed the limit, any exception type derived from <code>Exception</code> is acceptable. No specific exception message is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You are working on the cayennelpp Python package, which encodes and decodes Cayenne Low Power Payload (LPP) data.</span>
-        <span class="spec-meta muted">731 words · source specification
+        <span class="spec-title">The package you are working on is cayennelpp, a Python package that encodes and decodes Cayenne Low Power Payload (LPP) data.</span>
+        <span class="spec-meta muted">777 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>cayennelpp</code> Python package, which encodes and decodes Cayenne Low Power Payload (LPP) data. This task involves three related changes: adding a new method to retrieve data entries by type from a frame, changing how LPP types are compared, and reorganizing a helper function into a class method.</p>
-<h4>Required Changes</h4>
-<h5>1. <code>LppType.get_lpp_type</code> class method</h5>
-<p>In the module <code>cayennelpp.lpp_type</code>, the <code>LppType</code> class must expose a class method (or static method) named <code>get_lpp_type</code> that accepts a single argument identifying a type. When called with an argument that does not correspond to a valid/known LPP type (for example, an arbitrary string such as <code>&quot;foo&quot;</code>), it must raise an exception.</p>
-<p>This function must be accessible as <code>LppType.get_lpp_type(...)</code>. It is no longer imported as a standalone module-level function from <code>cayennelpp.lpp_type</code> — remove any requirement for a top-level <code>get_lpp_type</code> symbol to be importable directly from the module.</p>
-<h5>2. <code>type</code> attribute must support integer comparison</h5>
-<p>Each LPP data entry exposes a <code>.type</code> attribute. This attribute must be an object (not a bare integer) that can be converted to an integer via <code>int(...)</code>, yielding the numeric LPP type code.</p>
-<p>Concretely, for any data entry <code>d</code>, the expression <code>int(d.type)</code> must return the integer LPP type code. Examples of the expected numeric type codes:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The package you are working on is <code>cayennelpp</code>, a Python package that encodes and decodes Cayenne Low Power Payload (LPP) data. This task consists of three related changes: the addition of a new method to retrieve data entries by type from a frame, a change to how LPP types are compared, and the reorganization of a helper function into a class method.</p>
+<h4>Required Modifications</h4>
+<h5>1. Class method <code>LppType.get_lpp_type</code></h5>
+<p>The <code>LppType</code> class in the module <code>cayennelpp.lpp_type</code> must expose a class method (or static method) named <code>get_lpp_type</code> which accepts a single argument identifying a type. If it is called with an argument that does not correspond to a valid/known LPP type (an arbitrary string such as <code>&quot;foo&quot;</code>, for example), it must raise an exception.</p>
+<p>It must be possible to access this function as <code>LppType.get_lpp_type(...)</code>. It is no longer imported from <code>cayennelpp.lpp_type</code> as a standalone module-level function — remove any requirement for a top-level <code>get_lpp_type</code> symbol to be directly importable from the module.</p>
+<h5>2. The <code>type</code> attribute must support integer comparison</h5>
+<p>A <code>.type</code> attribute is exposed by each LPP data entry. This attribute must be an object (not a bare integer) that is convertible to an integer via <code>int(...)</code>, which yields the numeric LPP type code.</p>
+<p>In concrete terms, for any data entry <code>d</code>, the expression <code>int(d.type)</code> must return the integer LPP type code. The following are examples of the expected numeric type codes:</p>
 <ul>
 <li>Digital input: <code>0</code></li>
 <li>Digital output: <code>1</code></li>
@@ -251,27 +252,27 @@ frame.maxsize = 12
 <li>Gyrometer: <code>134</code></li>
 <li>GPS: <code>136</code></li>
 </ul>
-<p>These type codes apply both to entries created via the frame's <code>add_*</code> methods and to <code>LppData</code> objects created via <code>LppData.from_bytes(...)</code>.</p>
-<h5>3. <code>LppFrame.get_by_type</code> method</h5>
-<p>The <code>LppFrame</code> class (in <code>cayennelpp.lpp_frame</code>) must provide a method with the signature:</p>
+<p>Both entries created via the frame's <code>add_*</code> methods and <code>LppData</code> objects created via <code>LppData.from_bytes(...)</code> are covered by these type codes.</p>
+<h5>3. Method <code>LppFrame.get_by_type</code></h5>
+<p>The <code>LppFrame</code> class (in <code>cayennelpp.lpp_frame</code>) must provide a method with the following signature:</p>
 <pre><code class="language-python">def get_by_type(self, type_code) -&gt; list
 </code></pre>
-<p>It takes an integer LPP type code and returns a <code>list</code> of all data entries currently in the frame whose type matches the given code (i.e., entries <code>d</code> where <code>int(d.type) == type_code</code>).</p>
+<p>It accepts an integer LPP type code and returns a <code>list</code> of all data entries currently held by the frame whose type matches the given code (that is, entries <code>d</code> where <code>int(d.type) == type_code</code>).</p>
 <p>Behavior:</p>
 <ul>
-<li>Returns a list containing every matching entry, preserving them as the same entry objects held by the frame (each returned entry <code>d</code> must satisfy <code>int(d.type) == type_code</code>).</li>
-<li>If no entries match the given type code, returns an empty list.</li>
-<li>If the given code does not correspond to any entry present in the frame — including codes that do not correspond to any entry as well as codes that are not valid/known LPP types at all (e.g. <code>666</code>) — returns an empty list. It must not raise in these cases.</li>
+<li>Returns a list that contains every matching entry, with the entries preserved as the same entry objects held by the frame (each returned entry <code>d</code> must satisfy <code>int(d.type) == type_code</code>).</li>
+<li>Returns an empty list when no entries match the given type code.</li>
+<li>Whenever the given code does not correspond to any entry present in the frame — including codes that do not correspond to any entry as well as codes that are not valid/known LPP types at all (e.g. <code>666</code>) — an empty list is returned. It must not raise in these cases.</li>
 </ul>
-<h4>Supporting Context (already expected to exist / must remain functional)</h4>
-<p>The following existing behavior must continue to work, as it is relied upon:</p>
+<h4>Supporting Context (expected to already exist / must keep working)</h4>
+<p>The existing behavior listed below must continue to work, since it is relied upon:</p>
 <ul>
-<li><code>LppFrame()</code> constructs an empty frame. An empty frame has a falsy <code>data</code> attribute and <code>len(frame) == 0</code>.</li>
-<li><code>LppFrame</code> supports <code>len(...)</code> returning the number of data entries, iteration over its entries, and printing (<code>print(frame)</code>), for both empty and populated frames.</li>
-<li><code>LppFrame</code> exposes a <code>data</code> attribute that is an indexable sequence of the entries, in insertion order.</li>
-<li><code>LppFrame.from_bytes(buffer)</code> parses a <code>bytes</code>/<code>bytearray</code> buffer into a frame with the correct number of entries. (Note: there is no longer a <code>from_base64</code> constructor requirement; callers decode base64 to bytes themselves before calling <code>from_bytes</code>.)</li>
-<li><code>LppData.from_bytes(buffer)</code> parses a single data entry; <code>data.bytes()</code> round-trips back to the original buffer, <code>data.value</code> holds the decoded value tuple, and <code>int(data.type)</code> yields the numeric type code.</li>
-<li>The frame's <code>add_*</code> methods each accept a channel and value(s) and append an entry of the appropriate type. The methods exercised include:
+<li><code>LppFrame()</code> creates an empty frame. With an empty frame, the <code>data</code> attribute is falsy and <code>len(frame) == 0</code>.</li>
+<li>For both empty and populated frames, <code>LppFrame</code> supports <code>len(...)</code> returning the number of data entries, iteration over its entries, and printing (<code>print(frame)</code>).</li>
+<li><code>LppFrame</code> exposes a <code>data</code> attribute which is an indexable sequence of the entries, in insertion order.</li>
+<li><code>LppFrame.from_bytes(buffer)</code> parses a <code>bytes</code>/<code>bytearray</code> buffer into a frame that has the correct number of entries. (Note: a <code>from_base64</code> constructor is no longer a requirement; callers decode base64 to bytes themselves before calling <code>from_bytes</code>.)</li>
+<li>A single data entry is parsed by <code>LppData.from_bytes(buffer)</code>; <code>data.bytes()</code> round-trips back to the original buffer, <code>data.value</code> holds the decoded value tuple, and <code>int(data.type)</code> yields the numeric type code.</li>
+<li>Each of the frame's <code>add_*</code> methods accepts a channel and value(s) and appends an entry of the appropriate type. The methods exercised include:
 <ul>
 <li><code>add_digital_input(channel, value)</code>, <code>add_digital_output(channel, value)</code></li>
 <li><code>add_analog_input(channel, value)</code>, <code>add_analog_output(channel, value)</code></li>
@@ -282,53 +283,54 @@ frame.maxsize = 12
 <li><code>add_unix_time(channel, value)</code></li>
 </ul>
 </li>
-<li><code>frame.bytes()</code> serializes the frame to bytes and raises an exception when a value is out of the valid range for its type (e.g., a negative voltage).</li>
+<li><code>frame.bytes()</code> serializes the frame to bytes and raises an exception when a value falls outside the valid range for its type (e.g., a negative voltage).</li>
 </ul>
-<h4>Summary of Public API the change must expose</h4>
+<h4>Summary of the Public API that the change must expose</h4>
 <ul>
-<li><code>cayennelpp.lpp_type.LppType.get_lpp_type(arg)</code> — class/static method; raises on invalid type argument.</li>
-<li>Data entry <code>.type</code> attribute — convertible to <code>int</code> via <code>int(entry.type)</code>, yielding the numeric type code.</li>
-<li><code>cayennelpp.lpp_frame.LppFrame.get_by_type(type_code) -&gt; list</code> — returns list of matching entries, empty list when none match or code is unknown.</li>
+<li><code>cayennelpp.lpp_type.LppType.get_lpp_type(arg)</code> — class/static method; raises for an invalid type argument.</li>
+<li><code>.type</code> attribute of a data entry — convertible to <code>int</code> via <code>int(entry.type)</code>, yielding the numeric type code.</li>
+<li><code>cayennelpp.lpp_frame.LppFrame.get_by_type(type_code) -&gt; list</code> — returns a list of the matching entries, an empty list when none match or the code is unknown.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You are to implement/refactor two modules in the cayennelpp package</span>
-        <span class="spec-meta muted">1630 words · source specification
+        <span class="spec-title">Your task is to implement or refactor two modules of the cayennelpp package — cayennelpp.lpp_type and cayennelpp.lpp_data — together with a small change to…</span>
+        <span class="spec-meta muted">1794 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are to implement/refactor two modules in the <code>cayennelpp</code> package: <code>cayennelpp.lpp_type</code> and <code>cayennelpp.lpp_data</code>, plus a small change to the frame module in <code>cayennelpp.lpp_frame</code>. The required public API surface and behavior are described below.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>Your task is to implement or refactor two modules of the <code>cayennelpp</code> package — <code>cayennelpp.lpp_type</code> and <code>cayennelpp.lpp_data</code> — together with a small change to the frame module in <code>cayennelpp.lpp_frame</code>. The sections below describe the required public API surface and behavior.</p>
 <hr />
 <h4>1. <code>cayennelpp.lpp_type.LppType</code></h4>
-<p>Provide a class <code>LppType</code> that describes a Cayenne LPP data type and knows how to encode/decode values to/from bytes.</p>
+<p>Provide a class <code>LppType</code> that describes a Cayenne LPP data type and knows how to encode values to bytes and decode them back from bytes.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">LppType(type_id, name, sizes, scales, signs)
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>type_id</code>: an integer identifier for the LPP type.</li>
-<li><code>name</code>: a <code>str</code> naming the type.</li>
-<li><code>sizes</code>: a <code>list</code> describing the byte size of each dimension/component.</li>
-<li><code>scales</code>: a <code>list</code> describing the scaling factor of each dimension/component.</li>
-<li><code>signs</code>: a <code>list</code> of booleans describing signedness of each dimension/component.</li>
+<li><code>type_id</code>: an integer that identifies the LPP type.</li>
+<li><code>name</code>: a <code>str</code> giving the name of the type.</li>
+<li><code>sizes</code>: a <code>list</code> giving the byte size of each dimension/component.</li>
+<li><code>scales</code>: a <code>list</code> giving the scaling factor of each dimension/component.</li>
+<li><code>signs</code>: a <code>list</code> of booleans giving the signedness of each dimension/component.</li>
 </ul>
-<p>Validation (constructor must raise an exception on invalid input):</p>
+<p>Validation (on invalid input the constructor must raise an exception):</p>
 <ul>
-<li><code>name</code> must be a <code>str</code>; otherwise raise.</li>
-<li><code>sizes</code>, <code>scales</code>, and <code>signs</code> must all be lists of the <strong>same length</strong> as one another. If their lengths do not match, raise an exception. (For example, with <code>sizes=[1]</code>, giving <code>scales=[1, 1]</code>, or <code>signs=[False, False]</code>, or <code>sizes=[1, 1]</code> while the others have length 1, must raise.)</li>
+<li><code>name</code> must be a <code>str</code>; if it is not, the constructor must raise.</li>
+<li>All three of <code>sizes</code>, <code>scales</code>, and <code>signs</code> must be lists, and they must share the <strong>same length</strong> with one another. When their lengths do not match, an exception must be raised. (For example, with <code>sizes=[1]</code>, giving <code>scales=[1, 1]</code>, or <code>signs=[False, False]</code>, or <code>sizes=[1, 1]</code> while the others have length 1, must raise.)</li>
 </ul>
 <h5>Class method: <code>get_lpp_type</code></h5>
 <pre><code class="language-python">@classmethod
 def get_lpp_type(cls, type_id) -&gt; LppType | None
 </code></pre>
 <ul>
-<li>Returns the <code>LppType</code> instance registered for the given integer <code>type_id</code>.</li>
-<li>If <code>type_id</code> is an integer that is not a known/registered LPP type, return a falsy value (i.e. <code>None</code>).</li>
-<li>If <code>type_id</code> is not a valid lookup key at all — specifically a non-integer such as a <code>str</code> — it must raise an exception.</li>
+<li>Returns the <code>LppType</code> instance that has been registered for the given integer <code>type_id</code>.</li>
+<li>If <code>type_id</code> is an integer for which no known/registered LPP type exists, return a falsy value (i.e. <code>None</code>).</li>
+<li>If <code>type_id</code> is not a valid lookup key at all — specifically a non-integer such as a <code>str</code> — the call must raise an exception.</li>
 </ul>
-<p>The following <code>type_id</code> values must be registered and produce a working <code>LppType</code> (encode/decode behavior specified below):</p>
+<p>The <code>type_id</code> values listed below must be registered and produce a working <code>LppType</code> (encode/decode behavior specified below):</p>
 <table>
 <thead>
 <tr>
@@ -415,591 +417,594 @@ def get_lpp_type(cls, type_id) -&gt; LppType | None
 def decode(self, buffer) -&gt; tuple
 </code></pre>
 <ul>
-<li><code>encode(value)</code> takes a value and returns its byte representation.
+<li><code>encode(value)</code> takes a value and returns the byte representation of that value.
 <ul>
-<li><code>value</code> is normally a <code>tuple</code> with exactly the number of elements matching the type's dimension count.</li>
-<li><code>decode(encode(value))</code> must round-trip back to the original <code>value</code> (as a tuple), subject to the per-type quantization/scaling described below.</li>
+<li>Normally <code>value</code> is a <code>tuple</code> whose element count exactly matches the type's dimension count.</li>
+<li>Applying <code>decode(encode(value))</code> must round-trip back to the original <code>value</code> (as a tuple), subject to the per-type quantization/scaling described below.</li>
 </ul>
 </li>
-<li><code>decode(buffer)</code> takes a byte buffer and returns a <code>tuple</code> of the decoded value(s).
+<li><code>decode(buffer)</code> takes a byte buffer and returns a <code>tuple</code> containing the decoded value(s).
 <ul>
-<li>If the buffer length does not match the expected encoded size for that type, raise an exception.</li>
+<li>If the buffer length does not match the expected encoded size for that type, an exception must be raised.</li>
 </ul>
 </li>
 </ul>
-<h6>Per-type encode/decode behavior</h6>
+<h6>Encode/decode behavior for each type</h6>
 <p><strong>Digital I/O (0)</strong> — 1 component, unsigned.</p>
 <ul>
-<li>Round-trips integer values such as <code>(0,)</code> and <code>(1,)</code>.</li>
-<li>Encoded size is 1 byte; decoding a 2-byte buffer must raise.</li>
-<li>Passing a non-tuple (e.g. a <code>list</code> like <code>[0, 1]</code>) must raise.</li>
-<li>Passing a tuple with the wrong number of elements (e.g. <code>(0, 1)</code>) must raise.</li>
+<li>Integer values such as <code>(0,)</code> and <code>(1,)</code> round-trip.</li>
+<li>The encoded size is 1 byte; an attempt to decode a 2-byte buffer must raise.</li>
+<li>A non-tuple argument (e.g. a <code>list</code> like <code>[0, 1]</code>) must raise.</li>
+<li>A tuple with the wrong number of elements (e.g. <code>(0, 1)</code>) must raise.</li>
 </ul>
 <p><strong>Analog I/O (2)</strong> — 1 component, signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(123.45,)</code> and <code>(-123.45,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise (expected size is 2 bytes).</li>
-<li>A <code>list</code> argument to <code>encode</code> (e.g. <code>[0, 1]</code>) must raise.</li>
-<li>A wrong-arity tuple (e.g. <code>(0, 1)</code>) must raise.</li>
+<li>Values such as <code>(123.45,)</code> and <code>(-123.45,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise (expected size is 2 bytes).</li>
+<li>A <code>list</code> passed to <code>encode</code> (e.g. <code>[0, 1]</code>) must raise.</li>
+<li>A tuple with the wrong arity (e.g. <code>(0, 1)</code>) must raise.</li>
 </ul>
 <p><strong>Illuminance (101)</strong> — 1 component, unsigned.</p>
 <ul>
-<li>Round-trips values such as <code>(12345,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise (expected size 2 bytes).</li>
-<li>A <code>list</code> argument to <code>encode</code> must raise; a wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
-<li>Negative values (e.g. <code>(-1,)</code>) must raise.</li>
+<li>Values such as <code>(12345,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise (expected size 2 bytes).</li>
+<li>A <code>list</code> given to <code>encode</code> must raise; a tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
+<li>A negative value (e.g. <code>(-1,)</code>) must raise.</li>
 </ul>
 <p><strong>Presence (102)</strong> — 1 component, unsigned.</p>
 <ul>
-<li>Round-trips values such as <code>(0,)</code> and <code>(1,)</code>.</li>
-<li>Decoding a 2-byte buffer must raise (expected size 1 byte).</li>
-<li>A <code>list</code> argument to <code>encode</code> must raise; a wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
-<li>Negative values (<code>(-1,)</code>) must raise.</li>
+<li>Values such as <code>(0,)</code> and <code>(1,)</code> round-trip.</li>
+<li>An attempt to decode a 2-byte buffer must raise (expected size 1 byte).</li>
+<li>A <code>list</code> supplied to <code>encode</code> must raise; a tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
+<li>A negative value (<code>(-1,)</code>) must raise.</li>
 </ul>
 <p><strong>Temperature (103)</strong> — 1 component, signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(32.1,)</code> and <code>(-4.1,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise (expected size 2 bytes).</li>
-<li>A <code>list</code> argument to <code>encode</code> (e.g. <code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>Values such as <code>(32.1,)</code> and <code>(-4.1,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise (expected size 2 bytes).</li>
+<li>A <code>list</code> passed to <code>encode</code> (e.g. <code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>Humidity (104)</strong> — 1 component, unsigned, quantized to 0.5 steps.</p>
 <ul>
-<li>Round-trips such that <code>encode((50.00,))</code> and <code>encode(50.25)</code> both decode to <code>(50.00,)</code>, and <code>encode((50.50,))</code> and <code>encode(50.75)</code> both decode to <code>(50.50,)</code>. That is, values are quantized down to the nearest 0.5, and both a bare number and a single-element tuple are accepted as input.</li>
-<li>Negative values (e.g. <code>(-50.50,)</code>) must raise.</li>
-<li>Decoding a 2-byte buffer must raise (expected size 1 byte).</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>The round trip is such that <code>encode((50.00,))</code> and <code>encode(50.25)</code> both decode to <code>(50.00,)</code>, and <code>encode((50.50,))</code> and <code>encode(50.75)</code> both decode to <code>(50.50,)</code>. In other words, values are quantized down to the nearest 0.5, and input is accepted both as a bare number and as a single-element tuple.</li>
+<li>A negative value (e.g. <code>(-50.50,)</code>) must raise.</li>
+<li>An attempt to decode a 2-byte buffer must raise (expected size 1 byte).</li>
+<li>A <code>list</code> given to <code>encode</code> (<code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>Accelerometer (113)</strong> — 3 components, signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(12.345, -12.345, 0.0)</code> and <code>(-12.345, 0.0, -12.345)</code>.</li>
-<li>Decoding a 1-byte buffer must raise.</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>Values such as <code>(12.345, -12.345, 0.0)</code> and <code>(-12.345, 0.0, -12.345)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise.</li>
+<li>A <code>list</code> passed to <code>encode</code> (<code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>Barometer (115)</strong> — 1 component, unsigned, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(1234.5,)</code>.</li>
-<li>Negative values (<code>(-1234.5,)</code>) must raise.</li>
-<li>Decoding a 1-byte buffer must raise.</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>Values such as <code>(1234.5,)</code> round-trip.</li>
+<li>A negative value (<code>(-1234.5,)</code>) must raise.</li>
+<li>An attempt to decode a 1-byte buffer must raise.</li>
+<li>A <code>list</code> supplied to <code>encode</code> (<code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>Voltage (116)</strong> — 1 component, unsigned, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(2,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise (expected size 2 bytes).</li>
-<li>A wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
-<li>Negative values (e.g. <code>(-42,)</code>) must raise.</li>
+<li>Values such as <code>(2,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise (expected size 2 bytes).</li>
+<li>A tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
+<li>A negative value (e.g. <code>(-42,)</code>) must raise.</li>
 </ul>
 <p><strong>Load (122)</strong> — 1 component, signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(-5.432,)</code> and <code>(160.987,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise.</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0, 1]</code>) must raise; a wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
+<li>Values such as <code>(-5.432,)</code> and <code>(160.987,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise.</li>
+<li>A <code>list</code> passed to <code>encode</code> (<code>[0, 1]</code>) must raise; a tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
 </ul>
 <p><strong>Gyrometer (134)</strong> — 3 components, signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(123.45, -123.45, 0.0)</code> and <code>(-123.45, 0.0, -123.45)</code>.</li>
-<li>Decoding a 1-byte buffer must raise.</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>Values such as <code>(123.45, -123.45, 0.0)</code> and <code>(-123.45, 0.0, -123.45)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise.</li>
+<li>A <code>list</code> given to <code>encode</code> (<code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>GPS (136)</strong> — 3 components (latitude, longitude, altitude), signed, scaled.</p>
 <ul>
-<li>Round-trips values such as <code>(42.3519, -87.9094, 10.00)</code> and <code>(-42.3519, 87.9094, -10.00)</code>.</li>
-<li>Decoding a 1-byte buffer must raise.</li>
-<li>A <code>list</code> argument to <code>encode</code> (<code>[0x00]</code>) must raise; a wrong-arity tuple (<code>(0, 0)</code>) must raise.</li>
+<li>Values such as <code>(42.3519, -87.9094, 10.00)</code> and <code>(-42.3519, 87.9094, -10.00)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise.</li>
+<li>A <code>list</code> passed to <code>encode</code> (<code>[0x00]</code>) must raise; a tuple with the wrong arity (<code>(0, 0)</code>) must raise.</li>
 </ul>
 <p><strong>Generic (100)</strong> — 1 component, unsigned, 4-byte integer.</p>
 <ul>
-<li>Round-trips values such as <code>(4294967295,)</code>.</li>
-<li>Decoding a 3-byte buffer must raise (expected size 4 bytes).</li>
-<li>A wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
+<li>Values such as <code>(4294967295,)</code> round-trip.</li>
+<li>An attempt to decode a 3-byte buffer must raise (expected size 4 bytes).</li>
+<li>A tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
 <li>A value that exceeds 4 bytes (e.g. <code>4294967297</code>) must raise <code>ValueError</code>.</li>
-<li>Negative values (<code>(-1,)</code>) must raise.</li>
+<li>A negative value (<code>(-1,)</code>) must raise.</li>
 </ul>
 <p><strong>Unix time (133)</strong> — 1 component, unsigned, integer seconds.</p>
 <ul>
 <li>Accepts a floating-point timestamp (e.g. from <code>datetime.now(timezone.utc).timestamp()</code>) and decodes back to the integer truncation of that value: <code>decode(encode((now,))) == (int(now),)</code>.</li>
-<li>Round-trips small integers such as <code>(5,)</code>.</li>
-<li>Decoding a 1-byte buffer must raise (expected size 4 bytes).</li>
-<li>A wrong-arity tuple (<code>(0, 1)</code>) must raise.</li>
-<li>Negative values (<code>(-1,)</code>) must raise.</li>
+<li>Small integers such as <code>(5,)</code> round-trip.</li>
+<li>An attempt to decode a 1-byte buffer must raise (expected size 4 bytes).</li>
+<li>A tuple with the wrong arity (<code>(0, 1)</code>) must raise.</li>
+<li>A negative value (<code>(-1,)</code>) must raise.</li>
 </ul>
 <blockquote>
-<p>Note: The previously existing module-level functions (e.g. <code>lpp_temperature_to_bytes</code>, <code>lpp_gps_from_bytes</code>, etc.) are no longer part of the API. All encode/decode functionality is exposed exclusively through <code>LppType</code> instances via <code>encode</code>/<code>decode</code>.</p>
+<p>Note: The module-level functions that existed previously (e.g. <code>lpp_temperature_to_bytes</code>, <code>lpp_gps_from_bytes</code>, etc.) are no longer part of the API. All encode/decode functionality is exposed exclusively through <code>LppType</code> instances via <code>encode</code>/<code>decode</code>.</p>
 </blockquote>
 <hr />
 <h4>2. <code>cayennelpp.lpp_data.LppData</code></h4>
-<p>Provide a class <code>LppData</code> representing a single LPP data record.</p>
+<p>Provide a class <code>LppData</code> that represents a single LPP data record.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">LppData(channel, type_id, value)
 </code></pre>
 <ul>
-<li><code>LppData(0, 0, 0)</code> must construct successfully.</li>
+<li>The call <code>LppData(0, 0, 0)</code> must construct successfully.</li>
 </ul>
 <h5>Class method: <code>from_bytes</code></h5>
 <pre><code class="language-python">@classmethod
 def from_bytes(cls, buffer) -&gt; LppData
 </code></pre>
 <ul>
-<li>Parses a byte buffer (accepts <code>bytes</code> and <code>bytearray</code>) whose layout is: 1 byte channel, 1 byte type id, followed by the encoded value payload for that type.</li>
-<li>If the buffer is too short to contain a valid channel + type + full payload for the identified type, raise an exception. (For example, a 2-byte buffer, or a GPS-typed buffer that is truncated, or a generic-typed buffer with an incorrect payload length must all raise.)</li>
+<li>Parses a byte buffer (<code>bytes</code> and <code>bytearray</code> are both accepted) whose layout is: 1 byte channel, 1 byte type id, followed by the encoded value payload for that type.</li>
+<li>If the buffer is too short to contain a valid channel + type + full payload for the identified type, an exception must be raised. (For example, a 2-byte buffer, a GPS-typed buffer that is truncated, or a generic-typed buffer with an incorrect payload length must all raise.)</li>
 </ul>
 <h5><code>__bytes__</code></h5>
 <pre><code class="language-python">def __bytes__(self) -&gt; bytes
 </code></pre>
 <ul>
-<li><code>bytes(data)</code> must reconstruct the exact original byte buffer for a record produced by <code>from_bytes</code>. That is, <code>bytes(LppData.from_bytes(buf)) == buf</code>.</li>
-<li>There is <strong>no</strong> <code>bytes()</code> instance method and <strong>no</strong> <code>bytes_size()</code> method — serialization is available only through the built-in <code>bytes(...)</code> protocol.</li>
+<li>For a record produced by <code>from_bytes</code>, <code>bytes(data)</code> must reconstruct the exact original byte buffer; that is, <code>bytes(LppData.from_bytes(buf)) == buf</code>.</li>
+<li><strong>No</strong> <code>bytes()</code> instance method and <strong>no</strong> <code>bytes_size()</code> method exist — serialization is available only through the built-in <code>bytes(...)</code> protocol.</li>
 </ul>
-<h5>Attributes / properties</h5>
-<p>For an <code>LppData</code> instance:</p>
+<h5>Attributes and properties</h5>
+<p>On an <code>LppData</code> instance:</p>
 <ul>
-<li><code>data.type</code> — the associated type; <code>int(data.type)</code> returns the integer type id.</li>
-<li><code>data.value</code> — a <code>tuple</code> of the decoded value(s).</li>
-<li><code>data.size</code> — the total encoded size in bytes (channel + type + payload). For <code>LppData(0, 0, 0)</code> this is <code>3</code>.</li>
+<li><code>data.type</code> — the associated type; <code>int(data.type)</code> returns the type id as an integer.</li>
+<li><code>data.value</code> — a <code>tuple</code> holding the decoded value(s).</li>
+<li><code>data.size</code> — the total encoded size in bytes (channel + type + payload); for <code>LppData(0, 0, 0)</code> this is <code>3</code>.</li>
 </ul>
-<p>Behavior confirmed by round-trip examples (buffer in → <code>bytes(...)</code> out equal, plus decoded attributes):</p>
+<p>The behavior is confirmed by round-trip examples (buffer in → <code>bytes(...)</code> out equal, plus the decoded attributes):</p>
 <ul>
-<li><code>bytes([0x01, 0x67, 0xFF, 0xD7])</code> → temperature record, round-trips.</li>
-<li><code>bytes([0x06, 0x71, 0x04, 0xD2, 0xFB, 0x2E, 0x00, 0x00])</code> → accelerometer record, round-trips.</li>
-<li><code>bytes([0x00, 0x64, 0xff, 0xff, 0xff, 0xfb])</code> → generic record; <code>int(data.type) == 100</code>, <code>data.value == (4294967291,)</code>.</li>
-<li><code>bytes([0x01, 0x88, 0x06, 0x76, 0x5f, 0xf2, 0x96, 0x0a, 0x00, 0x03, 0xe8])</code> → GPS record, round-trips.</li>
-<li><code>bytes([0x01, 0x74, 0x09, 0xc4])</code> → voltage record; <code>data.value == (25,)</code>.</li>
-<li><code>bytes([0x00, 0x7A, 0x00, 0xA5, 0x51])</code> → load record, round-trips.</li>
-<li><code>bytes([0x01, 0x85, 0x00, 0x00, 0x00, 0x00])</code> → unix time record; <code>data.value == (0,)</code>.</li>
+<li><code>bytes([0x01, 0x67, 0xFF, 0xD7])</code> → a temperature record, which round-trips.</li>
+<li><code>bytes([0x06, 0x71, 0x04, 0xD2, 0xFB, 0x2E, 0x00, 0x00])</code> → an accelerometer record, which round-trips.</li>
+<li><code>bytes([0x00, 0x64, 0xff, 0xff, 0xff, 0xfb])</code> → a generic record, with <code>int(data.type) == 100</code> and <code>data.value == (4294967291,)</code>.</li>
+<li><code>bytes([0x01, 0x88, 0x06, 0x76, 0x5f, 0xf2, 0x96, 0x0a, 0x00, 0x03, 0xe8])</code> → a GPS record, which round-trips.</li>
+<li><code>bytes([0x01, 0x74, 0x09, 0xc4])</code> → a voltage record, with <code>data.value == (25,)</code>.</li>
+<li><code>bytes([0x00, 0x7A, 0x00, 0xA5, 0x51])</code> → a load record, which round-trips.</li>
+<li><code>bytes([0x01, 0x85, 0x00, 0x00, 0x00, 0x00])</code> → a unix time record, with <code>data.value == (0,)</code>.</li>
 </ul>
 <hr />
 <h4>3. <code>cayennelpp.lpp_frame</code> — <code>maxsize</code> property</h4>
-<p>The frame class exposes a settable <code>maxsize</code> property with the following behavior:</p>
+<p>The frame class exposes a settable <code>maxsize</code> property whose behavior is as follows:</p>
 <ul>
 <li>Assigning a <strong>negative</strong> value (e.g. <code>frame.maxsize = -42</code>) must raise an exception.</li>
-<li>When the frame already contains data, its <code>maxsize</code> reads as <code>0</code>, and attempting to set <code>maxsize</code> to a value smaller than the currently used size (e.g. setting <code>maxsize = 1</code> after adding a digital input) must raise an exception.</li>
-<li>When a valid <code>maxsize</code> is set (e.g. <code>frame.maxsize = 3</code>), attempting to add a data item whose encoded size would exceed the remaining capacity must raise an exception.</li>
+<li>If the frame already contains data, its <code>maxsize</code> reads as <code>0</code>; an attempt to set <code>maxsize</code> to a value smaller than the currently used size (e.g. setting <code>maxsize = 1</code> after adding a digital input) must raise an exception.</li>
+<li>Once a valid <code>maxsize</code> is set (e.g. <code>frame.maxsize = 3</code>), an attempt to add a data item whose encoded size would exceed the remaining capacity must raise an exception.</li>
 </ul>
-<p>(The existing methods <code>add_digital_input(channel, value)</code> and <code>add_generic(channel, value)</code> are used to add records; only the <code>maxsize</code> behavior above is in scope.)</p>
+<p>(Records are added with the existing methods <code>add_digital_input(channel, value)</code> and <code>add_generic(channel, value)</code>; only the <code>maxsize</code> behavior above is in scope.)</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Modify the LppFrame class (in cayennelpp/lpp_frame.py, importable as from cayennelpp.lpp_frame import LppFrame) so that its serialized byte representation…</span>
-        <span class="spec-meta muted">237 words · source specification
+        <span class="spec-title">Change the LppFrame class (in cayennelpp/lpp_frame.py, importable as from cayennelpp.lpp_frame import LppFrame) so that its serialized byte representation…</span>
+        <span class="spec-meta muted">260 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Modify the <code>LppFrame</code> class (in <code>cayennelpp/lpp_frame.py</code>, importable as <code>from cayennelpp.lpp_frame import LppFrame</code>) so that its serialized byte representation is obtained via the built-in <code>bytes()</code> protocol.</p>
-<h5>Required Behavior</h5>
-<p>The <code>LppFrame</code> class must support conversion to a <code>bytes</code> object using the standard Python <code>bytes(frame)</code> call. This requires implementing the <code>__bytes__</code> method on the class.</p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<h5>Goal</h5>
+<p>Change the <code>LppFrame</code> class (in <code>cayennelpp/lpp_frame.py</code>, importable as <code>from cayennelpp.lpp_frame import LppFrame</code>) so that its serialized byte representation is retrieved through the built-in <code>bytes()</code> protocol.</p>
+<h5>Behavior Requirements</h5>
+<p>The <code>LppFrame</code> class must support being converted to a <code>bytes</code> object by means of the standard Python <code>bytes(frame)</code> call. Achieving this requires implementing the <code>__bytes__</code> method on the class.</p>
 <ul>
-<li><code>bytes(frame)</code> must return the serialized <code>bytes</code> representation of the frame, produced by concatenating the byte representations of the data entries contained in the frame, in order.</li>
-<li>For an empty frame (no data entries), <code>bytes(frame)</code> must return an empty <code>bytes</code> object (falsy).</li>
-<li>The result must be a <code>bytes</code> object (not a <code>bytearray</code>), and must compare equal to a <code>bytes</code> object holding the same byte sequence.</li>
+<li><code>bytes(frame)</code> must return the serialized <code>bytes</code> representation of the frame, built by concatenating the byte representations of the data entries contained in the frame, in order.</li>
+<li>For a frame with no data entries (an empty frame), <code>bytes(frame)</code> must return an empty <code>bytes</code> object (falsy).</li>
+<li>The resulting value must be a <code>bytes</code> object (not a <code>bytearray</code>), and it must compare equal to a <code>bytes</code> object that holds the same byte sequence.</li>
 </ul>
-<h5>Round-trip Requirement</h5>
-<p><code>LppFrame.from_bytes(buf)</code> must accept a <code>bytes</code> object <code>buf</code> and construct a frame such that <code>bytes(frame)</code> reproduces the original <code>buf</code> exactly. In other words, parsing a byte buffer and then re-serializing it via <code>bytes()</code> must yield an identical byte sequence.</p>
-<h5>Existing Behavior to Preserve</h5>
+<h5>Round-Trip Requirement</h5>
+<p><code>LppFrame.from_bytes(buf)</code> must accept a <code>bytes</code> object <code>buf</code> and build a frame such that calling <code>bytes(frame)</code> reproduces the original <code>buf</code> exactly. In other words, if a byte buffer is parsed and then re-serialized via <code>bytes()</code>, this must yield an identical byte sequence.</p>
+<h5>Existing Behavior to Keep</h5>
 <ul>
-<li><code>frame.data</code> remains the accessor for the list of contained data entries.</li>
-<li><code>len(frame)</code> returns the number of data entries in the frame.</li>
-<li>Each data entry exposes a <code>.type</code> attribute convertible to an integer via <code>int(...)</code>.</li>
+<li><code>frame.data</code> stays the accessor for the list of data entries contained in the frame.</li>
+<li><code>len(frame)</code> returns the number of data entries the frame contains.</li>
+<li>Each data entry exposes a <code>.type</code> attribute that can be converted to an integer via <code>int(...)</code>.</li>
 </ul>
-<h5>Notes</h5>
+<h5>Remarks</h5>
 <ul>
-<li>The previously used instance method <code>bytes()</code> (called as <code>frame.bytes()</code>) is being replaced by the <code>__bytes__</code> protocol method. The engineer should ensure serialization is accessed through <code>bytes(frame)</code>.</li>
+<li>The instance method <code>bytes()</code> used until now (called as <code>frame.bytes()</code>) is being replaced by the <code>__bytes__</code> protocol method. The engineer should ensure that serialization is accessed through <code>bytes(frame)</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Modify the LppData class in the cayennelpp package so that the size of an LppData instance is obtained via Python&#39;s built-in len() function rather than an…</span>
-        <span class="spec-meta muted">153 words · source specification
+        <span class="spec-title">Alter the LppData class within the cayennelpp package so that the size of an LppData instance is retrieved through Python&#39;s built-in len() function instead…</span>
+        <span class="spec-meta muted">169 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Modify the <code>LppData</code> class in the <code>cayennelpp</code> package so that the size of an <code>LppData</code> instance is obtained via Python's built-in <code>len()</code> function rather than an attribute.</p>
+      <div class="spec-body"><h5>Goal</h5>
+<p>Alter the <code>LppData</code> class within the <code>cayennelpp</code> package so that the size of an <code>LppData</code> instance is retrieved through Python's built-in <code>len()</code> function instead of through an attribute.</p>
 <h5>Public API</h5>
 <ul>
-<li>Module: <code>cayennelpp.lpp_data</code></li>
-<li>Class: <code>LppData</code></li>
-<li>Constructor signature: <code>LppData(channel, type, value)</code></li>
+<li>The module is <code>cayennelpp.lpp_data</code>.</li>
+<li>The class is <code>LppData</code>.</li>
+<li>The constructor signature is <code>LppData(channel, type, value)</code>.</li>
 </ul>
 <h5>Required Behavior</h5>
-<p>The <code>LppData</code> class must support the built-in <code>len()</code> function by implementing <code>__len__</code>. Calling <code>len(instance)</code> must return the total byte size of the encoded LPP data, which is the size of the channel byte plus the type byte plus the data payload for the given type.</p>
-<p>Specifically, for an <code>LppData</code> constructed with a data type of <code>0</code> (which corresponds to a payload of 1 byte), <code>len(LppData(0, 0, 0))</code> must return <code>3</code> (1 channel byte + 1 type byte + 1 data byte).</p>
+<p>To support the built-in <code>len()</code> function, the <code>LppData</code> class must implement <code>__len__</code>. Invoking <code>len(instance)</code> must return the total byte size of the encoded LPP data, that is, the size of the channel byte plus the size of the type byte plus the size of the data payload for the given type.</p>
+<p>In particular, when an <code>LppData</code> is constructed with a data type of <code>0</code> (this type corresponds to a payload of 1 byte), <code>len(LppData(0, 0, 0))</code> must return <code>3</code> (1 channel byte + 1 type byte + 1 data byte).</p>
 <h5>Constraints</h5>
 <ul>
-<li>The value returned by <code>len()</code> must be a non-negative integer representing the total encoded byte length of the instance.</li>
+<li>The value that <code>len()</code> returns must be a non-negative integer representing the total encoded byte length of the instance.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add Current Sensor Type to CayenneLPP</span>
-        <span class="spec-meta muted">308 words · source specification
+        <span class="spec-title">Adding a Current Sensor Type to CayenneLPP</span>
+        <span class="spec-meta muted">322 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Current Sensor Type to CayenneLPP</h3>
-<h4>Objective</h4>
-<p>Add support for a <strong>current</strong> sensor type to the CayenneLPP type registry so that it can be looked up, encoded, and decoded through the existing <code>LppType</code> infrastructure.</p>
-<h4>Public API</h4>
-<p>The type must be registered and retrievable via the existing lookup mechanism in the module <code>cayennelpp.lpp_type</code>:</p>
+      <div class="spec-body"><h3>Task Specification: Adding a Current Sensor Type to CayenneLPP</h3>
+<h4>Goal</h4>
+<p>Extend the CayenneLPP type registry with support for a <strong>current</strong> sensor type, so that it can be looked up, encoded, and decoded through the existing <code>LppType</code> infrastructure.</p>
+<h4>Public Interface</h4>
+<p>The type must be registered and retrievable using the existing lookup mechanism in the module <code>cayennelpp.lpp_type</code>:</p>
 <pre><code class="language-python">from cayennelpp.lpp_type import LppType
 
 current_type = LppType.get_lpp_type(117)
 </code></pre>
-<p><code>LppType.get_lpp_type(117)</code> must return an <code>LppType</code> instance representing the current sensor type. This instance must support <code>encode</code> and <code>decode</code> methods consistent with the other registered types.</p>
-<h4>Behavior Requirements</h4>
-<h5>Type identity</h5>
+<p><code>LppType.get_lpp_type(117)</code> must return an <code>LppType</code> instance that represents the current sensor type. The instance must support <code>encode</code> and <code>decode</code> methods consistent with the other registered types.</p>
+<h4>Required Behavior</h4>
+<h5>Identity of the type</h5>
 <ul>
-<li>The current sensor type is registered under the numeric type identifier <strong>117</strong>.</li>
-<li><code>LppType.get_lpp_type(117)</code> returns the corresponding <code>LppType</code> object.</li>
+<li>The numeric type identifier under which the current sensor type is registered is <strong>117</strong>.</li>
+<li><code>LppType.get_lpp_type(117)</code> returns the matching <code>LppType</code> object.</li>
 </ul>
 <h5>Encoding — <code>encode(value)</code></h5>
 <ul>
-<li><code>value</code> is a tuple containing exactly <strong>one</strong> numeric element (the current value).</li>
-<li>Encoding a valid single-element tuple (e.g. <code>(2,)</code>) produces a byte buffer.</li>
-<li><strong>Error conditions (must raise an exception):</strong>
+<li><code>value</code> is a tuple that holds exactly <strong>one</strong> numeric element (the current value).</li>
+<li>A valid single-element tuple (e.g. <code>(2,)</code>) is encoded into a byte buffer.</li>
+<li><strong>Error cases (must raise an exception):</strong>
 <ul>
-<li>The input tuple does not contain exactly one element (e.g. <code>(0, 1)</code>).</li>
-<li>The single value is negative (e.g. <code>(-42,)</code>).</li>
+<li>The input tuple does not hold exactly one element (e.g. <code>(0, 1)</code>).</li>
+<li>The sole value is negative (e.g. <code>(-42,)</code>).</li>
 </ul>
 </li>
 </ul>
 <h5>Decoding — <code>decode(buffer)</code></h5>
 <ul>
-<li>Given a byte buffer previously produced by <code>encode</code>, <code>decode</code> returns a tuple equal to the original input tuple.</li>
-<li>The round trip must hold: for a valid single-element tuple <code>val</code>, <code>decode(encode(val)) == val</code>.</li>
-<li><strong>Error condition (must raise an exception):</strong>
+<li>When handed a byte buffer that was previously produced by <code>encode</code>, <code>decode</code> returns a tuple equal to the original input tuple.</li>
+<li>The round trip must hold, meaning that for a valid single-element tuple <code>val</code>, <code>decode(encode(val)) == val</code>.</li>
+<li><strong>Error case (must raise an exception):</strong>
 <ul>
-<li>The provided buffer is not of the expected size for this type (e.g. a buffer of a single byte <code>bytearray([0x00])</code>).</li>
+<li>The supplied buffer does not have the size expected for this type (e.g. a buffer of a single byte <code>bytearray([0x00])</code>).</li>
 </ul>
 </li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>The encoding must use a fixed buffer size such that a 1-byte buffer is invalid for decoding.</li>
-<li>The value <code>2</code> must survive a full encode/decode round trip and compare equal to <code>(2,)</code>, so any internal scaling/resolution used must preserve integer input values exactly under the round trip.</li>
-<li>Register this type alongside the existing sensor types so it participates in the standard type-lookup system.</li>
+<li>The encoding must use a fixed buffer size that makes a 1-byte buffer invalid for decoding.</li>
+<li>The value <code>2</code> must survive a full encode/decode round trip and compare equal to <code>(2,)</code>; consequently, any internal scaling/resolution used must preserve integer input values exactly across the round trip.</li>
+<li>Register this type alongside the existing sensor types so that it takes part in the standard type-lookup system.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You must extend the LppFrame class (in the cayennelpp package, importable as from cayennelpp.lpp_frame import LppFrame or equivalently through the existing…</span>
-        <span class="spec-meta muted">400 words · source specification
+        <span class="spec-title">The LppFrame class (in the cayennelpp package, importable as from cayennelpp.lpp_frame import LppFrame or, equivalently, through the existing package…</span>
+        <span class="spec-meta muted">426 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must extend the <code>LppFrame</code> class (in the <code>cayennelpp</code> package, importable as <code>from cayennelpp.lpp_frame import LppFrame</code> or equivalently through the existing package structure used by the other sensor-adding methods) to support a new sensor type: <strong>current</strong>. You must also enforce a value-sign validation rule on sensor data initialization that affects both the new current sensor and the existing voltage sensor.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The <code>LppFrame</code> class (in the <code>cayennelpp</code> package, importable as <code>from cayennelpp.lpp_frame import LppFrame</code> or, equivalently, through the existing package structure used by the other sensor-adding methods) must be extended by you so that it supports a new sensor type: <strong>current</strong>. You must also enforce a value-sign validation rule on sensor data initialization; this rule affects both the new current sensor and the existing voltage sensor.</p>
 <h4>Required Behavior</h4>
 <h5>1. New method: <code>add_current</code></h5>
-<p>Add a method to <code>LppFrame</code> with the following signature:</p>
+<p>Add to <code>LppFrame</code> a method that has the following signature:</p>
 <pre><code class="language-python">def add_current(self, channel, value):
 </code></pre>
 <ul>
-<li><code>channel</code>: the channel number for the sensor.</li>
-<li><code>value</code>: the current value to record.</li>
+<li><code>channel</code>: the sensor's channel number.</li>
+<li><code>value</code>: the current value to be recorded.</li>
 </ul>
-<p>Calling this method appends a new sensor data entry to the frame. The type of the appended entry must correspond to current, whose numeric type identifier is <strong>117</strong>. That is, the integer value of the appended entry's <code>type</code> attribute must equal <code>117</code>.</p>
-<p>The method must integrate with the existing frame model such that:</p>
+<p>A call to this method appends a new sensor data entry to the frame. The appended entry's type must correspond to current, whose numeric type identifier is <strong>117</strong>. In other words, the integer value of the appended entry's <code>type</code> attribute must equal <code>117</code>.</p>
+<p>The method must integrate with the existing frame model in such a way that:</p>
 <ul>
-<li>The appended entry is accessible via the frame's <code>data</code> list (i.e., <code>frame.data[i]</code>), and each entry exposes a <code>type</code> attribute that can be converted to an integer.</li>
-<li>The number of entries in the frame (as reported by <code>len(frame)</code>) increases by one per successful call.</li>
+<li>The appended entry is accessible through the frame's <code>data</code> list (i.e., <code>frame.data[i]</code>), and each entry exposes a <code>type</code> attribute that can be converted to an integer.</li>
+<li>The number of entries in the frame (as reported by <code>len(frame)</code>) grows by one per successful call.</li>
 </ul>
-<h5>2. Value-sign validation on data initialization</h5>
-<p>Sensor data entries must reject negative values at construction/initialization time for the affected sensor types. Specifically:</p>
+<h5>2. Value-sign validation during data initialization</h5>
+<p>For the affected sensor types, sensor data entries must reject negative values at construction/initialization time. Specifically:</p>
 <ul>
-<li>Attempting to add a <strong>current</strong> sensor with a negative value (e.g., <code>-25</code>) must raise an exception. The exception must be raised at the moment the sensor is added (i.e., during the <code>add_current</code> call itself), not deferred to a later serialization step.</li>
-<li>Attempting to add a <strong>voltage</strong> sensor (via the existing <code>add_voltage(channel, value)</code> method) with a negative value (e.g., <code>-25</code>) must likewise raise an exception at the moment <code>add_voltage</code> is called.</li>
+<li>Trying to add a <strong>current</strong> sensor with a negative value (e.g., <code>-25</code>) must raise an exception. The exception must be raised at the moment the sensor is added (i.e., during the <code>add_current</code> call itself), rather than being deferred to a later serialization step.</li>
+<li>Trying to add a <strong>voltage</strong> sensor (via the existing <code>add_voltage(channel, value)</code> method) using a negative value (e.g., <code>-25</code>) must likewise raise an exception at the moment <code>add_voltage</code> is called.</li>
 </ul>
-<p>Positive values for these sensors must be accepted normally and produce valid entries.</p>
+<p>For these sensors, positive values must be accepted normally and produce valid entries.</p>
 <h4>Constraints and Notes</h4>
 <ul>
-<li>Adding multiple valid current sensors on different channels must succeed, with each producing an entry of type <code>117</code>.</li>
-<li>The existing voltage sensor behavior otherwise remains: valid voltage entries have type identifier <code>116</code>.</li>
-<li>Do not change any behavior beyond what is described above.</li>
+<li>The addition of multiple valid current sensors on different channels must succeed, with each one producing an entry of type <code>117</code>.</li>
+<li>Otherwise, the behavior of the existing voltage sensor remains: valid voltage entries have <code>116</code> as their type identifier.</li>
+<li>You must not change any behavior beyond what is described above.</li>
 </ul>
-<h4>Summary of Public API to Provide</h4>
+<h4>Summary of the Public API to Provide</h4>
 <ul>
-<li><code>LppFrame.add_current(self, channel, value)</code> — appends a current sensor entry (type <code>117</code>); raises an exception immediately if <code>value</code> is negative.</li>
-<li><code>LppFrame.add_voltage(self, channel, value)</code> — (existing) must raise an exception immediately if <code>value</code> is negative.</li>
+<li><code>LppFrame.add_current(self, channel, value)</code> — appends a current sensor entry (type <code>117</code>); if <code>value</code> is negative, it raises an exception immediately.</li>
+<li><code>LppFrame.add_voltage(self, channel, value)</code> — an existing method that must raise an exception immediately if <code>value</code> is negative.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">The following interfaces must remain available</span>
-        <span class="spec-meta muted">275 words · source specification
+        <span class="spec-title">The following interfaces must continue to be available</span>
+        <span class="spec-meta muted">317 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add frequency sensor support and tighten LPP type validation</h3>
+      <div class="spec-body"><h3>Introduce frequency sensor support and tighten LPP type validation</h3>
 <h4>Public APIs</h4>
 <h5><code>cayennelpp.lpp_type.LppType</code></h5>
-<p>The following interfaces must remain available:</p>
+<p>The following interfaces must continue to be available:</p>
 <pre><code class="language-python">LppType(type_id, name, sizes, scales, signs)
 LppType.get_lpp_type(type_id)
 lpp_type.encode(values)
 lpp_type.decode(buffer)
 </code></pre>
-<h6>Constructor validation</h6>
+<h6>Validation in the constructor</h6>
 <ul>
-<li><code>type_id</code> must be an integer. Supplying a string such as <code>&quot;foobar&quot;</code> raises <code>TypeError</code>.</li>
-<li><code>name</code> must be a string. Supplying <code>42</code> raises <code>TypeError</code>.</li>
-<li><code>sizes</code>, <code>scales</code>, and <code>signs</code> must each be list-valued metadata. Supplying <code>42</code> for any one of them raises <code>TypeError</code>.</li>
-<li>The three metadata lists must have equal lengths. For example, <code>[1, 1]</code>, <code>[1]</code>, and <code>[False]</code> raises <code>ValueError</code>.</li>
+<li><code>type_id</code> must be an integer. A string value such as <code>&quot;foobar&quot;</code>, when supplied, raises <code>TypeError</code>.</li>
+<li><code>name</code> must be a string, and supplying <code>42</code> raises <code>TypeError</code>.</li>
+<li>Each of <code>sizes</code>, <code>scales</code>, and <code>signs</code> must be list-valued metadata. Giving <code>42</code> for any one of them raises <code>TypeError</code>.</li>
+<li>The three metadata lists must be of equal length. As an example, <code>[1, 1]</code>, <code>[1]</code>, and <code>[False]</code> raises <code>ValueError</code>.</li>
 </ul>
-<h6>Type lookup</h6>
+<h6>Looking up a type</h6>
 <ul>
-<li><code>LppType.get_lpp_type(&quot;foo&quot;)</code> raises <code>TypeError</code>.</li>
-<li><code>LppType.get_lpp_type(999)</code> returns a falsey result.</li>
-<li><code>LppType.get_lpp_type(118)</code> returns the frequency type descriptor.</li>
+<li>Calling <code>LppType.get_lpp_type(&quot;foo&quot;)</code> raises <code>TypeError</code>.</li>
+<li><code>LppType.get_lpp_type(999)</code> returns a result that is falsey.</li>
+<li><code>LppType.get_lpp_type(118)</code> returns the descriptor for the frequency type.</li>
 </ul>
-<h4>Frequency type</h4>
-<p>Type ID <code>118</code> represents a single unsigned four-byte frequency value.</p>
-<p>For its descriptor:</p>
+<h4>The frequency type</h4>
+<p>Type ID <code>118</code> stands for a single unsigned four-byte frequency value.</p>
+<p>For the descriptor of this type:</p>
 <ul>
-<li><code>encode((4294967295,))</code> must produce a buffer that <code>decode()</code> converts back to <code>(4294967295,)</code>.</li>
-<li>Decoding a three-byte buffer such as <code>bytearray([0x00, 0x00, 0x00])</code> raises <code>BufferError</code>.</li>
-<li>Encoding more than one component, such as <code>(0, 1)</code>, raises <code>ValueError</code>.</li>
-<li>Encoding a negative value such as <code>(-1,)</code> raises <code>ValueError</code>.</li>
-<li>Encoding a value exceeding the unsigned four-byte range, such as <code>(4294967297,)</code>, raises <code>ValueError</code>.</li>
+<li>Calling <code>encode((4294967295,))</code> must produce a buffer that <code>decode()</code> turns back into <code>(4294967295,)</code>.</li>
+<li>When a three-byte buffer such as <code>bytearray([0x00, 0x00, 0x00])</code> is decoded, <code>BufferError</code> is raised.</li>
+<li>Encoding more than one component — <code>(0, 1)</code>, for instance — raises <code>ValueError</code>.</li>
+<li>Encoding a negative value — <code>(-1,)</code>, for example — raises <code>ValueError</code>.</li>
+<li>Encoding a value beyond the unsigned four-byte range, such as <code>(4294967297,)</code>, raises <code>ValueError</code>.</li>
 </ul>
 <h4>Frame API</h4>
-<p>Add the following method to <code>cayennelpp.lpp_frame.LppFrame</code>:</p>
+<p>Extend <code>cayennelpp.lpp_frame.LppFrame</code> with the following method:</p>
 <pre><code class="language-python">add_frequency(channel, frequency)
 </code></pre>
-<p>On a new frame:</p>
+<p>For a new frame, the calls</p>
 <pre><code class="language-python">frame.add_frequency(0, 4294967295)
 frame.add_frequency(1, 1)
 </code></pre>
-<p>must append two entries. Consequently:</p>
+<p>must append two entries. As a result:</p>
 <ul>
 <li><code>len(frame)</code> is <code>2</code>.</li>
 <li><code>int(frame.data[0].type)</code> is <code>118</code>.</li>
 <li><code>int(frame.data[1].type)</code> is <code>118</code>.</li>
 </ul>
-<h4>Existing unsigned type boundaries</h4>
-<p>The existing digital-I/O descriptor must:</p>
+<h4>Boundaries of the existing unsigned types</h4>
+<p>The digital-I/O descriptor that already exists must:</p>
 <ul>
-<li>Round-trip <code>(255,)</code> through <code>encode()</code> and <code>decode()</code>.</li>
-<li>Raise <code>ValueError</code> when encoding <code>(256,)</code>.</li>
+<li>Round-trip <code>(255,)</code> via <code>encode()</code> and <code>decode()</code>.</li>
+<li>Raise <code>ValueError</code> when <code>(256,)</code> is encoded.</li>
 </ul>
-<p>The existing illuminance descriptor must:</p>
+<p>The illuminance descriptor that already exists must:</p>
 <ul>
-<li>Round-trip <code>(0,)</code>, <code>(12345,)</code>, and <code>(65535,)</code> through <code>encode()</code> and <code>decode()</code>.</li>
-<li>Raise <code>ValueError</code> when encoding <code>(65536,)</code>.</li>
+<li>Round-trip <code>(0,)</code>, <code>(12345,)</code>, and <code>(65535,)</code> via <code>encode()</code> and <code>decode()</code>.</li>
+<li>Raise <code>ValueError</code> when <code>(65536,)</code> is encoded.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Update the public LppFrame API, exported from the cayennelpp package, with the following behavior.</span>
-        <span class="spec-meta muted">167 words · source specification
+        <span class="spec-title">The behavior described below is to be added to the public LppFrame API exported from the cayennelpp package.</span>
+        <span class="spec-meta muted">184 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add percentage support to <code>LppFrame</code></h3>
-<p>Update the public <code>LppFrame</code> API, exported from the <code>cayennelpp</code> package, with the following behavior.</p>
-<h4>Percentage data</h4>
-<p>Add an instance method:</p>
+      <div class="spec-body"><h3>Extend <code>LppFrame</code> with percentage support</h3>
+<p>The behavior described below is to be added to the public <code>LppFrame</code> API exported from the <code>cayennelpp</code> package.</p>
+<h4>Handling percentage data</h4>
+<p>Introduce an instance method:</p>
 <pre><code class="language-python">LppFrame.add_percentage(channel, value)
 </code></pre>
-<p>It must append one data item to the frame for each call.</p>
-<p>For example, after:</p>
+<p>One data item must be appended to the frame with each call.</p>
+<p>For instance, after:</p>
 <pre><code class="language-python">frame.add_percentage(2, 10)
 frame.add_percentage(3, 100)
 </code></pre>
-<p>the following must hold:</p>
+<p>these conditions must hold:</p>
 <ul>
 <li><code>len(frame) == 2</code></li>
 <li><code>int(frame.data[0].type) == 120</code></li>
 <li><code>int(frame.data[1].type) == 120</code></li>
 </ul>
-<p>Thus, percentage data uses LPP type ID <code>120</code> (<code>0x78</code>). No specific return value is required.</p>
+<p>Consequently, percentage data is represented with LPP type ID <code>120</code> (<code>0x78</code>). The method is not required to return any specific value.</p>
 <h4>Binary frame parsing and round-trip serialization</h4>
-<p>The existing class-level parsing API:</p>
+<p>The class-level parsing API that already exists:</p>
 <pre><code class="language-python">LppFrame.from_bytes(data: bytes) -&gt; LppFrame
 </code></pre>
-<p>must recognize each of these complete one-item frames:</p>
+<p>must recognize each of the complete one-item frames below:</p>
 <pre><code class="language-python">bytes([0x01, 0x67, 0xFF, 0xD7])
 bytes([0x06, 0x71, 0x04, 0xD2, 0xFB, 0x2E, 0x00, 0x00])
 bytes([0x01, 0x88, 0x06, 0x76, 0x5F, 0xF2, 0x96, 0x0A, 0x00, 0x03, 0xE8])
 </code></pre>
-<p>For each input:</p>
+<p>For each of these inputs:</p>
 <ul>
-<li>Parsing must produce a frame containing exactly one data item, so <code>len(frame) == 1</code>.</li>
-<li>Converting the parsed frame back with <code>bytes(frame)</code> must reproduce the original byte sequence exactly.</li>
+<li>Parsing must result in a frame containing exactly one data item, so <code>len(frame) == 1</code>.</li>
+<li>Converting the parsed frame back using <code>bytes(frame)</code> must reproduce the original byte sequence exactly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Extend the public cayennelpp.LppFrame class with</span>
-        <span class="spec-meta muted">95 words · source specification
+        <span class="spec-title">The public cayennelpp.LppFrame class is to be extended with</span>
+        <span class="spec-meta muted">122 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add altitude support to <code>LppFrame</code></h3>
-<p>Extend the public <code>cayennelpp.LppFrame</code> class with:</p>
+      <div class="spec-body"><h3>Add altitude support to the <code>LppFrame</code> class</h3>
+<p>The public <code>cayennelpp.LppFrame</code> class is to be extended with:</p>
 <pre><code class="language-python">add_altitude(channel, value)
 </code></pre>
-<p>Required behavior:</p>
+<p>Behavior that is required:</p>
 <ul>
-<li>Calling <code>add_altitude(2, 4242)</code> on a new frame adds one data record.</li>
-<li>Calling <code>add_altitude(3, -4242)</code> adds a second data record; both positive and negative altitude values must be accepted.</li>
-<li>Each added altitude record must have a <code>type</code> whose integer value is <code>121</code>.</li>
-<li>After those two calls:
+<li>Invoking <code>add_altitude(2, 4242)</code> on a new frame results in one data record being added.</li>
+<li>Invoking <code>add_altitude(3, -4242)</code> results in a second data record being added; the method must accept both positive and negative altitude values.</li>
+<li>Each altitude record that gets added must have a <code>type</code> whose integer value is <code>121</code>.</li>
+<li>After the two calls above:
 <ul>
-<li><code>len(frame)</code> is <code>2</code>.</li>
-<li><code>frame.data[0].type</code> converts to integer <code>121</code>.</li>
-<li><code>frame.data[1].type</code> converts to integer <code>121</code>.</li>
+<li>the value of <code>len(frame)</code> is <code>2</code>.</li>
+<li><code>frame.data[0].type</code> converts to the integer <code>121</code>.</li>
+<li><code>frame.data[1].type</code> converts to the integer <code>121</code>.</li>
 </ul>
 </li>
 </ul>
-<p>The class must remain importable through the package’s existing public <code>cayennelpp.LppFrame</code> API.</p>
+<p>It must remain possible to import the class through the existing public <code>cayennelpp.LppFrame</code> API of the package.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Add Concentration Type Support</span>
-        <span class="spec-meta muted">196 words · source specification
+        <span class="spec-title">Adding Support for the Concentration Type</span>
+        <span class="spec-meta muted">221 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Concentration Type Support</h3>
-<h4>Overview</h4>
-<p>Add support for a &quot;concentration&quot; data type to the CayenneLPP frame implementation.</p>
-<h4>Required Changes</h4>
-<h5><code>LppFrame.add_concentration</code> method</h5>
-<p>In the <code>LppFrame</code> class (module <code>cayennelpp.lpp_frame</code>), add a new public method:</p>
+      <div class="spec-body"><h3>Task Specification: Adding Support for the Concentration Type</h3>
+<h4>Summary</h4>
+<p>Introduce support for a &quot;concentration&quot; data type in the CayenneLPP frame implementation.</p>
+<h4>Changes Required</h4>
+<h5>The <code>LppFrame.add_concentration</code> method</h5>
+<p>Inside the <code>LppFrame</code> class (module <code>cayennelpp.lpp_frame</code>), add the following new public method:</p>
 <pre><code class="language-python">def add_concentration(self, channel, value)
 </code></pre>
-<p><strong>Behavior:</strong></p>
+<p><strong>Behavior of the method:</strong></p>
 <ul>
-<li>Appends a new concentration data entry to the frame's internal <code>data</code> list.</li>
-<li><code>channel</code> is the channel identifier for the entry.</li>
-<li><code>value</code> is the concentration measurement to store.</li>
+<li>A new concentration data entry is appended to the frame's internal <code>data</code> list.</li>
+<li><code>channel</code> is the entry's channel identifier.</li>
+<li><code>value</code> is the concentration measurement that is to be stored.</li>
 <li>Each appended entry must expose a <code>type</code> attribute whose integer value equals <strong>125</strong>.</li>
-<li>Calling this method multiple times appends multiple entries, so the frame's length (as reported by <code>len(frame)</code>) increases by one per call, and each corresponding entry in <code>data</code> is accessible in insertion order.</li>
+<li>When this method is called multiple times, multiple entries are appended; as a result, the frame's length (as reported by <code>len(frame)</code>) increases by one per call, and each corresponding entry in <code>data</code> is accessible in insertion order.</li>
 </ul>
 <p><strong>Supporting requirement:</strong></p>
 <ul>
-<li>The underlying data-type infrastructure must recognize a concentration type identified by the integer type code <strong>125</strong>, such that entries created via <code>add_concentration</code> report this type code.</li>
+<li>The underlying data-type infrastructure must recognize a concentration type that is identified by the integer type code <strong>125</strong>, so that entries created via <code>add_concentration</code> report this type code.</li>
 </ul>
-<p>The concentration type must accept integer values (e.g., small values like <code>10</code> and larger values like <code>10000</code>) without error.</p>
-<h4>Acceptance Criteria</h4>
-<p>Given a fresh <code>LppFrame</code>:</p>
+<p>The concentration type must accept integer values (for example, small values like <code>10</code> and larger values like <code>10000</code>) without error.</p>
+<h4>Criteria for Acceptance</h4>
+<p>Starting from a fresh <code>LppFrame</code>:</p>
 <ul>
-<li>After <code>frame.add_concentration(2, 10)</code> and <code>frame.add_concentration(3, 10000)</code>, the frame contains two entries.</li>
-<li><code>int(frame.data[0].type)</code> and <code>int(frame.data[1].type)</code> both equal <code>125</code>.</li>
+<li>Once <code>frame.add_concentration(2, 10)</code> and <code>frame.add_concentration(3, 10000)</code> have been called, the frame contains two entries.</li>
+<li>The values of <code>int(frame.data[0].type)</code> and <code>int(frame.data[1].type)</code> both equal <code>125</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Extend cayennelpp.lpp_frame.LppFrame with the public method</span>
-        <span class="spec-meta muted">96 words · source specification
+        <span class="spec-title">Add a public method to cayennelpp.lpp_frame.LppFrame</span>
+        <span class="spec-meta muted">110 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add power data to an LPP frame</h4>
-<p>Extend <code>cayennelpp.lpp_frame.LppFrame</code> with the public method:</p>
+      <div class="spec-body"><h4>Extend an LPP frame with power data</h4>
+<p>Add a public method to <code>cayennelpp.lpp_frame.LppFrame</code>:</p>
 <pre><code class="language-python">add_power(self, channel, value)
 </code></pre>
-<p>The method must accept the channel and power value as positional arguments. It must support at least these inputs:</p>
+<p>The channel and power value must be accepted by the method as positional arguments. The method must support at least these inputs:</p>
 <ul>
-<li>channel <code>2</code>, value <code>10</code></li>
-<li>channel <code>3</code>, value <code>10000</code></li>
+<li>channel <code>2</code> with value <code>10</code></li>
+<li>channel <code>3</code> with value <code>10000</code></li>
 </ul>
-<p>Each call must add exactly one entry to the frame’s public <code>data</code> collection. The added entry’s public <code>type</code> must be integer-convertible, with:</p>
+<p>Each call must result in exactly one entry being added to the frame’s public <code>data</code> collection. The public <code>type</code> of the added entry must be integer-convertible, such that:</p>
 <pre><code class="language-python">int(entry.type) == 128
 </code></pre>
-<p>Consequently, calling <code>add_power</code> twice on an empty frame must make <code>len(frame)</code> equal <code>2</code>, with both corresponding entries having type ID <code>128</code>.</p>
+<p>As a result, after <code>add_power</code> is called twice on an empty frame, <code>len(frame)</code> must equal <code>2</code>, with both corresponding entries having type ID <code>128</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Extend cayennelpp.lpp_frame.LppFrame with the public method</span>
-        <span class="spec-meta muted">105 words · source specification
+        <span class="spec-title">Extend cayennelpp.lpp_frame.LppFrame by adding a public method</span>
+        <span class="spec-meta muted">125 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Extend <code>cayennelpp.lpp_frame.LppFrame</code> with the public method:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Extend <code>cayennelpp.lpp_frame.LppFrame</code> by adding a public method:</p>
 <pre><code class="language-python">add_distance(channel, value)
 </code></pre>
-<h5>Required behavior</h5>
+<h5>Behavior that is required</h5>
 <ul>
-<li>The method must accept the following positional inputs:
+<li>The positional inputs that the method must accept are the following:
 <ul>
-<li><code>channel</code>: an integer channel identifier.</li>
-<li><code>value</code>: a numeric distance value, including fractional and large values such as <code>1.2345</code> and <code>1234.5</code>.</li>
+<li><code>channel</code>: an integer identifier for the channel.</li>
+<li><code>value</code>: a numeric value for the distance, including fractional and large values such as <code>1.2345</code> and <code>1234.5</code>.</li>
 </ul>
 </li>
-<li>Each call must append exactly one entry to the frame’s existing <code>data</code> collection.</li>
-<li>The appended entry’s <code>type</code> must be integer-convertible to <code>130</code>.</li>
-<li>Calling <code>add_distance</code> twice on an empty frame must result in <code>len(frame) == 2</code>, with both entries having type code <code>130</code>.</li>
+<li>On each call, the method must append exactly one entry to the frame’s existing <code>data</code> collection.</li>
+<li>The <code>type</code> of the appended entry must be integer-convertible to <code>130</code>.</li>
+<li>When <code>add_distance</code> is called twice on an empty frame, the outcome must be <code>len(frame) == 2</code>, with both entries carrying type code <code>130</code>.</li>
 </ul>
-<p>No particular return value or serialized distance representation is required by this change.</p>
+<p>This change requires no particular return value or serialized representation of the distance.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Add support for an &#34;energy&#34; data type to the CayenneLPP frame implementation.</span>
-        <span class="spec-meta muted">301 words · source specification
+        <span class="spec-title">Extend the CayenneLPP frame implementation with support for an &#34;energy&#34; data type.</span>
+        <span class="spec-meta muted">344 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add support for an &quot;energy&quot; data type to the CayenneLPP frame implementation.</p>
-<h4>Required Changes</h4>
-<h5>New Method: <code>LppFrame.add_energy</code></h5>
-<p>In the <code>LppFrame</code> class (module <code>cayennelpp.lpp_frame</code>, the class used to build up a Cayenne LPP frame), add a new instance method:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Extend the CayenneLPP frame implementation with support for an &quot;energy&quot; data type.</p>
+<h4>Required Modifications</h4>
+<h5>New Method to Add: <code>LppFrame.add_energy</code></h5>
+<p>Add this new instance method to the <code>LppFrame</code> class (this is the class in module <code>cayennelpp.lpp_frame</code> that is used to build up a Cayenne LPP frame):</p>
 <pre><code class="language-python">def add_energy(self, channel, value):
 </code></pre>
-<p><strong>Parameters:</strong></p>
+<p><strong>Parameters of the method:</strong></p>
 <ul>
-<li><code>channel</code>: an integer channel identifier for the data entry.</li>
-<li><code>value</code>: a numeric energy value (float).</li>
+<li><code>channel</code>: an integer that identifies the channel for the data entry.</li>
+<li><code>value</code>: the energy value, given as a number (float).</li>
 </ul>
-<p><strong>Behavior:</strong></p>
+<p><strong>Behavior of the method:</strong></p>
 <ul>
-<li>Calling this method appends a new data entry to the frame's internal collection of data items (accessible via <code>frame.data</code>, a list-like sequence).</li>
-<li>Each appended entry must be created with a type identifier corresponding to the energy type, whose integer value is <code>131</code>.</li>
-<li>The channel and value passed to the method are used to construct the appended data entry.</li>
+<li>Invoking this method appends a new data entry to the internal collection of data items kept by the frame (this collection is accessible via <code>frame.data</code>, a list-like sequence).</li>
+<li>Each appended entry must be created with a type identifier corresponding to the energy type; the integer value of that type identifier is <code>131</code>.</li>
+<li>The appended data entry is constructed from the channel and value passed to the method.</li>
 </ul>
-<p><strong>Constraints derived from expected behavior:</strong></p>
+<p><strong>Constraints that follow from the expected behavior:</strong></p>
 <ul>
-<li>After adding N energy entries, <code>len(frame)</code> must reflect the total number of data entries added (i.e., the frame's length equals its number of data items).</li>
-<li>For each added energy entry, <code>int(entry.type)</code> must equal <code>131</code>, where <code>entry.type</code> is the type attribute of the data item and supports conversion to <code>int</code>.</li>
-<li>The method must accept both small fractional values (e.g., <code>1.2345</code>) and larger values (e.g., <code>1234.5</code>) without error.</li>
+<li>After N energy entries have been added, <code>len(frame)</code> must reflect the total number of data entries added (that is, the frame's length equals its number of data items).</li>
+<li>For each energy entry that is added, <code>int(entry.type)</code> must equal <code>131</code>; here <code>entry.type</code> denotes the type attribute of the data item, and it supports conversion to <code>int</code>.</li>
+<li>The method must accept both small fractional values (for example, <code>1.2345</code>) and larger values (for example, <code>1234.5</code>) without error.</li>
 </ul>
-<h4>Integration Notes</h4>
-<p>The energy type must be registered/defined consistently with the existing data types so that:</p>
+<h4>Notes on Integration</h4>
+<p>The energy type must be registered/defined consistently with the existing data types, such that:</p>
 <ul>
-<li>The <code>add_energy</code> method can look up and use the energy type identifier <code>131</code> when constructing a data entry.</li>
-<li>The resulting data entry behaves like all other frame data entries with respect to <code>.type</code> (convertible to <code>int</code>) and inclusion in <code>frame.data</code> and the frame's length.</li>
+<li>When a data entry is constructed, the <code>add_energy</code> method can look up and use the energy type identifier <code>131</code>.</li>
+<li>With respect to <code>.type</code> (convertible to <code>int</code>), inclusion in <code>frame.data</code>, and the frame's length, the resulting data entry behaves like all other frame data entries.</li>
 </ul>
-<p>This mirrors the pattern used by existing <code>add_*</code> methods on <code>LppFrame</code> (such as adding a distance entry, which uses type <code>130</code>), differing only in the energy-specific type identifier <code>131</code> and method name <code>add_energy</code>.</p>
+<p>This follows the same pattern as the existing <code>add_*</code> methods on <code>LppFrame</code> (for instance, adding a distance entry, which uses type <code>130</code>), the only differences being the energy-specific type identifier <code>131</code> and the method name <code>add_energy</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Extend the public LppFrame class in cayennelpp.lpp_frame with</span>
-        <span class="spec-meta muted">101 words · source specification
+        <span class="spec-title">Add the following method to the public LppFrame class in cayennelpp.lpp_frame</span>
+        <span class="spec-meta muted">125 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add direction records to <code>LppFrame</code></h4>
-<p>Extend the public <code>LppFrame</code> class in <code>cayennelpp.lpp_frame</code> with:</p>
+      <div class="spec-body"><h4>Extend <code>LppFrame</code> with direction records</h4>
+<p>Add the following method to the public <code>LppFrame</code> class in <code>cayennelpp.lpp_frame</code>:</p>
 <pre><code class="language-python">add_direction(channel, value)
 </code></pre>
-<p>Required behavior:</p>
+<p>The required behavior is as follows:</p>
 <ul>
-<li>The method must accept positional channel and direction values, including:
+<li>The method must accept channel and direction values passed positionally, including:
 <ul>
 <li><code>(2, 30)</code></li>
 <li><code>(2, 120)</code></li>
@@ -1007,172 +1012,174 @@ bytes([0x01, 0x88, 0x06, 0x76, 0x5F, 0xF2, 0x96, 0x0A, 0x00, 0x03, 0xE8])
 <li><code>(3, 300)</code></li>
 </ul>
 </li>
-<li>Each invocation appends one record to the frame’s public <code>data</code> sequence.</li>
-<li>Reusing a channel must append another record rather than replacing an existing one.</li>
-<li>Each appended direction record’s <code>type</code> must be integer-convertible, with:</li>
+<li>With each invocation, one record is appended to the public <code>data</code> sequence of the frame.</li>
+<li>When a channel is reused, the method must append another record instead of replacing an existing one.</li>
+<li>For each appended direction record, its <code>type</code> must be convertible to an integer, such that:</li>
 </ul>
 <pre><code class="language-python">int(record.type) == 132
 </code></pre>
 <ul>
-<li>Consequently, calling the method four times on an empty frame must make <code>len(frame)</code> equal to <code>4</code>.</li>
+<li>As a consequence, calling the method four times on an empty frame must make <code>len(frame)</code> equal to <code>4</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Extend the public LppFrame class, available from cayennelpp and defined in cayennelpp.lpp_frame, with</span>
-        <span class="spec-meta muted">83 words · source specification
+        <span class="spec-title">The public class LppFrame, defined in cayennelpp.lpp_frame and available from cayennelpp, must be extended with this method</span>
+        <span class="spec-meta muted">106 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Extend the public <code>LppFrame</code> class, available from <code>cayennelpp</code> and defined in <code>cayennelpp.lpp_frame</code>, with:</p>
+      <div class="spec-body"><h4>Change to be implemented</h4>
+<p>The public class <code>LppFrame</code>, defined in <code>cayennelpp.lpp_frame</code> and available from <code>cayennelpp</code>, must be extended with this method:</p>
 <pre><code class="language-python">add_colour(self, channel, red, green, blue)
 </code></pre>
-<p>The four arguments must be accepted positionally.</p>
-<p>Calling:</p>
+<p>The method must accept the four arguments positionally.</p>
+<p>When a call to</p>
 <pre><code class="language-python">frame.add_colour(2, 42, 42, 42)
 </code></pre>
-<p>on an empty frame must:</p>
+<p>is made on an empty frame, the following must hold:</p>
 <ul>
-<li>Add exactly one item to the frame, so <code>len(frame) == 1</code>.</li>
-<li>Expose that item as <code>frame.data[0]</code>.</li>
-<li>Set the item’s <code>type</code> to a value for which <code>int(frame.data[0].type) == 135</code>.</li>
+<li>Exactly one item is added to the frame, so that <code>len(frame) == 1</code>.</li>
+<li>That item is exposed as <code>frame.data[0]</code>.</li>
+<li>The item's <code>type</code> is set to a value for which <code>int(frame.data[0].type) == 135</code>.</li>
 </ul>
-<p>No other validation, return-value, component-storage, or serialization behavior is required.</p>
+<p>Beyond what is stated above, no validation, return-value, component-storage, or serialization behavior is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add support for a new &#34;switch&#34; data type to the CayenneLPP frame implementation.</span>
-        <span class="spec-meta muted">269 words · source specification
+        <span class="spec-title">The CayenneLPP frame implementation is to be extended with support for a new &#34;switch&#34; data type.</span>
+        <span class="spec-meta muted">292 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add support for a new &quot;switch&quot; data type to the CayenneLPP frame implementation. This involves registering a new type identifier and exposing a convenience method on the frame class for appending switch data.</p>
-<h4>Required Changes</h4>
-<h5>1. Register the &quot;switch&quot; data type</h5>
-<p>A new CayenneLPP data type for a switch must be defined. This type is identified by the numeric type code <strong>142</strong>. When a switch data item is created and its type is converted to an integer, the resulting value must be <code>142</code>.</p>
-<h5>2. Add <code>add_switch</code> method to the frame class</h5>
-<p>The frame class located in <code>cayennelpp/lpp_frame.py</code> (the <code>LppFrame</code> class, which is used elsewhere via methods such as <code>add_colour</code>) must gain a new public method:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The CayenneLPP frame implementation is to be extended with support for a new &quot;switch&quot; data type. Doing so involves registering a new type identifier and exposing a convenience method on the frame class for appending switch data.</p>
+<h4>Required Modifications</h4>
+<h5>1. Registration of the &quot;switch&quot; data type</h5>
+<p>A new CayenneLPP data type must be defined for a switch. The numeric type code that identifies this type is <strong>142</strong>. When a switch data item is created and its type is converted to an integer, the value that results must be <code>142</code>.</p>
+<h5>2. Adding the <code>add_switch</code> method to the frame class</h5>
+<p>The frame class found in <code>cayennelpp/lpp_frame.py</code> (the <code>LppFrame</code> class, which is used elsewhere through methods such as <code>add_colour</code>) must gain a new public method:</p>
 <pre><code class="language-python">def add_switch(self, channel, value):
 </code></pre>
-<p>Behavior:</p>
+<p>Method behavior:</p>
 <ul>
-<li><code>channel</code> — an integer channel identifier for the data item.</li>
-<li><code>value</code> — the switch value (e.g. <code>0</code> or <code>1</code>).</li>
-<li>Calling this method appends one new switch data item to the frame's internal collection of data items.</li>
-<li>Each appended data item must have a type whose integer value is <code>142</code>.</li>
+<li><code>channel</code> — an integer identifier for the data item's channel.</li>
+<li><code>value</code> — the switch's value (e.g. <code>0</code> or <code>1</code>).</li>
+<li>Calling this method results in one new switch data item being appended to the frame's internal collection of data items.</li>
+<li>For each appended data item, the type it carries must have an integer value of <code>142</code>.</li>
 </ul>
-<h5>Expected Observable Behavior</h5>
+<h5>Observable Behavior to Expect</h5>
 <ul>
-<li>After calling <code>add_switch</code> twice on a frame, the frame's length (as reported by <code>len(frame)</code>) reflects two data items.</li>
-<li>The frame exposes its data items through a <code>data</code> attribute that supports indexed access (<code>frame.data[0]</code>, <code>frame.data[1]</code>, ...).</li>
-<li>Each data item exposes a <code>type</code> attribute that, when converted with <code>int(...)</code>, yields <code>142</code>.</li>
+<li>Once <code>add_switch</code> has been called twice on a frame, the frame's length (as reported by <code>len(frame)</code>) reflects two data items.</li>
+<li>Data items are exposed by the frame through a <code>data</code> attribute that supports indexed access (<code>frame.data[0]</code>, <code>frame.data[1]</code>, ...).</li>
+<li>Each data item exposes a <code>type</code> attribute; when that attribute is converted with <code>int(...)</code>, it yields <code>142</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The new method must integrate with the existing frame data storage and length-reporting mechanisms already used by other <code>add_*</code> methods.</li>
-<li>The switch type code is <code>142</code>.</li>
+<li>The new method must integrate with the frame's existing data storage and length-reporting mechanisms, which other <code>add_*</code> methods already use.</li>
+<li>The type code of the switch is <code>142</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You will work on the cayennelpp package, specifically the LppFrame class (located in the module importable such that LppFrame instances expose the…</span>
-        <span class="spec-meta muted">396 words · source specification
+        <span class="spec-title">Your work concerns the cayennelpp package, more precisely the LppFrame class (found in the module importable such that LppFrame instances expose the…</span>
+        <span class="spec-meta muted">431 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You will work on the <code>cayennelpp</code> package, specifically the <code>LppFrame</code> class (located in the module importable such that <code>LppFrame</code> instances expose the frame-level API described below). You must add and adjust behavior related to querying and adding data entries within a frame.</p>
-<h4>Background Context</h4>
-<p>An <code>LppFrame</code> holds a collection of data entries. Each entry has a <code>type</code> attribute whose integer value corresponds to an IPSO/CayenneLPP data type identifier. The following type identifiers are relevant:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>Your work concerns the <code>cayennelpp</code> package, more precisely the <code>LppFrame</code> class (found in the module importable such that <code>LppFrame</code> instances expose the frame-level API described below). You must add and adjust behavior for querying and adding data entries within a frame.</p>
+<h4>Background</h4>
+<p>An <code>LppFrame</code> contains a collection of data entries. Each entry carries a <code>type</code> attribute whose integer value corresponds to an IPSO/CayenneLPP data type identifier. The following are the relevant type identifiers:</p>
 <ul>
-<li><code>103</code> → data type named <code>&quot;Temperature&quot;</code></li>
-<li><code>104</code> → data type named <code>&quot;Humidity&quot;</code></li>
-<li><code>122</code> → data type named <code>&quot;Load&quot;</code></li>
-<li><code>102</code> → data type named <code>&quot;Barometer&quot;</code></li>
+<li><code>103</code> maps to the data type named <code>&quot;Temperature&quot;</code></li>
+<li><code>104</code> maps to the data type named <code>&quot;Humidity&quot;</code></li>
+<li><code>122</code> maps to the data type named <code>&quot;Load&quot;</code></li>
+<li><code>102</code> maps to the data type named <code>&quot;Barometer&quot;</code></li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior You Must Implement</h4>
 <h5>1. <code>LppFrame.add_by_type(type, channel, value)</code></h5>
-<p>Add a data entry to the frame given a numeric data type identifier, a channel, and a value.</p>
+<p>Add a data entry to the frame, given a numeric data type identifier together with a channel and a value.</p>
 <ul>
 <li>Signature: <code>add_by_type(self, type, channel, value)</code></li>
-<li>When called with a <code>type</code> argument that does not correspond to a valid/known data type identifier (for example <code>0</code>), the method must raise <code>TypeError</code>.</li>
+<li>If the method is called with a <code>type</code> argument that does not correspond to a valid/known data type identifier (for example <code>0</code>), it must raise <code>TypeError</code>.</li>
 </ul>
 <h5>2. <code>LppFrame.get_by_type(type)</code></h5>
-<p>Return the list of data entries currently in the frame whose integer <code>type</code> value equals the given <code>type</code> argument.</p>
+<p>Return the list of the data entries that are currently in the frame and whose integer <code>type</code> value equals the <code>type</code> argument supplied.</p>
 <ul>
 <li>Signature: <code>get_by_type(self, type)</code></li>
-<li>Returns a list. Each returned entry must expose a <code>type</code> attribute whose integer value (<code>int(entry.type)</code>) equals the queried <code>type</code>.</li>
-<li>If no entries match, return an empty list.</li>
+<li>Returns a list. Each returned entry must expose a <code>type</code> attribute whose integer value (<code>int(entry.type)</code>) equals the <code>type</code> being queried.</li>
+<li>If there are no matching entries, return an empty list.</li>
 </ul>
 <h5>3. <code>LppFrame.get_by_name(name)</code></h5>
-<p>Return the list of data entries currently in the frame whose data type name equals the given <code>name</code> string.</p>
+<p>Return the list of the data entries that are currently in the frame and whose data type name equals the <code>name</code> string supplied.</p>
 <ul>
 <li>Signature: <code>get_by_name(self, name)</code></li>
-<li>The <code>name</code> argument is one of the human-readable IPSO data type names (e.g. <code>&quot;Temperature&quot;</code>, <code>&quot;Humidity&quot;</code>, <code>&quot;Load&quot;</code>, <code>&quot;Barometer&quot;</code>).</li>
-<li>Returns a list of matching entries. Each returned entry must expose a <code>type</code> attribute whose integer value maps to the requested name per the mapping above (e.g. querying <code>&quot;Humidity&quot;</code> yields entries with <code>int(entry.type) == 104</code>; <code>&quot;Load&quot;</code> yields <code>122</code>; <code>&quot;Temperature&quot;</code> yields <code>103</code>).</li>
-<li>If no entries match the given name (e.g. <code>&quot;Barometer&quot;</code> when no entry of type <code>102</code> is present), return an empty list.</li>
+<li>The <code>name</code> argument is one of the human-readable IPSO data type names (for example <code>&quot;Temperature&quot;</code>, <code>&quot;Humidity&quot;</code>, <code>&quot;Load&quot;</code>, <code>&quot;Barometer&quot;</code>).</li>
+<li>Returns a list of the entries that match. Each returned entry must expose a <code>type</code> attribute whose integer value maps to the requested name according to the mapping above (for example, querying <code>&quot;Humidity&quot;</code> yields entries with <code>int(entry.type) == 104</code>; <code>&quot;Load&quot;</code> yields <code>122</code>; <code>&quot;Temperature&quot;</code> yields <code>103</code>).</li>
+<li>If no entries match the supplied name (for example <code>&quot;Barometer&quot;</code> when no entry of type <code>102</code> is present), return an empty list.</li>
 </ul>
-<h4>Data Type Naming</h4>
-<p>Data type names must follow IPSO naming. In particular, the names <code>&quot;Temperature&quot;</code>, <code>&quot;Humidity&quot;</code>, <code>&quot;Load&quot;</code>, and <code>&quot;Barometer&quot;</code> must be associated with type identifiers <code>103</code>, <code>104</code>, <code>122</code>, and <code>102</code> respectively, so that name-based lookups resolve to the correct entries.</p>
-<h4>Notes</h4>
+<h4>Naming of Data Types</h4>
+<p>Data type names must follow IPSO naming. Specifically, the names <code>&quot;Temperature&quot;</code>, <code>&quot;Humidity&quot;</code>, <code>&quot;Load&quot;</code>, and <code>&quot;Barometer&quot;</code> must be associated with type identifiers <code>103</code>, <code>104</code>, <code>122</code>, and <code>102</code> respectively, so that lookups by name resolve to the correct entries.</p>
+<h4>Additional Notes</h4>
 <ul>
-<li>The methods operate on the entries already present in a frame instance.</li>
-<li>Return values for the <code>get_by_*</code> methods are always lists (possibly empty).</li>
+<li>The methods operate on the entries that are already present in a frame instance.</li>
+<li>The values returned by the <code>get_by_*</code> methods are always lists (possibly empty).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Add a new module cayennelpp/lpp_util.py that provides a utility class LppUtil with static methods that can serve as default callables for Python&#39;s json.dumps.</span>
-        <span class="spec-meta muted">427 words · source specification
+        <span class="spec-title">Introduce a new module cayennelpp/lpp_util.py offering a utility class LppUtil whose static methods can be used as default callables for Python&#39;s json.dumps.</span>
+        <span class="spec-meta muted">440 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement a JSON Encoding Utility for LPP Frames</h3>
+      <div class="spec-body"><h3>Task: Build a JSON Encoding Utility for LPP Frames</h3>
 <h4>Overview</h4>
-<p>Add a new module <code>cayennelpp/lpp_util.py</code> that provides a utility class <code>LppUtil</code> with static methods that can serve as <code>default</code> callables for Python's <code>json.dumps</code>. These methods convert an <code>LppFrame</code> object into a JSON-serializable structure.</p>
+<p>Introduce a new module <code>cayennelpp/lpp_util.py</code> offering a utility class <code>LppUtil</code> whose static methods can be used as <code>default</code> callables for Python's <code>json.dumps</code>. The methods take an <code>LppFrame</code> object and turn it into a JSON-serializable structure.</p>
 <h4>Context</h4>
-<p>The existing <code>cayennelpp.lpp_frame</code> module defines an <code>LppFrame</code> class representing a collection of Cayenne LPP data items. Each <code>LppFrame</code> can be populated via methods such as <code>add_humidity(channel, value)</code> and <code>add_temperature(channel, value)</code>. An <code>LppFrame</code> contains one item per added measurement, and each item has both a channel and a data type (the LPP type identifier).</p>
+<p>The existing <code>cayennelpp.lpp_frame</code> module provides an <code>LppFrame</code> class that models a collection of Cayenne LPP data items. An <code>LppFrame</code> can be populated through methods such as <code>add_humidity(channel, value)</code> and <code>add_temperature(channel, value)</code>. It holds one item for every added measurement, and every item carries both a channel and a data type (the LPP type identifier).</p>
 <h4>Required API</h4>
-<p>Create the module <code>cayennelpp/lpp_util.py</code> containing a class <code>LppUtil</code> with the following <strong>static methods</strong>:</p>
+<p>Create the module <code>cayennelpp/lpp_util.py</code>, which contains a class <code>LppUtil</code> providing the following <strong>static methods</strong>:</p>
 <h5><code>LppUtil.json_encode_type_int(obj)</code></h5>
 <h5><code>LppUtil.json_encode_type_str(obj)</code></h5>
 <h5><code>LppUtil.json_encode(obj)</code></h5>
-<p>Each of these accepts a single argument <code>obj</code> and is intended to be passed as the <code>default</code> argument to <code>json.dumps</code>.</p>
+<p>Each of them accepts a single argument <code>obj</code> and is meant to be passed to <code>json.dumps</code> as its <code>default</code> argument.</p>
 <h4>Behavior</h4>
-<p>When any of the three methods is called with an <code>LppFrame</code> instance, it must return a JSON-serializable object such that <code>json.dumps</code> produces a non-empty string and <code>json.loads</code> of that string yields a <strong>list</strong>. The list contains one element per data item in the frame. Each element must be a JSON object (dict) that includes at least a key named <code>&quot;type&quot;</code>.</p>
-<p>The three methods differ only in how the <code>&quot;type&quot;</code> field of each item is represented:</p>
+<p>If any of the three methods is called with an <code>LppFrame</code> instance, it must return a JSON-serializable object for which <code>json.dumps</code> produces a non-empty string and <code>json.loads</code> of that string yields a <strong>list</strong>. The list holds one element for each data item in the frame. Every element must be a JSON object (dict) that has at least a key named <code>&quot;type&quot;</code>.</p>
+<p>The only respect in which the three methods differ is how the <code>&quot;type&quot;</code> field of each item is represented:</p>
 <ul>
 <li>
-<p><strong><code>json_encode_type_int</code></strong>: for every item in the resulting list, the value under <code>&quot;type&quot;</code> must be an integer (the numeric LPP type identifier).</p>
+<p><strong><code>json_encode_type_int</code></strong>: for every item in the resulting list, the value stored under <code>&quot;type&quot;</code> must be an integer (the numeric LPP type identifier).</p>
 </li>
 <li>
-<p><strong><code>json_encode_type_str</code></strong>: for every item in the resulting list, the value under <code>&quot;type&quot;</code> must be a string (a textual/name representation of the LPP type).</p>
+<p><strong><code>json_encode_type_str</code></strong>: for every item in the resulting list, the value stored under <code>&quot;type&quot;</code> must be a string (a textual/name representation of the LPP type).</p>
 </li>
 <li>
-<p><strong><code>json_encode</code></strong>: behaves as a general-purpose encoder for <code>LppFrame</code>. When given any object it does not know how to serialize (i.e., not an <code>LppFrame</code>), it must raise <code>TypeError</code>. (This is the standard contract for a <code>json.dumps</code> <code>default</code> callable: handle known types, otherwise raise <code>TypeError</code>.)</p>
+<p><strong><code>json_encode</code></strong>: acts as a general-purpose encoder for <code>LppFrame</code>. If handed any object it does not know how to serialize (i.e., not an <code>LppFrame</code>), it must raise <code>TypeError</code>. (That is the standard contract for a <code>json.dumps</code> <code>default</code> callable: handle known types, otherwise raise <code>TypeError</code>.)</p>
 </li>
 </ul>
 <h4>Error Conditions</h4>
 <ul>
-<li>Passing an object that is not a supported type (e.g., an arbitrary class or object that is not an <code>LppFrame</code>) to <code>json_encode</code> must raise <code>TypeError</code>.</li>
+<li>Supplying <code>json_encode</code> with an object that is not a supported type (e.g., an arbitrary class or object that is not an <code>LppFrame</code>) must raise <code>TypeError</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The <code>frame</code> used in serialization tests is built by adding a humidity reading and a temperature reading on distinct channels; the encoded output must reflect one list element per added item, each carrying its own <code>&quot;type&quot;</code> field of the appropriate representation.</li>
-<li>Do not modify the public behavior of <code>LppFrame</code>.</li>
+<li>The <code>frame</code> used in serialization tests is assembled by adding a humidity reading and a temperature reading on distinct channels; the encoded output must show one list element for each added item, with every element carrying its own <code>&quot;type&quot;</code> field in the appropriate representation.</li>
+<li>The public behavior of <code>LppFrame</code> must not be modified.</li>
 </ul>
 <h4>Import Requirements</h4>
-<p>The following imports must succeed:</p>
+<p>These imports must succeed:</p>
 <pre><code class="language-python">from cayennelpp.lpp_frame import LppFrame
 from cayennelpp.lpp_util import LppUtil
 </code></pre>
-<p>And the following usage patterns must work:</p>
+<p>And these usage patterns must work:</p>
 <pre><code class="language-python">json.dumps(frame, default=LppUtil.json_encode_type_int)
 json.dumps(frame, default=LppUtil.json_encode_type_str)
 json.dumps(some_unsupported_object, default=LppUtil.json_encode)  # raises TypeError
@@ -1182,38 +1189,38 @@ json.dumps(some_unsupported_object, default=LppUtil.json_encode)  # raises TypeE
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add to_bytes() Helper Methods</span>
-        <span class="spec-meta muted">268 words · source specification
+        <span class="spec-title">Adding to_bytes() Helper Methods</span>
+        <span class="spec-meta muted">287 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>to_bytes()</code> Helper Methods</h3>
-<h4>Overview</h4>
-<p>Two existing classes in the <code>cayennelpp</code> package must each gain a public <code>to_bytes()</code> method that returns the object's serialized byte representation. This byte representation must be identical to what is already produced when the object is converted to bytes via the built-in <code>bytes()</code> conversion.</p>
-<h4>Required Changes</h4>
+      <div class="spec-body"><h3>Task Specification: Adding <code>to_bytes()</code> Helper Methods</h3>
+<h4>Summary</h4>
+<p>In the <code>cayennelpp</code> package, two existing classes must each gain a public <code>to_bytes()</code> method that returns the object's serialized byte representation. That byte representation must be identical to what is already produced when the object is converted to bytes using the built-in <code>bytes()</code> conversion.</p>
+<h4>Necessary Changes</h4>
 <h5>1. <code>LppData.to_bytes()</code></h5>
-<p>The <code>LppData</code> class (importable as <code>from cayennelpp.lpp_data import LppData</code>) must provide an instance method:</p>
+<p>An instance method must be provided by the <code>LppData</code> class (importable as <code>from cayennelpp.lpp_data import LppData</code>):</p>
 <pre><code class="language-python">def to_bytes(self) -&gt; bytes:
 </code></pre>
 <ul>
-<li>Takes no arguments other than <code>self</code>.</li>
-<li>Returns a <code>bytes</code> object representing the serialized data.</li>
-<li>The returned value must be byte-for-byte identical to the result of calling <code>bytes(data_instance)</code> on the same object.</li>
+<li>Accepts no arguments other than <code>self</code>.</li>
+<li>Returns a <code>bytes</code> object that represents the serialized data.</li>
+<li>The value that is returned must be byte-for-byte identical to the result of calling <code>bytes(data_instance)</code> on the same object.</li>
 </ul>
-<p>For example, an <code>LppData</code> instance created via <code>LppData.from_bytes(...)</code> from a given buffer must, when serialized with <code>to_bytes()</code>, reproduce exactly that original buffer (matching the existing <code>bytes()</code> conversion behavior).</p>
+<p>As an example, an <code>LppData</code> instance that was created via <code>LppData.from_bytes(...)</code> from a given buffer must, when serialized with <code>to_bytes()</code>, reproduce exactly that original buffer (matching the existing <code>bytes()</code> conversion behavior).</p>
 <h5>2. <code>LppFrame.to_bytes()</code></h5>
-<p>The <code>LppFrame</code> class (importable as <code>from cayennelpp.lpp_frame import LppFrame</code>) must provide an instance method:</p>
+<p>The <code>LppFrame</code> class (importable as <code>from cayennelpp.lpp_frame import LppFrame</code>) is required to provide an instance method:</p>
 <pre><code class="language-python">def to_bytes(self) -&gt; bytes:
 </code></pre>
 <ul>
-<li>Takes no arguments other than <code>self</code>.</li>
-<li>Returns a <code>bytes</code> object representing the serialized frame.</li>
-<li>The returned value must be byte-for-byte identical to the result of calling <code>bytes(frame_instance)</code> on the same object.</li>
+<li>Receives no arguments other than <code>self</code>.</li>
+<li>Returns a <code>bytes</code> object that represents the serialized frame.</li>
+<li>The value that gets returned must be byte-for-byte identical to the result of calling <code>bytes(frame_instance)</code> on the same object.</li>
 </ul>
-<p>For example, an <code>LppFrame</code> instance created via <code>LppFrame.from_bytes(...)</code> from a given buffer must, when serialized with <code>to_bytes()</code>, reproduce exactly that original buffer (matching the existing <code>bytes()</code> conversion behavior).</p>
-<h4>Constraints</h4>
+<p>By way of example, an <code>LppFrame</code> instance that was created via <code>LppFrame.from_bytes(...)</code> from a given buffer must, when serialized with <code>to_bytes()</code>, reproduce exactly that original buffer (matching the existing <code>bytes()</code> conversion behavior).</p>
+<h4>Restrictions</h4>
 <ul>
-<li>The existing <code>bytes()</code> conversion behavior for both classes must remain unchanged.</li>
-<li>The new <code>to_bytes()</code> methods must produce results consistent with (identical to) the existing <code>bytes()</code> conversion for the same instance across all input types those classes already support.</li>
+<li>The <code>bytes()</code> conversion behavior that already exists for both classes must remain unchanged.</li>
+<li>Across all input types those classes already support, the new <code>to_bytes()</code> methods must produce results consistent with (identical to) the existing <code>bytes()</code> conversion for the same instance.</li>
 </ul>
 </div>
     </details>

@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/quentinlampin/microschc/compare/6827423007cbab1c911090fc5e5a88a21471b197...3018fc1b2245d08567028a4f41ff6d5162e285d6" target="_blank" rel="noopener" class="mono">6827423007 … 3018fc1b22</a> · 33 commits by 1 author over 37 d (2024-12-08 to 2025-01-14)</dd></div>
       <div><dt>Window:</dt><dd>requests 4–23 of a run of 23 test-bearing changes (overlaps the previous window by 17) · eval split</dd></div>
       <div><dt>Size:</dt><dd>4,384 lines of code in 61 files when the chain starts · over the 20 requests the developers added 713 and removed 175 lines of code, plus 1,200 lines of tests (40 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>7.7k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 9 and symbols introduced by earlier ones to depth 1</dd></div>
+      <div><dt>Specifications:</dt><dd>8.5k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 9 and symbols introduced by earlier ones to depth 1</dd></div>
     </dl>
   </header>
 </section>
@@ -144,29 +144,29 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">SCTP INIT_ACK Chunk Parsing</span>
-        <span class="spec-meta muted">797 words · source specification
+        <span class="spec-title">Parsing the SCTP INIT_ACK Chunk</span>
+        <span class="spec-meta muted">856 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: SCTP INIT_ACK Chunk Parsing</h3>
-<h4>Objective</h4>
-<p>Extend the existing SCTP header parser so that it can parse SCTP packets whose payload begins with an <strong>INIT_ACK</strong> chunk (chunk type <code>0x02</code>), decomposing the packet into a flat list of field descriptors.</p>
-<h4>Public API</h4>
-<p>The parser must be importable and usable via the following surface (already established by existing DATA and INIT chunk support; INIT_ACK must integrate consistently):</p>
+      <div class="spec-body"><h3>Task Specification: Parsing the SCTP INIT_ACK Chunk</h3>
+<h4>Goal</h4>
+<p>The existing SCTP header parser is to be extended so that it can parse SCTP packets whose payload starts with an <strong>INIT_ACK</strong> chunk (chunk type <code>0x02</code>), breaking the packet down into a flat list of field descriptors.</p>
+<h4>Public API Surface</h4>
+<p>The parser must be importable and usable by way of the following surface (a surface already provided by the existing DATA and INIT chunk support; INIT_ACK must integrate consistently):</p>
 <ul>
-<li><code>SCTPParser</code> — a class with a no-argument constructor.
+<li><code>SCTPParser</code> — a class whose constructor takes no arguments.
 <ul>
 <li>Method: <code>parse(self, buffer: Buffer) -&gt; HeaderDescriptor</code></li>
 </ul>
 </li>
-<li><code>SCTPFields</code> — an enumeration/namespace of field identifier constants (see required members below).</li>
-<li><code>HeaderDescriptor</code> — an object with a <code>.fields</code> attribute (a list of <code>FieldDescriptor</code>).</li>
-<li><code>FieldDescriptor</code> — an object with attributes <code>.id</code>, <code>.position</code> (int), and <code>.value</code> (a <code>Buffer</code>).</li>
-<li><code>Buffer</code> — a byte-content container constructed as <code>Buffer(content: bytes, length: int)</code>, where <code>length</code> is expressed in <strong>bits</strong>. Two <code>Buffer</code> instances are equal when their content and bit-length match.</li>
+<li><code>SCTPFields</code> — an enumeration/namespace holding field identifier constants (see the required members below).</li>
+<li><code>HeaderDescriptor</code> — an object carrying a <code>.fields</code> attribute (a list of <code>FieldDescriptor</code>).</li>
+<li><code>FieldDescriptor</code> — an object providing the attributes <code>.id</code>, <code>.position</code> (int), and <code>.value</code> (a <code>Buffer</code>).</li>
+<li><code>Buffer</code> — a container of byte content, constructed as <code>Buffer(content: bytes, length: int)</code>, with <code>length</code> expressed in <strong>bits</strong>. Two <code>Buffer</code> instances count as equal when their content and bit-length match.</li>
 </ul>
-<p>These types live in the same modules already used by the existing SCTP parser tests; do not change their locations.</p>
-<h4>Required <code>SCTPFields</code> members</h4>
-<p>The following identifier constants must exist and be used by the parser:</p>
+<p>These types reside in the same modules that the existing SCTP parser tests already use; their locations must not be changed.</p>
+<h4><code>SCTPFields</code> members that are required</h4>
+<p>The following identifier constants are required to exist and to be used by the parser:</p>
 <ul>
 <li><code>SCTPFields.SOURCE_PORT</code></li>
 <li><code>SCTPFields.DESTINATION_PORT</code></li>
@@ -184,26 +184,26 @@
 <li><code>SCTPFields.PARAMETER_LENGTH</code></li>
 <li><code>SCTPFields.PARAMETER_VALUE</code></li>
 </ul>
-<p>(The existing DATA/INIT field members must remain functional; only add what is missing.)</p>
-<h4>Input</h4>
-<p><code>parse</code> receives a single <code>Buffer</code> whose content is the raw SCTP packet bytes and whose <code>length</code> equals <code>len(content) * 8</code>.</p>
-<h4>Parsing behavior for an INIT_ACK chunk</h4>
-<p>The packet layout to parse (when the chunk type byte is <code>0x02</code>) is:</p>
-<h5>Common SCTP header (12 bytes)</h5>
-<p>Produce these field descriptors in order:</p>
+<p>(The pre-existing DATA/INIT field members must remain functional; add only the ones that are missing.)</p>
+<h4>Parser Input</h4>
+<p><code>parse</code> takes a single <code>Buffer</code>; its content is the raw SCTP packet bytes and its <code>length</code> equals <code>len(content) * 8</code>.</p>
+<h4>Behavior when parsing an INIT_ACK chunk</h4>
+<p>When the chunk type byte is <code>0x02</code>, the packet layout to parse is the following:</p>
+<h5>The common SCTP header (12 bytes)</h5>
+<p>Emit the following field descriptors in this order:</p>
 <ol>
-<li><code>SOURCE_PORT</code> — 16 bits, bytes 0–1.</li>
-<li><code>DESTINATION_PORT</code> — 16 bits, bytes 2–3.</li>
-<li><code>VERIFICATION_TAG</code> — 32 bits, bytes 4–7.</li>
-<li><code>CHECKSUM</code> — 32 bits, bytes 8–11.</li>
+<li><code>SOURCE_PORT</code> — 16 bits, spanning bytes 0–1.</li>
+<li><code>DESTINATION_PORT</code> — 16 bits, spanning bytes 2–3.</li>
+<li><code>VERIFICATION_TAG</code> — 32 bits, spanning bytes 4–7.</li>
+<li><code>CHECKSUM</code> — 32 bits, spanning bytes 8–11.</li>
 </ol>
-<h5>INIT_ACK chunk common header</h5>
+<h5>The common header of the INIT_ACK chunk</h5>
 <ol start="5">
-<li><code>CHUNK_TYPE</code> — 8 bits (value <code>0x02</code> for INIT_ACK).</li>
+<li><code>CHUNK_TYPE</code> — 8 bits (its value is <code>0x02</code> for INIT_ACK).</li>
 <li><code>CHUNK_FLAGS</code> — 8 bits.</li>
-<li><code>CHUNK_LENGTH</code> — 16 bits. This is the total length in bytes of the chunk (chunk type + flags + length + fixed fields + all parameters, before final chunk padding).</li>
+<li><code>CHUNK_LENGTH</code> — 16 bits. It carries the chunk's total length in bytes (chunk type + flags + length + fixed fields + all parameters, before final chunk padding).</li>
 </ol>
-<h5>INIT_ACK fixed fields</h5>
+<h5>The fixed INIT_ACK fields</h5>
 <ol start="8">
 <li><code>CHUNK_INIT_ACK_INITIATE_TAG</code> — 32 bits.</li>
 <li><code>CHUNK_INIT_ACK_ADVERTISED_RECEIVER_WINDOW_CREDIT</code> — 32 bits.</li>
@@ -211,22 +211,22 @@
 <li><code>CHUNK_INIT_ACK_NUMBER_OF_INBOUND_STREAMS</code> — 16 bits.</li>
 <li><code>CHUNK_INIT_ACK_INITIAL_TSN</code> — 32 bits.</li>
 </ol>
-<h5>Variable-length parameters (Type-Length-Value)</h5>
-<p>After the fixed fields, the remainder of the chunk consists of zero or more parameters. Each parameter begins with:</p>
+<h5>Parameters of variable length (Type-Length-Value)</h5>
+<p>After the fixed fields, the rest of the chunk is made up of zero or more parameters. Each parameter starts with:</p>
 <ul>
 <li><code>PARAMETER_TYPE</code> — 16 bits.</li>
-<li><code>PARAMETER_LENGTH</code> — 16 bits. This value is the number of bytes covering the type, length, and value fields together (i.e. <code>4 + value_byte_length</code>).</li>
+<li><code>PARAMETER_LENGTH</code> — 16 bits. Its value is the number of bytes covering the type, length, and value fields together (i.e. <code>4 + value_byte_length</code>).</li>
 </ul>
-<p>Then, only when the parameter carries a value (i.e. <code>PARAMETER_LENGTH &gt; 4</code>):</p>
+<p>After that, only when the parameter carries a value (i.e. <code>PARAMETER_LENGTH &gt; 4</code>):</p>
 <ul>
-<li><code>PARAMETER_VALUE</code> — <code>(PARAMETER_LENGTH - 4) * 8</code> bits, containing exactly the parameter's value bytes (no padding included).</li>
+<li><code>PARAMETER_VALUE</code> — <code>(PARAMETER_LENGTH - 4) * 8</code> bits, holding exactly the parameter's value bytes (padding is not included).</li>
 </ul>
-<p>When <code>PARAMETER_LENGTH == 4</code> there is no value, so no <code>PARAMETER_VALUE</code> descriptor is emitted for that parameter — only its <code>PARAMETER_TYPE</code> and <code>PARAMETER_LENGTH</code>.</p>
-<p>Parameters must be consumed sequentially until the chunk's declared length (<code>CHUNK_LENGTH</code>) is exhausted. Parameter parsing must be driven by the chunk length, and internal padding must be accounted for so consecutive parameters are located at correct offsets. No parameter-padding field descriptor is emitted in this scenario.</p>
-<h4>Output ordering and count</h4>
-<p><code>HeaderDescriptor.fields</code> must be a list of <code>FieldDescriptor</code> objects in the exact order the fields appear in the packet. Every field descriptor's <code>position</code> is <code>0</code>. Each descriptor's <code>value</code> is a <code>Buffer</code> whose content is the raw bytes of that field and whose bit-length equals the field's bit width as specified above.</p>
-<h4>Concrete example</h4>
-<p>For an INIT_ACK packet consisting of the common header, the INIT_ACK fixed fields, one parameter of type <code>0x0007</code> with a 800-bit (100-byte) value, and one parameter of type <code>0xc000</code> with declared length <code>0x0004</code> (no value), the resulting <code>fields</code> list contains exactly 17 descriptors, in order:</p>
+<p>When <code>PARAMETER_LENGTH == 4</code> the parameter has no value, so no <code>PARAMETER_VALUE</code> descriptor is emitted for it — only its <code>PARAMETER_TYPE</code> and <code>PARAMETER_LENGTH</code>.</p>
+<p>Parameters must be consumed in sequence until the chunk's declared length (<code>CHUNK_LENGTH</code>) is exhausted. The chunk length must drive parameter parsing, and internal padding must be taken into account so that consecutive parameters are located at the correct offsets. In this scenario, no field descriptor for parameter padding is emitted.</p>
+<h4>Ordering and count of the output</h4>
+<p><code>HeaderDescriptor.fields</code> must be a list of <code>FieldDescriptor</code> objects following the exact order in which the fields appear in the packet. The <code>position</code> of every field descriptor is <code>0</code>. Each descriptor's <code>value</code> is a <code>Buffer</code> whose content holds the raw bytes of that field and whose bit-length equals the field's bit width as specified above.</p>
+<h4>Worked example</h4>
+<p>Take an INIT_ACK packet made up of the common header, the INIT_ACK fixed fields, one parameter of type <code>0x0007</code> with an 800-bit (100-byte) value, and one parameter of type <code>0xc000</code> with declared length <code>0x0004</code> (no value); the resulting <code>fields</code> list contains exactly 17 descriptors, in this order:</p>
 <ol>
 <li><code>SOURCE_PORT</code> = <code>b'\x00\x07'</code> (16)</li>
 <li><code>DESTINATION_PORT</code> = <code>b'\x00\x07'</code> (16)</li>
@@ -246,36 +246,36 @@
 <li><code>PARAMETER_TYPE</code> = <code>b'\xc0\x00'</code> (16)</li>
 <li><code>PARAMETER_LENGTH</code> = <code>b'\x00\x04'</code> (16)</li>
 </ol>
-<p>Note in this example that the first parameter's declared length (<code>0x68</code> = 104) covers 4 header bytes plus 100 value bytes; the second parameter's declared length is 4, so it emits no value descriptor.</p>
+<p>Note that in this example the first parameter's declared length (<code>0x68</code> = 104) covers 4 header bytes plus 100 value bytes; the second parameter's declared length is 4, so it emits no value descriptor.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Existing SCTP parsing behavior for DATA and INIT chunks must remain intact and unchanged.</li>
-<li>The return value is always a <code>HeaderDescriptor</code> instance.</li>
+<li>The behavior of the existing SCTP parsing for DATA and INIT chunks must remain intact and unchanged.</li>
+<li>The value returned is always a <code>HeaderDescriptor</code> instance.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">SCTP SACK Chunk Parsing</span>
-        <span class="spec-meta muted">583 words · source specification
+        <span class="spec-title">Parsing SCTP SACK Chunks</span>
+        <span class="spec-meta muted">637 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: SCTP SACK Chunk Parsing</h3>
-<h4>Objective</h4>
-<p>Extend the existing SCTP header parser to support parsing of <strong>Selective Acknowledgement (SACK)</strong> chunks (chunk type <code>3</code>).</p>
-<h4>Public API Surface</h4>
-<p>The parser is provided by the class <code>SCTPParser</code>, importable from the <code>protocol</code> SCTP module (the same module already used for parsing SCTP INIT and INIT ACK chunks). It exposes the method:</p>
+      <div class="spec-body"><h3>Task Specification: Parsing SCTP SACK Chunks</h3>
+<h4>Goal</h4>
+<p>Support for parsing <strong>Selective Acknowledgement (SACK)</strong> chunks (chunk type <code>3</code>) is to be added to the SCTP header parser that already exists.</p>
+<h4>Public API</h4>
+<p>Parsing functionality is supplied by the class <code>SCTPParser</code>, which can be imported from the <code>protocol</code> SCTP module (the same module that is already used to parse SCTP INIT and INIT ACK chunks). This class exposes the method:</p>
 <pre><code class="language-python">def parse(self, buffer: Buffer) -&gt; HeaderDescriptor
 </code></pre>
-<p>The following supporting types are already defined and reused as-is:</p>
+<p>These supporting types have already been defined and are reused without modification:</p>
 <ul>
-<li><code>Buffer(content: bytes, length: int)</code> — a byte buffer with a bit-length. Two <code>Buffer</code> instances are equal when both content and bit-length match.</li>
-<li><code>HeaderDescriptor</code> — has a <code>.fields</code> attribute, an ordered list of <code>FieldDescriptor</code>.</li>
-<li><code>FieldDescriptor</code> — has attributes <code>.id</code>, <code>.position</code> (int), and <code>.value</code> (a <code>Buffer</code>).</li>
+<li><code>Buffer(content: bytes, length: int)</code> — a byte buffer carrying a bit-length. Two <code>Buffer</code> instances are equal when content and bit-length both match.</li>
+<li><code>HeaderDescriptor</code> — exposes a <code>.fields</code> attribute, an ordered list of <code>FieldDescriptor</code>.</li>
+<li><code>FieldDescriptor</code> — its attributes are <code>.id</code>, <code>.position</code> (int), and <code>.value</code> (a <code>Buffer</code>).</li>
 </ul>
-<h4>Required Field Identifiers</h4>
-<p>The following field-id constants must exist on the <code>SCTPFields</code> enumeration/class. The common header and chunk-common-header ids already exist; the SACK-specific ids must be added:</p>
+<h4>Field Identifiers That Must Exist</h4>
+<p>On the <code>SCTPFields</code> enumeration/class, the field-id constants listed below must be present. Ids for the common header and for the chunk common header already exist; the ids specific to SACK must be added:</p>
 <ul>
 <li><code>SCTPFields.SOURCE_PORT</code></li>
 <li><code>SCTPFields.DESTINATION_PORT</code></li>
@@ -289,16 +289,16 @@
 <li><code>SCTPFields.CHUNK_SACK_NUMBER_GAP_ACK_BLOCKS</code></li>
 <li><code>SCTPFields.CHUNK_SACK_NUMBER_DUPLICATE_TSNS</code></li>
 </ul>
-<h4>Parsing Behavior</h4>
-<p><code>parse</code> receives a <code>Buffer</code> containing a complete SCTP packet: the 12-byte SCTP common header followed by one SACK chunk. It must return a <code>HeaderDescriptor</code> whose <code>.fields</code> list contains one <code>FieldDescriptor</code> per field described below, <strong>in this exact order</strong>. Every <code>FieldDescriptor</code> must have <code>.position == 0</code>, and its <code>.value</code> must be a <code>Buffer</code> whose content is the raw bytes at that offset and whose <code>length</code> equals the field's bit-length.</p>
-<h5>SCTP Common Header (bytes 0–11)</h5>
+<h4>Behavior of <code>parse</code></h4>
+<p><code>parse</code> is handed a <code>Buffer</code> holding one full SCTP packet: the 12-byte SCTP common header, then one SACK chunk after it. The method must return a <code>HeaderDescriptor</code> whose <code>.fields</code> list carries one <code>FieldDescriptor</code> for each field detailed below, <strong>in this exact order</strong>. Every <code>FieldDescriptor</code> must have <code>.position == 0</code>; beyond that, its <code>.value</code> must be a <code>Buffer</code> whose content consists of the raw bytes found at that offset and whose <code>length</code> equals the field's bit-length.</p>
+<h5>SCTP Common Header — Bytes 0–11</h5>
 <table>
 <thead>
 <tr>
-<th>Order</th>
+<th>Index</th>
 <th>id</th>
-<th>Bit length</th>
-<th>Byte offset</th>
+<th>Length in bits</th>
+<th>Offset in bytes</th>
 </tr>
 </thead>
 <tbody>
@@ -328,14 +328,14 @@
 </tr>
 </tbody>
 </table>
-<h5>SACK Chunk (starting at byte 12)</h5>
+<h5>SACK Chunk — Beginning at Byte 12</h5>
 <table>
 <thead>
 <tr>
-<th>Order</th>
+<th>Index</th>
 <th>id</th>
-<th>Bit length</th>
-<th>Byte offset</th>
+<th>Length in bits</th>
+<th>Offset in bytes</th>
 </tr>
 </thead>
 <tbody>
@@ -383,14 +383,14 @@
 </tr>
 </tbody>
 </table>
-<p>A SACK chunk is identified by <code>CHUNK_TYPE</code> value <code>3</code> (byte <code>0x03</code>).</p>
-<p>The resulting <code>.fields</code> list must contain exactly <strong>11</strong> <code>FieldDescriptor</code> entries for a SACK chunk with zero gap ack blocks and zero duplicate TSNs.</p>
-<h5>Worked Example</h5>
-<p>For an input packet whose bytes are:</p>
+<p>A <code>CHUNK_TYPE</code> value of <code>3</code> (byte <code>0x03</code>) is what identifies a chunk as SACK.</p>
+<p>For a SACK chunk that has zero gap ack blocks and zero duplicate TSNs, the resulting <code>.fields</code> list must contain exactly <strong>11</strong> <code>FieldDescriptor</code> entries.</p>
+<h5>Example Walkthrough</h5>
+<p>Take as input a packet with these bytes:</p>
 <pre><code>00 07 00 07 00 00 0e b0 ba 04 32 58 03 00 00 10
 00 00 36 1c 00 00 ff ff 00 00 00 00
 </code></pre>
-<p>the produced fields (id → value bytes) are:</p>
+<p>parsing produces the fields below (id → value bytes):</p>
 <ul>
 <li><code>SOURCE_PORT</code> → <code>00 07</code></li>
 <li><code>DESTINATION_PORT</code> → <code>00 07</code></li>
@@ -404,38 +404,38 @@
 <li><code>CHUNK_SACK_NUMBER_GAP_ACK_BLOCKS</code> → <code>00 00</code></li>
 <li><code>CHUNK_SACK_NUMBER_DUPLICATE_TSNS</code> → <code>00 00</code></li>
 </ul>
-<h4>Scope Notes</h4>
-<p>Only the fixed portion of the SACK chunk (through the &quot;Number of Duplicate TSNs&quot; field) is in scope. Parsing of the variable Gap Ack Block entries and Duplicate TSN entries is <strong>not</strong> required and is not exercised.</p>
-<p>The existing parsing behavior for other chunk types (e.g. INIT, INIT ACK) must continue to work unchanged.</p>
+<h4>Notes on Scope</h4>
+<p>The fixed portion of the SACK chunk — everything through the &quot;Number of Duplicate TSNs&quot; field — is the only part in scope. The variable Gap Ack Block entries and Duplicate TSN entries lie outside it: parsing them is <strong>not</strong> required, nor are they exercised.</p>
+<p>The parsing behavior that already exists for other chunk types (e.g. INIT, INIT ACK) must keep working unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">There is an existing SCTP (Stream Control Transmission Protocol) header parser in the codebase.</span>
-        <span class="spec-meta muted">693 words · source specification
+        <span class="spec-title">The codebase already contains a header parser for SCTP (Stream Control Transmission Protocol).</span>
+        <span class="spec-meta muted">725 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Extend the SCTP Parser to Support HEARTBEAT Chunks</h3>
-<h4>Context</h4>
-<p>There is an existing SCTP (Stream Control Transmission Protocol) header parser in the codebase. This parser already handles an SCTP common header followed by a chunk. Your task is to extend it so it correctly parses packets whose chunk is a <strong>HEARTBEAT</strong> chunk.</p>
-<p>The relevant public API (already present, to be extended) is:</p>
+      <div class="spec-body"><h3>Task: Add Support for HEARTBEAT Chunks to the SCTP Parser</h3>
+<h4>Background</h4>
+<p>The codebase already contains a header parser for SCTP (Stream Control Transmission Protocol). This parser currently handles an SCTP common header followed by a chunk. The task is to extend it so that packets whose chunk is a <strong>HEARTBEAT</strong> chunk get parsed correctly.</p>
+<p>The relevant public API (already present, to be extended) consists of:</p>
 <ul>
-<li><code>SCTPParser</code> — the parser class, instantiated with no arguments: <code>SCTPParser()</code>.
+<li><code>SCTPParser</code> — the parser class; it takes no arguments when instantiated: <code>SCTPParser()</code>.
 <ul>
 <li>Method: <code>parse(self, buffer: Buffer) -&gt; HeaderDescriptor</code></li>
 </ul>
 </li>
-<li><code>SCTPFields</code> — a container of string/identifier constants used as field ids.</li>
-<li><code>HeaderDescriptor</code> — has an attribute <code>fields</code>, a list of <code>FieldDescriptor</code>.</li>
-<li><code>FieldDescriptor</code> — has attributes <code>id</code>, <code>position</code> (int), and <code>value</code> (a <code>Buffer</code>).</li>
-<li><code>Buffer</code> — a byte-content container constructed as <code>Buffer(content=&lt;bytes&gt;, length=&lt;bit_length&gt;)</code>, comparable via <code>==</code>.</li>
+<li><code>SCTPFields</code> — a container of string/identifier constants that serve as field ids.</li>
+<li><code>HeaderDescriptor</code> — has an attribute <code>fields</code>, which is a list of <code>FieldDescriptor</code>.</li>
+<li><code>FieldDescriptor</code> — has the attributes <code>id</code>, <code>position</code> (int), and <code>value</code> (a <code>Buffer</code>).</li>
+<li><code>Buffer</code> — a container of byte content, built as <code>Buffer(content=&lt;bytes&gt;, length=&lt;bit_length&gt;)</code> and comparable via <code>==</code>.</li>
 </ul>
-<p>These are importable from the same modules used by the existing SCTP parser tests.</p>
-<h4>Required Behavior</h4>
-<p><code>SCTPParser().parse(buffer=...)</code> receives a <code>Buffer</code> wrapping the raw bytes of an SCTP packet (a common header followed by a single chunk). It must return a <code>HeaderDescriptor</code> whose <code>fields</code> list contains one <code>FieldDescriptor</code> per parsed field, in packet byte order.</p>
+<p>These can be imported from the same modules that the existing SCTP parser tests use.</p>
+<h4>Behavior That Is Required</h4>
+<p><code>SCTPParser().parse(buffer=...)</code> is passed a <code>Buffer</code> wrapping the raw bytes of an SCTP packet (a common header followed by a single chunk). It must return a <code>HeaderDescriptor</code> whose <code>fields</code> list holds one <code>FieldDescriptor</code> for each parsed field, in the byte order of the packet.</p>
 <h5>Field identifiers (on <code>SCTPFields</code>)</h5>
-<p>The following identifier constants must exist and be used as the <code>id</code> of the corresponding <code>FieldDescriptor</code>:</p>
+<p>The identifier constants listed below must exist and be used as the <code>id</code> of the corresponding <code>FieldDescriptor</code>:</p>
 <ul>
 <li><code>SCTPFields.SOURCE_PORT</code></li>
 <li><code>SCTPFields.DESTINATION_PORT</code></li>
@@ -449,34 +449,34 @@
 <li><code>SCTPFields.PARAMETER_VALUE</code></li>
 </ul>
 <h5>Parsing a HEARTBEAT chunk</h5>
-<p>When the chunk type byte has value <code>0x04</code> (HEARTBEAT), the parser must produce exactly the following fields, in this order:</p>
-<p><strong>SCTP common header (first 12 bytes):</strong></p>
+<p>If the chunk type byte has the value <code>0x04</code> (HEARTBEAT), the parser must produce exactly these fields, in this order:</p>
+<p><strong>SCTP common header (the first 12 bytes):</strong></p>
 <ol>
 <li><code>SOURCE_PORT</code> — 16 bits, <code>position</code> 0</li>
 <li><code>DESTINATION_PORT</code> — 16 bits, <code>position</code> 0</li>
 <li><code>VERIFICATION_TAG</code> — 32 bits, <code>position</code> 0</li>
 <li><code>CHECKSUM</code> — 32 bits, <code>position</code> 0</li>
 </ol>
-<p><strong>Chunk common header (next 4 bytes):</strong></p>
+<p><strong>Chunk common header (the next 4 bytes):</strong></p>
 <ol start="5">
 <li><code>CHUNK_TYPE</code> — 8 bits, <code>position</code> 0 (value <code>0x04</code> for HEARTBEAT)</li>
 <li><code>CHUNK_FLAGS</code> — 8 bits, <code>position</code> 0</li>
 <li><code>CHUNK_LENGTH</code> — 16 bits, <code>position</code> 0</li>
 </ol>
-<p><strong>HEARTBEAT chunk parameter (a single Heartbeat Info parameter):</strong></p>
+<p><strong>HEARTBEAT chunk parameter (one Heartbeat Info parameter):</strong></p>
 <ol start="8">
 <li><code>PARAMETER_TYPE</code> — 16 bits, <code>position</code> 0</li>
 <li><code>PARAMETER_LENGTH</code> — 16 bits, <code>position</code> 0</li>
-<li><code>PARAMETER_VALUE</code> — a variable-length byte field, <code>position</code> 0. Its length in bits is derived from the <code>PARAMETER_LENGTH</code> value: the parameter length counts the whole parameter including the 2-byte type and 2-byte length fields, so the value field occupies <code>(parameter_length - 4)</code> bytes, i.e. <code>(parameter_length - 4) * 8</code> bits.</li>
+<li><code>PARAMETER_VALUE</code> — a byte field of variable length, <code>position</code> 0. Its bit length follows from the <code>PARAMETER_LENGTH</code> value: the parameter length counts the whole parameter, including the 2-byte type and 2-byte length fields, so the value field spans <code>(parameter_length - 4)</code> bytes, i.e. <code>(parameter_length - 4) * 8</code> bits.</li>
 </ol>
-<p>Each <code>FieldDescriptor.value</code> must be a <code>Buffer</code> whose <code>content</code> is the exact bytes read from the packet for that field and whose <code>length</code> is the bit length listed above.</p>
+<p>Each <code>FieldDescriptor.value</code> must be a <code>Buffer</code> whose <code>content</code> is exactly the bytes read from the packet for that field and whose <code>length</code> is the bit length listed above.</p>
 <h5>Worked example</h5>
-<p>Given a packet consisting of these bytes:</p>
+<p>Suppose a packet consists of these bytes:</p>
 <pre><code>0b 59 0b 59 00 00 0e 50 53 c3 05 5f 04 00 00 18
 00 01 00 14 40 e4 4b 92 0a 1c 06 2c 1b 66 af 7e
 00 00 00 00
 </code></pre>
-<p>wrapped as <code>Buffer(content=&lt;those bytes&gt;, length=len*8)</code>, the returned <code>HeaderDescriptor.fields</code> must have length 10 and the following field values:</p>
+<p>wrapped as <code>Buffer(content=&lt;those bytes&gt;, length=len*8)</code>; the returned <code>HeaderDescriptor.fields</code> must then have length 10 and the following field values:</p>
 <table>
 <thead>
 <tr>
@@ -549,40 +549,40 @@
 </tr>
 </tbody>
 </table>
-<p>Here <code>PARAMETER_LENGTH</code> is <code>0x0014</code> = 20, so the parameter value is <code>20 - 4 = 16</code> bytes = 128 bits.</p>
-<p>All <code>position</code> values are <code>0</code>. The return value must be a <code>HeaderDescriptor</code> instance, and every entry in its <code>fields</code> list must be a <code>FieldDescriptor</code> instance.</p>
+<p>In this example, <code>PARAMETER_LENGTH</code> is <code>0x0014</code> = 20, so the parameter value works out to <code>20 - 4 = 16</code> bytes = 128 bits.</p>
+<p>All of the <code>position</code> values are <code>0</code>. The value returned must be a <code>HeaderDescriptor</code> instance, and every entry in its <code>fields</code> list must be a <code>FieldDescriptor</code> instance.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Preserve the existing behavior of <code>SCTPParser.parse</code> for chunk types already supported; only add correct handling for the HEARTBEAT chunk (type <code>0x04</code>).</li>
-<li>Do not add fields beyond those enumerated above for the HEARTBEAT case.</li>
+<li>The existing behavior of <code>SCTPParser.parse</code> for the chunk types it already supports must be preserved; add only correct handling for the HEARTBEAT chunk (type <code>0x04</code>).</li>
+<li>For the HEARTBEAT case, do not add fields beyond those enumerated above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">SCTP HEARTBEAT ACK Chunk Parsing</span>
-        <span class="spec-meta muted">909 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Parsing SCTP HEARTBEAT ACK Chunks</span>
+        <span class="spec-meta muted">1043 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: SCTP HEARTBEAT ACK Chunk Parsing</h3>
+      <div class="spec-body"><h3>Task Specification: Parsing SCTP HEARTBEAT ACK Chunks</h3>
 <h4>Overview</h4>
-<p>Extend the existing SCTP header parser so that it correctly parses SCTP packets carrying a <strong>HEARTBEAT ACK</strong> chunk. Preserve the established HEARTBEAT request behavior, including extraction of the complete Heartbeat Info parameter value.</p>
-<p>The SCTP wire discriminators are significant and must remain distinct:</p>
+<p>What this task asks for is an extension of the SCTP header parser that already exists, so that SCTP packets containing a <strong>HEARTBEAT ACK</strong> chunk get parsed correctly. Alongside that, the behavior already in place for HEARTBEAT requests is to be preserved — the extraction of the complete Heartbeat Info parameter value included.</p>
+<p>The discriminators on the SCTP wire carry significance, and they must stay distinct:</p>
 <ul>
-<li><code>0x04</code> identifies a HEARTBEAT request.</li>
-<li><code>0x05</code> identifies a HEARTBEAT ACK.</li>
-<li><code>0x01</code> identifies INIT; it must not be interpreted as HEARTBEAT.</li>
+<li><code>0x04</code> denotes a HEARTBEAT request.</li>
+<li><code>0x05</code> denotes a HEARTBEAT ACK.</li>
+<li><code>0x01</code> denotes INIT; interpreting it as HEARTBEAT must not happen.</li>
 </ul>
 <h4>Public API Surface</h4>
-<p>The following must be importable and usable exactly as described:</p>
+<p>An implementation must make everything listed below importable and usable exactly as described:</p>
 <ul>
-<li><strong>Parser class:</strong> <code>SCTPParser</code>, instantiable with no arguments as <code>SCTPParser()</code>.
+<li><strong>Parser class:</strong> <code>SCTPParser</code>, which supports instantiation with no arguments, i.e. <code>SCTPParser()</code>.
 <ul>
 <li>Method: <code>parse(self, buffer: Buffer) -&gt; HeaderDescriptor</code></li>
 </ul>
 </li>
-<li><strong>Field identifier enumeration:</strong> <code>SCTPFields</code>, providing at least these members:
+<li><strong>Field identifier enumeration:</strong> <code>SCTPFields</code>, offering at least the members below:
 <ul>
 <li><code>SOURCE_PORT</code></li>
 <li><code>DESTINATION_PORT</code></li>
@@ -598,23 +598,23 @@
 </li>
 <li><strong>Supporting types:</strong>
 <ul>
-<li><code>Buffer(content: bytes, length: int)</code>, where <code>length</code> is expressed in bits and equality compares both content and bit length.</li>
-<li><code>HeaderDescriptor</code>, with a <code>.fields</code> list of <code>FieldDescriptor</code> objects.</li>
-<li><code>FieldDescriptor</code>, with <code>.id</code>, <code>.position</code>, and <code>.value</code> attributes; <code>.value</code> is a <code>Buffer</code>.</li>
+<li><code>Buffer(content: bytes, length: int)</code>, in which <code>length</code> is a bit count and an equality check covers both the content and the bit length.</li>
+<li><code>HeaderDescriptor</code>, which comes with a <code>.fields</code> list whose entries are <code>FieldDescriptor</code> objects.</li>
+<li><code>FieldDescriptor</code>, whose attributes are <code>.id</code>, <code>.position</code>, and <code>.value</code>; the type of <code>.value</code> is <code>Buffer</code>.</li>
 </ul>
 </li>
 </ul>
 <h4>Required Behavior</h4>
-<p><code>SCTPParser.parse</code> receives a <code>Buffer</code> containing the raw bytes of an SCTP packet and returns a <code>HeaderDescriptor</code>. Its <code>.fields</code> list contains one <code>FieldDescriptor</code> for each parsed field, in packet order. Every returned field has <code>.position == 0</code>.</p>
+<p>The input to <code>SCTPParser.parse</code> is a <code>Buffer</code> holding the raw bytes of an SCTP packet; the method returns a <code>HeaderDescriptor</code>. The <code>.fields</code> list of that descriptor holds one <code>FieldDescriptor</code> for each parsed field, ordered the way the packet presents them. Every field that comes back has <code>.position == 0</code>.</p>
 <h5>Chunk-type dispatch and compatibility</h5>
-<p>The chunk type octet determines the chunk-specific field layout after the common chunk header:</p>
+<p>Deciding which chunk-specific field layout applies after the common chunk header is the job of the chunk type octet:</p>
 <ul>
-<li>For chunk type <code>0x04</code>, parse the chunk as a HEARTBEAT request and expose its Heartbeat Info parameter fields.</li>
-<li>For chunk type <code>0x05</code>, parse the chunk as a HEARTBEAT ACK and expose its Heartbeat Info parameter fields in exactly the same way as for a request.</li>
-<li>Chunk type <code>0x01</code> remains INIT and must continue to use the established INIT layout. It must not produce the HEARTBEAT parameter-only layout described below.</li>
+<li>With chunk type <code>0x04</code>, the chunk is parsed as a HEARTBEAT request, and its Heartbeat Info parameter fields are exposed.</li>
+<li>With chunk type <code>0x05</code>, the chunk is parsed as a HEARTBEAT ACK, and its Heartbeat Info parameter fields are exposed in exactly the same way as for a request.</li>
+<li>Chunk type <code>0x01</code> still counts as INIT, and the established INIT layout must continue to apply to it; the HEARTBEAT parameter-only layout described below must not be produced for it.</li>
 </ul>
 <h5>SCTP common header</h5>
-<p>The fixed 12-byte SCTP common header produces these fields first, in order:</p>
+<p>First, in order, these fields come out of the fixed 12-byte SCTP common header:</p>
 <ol>
 <li><code>SOURCE_PORT</code> — 16 bits</li>
 <li><code>DESTINATION_PORT</code> — 16 bits</li>
@@ -622,29 +622,29 @@
 <li><code>CHECKSUM</code> — 32 bits</li>
 </ol>
 <h5>Chunk common header</h5>
-<p>The chunk common header immediately following the SCTP common header produces these fields next, in order:</p>
+<p>Next, in order, these fields come out of the chunk common header, which sits immediately after the SCTP common header:</p>
 <ol start="5">
 <li><code>CHUNK_TYPE</code> — 8 bits</li>
 <li><code>CHUNK_FLAGS</code> — 8 bits</li>
 <li><code>CHUNK_LENGTH</code> — 16 bits</li>
 </ol>
 <h5>HEARTBEAT and HEARTBEAT ACK parameter</h5>
-<p>Both HEARTBEAT (<code>0x04</code>) and HEARTBEAT ACK (<code>0x05</code>) carry a Heartbeat Info parameter. A chunk containing the single parameter is decomposed into these fields after the chunk common header:</p>
+<p>A Heartbeat Info parameter is carried by both HEARTBEAT (<code>0x04</code>) and HEARTBEAT ACK (<code>0x05</code>). After the chunk common header, a chunk holding the single parameter breaks down into these fields:</p>
 <ol start="8">
 <li><code>PARAMETER_TYPE</code> — 16 bits</li>
 <li><code>PARAMETER_LENGTH</code> — 16 bits</li>
 <li><code>PARAMETER_VALUE</code> — all parameter value bytes</li>
 </ol>
-<p>The parameter length is the complete parameter length, including the 4-byte parameter type and length header. Therefore, for a valid parameter whose declared length is <code>L</code> bytes, <code>PARAMETER_VALUE</code> contains the following <code>L - 4</code> bytes and has bit length <code>(L - 4) * 8</code>. The value must be exposed as <code>SCTPFields.PARAMETER_VALUE</code>, rather than as an undifferentiated chunk value, and no bytes belonging to the parameter value may be omitted.</p>
-<p>For the 20-byte Heartbeat Info parameter in the examples below, the 4-byte parameter header is followed by a 16-byte, 128-bit value.</p>
+<p>What <code>PARAMETER_LENGTH</code> expresses is the complete length of the parameter, and the 4-byte header made up of the parameter type and the length counts toward it. So, if a valid parameter declares a length of <code>L</code> bytes, the following <code>L - 4</code> bytes are what <code>PARAMETER_VALUE</code> contains, and its bit length works out to <code>(L - 4) * 8</code>. The value must be exposed as <code>SCTPFields.PARAMETER_VALUE</code>, not as an undifferentiated chunk value, and none of the bytes belonging to the parameter value may be left out.</p>
+<p>In the examples below, the Heartbeat Info parameter is 20 bytes long; past its 4-byte parameter header sits a value of 16 bytes, i.e. 128 bits.</p>
 <h4>Worked Examples</h4>
 <h5>HEARTBEAT ACK chunk</h5>
-<p>Input packet bytes:</p>
+<p>The input packet consists of these bytes:</p>
 <pre><code class="language-text">0b 59 0b 59 0d 53 e6 fe 8c 8e 07 46 05 00 00 18
 00 01 00 14 40 e4 4b 92 0a 1c 06 2c 1b 66 af 7e
 00 00 00 00
 </code></pre>
-<p>Parsing this packet yields exactly 10 fields:</p>
+<p>This packet, when parsed, yields exactly 10 fields:</p>
 <table>
 <thead>
 <tr>
@@ -718,50 +718,50 @@
 </tbody>
 </table>
 <h5>HEARTBEAT request chunk</h5>
-<p>A HEARTBEAT request uses chunk type <code>0x04</code>. For example:</p>
+<p>The chunk type a HEARTBEAT request uses is <code>0x04</code>. Take this example:</p>
 <pre><code class="language-text">0b 59 0b 59 00 00 0e 50 53 c3 05 5f 04 00 00 18
 00 01 00 14 40 e4 4b 92 0a 1c 06 2c 1b 66 af 7e
 00 00 00 00
 </code></pre>
-<p>This packet also yields exactly 10 fields with the same field identifiers and widths. Its <code>CHUNK_TYPE</code> value is the 8-bit buffer <code>04</code>. In particular, field 9 is <code>PARAMETER_VALUE</code> with the full 128-bit value:</p>
+<p>Here, too, the packet yields exactly 10 fields, and the field identifiers and widths are the same. For <code>CHUNK_TYPE</code>, the value is the 8-bit buffer <code>04</code>. Field 9 in particular is <code>PARAMETER_VALUE</code>, and it holds the full 128-bit value:</p>
 <pre><code class="language-text">40 e4 4b 92 0a 1c 06 2c 1b 66 af 7e 00 00 00 00
 </code></pre>
 <h4>Constraints and Compatibility</h4>
 <ul>
-<li>HEARTBEAT request and HEARTBEAT ACK chunks with the single parameter shown above must each produce exactly the 10 fields listed, in that order.</li>
-<li>Every returned field in these results must be a <code>FieldDescriptor</code>, and every field's <code>.position</code> must be <code>0</code>.</li>
-<li>Every field value must be a <code>Buffer</code> with the exact content and bit length specified.</li>
-<li>Existing INIT handling for chunk type <code>0x01</code> must remain intact; adding HEARTBEAT ACK support must not reinterpret INIT as a heartbeat chunk.</li>
-<li>Existing HEARTBEAT request parsing for chunk type <code>0x04</code> must remain intact, including complete <code>PARAMETER_VALUE</code> extraction.</li>
+<li>HEARTBEAT request and HEARTBEAT ACK chunks that contain the single parameter shown above must, each of them, produce exactly the 10 fields listed, in that order.</li>
+<li>A <code>FieldDescriptor</code> is what every returned field in these results must be, and <code>.position</code> must be <code>0</code> for every field.</li>
+<li>Every field value must be a <code>Buffer</code> whose content and bit length are exactly the specified ones.</li>
+<li>The INIT handling that already exists, for chunk type <code>0x01</code>, must remain intact; adding HEARTBEAT ACK support must not lead to INIT being reinterpreted as a heartbeat chunk.</li>
+<li>The parsing of chunk type <code>0x04</code> as a HEARTBEAT request that already exists must remain intact too; that includes extracting <code>PARAMETER_VALUE</code> completely.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">There is an existing SCTP (Stream Control Transmission Protocol) header parser in the codebase.</span>
-        <span class="spec-meta muted">706 words · source specification
+        <span class="spec-title">The codebase already contains a parser for the SCTP (Stream Control Transmission Protocol) header.</span>
+        <span class="spec-meta muted">768 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Extend the SCTP Parser to Support SHUTDOWN, SHUTDOWN ACK, SHUTDOWN COMPLETE, COOKIE ECHO, and COOKIE ACK Chunks</h3>
-<h4>Context</h4>
-<p>There is an existing SCTP (Stream Control Transmission Protocol) header parser in the codebase. It already parses the SCTP common header and several chunk types. Your task is to extend it so that it correctly parses SCTP packets whose single chunk is one of: SHUTDOWN, SHUTDOWN ACK, SHUTDOWN COMPLETE, COOKIE ECHO, or COOKIE ACK.</p>
-<h4>Public API</h4>
-<p>The parser is available as a class <code>SCTPParser</code> with a method:</p>
+      <div class="spec-body"><h3>Task: Extend the SCTP Parser with Support for SHUTDOWN, SHUTDOWN ACK, SHUTDOWN COMPLETE, COOKIE ECHO, and COOKIE ACK Chunks</h3>
+<h4>Background</h4>
+<p>The codebase already contains a parser for the SCTP (Stream Control Transmission Protocol) header. It already handles the SCTP common header together with several chunk types. Your task is to extend it so that it parses correctly SCTP packets whose single chunk is one of: SHUTDOWN, SHUTDOWN ACK, SHUTDOWN COMPLETE, COOKIE ECHO, or COOKIE ACK.</p>
+<h4>Public Interface</h4>
+<p>The parser comes in the form of a class <code>SCTPParser</code> that has a method:</p>
 <pre><code class="language-python">def parse(self, buffer: Buffer) -&gt; HeaderDescriptor
 </code></pre>
 <ul>
-<li><code>Buffer</code> is a byte-buffer type with a constructor <code>Buffer(content: bytes, length: int)</code>, where <code>length</code> is the size <strong>in bits</strong>. <code>Buffer</code> instances support equality comparison by content and bit length.</li>
-<li><code>HeaderDescriptor</code> exposes a <code>.fields</code> attribute: a list of <code>FieldDescriptor</code> objects.</li>
+<li><code>Buffer</code> is a byte-buffer type whose constructor is <code>Buffer(content: bytes, length: int)</code>, where <code>length</code> is the size <strong>in bits</strong>. Two <code>Buffer</code> instances can be compared for equality by content and bit length.</li>
+<li><code>HeaderDescriptor</code> exposes an attribute <code>.fields</code>: a list of <code>FieldDescriptor</code> objects.</li>
 <li><code>FieldDescriptor</code> exposes:
 <ul>
-<li><code>.id</code> — a field identifier (see <code>SCTPFields</code> below)</li>
-<li><code>.position</code> — an integer (always <code>0</code> for the cases in this task)</li>
-<li><code>.value</code> — a <code>Buffer</code> holding the field's raw content and bit length</li>
+<li><code>.id</code> — the identifier of a field (see <code>SCTPFields</code> below)</li>
+<li><code>.position</code> — an integer (always <code>0</code> for the cases covered in this task)</li>
+<li><code>.value</code> — a <code>Buffer</code> holding the raw content and bit length of the field</li>
 </ul>
 </li>
 </ul>
-<p>Field identifiers come from an enumeration-like object <code>SCTPFields</code>. The following members are used and must exist:</p>
+<p>Field identifiers are provided by an enumeration-like object <code>SCTPFields</code>. The members listed below are used and must exist:</p>
 <ul>
 <li><code>SCTPFields.SOURCE_PORT</code></li>
 <li><code>SCTPFields.DESTINATION_PORT</code></li>
@@ -773,10 +773,10 @@
 <li><code>SCTPFields.CHUNK_SHUTDOWN_CUMULATIVE_TSN_ACK</code></li>
 <li><code>SCTPFields.CHUNK_COOKIE_ECHO_COOKIE</code></li>
 </ul>
-<p><code>SCTPParser</code>, <code>SCTPFields</code>, <code>HeaderDescriptor</code>, <code>FieldDescriptor</code>, and <code>Buffer</code> must all be importable from their existing module locations (keep the same import paths already used elsewhere in the codebase for the SCTP parser and framework types).</p>
-<h4>SCTP Packet Layout</h4>
-<p>Every SCTP packet begins with a 12-byte <strong>common header</strong>, followed by one or more <strong>chunks</strong>. For this task each input packet contains exactly one chunk.</p>
-<h5>Common header (always parsed, in this order)</h5>
+<p>It must be possible to import <code>SCTPParser</code>, <code>SCTPFields</code>, <code>HeaderDescriptor</code>, <code>FieldDescriptor</code>, and <code>Buffer</code> from the module locations they already occupy (do not change the import paths used elsewhere in the codebase for the SCTP parser and the framework types).</p>
+<h4>Layout of an SCTP Packet</h4>
+<p>Every SCTP packet starts out with a 12-byte <strong>common header</strong>, and one or more <strong>chunks</strong> follow it. In this task, each input packet contains exactly one chunk.</p>
+<h5>Common header (parsed every time, in this order)</h5>
 <table>
 <thead>
 <tr>
@@ -808,8 +808,8 @@
 </tr>
 </tbody>
 </table>
-<p>Each field's <code>.value</code> is a <code>Buffer</code> whose content is the corresponding raw bytes and whose bit length matches the table.</p>
-<h5>Chunk common header (always parsed after the common header, in this order)</h5>
+<p>For each of these fields, <code>.value</code> is a <code>Buffer</code> whose content is the corresponding raw bytes and whose bit length is the one shown in the table.</p>
+<h5>Chunk common header (in this order; always parsed after the common header)</h5>
 <table>
 <thead>
 <tr>
@@ -836,11 +836,11 @@
 </tr>
 </tbody>
 </table>
-<p>The Chunk Type byte determines which chunk-specific fields (if any) follow. The Chunk Length field is a 16-bit value giving the length of the chunk (chunk common header plus chunk body) in bytes.</p>
-<h4>Required Chunk Handling</h4>
-<p>For all chunk types, the parser must always emit, in order: the four common-header field descriptors, followed by the three chunk-common-header field descriptors. After those seven, chunk-specific field descriptors are appended depending on the Chunk Type value:</p>
+<p>Which chunk-specific fields (if any) come next is determined by the Chunk Type byte. The Chunk Length field carries a 16-bit value giving the length of the chunk (chunk common header plus chunk body) in bytes.</p>
+<h4>Chunk Handling Requirements</h4>
+<p>Across all chunk types, the parser must always emit, in order, the four common-header field descriptors followed by the three chunk-common-header field descriptors. After those seven, chunk-specific field descriptors are appended according to the Chunk Type value:</p>
 <h5>SHUTDOWN — Chunk Type <code>0x07</code></h5>
-<p>Append one field:</p>
+<p>One field is appended:</p>
 <table>
 <thead>
 <tr>
@@ -857,13 +857,13 @@
 </tr>
 </tbody>
 </table>
-<p>Total field count: <strong>8</strong>.</p>
+<p>Total number of fields: <strong>8</strong>.</p>
 <h5>SHUTDOWN ACK — Chunk Type <code>0x08</code></h5>
-<p>No chunk-specific fields. Total field count: <strong>7</strong>.</p>
+<p>There are no chunk-specific fields. Total number of fields: <strong>7</strong>.</p>
 <h5>SHUTDOWN COMPLETE — Chunk Type <code>0x0e</code></h5>
-<p>No chunk-specific fields. Total field count: <strong>7</strong>.</p>
+<p>There are no chunk-specific fields. Total number of fields: <strong>7</strong>.</p>
 <h5>COOKIE ECHO — Chunk Type <code>0x0a</code></h5>
-<p>Append one field:</p>
+<p>One field is appended:</p>
 <table>
 <thead>
 <tr>
@@ -880,60 +880,61 @@
 </tr>
 </tbody>
 </table>
-<p>The cookie occupies the remainder of the chunk after the 4-byte chunk common header. Its byte length is <code>Chunk Length − 4</code> (the 4 bytes being the chunk common header), and its bit length is that byte count times 8. The <code>.value</code> content is exactly those bytes.</p>
-<p>Total field count: <strong>8</strong>.</p>
+<p>The cookie occupies whatever part of the chunk remains after the 4-byte chunk common header. Its length in bytes is <code>Chunk Length − 4</code> (the 4 bytes being the chunk common header), and its length in bits is that byte count times 8. The content of <code>.value</code> is exactly those bytes.</p>
+<p>Total number of fields: <strong>8</strong>.</p>
 <h5>COOKIE ACK — Chunk Type <code>0x0b</code></h5>
-<p>No chunk-specific fields. Total field count: <strong>7</strong>.</p>
+<p>There are no chunk-specific fields. Total number of fields: <strong>7</strong>.</p>
 <h4>General Requirements</h4>
 <ul>
-<li><code>parse</code> returns a <code>HeaderDescriptor</code> instance.</li>
-<li>All entries in <code>.fields</code> are <code>FieldDescriptor</code> instances.</li>
-<li>Every field's <code>.position</code> is <code>0</code>.</li>
-<li>Each field's <code>.value</code> is a <code>Buffer</code> whose content equals the raw bytes read from the packet at that field's location and whose <code>length</code> (in bits) equals the sizes specified above.</li>
-<li>Field descriptors must appear in the exact order given (common header fields first, then chunk common header fields, then any chunk-specific fields).</li>
+<li>A call to <code>parse</code> returns a <code>HeaderDescriptor</code> instance.</li>
+<li>All entries in <code>.fields</code> are instances of <code>FieldDescriptor</code>.</li>
+<li>The <code>.position</code> of every field is <code>0</code>.</li>
+<li>For each field, <code>.value</code> is a <code>Buffer</code> whose content equals the raw bytes read from the packet at that field's location and whose <code>length</code> (in bits) equals the sizes specified above.</li>
+<li>The field descriptors must appear in the exact order given (common header fields first, then the chunk common header fields, then any chunk-specific fields).</li>
 </ul>
-<p>Do not add behavior beyond what is specified above for these five chunk types.</p>
+<p>Do not add any behavior beyond what is specified above for these five chunk types.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Update the version identifier exposed by the microschc package.</span>
-        <span class="spec-meta muted">76 words · source specification
+        <span class="spec-title">The aim is to update the version identifier that the microschc package exposes.</span>
+        <span class="spec-meta muted">89 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier exposed by the <code>microschc</code> package.</p>
-<h4>Required Behavior</h4>
-<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code> that is importable directly from the package:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>The aim is to update the version identifier that the <code>microschc</code> package exposes.</p>
+<h4>Behavior Requirements</h4>
+<p>The <code>microschc</code> package must expose an attribute named <code>__version__</code> at module level, and this attribute is importable directly from the package:</p>
 <pre><code class="language-python">from microschc import __version__
 </code></pre>
-<p>The value of <code>__version__</code> must be the string <code>'0.17.0'</code>.</p>
+<p>The value held by <code>__version__</code> must be the string <code>'0.17.0'</code>.</p>
 <h4>API Surface</h4>
 <ul>
 <li><strong>Module:</strong> <code>microschc</code></li>
 <li><strong>Attribute:</strong> <code>__version__</code> (str)</li>
 <li><strong>Required value:</strong> <code>'0.17.0'</code></li>
 </ul>
-<p>Ensure the attribute is accessible via a top-level import from the <code>microschc</code> package.</p>
+<p>Ensure that the attribute can be accessed by way of a top-level import from the <code>microschc</code> package.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Predictive Next-Protocol Parsing</span>
-        <span class="spec-meta muted">913 words · source specification
+        <span class="spec-title">Predictive Parsing of the Next Protocol</span>
+        <span class="spec-meta muted">972 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Predictive Next-Protocol Parsing</h3>
-<h4>Overview</h4>
-<p>Implement a mechanism that allows a protocol header parser to automatically continue parsing the encapsulated (payload) protocol after parsing its own header, producing a single combined result that contains the field descriptors of all parsed layers in order. The layer stacking to support is IPv6 → UDP → CoAP.</p>
-<h4>Public API Surface</h4>
-<p>The following modules, classes, and members must exist and be importable exactly as named.</p>
+      <div class="spec-body"><h3>Task Specification: Predictive Parsing of the Next Protocol</h3>
+<h4>Summary</h4>
+<p>Build a mechanism that lets a protocol header parser automatically carry on parsing the encapsulated (payload) protocol after it has parsed its own header, so that one combined result is produced containing the field descriptors of all parsed layers in order. The layer stack to support is IPv6 → UDP → CoAP.</p>
+<h4>Public API</h4>
+<p>The modules, classes, and members listed below must exist and must be importable exactly under these names.</p>
 <h5><code>microschc.protocol.ipv6</code></h5>
 <ul>
-<li><code>IPv6Fields</code> — container of field identifier constants including at least: <code>VERSION</code>, <code>TRAFFIC_CLASS</code>, <code>PAYLOAD_LENGTH</code>, <code>NEXT_HEADER</code>, <code>HOP_LIMIT</code>, <code>SRC_ADDRESS</code>, <code>DST_ADDRESS</code>.</li>
-<li><code>IPv6Parser</code> — a parser class with the following constructor signature:<pre><code class="language-python">IPv6Parser(predict_next: bool = False)
+<li><code>IPv6Fields</code> — a container holding field identifier constants, including at least: <code>VERSION</code>, <code>TRAFFIC_CLASS</code>, <code>PAYLOAD_LENGTH</code>, <code>NEXT_HEADER</code>, <code>HOP_LIMIT</code>, <code>SRC_ADDRESS</code>, <code>DST_ADDRESS</code>.</li>
+<li><code>IPv6Parser</code> — a parser class whose constructor has the signature:<pre><code class="language-python">IPv6Parser(predict_next: bool = False)
 </code></pre>
 It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&gt; HeaderDescriptor
 </code></pre>
@@ -941,38 +942,38 @@ It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&
 </ul>
 <h5><code>microschc.protocol.udp</code></h5>
 <ul>
-<li><code>UDPFields</code> — container of field identifier constants including at least: <code>SOURCE_PORT</code>, <code>DESTINATION_PORT</code>, <code>LENGTH</code>, <code>CHECKSUM</code>.</li>
+<li><code>UDPFields</code> — a container holding field identifier constants, including at least: <code>SOURCE_PORT</code>, <code>DESTINATION_PORT</code>, <code>LENGTH</code>, <code>CHECKSUM</code>.</li>
 </ul>
 <h5><code>microschc.protocol.coap</code></h5>
 <ul>
-<li><code>CoAPFields</code> — container of field identifier constants including at least: <code>VERSION</code>, <code>TYPE</code>, <code>TOKEN_LENGTH</code>, <code>CODE</code>, <code>MESSAGE_ID</code>, <code>TOKEN</code>.</li>
-<li><code>CoAPParser</code> — a parser class that can be instantiated with no arguments: <code>CoAPParser()</code>.</li>
+<li><code>CoAPFields</code> — a container holding field identifier constants, including at least: <code>VERSION</code>, <code>TYPE</code>, <code>TOKEN_LENGTH</code>, <code>CODE</code>, <code>MESSAGE_ID</code>, <code>TOKEN</code>.</li>
+<li><code>CoAPParser</code> — a parser class that can be instantiated without passing any arguments: <code>CoAPParser()</code>.</li>
 </ul>
-<h5>Supporting types (already existing, used here)</h5>
+<h5>Supporting types (already present, referenced here)</h5>
 <ul>
-<li><code>microschc.binary.buffer.Buffer</code> with constructor <code>Buffer(content: bytes, length: int)</code> where <code>length</code> is expressed in bits. Two <code>Buffer</code> instances compare equal when their content and bit-length are equivalent.</li>
-<li><code>microschc.rfc8724.HeaderDescriptor</code> — has a <code>fields</code> attribute, which is an ordered sequence of <code>FieldDescriptor</code>.</li>
-<li><code>microschc.rfc8724.FieldDescriptor</code> — has attributes <code>id</code>, <code>position</code>, and <code>value</code> (a <code>Buffer</code>).</li>
+<li><code>microschc.binary.buffer.Buffer</code>, with the constructor <code>Buffer(content: bytes, length: int)</code>; here <code>length</code> is expressed in bits. Two <code>Buffer</code> instances compare equal if their content and bit-length are equivalent.</li>
+<li><code>microschc.rfc8724.HeaderDescriptor</code> — carries a <code>fields</code> attribute, which is an ordered sequence of <code>FieldDescriptor</code>.</li>
+<li><code>microschc.rfc8724.FieldDescriptor</code> — carries the attributes <code>id</code>, <code>position</code>, and <code>value</code> (a <code>Buffer</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <h5><code>IPv6Parser(predict_next=...)</code></h5>
-<p>The constructor accepts a boolean keyword argument <code>predict_next</code> (default <code>False</code>).</p>
+<p>The constructor accepts a boolean keyword argument <code>predict_next</code>, whose default is <code>False</code>.</p>
 <ul>
-<li>When <code>predict_next</code> is <code>False</code>, <code>parse</code> parses only the IPv6 header itself.</li>
-<li>When <code>predict_next</code> is <code>True</code>, after parsing the IPv6 header, the parser must determine the encapsulated protocol and continue parsing subsequent layers, appending their field descriptors to the same result in the order encountered.</li>
+<li>When <code>predict_next</code> is <code>False</code>, the only thing <code>parse</code> parses is the IPv6 header itself.</li>
+<li>When <code>predict_next</code> is <code>True</code>, after parsing the IPv6 header, the parser must determine the encapsulated protocol and go on to parse the subsequent layers, appending their field descriptors to the same result in the order encountered.</li>
 </ul>
-<h5>Next-protocol prediction</h5>
-<p>The parser selects the next protocol to parse based on field values it has already parsed:</p>
+<h5>Predicting the next protocol</h5>
+<p>The parser picks the next protocol to parse on the basis of the values of fields it has already parsed:</p>
 <ul>
-<li>The IPv6 <code>NEXT_HEADER</code> field value determines the next layer. A value of <code>0x11</code> (17) indicates a UDP payload, so UDP must be parsed next.</li>
-<li>After parsing UDP, the destination and/or source port fields are used to predict a further encapsulated protocol. The port value <code>0x1633</code> (5683) indicates a CoAP payload, so CoAP must be parsed next.</li>
+<li>The value of the IPv6 <code>NEXT_HEADER</code> field determines the next layer. A value of <code>0x11</code> (17) signals a UDP payload, so UDP must be parsed next.</li>
+<li>After UDP is parsed, the destination and/or source port fields are used to predict a further encapsulated protocol. A port value of <code>0x1633</code> (5683) signals a CoAP payload, so CoAP must be parsed next.</li>
 </ul>
-<p>When <code>predict_next</code> is enabled, the returned <code>HeaderDescriptor.fields</code> is the concatenation, in wire order, of the IPv6 fields, then the UDP fields, then the CoAP fields.</p>
-<h5><code>parse</code> return value</h5>
-<p><code>parse(buffer=...)</code> returns a <code>HeaderDescriptor</code>. Its <code>fields</code> is an ordered list of <code>FieldDescriptor</code> objects.</p>
-<h4>Concrete Parsing Requirements</h4>
-<p>Given a byte packet consisting of an IPv6 header (next header = <code>0x11</code>), a UDP header (destination port = <code>0x1633</code>), and a CoAP message, with <code>predict_next=True</code>, the produced <code>HeaderDescriptor.fields</code> must contain exactly 25 field descriptors in the following order. Each entry lists the field <code>id</code>, <code>position</code>, and expected <code>value</code> (given as <code>Buffer(content, bit-length)</code>).</p>
-<h5>IPv6 layer</h5>
+<p>When <code>predict_next</code> is enabled, the returned <code>HeaderDescriptor.fields</code> is the concatenation of the IPv6 fields, then the UDP fields, then the CoAP fields, in wire order.</p>
+<h5>Return value of <code>parse</code></h5>
+<p>Calling <code>parse(buffer=...)</code> returns a <code>HeaderDescriptor</code>. The <code>fields</code> it contains is an ordered list of <code>FieldDescriptor</code> objects.</p>
+<h4>Concrete Requirements for Parsing</h4>
+<p>For a byte packet made up of an IPv6 header (next header = <code>0x11</code>), a UDP header (destination port = <code>0x1633</code>), and a CoAP message, parsed with <code>predict_next=True</code>, the resulting <code>HeaderDescriptor.fields</code> must contain exactly 25 field descriptors in the following order. Each entry gives the field <code>id</code>, <code>position</code>, and expected <code>value</code> (expressed as <code>Buffer(content, bit-length)</code>).</p>
+<h5>Fields of the IPv6 layer</h5>
 <table>
 <thead>
 <tr>
@@ -1027,8 +1028,8 @@ It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&
 </tr>
 </tbody>
 </table>
-<p>(Index 2 is an IPv6 field between traffic class and payload length; it is not constrained by value but occupies its position so that the indices above hold.)</p>
-<h5>UDP layer</h5>
+<p>(Index 2 is an IPv6 field located between traffic class and payload length; its value is not constrained, but it occupies its position so that the indices above hold.)</p>
+<h5>Fields of the UDP layer</h5>
 <table>
 <thead>
 <tr>
@@ -1065,7 +1066,7 @@ It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&
 </tr>
 </tbody>
 </table>
-<h5>CoAP layer</h5>
+<h5>Fields of the CoAP layer</h5>
 <table>
 <thead>
 <tr>
@@ -1114,9 +1115,9 @@ It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&
 </tr>
 </tbody>
 </table>
-<p>Fields at indices 18–24 are additional CoAP option/payload field descriptors produced by parsing the remainder of the CoAP message; their presence brings the total field count to exactly 25. All 25 entries must be <code>FieldDescriptor</code> instances.</p>
-<h4>Reference Packet</h4>
-<p>For validation, the following packet bytes parse as described above (IPv6 + UDP + CoAP):</p>
+<p>The entries at indices 18–24 are additional CoAP option/payload field descriptors that result from parsing the remainder of the CoAP message; their presence brings the total field count to exactly 25. All 25 entries must be <code>FieldDescriptor</code> instances.</p>
+<h4>Packet Used as Reference</h4>
+<p>For validation, the packet bytes below parse as described above (IPv6 + UDP + CoAP):</p>
 <pre><code>60 0f f8 5f 00 20 11 40 20 01 0d b8 00 0a 00 00
 00 00 00 00 00 00 00 03 20 01 0d b8 00 0a 00 00
 00 00 00 00 00 00 00 20
@@ -1124,188 +1125,190 @@ It must expose:<pre><code class="language-python">parse(self, buffer: Buffer) -&
 52 45 14 5e d1 59 61 19 62 2d 16 ff e8 16 44 08
 40 47 8c cc cc cc cc cd
 </code></pre>
-<p>The buffer wrapping this packet uses a bit-length equal to <code>len(packet) * 8</code>.</p>
-<h4>Additional Requirement</h4>
-<p><code>CoAPParser</code> must be instantiable with no constructor arguments and yield an instance of <code>CoAPParser</code>. Ensure its module import path (<code>microschc.protocol.coap</code>) is correct and free of import-time errors.</p>
+<p>The buffer that wraps this packet has a bit-length equal to <code>len(packet) * 8</code>.</p>
+<h4>Extra Requirement</h4>
+<p><code>CoAPParser</code> must be instantiable with no constructor arguments, and instantiation must yield an instance of <code>CoAPParser</code>. Ensure that its module import path (<code>microschc.protocol.coap</code>) is correct and free of import-time errors.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not alter the behavior when <code>predict_next</code> is <code>False</code> beyond what is described.</li>
-<li>The prediction must be driven strictly by parsed field values (IPv6 next-header field, UDP port fields), not by any external hint.</li>
+<li>The behavior when <code>predict_next</code> is <code>False</code> must not be altered beyond what is described.</li>
+<li>The prediction must be driven strictly by parsed field values (IPv6 next-header field, UDP port fields), and not by any external hint.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Update the version identifier exposed by the microschc package.</span>
-        <span class="spec-meta muted">58 words · source specification
+        <span class="spec-title">Change the version identifier that the microschc package exposes.</span>
+        <span class="spec-meta muted">67 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier exposed by the <code>microschc</code> package.</p>
-<h4>Requirement</h4>
-<p>The package <code>microschc</code> must expose a module-level attribute named <code>__version__</code>.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Change the version identifier that the <code>microschc</code> package exposes.</p>
+<h4>What Is Required</h4>
+<p>A module-level attribute named <code>__version__</code> must be exposed by the package <code>microschc</code>.</p>
 <ul>
-<li><strong>Import path:</strong> <code>from microschc import __version__</code></li>
-<li><strong>Type:</strong> string</li>
+<li><strong>Import statement:</strong> <code>from microschc import __version__</code></li>
+<li><strong>Data type:</strong> string</li>
 <li><strong>Required value:</strong> <code>'0.18.0'</code></li>
 </ul>
-<p>The attribute must be importable directly from the top-level <code>microschc</code> package and must equal exactly the string <code>'0.18.0'</code>.</p>
+<p>It must be possible to import the attribute directly from the top-level <code>microschc</code> package, and it must equal exactly the string <code>'0.18.0'</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Fix Buffer Concatenation for Mixed Padding</span>
-        <span class="spec-meta muted">397 words · source specification
+        <span class="spec-title">Fix Buffer Concatenation When the Padding Is Mixed</span>
+        <span class="spec-meta muted">430 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Fix Buffer Concatenation for Mixed Padding</h3>
-<h4>Context</h4>
-<p>You are working with a <code>Buffer</code> class located in the module importable as it is used in the binary buffer package (<code>Buffer</code> and <code>Padding</code> are the relevant public names). A <code>Buffer</code> represents a sequence of significant bits stored within one or more bytes, where the significant bits may be aligned to the left or right of the underlying byte storage.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task Specification: Fix Buffer Concatenation When the Padding Is Mixed</h3>
+<h4>Background</h4>
+<p>You are working on a <code>Buffer</code> class that resides in the module, importable in the way the binary buffer package uses it (<code>Buffer</code> and <code>Padding</code> are the public names that matter). A <code>Buffer</code> stands for a sequence of significant bits kept in one or more bytes; these significant bits may be aligned to the left or to the right of the underlying byte storage.</p>
+<h4>Public API</h4>
 <h5><code>Padding</code></h5>
-<p>An enumeration (or equivalent) exposing at least the members:</p>
+<p>An enumeration (or equivalent) that exposes at least the members:</p>
 <ul>
 <li><code>Padding.LEFT</code></li>
 <li><code>Padding.RIGHT</code></li>
 </ul>
 <h5><code>Buffer</code></h5>
-<p>A class constructed via keyword arguments:</p>
+<p>A class built through keyword arguments:</p>
 <pre><code class="language-python">Buffer(content: bytes, length: int, padding: Padding)
 </code></pre>
 <ul>
-<li><code>content</code>: the raw bytes holding the significant bits.</li>
-<li><code>length</code>: the number of significant bits in the buffer.</li>
-<li><code>padding</code>: whether the significant bits are aligned to the <code>LEFT</code> or <code>RIGHT</code> within <code>content</code>.</li>
+<li><code>content</code>: the raw bytes that hold the significant bits.</li>
+<li><code>length</code>: the number of significant bits the buffer contains.</li>
+<li><code>padding</code>: whether the significant bits are aligned to the <code>LEFT</code> or to the <code>RIGHT</code> inside <code>content</code>.</li>
 </ul>
-<p>The class must support:</p>
+<p>The class must support the following:</p>
 <ul>
-<li>Equality comparison via <code>==</code> between two <code>Buffer</code> instances. Two buffers are equal when they represent the same content, length, and padding as constructed.</li>
-<li>Concatenation via the <code>+</code> operator: <code>left + right</code> produces a new <code>Buffer</code> whose significant bits are those of <code>left</code> followed by those of <code>right</code>.</li>
+<li>Equality comparison through <code>==</code> between two <code>Buffer</code> instances. Two buffers are equal when they represent the same content, length, and padding as they were constructed with.</li>
+<li>Concatenation through the <code>+</code> operator: <code>left + right</code> gives a new <code>Buffer</code> whose significant bits are those of <code>left</code> followed by those of <code>right</code>.</li>
 </ul>
-<h4>Required Behavior — Focus of This Task</h4>
-<p>Fix the concatenation (<code>+</code>) behavior for the specific case where the <strong>left operand uses <code>Padding.RIGHT</code></strong> and the <strong>right operand uses <code>Padding.LEFT</code></strong>.</p>
-<p>The concatenation must correctly join the significant bits of both operands into a single contiguous bit sequence, producing a resulting <code>Buffer</code> whose <code>length</code> is the sum of the two operand lengths and whose bits are laid out with <code>Padding.RIGHT</code> alignment.</p>
-<h5>Concrete case that must hold</h5>
-<p>Given:</p>
+<h4>Required Behavior — What This Task Focuses On</h4>
+<p>Fix the behavior of concatenation (<code>+</code>) for the specific case in which the <strong>left operand uses <code>Padding.RIGHT</code></strong> and the <strong>right operand uses <code>Padding.LEFT</code></strong>.</p>
+<p>The concatenation must correctly join the significant bits of both operands into a single contiguous bit sequence, so that the resulting <code>Buffer</code> has a <code>length</code> equal to the sum of the two operand lengths and has its bits laid out with <code>Padding.RIGHT</code> alignment.</p>
+<h5>Concrete case that must be satisfied</h5>
+<p>Start with:</p>
 <ul>
 <li><code>left = Buffer(content=b'\xe0', length=7, padding=Padding.RIGHT)</code>
 <ul>
-<li>Significant bits: the top 7 bits of <code>0xE0</code> → <code>1110000</code> (right-padding means the 7 significant bits occupy the leftmost positions, with the low bit(s) as padding).</li>
+<li>Significant bits: the top 7 bits of <code>0xE0</code> → <code>1110000</code> (with right-padding, the 7 significant bits sit in the leftmost positions, and the low bit(s) act as padding).</li>
 </ul>
 </li>
 <li><code>right = Buffer(content=b'\x05', length=4, padding=Padding.LEFT)</code>
 <ul>
-<li>Significant bits: the low 4 bits of <code>0x05</code> → <code>0101</code> (left-padding means the 4 significant bits occupy the rightmost positions).</li>
+<li>Significant bits: the low 4 bits of <code>0x05</code> → <code>0101</code> (with left-padding, the 4 significant bits sit in the rightmost positions).</li>
 </ul>
 </li>
 </ul>
-<p>Then <code>left + right</code> must equal:</p>
+<p>The result of <code>left + right</code> must then equal:</p>
 <pre><code class="language-python">Buffer(content=b'\xe0\xa0', length=11, padding=Padding.RIGHT)
 </code></pre>
-<p>That is: the 7 bits <code>1110000</code> followed by the 4 bits <code>0101</code> yield the 11-bit sequence <code>11100000101</code>, stored right-padded across two bytes as <code>0xE0 0xA0</code>, with total <code>length = 11</code> and <code>padding = Padding.RIGHT</code>.</p>
+<p>In other words: the 7 bits <code>1110000</code> followed by the 4 bits <code>0101</code> yield the 11-bit sequence <code>11100000101</code>, which is stored right-padded across two bytes as <code>0xE0 0xA0</code>, with a total <code>length = 11</code> and <code>padding = Padding.RIGHT</code>.</p>
 <h4>Constraint</h4>
-<p>Do not alter existing correct concatenation behavior for other padding combinations. Only the left-right-padded / right-left-padded combination described above needs correction.</p>
+<p>Do not modify the existing, already-correct concatenation behavior for other padding combinations. Only the left-right-padded / right-left-padded combination described above needs fixing.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Update the version identifier of the microschc package.</span>
-        <span class="spec-meta muted">68 words · source specification
+        <span class="spec-title">Change the version identifier of the microschc package.</span>
+        <span class="spec-meta muted">71 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier of the <code>microschc</code> package.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Change the version identifier of the <code>microschc</code> package.</p>
 <h4>Requirements</h4>
-<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code> that is importable as:</p>
+<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code>; this attribute is importable as:</p>
 <pre><code class="language-python">from microschc import __version__
 </code></pre>
-<p>The value of <code>__version__</code> must be the string <code>'0.18.1'</code>.</p>
-<h4>Details</h4>
+<p><code>__version__</code> must have the string <code>'0.18.1'</code> as its value.</p>
+<h4>Specifics</h4>
 <ul>
-<li><code>__version__</code> must be a string equal exactly to <code>0.18.1</code>.</li>
-<li>The attribute must be accessible directly from the top-level <code>microschc</code> package.</li>
+<li>The <code>__version__</code> attribute must be a string equal exactly to <code>0.18.1</code>.</li>
+<li>The attribute must be directly accessible from the top-level <code>microschc</code> package.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">In binary.buffer</span>
-        <span class="spec-meta muted">124 words · source specification
+        <span class="spec-title">Within binary.buffer</span>
+        <span class="spec-meta muted">143 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h5>Required API</h5>
-<p>In <code>binary.buffer</code>:</p>
+<p>Within <code>binary.buffer</code>:</p>
 <ul>
 <li><code>class Buffer</code>
 <ul>
-<li>Constructor parameters used here:<pre><code class="language-python">Buffer(content: bytes, length: int, padding: Padding)
+<li>Constructor parameters as used here:<pre><code class="language-python">Buffer(content: bytes, length: int, padding: Padding)
 </code></pre>
 </li>
-<li>Supports concatenation through:<pre><code class="language-python">Buffer.__add__(self, other: Buffer) -&gt; Buffer
+<li>Concatenation is supported via:<pre><code class="language-python">Buffer.__add__(self, other: Buffer) -&gt; Buffer
 </code></pre>
 </li>
 </ul>
 </li>
 <li><code>enum Padding</code>
 <ul>
-<li>Must expose <code>Padding.LEFT</code> and <code>Padding.RIGHT</code>.</li>
+<li>The enum is required to expose <code>Padding.LEFT</code> and <code>Padding.RIGHT</code>.</li>
 </ul>
 </li>
 </ul>
 <h5>Required behavior</h5>
-<p>Concatenating a right-padded buffer with a left-padded buffer must concatenate only their significant bits, excluding the padding bits on both operands.</p>
-<p>For this case:</p>
+<p>When a right-padded buffer is concatenated with a left-padded buffer, only their significant bits must be concatenated, with the padding bits on both operands excluded.</p>
+<p>Consider the following case:</p>
 <pre><code class="language-python">left = Buffer(content=b&quot;\xff\xfe&quot;, length=15, padding=Padding.RIGHT)
 right = Buffer(content=b&quot;\x3f\xff&quot;, length=14, padding=Padding.LEFT)
 result = left + right
 </code></pre>
-<p><code>result</code> must compare equal to:</p>
+<p>The value of <code>result</code> must compare equal to:</p>
 <pre><code class="language-python">Buffer(
     content=b&quot;\xff\xff\xff\xf8&quot;,
     length=29,
     padding=Padding.RIGHT,
 )
 </code></pre>
-<p>Thus, the 15 significant bits from <code>left</code> and the 14 significant bits from <code>right</code> form a contiguous 29-bit result, represented with right-side padding in the final byte.</p>
+<p>In other words, the 15 significant bits from <code>left</code> together with the 14 significant bits from <code>right</code> form a contiguous 29-bit result, which is represented with right-side padding in the final byte.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Update the public package version</span>
-        <span class="spec-meta muted">20 words · source specification
+        <span class="spec-title">Revise the public package version</span>
+        <span class="spec-meta muted">24 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Update the public package version:</p>
+      <div class="spec-body"><p>Revise the public package version:</p>
 <ul>
-<li>The top-level <code>microschc</code> module must expose <code>__version__</code>.</li>
-<li><code>microschc.__version__</code> must equal the string <code>'0.18.2'</code>.</li>
+<li><code>__version__</code> must be exposed by the top-level <code>microschc</code> module.</li>
+<li><code>microschc.__version__</code> must be equal to the string <code>'0.18.2'</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Extend microschc.protocol.ipv4 with a publicly importable symbol named IPv4ComputeFunctions.</span>
-        <span class="spec-meta muted">250 words · source specification
+        <span class="spec-title">Add a publicly importable symbol called IPv4ComputeFunctions to microschc.protocol.ipv4.</span>
+        <span class="spec-meta muted">266 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>IPv4 computed fields</h4>
-<p>Extend <code>microschc.protocol.ipv4</code> with a publicly importable symbol named <code>IPv4ComputeFunctions</code>.</p>
-<h5>Public API</h5>
-<p><code>IPv4ComputeFunctions</code> must be subscriptable using these existing field identifiers:</p>
+      <div class="spec-body"><h4>Computed fields for IPv4</h4>
+<p>Add a publicly importable symbol called <code>IPv4ComputeFunctions</code> to <code>microschc.protocol.ipv4</code>.</p>
+<h5>Public interface</h5>
+<p><code>IPv4ComputeFunctions</code> must be subscriptable with the following already existing field identifiers:</p>
 <ul>
 <li><code>IPv4Fields.TOTAL_LENGTH</code></li>
 <li><code>IPv4Fields.HEADER_CHECKSUM</code></li>
 </ul>
-<p>Each resulting entry must be indexable, with its first element (<code>[0]</code>) being a callable compatible with:</p>
+<p>Every resulting entry must be indexable, and its first element (<code>[0]</code>) must be a callable compatible with:</p>
 <pre><code class="language-python">Callable[[List[Tuple[str, Buffer]], int], Buffer]
 </code></pre>
-<p>The field list is an ordered sequence produced as follows:</p>
+<p>The field list is an ordered sequence put together this way:</p>
 <pre><code class="language-python">descriptor = IPv4Parser().parse(buffer=ipv4_header_buffer)
 decompressed_fields = [
     (field.id, field.value)
@@ -1315,170 +1318,170 @@ decompressed_fields.append(
     (ParserDefinitions.PAYLOAD, ipv4_payload_buffer)
 )
 </code></pre>
-<p><code>Buffer</code> is from <code>microschc.binary.buffer</code>, and <code>ParserDefinitions</code> is from <code>microschc.rfc8724extras</code>.</p>
-<h5>Total-length computation</h5>
-<p>This invocation must be supported:</p>
+<p><code>Buffer</code> comes from <code>microschc.binary.buffer</code>, and <code>ParserDefinitions</code> comes from <code>microschc.rfc8724extras</code>.</p>
+<h5>Total length computation</h5>
+<p>This call must be supported:</p>
 <pre><code class="language-python">IPv4ComputeFunctions[IPv4Fields.TOTAL_LENGTH][0](
     decompressed_fields,
     2,
 )
 </code></pre>
-<p>It must return the total byte length of the IPv4 header and the payload as a 16-bit, big-endian <code>Buffer</code>.</p>
-<p>For a 20-byte IPv4 header reconstructed from:</p>
+<p>The result must be the total byte length of the IPv4 header plus the payload, expressed as a 16-bit, big-endian <code>Buffer</code>.</p>
+<p>When a 20-byte IPv4 header is reconstructed from:</p>
 <pre><code class="language-text">45 00 00 00 21 fa 40 00 40 11 bc 52 ac 1e 01 08 ac 1e 01 02
 </code></pre>
-<p>and a payload whose <code>Buffer.length</code> is 4,656 bits (582 bytes), the result must be:</p>
+<p>together with a payload whose <code>Buffer.length</code> equals 4,656 bits (582 bytes), the result must be:</p>
 <pre><code class="language-python">Buffer(content=b&quot;\x02\x5a&quot;, length=16)
 </code></pre>
-<h5>Header-checksum computation</h5>
-<p>This invocation must be supported:</p>
+<h5>Header checksum computation</h5>
+<p>This call must be supported:</p>
 <pre><code class="language-python">IPv4ComputeFunctions[IPv4Fields.HEADER_CHECKSUM][0](
     decompressed_fields,
     9,
 )
 </code></pre>
-<p>It must return the standard IPv4 header checksum as a 16-bit, big-endian <code>Buffer</code>. The appended payload must not participate in the header checksum.</p>
+<p>The callable must return the standard IPv4 header checksum as a 16-bit, big-endian <code>Buffer</code>. The appended payload must not participate in the header checksum.</p>
 <p>For the reconstructed 20-byte IPv4 header:</p>
 <pre><code class="language-text">45 00 02 5a 21 fa 40 00 40 11 00 00 ac 1e 01 08 ac 1e 01 02
 </code></pre>
 <p>the result must be:</p>
 <pre><code class="language-python">Buffer(content=b&quot;\xbc\x52&quot;, length=16)
 </code></pre>
-<p>No additional malformed-input or edge-case behavior is required.</p>
+<p>Beyond what is described here, no malformed-input or edge-case behavior is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Update the package version identifier for the microschc package.</span>
-        <span class="spec-meta muted">80 words · source specification
+        <span class="spec-title">Update the package version identifier of the microschc package.</span>
+        <span class="spec-meta muted">92 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the package version identifier for the <code>microschc</code> package.</p>
-<h4>Required Behavior</h4>
-<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code>.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Update the package version identifier of the <code>microschc</code> package.</p>
+<h4>Behavior That Is Required</h4>
+<p>A module-level attribute named <code>__version__</code> must be exposed by the <code>microschc</code> package.</p>
 <ul>
 <li><strong>Import path:</strong> <code>from microschc import __version__</code></li>
 <li><strong>Type:</strong> string</li>
 <li><strong>Required value:</strong> <code>'0.18.3'</code></li>
 </ul>
-<p>The <code>__version__</code> attribute must be importable directly from the top-level <code>microschc</code> package and must equal exactly the string <code>'0.18.3'</code>.</p>
-<h4>Acceptance Criteria</h4>
+<p>It must be possible to import the <code>__version__</code> attribute directly from the top-level <code>microschc</code> package, and the attribute must equal exactly the string <code>'0.18.3'</code>.</p>
+<h4>Criteria for Acceptance</h4>
 <ul>
-<li>Importing <code>__version__</code> from the <code>microschc</code> package succeeds.</li>
-<li>The value of <code>microschc.__version__</code> is the string <code>'0.18.3'</code>.</li>
+<li>The import of <code>__version__</code> from the <code>microschc</code> package succeeds.</li>
+<li>The string <code>'0.18.3'</code> is the value of <code>microschc.__version__</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">There is an existing Buffer class used to represent sequences of bits stored inside byte buffers.</span>
-        <span class="spec-meta muted">378 words · source specification
+        <span class="spec-title">A Buffer class already exists</span>
+        <span class="spec-meta muted">409 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement Bitwise Complement (<code>~</code>) for <code>Buffer</code></h3>
+      <div class="spec-body"><h3>Task: Implement the Bitwise Complement Operator (<code>~</code>) for <code>Buffer</code></h3>
 <h4>Context</h4>
-<p>There is an existing <code>Buffer</code> class used to represent sequences of bits stored inside byte buffers. The relevant public API includes:</p>
+<p>A <code>Buffer</code> class already exists; it is used to represent sequences of bits stored inside byte buffers. The public API that is relevant here includes:</p>
 <ul>
-<li>A <code>Buffer</code> class (importable from the module used by the rest of the binary buffer code, e.g. <code>Buffer</code>).</li>
-<li>A constructor accepting keyword arguments:
+<li>A <code>Buffer</code> class (importable from the module the rest of the binary buffer code uses, e.g. <code>Buffer</code>).</li>
+<li>A constructor that accepts keyword arguments:
 <ul>
-<li><code>content</code>: a <code>bytes</code> object holding the raw bytes.</li>
-<li><code>length</code>: an <code>int</code> giving the number of meaningful bits in the buffer.</li>
-<li><code>padding</code>: an optional value from a <code>Padding</code> enum, defaulting to <code>Padding.LEFT</code>. The enum exposes <code>Padding.LEFT</code> and <code>Padding.RIGHT</code>.</li>
+<li><code>content</code>: a <code>bytes</code> object that holds the raw bytes.</li>
+<li><code>length</code>: an <code>int</code> that gives the number of meaningful bits in the buffer.</li>
+<li><code>padding</code>: an optional value taken from a <code>Padding</code> enum, with <code>Padding.LEFT</code> as the default. The enum exposes <code>Padding.LEFT</code> and <code>Padding.RIGHT</code>.</li>
 </ul>
 </li>
-<li>Equality comparison (<code>==</code>) between two <code>Buffer</code> instances.</li>
+<li>Equality comparison (<code>==</code>) of two <code>Buffer</code> instances.</li>
 </ul>
-<p>Because <code>length</code> may be smaller than <code>8 * len(content)</code>, some bits in <code>content</code> are padding bits and are not meaningful. The <code>padding</code> value indicates where those padding bits sit:</p>
+<p>Since <code>length</code> may be smaller than <code>8 * len(content)</code>, some bits in <code>content</code> are padding bits that are not meaningful. The <code>padding</code> value indicates where those padding bits are located:</p>
 <ul>
-<li><code>Padding.LEFT</code>: the meaningful bits are right-aligned; padding bits occupy the high-order (leftmost) positions of the byte sequence.</li>
-<li><code>Padding.RIGHT</code>: the meaningful bits are left-aligned; padding bits occupy the low-order (rightmost) positions of the byte sequence.</li>
+<li><code>Padding.LEFT</code>: the meaningful bits are right-aligned, with the padding bits occupying the high-order (leftmost) positions of the byte sequence.</li>
+<li><code>Padding.RIGHT</code>: the meaningful bits are left-aligned, with the padding bits occupying the low-order (rightmost) positions of the byte sequence.</li>
 </ul>
-<h4>Required Change</h4>
-<p>Implement the unary bitwise NOT operator (<code>~</code>) on <code>Buffer</code>, i.e. add an <code>__invert__</code> method that returns a new <code>Buffer</code>.</p>
+<h4>Change to Implement</h4>
+<p>Add the unary bitwise NOT operator (<code>~</code>) to <code>Buffer</code>; that is, implement an <code>__invert__</code> method that returns a new <code>Buffer</code>.</p>
 <h5>Behavior</h5>
-<p>Applying <code>~</code> to a <code>Buffer</code> produces a new <code>Buffer</code> in which every <strong>meaningful</strong> bit is flipped (0 ↔ 1). The result must have:</p>
+<p>Applying <code>~</code> to a <code>Buffer</code> results in a new <code>Buffer</code> in which every <strong>meaningful</strong> bit is flipped (0 ↔ 1). The result must have:</p>
 <ul>
 <li>the same <code>length</code> as the input,</li>
 <li>the same <code>padding</code> as the input,</li>
-<li>a <code>content</code> in which only the meaningful bit positions have been inverted; the padding bit positions must remain <code>0</code>.</li>
+<li>a <code>content</code> where only the meaningful bit positions have been inverted; the padding bit positions must remain <code>0</code>.</li>
 </ul>
-<p>In other words, invert only the bits that fall within the <code>length</code> meaningful bits (positioned according to <code>padding</code>), and leave all padding bit positions cleared to <code>0</code>.</p>
+<p>Put another way, the only bits inverted are those that fall within the <code>length</code> meaningful bits (positioned according to <code>padding</code>), and all padding bit positions are cleared to <code>0</code>.</p>
 <h5>Examples</h5>
 <ol>
 <li>
-<p>Full-width buffer (no padding):</p>
+<p>Buffer using the full width (no padding):</p>
 <ul>
 <li>Input: <code>content=b'\x01\xff\xf0'</code>, <code>length=24</code> (default <code>Padding.LEFT</code>).</li>
 <li>Result: <code>content=b'\xfe\x00\x0f'</code>, <code>length=24</code>, <code>Padding.LEFT</code>.</li>
 </ul>
 </li>
 <li>
-<p>Left padding (meaningful bits right-aligned):</p>
+<p>Padding on the left (meaningful bits right-aligned):</p>
 <ul>
 <li>Input: <code>content=b'\x0f\xff\xf0'</code>, <code>length=20</code>, <code>Padding.LEFT</code>.</li>
-<li>The top 4 bits are padding. Only the low 20 bits are inverted; the padding bits stay <code>0</code>.</li>
+<li>The 4 bits at the top are padding. Only the low 20 bits are inverted; the padding bits stay <code>0</code>.</li>
 <li>Result: <code>content=b'\x00\x00\x0f'</code>, <code>length=20</code>, <code>Padding.LEFT</code>.</li>
 </ul>
 </li>
 <li>
-<p>Right padding (meaningful bits left-aligned):</p>
+<p>Padding on the right (meaningful bits left-aligned):</p>
 <ul>
 <li>Input: <code>content=b'\x0f\xff\x80'</code>, <code>length=20</code>, <code>Padding.RIGHT</code>.</li>
-<li>The bottom 4 bits are padding. Only the high 20 bits are inverted; the padding bits stay <code>0</code>.</li>
+<li>The 4 bits at the bottom are padding. Only the high 20 bits are inverted; the padding bits stay <code>0</code>.</li>
 <li>Result: <code>content=b'\xf0\x00\x70'</code>, <code>length=20</code>, <code>Padding.RIGHT</code>.</li>
 </ul>
 </li>
 </ol>
-<p>The operation does not mutate the original buffer; it returns a new <code>Buffer</code>.</p>
+<p>The operation does not mutate the original buffer; a new <code>Buffer</code> is returned.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">SCTP Checksum Computation</span>
-        <span class="spec-meta muted">444 words · source specification
+        <span class="spec-title">Adding Checksum Computation to SCTP</span>
+        <span class="spec-meta muted">529 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: SCTP Checksum Computation</h3>
-<h4>Objective</h4>
-<p>Add a checksum computation capability to the SCTP protocol module located at <code>microschc/protocol/sctp.py</code>.</p>
-<h4>Public API to Provide</h4>
-<p>The module <code>microschc.protocol.sctp</code> must export a new symbol named <code>SCTPComputeFunctions</code>, in addition to the already-existing <code>SCTPParser</code> and <code>SCTPFields</code>.</p>
+      <div class="spec-body"><h3>Task Specification: Adding Checksum Computation to SCTP</h3>
+<h4>Aim</h4>
+<p>Extend the SCTP protocol module that resides at <code>microschc/protocol/sctp.py</code> with a checksum computation capability.</p>
+<h4>Public API That Must Be Provided</h4>
+<p>Besides the already existing symbols <code>SCTPParser</code> and <code>SCTPFields</code>, the module <code>microschc.protocol.sctp</code> must also export a new symbol named <code>SCTPComputeFunctions</code>.</p>
 <h5><code>SCTPComputeFunctions</code></h5>
-<p><code>SCTPComputeFunctions</code> is a dictionary (mapping) keyed by SCTP field identifiers. For the key <code>SCTPFields.CHECKSUM</code>, the associated value must be an indexable container (e.g. a tuple) whose first element (index <code>0</code>) is a callable implementing the checksum computation described below.</p>
-<p>That is, the following access pattern must be valid:</p>
+<p>The keys of <code>SCTPComputeFunctions</code> are SCTP field identifiers; put differently, it is a dictionary (mapping). Under the key <code>SCTPFields.CHECKSUM</code>, the value associated with it must be a container that supports indexing (e.g. a tuple), and the first element of that container (index <code>0</code>) is a callable that carries out the checksum computation described below.</p>
+<p>To put it another way, the access pattern that follows must be valid:</p>
 <pre><code class="language-python">compute_fn = SCTPComputeFunctions[SCTPFields.CHECKSUM][0]
 </code></pre>
-<h4>Checksum Computation Function</h4>
-<h5>Signature</h5>
-<p>The callable retrieved via <code>SCTPComputeFunctions[SCTPFields.CHECKSUM][0]</code> must accept two positional arguments:</p>
+<h4>Function That Computes the Checksum</h4>
+<h5>Function Signature</h5>
+<p>Accessing <code>SCTPComputeFunctions[SCTPFields.CHECKSUM][0]</code> returns a callable; that callable must accept two positional arguments:</p>
 <pre><code class="language-python">compute_fn(decompressed_fields: List[Tuple[str, Buffer]], field_position: int) -&gt; Buffer
 </code></pre>
 <ul>
-<li><code>decompressed_fields</code>: an ordered list of <code>(field_id, value)</code> pairs, where each <code>field_id</code> is an SCTP field identifier string and each <code>value</code> is a <code>microschc.binary.buffer.Buffer</code>. This list represents the fully parsed field sequence of an SCTP packet, in header/packet order, as produced by parsing a complete SCTP packet.</li>
-<li><code>field_position</code>: an integer index. This identifies which occurrence/position within the field sequence corresponds to the checksum field being computed (the checksum field's position in the packet layout).</li>
+<li><code>decompressed_fields</code>: an ordered list made up of <code>(field_id, value)</code> pairs; each <code>field_id</code> is a string identifying an SCTP field, and each <code>value</code> is a <code>microschc.binary.buffer.Buffer</code>. What the list holds is the field sequence of an SCTP packet that has been fully parsed, in header/packet order — the outcome of parsing a complete SCTP packet.</li>
+<li><code>field_position</code>: an integer index. It says which occurrence/position in the field sequence matches the checksum field being computed (that is, the position of the checksum field in the packet layout).</li>
 </ul>
-<h5>Behavior</h5>
-<p>The function must compute the SCTP CRC-32c checksum over the entire SCTP packet reconstructed from the provided <code>decompressed_fields</code>, with the checksum field itself treated as zero (i.e., the four checksum bytes are set to <code>0x00000000</code> before computing the CRC).</p>
-<p>The reconstruction concatenates all field values in the order given by <code>decompressed_fields</code> to form the full SCTP packet byte sequence. The checksum is then calculated per the SCTP standard (CRC-32c / Castagnoli), and the resulting 32-bit checksum is placed into the packet in the byte order required by SCTP.</p>
-<h5>Return Value</h5>
-<p>The function must return a <code>microschc.binary.buffer.Buffer</code> of length <code>32</code> bits containing the computed 4-byte checksum.</p>
-<h5>Worked Example</h5>
-<p>Given an SCTP packet whose full byte content is:</p>
+<h5>What the Function Does</h5>
+<p>What must be computed by the function is the SCTP CRC-32c checksum of the entire SCTP packet as rebuilt from the <code>decompressed_fields</code> supplied to it, while the checksum field itself is treated as zero (that is, the four checksum bytes take the value <code>0x00000000</code> before the CRC is computed).</p>
+<p>Reconstructing the packet amounts to concatenating all the field values, in the order that <code>decompressed_fields</code> gives, and the result of that concatenation is the byte sequence of the full SCTP packet. Calculation of the checksum then happens as the SCTP standard (CRC-32c / Castagnoli) prescribes, and the resulting 32-bit checksum, in the byte order required by SCTP, is placed into the packet.</p>
+<h5>Returned Value</h5>
+<p>As its output, the function must return a <code>microschc.binary.buffer.Buffer</code> whose length is <code>32</code> bits and which contains the computed 4-byte checksum.</p>
+<h5>Worked-Out Example</h5>
+<p>Suppose an SCTP packet has the following full byte content:</p>
 <pre><code>00 07 00 07 00 00 00 00 00 00 00 00 01 00 00 20
 43 23 25 44 00 00 ff ff 00 11 00 11 5c fe 37 9f
 c0 00 00 04 00 0c 00 06 00 05 00 00
 </code></pre>
-<p>(where bytes at offset 8..11 are the checksum field, here already zeroed), parsing this packet with <code>SCTPParser().parse(...)</code> and passing the resulting field list together with <code>field_position = 3</code> to the compute function must yield:</p>
+<p>(the bytes at offset 8..11 make up the checksum field; in this example they are already zeroed). Parsing this packet via <code>SCTPParser().parse(...)</code> and then passing the field list it produces, along with <code>field_position = 3</code>, to the compute function must yield:</p>
 <pre><code>Buffer(content=b'\x37\x61\xa7\x46', length=32)
 </code></pre>
-<h4>Constraints</h4>
+<h4>Restrictions</h4>
 <ul>
-<li>The existing behavior of <code>SCTPParser</code> and <code>SCTPFields</code> must remain unchanged; parsing a complete SCTP packet continues to produce a <code>HeaderDescriptor</code> whose <code>fields</code> are <code>FieldDescriptor</code> objects exposing <code>.id</code> and <code>.value</code> attributes.</li>
+<li>The behavior that <code>SCTPParser</code> and <code>SCTPFields</code> already have must stay unchanged; the outcome of parsing a complete SCTP packet is still a <code>HeaderDescriptor</code> whose <code>fields</code> are <code>FieldDescriptor</code> objects that expose <code>.id</code> and <code>.value</code> attributes.</li>
 <li>No other new public behavior is required.</li>
 </ul>
 </div>
@@ -1486,20 +1489,20 @@ c0 00 00 04 00 0c 00 06 00 05 00 00
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Update the version identifier exposed by the microschc package.</span>
-        <span class="spec-meta muted">70 words · source specification
+        <span class="spec-title">Update the version identifier that the microschc package exposes.</span>
+        <span class="spec-meta muted">75 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier exposed by the <code>microschc</code> package.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Update the version identifier that the <code>microschc</code> package exposes.</p>
 <h4>Required Behavior</h4>
-<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code> that is importable directly from the package:</p>
+<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code>, and this attribute must be importable directly from the package:</p>
 <pre><code class="language-python">from microschc import __version__
 </code></pre>
-<p>The value of <code>__version__</code> must be the string <code>'0.18.4'</code>.</p>
+<p>The string <code>'0.18.4'</code> must be the value of <code>__version__</code>.</p>
 <h4>Acceptance Criteria</h4>
 <ul>
-<li><code>microschc.__version__</code> exists and is importable from the top-level package.</li>
+<li>The attribute <code>microschc.__version__</code> exists and is importable from the top-level package.</li>
 <li>Its value is exactly the string <code>'0.18.4'</code>.</li>
 </ul>
 </div>
@@ -1507,139 +1510,140 @@ c0 00 00 04 00 0c 00 06 00 05 00 00
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Buffer Class Bit-Level Operations</span>
-        <span class="spec-meta muted">776 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Bit-Level Operations of the Buffer Class</span>
+        <span class="spec-meta muted">864 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Buffer Class Bit-Level Operations</h3>
+      <div class="spec-body"><h3>Task Specification: Bit-Level Operations of the Buffer Class</h3>
 <h4>Overview</h4>
-<p>Implement and maintain a <code>Buffer</code> data model for logical bit strings stored in byte content. A buffer has a logical bit length and an alignment indicating whether unused bits are on the left or right. The required operation in this task is robust bit-level concatenation through <code>Buffer.__add__</code>, including byte-unaligned operands and operands with different alignments.</p>
+<p>This task calls for implementing and maintaining a <code>Buffer</code> data model for logical bit strings held in byte content. A buffer carries a logical bit length together with an alignment that indicates whether unused bits sit on the left or on the right. The operation required here is robust bit-level concatenation by means of <code>Buffer.__add__</code>, covering byte-unaligned operands as well as operands whose alignments differ.</p>
 <h4>Public API Surface</h4>
-<h5>Module and imports</h5>
-<p>The following names must remain importable from <code>microschc.binary.buffer</code>:</p>
+<h5>Module and importable names</h5>
+<p>The names below must continue to be importable from <code>microschc.binary.buffer</code>:</p>
 <ul>
-<li><code>Buffer</code> — the bit-buffer class.</li>
-<li><code>Padding</code> — the alignment enumeration, with <code>Padding.LEFT</code> and <code>Padding.RIGHT</code> (whose string values are <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code>).</li>
+<li><code>Buffer</code> — the class representing the bit buffer.</li>
+<li><code>Padding</code> — the alignment enumeration, which has <code>Padding.LEFT</code> and <code>Padding.RIGHT</code> (their string values are <code>&quot;left&quot;</code> and <code>&quot;right&quot;</code>).</li>
 </ul>
 <h5>Constructor</h5>
 <p><code>Buffer(content: bytes, length: int, padding: Padding = Padding.LEFT)</code></p>
 <ul>
-<li><code>content</code> is the byte representation containing the logical bits.</li>
-<li><code>length</code> is the number of meaningful bits.</li>
-<li><code>padding</code> identifies the side occupied by unused bits.</li>
-<li>With <code>Padding.RIGHT</code>, meaningful bits are packed toward the most-significant side and unused low-order bits are on the right.</li>
-<li>With <code>Padding.LEFT</code>, meaningful bits are packed toward the least-significant side and unused high-order bits are on the left.</li>
-<li>Padding bits are not part of the logical bit sequence. For a non-byte-aligned value, the number of unused bits in its minimal byte representation is <code>(8 - length % 8) % 8</code>.</li>
+<li><code>content</code> is the byte representation in which the logical bits are held.</li>
+<li><code>length</code> is the count of meaningful bits.</li>
+<li><code>padding</code> tells which side the unused bits occupy.</li>
+<li>Under <code>Padding.RIGHT</code>, the meaningful bits are packed toward the most-significant side, and the unused low-order bits are on the right.</li>
+<li>Under <code>Padding.LEFT</code>, the meaningful bits are packed toward the least-significant side, and the unused high-order bits are on the left.</li>
+<li>Padding bits do not belong to the logical bit sequence. For a value that is not byte-aligned, its minimal byte representation contains <code>(8 - length % 8) % 8</code> unused bits.</li>
 </ul>
-<h5>Equality compatibility</h5>
-<p><code>Buffer</code> instances must continue to support <code>==</code>. Concatenation results must compare equal to the expected <code>Buffer</code> values below. Their public <code>content</code>, <code>length</code>, and <code>padding</code> must also have the specified values; semantic equality alone must not be used to disregard the required result alignment. Existing equality behavior outside this task must not be changed.</p>
-<h4>Concatenation with <code>Buffer.__add__</code></h4>
+<h5>Equality Compatibility</h5>
+<p><code>==</code> support must continue for <code>Buffer</code> instances. The results of concatenation must compare equal to the expected <code>Buffer</code> values given below. Their public <code>content</code>, <code>length</code>, and <code>padding</code> must additionally have the specified values; semantic equality on its own must not be used to disregard the required result alignment. Equality behavior that already exists outside this task must not be changed.</p>
+<h4>Concatenation via <code>Buffer.__add__</code></h4>
 <p><code>left + right -&gt; Buffer</code></p>
-<p>Both operands are <code>Buffer</code> instances. If the right-hand operand is not a <code>Buffer</code>, addition must raise <code>TypeError</code>.</p>
-<h5>Logical result</h5>
-<p>Concatenation must:</p>
+<p>Both operands are instances of <code>Buffer</code>. Whenever the right-hand operand is not a <code>Buffer</code>, the addition must raise <code>TypeError</code>.</p>
+<h5>Logical Result</h5>
+<p>The concatenation must carry out the following:</p>
 <ol>
-<li>Read only the <code>left.length</code> meaningful bits from <code>left</code>, according to <code>left.padding</code>.</li>
-<li>Read only the <code>right.length</code> meaningful bits from <code>right</code>, according to <code>right.padding</code>.</li>
-<li>Append the right operand's meaningful bits immediately after the left operand's meaningful bits, preserving bit order within each operand.</li>
-<li>Return a <code>Buffer</code> whose <code>length</code> is <code>left.length + right.length</code>.</li>
+<li>Read only the <code>left.length</code> meaningful bits that <code>left</code> contains, in accordance with <code>left.padding</code>.</li>
+<li>Read only the <code>right.length</code> meaningful bits that <code>right</code> contains, in accordance with <code>right.padding</code>.</li>
+<li>Append the right operand's meaningful bits immediately after the left operand's meaningful bits, with the bit order within each operand preserved.</li>
+<li>Return a <code>Buffer</code> for which <code>length</code> equals <code>left.length + right.length</code>.</li>
 </ol>
-<p>Padding bits from either operand must never be included in the concatenated logical sequence. This applies equally to zero-valued meaningful bits: appending a meaningful <code>0</code> still increases the result length even when it does not change the visible byte value. Leading zero bits and bytes that belong to the declared logical length must likewise be preserved.</p>
-<h5>Result alignment</h5>
-<p>The result must preserve the alignment convention of the <strong>left operand</strong>:</p>
+<p>The concatenated logical sequence must never include padding bits from either operand. This holds equally for meaningful bits whose value is zero: appending a meaningful <code>0</code> still increases the result length even when the visible byte value does not change as a result. Leading zero bits and the bytes that belong to the declared logical length must likewise be preserved.</p>
+<h5>Alignment of the Result</h5>
+<p>The alignment convention of the <strong>left operand</strong> must be preserved by the result:</p>
 <ul>
-<li>If <code>left.padding is Padding.RIGHT</code>, the result must have <code>padding == Padding.RIGHT</code>. Its concatenated bits are packed toward the most-significant side, and unused low-order bits in the final byte are zero.</li>
-<li>If <code>left.padding is Padding.LEFT</code>, the result must have <code>padding == Padding.LEFT</code>. Its concatenated bits are packed toward the least-significant side, and unused high-order bits in the first byte are zero.</li>
+<li>If <code>left.padding is Padding.RIGHT</code>, the result must have <code>padding == Padding.RIGHT</code>. Within the result, the concatenated bits are packed toward the most-significant side, and the unused low-order bits in the final byte are zero.</li>
+<li>If <code>left.padding is Padding.LEFT</code>, the result must have <code>padding == Padding.LEFT</code>. Within the result, the concatenated bits are packed toward the least-significant side, and the unused high-order bits in the first byte are zero.</li>
 </ul>
-<p>The right operand's padding affects how its meaningful bits are extracted, but never selects the result's padding. This rule also applies when the left operand is empty. If the total length is byte-aligned, the result must still retain the left operand's <code>Padding</code> value even though no physical padding bits are needed.</p>
-<p>The result content must use the byte representation required for the summed logical length, with all unused result bits cleared to zero. Concatenation must work for every pairing of left- and right-padded operands and across arbitrary byte boundaries.</p>
-<h4>Required Compatibility Cases</h4>
-<p>The following results are required exactly:</p>
+<p>The padding of the right operand influences how its meaningful bits are extracted, but it never chooses the result's padding. This rule also holds when the left operand is empty. If the total length is byte-aligned, the left operand's <code>Padding</code> value must still be retained by the result even though no physical padding bits are needed.</p>
+<p>The result content must use the byte representation that the summed logical length requires, with all unused result bits cleared to zero. Concatenation must work for every pairing of left-padded and right-padded operands and across arbitrary byte boundaries.</p>
+<h4>Required Compatibility Scenarios</h4>
+<p>The results that follow are required exactly:</p>
 <ol>
 <li>
-<p>A 5-bit right-padded left operand <code>Buffer(content=b&quot;\x40&quot;, length=5, padding=Padding.RIGHT)</code> concatenated with the one meaningful zero bit in <code>Buffer(content=b&quot;\x00&quot;, length=1, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x40&quot;, length=6, padding=Padding.RIGHT)</code>. The unchanged byte value does not permit the appended zero bit to be dropped.</p>
+<p>Concatenating a 5-bit right-padded left operand <code>Buffer(content=b&quot;\x40&quot;, length=5, padding=Padding.RIGHT)</code> with the single meaningful zero bit inside <code>Buffer(content=b&quot;\x00&quot;, length=1, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x40&quot;, length=6, padding=Padding.RIGHT)</code>. The fact that the byte value is unchanged does not permit the appended zero bit to be dropped.</p>
 </li>
 <li>
-<p><code>Buffer(content=b&quot;\x00\x8a\xf8&quot;, length=23, padding=Padding.RIGHT)</code> concatenated with the low six meaningful bits of <code>Buffer(content=b&quot;\x22&quot;, length=6, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x00\x8a\xf9\x10&quot;, length=29, padding=Padding.RIGHT)</code>.</p>
+<p>A concatenation of <code>Buffer(content=b&quot;\x00\x8a\xf8&quot;, length=23, padding=Padding.RIGHT)</code> with the low six meaningful bits of <code>Buffer(content=b&quot;\x22&quot;, length=6, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x00\x8a\xf9\x10&quot;, length=29, padding=Padding.RIGHT)</code>.</p>
 </li>
 <li>
-<p>Alignment preservation is independent of the right operand's alignment:</p>
+<p>Preserving the alignment does not depend on the alignment of the right operand:</p>
 <ul>
 <li><code>Buffer(content=b&quot;\x0f&quot;, length=4, padding=Padding.LEFT) + Buffer(content=b&quot;\xf0&quot;, length=4, padding=Padding.RIGHT)</code> produces <code>Buffer(content=b&quot;\xff&quot;, length=8, padding=Padding.LEFT)</code>.</li>
 <li><code>Buffer(content=b&quot;\xf0&quot;, length=4, padding=Padding.RIGHT) + Buffer(content=b&quot;\x0f&quot;, length=4, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\xff&quot;, length=8, padding=Padding.RIGHT)</code>.</li>
 </ul>
 </li>
 <li>
-<p>An empty left operand still determines alignment: <code>Buffer(content=b&quot;&quot;, length=0, padding=Padding.LEFT) + Buffer(content=b&quot;\x06&quot;, length=4, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x06&quot;, length=4, padding=Padding.LEFT)</code>.</p>
+<p>Alignment is still determined by an empty left operand: <code>Buffer(content=b&quot;&quot;, length=0, padding=Padding.LEFT) + Buffer(content=b&quot;\x06&quot;, length=4, padding=Padding.LEFT)</code> produces <code>Buffer(content=b&quot;\x06&quot;, length=4, padding=Padding.LEFT)</code>.</p>
 </li>
 </ol>
-<p>All other combinations must follow the same logical extraction, append, and left-operand-alignment rules rather than relying on special cases for the example values.</p>
+<p>All remaining combinations must follow the same rules for logical extraction, for appending, and for left-operand alignment, instead of relying on special cases for the example values.</p>
 <h4>Compatibility and Non-goals</h4>
 <ul>
-<li>No new bitwise-complement (<code>~</code>) behavior is required by this task.</li>
-<li>Bitwise AND (<code>&amp;</code>), OR (<code>|</code>), value access, and the remaining <code>Buffer</code> operations may already exist; their established contracts must not be changed as part of the concatenation work.</li>
-<li>The required behavior specifies observable bit-string semantics and output representation, not a particular concatenation algorithm.</li>
+<li>This task requires no new bitwise-complement (<code>~</code>) behavior.</li>
+<li>Bitwise AND (<code>&amp;</code>), OR (<code>|</code>), value access, and the remaining <code>Buffer</code> operations may already be present; the contracts they have established must not be changed as part of the concatenation work.</li>
+<li>What the required behavior specifies is observable bit-string semantics and the output representation, not a particular concatenation algorithm.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Update the version identifier exposed by the microschc package.</span>
-        <span class="spec-meta muted">58 words · source specification
+        <span class="spec-title">Update the version identifier that the microschc package exposes.</span>
+        <span class="spec-meta muted">64 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier exposed by the <code>microschc</code> package.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Update the version identifier that the <code>microschc</code> package exposes.</p>
 <h4>Requirement</h4>
-<p>The <code>microschc</code> package must expose a module-level attribute named <code>__version__</code>.</p>
+<p>A module-level attribute named <code>__version__</code> must be exposed by the <code>microschc</code> package.</p>
 <ul>
 <li><strong>Import path:</strong> <code>from microschc import __version__</code></li>
 <li><strong>Type:</strong> <code>str</code></li>
 <li><strong>Required value:</strong> <code>'0.18.5'</code></li>
 </ul>
-<p>The attribute must be importable directly from the top-level <code>microschc</code> package and must equal the exact string <code>'0.18.5'</code>.</p>
+<p>It must be possible to import the attribute directly from the top-level <code>microschc</code> package, and it must equal the exact string <code>'0.18.5'</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Fix Zero-Length Buffer Concatenation</span>
-        <span class="spec-meta muted">345 words · source specification
+        <span class="spec-title">Fixing Concatenation of Zero-Length Buffers</span>
+        <span class="spec-meta muted">399 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Fix Zero-Length Buffer Concatenation</h3>
-<h4>Context</h4>
-<p>You are working with a binary <code>Buffer</code> type that represents a bit-level buffer of data. The relevant public API resides in a module reachable via the import path <code>binary</code> (the test suite imports <code>Buffer</code> and <code>Padding</code> from the binary buffer module).</p>
-<h4>Public API Surface</h4>
-<p>The following must be available for import:</p>
+      <div class="spec-body"><h3>Task Specification: Fixing Concatenation of Zero-Length Buffers</h3>
+<h4>Background</h4>
+<p>The work here revolves around the binary <code>Buffer</code> type, which models a buffer of data at the bit level. The public API of interest is located in a module reached through the import path <code>binary</code> (it is from this binary buffer module that the test suite imports <code>Buffer</code> and <code>Padding</code>).</p>
+<h4>Public Interface</h4>
+<p>The items listed below must be importable:</p>
 <ul>
-<li><strong><code>Buffer</code></strong> — a class representing a bit buffer, constructed with keyword arguments:
+<li><strong><code>Buffer</code></strong> — a class that implements a bit buffer; its constructor takes keyword arguments:
 <ul>
-<li><code>content</code>: a <code>bytes</code> value holding the raw bytes.</li>
-<li><code>length</code>: an <code>int</code> giving the length of the buffer in bits (may be fewer than the number of bits implied by <code>content</code>).</li>
-<li><code>padding</code>: an optional value of type <code>Padding</code> indicating alignment of significant bits within <code>content</code>.</li>
+<li><code>content</code>: a <code>bytes</code> value that contains the raw bytes.</li>
+<li><code>length</code>: an <code>int</code> stating the buffer's length in bits (it may be smaller than the bit count implied by <code>content</code>).</li>
+<li><code>padding</code>: a value of type <code>Padding</code> (optional) that describes the alignment of the significant bits within <code>content</code>.</li>
 </ul>
 </li>
-<li><strong><code>Padding</code></strong> — an enumeration exposing at least the member <code>Padding.RIGHT</code>.</li>
+<li><strong><code>Padding</code></strong> — an enumeration with at least <code>Padding.RIGHT</code> exposed.</li>
 </ul>
-<p><code>Buffer</code> must support:</p>
+<p>These operations must be supported by <code>Buffer</code>:</p>
 <ul>
-<li><strong>Equality</strong> (<code>==</code>) comparing two <code>Buffer</code> instances by their logical content and length.</li>
-<li><strong>Addition</strong> (<code>+</code>) via <code>__add__</code>, producing a new <code>Buffer</code> that is the concatenation of the left operand followed by the right operand.</li>
+<li><strong>Equality</strong> (<code>==</code>): two <code>Buffer</code> instances are compared on the basis of logical content and length.</li>
+<li><strong>Addition</strong> (<code>+</code>) through <code>__add__</code>: this builds a new <code>Buffer</code> out of the left operand followed by the right operand (their concatenation).</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Concatenation with a zero-length buffer</h5>
-<p>When a <code>Buffer</code> is concatenated (using <code>+</code>) with another <code>Buffer</code> whose <code>length</code> is <code>0</code> (an empty buffer, e.g. one constructed with <code>content=b''</code> and <code>length=0</code>), the result must equal the left operand unchanged.</p>
-<p>Concretely:</p>
+<h4>Behavior Requirements</h4>
+<h5>Concatenating a buffer of zero length</h5>
+<p>If <code>+</code> is used to concatenate a <code>Buffer</code> with another <code>Buffer</code> whose <code>length</code> equals <code>0</code> — an empty buffer (for example, one built with <code>content=b''</code> and <code>length=0</code>) — the outcome must equal the left operand, unchanged.</p>
+<p>In concrete terms:</p>
 <ul>
-<li>Given a left buffer <code>L</code> with nonzero length and a right buffer <code>R</code> with <code>length=0</code>, <code>L + R</code> must produce a buffer equal to <code>L</code>.</li>
+<li>Let <code>L</code> be a buffer on the left with nonzero length, and <code>R</code> a buffer on the right with <code>length=0</code>; the buffer produced by <code>L + R</code> must equal <code>L</code>.</li>
 </ul>
-<p>This case must not raise an error and must not alter the length or content of the left operand.</p>
-<h5>General concatenation (already-expected behavior to preserve)</h5>
-<p>Concatenating two non-empty buffers must produce a buffer whose length is the sum of the two operands' lengths and whose bit content is the left operand's bits followed by the right operand's bits, with appropriate padding. This existing behavior must continue to work; the zero-length fix must not regress it.</p>
+<p>In this case an error must not be raised, and the length or content of the left operand must not be altered.</p>
+<h5>Ordinary concatenation (existing behavior to be preserved)</h5>
+<p>When neither of the two operands is empty, the buffer produced by concatenation must have a length equal to the two operands' lengths added together, and its bit content must be the left operand's bits followed by those of the right operand, with appropriate padding. This behavior is already in place and must keep working; the fix for the zero-length case must not cause it to regress.</p>
 <h4>Scope</h4>
-<p>The only change required is ensuring that adding a zero-length buffer on the right-hand side yields a result equal to the left-hand buffer. Do not add any other behavior.</p>
+<p>Only one change is required: ensure that a zero-length buffer, when added on the right-hand side, yields a result that equals the left-hand buffer. You must not add any other behavior.</p>
 </div>
     </details>
   </div>

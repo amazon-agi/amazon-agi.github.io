@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/ASFHyP3/hyp3-sdk/compare/b044f20b58b3446c5b8cdaa5b08b2630564b972d...89a1681ee8c7692e1ceb85f4a4e140e2850afc8e" target="_blank" rel="noopener" class="mono">b044f20b58 … 89a1681ee8</a> · 137 commits by 5 authors over 8 mo (2021-03-11 to 2021-10-26)</dd></div>
       <div><dt>Window:</dt><dd>requests 35–54 of a run of 54 test-bearing changes (overlaps the previous window by 6) · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,413 lines of code in 37 files when the chain starts · over the 20 requests the developers added 399 and removed 152 lines of code, plus 353 lines of tests (39 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.4k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 1</dd></div>
+      <div><dt>Specifications:</dt><dd>7.0k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 1</dd></div>
     </dl>
   </header>
 </section>
@@ -144,178 +144,179 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">The hyp3_sdk package must publicly export a class named HyP3.</span>
-        <span class="spec-meta muted">172 words · source specification
+        <span class="spec-title">A class named HyP3 must be publicly exported by the hyp3_sdk package.</span>
+        <span class="spec-meta muted">198 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
+      <div class="spec-body"><h4>API requirements</h4>
 <ul>
-<li>The <code>hyp3_sdk</code> package must publicly export a class named <code>HyP3</code>.</li>
-<li><code>HyP3</code> must be constructible with no arguments:<pre><code class="language-python">api = HyP3()
+<li>A class named <code>HyP3</code> must be publicly exported by the <code>hyp3_sdk</code> package.</li>
+<li><code>HyP3</code> must be constructible when given no arguments:<pre><code class="language-python">api = HyP3()
 </code></pre>
 </li>
-<li>Instances must expose a <code>url</code> attribute containing the API base URL.</li>
-<li>Instances must provide:<pre><code class="language-python">api.find_jobs()
+<li>Instances must expose a <code>url</code> attribute that contains the API base URL.</li>
+<li>The following must be provided by instances:<pre><code class="language-python">api.find_jobs()
 </code></pre>
 </li>
 </ul>
-<h4>Required <code>find_jobs</code> behavior</h4>
-<p>Calling <code>HyP3.find_jobs()</code> must retrieve every page of jobs:</p>
+<h4>Required behavior of <code>find_jobs</code></h4>
+<p>A call to <code>HyP3.find_jobs()</code> must retrieve every page of jobs:</p>
 <ol>
-<li>Send the initial request to the <code>/jobs</code> endpoint without a <code>next</code> query parameter.</li>
-<li>Read job records from the response’s <code>&quot;jobs&quot;</code> list.</li>
-<li>If the response contains a <code>&quot;next&quot;</code> URL, request that URL. Its query parameters, including <code>next</code>, must be included in the subsequent request.</li>
-<li>Continue until a response does not contain <code>&quot;next&quot;</code>.</li>
-<li>Return one batch containing jobs from all retrieved pages.</li>
+<li>Issue the initial request to the <code>/jobs</code> endpoint without a <code>next</code> query parameter.</li>
+<li>Read the job records from the <code>&quot;jobs&quot;</code> list in the response.</li>
+<li>If a <code>&quot;next&quot;</code> URL is present in the response, request that URL. The subsequent request must include the query parameters of that URL, including <code>next</code>.</li>
+<li>Carry on until reaching a response that does not contain <code>&quot;next&quot;</code>.</li>
+<li>Return one batch containing the jobs from all retrieved pages.</li>
 </ol>
-<p>For example, if the first response contains two jobs and a <code>&quot;next&quot;</code> URL ending in <code>/jobs?next=foobar</code>, and the following response contains one job with no <code>&quot;next&quot;</code> value, the returned batch must have length 3. The first request must not contain a <code>next</code> parameter, while the second must contain it.</p>
+<p>For instance, if the first response contains two jobs plus a <code>&quot;next&quot;</code> URL that ends in <code>/jobs?next=foobar</code>, and the following response has one job with no <code>&quot;next&quot;</code> value, then the returned batch must have a length of 3. The first request must not contain a <code>next</code> parameter, but the second request must contain it.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Update job retrieval so that hyp3_sdk.HyP3.find_jobs() transparently retrieves every page of a jobs listing.</span>
-        <span class="spec-meta muted">304 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Change job retrieval so that hyp3_sdk.HyP3.find_jobs() transparently fetches every page of a jobs listing.</span>
+        <span class="spec-meta muted">326 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change: paginated job retrieval</h4>
-<p>Update job retrieval so that <code>hyp3_sdk.HyP3.find_jobs()</code> transparently retrieves every page of a jobs listing.</p>
+      <div class="spec-body"><h4>Required change: pagination for job retrieval</h4>
+<p>Change job retrieval so that <code>hyp3_sdk.HyP3.find_jobs()</code> transparently fetches every page of a jobs listing.</p>
 <h4>Public API and compatibility</h4>
 <ul>
-<li>Class: <code>hyp3_sdk.HyP3</code></li>
-<li>Method: <code>HyP3.find_jobs()</code></li>
-<li>Preserve the existing method signature and optional filters: <code>start</code>, <code>end</code>, <code>status</code>, and <code>name</code>.</li>
-<li>The method must continue to support being called without arguments.</li>
-<li>The return value remains a <code>hyp3_sdk.Batch</code> containing <code>hyp3_sdk.Job</code> objects. Existing filtering and job-conversion behavior must remain unchanged.</li>
+<li>The class is <code>hyp3_sdk.HyP3</code>.</li>
+<li>The method is <code>HyP3.find_jobs()</code>.</li>
+<li>Keep the existing method signature and the optional filters <code>start</code>, <code>end</code>, <code>status</code>, and <code>name</code>.</li>
+<li>The method must continue to be callable without arguments.</li>
+<li>The return value is still a <code>hyp3_sdk.Batch</code> that contains <code>hyp3_sdk.Job</code> objects. The existing filtering and job-conversion behavior must stay unchanged.</li>
 </ul>
 <h4>Pagination behavior</h4>
-<p>When <code>find_jobs()</code> is called without filters:</p>
+<p>When <code>find_jobs()</code> is called with no filters:</p>
 <ol>
 <li>
-<p>Send the initial <code>GET</code> request to <code>&lt;api.url&gt;/jobs</code> with no query string. In particular, the initial request must not contain a <code>next</code> parameter.</p>
+<p>Issue the initial <code>GET</code> request to <code>&lt;api.url&gt;/jobs</code> with no query string. In particular, this initial request must not contain a <code>next</code> parameter.</p>
 </li>
 <li>
-<p>Add all jobs from the response's <code>jobs</code> array to the result.</p>
+<p>Take all jobs from the response's <code>jobs</code> array and add them to the result.</p>
 </li>
 <li>
-<p>If the response contains <code>next</code>, treat its value as the complete URL of the next page, including its existing query string. Follow that URL directly, or issue a semantically equivalent request that preserves exactly the URL's query parameters.</p>
+<p>If the response contains <code>next</code>, treat its value as the complete URL of the next page, its existing query string included. Follow that URL directly, or issue a semantically equivalent request that preserves exactly the query parameters of that URL.</p>
 </li>
 <li>
-<p>Do not pass the complete continuation URL as the value of a newly added <code>next</code> parameter. For example, if the response contains:</p>
+<p>The complete continuation URL must not be passed as the value of a newly added <code>next</code> parameter. For example, if the response contains:</p>
 <pre><code class="language-json">{
   &quot;next&quot;: &quot;&lt;api.url&gt;/jobs?next=foobar&quot;
 }
 </code></pre>
-<p>the subsequent request must be to <code>&lt;api.url&gt;/jobs?next=foobar</code>, not to a URL equivalent to <code>&lt;api.url&gt;/jobs?next=&lt;URL-encoded complete URL&gt;</code>.</p>
+<p>the subsequent request must be made to <code>&lt;api.url&gt;/jobs?next=foobar</code>, not to a URL equivalent to <code>&lt;api.url&gt;/jobs?next=&lt;URL-encoded complete URL&gt;</code>.</p>
 </li>
 <li>
-<p>Accumulate jobs from every fetched page in page order into one returned <code>Batch</code>.</p>
+<p>Accumulate the jobs from every fetched page, in page order, into one returned <code>Batch</code>.</p>
 </li>
 <li>
-<p>Continue following each response's <code>next</code> URL and stop when a response does not provide <code>next</code>.</p>
+<p>Keep following the <code>next</code> URL of each response and stop when a response does not provide <code>next</code>.</p>
 </li>
 </ol>
-<p>For example, if the first page contains two jobs and points to <code>&lt;api.url&gt;/jobs?next=foobar</code>, and that second page contains one job with no further continuation URL, <code>find_jobs()</code> must return a <code>Batch</code> of length <code>3</code>.</p>
-<p>If no jobs are found across the retrieved pages, preserve the existing behavior of returning an empty <code>Batch</code> and issuing a <code>UserWarning</code>.</p>
-<p>No additional error handling or pagination behavior is required beyond the behavior described above.</p>
+<p>For example, if the first page holds two jobs and points to <code>&lt;api.url&gt;/jobs?next=foobar</code>, and that second page holds one job with no further continuation URL, then <code>find_jobs()</code> must return a <code>Batch</code> of length <code>3</code>.</p>
+<p>If no jobs are found across the pages that were retrieved, keep the existing behavior of returning an empty <code>Batch</code> and issuing a <code>UserWarning</code>.</p>
+<p>Beyond the behavior described above, no additional error handling or pagination behavior is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Expose the following public exception from hyp3_sdk.exceptions</span>
-        <span class="spec-meta muted">151 words · source specification
+        <span class="spec-title">The following public exception must be exposed from hyp3_sdk.exceptions</span>
+        <span class="spec-meta muted">176 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required exception behavior</h4>
-<p>Expose the following public exception from <code>hyp3_sdk.exceptions</code>:</p>
+      <div class="spec-body"><h4>Requirements for exception behavior</h4>
+<p>The following public exception must be exposed from <code>hyp3_sdk.exceptions</code>:</p>
 <pre><code class="language-python">HyP3SDKError
 </code></pre>
-<p>It must be importable both as:</p>
+<p>It must be importable in both of the following ways:</p>
 <pre><code class="language-python">from hyp3_sdk.exceptions import HyP3SDKError
 </code></pre>
-<p>and through:</p>
+<p>as well as through:</p>
 <pre><code class="language-python">from hyp3_sdk import exceptions
 exceptions.HyP3SDKError
 </code></pre>
-<p>The following APIs must raise <code>HyP3SDKError</code> in the specified situations:</p>
+<p>In the situations described below, the following APIs must raise <code>HyP3SDKError</code>:</p>
 <h5><code>hyp3_sdk.exceptions._raise_for_hyp3_status(response)</code></h5>
-<p>When passed an HTTP response with:</p>
+<p>The function must raise <code>HyP3SDKError</code> when it is passed an HTTP response that has:</p>
 <ul>
 <li><code>status_code == 400</code></li>
-<li>a JSON body containing <code>{&quot;detail&quot;: &quot;foo&quot;}</code></li>
+<li>a JSON body that contains <code>{&quot;detail&quot;: &quot;foo&quot;}</code></li>
 </ul>
-<p>the function must raise <code>HyP3SDKError</code>. The exception’s string representation must contain <code>foo</code>.</p>
+<p>The string representation of the raised exception must contain <code>foo</code>.</p>
 <h5><code>hyp3_sdk.jobs.Job.expired()</code></h5>
-<p>For a failed job created through:</p>
+<p>For a failed job that was created via:</p>
 <pre><code class="language-python">Job.from_dict(job_data)
 </code></pre>
-<p>where the job status is <code>FAILED</code>, calling:</p>
+<p>and whose status is <code>FAILED</code>, calling:</p>
 <pre><code class="language-python">job.expired()
 </code></pre>
 <p>must raise <code>HyP3SDKError</code>.</p>
-<p>No particular exception message is required for this case.</p>
+<p>For this case, no particular exception message is required.</p>
 <h5><code>hyp3_sdk.jobs.Job.download_files(destination)</code></h5>
-<p>For a <code>SUCCEEDED</code> job whose expiration time is in the past, calling:</p>
+<p>For a <code>SUCCEEDED</code> job whose expiration time lies in the past, a call to:</p>
 <pre><code class="language-python">job.download_files(destination)
 </code></pre>
-<p>with a filesystem path destination must raise <code>HyP3SDKError</code>, including when the job contains downloadable file metadata.</p>
-<p>No particular exception message is required for this case.</p>
+<p>with a filesystem path as the destination must raise <code>HyP3SDKError</code>; this includes the case where the job contains downloadable file metadata.</p>
+<p>For this case, no particular exception message is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">In module hyp3_sdk.exceptions, provide</span>
-        <span class="spec-meta muted">169 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Provide the following in module hyp3_sdk.exceptions</span>
+        <span class="spec-meta muted">215 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>In module <code>hyp3_sdk.exceptions</code>, provide:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>API Requirements</h4>
+<p>Provide the following in module <code>hyp3_sdk.exceptions</code>:</p>
 <ul>
-<li>Exception class <code>HyP3Error</code></li>
-<li>Exception class <code>ASFSearchError</code></li>
-<li>Exception class <code>ServerError</code></li>
-<li>Function <code>_raise_for_hyp3_status(response)</code></li>
-<li>Function <code>_raise_for_search_status(response)</code></li>
+<li>the exception class <code>HyP3Error</code></li>
+<li>the exception class <code>ASFSearchError</code></li>
+<li>the exception class <code>ServerError</code></li>
+<li>the function <code>_raise_for_hyp3_status(response)</code></li>
+<li>the function <code>_raise_for_search_status(response)</code></li>
 </ul>
-<p>Each exception class must be importable from <code>hyp3_sdk.exceptions</code>. Both functions accept a <code>requests.Response</code>.</p>
-<h4>Required behavior</h4>
+<p>Each of the exception classes must be importable from <code>hyp3_sdk.exceptions</code>. Both of the functions accept a <code>requests.Response</code>.</p>
+<h4>Behavior Requirements</h4>
 <h5><code>_raise_for_hyp3_status(response)</code></h5>
 <ul>
-<li>For a response with status code <code>400</code> whose JSON body has a top-level <code>detail</code> field with the value <code>foo</code>:
+<li>If the status code of the response is <code>400</code> and its JSON body contains a top-level <code>detail</code> field whose value is <code>foo</code>:
 <ul>
-<li>Raise <code>HyP3Error</code>.</li>
-<li>The exception's string representation must contain <code>foo</code>.</li>
+<li><code>HyP3Error</code> must be raised.</li>
+<li>The string representation of the exception must contain <code>foo</code>.</li>
 </ul>
 </li>
-<li>For a response with status code <code>500</code>:
+<li>If the status code of the response is <code>500</code>:
 <ul>
-<li>Raise <code>ServerError</code>.</li>
+<li><code>ServerError</code> must be raised.</li>
 </ul>
 </li>
-<li>For a response with status code <code>200</code>:
+<li>If the status code of the response is <code>200</code>:
 <ul>
-<li>Complete without raising an exception.</li>
+<li>The function must complete without raising an exception.</li>
 </ul>
 </li>
 </ul>
 <h5><code>_raise_for_search_status(response)</code></h5>
 <ul>
-<li>For a response with status code <code>400</code> whose JSON body has the nested field <code>error.report</code> with the value <code>bar</code>:
+<li>If the status code of the response is <code>400</code> and its JSON body contains the nested field <code>error.report</code> whose value is <code>bar</code>:
 <ul>
-<li>Raise <code>ASFSearchError</code>, not <code>HyP3Error</code> or a plain <code>requests.exceptions.HTTPError</code>.</li>
-<li>The exception's string representation must contain the report value <code>bar</code>.</li>
+<li><code>ASFSearchError</code> must be raised instead of <code>HyP3Error</code> or a plain <code>requests.exceptions.HTTPError</code>.</li>
+<li>The string representation of the exception must contain the report value <code>bar</code>.</li>
 </ul>
 </li>
-<li>For a response with status code <code>500</code>:
+<li>If the status code of the response is <code>500</code>:
 <ul>
-<li>Raise <code>ServerError</code>.</li>
+<li><code>ServerError</code> must be raised.</li>
 </ul>
 </li>
-<li>For a response with status code <code>200</code>:
+<li>If the status code of the response is <code>200</code>:
 <ul>
-<li>Complete without raising an exception.</li>
+<li>The function must complete without raising an exception.</li>
 </ul>
 </li>
 </ul>
@@ -324,17 +325,17 @@ exceptions.HyP3SDKError
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Update the public API</span>
-        <span class="spec-meta muted">114 words · source specification
+        <span class="spec-title">Apply the following update to the public API</span>
+        <span class="spec-meta muted">140 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public API:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Apply the following update to the public API:</p>
 <ul>
-<li>Import path: <code>from hyp3_sdk import HyP3</code></li>
-<li>Method: <code>HyP3.prepare_rtc_job(granule, name=None, ...)</code></li>
+<li>The import path is <code>from hyp3_sdk import HyP3</code></li>
+<li>The method to be updated: <code>HyP3.prepare_rtc_job(granule, name=None, ...)</code></li>
 </ul>
-<p>For RTC jobs prepared through this method, the returned dictionary must include:</p>
+<p>When RTC jobs are prepared through this method, the dictionary that is returned must include:</p>
 <pre><code class="language-python">{
     &quot;job_parameters&quot;: {
         &quot;dem_name&quot;: &quot;copernicus&quot;,
@@ -342,26 +343,26 @@ exceptions.HyP3SDKError
     }
 }
 </code></pre>
-<p>Requirements:</p>
+<p>What is required:</p>
 <ul>
 <li>
-<p><code>dem_name</code> must be nested inside <code>job_parameters</code>, not at the top level.</p>
+<p><code>dem_name</code> must be nested inside <code>job_parameters</code> rather than being placed at the top level.</p>
 </li>
 <li>
-<p>Its default value must be exactly <code>&quot;copernicus&quot;</code>.</p>
+<p>The default value of <code>dem_name</code> must be exactly <code>&quot;copernicus&quot;</code>.</p>
 </li>
 <li>
-<p>It must be included when called with only a granule:</p>
+<p>It must be included when the method is called with only a granule:</p>
 <pre><code class="language-python">HyP3.prepare_rtc_job(granule=&quot;my_granule&quot;)
 </code></pre>
 </li>
 <li>
-<p>It must also be included when a job name is supplied:</p>
+<p>It must also be included when a job name is provided:</p>
 <pre><code class="language-python">HyP3.prepare_rtc_job(granule=&quot;my_granule&quot;, name=&quot;my_name&quot;)
 </code></pre>
 </li>
 <li>
-<p>Existing RTC job fields and existing handling of the optional <code>name</code> argument must remain unchanged.</p>
+<p>The existing RTC job fields, together with the existing handling of the optional <code>name</code> argument, must stay unchanged.</p>
 </li>
 </ul>
 </div>
@@ -369,14 +370,14 @@ exceptions.HyP3SDKError
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Modify the prepare_insar_job static method on the HyP3 class in the hyp3_sdk package, importable with from hyp3_sdk import HyP3, to support a new…</span>
-        <span class="spec-meta muted">317 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Change the static method prepare_insar_job on the HyP3 class of the hyp3_sdk package, which is importable with from hyp3_sdk import HyP3, so that it…</span>
+        <span class="spec-meta muted">343 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>prepare_insar_job</code> static method on the <code>HyP3</code> class in the <code>hyp3_sdk</code> package, importable with <code>from hyp3_sdk import HyP3</code>, to support a new <code>include_inc_map</code> parameter while preserving the existing InSAR job preparation behavior.</p>
-<h4>Public API</h4>
-<p>The method must remain a static method with exactly the following signature and parameter order:</p>
+<p>Change the static method <code>prepare_insar_job</code> on the <code>HyP3</code> class of the <code>hyp3_sdk</code> package, which is importable with <code>from hyp3_sdk import HyP3</code>, so that it supports a new <code>include_inc_map</code> parameter while the existing InSAR job preparation behavior is preserved.</p>
+<h4>Public Interface</h4>
+<p>The method must stay a static method, and it must have exactly this signature with this parameter order:</p>
 <pre><code class="language-python">@staticmethod
 def prepare_insar_job(
     granule1: str,
@@ -389,15 +390,15 @@ def prepare_insar_job(
 ) -&gt; dict:
     ...
 </code></pre>
-<h4>Required Behavior</h4>
-<p>The method returns a dictionary describing an InSAR job. It must not submit the job.</p>
-<h5>Job type and granules</h5>
+<h4>Behavior Requirements</h4>
+<p>The method returns a dictionary that describes an InSAR job. It must not submit the job.</p>
+<h5>Job Type and Granules</h5>
 <ul>
-<li>The top-level <code>job_type</code> value is always the fixed string <code>'INSAR_GAMMA'</code>.</li>
-<li><code>job_parameters['granules']</code> is a two-element list containing <code>granule1</code> followed by <code>granule2</code>, preserving that order.</li>
+<li>The value of the top-level <code>job_type</code> key is always the fixed string <code>'INSAR_GAMMA'</code>.</li>
+<li>The entry <code>job_parameters['granules']</code> is a two-element list made up of <code>granule1</code> followed by <code>granule2</code>, keeping that order.</li>
 </ul>
-<h5>Processing parameters</h5>
-<p>The <code>job_parameters</code> dictionary must contain exactly these five keys:</p>
+<h5>Processing Parameters</h5>
+<p>The <code>job_parameters</code> dictionary must contain exactly the following five keys:</p>
 <ul>
 <li><code>granules</code></li>
 <li><code>include_look_vectors</code></li>
@@ -405,13 +406,13 @@ def prepare_insar_job(
 <li><code>include_inc_map</code></li>
 <li><code>looks</code></li>
 </ul>
-<p>The three inclusion options are copied directly from their corresponding arguments and each defaults to <code>False</code>. In particular, <code>include_inc_map</code> controls the incidence-map option in the prepared payload. <code>looks</code> is copied directly from its argument and defaults to <code>'20x4'</code>.</p>
-<h5>Optional job name</h5>
+<p>Each of the three inclusion options is copied directly from its corresponding argument and defaults to <code>False</code>. Specifically, <code>include_inc_map</code> governs the incidence-map option in the prepared payload. The <code>looks</code> value is copied directly from its argument and defaults to <code>'20x4'</code>.</p>
+<h5>Optional Job Name</h5>
 <ul>
-<li>If <code>name</code> is omitted or explicitly set to <code>None</code>, the returned dictionary must omit the top-level <code>name</code> key entirely. In this case, the only top-level keys are <code>job_type</code> and <code>job_parameters</code>.</li>
-<li>If <code>name</code> is non-<code>None</code>, the returned dictionary must include the top-level entry <code>'name': name</code>. In this case, the only top-level keys are <code>job_type</code>, <code>name</code>, and <code>job_parameters</code>.</li>
+<li>If <code>name</code> is left out or is explicitly set to <code>None</code>, the returned dictionary must leave out the top-level <code>name</code> key entirely. In that case, <code>job_type</code> and <code>job_parameters</code> are the only top-level keys.</li>
+<li>If <code>name</code> is not <code>None</code>, the returned dictionary must include the top-level entry <code>'name': name</code>. In that case, <code>job_type</code>, <code>name</code>, and <code>job_parameters</code> are the only top-level keys.</li>
 </ul>
-<p>Accordingly, an unnamed job has this structure:</p>
+<p>Accordingly, a job with no name has this structure:</p>
 <pre><code class="language-python">{
     'job_type': 'INSAR_GAMMA',
     'job_parameters': {
@@ -423,7 +424,7 @@ def prepare_insar_job(
     },
 }
 </code></pre>
-<p>A job with a non-<code>None</code> name has this structure:</p>
+<p>A job whose name is not <code>None</code> has this structure:</p>
 <pre><code class="language-python">{
     'job_type': 'INSAR_GAMMA',
     'name': name,
@@ -441,31 +442,32 @@ def prepare_insar_job(
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Expose an include_dem option on the InSAR job-preparation API.</span>
-        <span class="spec-meta muted">247 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">An include_dem option is to be exposed on the InSAR job-preparation API.</span>
+        <span class="spec-meta muted">278 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Expose an <code>include_dem</code> option on the InSAR job-preparation API.</p>
-<h4>Public API</h4>
-<p><code>hyp3_sdk.HyP3.prepare_insar_job(...)</code> (where <code>HyP3</code> is defined in <code>hyp3_sdk.hyp3</code>) must accept an additional keyword parameter:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Change to make</h4>
+<p>An <code>include_dem</code> option is to be exposed on the InSAR job-preparation API.</p>
+<h4>Public interface</h4>
+<p><code>hyp3_sdk.HyP3.prepare_insar_job(...)</code> (with <code>HyP3</code> being defined in <code>hyp3_sdk.hyp3</code>) must accept an extra keyword parameter:</p>
 <pre><code class="language-python">include_dem: bool = False
 </code></pre>
-<p>This option controls whether the DEM file is included in the InSAR product package. All existing parameters, defaults, and behavior of <code>prepare_insar_job</code> must remain unchanged.</p>
-<h4>Returned job definition</h4>
-<p>The returned dictionary must have <code>&quot;job_type&quot;: &quot;INSAR_GAMMA&quot;</code> and must always contain an <code>include_dem</code> entry within <code>job_parameters</code>:</p>
+<p>Whether the DEM file is included in the InSAR product package is controlled by this option. All of the existing parameters, defaults, and behavior of <code>prepare_insar_job</code> must stay unchanged.</p>
+<h4>Definition of the returned job</h4>
+<p>The returned dictionary is required to have <code>&quot;job_type&quot;: &quot;INSAR_GAMMA&quot;</code> and must always contain an <code>include_dem</code> entry inside <code>job_parameters</code>:</p>
 <ul>
-<li>If <code>include_dem</code> is omitted, <code>job_parameters[&quot;include_dem&quot;]</code> must be <code>False</code>.</li>
-<li>If <code>include_dem=True</code> is supplied, <code>job_parameters[&quot;include_dem&quot;]</code> must be <code>True</code>.</li>
-<li>The two granules must remain in input order in <code>job_parameters[&quot;granules&quot;]</code>.</li>
-<li>Existing InSAR options must continue to appear in <code>job_parameters</code> with their existing values and defaults.</li>
+<li>When <code>include_dem</code> is left out, <code>job_parameters[&quot;include_dem&quot;]</code> must be <code>False</code>.</li>
+<li>When <code>include_dem=True</code> is given, <code>job_parameters[&quot;include_dem&quot;]</code> must be <code>True</code>.</li>
+<li>The two granules must stay in input order within <code>job_parameters[&quot;granules&quot;]</code>.</li>
+<li>The InSAR options that already exist must still appear in <code>job_parameters</code> with their existing values and defaults.</li>
 </ul>
-<p>The existing optional-name behavior must also be preserved:</p>
+<p>The existing optional-name behavior must be preserved as well:</p>
 <ul>
-<li>If <code>name</code> is omitted or explicitly set to <code>None</code>, the returned dictionary must omit the top-level <code>name</code> key entirely. It must not return <code>&quot;name&quot;: None</code>.</li>
-<li>If <code>name</code> is not <code>None</code>, the returned dictionary must include it as the top-level <code>name</code> value.</li>
+<li>When <code>name</code> is left out or explicitly set to <code>None</code>, the top-level <code>name</code> key must be left out of the returned dictionary completely. It must not return <code>&quot;name&quot;: None</code>.</li>
+<li>When <code>name</code> is not <code>None</code>, the returned dictionary must include it as the value of the top-level <code>name</code> key.</li>
 </ul>
-<p>For example, a default InSAR job must return:</p>
+<p>As an example, a default InSAR job must return:</p>
 <pre><code class="language-python">{
     &quot;job_type&quot;: &quot;INSAR_GAMMA&quot;,
     &quot;job_parameters&quot;: {
@@ -478,7 +480,7 @@ def prepare_insar_job(
     },
 }
 </code></pre>
-<p>Calling:</p>
+<p>With the following call:</p>
 <pre><code class="language-python">HyP3.prepare_insar_job(
     granule1=&quot;my_granule1&quot;,
     granule2=&quot;my_granule2&quot;,
@@ -490,7 +492,7 @@ def prepare_insar_job(
     include_dem=True,
 )
 </code></pre>
-<p>must return:</p>
+<p>the call must return:</p>
 <pre><code class="language-python">{
     &quot;job_type&quot;: &quot;INSAR_GAMMA&quot;,
     &quot;name&quot;: &quot;my_name&quot;,
@@ -509,26 +511,26 @@ def prepare_insar_job(
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Update the public HyP3 API, available as hyp3_sdk.HyP3, as follows</span>
-        <span class="spec-meta muted">141 words · source specification
+        <span class="spec-title">Modify the public HyP3 API, which is available as hyp3_sdk.HyP3, in the following way</span>
+        <span class="spec-meta muted">159 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add wrapped-phase option to InSAR job preparation</h4>
-<p>Update the public <code>HyP3</code> API, available as <code>hyp3_sdk.HyP3</code>, as follows:</p>
+      <div class="spec-body"><h4>Add a wrapped-phase option to InSAR job preparation</h4>
+<p>Modify the public <code>HyP3</code> API, which is available as <code>hyp3_sdk.HyP3</code>, in the following way:</p>
 <h5><code>HyP3.prepare_insar_job</code></h5>
-<p>Extend the existing method signature with the keyword argument:</p>
+<p>Add the following keyword argument to the existing method signature:</p>
 <pre><code class="language-python">include_wrapped_phase: bool = False
 </code></pre>
-<p>The returned job specification must include this value in its nested <code>job_parameters</code> dictionary under the exact key:</p>
+<p>The returned job specification must contain this value within its nested <code>job_parameters</code> dictionary under this exact key:</p>
 <pre><code class="language-python">&quot;include_wrapped_phase&quot;
 </code></pre>
-<p>Required behavior:</p>
+<p>The required behavior is:</p>
 <ul>
-<li>If <code>include_wrapped_phase</code> is omitted, <code>job_parameters[&quot;include_wrapped_phase&quot;]</code> is <code>False</code>.</li>
-<li>If called with <code>include_wrapped_phase=True</code>, <code>job_parameters[&quot;include_wrapped_phase&quot;]</code> is <code>True</code>.</li>
-<li>This key must be present alongside the existing InSAR parameters, without changing their current behavior.</li>
+<li>When <code>include_wrapped_phase</code> is left out, <code>job_parameters[&quot;include_wrapped_phase&quot;]</code> is <code>False</code>.</li>
+<li>When the method is called with <code>include_wrapped_phase=True</code>, <code>job_parameters[&quot;include_wrapped_phase&quot;]</code> is <code>True</code>.</li>
+<li>This key must be present alongside the existing InSAR parameters, and their current behavior must remain unchanged.</li>
 </ul>
-<p>For example, a call including:</p>
+<p>As an example, a call that includes:</p>
 <pre><code class="language-python">HyP3.prepare_insar_job(
     granule1=&quot;my_granule1&quot;,
     granule2=&quot;my_granule2&quot;,
@@ -541,7 +543,7 @@ def prepare_insar_job(
     include_wrapped_phase=True,
 )
 </code></pre>
-<p>must return the existing <code>INSAR_GAMMA</code> job structure with:</p>
+<p>must return the existing <code>INSAR_GAMMA</code> job structure with these contents:</p>
 <pre><code class="language-python">{
     &quot;job_type&quot;: &quot;INSAR_GAMMA&quot;,
     &quot;name&quot;: &quot;my_name&quot;,
@@ -561,415 +563,418 @@ def prepare_insar_job(
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Extend the public Batch class in the codebase’s existing jobs API, alongside the existing public Job class.</span>
-        <span class="spec-meta muted">270 words · source specification
+        <span class="spec-title">In the codebase’s existing jobs API, extend the public Batch class, which sits alongside the existing public Job class.</span>
+        <span class="spec-meta muted">309 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Batch sequence operations</h4>
-<p>Extend the public <code>Batch</code> class in the codebase’s existing jobs API, alongside the existing public <code>Job</code> class.</p>
-<h5>Existing public surface used</h5>
+      <div class="spec-body"><h4>Sequence operations on batches</h4>
+<p>In the codebase’s existing jobs API, extend the public <code>Batch</code> class, which sits alongside the existing public <code>Job</code> class.</p>
+<h5>Public surface already in use</h5>
 <ul>
 <li><code>Job.from_dict(data) -&gt; Job</code></li>
-<li>Writable <code>Job.status_code</code></li>
+<li><code>Job.status_code</code>, which is writable</li>
 <li><code>Job.succeeded()</code>, <code>Job.failed()</code>, and <code>Job.running()</code></li>
-<li><code>Batch(jobs)</code>, where <code>jobs</code> is an ordered collection of <code>Job</code> instances</li>
+<li><code>Batch(jobs)</code>, in which <code>jobs</code> is an ordered collection of <code>Job</code> instances</li>
 <li><code>Batch.jobs</code></li>
 <li><code>len(batch)</code></li>
 </ul>
-<h5>Required <code>Batch</code> behavior</h5>
-<p>Add support for these public special methods:</p>
+<h5>Behavior required of <code>Batch</code></h5>
+<p>Support must be added for the following public special methods:</p>
 <ul>
 <li>
 <p><code>Batch.__iadd__(self, other)</code></p>
 <ul>
-<li><code>other</code> may be another <code>Batch</code>; append its jobs in their current order.</li>
-<li><code>other</code> may be a single <code>Job</code>; append that job.</li>
-<li>The resulting <code>Batch</code> must remain assigned after <code>batch += other</code>.</li>
-<li>Existing jobs retain their order, and appended jobs follow them.</li>
+<li><code>other</code> may be another <code>Batch</code>, in which case its jobs are appended in their current order.</li>
+<li><code>other</code> may be a single <code>Job</code>, in which case that job is appended.</li>
+<li>After <code>batch += other</code>, the resulting <code>Batch</code> must remain assigned.</li>
+<li>Jobs that are already present retain their order, and appended jobs follow them.</li>
 </ul>
 </li>
 <li>
 <p><code>Batch.__contains__(self, job) -&gt; bool</code></p>
 <ul>
-<li><code>job in batch</code> is true for jobs currently present in the batch.</li>
-<li>It is false for a distinct job that has not been added.</li>
-<li>Membership must reflect subsequent additions, replacements, and deletions.</li>
+<li><code>job in batch</code> is true when the job is currently present in the batch.</li>
+<li>For a distinct job that has not been added, it is false.</li>
+<li>Subsequent additions, replacements, and deletions must be reflected in membership.</li>
 </ul>
 </li>
 <li>
 <p><code>Batch.__getitem__(self, index) -&gt; Job</code></p>
 <ul>
-<li>Support integer indexing for existing positions.</li>
-<li>Index <code>0</code> returns the first job, index <code>1</code> the second, and so on.</li>
+<li>Integer indexing must be supported for existing positions.</li>
+<li>The first job is returned at index <code>0</code>, the second at index <code>1</code>, and so on.</li>
 </ul>
 </li>
 <li>
 <p><code>Batch.__setitem__(self, index, job)</code></p>
 <ul>
-<li>Replace the job at an existing integer index.</li>
-<li>Reading that index afterward returns the replacement job.</li>
+<li>The job at an existing integer index is replaced.</li>
+<li>When that index is read afterward, the replacement job is returned.</li>
 </ul>
 </li>
 <li>
 <p><code>Batch.__delitem__(self, index)</code></p>
 <ul>
-<li>Delete the job at the specified integer index.</li>
-<li>Remaining jobs preserve their relative order and shift to fill the removed position.</li>
-<li>Membership must no longer report the removed job unless it is still present elsewhere.</li>
+<li>The job at the specified integer index is deleted.</li>
+<li>Jobs that remain preserve their relative order and shift to fill the removed position.</li>
+<li>Unless the removed job is still present elsewhere, membership must no longer report it.</li>
 </ul>
 </li>
 <li>
 <p><code>Batch.__reversed__(self)</code></p>
 <ul>
-<li><code>reversed(batch)</code> must yield the batch’s jobs from last to first without changing their stored order.</li>
+<li><code>reversed(batch)</code> must yield the batch’s jobs from last to first, leaving their stored order unchanged.</li>
 </ul>
 </li>
 </ul>
-<p>No additional indexing modes, operand types, or error-handling behavior are required.</p>
+<p>There is no requirement for additional indexing modes, operand types, or error-handling behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Support job log metadata throughout Job parsing and serialization, and preserve normal empty-search behavior.</span>
-        <span class="spec-meta muted">326 words · source specification
+        <span class="spec-title">The change is to support job log metadata throughout Job parsing and serialization, and to preserve normal empty-search behavior.</span>
+        <span class="spec-meta muted">361 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Support job log metadata throughout <code>Job</code> parsing and serialization, and preserve normal empty-search behavior.</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>The change is to support job log metadata throughout <code>Job</code> parsing and serialization, and to preserve normal empty-search behavior.</p>
 <h5>Public API</h5>
 <h6><code>hyp3_sdk.jobs.Job</code></h6>
-<p>The following existing interfaces are exercised:</p>
+<p>The existing interfaces listed below are exercised:</p>
 <ul>
 <li><code>Job.from_dict(job_dict)</code></li>
 <li><code>Job.to_dict(for_resubmit=False)</code></li>
-<li>Instance attribute <code>Job.logs</code></li>
-<li>Class-level key collections:
+<li>The instance attribute <code>Job.logs</code></li>
+<li>Class-level collections of keys:
 <ul>
 <li><code>Job._finished_job_keys</code></li>
 <li><code>Job._successful_job_keys</code></li>
 </ul>
 </li>
 </ul>
-<p>Required behavior:</p>
+<p>Behavior that is required:</p>
 <ol>
-<li><code>Job.from_dict(...)</code> must accept successful and failed job dictionaries containing a <code>&quot;logs&quot;</code> field whose value is a non-empty list of URL strings.</li>
-<li>The resulting object must expose that value through <code>job.logs</code>.</li>
-<li><code>&quot;logs&quot;</code> must be classified as metadata available for both finished/failed and successful jobs:
+<li><code>Job.from_dict(...)</code> must accept job dictionaries, both successful and failed, that contain a <code>&quot;logs&quot;</code> field whose value is a non-empty list of URL strings.</li>
+<li>The object produced as a result must expose that value via <code>job.logs</code>.</li>
+<li><code>&quot;logs&quot;</code> must be categorized as metadata available for both finished/failed and successful jobs:
 <ul>
-<li>It must be represented by <code>Job._finished_job_keys</code>.</li>
-<li>It must also be represented by <code>Job._successful_job_keys</code>.</li>
+<li>It must be represented in <code>Job._finished_job_keys</code>.</li>
+<li>It must also be represented in <code>Job._successful_job_keys</code>.</li>
 </ul>
 </li>
-<li>For a successful job, every attribute named by <code>_successful_job_keys</code> must exist and retain a truthy supplied value.</li>
+<li>For a successful job, every attribute named by <code>_successful_job_keys</code> must exist and retain the truthy value that was supplied.</li>
 <li>For a failed job:
 <ul>
-<li>Every attribute named by <code>_finished_job_keys</code> must exist and retain a truthy supplied value.</li>
-<li>Successful-only attributes—those in <code>_successful_job_keys</code> but not <code>_finished_job_keys</code>, such as browse images, expiration time, and output files—must exist with value <code>None</code>.</li>
+<li>Every attribute named by <code>_finished_job_keys</code> must exist and retain the truthy value that was supplied.</li>
+<li>Successful-only attributes—those in <code>_successful_job_keys</code> but not <code>_finished_job_keys</code>, such as browse images, expiration time, and output files—must exist with the value <code>None</code>.</li>
 </ul>
 </li>
-<li><code>job.to_dict()</code> must exactly reproduce the dictionary supplied to <code>Job.from_dict(...)</code>, including <code>&quot;logs&quot;</code>, for both successful and failed jobs. It must not add absent successful-only fields to a failed-job dictionary.</li>
+<li>For both successful and failed jobs, <code>job.to_dict()</code> must exactly reproduce the dictionary supplied to <code>Job.from_dict(...)</code>, including <code>&quot;logs&quot;</code>. It must not add to a failed-job dictionary any successful-only fields that are absent.</li>
 <li><code>job.to_dict(for_resubmit=True)</code> must not return a truthy value for any finished/result metadata:
 <ul>
-<li>For a successful job, every key in <code>_successful_job_keys</code> must be absent or falsey in the returned dictionary.</li>
+<li>For a successful job, the returned dictionary must have every key of <code>_successful_job_keys</code> absent or falsey.</li>
 <li>For a failed job, every key in <code>_finished_job_keys</code> must be absent or falsey.</li>
-<li>This includes <code>&quot;logs&quot;</code>.</li>
+<li>This covers <code>&quot;logs&quot;</code> as well.</li>
 </ul>
 </li>
-<li>Resubmit serialization must not clear or otherwise mutate the corresponding attributes on the original <code>Job</code>; those attributes must remain truthy afterward.</li>
+<li>The corresponding attributes on the original <code>Job</code> must not be cleared or otherwise mutated by resubmit serialization; those attributes must remain truthy afterward.</li>
 </ol>
 <h6><code>hyp3_sdk.HyP3.find_jobs</code></h6>
-<p><code>HyP3.find_jobs()</code> must remain callable without explicit filter arguments and return a collection whose length reflects the jobs returned by the service:</p>
+<p>It must remain possible to call <code>HyP3.find_jobs()</code> without explicit filter arguments, and the call must return a collection whose length reflects the jobs returned by the service:</p>
 <ul>
-<li>A response containing three jobs produces a result of length three.</li>
-<li>A subsequent response containing no jobs produces a result of length zero.</li>
-<li>An empty result is a normal return and must not emit a <code>UserWarning</code>.</li>
+<li>A response with three jobs produces a result whose length is three.</li>
+<li>A subsequent response with no jobs produces a result whose length is zero.</li>
+<li>An empty result is a normal return, and a <code>UserWarning</code> must not be emitted.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Job Class Refactor</span>
-        <span class="spec-meta muted">1013 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Refactoring the Job Class</span>
+        <span class="spec-meta muted">1081 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>Job</code> Class Refactor</h3>
-<h4>Overview</h4>
-<p>Refactor the existing <code>Job</code> class so that it has a consistent, fixed attribute model, can be constructed from a job dictionary, and can serialize either a complete job dictionary or a resubmission payload. <code>Job</code> must remain importable as <code>Job</code> from <code>hyp3_sdk.jobs</code> and through the existing package-level export.</p>
-<p>This work must preserve the surrounding <code>Job</code> API. In particular, timestamp conversion must remain compatible with expiration checks and product downloads.</p>
-<h4>Required Public API</h4>
+      <div class="spec-body"><h3>Task Specification: Refactoring the <code>Job</code> Class</h3>
+<h4>Summary</h4>
+<p>Rework the existing <code>Job</code> class so that it features a consistent, fixed attribute model, can be built from a job dictionary, and can serialize either a complete job dictionary or a resubmission payload. <code>Job</code> must still be importable as <code>Job</code> from <code>hyp3_sdk.jobs</code> and through the existing package-level export.</p>
+<p>The surrounding <code>Job</code> API must be preserved by this work. Timestamp conversion in particular must stay compatible with expiration checks and product downloads.</p>
+<h4>Public API Requirements</h4>
 <h5><code>Job.from_dict(data: dict) -&gt; Job</code></h5>
-<p>Provide a class-level constructor that returns a new <code>Job</code> for each call. For every key in a valid input dictionary:</p>
+<p>Supply a class-level constructor that returns a new <code>Job</code> on each call. For each key in a valid input dictionary:</p>
 <ul>
-<li>the returned object must expose an attribute of the same name through normal Python attribute access, including <code>getattr(job, key)</code> and <code>job.__getattribute__(key)</code>;</li>
-<li>the attribute must represent the supplied value; and</li>
-<li>except for the timestamp conversion documented below, the value must be preserved unchanged.</li>
+<li>the object that comes back must expose an attribute of that same name through ordinary Python attribute access, including <code>getattr(job, key)</code> and <code>job.__getattribute__(key)</code>;</li>
+<li>the attribute must represent the value that was supplied; and</li>
+<li>apart from the timestamp conversion described below, the value must be kept unchanged.</li>
 </ul>
-<p>Valid job dictionaries in this contract contain truthy values for the keys they supply. Those values, including nested dictionaries and lists, must retain their content.</p>
-<p>The class has a fixed set of known job attributes rather than creating only the attributes present in one response. Consequently:</p>
+<p>Within this contract, valid job dictionaries carry truthy values for the keys they supply. Those values, nested dictionaries and lists included, must retain their content.</p>
+<p>Rather than creating only the attributes present in a single response, the class carries a fixed set of known job attributes. As a consequence:</p>
 <ul>
-<li><code>vars(job).keys()</code> must be a superset of <code>data.keys()</code>;</li>
-<li>every known instance attribute that was not supplied in <code>data</code> must still be present in <code>vars(job)</code>, with the value <code>None</code> exactly rather than another falsy sentinel such as <code>0</code>, <code>False</code>, or an empty string; and</li>
-<li>a job's available attributes must not depend on whether the job is running, failed, or succeeded. No valid input field may be discarded merely because it is associated with a particular job state.</li>
+<li><code>vars(job).keys()</code> must form a superset of <code>data.keys()</code>;</li>
+<li>every known instance attribute missing from <code>data</code> must still be present in <code>vars(job)</code>, holding exactly the value <code>None</code> rather than some other falsy sentinel such as <code>0</code>, <code>False</code>, or an empty string; and</li>
+<li>which attributes a job has available must not depend on whether that job is running, failed, or succeeded. No valid input field may be thrown away merely because it is tied to a particular job state.</li>
 </ul>
-<p>Distinct calls must produce independent instances. Populating or later changing one job must not alter another job's attributes or serialization.</p>
-<h6>ISO-8601 expiration timestamps</h6>
-<p>A nonempty ISO-8601 <code>expiration_time</code> supplied in <code>data</code> is a timestamp, not an opaque string. <code>from_dict</code> must interpret it as a datetime-compatible value with the timezone semantics required for comparison with the current time. This in-memory conversion is the exception to retaining the literal supplied value as the instance attribute.</p>
-<p>The converted value must preserve the existing expiration behavior:</p>
+<p>Distinct calls must produce instances that are independent of one another. Populating one job, or changing it later, must not alter the attributes or serialization of another job.</p>
+<h6>ISO-8601 Expiration Timestamps</h6>
+<p>An ISO-8601 <code>expiration_time</code> that is nonempty and supplied in <code>data</code> is a timestamp, not an opaque string. <code>from_dict</code> must treat it as a datetime-compatible value carrying the timezone semantics that comparison with the current time requires. This in-memory conversion is the exception to the rule that the literal supplied value is kept as the instance attribute.</p>
+<p>Once converted, the value must preserve the existing expiration behavior:</p>
 <ul>
-<li><code>job.expired()</code> can compare it with the current time and reports future and past expiration times correctly;</li>
-<li>a successful, unexpired job created from a service dictionary can proceed through <code>job.download_files()</code>;</li>
-<li>an expired job continues to be rejected by that operation; and</li>
-<li>neither operation may fail merely because <code>expiration_time</code> originally arrived as an ISO-8601 string.</li>
+<li><code>job.expired()</code> can compare it against the current time and reports future and past expiration times correctly;</li>
+<li>a successful, unexpired job built from a service dictionary can proceed through <code>job.download_files()</code>;</li>
+<li>an expired job keeps being rejected by that operation; and</li>
+<li>neither operation may fail merely due to <code>expiration_time</code> originally arriving as an ISO-8601 string.</li>
 </ul>
-<p>If <code>expiration_time</code> is absent or has no value, the corresponding known attribute remains <code>None</code>, and the existing behavior for a job without an expiration timestamp remains unchanged.</p>
+<p>When <code>expiration_time</code> is absent or has no value, the corresponding known attribute stays <code>None</code>, and the existing behavior for a job that has no expiration timestamp is left unchanged.</p>
 <h5><code>Job.to_dict(for_resubmit: bool = False) -&gt; dict</code></h5>
-<p>Serialize the job to an ordinary dictionary without mutating the instance.</p>
+<p>The job is serialized into an ordinary dictionary, and the instance is not mutated.</p>
 <h6>Default mode: <code>for_resubmit=False</code></h6>
-<p>For a job created with <code>Job.from_dict(data)</code>, the default result must equal <code>data</code> exactly:</p>
+<p>For a job that was created with <code>Job.from_dict(data)</code>, the default result must equal <code>data</code> exactly:</p>
 <ul>
-<li>every supplied key is included;</li>
-<li>all non-timestamp values are returned unchanged;</li>
-<li>known attributes that remained <code>None</code> because they were absent from <code>data</code> are omitted; and</li>
-<li>no bookkeeping fields or additional defaulted fields are added.</li>
+<li>every supplied key appears in it;</li>
+<li>all values that are not timestamps are returned unchanged;</li>
+<li>known attributes that stayed <code>None</code> because <code>data</code> lacked them are left out; and</li>
+<li>no bookkeeping fields and no extra defaulted fields are added.</li>
 </ul>
-<p>More generally, default serialization includes every populated known job attribute and omits known attributes whose value is <code>None</code>.</p>
-<p>Datetime-valued timestamp attributes must be converted to their ISO-8601 dictionary representation. In particular, a parsed <code>expiration_time</code> must serialize back to the corresponding ISO-8601 value, so canonical service dictionaries round-trip through <code>from_dict</code> and <code>to_dict</code> without changing their public representation. Existing datetime serialization conventions, including second precision where applicable, must remain compatible.</p>
+<p>More broadly, default serialization covers every populated known job attribute and leaves out known attributes whose value is <code>None</code>.</p>
+<p>Timestamp attributes whose values are datetimes must be converted to their ISO-8601 dictionary representation. A parsed <code>expiration_time</code> in particular must serialize back to the matching ISO-8601 value, so canonical service dictionaries round-trip through <code>from_dict</code> and <code>to_dict</code> with no change to their public representation. Compatibility with existing datetime serialization conventions, including second precision where applicable, must be maintained.</p>
 <h6>Resubmission mode: <code>for_resubmit=True</code></h6>
-<p>Resubmission uses <strong>whitelist semantics</strong>. The result must contain only populated attributes whose names are members of <code>Job._attributes_for_resubmit</code>; the set does not name attributes to remove.</p>
-<p>For any valid input dictionary <code>data</code>, the keys in the resubmission result must be exactly:</p>
+<p>Resubmission follows <strong>whitelist semantics</strong>. The result must contain only those populated attributes whose names are members of <code>Job._attributes_for_resubmit</code>; that set does not name attributes to remove.</p>
+<p>With any valid input dictionary <code>data</code>, the resubmission result's keys must be exactly:</p>
 <p><code>set(data) &amp; Job._attributes_for_resubmit</code></p>
-<p>Accordingly:</p>
+<p>Consequently:</p>
 <ul>
-<li>a supplied key that belongs to <code>_attributes_for_resubmit</code> is retained with its original public dictionary value;</li>
-<li>every supplied key that does not belong to the set is absent, even when its instance value is truthy;</li>
-<li>an allowed known attribute that was not supplied and therefore remains <code>None</code> is not added; and</li>
-<li>no other keys may appear.</li>
+<li>a supplied key belonging to <code>_attributes_for_resubmit</code> is retained with its original public dictionary value;</li>
+<li>every supplied key outside the set is absent, even when its instance value is truthy;</li>
+<li>an allowed known attribute that was not supplied, and therefore remains <code>None</code>, is not added; and</li>
+<li>no other keys may appear in the result.</li>
 </ul>
-<p>Calling this mode must not clear or modify excluded attributes. Immediately afterward, every key originally supplied to <code>from_dict</code> must still be readable on the instance and retain its value, subject only to the documented in-memory timestamp representation.</p>
+<p>Invoking this mode must not clear the excluded attributes or modify them. Immediately afterward, every key originally supplied to <code>from_dict</code> must still be readable on the instance and keep its value, with the documented in-memory timestamp representation as the only exception.</p>
 <h5><code>Job._attributes_for_resubmit</code></h5>
-<p>Expose <code>_attributes_for_resubmit</code> as a class-level <code>set</code> of plain attribute-name strings. It must support normal set behavior, including membership checks and set difference with a set of dictionary key strings.</p>
-<p>The set must be a proper subset of the attributes a job may carry, allowing populated job-definition fields to be retained while job state and result metadata are excluded. Normal valid job dictionaries must contain eligible job-definition fields so that resubmission retains those fields. Membership and the class's fixed attribute schema must be internally consistent with the exact-intersection rule above.</p>
-<p>The individual field names and exact membership are defined by the <code>Job</code> schema. Callers must not need separate class-level registries partitioned by job outcome; <code>_attributes_for_resubmit</code> is the only class-level field registry required by this refactor.</p>
-<h4>Attribute and Serialization Invariants</h4>
-<p>The following requirements apply together:</p>
+<p>Expose <code>_attributes_for_resubmit</code> as a class-level <code>set</code> whose entries are plain attribute-name strings. Normal set behavior must be supported, including membership checks and set difference with a set of dictionary key strings.</p>
+<p>The set must be a proper subset of the attributes a job may carry, so that populated job-definition fields can be retained while job state and result metadata are excluded. Normal valid job dictionaries must contain eligible job-definition fields so that resubmission retains those fields. The set's membership and the class's fixed attribute schema must be internally consistent with the exact-intersection rule above.</p>
+<p>The individual field names, and the exact membership, are determined by the <code>Job</code> schema. Callers must not have to rely on separate class-level registries partitioned by job outcome; <code>_attributes_for_resubmit</code> is the sole class-level field registry this refactor requires.</p>
+<h4>Invariants for Attributes and Serialization</h4>
+<p>The requirements below all apply at the same time:</p>
 <ol>
-<li>Every valid input key is available through standard attribute access.</li>
-<li>Every class-defined instance attribute omitted from the input is exactly <code>None</code> in <code>vars(job)</code>.</li>
-<li>Default serialization omits those <code>None</code> defaults and recreates the complete input dictionary.</li>
-<li>Resubmission serialization emits exactly the populated input keys allowed by <code>_attributes_for_resubmit</code>.</li>
-<li>Neither serialization mode mutates the instance.</li>
-<li>Timestamp parsing is internal to the object model; dictionary output remains ISO-8601 and expiration-dependent operations receive a comparable timestamp.</li>
-<li>No non-<code>None</code> per-instance bookkeeping may leak into <code>vars(job)</code> as an additional attribute that was absent from the construction dictionary.</li>
+<li>Standard attribute access makes every valid input key available.</li>
+<li>In <code>vars(job)</code>, every class-defined instance attribute omitted from the input is exactly <code>None</code>.</li>
+<li>Default serialization leaves those <code>None</code> defaults out and recreates the complete input dictionary.</li>
+<li>Resubmission serialization emits exactly the populated input keys that <code>_attributes_for_resubmit</code> allows.</li>
+<li>The instance is mutated by neither serialization mode.</li>
+<li>Timestamp parsing stays inside the object model; the dictionary output remains ISO-8601, and expiration-dependent operations receive a comparable timestamp.</li>
+<li>No per-instance bookkeeping with a value other than <code>None</code> may leak into <code>vars(job)</code> as an additional attribute that was absent from the construction dictionary.</li>
 </ol>
 <h4>Scope</h4>
-<p>This is a behavioral refactor of <code>Job</code>, not a redesign of batches, submission clients, status helpers, expiration checks, or downloading. Existing consumers of <code>Job.from_dict</code>, <code>Job.to_dict</code>, <code>expired()</code>, and <code>download_files()</code> must continue to work with the representations described above. No particular internal organization is required as long as all public behavior and invariants are satisfied.</p>
+<p>This refactor changes the behavior of <code>Job</code>; it does not redesign batches, submission clients, status helpers, expiration checks, or downloading. Existing consumers of <code>Job.from_dict</code>, <code>Job.to_dict</code>, <code>expired()</code>, and <code>download_files()</code> must keep working with the representations described above. No particular internal organization is required, as long as all public behavior and the invariants are satisfied.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">You are implementing changes to the hyp3_sdk Python package.</span>
-        <span class="spec-meta muted">736 words · source specification
+        <span class="spec-title">In this task, you implement changes to the hyp3_sdk Python package.</span>
+        <span class="spec-meta muted">807 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are implementing changes to the <code>hyp3_sdk</code> Python package. The work involves adding utility helper functions, adjusting job serialization behavior, and adding date parameters to a job-search method. Each requirement below is grounded in observable behavior your code must satisfy.</p>
-<h4>1. Utility helpers in <code>hyp3_sdk.util</code></h4>
-<p>The module <code>hyp3_sdk.util</code> must expose the following, all importable as attributes of <code>hyp3_sdk.util</code>.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>In this task, you implement changes to the <code>hyp3_sdk</code> Python package. The work involves three things: adding utility helper functions, adjusting job serialization behavior, and adding date parameters to a job-search method. Each requirement below is grounded in observable behavior that your code must satisfy.</p>
+<h4>1. Utility helpers provided by <code>hyp3_sdk.util</code></h4>
+<p>The module <code>hyp3_sdk.util</code> must expose the items below, all of them importable as attributes of <code>hyp3_sdk.util</code>.</p>
 <h5><code>download_file(url, filepath)</code></h5>
-<p>(Existing behavior — must continue to work.)</p>
+<p>(This behavior already exists — it must continue to work.)</p>
 <ul>
-<li>Downloads the content at <code>url</code> and writes it to <code>filepath</code>.</li>
-<li><code>filepath</code> may be given as a <code>str</code> or a <code>pathlib.Path</code>.</li>
-<li>Returns a <code>pathlib.Path</code> pointing to the written file (regardless of the input type).</li>
-<li>The returned path's contents equal the downloaded body.</li>
+<li>Downloads the content found at <code>url</code> and writes it to <code>filepath</code>.</li>
+<li>You may pass <code>filepath</code> as either a <code>str</code> or a <code>pathlib.Path</code>.</li>
+<li>The function returns a <code>pathlib.Path</code> pointing to the file that was written (regardless of the input type).</li>
+<li>The contents at the returned path equal the downloaded body.</li>
 </ul>
 <h5><code>chunk(itr, n=200)</code></h5>
 <ul>
-<li>Splits an iterable/sequence <code>itr</code> into consecutive chunks of at most <code>n</code> items.</li>
-<li>The default chunk size is <code>200</code>.</li>
-<li>Returns/yields the chunks in order. Each chunk (except possibly the last) contains exactly <code>n</code> items; the last chunk contains the remainder.</li>
-<li>Example: given a sequence of 1234 items with the default chunk size, the result consists of 7 chunks: the first has 200 items and the last has 34 items.</li>
-<li>The result must support <code>list(...)</code> and <code>len(...)</code> on the collected chunks, and each chunk must support <code>len(...)</code>.</li>
+<li>Divides the iterable/sequence <code>itr</code> into consecutive chunks that each contain at most <code>n</code> items.</li>
+<li>By default, the chunk size is <code>200</code>.</li>
+<li>The chunks are returned/yielded in order. Every chunk (except possibly the last one) contains exactly <code>n</code> items; the last chunk holds the remainder.</li>
+<li>Example: for a sequence of 1234 items using the default chunk size, the result is made up of 7 chunks: the first one has 200 items and the last one has 34 items.</li>
+<li>The result must support <code>list(...)</code> and <code>len(...)</code> over the collected chunks, and each individual chunk must support <code>len(...)</code>.</li>
 </ul>
 <h5><code>extract_zipped_product(zip_file, delete=True)</code></h5>
 <ul>
-<li><code>zip_file</code> is a path (<code>str</code> or <code>pathlib.Path</code>) to a <code>.zip</code> archive.</li>
-<li>Extracts the archive's contents into a directory located alongside the zip file. The extracted product is a single top-level directory contained within the archive; the return value is a <code>pathlib.Path</code> to that extracted directory, and that directory exists after the call.</li>
-<li>The extracted directory contains the files stored in the archive, preserving their names and contents (e.g., a file named <code>foobar.txt</code> inside the extracted directory whose text content is <code>foobar</code>).</li>
-<li><code>delete</code> defaults to <code>True</code>.
+<li>The <code>zip_file</code> argument is a path (<code>str</code> or <code>pathlib.Path</code>) pointing to a <code>.zip</code> archive.</li>
+<li>The archive's contents are extracted into a directory located alongside the zip file. The extracted product is one single top-level directory contained inside the archive; the value returned is a <code>pathlib.Path</code> to that extracted directory, and after the call that directory exists.</li>
+<li>The extracted directory contains the files that were stored in the archive, with their names and contents preserved (e.g., a file named <code>foobar.txt</code> inside the extracted directory whose text content is <code>foobar</code>).</li>
+<li>The default value of <code>delete</code> is <code>True</code>.
 <ul>
-<li>When <code>delete=True</code>, the original zip file is removed after extraction (it must no longer exist).</li>
-<li>When <code>delete=False</code>, the original zip file is left in place (it must still exist).</li>
+<li>With <code>delete=True</code>, the original zip file is removed after extraction (it must no longer exist).</li>
+<li>With <code>delete=False</code>, the original zip file is left in place (it must still exist).</li>
 </ul>
 </li>
-<li>In both cases the extracted directory exists and is populated after the call.</li>
+<li>In either case, after the call the extracted directory exists and is populated.</li>
 </ul>
-<p>Note on the test archive layout: the sample zip contains a single top-level folder holding the files <code>foobar.txt</code> and <code>fizzbuzz.txt</code>, each containing text equal to its own base name.</p>
-<h4>2. Job serialization changes (<code>hyp3_sdk</code> — the <code>Job</code> class)</h4>
-<p>The <code>Job</code> class (importable as it currently is, e.g. <code>from hyp3_sdk.jobs import Job</code> or wherever it presently resides) must satisfy:</p>
+<p>Note about the test archive layout: the sample zip holds a single top-level folder containing the files <code>foobar.txt</code> and <code>fizzbuzz.txt</code>, and each file's text content is equal to its own base name.</p>
+<h4>2. Changes to job serialization (<code>hyp3_sdk</code> — the <code>Job</code> class)</h4>
+<p>The <code>Job</code> class (importable the way it currently is, e.g. <code>from hyp3_sdk.jobs import Job</code> or wherever it presently resides) must satisfy the following:</p>
 <h5><code>Job.from_dict(d)</code></h5>
 <ul>
-<li>Constructs a <code>Job</code> from a dictionary <code>d</code>.</li>
-<li>Attributes that are present as keys in <code>d</code> are set to their corresponding values.</li>
-<li>Any <code>Job</code> attribute not present as a key in <code>d</code> is set to <code>None</code>.</li>
+<li>Builds a <code>Job</code> from the dictionary <code>d</code>.</li>
+<li>An attribute that is present as a key in <code>d</code> is set to its corresponding value.</li>
+<li>Any <code>Job</code> attribute that is not present as a key in <code>d</code> is set to <code>None</code>.</li>
 </ul>
 <h5><code>Job.to_dict(for_resubmit=False)</code></h5>
 <ul>
-<li>With <code>for_resubmit=False</code> (default): returns a dictionary that round-trips exactly with <code>from_dict</code>. That is, for any input dict <code>d</code> used to build the job, <code>Job.from_dict(d).to_dict()</code> equals <code>d</code>. (This must hold for both a &quot;succeeded&quot; job dict and a &quot;failed&quot; job dict.)</li>
-<li>With <code>for_resubmit=True</code>: returns a dictionary whose set of keys is <strong>exactly</strong> equal to <code>Job._attributes_for_resubmit</code>. No other keys may appear, and every key in <code>Job._attributes_for_resubmit</code> must be present.</li>
+<li>When <code>for_resubmit=False</code> (the default): the method returns a dictionary that round-trips exactly with <code>from_dict</code>. That is, for any input dict <code>d</code> used to build the job, <code>Job.from_dict(d).to_dict()</code> equals <code>d</code>. (This must hold both for a &quot;succeeded&quot; job dict and for a &quot;failed&quot; job dict.)</li>
+<li>When <code>for_resubmit=True</code>: the method returns a dictionary whose set of keys is <strong>exactly</strong> equal to <code>Job._attributes_for_resubmit</code>. No keys other than these may appear, and every key in <code>Job._attributes_for_resubmit</code> must be present.</li>
 </ul>
 <h5><code>Job._attributes_for_resubmit</code></h5>
 <ul>
-<li>A class-level attribute that is a <code>set</code> of attribute-name strings, used as described above. It supports set-difference operations with other sets of strings and equality comparison against a <code>dict.keys()</code> view.</li>
+<li>A class-level attribute that holds a <code>set</code> of attribute-name strings, used as described above. It supports set-difference operations with other sets of strings as well as equality comparison against a <code>dict.keys()</code> view.</li>
 </ul>
-<h4>3. Date filtering on <code>HyP3.find_jobs</code></h4>
-<p>The <code>HyP3</code> class (importable as <code>from hyp3_sdk import HyP3</code>) has a <code>find_jobs</code> method. It must accept two additional optional keyword parameters:</p>
+<h4>3. Date filtering for <code>HyP3.find_jobs</code></h4>
+<p>The <code>HyP3</code> class (importable via <code>from hyp3_sdk import HyP3</code>) has a <code>find_jobs</code> method. The method must accept two additional optional keyword parameters:</p>
 <ul>
 <li><code>start</code>: a <code>datetime.datetime</code></li>
 <li><code>end</code>: a <code>datetime.datetime</code></li>
 </ul>
 <p>Behavior:</p>
 <ul>
-<li>When <code>start</code> is provided, the outgoing request to the <code>/jobs</code> endpoint must include a query parameter <code>start</code> whose value is the datetime formatted as an ISO-8601 string that includes a UTC timezone offset.
+<li>When <code>start</code> is provided, the request sent out to the <code>/jobs</code> endpoint must include a query parameter <code>start</code> whose value is the datetime formatted as an ISO-8601 string that includes a UTC timezone offset.
 <ul>
 <li>If the supplied <code>datetime</code> is timezone-naive, it must be treated as UTC.</li>
 <li>If the supplied <code>datetime</code> already carries UTC timezone info, it is used as-is.</li>
-<li>For example, both <code>datetime(2021, 1, 1)</code> and <code>datetime(2021, 1, 1, tzinfo=timezone.utc)</code> must produce the query value <code>2021-01-01T00:00:00+00:00</code>.</li>
+<li>As an example, both <code>datetime(2021, 1, 1)</code> and <code>datetime(2021, 1, 1, tzinfo=timezone.utc)</code> must produce the query value <code>2021-01-01T00:00:00+00:00</code>.</li>
 </ul>
 </li>
-<li>When <code>end</code> is provided, the same rules apply, using the query parameter <code>end</code>.
+<li>When <code>end</code> is provided, the same rules apply, with the query parameter being <code>end</code>.
 <ul>
-<li>For example, both <code>datetime(2021, 1, 2)</code> and <code>datetime(2021, 1, 2, tzinfo=timezone.utc)</code> must produce the query value <code>2021-01-02T00:00:00+00:00</code>.</li>
+<li>As an example, both <code>datetime(2021, 1, 2)</code> and <code>datetime(2021, 1, 2, tzinfo=timezone.utc)</code> must produce the query value <code>2021-01-02T00:00:00+00:00</code>.</li>
 </ul>
 </li>
-<li>The method returns the resulting batch of jobs; when the endpoint returns no jobs, the returned batch has length <code>0</code>.</li>
+<li>The method returns the batch of jobs that results; when the endpoint returns no jobs, the batch that comes back has length <code>0</code>.</li>
 </ul>
-<p>The base API URL is available as <code>HyP3().url</code>, and the jobs endpoint is <code>/jobs</code> relative to that URL.</p>
+<p>The base API URL is available from <code>HyP3().url</code>, and the jobs endpoint is <code>/jobs</code> relative to that URL.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Implement (or modify) a chunk function in the hyp3_sdk.util module that splits a sequence into consecutive sublists of a given size.</span>
-        <span class="spec-meta muted">283 words · source specification
+        <span class="spec-title">Write (or modify) a chunk function in the hyp3_sdk.util module that divides a sequence into consecutive sublists of a specified size.</span>
+        <span class="spec-meta muted">311 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement (or modify) a <code>chunk</code> function in the <code>hyp3_sdk.util</code> module that splits a sequence into consecutive sublists of a given size.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Write (or modify) a <code>chunk</code> function in the <code>hyp3_sdk.util</code> module that divides a sequence into consecutive sublists of a specified size.</p>
 <h4>Public API</h4>
 <p>Module: <code>hyp3_sdk.util</code></p>
-<p>Function signature:</p>
+<p>Signature of the function:</p>
 <pre><code class="language-python">def chunk(items, n=200):
     ...
 </code></pre>
 <ul>
-<li><code>items</code>: a sequence (e.g., a list) to be divided.</li>
-<li><code>n</code>: an integer specifying the maximum size of each chunk. Defaults to <code>200</code>.</li>
+<li><code>items</code>: the sequence (for example, a list) that is to be divided.</li>
+<li><code>n</code>: an integer that sets the maximum size of each chunk. Its default is <code>200</code>.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The function must return or yield an iterable of sublists such that:</p>
+<h4>Behavior Requirements</h4>
+<p>The function must return or yield an iterable of sublists satisfying these conditions:</p>
 <ul>
-<li>The input sequence is split into consecutive chunks, each of length <code>n</code>, preserving order.</li>
-<li>The final chunk contains the remaining items and may be shorter than <code>n</code> if the total number of items is not evenly divisible by <code>n</code>.</li>
-<li>When the entire sequence fits in a single chunk (i.e., <code>n</code> is greater than or equal to the number of items), the result is a single chunk containing all items.</li>
+<li>The input sequence is divided into consecutive chunks, each of length <code>n</code>, with the order preserved.</li>
+<li>The final chunk holds the items that remain and may be shorter than <code>n</code> if the total number of items is not evenly divisible by <code>n</code>.</li>
+<li>When the entire sequence fits within a single chunk (that is, when <code>n</code> is greater than or equal to the number of items), the result is a single chunk that holds all items.</li>
 </ul>
-<p>The result must support being materialized into a list, where each element is itself a list of items.</p>
-<h5>Examples of expected chunk counts and sizes</h5>
-<p>Given a sequence of 1234 items:</p>
+<p>The result must support being materialized into a list, each of whose elements is itself a list of items.</p>
+<h5>Examples showing expected chunk counts and sizes</h5>
+<p>For a sequence containing 1234 items:</p>
 <ul>
-<li>With <code>n=56</code>: yields 23 chunks; the first chunk has length 56 and the last chunk has length 2.</li>
-<li>With <code>n=1234</code>: yields 1 chunk of length 1234.</li>
+<li>Using <code>n=56</code>: yields 23 chunks, where the first chunk has length 56 and the last chunk has length 2.</li>
+<li>Using <code>n=1234</code>: yields 1 chunk whose length is 1234.</li>
 </ul>
-<h4>Validation / Error Conditions</h4>
-<p>The value of <code>n</code> must be a positive integer. The function must raise <code>ValueError</code> when:</p>
+<h4>Validation and Error Conditions</h4>
+<p>The value of the <code>n</code> parameter must be a positive integer. The function must raise <code>ValueError</code> whenever:</p>
 <ul>
-<li><code>n</code> is zero.</li>
-<li><code>n</code> is negative (e.g., <code>-2</code>).</li>
-<li><code>n</code> is not an integer type (e.g., a float such as <code>10.0</code>), even if its numeric value is otherwise positive.</li>
+<li><code>n</code> is equal to zero.</li>
+<li><code>n</code> is negative (for example, <code>-2</code>).</li>
+<li><code>n</code> is not an integer type (for example, a float such as <code>10.0</code>), even if its numeric value is positive otherwise.</li>
 </ul>
-<p>The <code>ValueError</code> must be raised such that it surfaces when the function is called and its result is consumed as an iterable.</p>
+<p>The <code>ValueError</code> must be raised in a way that makes it surface when the function is called and its result is consumed as an iterable.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">You must implement/fix two pieces of functionality</span>
-        <span class="spec-meta muted">455 words · source specification
+        <span class="spec-title">Two pieces of functionality must be implemented/fixed</span>
+        <span class="spec-meta muted">497 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must implement/fix two pieces of functionality: a <code>find_jobs</code> method on the <code>HyP3</code> class, and a <code>chunk</code> utility function. Both must behave exactly as described below.</p>
-<h4>1. <code>find_jobs</code> — <code>status_code</code> query parameter</h4>
-<p>The <code>HyP3</code> class must be importable and constructible with no arguments:</p>
+<p>Two pieces of functionality must be implemented/fixed: a <code>find_jobs</code> method on the <code>HyP3</code> class, and a <code>chunk</code> utility function. Both must behave exactly as laid out below.</p>
+<h4>1. <code>find_jobs</code> — the <code>status_code</code> query parameter</h4>
+<p>It must be possible to import the <code>HyP3</code> class and construct it with no arguments:</p>
 <pre><code class="language-python">from &lt;package&gt; import HyP3
 api = HyP3()
 </code></pre>
-<p>The constructed instance must expose a <code>url</code> attribute (the base API URL) used for issuing requests.</p>
-<p>Add support for filtering jobs by status code in the <code>find_jobs</code> method:</p>
+<p>The instance that gets constructed must expose a <code>url</code> attribute (the base API URL), which is used for issuing requests.</p>
+<p>Support for filtering jobs by status code must be added to the <code>find_jobs</code> method:</p>
 <pre><code class="language-python">def find_jobs(self, ..., status_code=None, ...) -&gt; &lt;Batch&gt;
 </code></pre>
-<p>Behavior required:</p>
+<p>Required behavior:</p>
 <ul>
-<li>When <code>find_jobs</code> is called with a keyword argument <code>status_code</code> set to a string value (e.g. <code>'RUNNING'</code>, <code>'FAILED'</code>), it must issue an HTTP GET request to the <code>/jobs</code> endpoint (relative to <code>api.url</code>) including a query parameter named exactly <code>status_code</code> whose value is the passed-in string.
+<li>When a call to <code>find_jobs</code> passes the keyword argument <code>status_code</code> set to a string value (e.g. <code>'RUNNING'</code>, <code>'FAILED'</code>), the call must issue an HTTP GET request to the <code>/jobs</code> endpoint (relative to <code>api.url</code>), and the request must include a query parameter named exactly <code>status_code</code> whose value is the string that was passed in.
 <ul>
-<li>For example, <code>find_jobs(status_code='RUNNING')</code> must produce a request to <code>/jobs?status_code=RUNNING</code>.</li>
-<li>For example, <code>find_jobs(status_code='FAILED')</code> must produce a request to <code>/jobs?status_code=FAILED</code>.</li>
+<li>As an example, <code>find_jobs(status_code='RUNNING')</code> must produce a request to <code>/jobs?status_code=RUNNING</code>.</li>
+<li>Likewise, <code>find_jobs(status_code='FAILED')</code> must produce a request to <code>/jobs?status_code=FAILED</code>.</li>
 </ul>
 </li>
-<li>The response body is a JSON object with a <code>jobs</code> key containing a list of job objects. The method must return a batch-like object whose length reflects the number of jobs returned.
+<li>The body of the response is a JSON object with a <code>jobs</code> key that contains a list of job objects. The method must return a batch-like object whose length reflects the number of jobs that were returned.
 <ul>
-<li>When the response contains an empty <code>jobs</code> list, the returned object must have length <code>0</code> (i.e. <code>len(result) == 0</code>).</li>
+<li>If the response contains an empty <code>jobs</code> list, the returned object must have length <code>0</code> (i.e. <code>len(result) == 0</code>).</li>
 </ul>
 </li>
 </ul>
-<p>The name of the query parameter is significant: it must be <code>status_code</code> (not any other spelling or name).</p>
-<h4>2. <code>chunk</code> utility function</h4>
-<p>There must be a utility module exposing a <code>chunk</code> function:</p>
+<p>The name used for the query parameter is significant: it must be <code>status_code</code> (not any other spelling or name).</p>
+<h4>2. The <code>chunk</code> utility function</h4>
+<p>A utility module exposing a <code>chunk</code> function must exist:</p>
 <pre><code class="language-python">from &lt;package&gt; import util
 util.chunk(items, n=&lt;int&gt;)
 </code></pre>
-<p>Signature: <code>chunk(items, n=...)</code> where <code>items</code> is a sequence (supporting <code>len</code>) and <code>n</code> is an integer chunk size (a keyword argument with a default value).</p>
-<p>Behavior required:</p>
+<p>The signature is <code>chunk(items, n=...)</code>, where <code>items</code> is a sequence (supporting <code>len</code>) and <code>n</code> is an integer chunk size (a keyword argument with a default value).</p>
+<p>Required behavior:</p>
 <ul>
-<li><code>chunk</code> returns an iterable of chunks. Iterating it (e.g. via <code>list(util.chunk(items, n=...))</code>) yields the successive chunks of <code>items</code>.</li>
-<li>Each chunk contains at most <code>n</code> items. Chunks appear in order and together partition <code>items</code>.</li>
-<li><strong>Chunk size larger than input:</strong> if <code>n</code> is greater than or equal to <code>len(items)</code>, iterating yields exactly one chunk, and that single chunk contains all the items (its length equals <code>len(items)</code>). This must hold both when <code>n == len(items)</code> and when <code>n &gt; len(items)</code>.
+<li>Calling <code>chunk</code> returns an iterable of chunks. Iterating that iterable (e.g. via <code>list(util.chunk(items, n=...))</code>) yields the successive chunks of <code>items</code>.</li>
+<li>Each chunk contains at most <code>n</code> items. The chunks appear in order and, taken together, they partition <code>items</code>.</li>
+<li><strong>Chunk size larger than the input:</strong> if <code>n</code> is greater than or equal to <code>len(items)</code>, iterating yields exactly one chunk, and that single chunk contains all of the items (its length is equal to <code>len(items)</code>). This must hold both for <code>n == len(items)</code> and for <code>n &gt; len(items)</code>.
 <ul>
-<li>Concretely, for an input of 1234 items: <code>n=1234</code> yields one chunk of length 1234, and <code>n=5678</code> also yields one chunk of length 1234.</li>
+<li>Concretely, given an input of 1234 items: <code>n=1234</code> yields one chunk of length 1234, and <code>n=5678</code> likewise yields one chunk of length 1234.</li>
 </ul>
 </li>
-<li><strong>Invalid chunk size:</strong> if <code>n</code> is <code>0</code> (i.e. not a positive integer), attempting to produce chunks must raise <code>ValueError</code>.</li>
+<li><strong>Invalid chunk size:</strong> if <code>n</code> is <code>0</code> (i.e. not a positive integer), any attempt to produce chunks must raise <code>ValueError</code>.</li>
 </ul>
 <h4>Deliverables</h4>
 <ul>
-<li>A working <code>HyP3.find_jobs</code> accepting a <code>status_code</code> keyword and querying <code>/jobs?status_code=&lt;value&gt;</code>, returning a length-aware batch object built from the JSON <code>jobs</code> list.</li>
-<li>A <code>util.chunk(items, n=...)</code> function with the length/edge-case and <code>ValueError</code> behavior specified above.</li>
+<li>A working <code>HyP3.find_jobs</code> that accepts a <code>status_code</code> keyword, queries <code>/jobs?status_code=&lt;value&gt;</code>, and returns a length-aware batch object built from the JSON <code>jobs</code> list.</li>
+<li>A <code>util.chunk(items, n=...)</code> function with the length/edge-case and <code>ValueError</code> behavior given above.</li>
 </ul>
-<p>Both <code>HyP3</code> and <code>util</code> must be importable from the package's top-level namespace.</p>
+<p>Both <code>HyP3</code> and <code>util</code> must be importable from the top-level namespace of the package.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add an apply_water_mask option to the InSAR job preparation function in the HyP3 client.</span>
-        <span class="spec-meta muted">191 words · source specification
+        <span class="spec-title">Introduce an apply_water_mask option into the function in the HyP3 client that prepares InSAR jobs.</span>
+        <span class="spec-meta muted">211 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add an <code>apply_water_mask</code> option to the InSAR job preparation function in the HyP3 client.</p>
-<h4>API Surface</h4>
-<p>Modify the static method <code>prepare_insar_job</code> on the <code>HyP3</code> class (located in the <code>hyp3_sdk</code> package, accessible via <code>from hyp3_sdk import HyP3</code>).</p>
-<h4>Required Behavior</h4>
-<p>Add a new keyword parameter named <code>apply_water_mask</code> to <code>prepare_insar_job</code>. This parameter:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Introduce an <code>apply_water_mask</code> option into the function in the HyP3 client that prepares InSAR jobs.</p>
+<h4>API Interface</h4>
+<p>Modify the static method <code>prepare_insar_job</code> belonging to the <code>HyP3</code> class (defined in the <code>hyp3_sdk</code> package, which can be imported with <code>from hyp3_sdk import HyP3</code>).</p>
+<h4>Behavior Requirements</h4>
+<p>A new keyword parameter named <code>apply_water_mask</code> is added to <code>prepare_insar_job</code>. This parameter:</p>
 <ul>
-<li>Defaults to <code>False</code> when not supplied by the caller.</li>
-<li>Is included in the returned job dictionary under <code>job_parameters</code>, using the key <code>apply_water_mask</code>, with the exact value passed in (or the default <code>False</code>).</li>
+<li>Has a default of <code>False</code> when the caller does not supply it.</li>
+<li>Is included in the returned job dictionary under <code>job_parameters</code>, stored using the key <code>apply_water_mask</code>, with exactly the value passed in (or the default <code>False</code>).</li>
 </ul>
-<h4>Return Structure</h4>
-<p><code>prepare_insar_job</code> returns a dictionary describing an InSAR job. The <code>apply_water_mask</code> entry must appear inside the <code>job_parameters</code> sub-dictionary alongside the other existing job parameters.</p>
-<p>For example, calling:</p>
+<h4>Return Value Structure</h4>
+<p>The return value of <code>prepare_insar_job</code> is a dictionary that describes an InSAR job. The <code>apply_water_mask</code> entry must be placed inside the <code>job_parameters</code> sub-dictionary, next to the other existing job parameters.</p>
+<p>As an example, invoking:</p>
 <pre><code class="language-python">HyP3.prepare_insar_job(
     granule1='my_granule1',
     granule2='my_granule2',
@@ -983,7 +988,7 @@ util.chunk(items, n=&lt;int&gt;)
     apply_water_mask=True,
 )
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-python">{
     'job_type': 'INSAR_GAMMA',
     'name': 'my_name',
@@ -999,21 +1004,22 @@ util.chunk(items, n=&lt;int&gt;)
     },
 }
 </code></pre>
-<p>When <code>apply_water_mask</code> is not provided by the caller, the resulting <code>job_parameters</code> dictionary must contain <code>'apply_water_mask': False</code>.</p>
-<p>All existing parameters and their placement in the returned dictionary remain unchanged.</p>
+<p>If the caller does not provide <code>apply_water_mask</code>, the resulting <code>job_parameters</code> dictionary must contain <code>'apply_water_mask': False</code>.</p>
+<p>Every existing parameter, together with its placement in the returned dictionary, stays unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Extend InSAR job preparation in the HyP3 SDK with an optional include_displacement_maps setting while preserving the existing prepared-job schema and behavior.</span>
-        <span class="spec-meta muted">560 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add an optional include_displacement_maps setting to InSAR job preparation in the HyP3 SDK while keeping the existing prepared-job schema and behavior intact.</span>
+        <span class="spec-meta muted">598 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Extend InSAR job preparation in the HyP3 SDK with an optional <code>include_displacement_maps</code> setting while preserving the existing prepared-job schema and behavior.</p>
-<h4>Public API</h4>
-<p>Update the public class-level method <code>HyP3.prepare_insar_job</code> in <code>hyp3_sdk.hyp3</code>, also available as <code>hyp3_sdk.HyP3.prepare_insar_job</code>. Its public interface is:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Add an optional <code>include_displacement_maps</code> setting to InSAR job preparation in the HyP3 SDK while keeping the existing prepared-job schema and behavior intact.</p>
+<h4>Public Interface</h4>
+<p>This task modifies the public class-level method <code>HyP3.prepare_insar_job</code> in <code>hyp3_sdk.hyp3</code>, which is also available as <code>hyp3_sdk.HyP3.prepare_insar_job</code>. The public interface is:</p>
 <pre><code class="language-python">HyP3.prepare_insar_job(
     granule1: str,
     granule2: str,
@@ -1028,23 +1034,23 @@ util.chunk(items, n=&lt;int&gt;)
     include_displacement_maps: bool = False,
 ) -&gt; dict
 </code></pre>
-<p>The new <code>include_displacement_maps</code> option must be accepted as a keyword argument and must default to <code>False</code>.</p>
+<p>The new <code>include_displacement_maps</code> option must be accepted as a keyword argument, and its default value must be <code>False</code>.</p>
 <h4>Parameters</h4>
 <ul>
-<li><code>granule1</code>: First granule name. It is the first element of the prepared <code>granules</code> list.</li>
-<li><code>granule2</code>: Second granule name. It is the second element of the prepared <code>granules</code> list.</li>
-<li><code>name</code>: Optional job name. The default is <code>None</code>.</li>
-<li><code>include_look_vectors</code>: Whether to include look-vector theta and phi files. Defaults to <code>False</code>.</li>
-<li><code>include_los_displacement</code>: Whether to include line-of-sight displacement values. Defaults to <code>False</code>.</li>
-<li><code>include_inc_map</code>: Whether to include local and ellipsoidal incidence-angle maps. Defaults to <code>False</code>.</li>
-<li><code>looks</code>: Range-by-azimuth multilooking specification. The supported values are <code>'20x4'</code> and <code>'10x2'</code>; the default is <code>'20x4'</code>.</li>
-<li><code>include_dem</code>: Whether to include the digital elevation model. Defaults to <code>False</code>.</li>
-<li><code>include_wrapped_phase</code>: Whether to include wrapped phase. Defaults to <code>False</code>.</li>
+<li><code>granule1</code>: Name of the first granule. It appears as the first element of the prepared <code>granules</code> list.</li>
+<li><code>granule2</code>: Name of the second granule. It appears as the second element of the prepared <code>granules</code> list.</li>
+<li><code>name</code>: Optional name for the job. The default is <code>None</code>.</li>
+<li><code>include_look_vectors</code>: Whether look-vector theta and phi files are included. Defaults to <code>False</code>.</li>
+<li><code>include_los_displacement</code>: Whether line-of-sight displacement values are included. Defaults to <code>False</code>.</li>
+<li><code>include_inc_map</code>: Whether local and ellipsoidal incidence-angle maps are included. Defaults to <code>False</code>.</li>
+<li><code>looks</code>: Multilooking specification expressed as range by azimuth. The supported values are <code>'20x4'</code> and <code>'10x2'</code>, with <code>'20x4'</code> as the default.</li>
+<li><code>include_dem</code>: Whether the digital elevation model is included. Defaults to <code>False</code>.</li>
+<li><code>include_wrapped_phase</code>: Whether wrapped phase is included. Defaults to <code>False</code>.</li>
 <li><code>apply_water_mask</code>: Whether pixels over coastal waters and large inland waterbodies are marked invalid for phase unwrapping. Defaults to <code>False</code>.</li>
 <li><code>include_displacement_maps</code>: Whether displacement maps are requested for the InSAR product. Defaults to <code>False</code>.</li>
 </ul>
-<h4>Returned Prepared Job</h4>
-<p>The method returns a dictionary with the following schema:</p>
+<h4>Prepared Job That Is Returned</h4>
+<p>The method returns a dictionary that follows this schema:</p>
 <pre><code class="language-python">{
     'job_type': 'INSAR_GAMMA',
     # Present only when name is not None:
@@ -1062,17 +1068,18 @@ util.chunk(items, n=&lt;int&gt;)
     },
 }
 </code></pre>
-<p>The following rules apply:</p>
+<p>The rules below apply:</p>
 <ol>
-<li><code>job_type</code> is always the literal string <code>'INSAR_GAMMA'</code>.</li>
-<li><code>granules</code> always preserves argument order as <code>[granule1, granule2]</code>.</li>
-<li>Each processing argument is represented by its corresponding key in <code>job_parameters</code>. The value is the value supplied by the caller, or that argument's default when omitted.</li>
-<li><code>include_displacement_maps</code> is always present in <code>job_parameters</code>, including when it is omitted by the caller. Its default serialized value is <code>False</code>; passing <code>True</code> produces <code>'include_displacement_maps': True</code>.</li>
-<li>Every pre-existing processing key remains present and retains its existing default and mapping. All optional boolean processing values are <code>False</code> when omitted.</li>
-<li><code>name</code> is never placed in <code>job_parameters</code>. When <code>name</code> is a non-<code>None</code> value, the returned dictionary includes the top-level entry <code>'name': name</code>. When <code>name</code> is omitted or explicitly passed as <code>None</code>, the top-level <code>name</code> key must be absent rather than present with a <code>None</code> value. This is based on a <code>None</code> check, so any non-<code>None</code> supplied name is retained.</li>
-<li>The processing options are independent: setting one to <code>True</code> must not change the values of the others.</li>
+<li>The value of <code>job_type</code> is always the literal string <code>'INSAR_GAMMA'</code>.</li>
+<li>The <code>granules</code> list always keeps the argument order <code>[granule1, granule2]</code>.</li>
+<li>Every processing argument is represented by its corresponding key in <code>job_parameters</code>. That value is the one supplied by the caller, or that argument's default when the argument is omitted.</li>
+<li><code>include_displacement_maps</code> is always present in <code>job_parameters</code>, even when the caller omits it. The serialized default value is <code>False</code>; passing <code>True</code> produces <code>'include_displacement_maps': True</code>.</li>
+<li>Each key that already existed among the processing parameters stays present and keeps its existing default and mapping. All optional boolean processing values are <code>False</code> when omitted.</li>
+<li><code>name</code> never appears in <code>job_parameters</code>. When <code>name</code> is a non-<code>None</code> value, the returned dictionary contains the top-level entry <code>'name': name</code>. When <code>name</code> is omitted or explicitly passed as <code>None</code>, the top-level <code>name</code> key must be absent rather than present holding a <code>None</code> value. This behavior rests on a <code>None</code> check, so any non-<code>None</code> supplied name is retained.</li>
+<li>The processing options are independent of one another: setting one to <code>True</code> must not alter the values of the others.</li>
 </ol>
-<h4>Default Example</h4>
+<h4>Example with Defaults</h4>
+<p>Calling</p>
 <pre><code class="language-python">HyP3.prepare_insar_job('reference_scene', 'secondary_scene')
 </code></pre>
 <p>returns:</p>
@@ -1091,142 +1098,143 @@ util.chunk(items, n=&lt;int&gt;)
     },
 }
 </code></pre>
-<h4>Compatibility and Scope</h4>
-<p>All existing <code>prepare_insar_job</code> arguments and prepared-job fields must continue to behave as described above. The only schema addition is the always-present <code>include_displacement_maps</code> field within <code>job_parameters</code>. No changes are required for other job types or unrelated SDK APIs.</p>
+<h4>Scope and Compatibility</h4>
+<p>All existing <code>prepare_insar_job</code> arguments and prepared-job fields must continue to behave as described above. The only schema addition is the <code>include_displacement_maps</code> field within <code>job_parameters</code>, which is always present. Other job types and unrelated SDK APIs require no changes.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Modify the prepare_insar_job static method on the HyP3 class to emit a deprecation warning when a specific parameter is used.</span>
-        <span class="spec-meta muted">171 words · source specification
+        <span class="spec-title">Update the static method prepare_insar_job on the HyP3 class so that a deprecation warning is emitted when a specific parameter is used.</span>
+        <span class="spec-meta muted">183 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>prepare_insar_job</code> static method on the <code>HyP3</code> class to emit a deprecation warning when a specific parameter is used.</p>
-<h4>API Surface</h4>
-<p>The <code>HyP3</code> class must be importable such that <code>HyP3.prepare_insar_job(...)</code> can be called as a static method (callable directly on the class without instantiation).</p>
-<p>The method signature must include a keyword parameter named <code>include_los_displacement</code>, in addition to <code>granule1</code> and <code>granule2</code> parameters (which accept string values).</p>
-<h4>Required Behavior</h4>
-<p><code>HyP3.prepare_insar_job</code> must accept keyword arguments <code>granule1</code>, <code>granule2</code>, and <code>include_los_displacement</code>.</p>
-<p>The parameter <code>include_los_displacement</code> controls a deprecation warning:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Update the static method <code>prepare_insar_job</code> on the <code>HyP3</code> class so that a deprecation warning is emitted when a specific parameter is used.</p>
+<h4>API Interface</h4>
+<p>The <code>HyP3</code> class must be importable, so that <code>HyP3.prepare_insar_job(...)</code> can be called as a static method (callable directly on the class without instantiation).</p>
+<p>Besides the <code>granule1</code> and <code>granule2</code> parameters (which accept string values), the method signature must include a keyword parameter named <code>include_los_displacement</code>.</p>
+<h4>Behavior Requirements</h4>
+<p>Keyword arguments <code>granule1</code>, <code>granule2</code>, and <code>include_los_displacement</code> must be accepted by <code>HyP3.prepare_insar_job</code>.</p>
+<p>A deprecation warning is controlled by the parameter <code>include_los_displacement</code>:</p>
 <ul>
-<li>When <code>include_los_displacement</code> is <code>False</code>, calling the method must <strong>not</strong> emit any warning.</li>
-<li>When <code>include_los_displacement</code> is <code>True</code>, calling the method must emit <strong>exactly one</strong> warning. That warning must:
+<li>If the method is called while <code>include_los_displacement</code> is <code>False</code>, it must <strong>not</strong> emit any warning.</li>
+<li>If the method is called while <code>include_los_displacement</code> is <code>True</code>, it must emit <strong>exactly one</strong> warning. That warning must:
 <ul>
-<li>Be of category <code>UserWarning</code> (or a subclass of <code>UserWarning</code>).</li>
-<li>Have a message string that contains the substring <code>deprecated</code>.</li>
+<li>Belong to the category <code>UserWarning</code> (or a subclass of <code>UserWarning</code>).</li>
+<li>Have a message string containing the substring <code>deprecated</code>.</li>
 </ul>
 </li>
 </ul>
-<p>The method must complete successfully (return normally) in both cases; the presence of <code>include_los_displacement=True</code> triggers only the warning and does not raise an error.</p>
-<p>No other observable behavior changes are required.</p>
+<p>In both cases, the method must complete successfully (return normally); the presence of <code>include_los_displacement=True</code> triggers only the warning and does not raise an error.</p>
+<p>No other changes to observable behavior are required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Modify the prepare_insar_job static method behavior in the HyP3 class to emit a deprecation warning when a specific deprecated parameter is used.</span>
-        <span class="spec-meta muted">150 words · source specification
+        <span class="spec-title">Change the behavior of the prepare_insar_job static method in the HyP3 class so that a deprecation warning is emitted when a specific deprecated parameter…</span>
+        <span class="spec-meta muted">163 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>prepare_insar_job</code> static method behavior in the <code>HyP3</code> class to emit a deprecation warning when a specific deprecated parameter is used.</p>
+<p>Change the behavior of the <code>prepare_insar_job</code> static method in the <code>HyP3</code> class so that a deprecation warning is emitted when a specific deprecated parameter is used.</p>
 <h4>API Surface</h4>
 <ul>
-<li><strong>Module/Class:</strong> <code>HyP3</code> (importable such that <code>HyP3.prepare_insar_job(...)</code> can be called as a static/class method).</li>
+<li><strong>Module/Class:</strong> <code>HyP3</code> (importable so that <code>HyP3.prepare_insar_job(...)</code> can be called as a static/class method).</li>
 <li><strong>Method:</strong> <code>prepare_insar_job</code></li>
 </ul>
 <h4>Required Behavior</h4>
-<p>When <code>prepare_insar_job</code> is called with the keyword argument <code>include_los_displacement=True</code>, the method must emit exactly one warning with the following properties:</p>
+<p>When <code>prepare_insar_job</code> is called with the keyword argument <code>include_los_displacement=True</code>, the method must emit exactly one warning having the following properties:</p>
 <ul>
-<li>The warning category must be <code>FutureWarning</code>.</li>
-<li>The warning message must contain the substring <code>deprecated</code>.</li>
+<li>The category of the warning must be <code>FutureWarning</code>.</li>
+<li>The message of the warning must contain the substring <code>deprecated</code>.</li>
 </ul>
-<h5>Example call that must trigger the warning:</h5>
+<h5>Example of a call that must trigger the warning:</h5>
 <pre><code class="language-python">HyP3.prepare_insar_job(
     granule1='my_granule1',
     granule2='my_granule2',
     include_los_displacement=True,
 )
 </code></pre>
-<p>This call must produce precisely one warning, of category <code>FutureWarning</code>, whose message text includes the word <code>deprecated</code>.</p>
+<p>This call must produce precisely one warning, of category <code>FutureWarning</code>, with message text that includes the word <code>deprecated</code>.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The call must accept the keyword arguments <code>granule1</code>, <code>granule2</code>, and <code>include_los_displacement</code> and complete without raising an exception.</li>
-<li>Only a single warning may be emitted for the described call.</li>
+<li>The call must accept the keyword arguments <code>granule1</code>, <code>granule2</code>, and <code>include_los_displacement</code>, and it must complete without raising an exception.</li>
+<li>For the described call, only a single warning may be emitted.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working with a Batch class that holds an ordered collection of Job objects.</span>
-        <span class="spec-meta muted">403 words · source specification
+        <span class="spec-title">Your work involves a Batch class that keeps Job objects in an ordered collection.</span>
+        <span class="spec-meta muted">473 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working with a <code>Batch</code> class that holds an ordered collection of <code>Job</code> objects. This task refines the indexing and reversal behavior of <code>Batch</code> so that slice/reverse operations return <code>Batch</code> instances rather than plain lists.</p>
+      <div class="spec-body"><p>Your work involves a <code>Batch</code> class that keeps <code>Job</code> objects in an ordered collection. The change to be made refines <code>Batch</code>'s behavior for indexing and for reversal, so that <code>Batch</code> instances, not plain lists, are what slice/reverse operations return.</p>
 <h5>Public API</h5>
-<p>The <code>Batch</code> class (in the same module currently exposing <code>Batch</code> and <code>Job</code>, imported as <code>Batch</code>) must support the following behaviors. Assume <code>Job</code> objects support equality comparison and membership testing (<code>in</code>) against a <code>Batch</code>.</p>
+<p>The behaviors listed below must be supported by the <code>Batch</code> class (which resides in the same module that at present exposes <code>Batch</code> and <code>Job</code>, imported as <code>Batch</code>). Work from the assumption that <code>Job</code> objects support equality comparison as well as membership testing (<code>in</code>) against a <code>Batch</code>.</p>
 <h5>Required Behavior</h5>
-<p>Given a <code>Batch</code> constructed from a list of <code>Job</code> objects, e.g. <code>Batch([j0, j1, j2])</code>:</p>
+<p>Take a <code>Batch</code> that was built from a list of <code>Job</code> objects, e.g. <code>Batch([j0, j1, j2])</code>:</p>
 <ol>
 <li>
-<p><strong>Integer indexing</strong> — <code>batch[i]</code> where <code>i</code> is an integer returns the single <code>Job</code> at that position (the same <code>Job</code> that was stored there). Standard zero-based positional semantics.</p>
+<p><strong>Integer indexing</strong> — If the subscript <code>i</code> is an integer, <code>batch[i]</code> returns the single <code>Job</code> found at that position (that is, the very <code>Job</code> that was stored there). Positional semantics here are the standard zero-based kind.</p>
 </li>
 <li>
-<p><strong>Slice indexing</strong> — <code>batch[start:stop]</code> (any slice object as the subscript) returns a <strong>new <code>Batch</code></strong> containing the <code>Job</code> objects in the sliced range, in order. For example, <code>batch[1:]</code> on <code>Batch([j0, j1, j2])</code> returns a <code>Batch</code> equal to <code>Batch([j1, j2])</code>.</p>
+<p><strong>Slice indexing</strong> — With any slice object supplied as the subscript, <code>batch[start:stop]</code> returns a <strong>new <code>Batch</code></strong> that holds the <code>Job</code> objects from the sliced range, in order. For instance, applying <code>batch[1:]</code> to <code>Batch([j0, j1, j2])</code> returns a <code>Batch</code> equal to <code>Batch([j1, j2])</code>.</p>
 </li>
 <li>
-<p><strong>Equality</strong> — Two <code>Batch</code> instances are equal when they contain the same sequence of equal <code>Job</code> objects in the same order. <code>Batch([j1, j2]) == Batch([j1, j2])</code> must hold.</p>
+<p><strong>Equality</strong> — Equality between two <code>Batch</code> instances applies when the equal <code>Job</code> objects they contain make up the same sequence, in the same order. It must hold that <code>Batch([j1, j2]) == Batch([j1, j2])</code>.</p>
 </li>
 <li>
-<p><strong>Item assignment</strong> — <code>batch[i] = job</code> (integer index) replaces the <code>Job</code> at position <code>i</code> with the given <code>Job</code>, such that a subsequent <code>batch[i]</code> returns the newly assigned <code>Job</code>.</p>
+<p><strong>Item assignment</strong> — Given an integer index, <code>batch[i] = job</code> has the effect that the <code>Job</code> at position <code>i</code> is replaced by the given <code>Job</code>; a later <code>batch[i]</code> then returns the <code>Job</code> that was newly assigned.</p>
 </li>
 <li>
-<p><strong>Item deletion</strong> — <code>del batch[i]</code> (integer index) removes the <code>Job</code> at position <code>i</code>. After deletion, that <code>Job</code> is no longer present (membership <code>in</code> returns <code>False</code> for it, assuming it was unique), and remaining jobs shift accordingly.</p>
+<p><strong>Item deletion</strong> — <code>del batch[i]</code>, used with an integer index, takes the <code>Job</code> at position <code>i</code> out of the batch. Once that has happened, that <code>Job</code> is no longer present (membership via <code>in</code> returns <code>False</code> for it, on the assumption that it was unique), and whatever jobs remain shift accordingly.</p>
 </li>
 <li>
-<p><strong>Addition / concatenation</strong> — <code>batch += job</code> appends a single <code>Job</code> to the batch in place, so that the appended <code>Job</code> becomes a member of the batch (<code>job in batch</code> is <code>True</code>).</p>
+<p><strong>Addition / concatenation</strong> — <code>batch += job</code> performs an in-place append of a single <code>Job</code> to the batch; after that, the appended <code>Job</code> is a member of the batch (<code>job in batch</code> is <code>True</code>).</p>
 </li>
 <li>
-<p><strong>Membership</strong> — <code>job in batch</code> returns <code>True</code> if an equal <code>Job</code> is contained in the batch, otherwise <code>False</code>.</p>
+<p><strong>Membership</strong> — <code>job in batch</code> returns <code>True</code> whenever the batch contains an equal <code>Job</code>, and <code>False</code> otherwise.</p>
 </li>
 <li>
-<p><strong>Reversal</strong> — <code>reversed(batch)</code> returns a <strong>new <code>Batch</code></strong> (an instance of <code>Batch</code>) whose <code>Job</code> objects are in reverse order relative to the original. Indexing into the reversed <code>Batch</code> yields the jobs in reversed order (e.g., for <code>Batch([j0, j1, j2])</code>, the reversed batch's positions <code>0, 1, 2</code> hold <code>j2, j1, j0</code> respectively).</p>
+<p><strong>Reversal</strong> — <code>reversed(batch)</code> returns a <strong>new <code>Batch</code></strong> (i.e., a <code>Batch</code> instance) whose <code>Job</code> objects are in reverse order when compared with the original. Indexing the reversed <code>Batch</code> yields its jobs in reversed order (e.g., starting from <code>Batch([j0, j1, j2])</code>, the reversed batch holds <code>j2, j1, j0</code> at positions <code>0, 1, 2</code> respectively).</p>
 </li>
 </ol>
 <h5>Key Constraints</h5>
 <ul>
-<li>Slicing a <code>Batch</code> must yield a <code>Batch</code>, not a list.</li>
-<li>Reversing a <code>Batch</code> must yield a <code>Batch</code>, not a list iterator or list.</li>
-<li>All existing single-element behaviors (integer get/set/delete, in-place append via <code>+=</code>, membership) must continue to work as described.</li>
+<li>The act of slicing a <code>Batch</code> must yield a <code>Batch</code>, not a list.</li>
+<li>The act of reversing a <code>Batch</code> must yield a <code>Batch</code>, not a list iterator or list.</li>
+<li>All of the single-element behaviors that already exist (integer get/set/delete, in-place append via <code>+=</code>, membership) must keep working as described.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Modify the Batch class so that it supports reverse iteration via Python&#39;s built-in reversed() function.</span>
-        <span class="spec-meta muted">187 words · source specification
+        <span class="spec-title">Alter the Batch class so that it supports reverse iteration by means of Python&#39;s built-in reversed() function.</span>
+        <span class="spec-meta muted">200 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Modify the <code>Batch</code> class so that it supports reverse iteration via Python's built-in <code>reversed()</code> function.</p>
+      <div class="spec-body"><h5>Summary</h5>
+<p>Alter the <code>Batch</code> class so that it supports reverse iteration by means of Python's built-in <code>reversed()</code> function.</p>
 <h5>Required Behavior</h5>
-<p>The <code>Batch</code> class holds an ordered collection of job items (passed as a list to its constructor, e.g. <code>Batch([j0, j1, j2])</code>).</p>
-<p>Applying the built-in <code>reversed()</code> function to a <code>Batch</code> instance must return a standard <strong>iterator</strong> that yields the batch's job items in reverse order relative to how they were supplied at construction.</p>
-<p>Specifically, given a <code>Batch</code> constructed from <code>[j0, j1, j2]</code>:</p>
+<p>The <code>Batch</code> class contains an ordered collection of job items (provided as a list to its constructor, e.g. <code>Batch([j0, j1, j2])</code>).</p>
+<p>The built-in <code>reversed()</code> function, when applied to a <code>Batch</code> instance, must return a standard <strong>iterator</strong> that yields the batch's job items in the reverse of the order in which they were supplied at construction.</p>
+<p>Specifically, for a <code>Batch</code> constructed from <code>[j0, j1, j2]</code>:</p>
 <ul>
-<li><code>reversed(batch)</code> returns an iterator object.</li>
-<li>Calling <code>next()</code> on that iterator successively yields <code>j2</code>, then <code>j1</code>, then <code>j0</code>.</li>
+<li>The call <code>reversed(batch)</code> returns an iterator object.</li>
+<li>Successively calling <code>next()</code> on that iterator yields <code>j2</code>, then <code>j1</code>, then <code>j0</code>.</li>
 </ul>
-<p>The result of <code>reversed()</code> must be a plain iterator (something on which <code>next()</code> can be called directly to retrieve successive elements). It must <strong>not</strong> be another <code>Batch</code> instance, and it need not support indexed access.</p>
+<p>The result produced by <code>reversed()</code> must be a plain iterator (something on which <code>next()</code> can be called directly to obtain successive elements). It must <strong>not</strong> be another <code>Batch</code> instance, and it need not support indexed access.</p>
 <h5>API Surface</h5>
 <ul>
-<li>Class: <code>Batch</code> (importable from the same module the codebase already exposes it from).</li>
-<li>Constructor: <code>Batch(items)</code> where <code>items</code> is a list of job objects.</li>
-<li>The class must implement reverse-iteration support so that <code>reversed(batch_instance)</code> produces an iterator yielding the contained items in reverse construction order.</li>
+<li>Class: <code>Batch</code> (importable from the same module in which the codebase already exposes it).</li>
+<li>Constructor: <code>Batch(items)</code> — here <code>items</code> is a list of job objects.</li>
+<li>The class must implement support for reverse iteration such that <code>reversed(batch_instance)</code> produces an iterator that yields the contained items in reverse construction order.</li>
 </ul>
 </div>
     </details>

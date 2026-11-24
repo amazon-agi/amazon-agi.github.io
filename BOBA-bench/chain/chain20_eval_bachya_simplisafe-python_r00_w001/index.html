@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/bachya/simplisafe-python/compare/6601aba49a67efa0dbeaa84c2bccbb837048940d...7ed91ee96fad7e5eb26003a3fd7bbd62bd0c605a" target="_blank" rel="noopener" class="mono">6601aba49a … 7ed91ee96f</a> · 107 commits by 3 authors over 13 mo (2018-10-14 to 2019-11-11)</dd></div>
       <div><dt>Window:</dt><dd>requests 13–32 of a run of 32 test-bearing changes (overlaps the previous window by 8) · eval split</dd></div>
       <div><dt>Size:</dt><dd>2,294 lines of code in 32 files when the chain starts · over the 20 requests the developers added 2,836 and removed 1,933 lines of code, plus 4,090 lines of tests (184 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>10.7k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 6</dd></div>
+      <div><dt>Specifications:</dt><dd>11.8k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 6</dd></div>
     </dl>
   </header>
 </section>
@@ -144,219 +144,219 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Modify the simplipy library so that its API client no longer requires callers to supply an aiohttp.ClientSession.</span>
-        <span class="spec-meta muted">796 words · source specification
+        <span class="spec-title">Change the simplipy library so that its API client no longer requires callers to provide an aiohttp.ClientSession.</span>
+        <span class="spec-meta muted">867 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>simplipy</code> library so that its API client no longer requires callers to supply an <code>aiohttp.ClientSession</code>. Providing a session must become optional across all client entry points, and the client must function correctly whether or not one is provided.</p>
+<p>Change the <code>simplipy</code> library so that its API client no longer requires callers to provide an <code>aiohttp.ClientSession</code>. Supplying a session must become optional across all client entry points, and the client must function correctly whether or not a session is supplied.</p>
 <h4>Public API Surface</h4>
-<p>All symbols below are importable from the top-level <code>simplipy</code> package (e.g., <code>from simplipy import API</code>).</p>
+<p>All of the symbols below are importable from the top-level <code>simplipy</code> package (e.g., <code>from simplipy import API</code>).</p>
 <h5><code>API</code> class</h5>
 <p>The <code>API</code> class must support the following usage patterns:</p>
 <ul>
 <li>
-<p><strong>Direct construction with no session:</strong></p>
+<p><strong>Direct construction without a session:</strong></p>
 <pre><code class="language-python">API()
 </code></pre>
-<p>Constructing <code>API</code> with no arguments must succeed and produce a fully usable client.</p>
+<p>Instantiating <code>API</code> with no arguments must succeed and produce a fully usable client.</p>
 </li>
 <li>
 <p><strong><code>API.login_via_credentials(email, password)</code></strong> — async classmethod/coroutine.</p>
 <ul>
-<li>Signature: <code>login_via_credentials(email, password)</code> — must be callable with exactly the email and password (positional). No session argument is required.</li>
-<li>Authenticates using the given credentials and returns a ready-to-use <code>API</code> instance.</li>
-<li>If the credentials are rejected by the backend (authentication returns an HTTP 403 with an invalid-credentials payload), it must raise <code>InvalidCredentialsError</code>.</li>
+<li>Signature: <code>login_via_credentials(email, password)</code> — it must be callable with exactly the email and password (positional). A session argument is not required.</li>
+<li>Authenticates with the given credentials and returns a ready-to-use <code>API</code> instance.</li>
+<li>If the backend rejects the credentials (authentication returns an HTTP 403 with an invalid-credentials payload), it must raise <code>InvalidCredentialsError</code>.</li>
 </ul>
 </li>
 <li>
 <p><strong><code>API.login_via_token(refresh_token)</code></strong> — async classmethod/coroutine.</p>
 <ul>
-<li>Signature: <code>login_via_token(refresh_token)</code> — must be callable with just the refresh token (positional). No session argument is required.</li>
-<li>Authenticates using the given refresh token and returns a ready-to-use <code>API</code> instance.</li>
+<li>Signature: <code>login_via_token(refresh_token)</code> — it must be callable with just the refresh token (positional). A session argument is not required.</li>
+<li>Authenticates with the given refresh token and returns a ready-to-use <code>API</code> instance.</li>
 </ul>
 </li>
 </ul>
 <p>An <code>API</code> instance must expose:</p>
 <ul>
 <li>
-<p><strong><code>request(method, endpoint)</code></strong> — async coroutine to perform an HTTP request against the SimpliSafe API.</p>
+<p><strong><code>request(method, endpoint)</code></strong> — async coroutine that performs an HTTP request against the SimpliSafe API.</p>
 <ul>
-<li>On a non-successful response (e.g., HTTP 404), it must raise <code>RequestError</code>.</li>
-<li>When the current access token is expired (see below), calling <code>request</code> must transparently obtain a fresh access token using the stored refresh token and then complete the request successfully.</li>
+<li>On a response that is not successful (e.g., HTTP 404), it must raise <code>RequestError</code>.</li>
+<li>When the current access token is expired (see below), a call to <code>request</code> must transparently obtain a fresh access token by way of the stored refresh token and then complete the request successfully.</li>
 </ul>
 </li>
 <li>
-<p><strong><code>_access_token</code></strong> — attribute holding the current access token string.</p>
+<p><strong><code>_access_token</code></strong> — attribute that holds the current access token string.</p>
 </li>
 <li>
-<p><strong><code>_access_token_expire</code></strong> — attribute holding a <code>datetime</code> marking when the current access token is considered expired. Callers may set this attribute directly; if it is set to a past time, the next <code>request</code> must trigger a token refresh.</p>
+<p><strong><code>_access_token_expire</code></strong> — attribute that holds a <code>datetime</code> marking the point at which the current access token is considered expired. Callers may set this attribute directly; if it is set to a time in the past, the next <code>request</code> must trigger a token refresh.</p>
 </li>
 <li>
-<p><strong><code>refresh_token</code></strong> — property returning the current refresh token string.</p>
+<p><strong><code>refresh_token</code></strong> — property that returns the current refresh token string.</p>
 </li>
 <li>
-<p><strong><code>refresh_token_dirty</code></strong> — boolean property indicating whether the refresh token has changed (become &quot;dirty&quot;) since it was last read.</p>
+<p><strong><code>refresh_token_dirty</code></strong> — boolean property that tells whether the refresh token has changed (become &quot;dirty&quot;) since it was last read.</p>
 <ul>
-<li>After a token refresh occurs, this property must read <code>True</code>.</li>
-<li>Reading the <code>refresh_token</code> property clears the dirty flag, so an immediately following read of <code>refresh_token_dirty</code> must be <code>False</code>.</li>
+<li>Once a token refresh has taken place, this property must read <code>True</code>.</li>
+<li>Reading the <code>refresh_token</code> property clears the dirty flag, so a read of <code>refresh_token_dirty</code> that immediately follows must be <code>False</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong><code>get_systems()</code></strong> — async coroutine returning a list of <code>System</code> objects associated with the account.</p>
+<p><strong><code>get_systems()</code></strong> — async coroutine that returns a list of the <code>System</code> objects associated with the account.</p>
 </li>
 </ul>
 <h5><code>System</code> class</h5>
 <ul>
-<li>Must be constructible as <code>System(api, data)</code> where <code>api</code> is an <code>API</code> instance and <code>data</code> is a dict describing the system.</li>
-<li>Constructing a <code>System</code> from data whose <code>data['system']['alarmState']</code> is an unrecognized value must not raise; instead it must emit a log record (via the standard <code>logging</code> module) whose message contains the substring <code>Unknown</code>. The resulting system's state must resolve to the unknown/fallback state.</li>
-<li>A <code>System</code> must expose an <code>api</code> attribute referencing its owning <code>API</code> instance (so <code>system.api.request(...)</code>, <code>system.api._access_token</code>, <code>system.api._access_token_expire</code>, <code>system.api.refresh_token</code>, and <code>system.api.refresh_token_dirty</code> are all accessible).</li>
+<li>It must be possible to construct it as <code>System(api, data)</code>, where <code>api</code> is an <code>API</code> instance and <code>data</code> is a dict describing the system.</li>
+<li>When a <code>System</code> is constructed from data whose <code>data['system']['alarmState']</code> is an unrecognized value, this must not raise; instead it must emit a log record (via the standard <code>logging</code> module) whose message contains the substring <code>Unknown</code>. The state of the resulting system must resolve to the unknown/fallback state.</li>
+<li>A <code>System</code> must expose an <code>api</code> attribute that references its owning <code>API</code> instance (so that <code>system.api.request(...)</code>, <code>system.api._access_token</code>, <code>system.api._access_token_expire</code>, <code>system.api.refresh_token</code>, and <code>system.api.refresh_token_dirty</code> are all accessible).</li>
 </ul>
-<h4>Behavior That Must Be Preserved</h4>
-<p>Removing the mandatory session parameter must not change any existing behavior. In particular, the following must continue to work exactly as before, but now without any caller-supplied session:</p>
+<h4>Behavior That Must Remain Intact</h4>
+<p>Taking away the mandatory session parameter must not change any existing behavior. In particular, the items below must continue to work exactly as they did before, but now with no session supplied by the caller:</p>
 <ul>
-<li><code>get_systems()</code> returns the correct systems for both v2 and v3 accounts, including correct <code>serial</code>, <code>system_id</code>, <code>api._access_token</code>, and sensor counts.</li>
-<li><code>System.update()</code> refreshes system data correctly for both v2 and v3.</li>
-<li><code>System.get_events(from_timestamp, count)</code> returns the account's events.</li>
-<li>State-changing methods <code>set_away()</code>, <code>set_home()</code>, and <code>set_off()</code> correctly update <code>system.state</code>; calling <code>set_off()</code> when already off remains valid.</li>
-<li>Sensor and system property access behaves unchanged.</li>
-<li>When the backend reports a feature as unavailable (HTTP 403 with an unavailable-feature payload) during operations such as <code>update()</code> and <code>set_away()</code>, the library must log informational records whose messages contain the substring <code>not available</code> (one such record per affected operation).</li>
-<li>When system data contains an unrecognized sensor type, the library must emit a log record whose message contains the substring <code>Unknown</code>.</li>
+<li><code>get_systems()</code> returns the correct systems for both v2 and v3 accounts, including the correct <code>serial</code>, <code>system_id</code>, <code>api._access_token</code>, and sensor counts.</li>
+<li><code>System.update()</code> refreshes the system data correctly for both v2 and v3.</li>
+<li><code>System.get_events(from_timestamp, count)</code> returns the events belonging to the account.</li>
+<li>The state-changing methods <code>set_away()</code>, <code>set_home()</code>, and <code>set_off()</code> update <code>system.state</code> correctly; calling <code>set_off()</code> when the system is already off remains valid.</li>
+<li>Access to sensor and system properties behaves unchanged.</li>
+<li>If, during operations such as <code>update()</code> and <code>set_away()</code>, the backend reports a feature as unavailable (HTTP 403 with an unavailable-feature payload), the library must log informational records whose messages contain the substring <code>not available</code> (one such record for each affected operation).</li>
+<li>If the system data includes an unrecognized sensor type, the library must emit a log record whose message contains the substring <code>Unknown</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>All existing <code>API</code> methods and <code>System</code> methods that previously required a session must remain functionally identical aside from the session becoming optional.</li>
-<li>When no session is provided by the caller, the client must create and manage its own session internally so that all network operations succeed.</li>
-<li>Each API client instance must operate independently (constructing a new client with no session must yield a self-contained, working client).</li>
+<li>All existing <code>API</code> methods and <code>System</code> methods that previously required a session must remain functionally identical, apart from the session becoming optional.</li>
+<li>If no session is provided by the caller, the client must create and manage its own session internally so that all network operations succeed.</li>
+<li>Each API client instance must operate independently (a new client constructed with no session must yield a self-contained, working client).</li>
 </ul>
-<h4>Error / Exception Types</h4>
-<p>The following exception types must be importable from the <code>simplipy</code> package (or its errors module, consistent with existing import paths):</p>
+<h4>Error and Exception Types</h4>
+<p>The exception types listed below must be importable from the <code>simplipy</code> package (or from its errors module, consistent with the existing import paths):</p>
 <ul>
-<li><code>RequestError</code> — raised on failed HTTP requests.</li>
-<li><code>InvalidCredentialsError</code> — raised on rejected credentials.</li>
-<li><code>SimplipyError</code> — base library error (e.g., raised when accessing the <code>triggered</code> attribute of a non-entry sensor in a v2 system).</li>
+<li><code>RequestError</code> — raised when an HTTP request fails.</li>
+<li><code>InvalidCredentialsError</code> — raised when credentials are rejected.</li>
+<li><code>SimplipyError</code> — the base error of the library (e.g., raised when the <code>triggered</code> attribute of a non-entry sensor in a v2 system is accessed).</li>
 </ul>
 <h4>Enums</h4>
 <ul>
-<li><code>SystemStates</code> enum must include at least the members <code>off</code>, <code>away</code>, and <code>home</code>, plus an unknown/fallback member used when an unrecognized <code>alarmState</code> is encountered.</li>
-<li><code>SensorTypes</code> enum must include at least the <code>keypad</code> member.</li>
+<li>The <code>SystemStates</code> enum must include at least the members <code>off</code>, <code>away</code>, and <code>home</code>, in addition to an unknown/fallback member that is used when an unrecognized <code>alarmState</code> is encountered.</li>
+<li>The <code>SensorTypes</code> enum must include at least the <code>keypad</code> member.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Require an Explicit aiohttp.ClientSession for the SimpliSafe API Client</span>
-        <span class="spec-meta muted">1760 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The SimpliSafe API Client Requires an Explicit aiohttp.ClientSession</span>
+        <span class="spec-meta muted">1948 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Require an Explicit <code>aiohttp.ClientSession</code> for the SimpliSafe API Client</h3>
-<h4>Overview</h4>
-<p>The <code>simplipy</code> package provides an asynchronous client for the SimpliSafe service. Every API client must use an <code>aiohttp.ClientSession</code> created and supplied by its caller. Supplying the session is mandatory: there is no omitted-session form and the package must never create an automatic fallback session.</p>
-<p>The caller owns the session lifecycle and must keep it open for as long as the <code>API</code> instance, its returned systems, or their sensors may perform requests. Authentication, token refresh, subscription retrieval, system updates, event retrieval, and state changes must all use that same supplied session.</p>
-<p>All existing V2 and V3 system, sensor, event, and state-control behavior must continue to work with this explicit-session API.</p>
-<h4>Public Imports</h4>
-<p>Existing public import locations must remain available. In particular:</p>
+      <div class="spec-body"><h3>Task Specification: The SimpliSafe API Client Requires an Explicit <code>aiohttp.ClientSession</code></h3>
+<h4>Summary</h4>
+<p>The <code>simplipy</code> package offers an asynchronous client for the SimpliSafe service. Every API client must use an <code>aiohttp.ClientSession</code> that its caller creates and supplies. Providing the session is mandatory: an omitted-session form does not exist, and the package must never create an automatic fallback session.</p>
+<p>The session lifecycle is owned by the caller, who must keep it open for as long as the <code>API</code> instance, the systems it returns, or their sensors may perform requests. Authentication, token refresh, subscription retrieval, system updates, event retrieval, and state changes must all make use of that same supplied session.</p>
+<p>All existing V2 and V3 system, sensor, event, and state-control behavior must keep working with this explicit-session API.</p>
+<h4>Public Import Locations</h4>
+<p>The public import locations that already exist must stay available. Specifically:</p>
 <ul>
-<li><code>API</code> is importable with <code>from simplipy import API</code>.</li>
-<li><code>System</code>, <code>SystemV2</code>, <code>SystemV3</code>, and <code>SystemStates</code> remain available from <code>simplipy.system</code>.</li>
-<li>Sensor classes and <code>SensorTypes</code> remain available from <code>simplipy.sensor</code>.</li>
-<li><code>SimplipyError</code>, <code>InvalidCredentialsError</code>, and <code>RequestError</code> remain available from <code>simplipy.errors</code>.</li>
+<li><code>API</code> can be imported via <code>from simplipy import API</code>.</li>
+<li><code>System</code>, <code>SystemV2</code>, <code>SystemV3</code>, and <code>SystemStates</code> stay available from <code>simplipy.system</code>.</li>
+<li>The sensor classes and <code>SensorTypes</code> stay available from <code>simplipy.sensor</code>.</li>
+<li><code>SimplipyError</code>, <code>InvalidCredentialsError</code>, and <code>RequestError</code> stay available from <code>simplipy.errors</code>.</li>
 </ul>
 <h4><code>simplipy.API</code></h4>
-<p><code>API</code> represents an authenticated or unauthenticated connection to the SimpliSafe service.</p>
+<p>The <code>API</code> class represents a connection to the SimpliSafe service that is either authenticated or unauthenticated.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">API(websession)
 </code></pre>
 <ul>
-<li><code>websession</code> is a required <code>aiohttp.ClientSession</code>. It has no default value.</li>
-<li><code>API()</code> without a session is not a supported call.</li>
-<li>The supplied object must be used for all HTTP traffic; <code>API</code> must not create another <code>ClientSession</code>.</li>
-<li>Constructing <code>API(websession)</code> directly, without logging in, must succeed. The resulting object can be passed directly to <code>System</code>.</li>
+<li><code>websession</code> is a required <code>aiohttp.ClientSession</code>; a default value does not exist for it.</li>
+<li>A call to <code>API()</code> without a session is not supported.</li>
+<li>All HTTP traffic must run through the supplied object; <code>API</code> must not create another <code>ClientSession</code>.</li>
+<li>Building <code>API(websession)</code> directly, with no login, must succeed. The resulting object can be given directly to <code>System</code>.</li>
 </ul>
-<h5>Authentication factories</h5>
+<h5>Authentication Factory Methods</h5>
 <pre><code class="language-python">@classmethod
 async def login_via_credentials(cls, email, password, websession) -&gt; API
 </code></pre>
 <ul>
-<li><code>email</code> and <code>password</code> are the account credentials.</li>
-<li><code>websession</code> is the required third argument and is the caller-created <code>aiohttp.ClientSession</code>.</li>
-<li>On success, the coroutine returns an authenticated <code>API</code> using that session.</li>
-<li>Rejected credentials represented by an HTTP 403 invalid-credentials response must raise <code>InvalidCredentialsError</code>, not <code>RequestError</code>.</li>
+<li><code>email</code> and <code>password</code> hold the account credentials.</li>
+<li><code>websession</code> is the required third argument and is the <code>aiohttp.ClientSession</code> that the caller created.</li>
+<li>On success, the coroutine returns an authenticated <code>API</code> that uses that session.</li>
+<li>Credentials rejected with an HTTP 403 invalid-credentials response must raise <code>InvalidCredentialsError</code>, not <code>RequestError</code>.</li>
 </ul>
 <pre><code class="language-python">@classmethod
 async def login_via_token(cls, refresh_token, websession) -&gt; API
 </code></pre>
 <ul>
-<li><code>refresh_token</code> is a previously issued refresh token.</li>
-<li><code>websession</code> is the required second argument.</li>
-<li>On success, the coroutine returns an authenticated <code>API</code> with the same capabilities as one created through credentials.</li>
+<li><code>refresh_token</code> is a refresh token that was issued previously.</li>
+<li><code>websession</code> is the second argument and is required.</li>
+<li>On success, the coroutine returns an authenticated <code>API</code> whose capabilities are the same as those of one created through credentials.</li>
 </ul>
-<p>The required public call shapes are exactly <code>(email, password, websession)</code> and <code>(refresh_token, websession)</code> respectively. Neither factory may support authentication by silently manufacturing its own session.</p>
-<h5>Authentication state</h5>
-<p>An authenticated <code>API</code>, including the object exposed through <code>system.api</code>, provides:</p>
+<p>The public call shapes that are required are exactly <code>(email, password, websession)</code> and <code>(refresh_token, websession)</code>, respectively. Neither factory may support authentication by silently manufacturing a session of its own.</p>
+<h5>Authentication State</h5>
+<p>An authenticated <code>API</code> — the object exposed through <code>system.api</code> included — provides the following:</p>
 <ul>
-<li><code>_access_token</code>: the current access-token string.</li>
-<li><code>_access_token_expire</code>: a <code>datetime</code> representing when the current access token expires. It remains assignable.</li>
-<li><code>refresh_token</code>: the current refresh-token string. Reading this property acknowledges the value and clears its dirty flag.</li>
-<li><code>refresh_token_dirty</code>: a boolean indicating whether the refresh token has changed since it was last read through <code>refresh_token</code>. Reading <code>refresh_token_dirty</code> alone does not acknowledge the token.</li>
-<li><code>user_id</code>: the authenticated account's user identifier once authentication completes.</li>
+<li><code>_access_token</code>: the string for the current access token.</li>
+<li><code>_access_token_expire</code>: a <code>datetime</code> that represents when the current access token expires. It stays assignable.</li>
+<li><code>refresh_token</code>: the string for the current refresh token. When this property is read, the value is acknowledged and its dirty flag is cleared.</li>
+<li><code>refresh_token_dirty</code>: a boolean saying whether the refresh token has changed since it was last read through <code>refresh_token</code>. Reading <code>refresh_token_dirty</code> by itself does not acknowledge the token.</li>
+<li><code>user_id</code>: the user identifier of the authenticated account once authentication completes.</li>
 </ul>
-<p>Installing a changed refresh token marks it dirty. Reading <code>refresh_token</code> returns the token and changes <code>refresh_token_dirty</code> to <code>False</code>. A later token change marks it dirty again.</p>
-<h5>Requests and automatic refresh</h5>
+<p>When a changed refresh token is installed, it is marked dirty. Reading <code>refresh_token</code> returns the token and flips <code>refresh_token_dirty</code> to <code>False</code>. If the token changes again later, it is marked dirty once more.</p>
+<h5>Requests and Automatic Refresh</h5>
 <pre><code class="language-python">async def request(
     self, method, endpoint, *,
     headers=None, params=None, data=None, json=None, **kwargs
 ) -&gt; dict
 </code></pre>
 <ul>
-<li><code>method</code> is the HTTP method, such as <code>&quot;get&quot;</code> or <code>&quot;post&quot;</code>.</li>
-<li><code>endpoint</code> is a service path such as <code>&quot;api/authCheck&quot;</code>; it is resolved beneath the SimpliSafe API base path.</li>
-<li>The optional request arguments continue to be supported and are sent through the caller's session.</li>
-<li>Successful JSON responses are returned as decoded Python data even when the response does not advertise a JSON content type.</li>
-<li>Authenticated requests carry the current access token.</li>
-<li>A non-special failing response, such as HTTP 404, or another <code>aiohttp</code> client failure must raise <code>RequestError</code>.</li>
+<li><code>method</code> is the HTTP method — <code>&quot;get&quot;</code> or <code>&quot;post&quot;</code>, for example.</li>
+<li><code>endpoint</code> denotes a service path such as <code>&quot;api/authCheck&quot;</code>; it is resolved beneath the SimpliSafe API base path.</li>
+<li>The optional request arguments continue to be supported and are sent over the caller's session.</li>
+<li>Successful JSON responses are returned as decoded Python data even when no JSON content type is advertised by the response.</li>
+<li>The current access token is carried by authenticated requests.</li>
+<li>A failing response that is not special, HTTP 404 for instance, or another <code>aiohttp</code> client failure must raise <code>RequestError</code>.</li>
 </ul>
-<p>Before an ordinary request is issued, the client must compare <code>_access_token_expire</code> with the current time. If the token has expired, including when a caller assigns a time in the past, the client must first refresh via the current refresh token and then proceed with the original request. The newly obtained access token must be used, and a changed refresh token must leave <code>refresh_token_dirty</code> as <code>True</code> until <code>refresh_token</code> is read. Refreshing must not recursively trigger another refresh.</p>
-<p>After authentication has established <code>user_id</code>, an HTTP 403 indicating that an endpoint is unavailable under the account's plan is not treated as invalid credentials. It must:</p>
+<p>Before an ordinary request goes out, the client must compare <code>_access_token_expire</code> against the current time. If the token has expired — including when a caller assigns a time in the past — the client must first refresh by way of the current refresh token and then carry out the original request. The access token obtained from that refresh must be used, and a changed refresh token must leave <code>refresh_token_dirty</code> as <code>True</code> until <code>refresh_token</code> is read. A refresh must not recursively trigger another refresh.</p>
+<p>After authentication has established <code>user_id</code>, an HTTP 403 that indicates an endpoint is unavailable under the account's plan is not treated as invalid credentials. In that case it must:</p>
 <ol>
-<li>emit an INFO-level message containing the phrase <code>&quot;not available&quot;</code>;</li>
+<li>emit an INFO-level message that contains the phrase <code>&quot;not available&quot;</code>;</li>
 <li>return an empty mapping from <code>request</code>; and</li>
-<li>allow higher-level update and state methods to return without raising or applying a nonexistent response.</li>
+<li>allow the higher-level update and state methods to return without raising or applying a nonexistent response.</li>
 </ol>
-<h5>Subscription and system discovery</h5>
+<h5>Subscriptions and System Discovery</h5>
 <pre><code class="language-python">async def get_subscription_data(self) -&gt; dict
 async def get_systems(self) -&gt; list
 </code></pre>
 <ul>
-<li><code>get_subscription_data()</code> returns the active subscription/location response for the authenticated user.</li>
-<li><code>get_systems()</code> returns one version-appropriate system object for each active subscription. Version 2 locations produce <code>SystemV2</code>; version 3 locations produce <code>SystemV3</code>.</li>
-<li>Each system's <code>api</code> attribute refers to the same <code>API</code> object that created it, including its session and authentication state.</li>
-<li>Before a system is returned, its sensor collection is populated using the appropriate V2 or V3 service behavior.</li>
-<li>Credential and refresh-token authentication must produce equivalent system objects and populated sensor collections.</li>
+<li><code>get_subscription_data()</code> returns the response for the authenticated user's active subscription/location.</li>
+<li><code>get_systems()</code> returns, for each active subscription, one version-appropriate system object. A version 2 location produces <code>SystemV2</code>; a version 3 location produces <code>SystemV3</code>.</li>
+<li>Each system's <code>api</code> attribute points at the same <code>API</code> object that created it, its session and authentication state included.</li>
+<li>Before a system is returned, its sensor collection is populated in line with the appropriate V2 or V3 service behavior.</li>
+<li>Authentication by credentials and by refresh token must produce equivalent system objects and populated sensor collections.</li>
 </ul>
 <h4>Systems</h4>
-<h5>Construction and common properties</h5>
+<h5>Construction and Shared Properties</h5>
 <pre><code class="language-python">System(api, data)
 </code></pre>
 <ul>
 <li><code>api</code> is an <code>API</code> instance, including one created directly as <code>API(websession)</code>.</li>
-<li><code>data</code> is location data containing at least <code>{'system': {'alarmState': &lt;str&gt;, ...}}</code> for state initialization.</li>
-<li>Construction initializes <code>sensors</code> as a mapping keyed by sensor serial number.</li>
+<li><code>data</code> is location data that contains at least <code>{'system': {'alarmState': &lt;str&gt;, ...}}</code> for state initialization.</li>
+<li>Construction initializes <code>sensors</code> as a mapping whose keys are sensor serial numbers.</li>
 </ul>
-<p>Version-specific systems returned by <code>get_systems()</code> retain these public attributes and properties:</p>
+<p>Version-specific systems returned by <code>get_systems()</code> keep these public attributes and properties:</p>
 <ul>
-<li><code>api</code>: the originating <code>API</code> instance.</li>
-<li><code>address</code>: the location's street address.</li>
-<li><code>alarm_going_off</code>: whether the system is currently alarming.</li>
-<li><code>serial</code>: the system serial number.</li>
-<li><code>state</code>: the current <code>SystemStates</code> value.</li>
-<li><code>system_id</code>: the service identifier for the system/subscription.</li>
-<li><code>temperature</code>: the system's reported overall temperature.</li>
-<li><code>version</code>: <code>2</code> or <code>3</code>.</li>
-<li><code>sensors</code>: a dictionary from serial strings to <code>SensorV2</code> or <code>SensorV3</code> objects.</li>
+<li><code>api</code>: the <code>API</code> instance from which the system originated.</li>
+<li><code>address</code>: the street address of the location.</li>
+<li><code>alarm_going_off</code>: whether the system is alarming right now.</li>
+<li><code>serial</code>: the serial number of the system.</li>
+<li><code>state</code>: the <code>SystemStates</code> value that is currently set.</li>
+<li><code>system_id</code>: the service's identifier for the system/subscription.</li>
+<li><code>temperature</code>: the overall temperature as reported for the system.</li>
+<li><code>version</code>: either <code>2</code> or <code>3</code>.</li>
+<li><code>sensors</code>: a dictionary that maps serial strings to <code>SensorV2</code> or <code>SensorV3</code> objects.</li>
 </ul>
-<p><code>SystemStates</code> retains these members and values:</p>
+<p><code>SystemStates</code> keeps these members and values:</p>
 <ul>
 <li><code>alarm_count = 1</code></li>
 <li><code>away = 2</code></li>
@@ -369,30 +369,30 @@ async def get_systems(self) -&gt; list
 <li><code>off = 9</code></li>
 <li><code>unknown = 99</code></li>
 </ul>
-<p>Known service state strings are normalized to the corresponding member. If an initial or refreshed <code>alarmState</code> is unrecognized, the system must not raise. It must instead set the state to <code>SystemStates.unknown</code> and emit a log record whose message contains the case-sensitive substring <code>&quot;Unknown&quot;</code>. This record must be emitted at WARNING level or higher, such as ERROR, so it remains observable under default logging thresholds; INFO is not sufficient for this unknown-state record.</p>
-<p>A minimal direct construction such as <code>System(API(websession), {'system': {'alarmState': 'fake'}})</code> must therefore succeed and resolve to the unknown fallback.</p>
+<p>Service state strings that are known get normalized to the matching member. If an initial or refreshed <code>alarmState</code> is not recognized, the system must not raise. Instead, it must set the state to <code>SystemStates.unknown</code> and emit a log record whose message contains the case-sensitive substring <code>&quot;Unknown&quot;</code>. This record must be emitted at WARNING level or higher — ERROR, for instance — so that it remains observable under default logging thresholds; INFO is not sufficient for this unknown-state record.</p>
+<p>A minimal direct construction, <code>System(API(websession), {'system': {'alarmState': 'fake'}})</code> for instance, must therefore succeed and resolve to the unknown fallback.</p>
 <h5>Events</h5>
 <pre><code class="language-python">async def get_events(self, from_timestamp=None, num_events=None) -&gt; list
 </code></pre>
-<p>This returns the response's event list. When supplied, <code>from_timestamp</code> and <code>num_events</code> are sent as the corresponding event-query parameters. Omitting them retrieves the service's default event range.</p>
-<h5>State control</h5>
+<p>This returns the event list contained in the response. When they are supplied, <code>from_timestamp</code> and <code>num_events</code> are sent as the corresponding event-query parameters. Leaving them out retrieves the service's default event range.</p>
+<h5>Setting the State</h5>
 <pre><code class="language-python">async def set_away(self) -&gt; None
 async def set_home(self) -&gt; None
 async def set_off(self) -&gt; None
 </code></pre>
-<p>These methods use the correct V2 or V3 operation, and a successful response updates <code>state</code> to <code>SystemStates.away</code>, <code>SystemStates.home</code>, or <code>SystemStates.off</code>. Requesting the already-current state is a successful no-op and leaves the state unchanged. If remote management is unavailable for the account plan, the unavailable-feature behavior described above applies and the state is not falsely changed.</p>
+<p>Each of these methods uses the correct V2 or V3 operation, and <code>state</code> is updated to <code>SystemStates.away</code>, <code>SystemStates.home</code>, or <code>SystemStates.off</code> when the response succeeds. Asking for a state that is already current is a successful no-op and leaves the state unchanged. When remote management is unavailable for the account plan, the unavailable-feature behavior described above applies, and the state is not falsely changed.</p>
 <h5>Updating</h5>
 <pre><code class="language-python">async def update(self, refresh_location=True, cached=True) -&gt; None
 </code></pre>
 <ul>
-<li>With <code>refresh_location=True</code>, location-level data and the system state are refreshed before sensor data.</li>
-<li><code>cached</code> retains its existing meaning: V2 uses it as the cached settings choice, while V3 requests a forced refresh when <code>cached</code> is false.</li>
-<li>Existing sensor objects with matching serial numbers receive updated data, and newly discovered serial numbers are added to <code>sensors</code>.</li>
-<li>Empty responses caused by an unavailable plan return cleanly without corrupting the existing collection.</li>
+<li>When <code>refresh_location=True</code>, the location-level data and the system state are refreshed before the sensor data.</li>
+<li><code>cached</code> keeps its existing meaning: V2 treats it as the cached settings choice, while V3 asks for a forced refresh when <code>cached</code> is false.</li>
+<li>Sensor objects that already exist and have matching serial numbers receive the updated data, and serial numbers that are newly discovered are added to <code>sensors</code>.</li>
+<li>Empty responses brought about by an unavailable plan return cleanly, and the existing collection is not corrupted.</li>
 </ul>
 <h4>Sensors</h4>
-<p>Sensors remain version-specific and are stored under their serial-number keys. Individual sensors are not updated independently; callers refresh them through their parent system's <code>update()</code> method.</p>
-<p><code>SensorTypes</code> retains these members and values:</p>
+<p>Sensors stay version-specific and are stored under their serial-number keys. Individual sensors are not updated independently; instead, callers refresh them via the <code>update()</code> method on their parent system.</p>
+<p><code>SensorTypes</code> keeps these members and values:</p>
 <ul>
 <li><code>keypad = 1</code></li>
 <li><code>keychain = 2</code></li>
@@ -407,37 +407,37 @@ async def set_off(self) -&gt; None
 <li><code>siren = 13</code></li>
 <li><code>unknown = 99</code></li>
 </ul>
-<p>All sensors expose <code>name</code>, <code>serial</code>, and <code>type</code>. An unrecognized numeric sensor type must not prevent system discovery. It is mapped to <code>SensorTypes.unknown</code>, and a log record containing <code>&quot;Unknown&quot;</code> is emitted at WARNING level or higher.</p>
-<h5>V2 sensor behavior</h5>
-<p><code>SensorV2</code> exposes:</p>
+<p>Every sensor exposes <code>name</code>, <code>serial</code>, and <code>type</code>. An unrecognized numeric sensor type must not block system discovery. Such a type is mapped to <code>SensorTypes.unknown</code>, and a log record containing <code>&quot;Unknown&quot;</code> is emitted at WARNING level or higher.</p>
+<h5>V2 Sensor Behavior</h5>
+<p>The <code>SensorV2</code> class exposes:</p>
 <ul>
-<li><code>data</code>: the raw integer sensor data.</li>
-<li><code>error</code>: the sensor error flag.</li>
-<li><code>low_battery</code>: true when the reported battery value is not <code>&quot;ok&quot;</code>; a missing battery value is treated as okay.</li>
-<li><code>settings</code>: the raw V2 setting value.</li>
-<li><code>trigger_instantly</code>: the V2 instant-trigger flag.</li>
-<li><code>triggered</code>: for entry sensors, true only when entry status is <code>&quot;open&quot;</code>; missing status is treated as closed. Accessing <code>triggered</code> on any non-entry V2 sensor raises <code>SimplipyError</code>.</li>
+<li><code>data</code>: the sensor's raw integer data.</li>
+<li><code>error</code>: the sensor's error flag.</li>
+<li><code>low_battery</code>: true when the battery value that is reported is not <code>&quot;ok&quot;</code>; a battery value that is missing is treated as okay.</li>
+<li><code>settings</code>: the raw setting value from V2.</li>
+<li><code>trigger_instantly</code>: the instant-trigger flag for V2.</li>
+<li><code>triggered</code>: for entry sensors, true only when the entry status is <code>&quot;open&quot;</code>; a missing status is treated as closed. Accessing <code>triggered</code> on any V2 sensor that is not an entry sensor raises <code>SimplipyError</code>.</li>
 </ul>
-<h5>V3 sensor behavior</h5>
-<p><code>SensorV3</code> exposes:</p>
+<h5>V3 Sensor Behavior</h5>
+<p>The <code>SensorV3</code> class exposes:</p>
 <ul>
-<li><code>error</code>: the malfunction status, defaulting to false when absent.</li>
+<li><code>error</code>: the malfunction status, which defaults to false when it is absent.</li>
 <li><code>low_battery</code>: the low-battery flag.</li>
-<li><code>offline</code>: the offline flag.</li>
-<li><code>settings</code>: the V3 settings dictionary.</li>
-<li><code>trigger_instantly</code>: the <code>instantTrigger</code> setting where that setting applies.</li>
-<li><code>triggered</code>: the reported triggered status for motion, entry, glass-break, carbon-monoxide, smoke, leak, and temperature sensors, defaulting to false when absent. Other V3 sensor types, including sirens, return false.</li>
-<li><code>temperature</code>: the reported temperature for a temperature sensor. Accessing this property on a non-temperature sensor raises <code>AttributeError</code>.</li>
+<li><code>offline</code>: the flag indicating offline status.</li>
+<li><code>settings</code>: the dictionary of V3 settings.</li>
+<li><code>trigger_instantly</code>: the <code>instantTrigger</code> setting in cases where that setting applies.</li>
+<li><code>triggered</code>: the triggered status as reported for motion, entry, glass-break, carbon-monoxide, smoke, leak, and temperature sensors; it defaults to false when absent. The other V3 sensor types, sirens included, return false.</li>
+<li><code>temperature</code>: the temperature reported for a temperature sensor. Accessing this property on a sensor that is not a temperature sensor raises <code>AttributeError</code>.</li>
 </ul>
 <h4>Errors</h4>
-<p>The exception hierarchy remains public through <code>simplipy.errors</code>:</p>
+<p>The exception hierarchy stays public through <code>simplipy.errors</code>:</p>
 <ul>
-<li><code>SimplipyError</code> is the package's base exception.</li>
-<li><code>InvalidCredentialsError</code> derives from <code>SimplipyError</code> and represents rejected login credentials.</li>
+<li><code>SimplipyError</code> acts as the package's base exception.</li>
+<li><code>InvalidCredentialsError</code> derives from <code>SimplipyError</code> and stands for rejected login credentials.</li>
 <li><code>RequestError</code> derives from <code>SimplipyError</code> and represents ordinary request failures.</li>
 </ul>
-<p>Unsupported sensor-property access retains the version-specific behavior described above rather than being converted to <code>RequestError</code>.</p>
-<h4>Usage Example</h4>
+<p>Access to a sensor property that is not supported keeps the version-specific behavior described above rather than being converted to <code>RequestError</code>.</p>
+<h4>Example Usage</h4>
 <pre><code class="language-python">import aiohttp
 
 from simplipy import API
@@ -453,164 +453,164 @@ async def load_systems(email, password):
             await system.update()
         return systems
 </code></pre>
-<p>The session must remain open while any returned object is making a request. The package does not assume ownership by replacing, automatically creating, or automatically closing the caller's session.</p>
-<h4>Compatibility and Non-goals</h4>
+<p>While any returned object is making a request, the session must remain open. The package does not assume ownership by replacing the caller's session, creating it automatically, or closing it automatically.</p>
+<h4>Compatibility and Non-Goals</h4>
 <ul>
-<li>This change removes the automatic-session constructor and factory forms; preserving an omitted-session form is not required.</li>
-<li>It does not otherwise redesign authentication, systems, sensors, event retrieval, state setting, plan limitations, or V2/V3 differences.</li>
+<li>The automatic-session constructor and factory forms are removed by this change; preserving an omitted-session form is not required.</li>
+<li>Beyond this, it does not redesign authentication, systems, sensors, event retrieval, state setting, plan limitations, or the V2/V3 differences.</li>
 <li>Existing behavior in those areas must continue to operate through the explicitly supplied session.</li>
 </ul>
 <h4>Version</h4>
-<p>The package version must be <code>3.3.0</code>.</p>
+<p>The version of the package must be <code>3.3.0</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Modify the log messages emitted when a SimpliSafe API feature is unavailable for the user&#39;s service plan.</span>
-        <span class="spec-meta muted">262 words · source specification
+        <span class="spec-title">Alter the log messages that are emitted when a SimpliSafe API feature is unavailable for the user&#39;s service plan.</span>
+        <span class="spec-meta muted">278 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the log messages emitted when a SimpliSafe API feature is unavailable for the user's service plan. When the API returns a <code>403 Forbidden</code> response indicating that a requested feature/endpoint is not included in the account's plan, the code logs a warning-level message describing the situation.</p>
+<p>Alter the log messages that are emitted when a SimpliSafe API feature is unavailable for the user's service plan. When the API returns a <code>403 Forbidden</code> response that indicates a requested feature/endpoint is not included in the account's plan, the code logs a warning-level message that describes the situation.</p>
 <h4>Required Change</h4>
-<p>The log message text emitted in this &quot;feature unavailable for plan&quot; scenario must contain the substring:</p>
+<p>The text of the log message emitted in this &quot;feature unavailable for plan&quot; scenario must contain the substring:</p>
 <pre><code>unavailable in plan
 </code></pre>
-<p>(Previously this message contained the substring <code>not available</code>.)</p>
+<p>(This message previously contained the substring <code>not available</code>.)</p>
 <h4>Behavioral Details</h4>
 <ul>
-<li>This applies to both v2 and v3 SimpliSafe systems.</li>
-<li>The scenario is triggered when performing an operation against the API that returns a <code>403</code> response because the endpoint/feature is not part of the account's service plan (for example, attempting to change the arming state on a plan that does not support remote control).</li>
-<li>When such an operation is attempted, exactly one such log record is produced per unavailable-feature API call. (In the exercised flow, a single high-level operation results in two such log records being emitted.)</li>
-<li>Each of these log records must have a <code>message</code> attribute whose string value includes the substring <code>unavailable in plan</code>.</li>
-<li>The operation itself must not raise an exception in this case; the unavailability is handled gracefully and surfaced only via the log message(s).</li>
+<li>Both v2 and v3 SimpliSafe systems are covered by this.</li>
+<li>The scenario is triggered when an operation is performed against the API that returns a <code>403</code> response because the endpoint/feature is not part of the account's service plan (for example, trying to change the arming state on a plan that does not support remote control).</li>
+<li>When an operation of this kind is attempted, exactly one such log record is produced per unavailable-feature API call. (Within the exercised flow, two such log records are emitted as a result of a single high-level operation.)</li>
+<li>Every one of these log records must have a <code>message</code> attribute whose string value includes the substring <code>unavailable in plan</code>.</li>
+<li>In this case the operation itself must not raise an exception; the unavailability is handled gracefully and is surfaced only via the log message(s).</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>No public API names, module paths, or method signatures change as part of this task.</li>
-<li>Only the wording of the log message(s) for the &quot;feature unavailable due to service plan&quot; (403) case is affected. All other behavior remains unchanged.</li>
+<li>As part of this task, no public API names, module paths, or method signatures are changed.</li>
+<li>The only aspect affected is the wording of the log message(s) for the &quot;feature unavailable due to service plan&quot; (403) case. All other behavior stays unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Automatic Token Refresh on 401 Response</span>
-        <span class="spec-meta muted">660 words · source specification
+        <span class="spec-title">Automatic Token Refresh upon a 401 Response</span>
+        <span class="spec-meta muted">823 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-reg" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Automatic Token Refresh on 401 Response</h3>
-<h4>Context</h4>
-<p>This task concerns a Python library (using <code>asyncio</code> and <code>aiohttp</code>) that acts as a client for the SimpliSafe HTTP API (<code>api.simplisafe.com</code>). The relevant public class is <code>API</code>, importable from the library's top-level package. You must implement automatic access-token refresh behavior when the API returns an HTTP <code>401</code> response.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as described.</p>
-<h5><code>API</code> class</h5>
+      <div class="spec-body"><h3>Task Specification: Automatic Token Refresh upon a 401 Response</h3>
+<h4>Background</h4>
+<p>At the center of this task sits a Python library — one built on <code>asyncio</code> and <code>aiohttp</code> — that functions as a client of the SimpliSafe HTTP API (<code>api.simplisafe.com</code>). The public class <code>API</code>, which the task revolves around, is importable from the library's top-level package. What you must implement is behavior that refreshes the access token automatically whenever the API returns an HTTP <code>401</code> response.</p>
+<h4>The Public API</h4>
+<p>Everything below must be importable and callable in exactly the manner described.</p>
+<h5>The <code>API</code> class</h5>
 <ul>
 <li>
-<p><strong><code>API.login_via_credentials(email, password, websession)</code></strong> — an async classmethod (coroutine) that authenticates using an email/password pair and an <code>aiohttp.ClientSession</code>. It performs a <code>POST</code> to <code>https://api.simplisafe.com/v1/api/token</code>. On success it returns an <code>API</code> instance. Its 401 handling behavior is described below.</p>
+<p><strong><code>API.login_via_credentials(email, password, websession)</code></strong> — a coroutine implemented as an async classmethod; authentication happens by means of an email/password pair together with an <code>aiohttp.ClientSession</code>. What it performs is a <code>POST</code> to <code>https://api.simplisafe.com/v1/api/token</code>. When it succeeds, an <code>API</code> instance is returned. Further down, the way it handles a 401 is described.</p>
 </li>
 <li>
-<p><strong><code>api.get_systems()</code></strong> — an async method (coroutine) returning a list of system objects associated with the account. Retrieving systems involves a <code>GET</code> request to <code>https://api.simplisafe.com/v1/users/{user_id}/subscriptions</code>.</p>
+<p><strong><code>api.get_systems()</code></strong> — an async method (coroutine) whose return value is a list of the system objects belonging to the account. Fetching those systems entails a <code>GET</code> request to <code>https://api.simplisafe.com/v1/users/{user_id}/subscriptions</code>.</p>
 </li>
 <li>
-<p><strong><code>api.refresh_token</code></strong> — property returning the current refresh token string.</p>
+<p><strong><code>api.refresh_token</code></strong> — a property through which the current refresh token string is returned.</p>
 </li>
 <li>
-<p><strong><code>api.refresh_token_dirty</code></strong> — property (boolean). See &quot;Dirty Flag Semantics&quot; below.</p>
+<p><strong><code>api.refresh_token_dirty</code></strong> — a property (boolean). Its meaning is set out under &quot;Dirty Flag Semantics&quot; below.</p>
 </li>
 </ul>
-<p>Each system object returned by <code>get_systems()</code> exposes:</p>
+<p>Every system object that <code>get_systems()</code> returns exposes the following:</p>
 <ul>
 <li>
-<p><strong><code>system.update()</code></strong> — an async method (coroutine) that refreshes the system's state. This performs one or more <code>GET</code> requests (e.g. to <code>/v1/users/{user_id}/subscriptions</code> and <code>/v1/subscriptions/{subscription_id}/settings</code>).</p>
+<p><strong><code>system.update()</code></strong> — an async method (coroutine) whose job is refreshing the state of the system. It issues one or more <code>GET</code> requests (e.g. to <code>/v1/users/{user_id}/subscriptions</code> and <code>/v1/subscriptions/{subscription_id}/settings</code>).</p>
 </li>
 <li>
-<p><strong><code>system.api</code></strong> — a reference to the owning <code>API</code> instance (so that <code>system.api.refresh_token</code>, <code>system.api.refresh_token_dirty</code>, etc. are accessible).</p>
+<p><strong><code>system.api</code></strong> — a reference to the <code>API</code> instance that owns the system (with the result that <code>system.api.refresh_token</code>, <code>system.api.refresh_token_dirty</code>, etc. are accessible).</p>
 </li>
 </ul>
-<h5>Exception</h5>
+<h5>Exception Class</h5>
 <ul>
-<li><strong><code>InvalidCredentialsError</code></strong> — an exception class importable from the library's errors/exceptions module (and re-exported such that existing import paths continue to work). Raised as described below.</li>
+<li><strong><code>InvalidCredentialsError</code></strong> — an exception class, importable from the library's errors/exceptions module (and re-exported too, so that existing import paths continue to work). It is raised in the manner described below.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Token endpoint</h5>
-<p>The token refresh operation is a <code>POST</code> to <code>https://api.simplisafe.com/v1/api/token</code>. A successful response (HTTP <code>200</code>) returns JSON containing new credentials including a new refresh token. After a successful refresh, an auth-check <code>GET</code> to <code>https://api.simplisafe.com/v1/api/authCheck</code> may follow as part of establishing the refreshed session.</p>
-<h5>401 during initial login</h5>
-<p>If the initial credential login (the token <code>POST</code> in <code>login_via_credentials</code>) itself returns HTTP <code>401</code>, raise <code>InvalidCredentialsError</code>. No retry is attempted for this case.</p>
-<h5>401 during an authenticated request — retry logic</h5>
-<p>When any authenticated request (such as fetching subscriptions during <code>get_systems()</code> / <code>system.update()</code>) receives an HTTP <code>401</code> response:</p>
+<h4>Behavior Requirements</h4>
+<h5>The Token Endpoint</h5>
+<p>Refreshing the token is done by way of a <code>POST</code> to <code>https://api.simplisafe.com/v1/api/token</code>. If the response is a successful one (HTTP <code>200</code>), its JSON contains the new credentials, a new refresh token among them. Once a refresh has succeeded, an auth-check <code>GET</code> to <code>https://api.simplisafe.com/v1/api/authCheck</code> may then follow, as part of establishing the refreshed session.</p>
+<h5>401 during the Initial Login</h5>
+<p>Should the token <code>POST</code> in <code>login_via_credentials</code> — that is, the initial credential login — itself return HTTP <code>401</code>, <code>InvalidCredentialsError</code> is raised. In this case, no retry attempt is made.</p>
+<h5>401 during an Authenticated Request — Retry Logic</h5>
+<p>Take the case of any authenticated request — for example the fetching of subscriptions during <code>get_systems()</code> / <code>system.update()</code> — that receives an HTTP <code>401</code> response:</p>
 <ol>
 <li>
-<p>On the <strong>first</strong> <code>401</code>, do not immediately fail. Instead, attempt to refresh the access token by issuing a token-refresh <code>POST</code> to <code>/v1/api/token</code>.</p>
+<p>The <strong>first</strong> <code>401</code> does not result in an immediate failure. Instead, an attempt to refresh the access token is made, via a token-refresh <code>POST</code> to <code>/v1/api/token</code>.</p>
 </li>
 <li>
-<p><strong>If the refresh succeeds</strong> (token endpoint returns <code>200</code>): update the stored credentials (including the refresh token) and transparently retry the original request that failed with the <code>401</code>. The overall operation then completes normally using the retried request's successful response. The caller observes success, not an error.</p>
+<p><strong>If the refresh succeeds</strong> (the token endpoint returns <code>200</code>): the stored credentials — the refresh token included — are updated, and the original request, the one that failed with the <code>401</code>, undergoes a transparent retry. The overall operation then completes normally, using the successful response of the retried request. Success, rather than an error, is what the caller observes.</p>
 </li>
 <li>
-<p><strong>If the refresh itself returns <code>401</code></strong> (refresh unsuccessful): raise <code>InvalidCredentialsError</code>. When a refresh attempt is unsuccessful, an informational log record must be emitted whose message contains the word <code>&quot;unsuccessful&quot;</code>. Exactly one such log record is emitted per unsuccessful refresh attempt. Logging must occur at the <code>INFO</code> level (i.e., visible when the logger is configured for <code>INFO</code>).</p>
+<p><strong>If the refresh itself returns <code>401</code></strong> (an unsuccessful refresh): <code>InvalidCredentialsError</code> is raised. Whenever a refresh attempt is unsuccessful, an informational log record must be emitted — one whose message contains the word <code>&quot;unsuccessful&quot;</code>. Exactly one log record of this kind is emitted for each unsuccessful refresh attempt. The <code>INFO</code> level is where logging must occur (i.e., the record is visible when the logger has been configured for <code>INFO</code>).</p>
 </li>
 </ol>
 <h5>Dirty Flag Semantics — <code>refresh_token_dirty</code></h5>
-<p><code>refresh_token_dirty</code> is a boolean indicating that the refresh token has been updated (rotated) since it was last read, and that the consumer has not yet consumed the new value:</p>
+<p><code>refresh_token_dirty</code> is a boolean that signals two things: since it was last read, the refresh token has been updated (rotated), and the new value has yet to be consumed by the consumer:</p>
 <ul>
-<li>Immediately after a successful automatic token refresh has replaced the stored refresh token, <code>refresh_token_dirty</code> evaluates to <code>True</code>.</li>
-<li>Reading the <code>refresh_token</code> property consumes/acknowledges the new value: after <code>refresh_token</code> has been read, <code>refresh_token_dirty</code> evaluates to <code>False</code>.</li>
+<li>The stored refresh token gets replaced by a successful automatic token refresh; immediately after that, <code>refresh_token_dirty</code> evaluates to <code>True</code>.</li>
+<li>A read of the <code>refresh_token</code> property is what consumes/acknowledges the new value: <code>refresh_token_dirty</code> evaluates to <code>False</code> after <code>refresh_token</code> has been read.</li>
 </ul>
-<p>Concretely, the following sequence must hold after a successful automatic refresh triggered by a 401:</p>
+<p>To make this concrete, here is the sequence that must hold once a 401 has triggered a successful automatic refresh:</p>
 <ol>
-<li><code>refresh_token_dirty</code> is <code>True</code>.</li>
-<li>Reading <code>refresh_token</code> returns the newly issued refresh token value.</li>
-<li>Immediately after that read, <code>refresh_token_dirty</code> is <code>False</code>.</li>
+<li>The value of <code>refresh_token_dirty</code> is <code>True</code>.</li>
+<li>A read of <code>refresh_token</code> returns the refresh token value that was newly issued.</li>
+<li><code>refresh_token_dirty</code> is <code>False</code> immediately after that read.</li>
 </ol>
-<h4>Summary of Request Flow for a Successful Recovery</h4>
+<h4>Summary of the Request Flow for a Successful Recovery</h4>
 <ol>
-<li>Authenticated <code>GET</code> returns <code>401</code>.</li>
-<li>Client performs token-refresh <code>POST</code> → <code>200</code> with new credentials.</li>
-<li>Client performs auth-check <code>GET</code> → <code>200</code>.</li>
-<li>Client retries the original authenticated request → <code>200</code>.</li>
-<li>Operation returns successfully; refresh token has been rotated and the dirty flag is set until read.</li>
+<li>A <code>401</code> is returned by an authenticated <code>GET</code>.</li>
+<li>The client carries out a token-refresh <code>POST</code> → <code>200</code> with new credentials.</li>
+<li>The client carries out an auth-check <code>GET</code> → <code>200</code>.</li>
+<li>The original authenticated request is retried by the client → <code>200</code>.</li>
+<li>The operation returns successfully; the refresh token has been rotated, and the dirty flag remains set until read.</li>
 </ol>
 <h4>Notes</h4>
 <ul>
-<li>Do not add retry behavior beyond a single refresh attempt per initial <code>401</code>.</li>
-<li>The behavior applies uniformly to authenticated data requests made while fulfilling <code>get_systems()</code> and <code>system.update()</code>.</li>
+<li>Beyond a single refresh attempt per initial <code>401</code>, do not add retry behavior.</li>
+<li>The authenticated data requests made in the course of fulfilling <code>get_systems()</code> and <code>system.update()</code> are covered by this behavior uniformly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">This task concerns a Python library (simplipy) for interacting with the SimpliSafe home security API.</span>
-        <span class="spec-meta muted">745 words · source specification
+        <span class="spec-title">This task centers on simplipy, a Python library for interacting with the SimpliSafe home security API.</span>
+        <span class="spec-meta muted">782 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>This task concerns a Python library (<code>simplipy</code>) for interacting with the SimpliSafe home security API. The library supports two hardware generations: V2 and V3 systems. You must add a set of new read-only properties to the V3 system representation, and ensure that fetching those properties requires an additional API call during system data retrieval and update.</p>
-<h4>Background: Existing API Surface</h4>
-<p>The library already exposes:</p>
+<p>This task centers on <code>simplipy</code>, a Python library for interacting with the SimpliSafe home security API. Two hardware generations are supported by the library: V2 and V3 systems. You must add a set of new read-only properties to the V3 system representation, and you must ensure that fetching those properties requires an additional API call during system data retrieval and update.</p>
+<h4>Background: API Surface Already Present</h4>
+<p>The following is already exposed by the library:</p>
 <ul>
-<li><code>simplipy.API</code> — an async client class with the async classmethods:
+<li><code>simplipy.API</code> — an async client class that provides the async classmethods:
 <ul>
 <li><code>API.login_via_credentials(email, password, websession)</code> → returns an <code>API</code> instance</li>
 <li><code>API.login_via_token(refresh_token, websession)</code> → returns an <code>API</code> instance</li>
 <li>and the async instance method <code>api.get_systems()</code> → returns a list of <code>System</code> objects.</li>
 </ul>
 </li>
-<li><code>simplipy.system.System</code> — represents a single security system, with:
+<li><code>simplipy.system.System</code> — models a single security system and has:
 <ul>
-<li><code>System(api, location_info_dict)</code> constructor</li>
-<li><code>async update()</code> method that refreshes the system's data by making API calls</li>
+<li>the constructor <code>System(api, location_info_dict)</code></li>
+<li>the method <code>async update()</code>, which refreshes the system's data by making API calls</li>
 <li>existing properties including <code>address</code>, <code>version</code>, <code>sensors</code> (a dict keyed by sensor serial string), etc.</li>
 </ul>
 </li>
 </ul>
-<p>V2 and V3 systems are distinguished by the <code>version</code> field in the subscription data (<code>2</code> vs <code>3</code>). The concrete <code>System</code> subtype is chosen automatically based on that version.</p>
-<h4>Required Change</h4>
-<p>When a V3 system's data is loaded (both at initial retrieval via <code>get_systems()</code> and on each call to <code>update()</code>), the library must additionally query the V3 settings endpoint:</p>
+<p>The <code>version</code> field in the subscription data (<code>2</code> vs <code>3</code>) is what distinguishes V2 from V3 systems. The concrete <code>System</code> subtype is chosen automatically according to that version.</p>
+<h4>The Required Change</h4>
+<p>When a V3 system's data is loaded (both at initial retrieval via <code>get_systems()</code> and on each call to <code>update()</code>), the library must, in addition, query the V3 settings endpoint:</p>
 <pre><code>GET https://api.simplisafe.com/v1/ss3/subscriptions/{subscription_id}/settings/pins
 </code></pre>
-<p>The JSON returned from this endpoint has the following relevant structure:</p>
+<p>The JSON that this endpoint returns has the following relevant structure:</p>
 <pre><code class="language-json">{
   &quot;settings&quot;: {
     &quot;normal&quot;: {
@@ -634,13 +634,13 @@ async def load_systems(email, password):
   }
 }
 </code></pre>
-<p>The V3 system must expose the following read-only properties, sourced from that response:</p>
+<p>The V3 system must expose these read-only properties, sourced from that response:</p>
 <table>
 <thead>
 <tr>
 <th>Property</th>
-<th>Source field</th>
-<th>Example value</th>
+<th>Origin field</th>
+<th>Sample value</th>
 </tr>
 </thead>
 <tbody>
@@ -716,79 +716,79 @@ async def load_systems(email, password):
 </tr>
 </tbody>
 </table>
-<p>Each property must return the raw value from the corresponding JSON field, with boolean fields (<code>light</code>, <code>rf_jamming</code>) preserved as Python booleans and integer fields as integers.</p>
-<h4>Behavioral Details / Constraints</h4>
+<p>Each property must return the raw value held in the corresponding JSON field, with the boolean fields (<code>light</code>, <code>rf_jamming</code>) preserved as Python booleans and the integer fields as integers.</p>
+<h4>Behavioral Details and Constraints</h4>
 <ol>
 <li>
-<p><strong>New API call ordering (V3):</strong> During both initial system retrieval and <code>update()</code>, a V3 system must call, in this order:</p>
+<p><strong>Ordering of the new API calls (V3):</strong> During both initial system retrieval and <code>update()</code>, a V3 system must call the following, in this order:</p>
 <ul>
 <li>the subscriptions endpoint,</li>
 <li>the sensors endpoint (<code>/v1/ss3/subscriptions/{subscription_id}/sensors</code>),</li>
 <li>the settings endpoint (<code>/v1/ss3/subscriptions/{subscription_id}/settings/pins</code>).</li>
 </ul>
-<p>The settings call is made <em>after</em> the sensors call.</p>
+<p>The settings call comes <em>after</em> the sensors call.</p>
 </li>
 <li>
-<p><strong>Unavailable feature handling (V3):</strong> If the settings endpoint (or any feature endpoint) is unavailable for the account's plan, the API responds with HTTP 403 and a JSON body of the form:</p>
+<p><strong>Handling of unavailable features (V3):</strong> If the settings endpoint (or any feature endpoint) is unavailable for the account's plan, the API responds with HTTP 403 and a JSON body of this form:</p>
 <pre><code class="language-json">{&quot;errorType&quot;: &quot;NoRemoteManagement&quot;, &quot;code&quot;: 403, &quot;message&quot;: &quot;Subscription 12345 does not support remote management&quot;}
 </code></pre>
-<p>When any feature endpoint returns such a 403 during <code>update()</code> or a state-change call, the library must not raise; instead it logs an informational message containing the substring <code>unavailable in plan</code> (one such log per unavailable endpoint). This preserves the existing behavior — the newly added settings request must participate in this same handling and must not cause <code>update()</code> to raise when the sensors endpoint is unavailable.</p>
+<p>When a 403 of this kind is returned by any feature endpoint during <code>update()</code> or a state-change call, the library must not raise; rather, it logs an informational message that contains the substring <code>unavailable in plan</code> (one such log per unavailable endpoint). This keeps the existing behavior intact — the settings request that this change adds must participate in this same handling and must not cause <code>update()</code> to raise when the sensors endpoint is unavailable.</p>
 </li>
 <li>
-<p><strong>These properties are V3-only.</strong> They are populated from the settings endpoint that only V3 systems query. V2 systems are unaffected by this change and continue to work exactly as before (V2 does not query this endpoint and does not expose these properties).</p>
+<p><strong>These properties exist only on V3.</strong> They are populated from the settings endpoint, which only V3 systems query. V2 systems are unaffected by this change and keep working exactly as before (V2 neither queries this endpoint nor exposes these properties).</p>
 </li>
 <li>
-<p><strong>Sensor counts and other existing behavior are unchanged.</strong> A V3 system's <code>sensors</code> dict continues to contain the same entries as before this change (21 sensors for the test data). V2 continues to expose 35 sensors.</p>
+<p><strong>Sensor counts and other existing behavior stay unchanged.</strong> A V3 system's <code>sensors</code> dict still contains the same entries as before this change (21 sensors for the test data). V2 continues to expose 35 sensors.</p>
 </li>
 </ol>
-<h4>Public API Summary (must exist for imports/calls to succeed)</h4>
+<h4>Summary of the Public API (must exist for imports/calls to succeed)</h4>
 <ul>
-<li><code>simplipy.API</code> with async classmethods <code>login_via_credentials(email, password, websession)</code> and <code>login_via_token(refresh_token, websession)</code>, and async instance method <code>get_systems()</code>.</li>
-<li><code>simplipy.system.System</code> (and its V3 concrete variant, chosen automatically) with:
+<li><code>simplipy.API</code>, which provides the async classmethods <code>login_via_credentials(email, password, websession)</code> and <code>login_via_token(refresh_token, websession)</code> plus the async instance method <code>get_systems()</code>.</li>
+<li><code>simplipy.system.System</code> (and its V3 concrete variant, chosen automatically), which comes with:
 <ul>
-<li>constructor <code>System(api, location_info_dict)</code></li>
-<li>async method <code>update()</code></li>
+<li>the constructor <code>System(api, location_info_dict)</code></li>
+<li>the async method <code>update()</code></li>
 <li>the fourteen new read-only properties listed in the table above, available on V3 systems.</li>
 </ul>
 </li>
 </ul>
-<p>The properties must be accessible on the system object returned by <code>get_systems()</code> for a V3 account without requiring an explicit <code>update()</code> call first (initial retrieval already fetches settings).</p>
+<p>For a V3 account, the properties must be accessible on the system object returned by <code>get_systems()</code> without requiring an explicit <code>update()</code> call first (the initial retrieval already fetches settings).</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">PIN Management for SimpliSafe Systems</span>
-        <span class="spec-meta muted">942 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">PIN management capabilities are to be added to the System classes of the simplipy package.</span>
+        <span class="spec-meta muted">1056 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: PIN Management for SimpliSafe Systems</h3>
+      <div class="spec-body"><h3>SimpliSafe Systems: PIN Management Task Specification</h3>
 <h4>Overview</h4>
-<p>Add PIN management capabilities to the <code>System</code> classes in the <code>simplipy</code> package. A &quot;PIN&quot; is a numeric access code associated with a SimpliSafe security system. Each PIN has a <strong>label</strong> (a human-readable name, or a reserved keyword) and a <strong>value</strong> (the numeric code). This functionality must work for both V2 and V3 system implementations, which use different API endpoints and payload structures.</p>
-<h4>New Public API</h4>
+<p>PIN management capabilities are to be added to the <code>System</code> classes of the <code>simplipy</code> package. A &quot;PIN&quot; is a numeric access code belonging to a SimpliSafe security system, and each PIN pairs a <strong>label</strong> (a human-readable name, or a reserved keyword) with a <strong>value</strong> (the numeric code). Both V2 and V3 system implementations must be supported by this functionality; the two versions rely on different API endpoints and payload structures.</p>
+<h4>Public API Additions</h4>
 <h5>Error Class</h5>
-<p>Add a new exception class <code>PinError</code> to the module <code>simplipy.errors</code>. It must be importable as:</p>
+<p>A new exception class, <code>PinError</code>, is to be added to the module <code>simplipy.errors</code>. It must be importable this way:</p>
 <pre><code class="language-python">from simplipy.errors import PinError
 </code></pre>
-<p>It should derive from the existing base exception used elsewhere in that module.</p>
-<h5>System Methods</h5>
-<p>Add the following <code>async</code> methods to the system class(es) (the object returned by <code>api.get_systems()</code>), available on both V2 and V3 systems:</p>
+<p>It should derive from the base exception that is already used elsewhere in that module.</p>
+<h5>Methods on the System</h5>
+<p>The system class(es) — the object returned by <code>api.get_systems()</code> — are to be extended with the following <code>async</code> methods, and both V2 and V3 systems have them available:</p>
 <pre><code class="language-python">async def get_pins(self) -&gt; dict
 async def set_pin(self, label: str, value: str) -&gt; None
 async def remove_pin(self, pin_id_or_label: str) -&gt; None
 </code></pre>
-<h4>Behavior: <code>get_pins</code></h4>
-<p>Returns a dictionary mapping PIN labels (<code>str</code>) to PIN values (<code>str</code>).</p>
+<h4>Behavior of <code>get_pins</code></h4>
+<p>What the method returns is a dictionary that maps PIN labels (<code>str</code>) to PIN values (<code>str</code>).</p>
 <ul>
-<li>Only PINs that actually have a non-empty value are included. Entries whose value is an empty string must be excluded from the returned dictionary.</li>
-<li>Two PINs are always present and use fixed reserved labels: <code>&quot;master&quot;</code> and <code>&quot;duress&quot;</code>.</li>
-<li>All other PINs are keyed by their configured name.</li>
+<li>The result contains only PINs that actually have a non-empty value, and any entry whose value is an empty string must be excluded from the returned dictionary.</li>
+<li>Two PINs are invariably present, under the fixed reserved labels <code>&quot;master&quot;</code> and <code>&quot;duress&quot;</code>.</li>
+<li>All remaining PINs are keyed under their configured name.</li>
 </ul>
-<h5>V2 data source</h5>
-<p>For V2 systems, PIN data is fetched via a GET request to:</p>
+<h5>Data source: V2</h5>
+<p>On V2 systems, the PIN data is fetched by means of a GET request to:</p>
 <pre><code>/v1/subscriptions/&lt;SUBSCRIPTION_ID&gt;/pins
 </code></pre>
-<p>The response body has the shape:</p>
+<p>The body of the response looks like this:</p>
 <pre><code class="language-json">{
   &quot;pins&quot;: {
     &quot;pin1&quot;: {&quot;value&quot;: &quot;1234&quot;},
@@ -799,19 +799,19 @@ async def remove_pin(self, pin_id_or_label: str) -&gt; None
   &quot;lastUpdated&quot;: 1563208180
 }
 </code></pre>
-<p>Mapping rules for V2:</p>
+<p>How V2 entries are mapped:</p>
 <ul>
-<li>The entry keyed <code>&quot;pin1&quot;</code> (which has no <code>name</code> field) maps to the reserved label <code>&quot;master&quot;</code>.</li>
-<li>The entry keyed <code>&quot;duress&quot;</code> maps to the reserved label <code>&quot;duress&quot;</code>.</li>
-<li>All other entries (<code>pin2</code>, <code>pin3</code>, …) are keyed by their <code>name</code> field.</li>
-<li>Any entry with an empty <code>value</code> is omitted.</li>
+<li>The reserved label <code>&quot;master&quot;</code> comes from the entry keyed <code>&quot;pin1&quot;</code> — an entry that has no <code>name</code> field.</li>
+<li>The reserved label <code>&quot;duress&quot;</code> comes from the entry keyed <code>&quot;duress&quot;</code>.</li>
+<li>Every other entry (<code>pin2</code>, <code>pin3</code>, …) takes its key from its <code>name</code> field.</li>
+<li>Any entry that has an empty <code>value</code> is left out.</li>
 </ul>
-<p>Example: the sample above yields <code>{&quot;master&quot;: &quot;1234&quot;, &quot;duress&quot;: &quot;9876&quot;, &quot;Mother&quot;: &quot;3456&quot;}</code>.</p>
-<h5>V3 data source</h5>
-<p>For V3 systems, PIN data is fetched via a GET request to:</p>
+<p>Example: applied to the sample above, the mapping produces <code>{&quot;master&quot;: &quot;1234&quot;, &quot;duress&quot;: &quot;9876&quot;, &quot;Mother&quot;: &quot;3456&quot;}</code>.</p>
+<h5>Data source: V3</h5>
+<p>On V3 systems, the PIN data is fetched by means of a GET request to:</p>
 <pre><code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins
 </code></pre>
-<p>The relevant portion of the response body has the shape:</p>
+<p>Here is the relevant portion of the response body:</p>
 <pre><code class="language-json">{
   &quot;settings&quot;: {
     &quot;pins&quot;: {
@@ -825,144 +825,145 @@ async def remove_pin(self, pin_id_or_label: str) -&gt; None
   }
 }
 </code></pre>
-<p>Mapping rules for V3:</p>
+<p>How V3 entries are mapped:</p>
 <ul>
-<li><code>settings.pins.master.pin</code> maps to the reserved label <code>&quot;master&quot;</code>.</li>
-<li><code>settings.pins.duress.pin</code> maps to the reserved label <code>&quot;duress&quot;</code>.</li>
-<li>Each entry in <code>settings.pins.users</code> is keyed by its <code>name</code> field with value taken from its <code>pin</code> field.</li>
-<li>Any user entry with an empty <code>pin</code> value is omitted.</li>
+<li>The reserved label <code>&quot;master&quot;</code> corresponds to <code>settings.pins.master.pin</code>.</li>
+<li>The reserved label <code>&quot;duress&quot;</code> corresponds to <code>settings.pins.duress.pin</code>.</li>
+<li>Within <code>settings.pins.users</code>, every entry is keyed by its <code>name</code> field, and its value comes from its <code>pin</code> field.</li>
+<li>Any user entry whose <code>pin</code> value is empty is left out.</li>
 </ul>
-<p>Example: the sample above yields <code>{&quot;master&quot;: &quot;1234&quot;, &quot;duress&quot;: &quot;9876&quot;, &quot;Test 1&quot;: &quot;3456&quot;}</code>.</p>
-<h4>Behavior: <code>set_pin</code></h4>
-<p>Signature: <code>set_pin(self, label, value)</code>. Creates a new named PIN or updates an existing one, then persists it to the server.</p>
-<p>Validation (checked before persisting; raise <code>PinError</code> and do not persist on failure):</p>
+<p>Example: applied to the sample above, the mapping produces <code>{&quot;master&quot;: &quot;1234&quot;, &quot;duress&quot;: &quot;9876&quot;, &quot;Test 1&quot;: &quot;3456&quot;}</code>.</p>
+<h4>Behavior of <code>set_pin</code></h4>
+<p>Signature: <code>set_pin(self, label, value)</code>. The method either creates a named PIN that does not yet exist or brings an existing one up to date, and the PIN is then persisted to the server.</p>
+<p>The validation checks are performed before persisting; if one of them fails, <code>PinError</code> is raised and nothing is persisted:</p>
 <ol>
 <li>
-<p><strong>Duplicate value.</strong> If the requested <code>value</code> already exists among the current PINs, raise <code>PinError</code>. The exception message must contain the phrase <code>Refusing to create duplicate PIN</code>.</p>
+<p><strong>Duplicate value.</strong> When the requested <code>value</code> is already present among the current PINs, raise <code>PinError</code>. The exception message must include the phrase <code>Refusing to create duplicate PIN</code>.</p>
 </li>
 <li>
-<p><strong>Maximum user PINs (V3 only).</strong> V3 systems support a fixed maximum number of user-defined (non-reserved) PINs. There are exactly <strong>4</strong> user PIN slots. If creating a new named PIN would exceed the number of available user slots (i.e. all 4 slots already hold non-empty PINs), raise <code>PinError</code>. The exception message must contain the phrase <code>Refusing to create more than</code>.</p>
+<p><strong>Maximum user PINs (V3 only).</strong> A fixed maximum applies on V3 systems to user-defined (non-reserved) PINs: exactly <strong>4</strong> user PIN slots exist. If creating a new named PIN would exceed the number of available user slots — that is, if all 4 slots already hold non-empty PINs — raise <code>PinError</code>. The exception message must include the phrase <code>Refusing to create more than</code>.</p>
 </li>
 </ol>
-<p>If validation passes, persist the change by issuing a POST request to the same PINs endpoint used by the corresponding system version:</p>
+<p>Once validation succeeds, the change is persisted by sending a POST request to the same PINs endpoint the corresponding system version uses:</p>
 <ul>
 <li>V2: POST to <code>/v1/subscriptions/&lt;SUBSCRIPTION_ID&gt;/pins</code></li>
 <li>V3: POST to <code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code></li>
 </ul>
-<p>The method returns <code>None</code>. It does not need to return the updated PIN set; a subsequent <code>get_pins()</code> call reflects the change by re-fetching from the server.</p>
-<p>Note: <code>set_pin</code> must fetch the current PIN state (a GET request) as part of its operation, in addition to the persisting POST request.</p>
-<h4>Behavior: <code>remove_pin</code></h4>
-<p>Signature: <code>remove_pin(self, pin_id_or_label)</code>. Removes an existing named PIN, identified by its label, then persists the removal to the server.</p>
-<p>Validation (checked before persisting; raise <code>PinError</code> and do not persist on failure):</p>
+<p>The method returns <code>None</code>. The updated PIN set does not need to be returned; a later <code>get_pins()</code> call reflects the change, since it re-fetches from the server.</p>
+<p>Note: over and above the persisting POST request, <code>set_pin</code> must fetch the current PIN state (a GET request) while carrying out its operation.</p>
+<h4>Behavior of <code>remove_pin</code></h4>
+<p>Signature: <code>remove_pin(self, pin_id_or_label)</code>. The method takes away a named PIN that exists — the label identifies it — and the removal is then persisted to the server.</p>
+<p>Validation runs before anything gets persisted; on a failed check, <code>PinError</code> is raised and nothing is persisted:</p>
 <ol>
 <li>
-<p><strong>Reserved PIN.</strong> The labels <code>&quot;master&quot;</code> and <code>&quot;duress&quot;</code> are reserved and may not be removed. Attempting to remove either raises <code>PinError</code>. The exception message must contain the phrase <code>Refusing to delete reserved PIN</code>.</p>
+<p><strong>Reserved PIN.</strong> The labels <code>&quot;master&quot;</code> and <code>&quot;duress&quot;</code> count as reserved and may not be removed; an attempt to remove either of them raises <code>PinError</code>. The exception message must include the phrase <code>Refusing to delete reserved PIN</code>.</p>
 </li>
 <li>
-<p><strong>Nonexistent PIN.</strong> If the provided label does not correspond to any current PIN, raise <code>PinError</code>. The exception message must contain the phrase <code>Refusing to delete nonexistent PIN</code>.</p>
+<p><strong>Nonexistent PIN.</strong> When the given label matches no current PIN, raise <code>PinError</code>. The exception message must include the phrase <code>Refusing to delete nonexistent PIN</code>.</p>
 </li>
 </ol>
-<p>If validation passes, persist the removal by issuing a POST request to the same PINs endpoint used by the corresponding system version (see <code>set_pin</code> above).</p>
-<p>The method returns <code>None</code>. A subsequent <code>get_pins()</code> call reflects the removal by re-fetching from the server (a removed named PIN's slot becomes empty and is therefore excluded from the result).</p>
-<p>Note: <code>remove_pin</code> must fetch the current PIN state (a GET request) as part of its operation, in addition to the persisting POST request.</p>
-<h4>Behavior: System update resilience</h4>
-<p>During a full system update (<code>system.update()</code>), the V3 system retrieves settings from the <code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code> endpoint as one of its data-fetching steps. If that settings request fails with a server error (HTTP 500), the update must not raise; instead the failure must be handled gracefully. A log record must be emitted at <strong>WARNING level or higher</strong>, and its message must contain the phrase <code>Error while retrieving settings</code>. The overall <code>update()</code> call must complete successfully despite this failure.</p>
+<p>Once validation succeeds, the removal is persisted by sending a POST request to the same PINs endpoint the corresponding system version uses (see <code>set_pin</code> above).</p>
+<p>The method returns <code>None</code>. A later <code>get_pins()</code> call reflects the removal, since it re-fetches from the server (the slot of a removed named PIN ends up empty and is therefore left out of the result).</p>
+<p>Note: over and above the persisting POST request, <code>remove_pin</code> must fetch the current PIN state (a GET request) while carrying out its operation.</p>
+<h4>System update resilience</h4>
+<p>One of the data-fetching steps the V3 system carries out during a full system update (<code>system.update()</code>) is retrieving settings from the <code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code> endpoint. Should that settings request fail with a server error (HTTP 500), the update must not raise, and the failure must instead be handled gracefully. A log record must be emitted at <strong>WARNING level or higher</strong>, and the phrase <code>Error while retrieving settings</code> must appear in the message of that record. Despite this failure, the <code>update()</code> call as a whole must complete successfully.</p>
 <h4>Notes</h4>
 <ul>
-<li>All new methods are asynchronous and use the system's existing authenticated request mechanism.</li>
-<li>PIN values are strings throughout (e.g. <code>&quot;1234&quot;</code>), never integers.</li>
+<li>All of the new methods are asynchronous and use the existing authenticated request mechanism of the system.</li>
+<li>PIN values are strings everywhere (e.g. <code>&quot;1234&quot;</code>), never integers.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Change the return type of the get_systems method on the API class so that it returns a dictionary keyed by system ID, rather than a list.</span>
-        <span class="spec-meta muted">322 words · source specification
+        <span class="spec-title">Alter the return type of the get_systems method on the API class so that the method returns a dictionary keyed by system ID rather than a list.</span>
+        <span class="spec-meta muted">345 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Change the return type of the <code>get_systems</code> method on the <code>API</code> class so that it returns a dictionary keyed by system ID, rather than a list.</p>
-<h4>Public API Surface</h4>
-<p>The <code>API</code> class is importable from the <code>simplipy</code> package:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Alter the return type of the <code>get_systems</code> method on the <code>API</code> class so that the method returns a dictionary keyed by system ID rather than a list.</p>
+<h4>Public API</h4>
+<p>The <code>API</code> class can be imported from the <code>simplipy</code> package:</p>
 <pre><code class="language-python">from simplipy import API
 </code></pre>
-<p>The following async factory methods on <code>API</code> remain in place and are used to obtain an authenticated <code>API</code> instance:</p>
+<p>The async factory methods on <code>API</code> listed below stay in place and are used to obtain an authenticated <code>API</code> instance:</p>
 <ul>
 <li><code>API.login_via_credentials(email: str, password: str, websession)</code> → awaitable, returns an <code>API</code> instance</li>
 <li><code>API.login_via_token(refresh_token: str, websession)</code> → awaitable, returns an <code>API</code> instance</li>
 </ul>
-<h4>Required Change</h4>
-<p>The instance method:</p>
+<h4>Required Modification</h4>
+<p>The instance method below:</p>
 <pre><code class="language-python">async def get_systems(self) -&gt; Dict[int, System]
 </code></pre>
-<p>must return a <strong>dictionary</strong> whose:</p>
+<p>must return a <strong>dictionary</strong> in which:</p>
 <ul>
-<li><strong>keys</strong> are the integer system IDs (i.e., the <code>system_id</code> attribute value of each system), and</li>
-<li><strong>values</strong> are the corresponding system objects.</li>
+<li><strong>keys</strong> are the integer system IDs (that is, the value of each system's <code>system_id</code> attribute), and</li>
+<li><strong>values</strong> are the matching system objects.</li>
 </ul>
-<h5>Behavior details</h5>
+<h5>Behavioral Details</h5>
 <ul>
 <li>
-<p>Each system object in the returned dictionary retains all previously-available attributes and methods, including at minimum:</p>
+<p>Each system object in the returned dictionary keeps all attributes and methods that were previously available, including at minimum:</p>
 <ul>
-<li><code>system_id</code> — the integer system ID; this value equals the dictionary key under which the system is stored.</li>
-<li><code>serial</code> — the system's serial number.</li>
-<li><code>sensors</code> — a mapping of the system's sensors.</li>
-<li><code>api</code> — a reference to the owning <code>API</code> object (exposing, among others, <code>_access_token</code>).</li>
-<li>all methods (<code>update</code>, <code>set_away</code>, <code>set_home</code>, <code>set_off</code>, <code>get_events</code>, <code>get_pins</code>, <code>set_pin</code>, <code>remove_pin</code>, etc.) unchanged.</li>
+<li><code>system_id</code> — the integer system ID; this value equals the dictionary key that the system is stored under.</li>
+<li><code>serial</code> — the serial number of the system.</li>
+<li><code>sensors</code> — a mapping of the sensors belonging to the system.</li>
+<li><code>api</code> — a reference to the <code>API</code> object that owns it (exposing, among others, <code>_access_token</code>).</li>
+<li>all of the methods (<code>update</code>, <code>set_away</code>, <code>set_home</code>, <code>set_off</code>, <code>get_events</code>, <code>get_pins</code>, <code>set_pin</code>, <code>remove_pin</code>, etc.) unchanged.</li>
 </ul>
 </li>
 <li>
-<p>The number of entries in the returned dictionary equals the number of systems associated with the authenticated account. For the accounts exercised, this is exactly one system.</p>
+<p>The number of entries in the returned dictionary is equal to the number of systems associated with the authenticated account. For the accounts exercised, that number is exactly one system.</p>
 </li>
 <li>
-<p>Looking up a system by its integer system ID (<code>systems[system_id]</code>) must return that system object.</p>
+<p>Looking up a system via its integer system ID (<code>systems[system_id]</code>) must return that system object.</p>
 </li>
 </ul>
-<h4>Constraints</h4>
+<h4>Restrictions</h4>
 <ul>
-<li>This change affects only the return type/shape of <code>get_systems</code>. All other behavior of the systems and their nested objects (sensors, PINs, events, state changes, updates, token refresh handling) remains exactly as before.</li>
-<li>Callers previously relied on <code>get_systems()</code> returning a list; that contract is replaced entirely by the dictionary contract described above.</li>
+<li>This change modifies only the return type/shape of <code>get_systems</code>. All other behavior of the systems and their nested objects (sensors, PINs, events, state changes, updates, token refresh handling) stays exactly as it was before.</li>
+<li>Callers previously depended on <code>get_systems()</code> returning a list; that contract is replaced entirely by the dictionary contract described above.</li>
 </ul>
-<h4>Version</h4>
-<p>Bump the package version to <code>3.5.0</code>.</p>
+<h4>Package Version</h4>
+<p>Raise the package version to <code>3.5.0</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
         <span class="spec-title">PIN Validation and System Properties</span>
-        <span class="spec-meta muted">497 words · source specification
+        <span class="spec-meta muted">535 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task Specification: PIN Validation and System Properties</h3>
 <h4>Overview</h4>
-<p>You are working on an asynchronous Python client library for interacting with a home security system service. This library authenticates against a remote API and exposes &quot;system&quot; objects representing individual security systems (available in version 2 and version 3 variants). Your task is to add input validation to the PIN-setting functionality.</p>
+<p>You are working on an asynchronous Python client library that interacts with a home security system service. The library authenticates against a remote API and exposes &quot;system&quot; objects, each of which represents an individual security system (available in version 2 and version 3 variants). You are to add input validation to the PIN-setting functionality.</p>
 <h4>Public API Surface</h4>
-<h5>Authentication and system retrieval</h5>
-<p>The library exposes an <code>API</code> class (importable from the library's public API module) with:</p>
+<h5>Authenticating and retrieving systems</h5>
+<p>The library exposes an <code>API</code> class (importable from the library's public API module) that has:</p>
 <ul>
-<li>An async classmethod <code>login_via_credentials(email: str, password: str, websession)</code> that authenticates and returns an <code>API</code> instance. It accepts an <code>aiohttp.ClientSession</code>.</li>
-<li>An async method <code>get_systems()</code> that returns a mapping (dict-like) keyed by system ID. Each value is a system object.</li>
+<li>An async classmethod <code>login_via_credentials(email: str, password: str, websession)</code> that carries out authentication and returns an <code>API</code> instance. The classmethod accepts an <code>aiohttp.ClientSession</code>.</li>
+<li>An async method <code>get_systems()</code> that returns a dict-like mapping keyed by system ID. Each value is a system object.</li>
 </ul>
-<h5>System state enum</h5>
-<p>An enum <code>SystemStates</code> must be importable, and must include a member <code>off</code>.</p>
-<h5>PIN error type</h5>
-<p>A custom exception class <code>PinError</code> must be importable from the library's public API. It must be raisable and its stringified form must contain a descriptive message (see validation rules below).</p>
-<h4>Required Behavior</h4>
-<h5>System object properties</h5>
-<p>Each system object exposes read-only properties. For a <strong>version 2</strong> system, the following properties must be available and return the values determined by the underlying data:</p>
+<h5>System state enumeration</h5>
+<p>An enum <code>SystemStates</code> must be importable, and it must include a member <code>off</code>.</p>
+<h5>The PIN error type</h5>
+<p>A custom exception class, <code>PinError</code>, must be importable from the library's public API. It must be raisable, and its stringified form must contain a descriptive message (see the validation rules below).</p>
+<h4>Behavior requirements</h4>
+<h5>Properties of system objects</h5>
+<p>Read-only properties are exposed by each system object. For a <strong>version 2</strong> system, the following properties must be available and must return the values determined by the underlying data:</p>
 <ul>
-<li><code>address</code> — the system's address string</li>
-<li><code>alarm_going_off</code> — a boolean indicating whether the alarm is currently sounding</li>
-<li><code>serial</code> — the system's serial number</li>
-<li><code>state</code> — a <code>SystemStates</code> enum value (e.g. <code>SystemStates.off</code>)</li>
-<li><code>system_id</code> — the system's identifier</li>
+<li><code>address</code> — the address string of the system</li>
+<li><code>alarm_going_off</code> — a boolean that indicates whether the alarm is currently sounding</li>
+<li><code>serial</code> — the serial number of the system</li>
+<li><code>state</code> — a value of the <code>SystemStates</code> enum (e.g. <code>SystemStates.off</code>)</li>
+<li><code>system_id</code> — the identifier of the system</li>
 <li><code>temperature</code> — an integer temperature reading</li>
-<li><code>version</code> — an integer equal to <code>2</code> for a v2 system</li>
+<li><code>version</code> — an integer that is equal to <code>2</code> for a v2 system</li>
 </ul>
-<p>For a <strong>version 3</strong> system, in addition to the base properties, the following properties must be available:</p>
+<p>For a <strong>version 3</strong> system, the following properties must be available in addition to the base properties:</p>
 <ul>
 <li><code>alarm_duration</code> — int</li>
 <li><code>alarm_volume</code> — int</li>
@@ -979,159 +980,160 @@ async def remove_pin(self, pin_id_or_label: str) -&gt; None
 <li><code>wifi_ssid</code> — str</li>
 <li><code>wifi_strength</code> — int</li>
 </ul>
-<h5>Setting a PIN</h5>
-<p>Each system object must expose an async method:</p>
+<h5>PIN setting</h5>
+<p>An async method must be exposed by each system object:</p>
 <pre><code>set_pin(label: str, pin: str)
 </code></pre>
-<p>where <code>label</code> is a human-readable name for the PIN and <code>pin</code> is the PIN value to set.</p>
-<p>Before performing any work, <code>set_pin</code> must validate the <code>pin</code> argument:</p>
+<p>where <code>label</code> is a human-readable name for the PIN and <code>pin</code> is the PIN value that is to be set.</p>
+<p><code>set_pin</code> must validate the <code>pin</code> argument before it performs any work:</p>
 <ol>
 <li>
-<p><strong>Non-numeric PINs</strong> — If <code>pin</code> contains any character that is not a digit, <code>set_pin</code> must raise <code>PinError</code>. The exception message must contain the phrase <code>PINs can only contain numbers</code>.</p>
+<p><strong>Non-numeric PINs</strong> — If any character of <code>pin</code> is not a digit, <code>set_pin</code> must raise <code>PinError</code>. The message of the exception must contain the phrase <code>PINs can only contain numbers</code>.</p>
 </li>
 <li>
-<p><strong>Wrong-length PINs</strong> — If <code>pin</code> consists only of digits but is not exactly 4 characters long, <code>set_pin</code> must raise <code>PinError</code>. The exception message must contain the phrase <code>digits long</code>.</p>
+<p><strong>Wrong-length PINs</strong> — If <code>pin</code> is composed only of digits but is not exactly 4 characters long, <code>set_pin</code> must raise <code>PinError</code>. The message of the exception must contain the phrase <code>digits long</code>.</p>
 </li>
 </ol>
-<p>These validations apply to both v2 and v3 systems. Validation must occur before any remote request would be issued, so an invalid PIN never reaches the backend.</p>
-<p>A PIN that is exactly 4 numeric characters is valid and must proceed with the normal set-PIN operation (existing behavior for valid PINs is unchanged).</p>
+<p>Both v2 and v3 systems are subject to these validations. Validation must take place before any remote request would be issued, so an invalid PIN never reaches the backend.</p>
+<p>A PIN that consists of exactly 4 numeric characters is valid and must proceed with the normal set-PIN operation (the existing behavior for valid PINs is unchanged).</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Expose the existing package API as simplipy.API.</span>
-        <span class="spec-meta muted">137 words · source specification
+        <span class="spec-title">The existing package API is to be exposed as simplipy.API.</span>
+        <span class="spec-meta muted">163 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add latest-system-event retrieval</h4>
-<p>Expose the existing package API as <code>simplipy.API</code>.</p>
-<p>A system object returned from:</p>
+      <div class="spec-body"><h4>Add retrieval of the latest system event</h4>
+<p>The existing package API is to be exposed as <code>simplipy.API</code>.</p>
+<p>A system object that is returned from the following code:</p>
 <pre><code class="language-python">api = await API.login_via_credentials(email, password, websession)
 systems = await api.get_systems()
 system = systems[system_id]
 </code></pre>
-<p>must provide this public asynchronous method:</p>
+<p>must provide the following public asynchronous method:</p>
 <pre><code class="language-python">async def get_latest_event(self) -&gt; dict:
     ...
 </code></pre>
-<p>Calling <code>await system.get_latest_event()</code> must:</p>
+<p>A call to <code>await system.get_latest_event()</code> must:</p>
 <ul>
 <li>
-<p>Perform a <code>GET</code> request to:</p>
+<p>Issue a <code>GET</code> request to:</p>
 <pre><code class="language-text">https://api.simplisafe.com/v1/subscriptions/{subscription_id}/events
 </code></pre>
-<p>using the subscription ID associated with that system.</p>
+<p>making use of the subscription ID that is associated with that system.</p>
 </li>
 <li>
-<p>Handle an event response containing a top-level <code>events</code> array.</p>
+<p>Handle an event response that contains a top-level <code>events</code> array.</p>
 </li>
 <li>
-<p>Return the event mapping representing the latest event, rather than the surrounding response object or an event list.</p>
+<p>Return the event mapping that represents the latest event, instead of the surrounding response object or an event list.</p>
 </li>
 </ul>
-<p>For example, when the <code>events</code> array contains an event with:</p>
+<p>For instance, if the <code>events</code> array contains an event with:</p>
 <pre><code class="language-python">{&quot;eventId&quot;: 1234567890, ...}
 </code></pre>
-<p>the returned dictionary must expose:</p>
+<p>then the dictionary that is returned must expose:</p>
 <pre><code class="language-python">latest_event[&quot;eventId&quot;] == 1234567890
 </code></pre>
-<p>The method takes no caller-supplied arguments. No additional empty-response or error behavior is required by this change.</p>
+<p>The method does not take any arguments from the caller. This change requires no additional empty-response or error behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">You are modifying a Python library (simplipy) that provides an async client for interacting with the SimpliSafe security system HTTP API.</span>
-        <span class="spec-meta muted">609 words · source specification
+        <span class="spec-title">In this task you are modifying a Python library (simplipy) that offers an async client for communicating with the SimpliSafe security system HTTP API.</span>
+        <span class="spec-meta muted">659 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are modifying a Python library (<code>simplipy</code>) that provides an async client for interacting with the SimpliSafe security system HTTP API. The change concerns two things: (1) the return type of the method that retrieves the user's systems, and (2) removing the retrieval of system &quot;settings/pins&quot; data (and everything derived from it) from the system update flow.</p>
-<h4>Public API Surface</h4>
-<p>The following imports and calls must continue to work exactly as described:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>In this task you are modifying a Python library (<code>simplipy</code>) that offers an async client for communicating with the SimpliSafe security system HTTP API. This change covers two things: (1) the return type of the method that fetches the user's systems, and (2) taking the retrieval of system &quot;settings/pins&quot; data (and everything derived from it) out of the system update flow.</p>
+<h4>Public API Interface</h4>
+<p>The imports and calls listed below must keep working exactly as described:</p>
 <ul>
 <li><code>from simplipy import API</code></li>
-<li><code>API.login_via_credentials(email, password, websession)</code> — async classmethod returning an <code>API</code> instance.</li>
-<li><code>API.login_via_token(refresh_token, websession)</code> — async classmethod returning an <code>API</code> instance.</li>
-<li><code>API.get_systems()</code> — async method (see behavior change below).</li>
+<li><code>API.login_via_credentials(email, password, websession)</code> — an async classmethod that returns an <code>API</code> instance.</li>
+<li><code>API.login_via_token(refresh_token, websession)</code> — an async classmethod that returns an <code>API</code> instance.</li>
+<li><code>API.get_systems()</code> — an async method (see the behavior change below).</li>
 <li><code>from simplipy.system import System, SystemStates</code></li>
 <li><code>from simplipy.sensor import SensorTypes</code></li>
 <li><code>from simplipy.errors import SimplipyError</code></li>
 </ul>
-<h4>Required Behavior Change 1: <code>API.get_systems()</code> returns a list</h4>
-<p><code>API.get_systems()</code> must return a <strong>list</strong> of <code>System</code> objects, not a mapping/dict keyed by system ID.</p>
+<h4>Required Behavior Change 1: <code>API.get_systems()</code> Returns a List</h4>
+<p><code>API.get_systems()</code> must return a <strong>list</strong> of <code>System</code> objects rather than a mapping/dict keyed by system ID.</p>
 <ul>
-<li>For an account with a single system, the returned list has length 1, and the single system is accessed by index <code>0</code> (or via sequence unpacking).</li>
-<li>Each element is a <code>System</code> object exposing the same properties as before: <code>serial</code>, <code>system_id</code>, <code>api</code> (with <code>api._access_token</code>), <code>sensors</code> (a mapping), <code>version</code>, and (for v2) <code>address</code>, <code>alarm_going_off</code>, etc.</li>
+<li>For an account that has a single system, the returned list is of length 1, and the single system is accessed via index <code>0</code> (or through sequence unpacking).</li>
+<li>Each element is a <code>System</code> object that exposes the same properties as before: <code>serial</code>, <code>system_id</code>, <code>api</code> (with <code>api._access_token</code>), <code>sensors</code> (a mapping), <code>version</code>, and (for v2) <code>address</code>, <code>alarm_going_off</code>, etc.</li>
 </ul>
-<p>The rest of the <code>System</code> public interface remains unchanged and must continue to work:</p>
+<p>Everything else in the <code>System</code> public interface stays unchanged and must continue to work:</p>
 <ul>
-<li><code>system.update()</code> — async; refreshes system + sensor data.</li>
+<li><code>system.update()</code> — async; refreshes system and sensor data.</li>
 <li><code>system.get_events(from_timestamp, num_events)</code> — async; returns a list of events.</li>
-<li><code>system.set_away()</code>, <code>system.set_home()</code>, <code>system.set_off()</code> — async; change the system state.</li>
+<li><code>system.set_away()</code>, <code>system.set_home()</code>, <code>system.set_off()</code> — async; these change the system state.</li>
 <li><code>system.state</code> — returns a <code>SystemStates</code> enum value (<code>SystemStates.away</code>, <code>SystemStates.home</code>, <code>SystemStates.off</code>).</li>
-<li><code>system.sensors[&quot;&lt;id&gt;&quot;]</code> — returns a sensor object with properties such as <code>name</code>, <code>data</code>, <code>error</code>, etc.</li>
+<li><code>system.sensors[&quot;&lt;id&gt;&quot;]</code> — returns a sensor object that has properties such as <code>name</code>, <code>data</code>, <code>error</code>, etc.</li>
 </ul>
-<h4>Required Behavior Change 2: Remove PIN / settings-pins retrieval from the update flow</h4>
-<p>The system must <strong>no longer</strong> fetch the <code>settings/pins</code> endpoints as part of its normal operation. Specifically:</p>
+<h4>Required Behavior Change 2: Drop PIN / settings-pins retrieval from the update flow</h4>
+<p>Fetching the <code>settings/pins</code> endpoints must <strong>no longer</strong> be part of the system's normal operation. In particular:</p>
 <ul>
-<li>Performing <code>system.update()</code> for a v3 system must <strong>not</strong> issue any request to <code>GET /v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code>. A full update for a v3 system requires only the subscriptions endpoint and the sensors endpoint.</li>
-<li>Retrieving systems via <code>API.get_systems()</code> for either a v2 or a v3 account must <strong>not</strong> issue any request to the pins endpoints (<code>/v1/subscriptions/&lt;SUBSCRIPTION_ID&gt;/pins</code> for v2, <code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code> for v3).</li>
+<li>Running <code>system.update()</code> for a v3 system must <strong>not</strong> issue any request to <code>GET /v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code>. For a v3 system, a full update requires only the subscriptions endpoint and the sensors endpoint.</li>
+<li>Fetching systems via <code>API.get_systems()</code> for either a v2 or a v3 account must <strong>not</strong> issue any request to the pins endpoints (<code>/v1/subscriptions/&lt;SUBSCRIPTION_ID&gt;/pins</code> for v2, <code>/v1/ss3/subscriptions/&lt;SUBSCRIPTION_ID&gt;/settings/pins</code> for v3).</li>
 </ul>
-<p>Because the pins/settings data is no longer retrieved, the following functionality is <strong>removed</strong> and must no longer exist as part of the public interface:</p>
+<p>Given that the pins/settings data is no longer retrieved, the functionality listed below is <strong>removed</strong> and must no longer exist as part of the public interface:</p>
 <ul>
-<li>PIN management on <code>System</code>: methods for getting PINs, setting a PIN, and removing a PIN.</li>
-<li>The v3-only &quot;settings&quot;-derived properties on <code>System</code>: <code>alarm_duration</code>, <code>alarm_volume</code>, <code>battery_backup_power_level</code>, <code>entry_delay_away</code>, <code>entry_delay_home</code>, <code>exit_delay_away</code>, <code>exit_delay_home</code>, <code>gsm_strength</code>, <code>light</code>, <code>rf_jamming</code>, <code>voice_prompt_volume</code>, <code>wall_power_level</code>, <code>wifi_ssid</code>, <code>wifi_strength</code>.</li>
-<li>Any &quot;latest event&quot; retrieval helper on <code>System</code>.</li>
-<li>The <code>PinError</code> exception is no longer referenced by the test suite; it need not be exported, and no code path should raise or depend on it.</li>
+<li>PIN management on <code>System</code>: the methods for getting PINs, for setting a PIN, and for removing a PIN.</li>
+<li>The &quot;settings&quot;-derived properties on <code>System</code> that are v3-only: <code>alarm_duration</code>, <code>alarm_volume</code>, <code>battery_backup_power_level</code>, <code>entry_delay_away</code>, <code>entry_delay_home</code>, <code>exit_delay_away</code>, <code>exit_delay_home</code>, <code>gsm_strength</code>, <code>light</code>, <code>rf_jamming</code>, <code>voice_prompt_volume</code>, <code>wall_power_level</code>, <code>wifi_ssid</code>, <code>wifi_strength</code>.</li>
+<li>Any helper on <code>System</code> for &quot;latest event&quot; retrieval.</li>
+<li>The test suite no longer references the <code>PinError</code> exception; it does not need to be exported, and no code path should raise it or depend on it.</li>
 </ul>
-<h4>Behavior That Must Be Preserved</h4>
-<p>For both v2 and v3 systems:</p>
+<h4>Behavior That Must Be Kept</h4>
+<p>The following holds for both v2 and v3 systems:</p>
 <ul>
-<li>After <code>system.update()</code>, the system's <code>serial</code>, <code>system_id</code>, and <code>api._access_token</code> reflect the retrieved data, and <code>sensors</code> is populated (e.g. 35 sensors for the v2 fixture account, 21 for the v3 fixture account).</li>
-<li><code>get_events</code> returns the list of events from the events endpoint.</li>
-<li>Setting state via <code>set_away</code>/<code>set_home</code>/<code>set_off</code> updates <code>system.state</code> accordingly; calling <code>set_off</code> when already off leaves the state <code>off</code>.</li>
-<li>v2 sensor and base-system property access works as before.</li>
-<li>Token refresh / expiry handling, request error handling (<code>RequestError</code>), and &quot;unavailable in plan&quot; logging behavior during <code>update()</code>/<code>set_away()</code> remain unchanged.</li>
+<li>After <code>system.update()</code> has run, the system's <code>serial</code>, <code>system_id</code>, and <code>api._access_token</code> reflect the data that was retrieved, and <code>sensors</code> is populated (for example, 35 sensors for the v2 fixture account, 21 for the v3 fixture account).</li>
+<li><code>get_events</code> returns the list of events supplied by the events endpoint.</li>
+<li>Setting the state via <code>set_away</code>/<code>set_home</code>/<code>set_off</code> updates <code>system.state</code> accordingly; calling <code>set_off</code> when the state is already off leaves the state <code>off</code>.</li>
+<li>Accessing v2 sensor and base-system properties works as before.</li>
+<li>The handling of token refresh / expiry, request error handling (<code>RequestError</code>), and the &quot;unavailable in plan&quot; logging behavior during <code>update()</code>/<code>set_away()</code> remain unchanged.</li>
 </ul>
-<h4>Constraints</h4>
+<h4>Constraints on the Implementation</h4>
 <ul>
-<li>No <code>settings/pins</code> HTTP requests may be made anywhere in the system-retrieval or system-update code paths.</li>
-<li>The update flow should perform its remote data retrieval concurrently where multiple independent requests are involved, but the observable behavior (final populated system state) is what matters.</li>
+<li>No <code>settings/pins</code> HTTP requests may be made at any point in the system-retrieval or system-update code paths.</li>
+<li>Where multiple independent requests are involved, the update flow should carry out its remote data retrieval concurrently, but what matters is the observable behavior (the final populated system state).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">The existing public import and asynchronous calls must remain usable</span>
-        <span class="spec-meta muted">304 words · source specification
+        <span class="spec-title">The public import and asynchronous calls that already exist must remain usable</span>
+        <span class="spec-meta muted">327 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Add V3 system settings and base-station properties</h3>
 <h4>Public API</h4>
-<p>The existing public import and asynchronous calls must remain usable:</p>
+<p>The public import and asynchronous calls that already exist must remain usable:</p>
 <pre><code class="language-python">from simplipy import API
 
 api = await API.login_via_credentials(email, password, websession)
 systems = await api.get_systems()
 await systems[0].update()
 </code></pre>
-<p><code>API.get_systems()</code> returns the existing version-3 system objects. No new caller-constructed class or function is required.</p>
+<p>The <code>API.get_systems()</code> call returns the existing version-3 system objects. There is no requirement for any new caller-constructed class or function.</p>
 <h4>V3 settings request</h4>
-<p>Whenever a version-3 system is populated or refreshed, issue an authenticated HTTP <code>GET</code> request to:</p>
+<p>Whenever a version-3 system is populated or refreshed, an authenticated HTTP <code>GET</code> request must be issued to:</p>
 <pre><code class="language-text">https://api.simplisafe.com/v1/ss3/subscriptions/{subscription_id}/settings/pins
 </code></pre>
-<p>This request is required:</p>
+<p>Making this request is required:</p>
 <ul>
-<li>while <code>API.get_systems()</code> loads a V3 system, including repeated calls;</li>
-<li>whenever that V3 system’s no-argument asynchronous <code>update()</code> method is called.</li>
+<li>while a V3 system is being loaded by <code>API.get_systems()</code>, including repeated calls;</li>
+<li>whenever the no-argument asynchronous <code>update()</code> method of that V3 system is called.</li>
 </ul>
-<p>Within the normal V3 refresh sequence, request the settings endpoint after the system’s sensors endpoint.</p>
-<p>The successful response is JSON containing relevant values under <code>settings.normal</code> and <code>basestationStatus</code>.</p>
+<p>Within the normal V3 refresh sequence, the settings endpoint must be requested after the system's sensors endpoint.</p>
+<p>The successful response is JSON that holds the relevant values under <code>settings.normal</code> and <code>basestationStatus</code>.</p>
 <h4>V3 system properties</h4>
-<p>Expose the following readable attributes on each V3 system object, populated from the settings response:</p>
+<p>The following readable attributes must be exposed on each V3 system object, populated from the settings response:</p>
 <table>
 <thead>
 <tr>
@@ -1198,7 +1200,7 @@ await systems[0].update()
 </tr>
 </tbody>
 </table>
-<p>Preserve the JSON scalar values. For example, given the exercised response data, the attributes must be:</p>
+<p>The JSON scalar values must be preserved. For example, given the exercised response data, the attributes must be:</p>
 <pre><code class="language-text">alarm_duration = 240
 alarm_volume = 3
 battery_backup_power_level = 5293
@@ -1214,23 +1216,23 @@ wall_power_level = 5933
 wifi_ssid = &quot;MY_WIFI&quot;
 wifi_strength = -49
 </code></pre>
-<p>In particular, <code>light</code> and <code>rf_jamming</code> must remain Boolean values. No additional settings fields or new missing-field/error behavior are required.</p>
+<p><code>light</code> and <code>rf_jamming</code>, in particular, must remain Boolean values. Neither additional settings fields nor new missing-field/error behavior are required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Add asynchronous PIN-management behavior to simplipy.system.System.</span>
-        <span class="spec-meta muted">637 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add asynchronous PIN-management functionality to simplipy.system.System.</span>
+        <span class="spec-meta muted">696 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>PIN management support</h4>
-<p>Add asynchronous PIN-management behavior to <code>simplipy.system.System</code>.</p>
+      <div class="spec-body"><h4>Support for PIN management</h4>
+<p>Add asynchronous PIN-management functionality to <code>simplipy.system.System</code>.</p>
 <h5>Public API</h5>
 <ul>
 <li><code>simplipy.errors.PinError</code>
 <ul>
-<li>Must be an exception type importable as:<pre><code class="language-python">from simplipy.errors import PinError
+<li>Must be an exception type that is importable as:<pre><code class="language-python">from simplipy.errors import PinError
 </code></pre>
 </li>
 </ul>
@@ -1243,14 +1245,14 @@ wifi_strength = -49
 </ul>
 </li>
 </ul>
-<p>These methods must be available on <code>System</code> instances returned by the existing <code>simplipy.API.get_systems()</code> flow, including the concrete V2 and V3 system instances returned by that flow.</p>
-<h5>Retrieving PINs</h5>
-<p>Every call to <code>get_pins()</code> must retrieve fresh data from the version-appropriate endpoint rather than returning cached settings.</p>
+<p>These methods must be present on <code>System</code> instances that come back from the existing <code>simplipy.API.get_systems()</code> flow, including the concrete V2 and V3 system instances this flow returns.</p>
+<h5>PIN retrieval</h5>
+<p>Every call to <code>get_pins()</code> must fetch fresh data from the endpoint matching the system version instead of returning cached settings.</p>
 <h6>V2 systems</h6>
-<p>Send a GET request to:</p>
+<p>Issue a GET request to:</p>
 <pre><code class="language-text">/v1/subscriptions/{subscription_id}/pins
 </code></pre>
-<p>Given a response shaped like:</p>
+<p>For a response with the following shape:</p>
 <pre><code class="language-json">{
   &quot;pins&quot;: {
     &quot;pin1&quot;: {&quot;value&quot;: &quot;1234&quot;},
@@ -1262,7 +1264,7 @@ wifi_strength = -49
   }
 }
 </code></pre>
-<p>return:</p>
+<p>the call must return:</p>
 <pre><code class="language-python">{
     &quot;master&quot;: &quot;1234&quot;,
     &quot;duress&quot;: &quot;9876&quot;,
@@ -1270,13 +1272,13 @@ wifi_strength = -49
     &quot;Father&quot;: &quot;4567&quot;,
 }
 </code></pre>
-<p><code>pin1</code> is exposed under the reserved name <code>&quot;master&quot;</code>, and <code>duress</code> is exposed under <code>&quot;duress&quot;</code>. Populated named user entries use their <code>name</code> as the returned key and their <code>value</code> as the returned value. Named user entries with empty PIN values are omitted.</p>
+<p><code>pin1</code> is exposed under the reserved name <code>&quot;master&quot;</code>, and <code>&quot;duress&quot;</code> is the exposed name for <code>duress</code>. For each populated named user entry, the returned key is its <code>name</code> and the returned value is its <code>value</code>. Named user entries whose PIN values are empty are left out.</p>
 <h6>V3 systems</h6>
-<p>Send a GET request to:</p>
+<p>Issue a GET request to:</p>
 <pre><code class="language-text">/v1/ss3/subscriptions/{subscription_id}/settings/pins
 </code></pre>
-<p>Read PIN data from <code>settings.pins</code>. The reserved PINs come from <code>master.pin</code> and <code>duress.pin</code>; populated entries in <code>users</code> use their <code>name</code> as the returned key and <code>pin</code> as the value.</p>
-<p>For example, two populated users named <code>&quot;Test 1&quot;</code> and <code>&quot;Test 2&quot;</code> together with the reserved PINs must produce:</p>
+<p>The PIN data must be read from <code>settings.pins</code>. The reserved PINs are taken from <code>master.pin</code> and <code>duress.pin</code>; each populated entry in <code>users</code> has its <code>name</code> as the returned key and <code>pin</code> as the value.</p>
+<p>As an example, two populated users named <code>&quot;Test 1&quot;</code> and <code>&quot;Test 2&quot;</code>, together with the reserved PINs, must produce:</p>
 <pre><code class="language-python">{
     &quot;master&quot;: &quot;1234&quot;,
     &quot;duress&quot;: &quot;9876&quot;,
@@ -1284,37 +1286,37 @@ wifi_strength = -49
     &quot;Test 2&quot;: &quot;5423&quot;,
 }
 </code></pre>
-<p>User entries whose <code>pin</code> is empty are omitted.</p>
-<p>For both system versions, all returned PIN values must remain strings.</p>
+<p>User entries that have an empty <code>pin</code> are excluded.</p>
+<p>For both system versions, all of the returned PIN values must remain strings.</p>
 <h5>Setting a PIN</h5>
-<p><code>set_pin(name, pin)</code> must first retrieve the current PIN data from the same version-specific endpoint used by <code>get_pins()</code>. A successful operation must send a POST request to that endpoint.</p>
-<p>The operation must support these cases:</p>
+<p><code>set_pin(name, pin)</code> must first fetch the current PIN data from the same version-specific endpoint that <code>get_pins()</code> uses. A successful operation must include sending a POST request to that endpoint.</p>
+<p>The following cases must be supported by the operation:</p>
 <ul>
-<li>On V2, adding <code>(&quot;whatever&quot;, &quot;1275&quot;)</code> to data containing two named users and the two reserved PINs completes successfully. A later <code>get_pins()</code> reflecting the added server-side entry returns five PINs.</li>
-<li>A successful V2 POST may return HTTP 200 with an empty response body. This must be accepted as success and must not cause a JSON-decoding failure.</li>
-<li>On V3, adding <code>(&quot;whatever&quot;, &quot;1274&quot;)</code> when two user PIN slots are occupied completes successfully. A later <code>get_pins()</code> reflecting a third populated user returns five PINs total, including the two reserved PINs.</li>
+<li>On V2, when the data holds two named users plus the two reserved PINs, adding <code>(&quot;whatever&quot;, &quot;1275&quot;)</code> completes successfully. A later <code>get_pins()</code> that reflects the added server-side entry returns five PINs.</li>
+<li>A V2 POST that succeeds may return HTTP 200 with an empty response body. Such a response must be accepted as success and must not result in a JSON-decoding failure.</li>
+<li>On V3, with two user PIN slots occupied, adding <code>(&quot;whatever&quot;, &quot;1274&quot;)</code> completes successfully. A later <code>get_pins()</code> that reflects a third populated user returns five PINs in total, including the two reserved PINs.</li>
 </ul>
-<p>Raise <code>PinError</code> in these cases:</p>
+<p><code>PinError</code> must be raised in these situations:</p>
 <ul>
-<li>The requested PIN value duplicates an existing PIN value, including the master PIN. For example, attempting to add <code>&quot;1234&quot;</code> when <code>&quot;1234&quot;</code> is already the master PIN must fail.</li>
-<li>A V3 system already has four populated user PIN entries and another user PIN is requested.</li>
+<li>The requested PIN value duplicates a PIN value that is already present, the master PIN included. To illustrate, an attempt to add <code>&quot;1234&quot;</code> when <code>&quot;1234&quot;</code> is already the master PIN must fail.</li>
+<li>Another user PIN is requested from a V3 system that already has four populated user PIN entries.</li>
 </ul>
-<p>No particular <code>PinError</code> message text is required.</p>
+<p>No requirement exists for any particular <code>PinError</code> message text.</p>
 <h5>Removing a V3 PIN</h5>
-<p><code>remove_pin(name)</code> identifies a user PIN by its exposed name. It must retrieve current PIN data from the V3 PIN endpoint before deciding whether removal is valid.</p>
+<p><code>remove_pin(name)</code> uses the exposed name to identify a user PIN. It must fetch the current PIN data from the V3 PIN endpoint before it decides whether removal is valid.</p>
 <ul>
-<li>Removing an existing user such as <code>&quot;Test 2&quot;</code> sends a POST request to:<pre><code class="language-text">/v1/ss3/subscriptions/{subscription_id}/settings/pins
+<li>Removing a user that exists, for example <code>&quot;Test 2&quot;</code>, sends a POST request to:<pre><code class="language-text">/v1/ss3/subscriptions/{subscription_id}/settings/pins
 </code></pre>
-and completes successfully. If a subsequent GET shows only one populated user plus master and duress, <code>get_pins()</code> returns three entries.</li>
-<li>Removing a name that does not exist, such as <code>&quot;0000&quot;</code>, raises <code>PinError</code> and does not send a removal POST.</li>
-<li>Removing the reserved name <code>&quot;master&quot;</code> raises <code>PinError</code> and does not send a removal POST.</li>
+and completes successfully. If a follow-up GET shows only one populated user in addition to master and duress, <code>get_pins()</code> returns three entries.</li>
+<li>Removing a name that does not exist, for instance <code>&quot;0000&quot;</code>, raises <code>PinError</code> and no removal POST is sent.</li>
+<li>Removing the reserved name <code>&quot;master&quot;</code> raises <code>PinError</code>, and a removal POST is not sent.</li>
 </ul>
-<p>No particular <code>PinError</code> message text is required.</p>
-<h4>V3 update error handling</h4>
-<p>The existing asynchronous <code>System.update()</code> behavior must tolerate an HTTP 500 response while retrieving:</p>
+<p>No requirement exists for any particular <code>PinError</code> message text.</p>
+<h4>Error handling for V3 updates</h4>
+<p>The existing asynchronous <code>System.update()</code> behavior must tolerate an HTTP 500 response during retrieval of:</p>
 <pre><code class="language-text">/v1/ss3/subscriptions/{subscription_id}/settings/pins
 </code></pre>
-<p>The update call must not propagate that settings-retrieval error. It must emit a standard Python logging record at <code>WARNING</code> level or higher whose message contains:</p>
+<p>The update call must not allow that settings-retrieval error to propagate. It must emit a standard Python logging record at <code>WARNING</code> level or higher with a message that contains:</p>
 <pre><code class="language-text">Error while retrieving settings
 </code></pre>
 </div>
@@ -1322,108 +1324,109 @@ and completes successfully. If a subsequent GET shows only one populated user pl
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">The package must continue exposing</span>
-        <span class="spec-meta muted">160 words · source specification
+        <span class="spec-title">The package must continue to expose</span>
+        <span class="spec-meta muted">181 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change: <code>API.get_systems</code> return type</h3>
-<h4>Public API</h4>
-<p>The package must continue exposing:</p>
+      <div class="spec-body"><h3>Change required: the <code>API.get_systems</code> return type</h3>
+<h4>Public interface</h4>
+<p>The package must continue to expose:</p>
 <pre><code class="language-python">from simplipy import API
 </code></pre>
-<p><code>API</code> must provide the asynchronous method:</p>
+<p>The asynchronous method that <code>API</code> must provide is:</p>
 <pre><code class="language-python">async def get_systems(self) -&gt; dict
 </code></pre>
-<h4>Required behavior</h4>
-<p><code>await API.get_systems()</code> must return a dictionary rather than a list.</p>
+<h4>Behavior that is required</h4>
+<p><code>await API.get_systems()</code> must return a dictionary instead of a list.</p>
 <ul>
 <li>
-<p>Each dictionary key is a system’s ID.</p>
+<p>Each key of the dictionary is a system’s ID.</p>
 </li>
 <li>
-<p>Each dictionary value is the corresponding system object.</p>
+<p>Each value of the dictionary is the corresponding system object.</p>
 </li>
 <li>
-<p>A returned system must be retrievable using its <code>system_id</code> value:</p>
+<p>A returned system must be retrievable via its <code>system_id</code> value:</p>
 <pre><code class="language-python">systems = await api.get_systems()
 system = systems[system_id]
 </code></pre>
 </li>
 <li>
-<p>The dictionary length must equal the number of returned systems.</p>
+<p>The length of the dictionary must equal the number of systems returned.</p>
 </li>
 <li>
-<p>The system objects and their existing data and behavior must remain unchanged, including access to properties such as <code>system_id</code>, <code>serial</code>, <code>sensors</code>, and <code>api</code>.</p>
+<p>The system objects themselves, together with their existing data and behavior, must remain unchanged — this includes access to properties such as <code>system_id</code>, <code>serial</code>, <code>sensors</code>, and <code>api</code>.</p>
 </li>
 </ul>
-<p>This behavior must apply to <code>API</code> instances created through both existing asynchronous login entry points:</p>
+<p>The behavior above must apply to <code>API</code> instances that are created through both of the existing asynchronous login entry points:</p>
 <pre><code class="language-python">await API.login_via_credentials(email, password, websession)
 await API.login_via_token(refresh_token, websession)
 </code></pre>
-<p>It must also apply regardless of whether the account uses the supported v2 or v3 API response format.</p>
+<p>It must likewise apply regardless of whether the account uses the supported v2 or v3 API response format.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">The top-level simplipy package must expose both of the following names</span>
-        <span class="spec-meta muted">278 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The simplipy package must expose both of the following names at its top level</span>
+        <span class="spec-meta muted">306 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>PIN validation for version 3 systems</h4>
-<h5>Public API</h5>
-<p>The top-level <code>simplipy</code> package must expose both of the following names:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Validation of PINs for version 3 systems</h4>
+<h5>Publicly available API</h5>
+<p>The <code>simplipy</code> package must expose both of the following names at its top level:</p>
 <ul>
 <li><code>API</code></li>
 <li><code>PinError</code></li>
 </ul>
-<p>Thus, callers must be able to import them directly with:</p>
+<p>Therefore, callers must be able to import them directly in this way:</p>
 <pre><code class="language-python">from simplipy import API, PinError
 </code></pre>
-<p><code>PinError</code> must be the exception type used to report the PIN-validation failures described below.</p>
-<p>The existing asynchronous access flow remains supported:</p>
+<p>The exception type used to report the PIN-validation failures described below must be <code>PinError</code>.</p>
+<p>The existing asynchronous access flow continues to be supported:</p>
 <pre><code class="language-python">api = await API.login_via_credentials(email, password, websession)
 systems = await api.get_systems()
 system = systems[system_id]
 </code></pre>
-<p>System objects returned by <code>API.get_systems()</code> expose the asynchronous method:</p>
+<p>System objects returned by <code>API.get_systems()</code> expose the following asynchronous method:</p>
 <pre><code class="language-python">await system.set_pin(name, pin)
 </code></pre>
-<p><code>name</code> and <code>pin</code> are passed positionally as strings.</p>
-<h5>Required behavior</h5>
-<p>For a version 3 system, awaiting <code>System.set_pin()</code> must raise <code>PinError</code> in each of these cases:</p>
+<p>Positionally, <code>name</code> and <code>pin</code> are passed as strings.</p>
+<h5>Behavior that is required</h5>
+<p>In the case of a version 3 system, awaiting <code>System.set_pin()</code> must raise <code>PinError</code> in each of these cases:</p>
 <ul>
 <li><code>await system.set_pin(&quot;whatever&quot;, &quot;abcd&quot;)</code>
 <ul>
-<li>The PIN has four characters but is nonnumeric.</li>
+<li>The PIN consists of four characters but is nonnumeric.</li>
 </ul>
 </li>
 <li><code>await system.set_pin(&quot;whatever&quot;, &quot;1122334455&quot;)</code>
 <ul>
-<li>The PIN is numeric but has ten characters.</li>
+<li>The PIN is numeric but consists of ten characters.</li>
 </ul>
 </li>
 </ul>
-<p>Validation of the PIN's numeric form and length must be local and must occur at the start of the <code>set_pin()</code> operation. For either malformed value above, <code>set_pin()</code> must raise <code>PinError</code> before retrieving current PIN data or issuing any other HTTP request. In particular, the invalid call must neither fetch remote PIN/settings data nor send a PIN persistence request. The exception must therefore be observable directly from the awaited <code>set_pin()</code> call even when no remote response is available.</p>
+<p>The PIN's numeric form and length must be validated locally, and this validation must occur at the start of the <code>set_pin()</code> operation. For either of the malformed values above, <code>set_pin()</code> must raise <code>PinError</code> before it retrieves current PIN data or issues any other HTTP request. In particular, the invalid call must not fetch remote PIN/settings data, nor must it send a PIN persistence request. As a result, the exception must be observable directly from the awaited <code>set_pin()</code> call even when there is no remote response available.</p>
 <h5>Scope and compatibility</h5>
-<p>No particular <code>PinError</code> message is required. Behavior for malformed PIN values other than the two cases specified above is outside the scope of this change. No requirements for other system versions are introduced, and behavior unrelated to these version 3 validation failures must remain compatible with the existing asynchronous API.</p>
+<p>A particular <code>PinError</code> message is not required. Behavior for malformed PIN values other than the two cases specified above lies outside the scope of this change. This change introduces no requirements for other system versions, and behavior unrelated to these version 3 validation failures must remain compatible with the existing asynchronous API.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add get_latest_event() Method to System</span>
-        <span class="spec-meta muted">281 words · source specification
+        <span class="spec-title">Adding a get_latest_event() Method to the System</span>
+        <span class="spec-meta muted">307 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>get_latest_event()</code> Method to System</h3>
-<h4>Objective</h4>
-<p>Add a new asynchronous convenience method, <code>get_latest_event()</code>, to the system object class in the SimpliSafe API client library. This method retrieves the most recent system event.</p>
-<h4>Context</h4>
-<p>The library exposes a <code>System</code> object (obtained via the API client's <code>get_systems()</code> method, keyed by system ID). System objects already support retrieving events from the SimpliSafe backend endpoint:</p>
+      <div class="spec-body"><h3>Task Specification: Adding a <code>get_latest_event()</code> Method to the System</h3>
+<h4>Goal</h4>
+<p>In the SimpliSafe API client library's system object class, add a new asynchronous convenience method, <code>get_latest_event()</code>. The purpose of this method is to retrieve the most recent system event.</p>
+<h4>Background</h4>
+<p>A <code>System</code> object is exposed by the library (it is obtained via the API client's <code>get_systems()</code> method and is keyed by system ID). Retrieving events from the SimpliSafe backend endpoint is already supported by System objects:</p>
 <pre><code>GET https://api.simplisafe.com/v1/subscriptions/{subscription_id}/events
 </code></pre>
-<p>This endpoint returns a JSON payload of the following shape:</p>
+<p>A JSON payload of the following shape is what this endpoint returns:</p>
 <pre><code class="language-json">{
     &quot;numEvents&quot;: 50,
     &quot;lastEventTimestamp&quot;: 1564018073,
@@ -1452,109 +1455,110 @@ system = systems[system_id]
     ]
 }
 </code></pre>
-<p>The <code>events</code> list contains the event objects, each represented as a dictionary.</p>
-<h4>Required Behavior</h4>
-<p>Add an asynchronous method with the following signature to the system object class:</p>
+<p>Inside the <code>events</code> list are the event objects, each of which is represented as a dictionary.</p>
+<h4>Behavior Requirements</h4>
+<p>To the system object class, add an asynchronous method that has the following signature:</p>
 <pre><code class="language-python">async def get_latest_event(self) -&gt; dict:
 </code></pre>
 <p>Behavior:</p>
 <ul>
-<li>The method retrieves system events from the backend events endpoint for the system's subscription.</li>
-<li>It returns the single most recent event as a dictionary (the first element of the returned <code>events</code> list).</li>
-<li>The returned dictionary is the raw event object as provided by the backend, unmodified. In particular, for the sample event above, accessing <code>[&quot;eventId&quot;]</code> on the returned value yields <code>1234567890</code>.</li>
+<li>For the system's subscription, the method retrieves system events from the backend events endpoint.</li>
+<li>As a dictionary, it returns the single most recent event (that is, the first element of the returned <code>events</code> list).</li>
+<li>The returned dictionary is the raw event object as provided by the backend, left unmodified. In particular, accessing <code>[&quot;eventId&quot;]</code> on the returned value yields <code>1234567890</code> for the sample event above.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The method must be callable on a <code>System</code> instance obtained through the normal API client flow (login → <code>get_systems()</code> → index by system ID).</li>
-<li>No changes to the existing events-retrieval behavior are required beyond adding this convenience accessor.</li>
+<li>It must be possible to call the method on a <code>System</code> instance obtained through the normal API client flow (login → <code>get_systems()</code> → index by system ID).</li>
+<li>Beyond adding this convenience accessor, no changes to the existing events-retrieval behavior are required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">You are working on simplipy, a Python package that provides an async client for the SimpliSafe home security API.</span>
-        <span class="spec-meta muted">365 words · source specification
+        <span class="spec-title">You are developing simplipy, a Python package that offers an async client for the SimpliSafe home security API.</span>
+        <span class="spec-meta muted">383 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>simplipy</code>, a Python package that provides an async client for the SimpliSafe home security API. This task requires extracting common device functionality into a new <code>Entity</code> class and its associated type enumeration, and exposing them from a new module.</p>
-<h4>Required Change</h4>
-<h5>New Module: <code>simplipy/entity.py</code></h5>
-<p>Create a new module at <code>simplipy.entity</code> that defines an enumeration named <code>EntityTypes</code>.</p>
-<p><code>EntityTypes</code> must be an enumeration whose members represent the categories of devices that can appear in a SimpliSafe system. It must at minimum include a member accessible as <code>EntityTypes.keypad</code>, representing a keypad device.</p>
-<p>The values assigned to the enumeration members must correspond to the raw device-type identifiers returned by the SimpliSafe API, so that a device reported by the API as a keypad resolves to <code>EntityTypes.keypad</code>.</p>
-<h5>Sensor Type Attribute</h5>
-<p>The sensor objects returned by the client (accessible via <code>system.sensors[&lt;serial&gt;]</code>) must expose a <code>type</code> attribute whose value is a member of <code>EntityTypes</code>. For a device that the API reports as a keypad, <code>sensor.type</code> must equal <code>EntityTypes.keypad</code>.</p>
-<p>Sensor objects must continue to expose these existing attributes with unchanged behavior:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You are developing <code>simplipy</code>, a Python package that offers an async client for the SimpliSafe home security API. This task requires that functionality common across devices be extracted into a new <code>Entity</code> class and its associated type enumeration, and that both be exposed from a new module.</p>
+<h4>Change to Implement</h4>
+<h5>Adding a New Module: <code>simplipy/entity.py</code></h5>
+<p>A new module must be created at <code>simplipy.entity</code>, defining an enumeration called <code>EntityTypes</code>.</p>
+<p><code>EntityTypes</code> must be an enumeration whose members represent the device categories that can appear in a SimpliSafe system. It must include, at minimum, a member accessible as <code>EntityTypes.keypad</code>, which represents a keypad device.</p>
+<p>The values assigned to the enumeration members must correspond to the raw device-type identifiers the SimpliSafe API returns, so that a device the API reports as a keypad resolves to <code>EntityTypes.keypad</code>.</p>
+<h5>Sensor <code>type</code> Attribute</h5>
+<p>The sensor objects that the client returns (accessible through <code>system.sensors[&lt;serial&gt;]</code>) must expose a <code>type</code> attribute whose value is a member of <code>EntityTypes</code>. For a device the API reports as a keypad, <code>sensor.type</code> must equal <code>EntityTypes.keypad</code>.</p>
+<p>Sensor objects must continue to expose these existing attributes, with their behavior unchanged:</p>
 <ul>
-<li><code>name</code> — the human-readable name of the device (e.g., <code>&quot;Garage Keypad&quot;</code>).</li>
-<li><code>serial</code> — the device's serial number as a string (e.g., <code>&quot;195&quot;</code>).</li>
+<li><code>name</code> — the device's human-readable name (e.g., <code>&quot;Garage Keypad&quot;</code>).</li>
+<li><code>serial</code> — the serial number of the device as a string (e.g., <code>&quot;195&quot;</code>).</li>
 </ul>
-<h4>Migration Requirement</h4>
-<p>The device-type enumeration must now live in and be importable from <code>simplipy.entity</code> under the name <code>EntityTypes</code>. Code that previously relied on a <code>SensorTypes</code> enumeration imported from <code>simplipy.sensor</code> should instead use <code>EntityTypes</code> from <code>simplipy.entity</code>. The following import must succeed:</p>
+<h4>Required Migration</h4>
+<p>The device-type enumeration must now be located in, and importable from, <code>simplipy.entity</code> under the name <code>EntityTypes</code>. Code that previously relied on a <code>SensorTypes</code> enumeration imported from <code>simplipy.sensor</code> should make use of <code>EntityTypes</code> from <code>simplipy.entity</code> instead. This import must succeed:</p>
 <pre><code class="language-python">from simplipy.entity import EntityTypes
 </code></pre>
-<h4>Unchanged Behavior</h4>
-<p>All existing client behavior must remain intact, including:</p>
+<h4>Behavior to Preserve</h4>
+<p>All of the existing client behavior must remain intact, including:</p>
 <ul>
-<li>Authentication via <code>simplipy.API</code> using email and password.</li>
+<li>Authenticating via <code>simplipy.API</code> with email and password.</li>
 <li>Retrieval of systems and their sensors.</li>
-<li>Interaction with the SimpliSafe REST API at <code>api.simplisafe.com</code> using the existing endpoint paths (subscriptions, settings, sensors, pins, state, and events endpoints for both v2 and v3 systems).</li>
-<li>Error signaling via <code>simplipy.errors.SimplipyError</code>.</li>
+<li>Interacting with the SimpliSafe REST API at <code>api.simplisafe.com</code> while making use of the existing endpoint paths (subscriptions, settings, sensors, pins, state, and events endpoints for both v2 and v3 systems).</li>
+<li>Signaling of errors via <code>simplipy.errors.SimplipyError</code>.</li>
 </ul>
-<p>No API endpoint paths, request methods, or response-handling semantics should change.</p>
-<h4>Constraints</h4>
+<p>No changes should be made to API endpoint paths, request methods, or response-handling semantics.</p>
+<h4>Implementation Constraints</h4>
 <ul>
-<li>The <code>type</code> attribute of sensors must be a member of the <code>EntityTypes</code> enum (identity comparison against <code>EntityTypes.keypad</code> must hold for keypad devices).</li>
-<li>Do not remove or alter the <code>name</code> and <code>serial</code> attributes on sensor objects.</li>
+<li>A sensor's <code>type</code> attribute must be a member of the <code>EntityTypes</code> enum (for keypad devices, identity comparison against <code>EntityTypes.keypad</code> must hold).</li>
+<li>The <code>name</code> and <code>serial</code> attributes on sensor objects must not be removed or altered.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add Lock Support to simplisafe-python</span>
-        <span class="spec-meta muted">842 words · source specification
+        <span class="spec-title">Adding Lock Support to simplisafe-python</span>
+        <span class="spec-meta muted">880 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Lock Support to simplisafe-python</h3>
-<h4>Overview</h4>
-<p>Add support for SimpliSafe smart locks to the library. This includes a new <code>Lock</code> entity type with state management (lock/unlock operations), lock-specific properties, and integration into the existing <code>System</code> object. Additionally, ensure that failed remote operations do not mutate local state for both locks and systems.</p>
-<h4>Public API Surface</h4>
-<h5><code>simplipy.lock</code> module (new)</h5>
-<p>Create a new module <code>simplipy/lock.py</code> that exposes:</p>
+      <div class="spec-body"><h3>Task Specification: Adding Lock Support to simplisafe-python</h3>
+<h4>Summary</h4>
+<p>Bring SimpliSafe smart lock support into the library. The work comprises a new <code>Lock</code> entity type with state management (lock/unlock operations), lock-specific properties, and integration into the existing <code>System</code> object. Additionally, ensure that remote operations that fail do not mutate local state for both locks and systems.</p>
+<h4>Public API</h4>
+<h5>New <code>simplipy.lock</code> module</h5>
+<p>Add the new module <code>simplipy/lock.py</code>, which exposes:</p>
 <ul>
 <li>
-<p>An enumeration <code>LockStates</code>. It must provide at least the members:</p>
+<p>An enumeration <code>LockStates</code>. It must include at least the members:</p>
 <ul>
 <li><code>LockStates.locked</code></li>
 <li><code>LockStates.unlocked</code></li>
 </ul>
-<p>These are used both for identity comparison (<code>is</code>) and equality comparison (<code>==</code>).</p>
+<p>They serve both identity comparison (<code>is</code>) and equality comparison (<code>==</code>).</p>
 </li>
 <li>
-<p>A <code>Lock</code> entity class (see behavior below).</p>
+<p>A <code>Lock</code> entity class (behavior covered below).</p>
 </li>
 </ul>
-<h5><code>simplipy.entity</code> module (existing)</h5>
-<p>The module must expose an <code>EntityTypes</code> symbol (imported by consumers). A lock corresponds to a device with numeric <code>type</code> value <code>16</code>.</p>
-<h5><code>simplipy.system.System</code> (existing)</h5>
-<p>Add a <code>locks</code> property/attribute that returns a mapping (dict-like) keyed by lock serial number (a string) whose values are <code>Lock</code> objects. For example, <code>system.locks[&quot;987&quot;]</code> returns the <code>Lock</code> whose serial is <code>&quot;987&quot;</code>.</p>
+<h5>Existing <code>simplipy.entity</code> module</h5>
+<p>An <code>EntityTypes</code> symbol must be exposed by this module (imported by consumers). A lock is represented by a device whose numeric <code>type</code> value is <code>16</code>.</p>
+<h5>Existing <code>simplipy.system.System</code></h5>
+<p>Add a <code>locks</code> property/attribute that returns a dict-like mapping keyed by lock serial number (a string), whose values are <code>Lock</code> objects. For instance, <code>system.locks[&quot;987&quot;]</code> returns the <code>Lock</code> whose serial is <code>&quot;987&quot;</code>.</p>
 <h4>Data Model</h4>
-<p>Systems are populated from a sensors/devices payload. Each device entry contains at least:</p>
+<p>Systems get populated from a sensors/devices payload. Every device entry contains at least:</p>
 <ul>
-<li><code>serial</code>: string identifier</li>
-<li><code>type</code>: integer device type</li>
+<li><code>serial</code>: identifier string</li>
+<li><code>type</code>: device type as an integer</li>
 <li><code>name</code>: string</li>
-<li><code>status</code>: object (structure varies by device type)</li>
-<li><code>flags</code>: object with <code>swingerShutdown</code>, <code>lowBattery</code>, <code>offline</code> booleans</li>
+<li><code>status</code>: object (its structure varies by device type)</li>
+<li><code>flags</code>: object holding the <code>swingerShutdown</code>, <code>lowBattery</code>, <code>offline</code> booleans</li>
 <li><code>setting</code>: object</li>
 </ul>
-<p>A lock device (<code>type</code> == 16) has a <code>status</code> object with these fields:</p>
+<p>A lock device (<code>type</code> == 16) carries a <code>status</code> object with these fields:</p>
 <ul>
 <li><code>pinPadState</code>: int</li>
-<li><code>lockState</code>: int (<code>1</code> means locked)</li>
+<li><code>lockState</code>: int (<code>1</code> stands for locked)</li>
 <li><code>pinPadOffline</code>: bool</li>
 <li><code>pinPadLowBattery</code>: bool</li>
 <li><code>lockDisabled</code>: bool</li>
@@ -1563,50 +1567,51 @@ system = systems[system_id]
 <li><code>calibrationErrZero</code>: int</li>
 <li><code>lockJamState</code>: int</li>
 </ul>
-<p>Devices whose type does not correspond to a known/handled entity (e.g. <code>type</code> == 253 with an empty <code>status</code> object) must not break parsing; they are simply added to the general device/sensor collection and ignored by lock handling.</p>
-<h5>Device counting</h5>
-<p>When a V3 system is populated from the standard test fixture, <code>system.sensors</code> must contain <strong>22</strong> entries. All devices from the payload — including lock devices and unknown-type devices — count toward this collection. (Previously this count was 21; the new fixture adds a lock device and an unknown-type device, bringing it to 22.)</p>
+<p>Devices whose type matches no known/handled entity (e.g. <code>type</code> == 253 together with an empty <code>status</code> object) must not break parsing; they simply get added to the general device/sensor collection and are ignored by lock handling.</p>
+<h5>Counting devices</h5>
+<p>When the standard test fixture populates a V3 system, <code>system.sensors</code> must contain <strong>22</strong> entries. Every device from the payload — lock devices and unknown-type devices included — counts toward this collection. (This count used to be 21; the new fixture adds a lock device and an unknown-type device, bringing it to 22.)</p>
 <h4>Lock Behavior</h4>
-<h5>Properties (read-only)</h5>
-<p>A <code>Lock</code> object exposes the following boolean properties, derived from the device <code>status</code> fields:</p>
+<h5>Read-only properties</h5>
+<p>The following boolean properties, each derived from the device <code>status</code> fields, are exposed by a <code>Lock</code> object:</p>
 <ul>
-<li><code>disabled</code> → <code>status[&quot;lockDisabled&quot;]</code></li>
-<li><code>error</code> → true when there is a calibration error, i.e. when <code>calibrationErrDelta</code> or <code>calibrationErrZero</code> indicates an error (both are <code>0</code> = no error in the standard fixture, so this is <code>False</code>)</li>
-<li><code>jammed</code> → derived from <code>lockJamState</code> (<code>0</code> = not jammed → <code>False</code>)</li>
-<li><code>lock_low_battery</code> → <code>status[&quot;lockLowBattery&quot;]</code></li>
-<li><code>low_battery</code> → from the device <code>flags.lowBattery</code></li>
-<li><code>offline</code> → from the device <code>flags.offline</code></li>
-<li><code>pin_pad_low_battery</code> → <code>status[&quot;pinPadLowBattery&quot;]</code></li>
-<li><code>pin_pad_offline</code> → <code>status[&quot;pinPadOffline&quot;]</code></li>
+<li><code>disabled</code> → taken from <code>status[&quot;lockDisabled&quot;]</code></li>
+<li><code>error</code> → true when a calibration error is present, i.e. when <code>calibrationErrDelta</code> or <code>calibrationErrZero</code> signals an error (in the standard fixture both are <code>0</code> = no error, so this is <code>False</code>)</li>
+<li><code>jammed</code> → computed from <code>lockJamState</code> (<code>0</code> = not jammed → <code>False</code>)</li>
+<li><code>lock_low_battery</code> → taken from <code>status[&quot;lockLowBattery&quot;]</code></li>
+<li><code>low_battery</code> → taken from the device <code>flags.lowBattery</code></li>
+<li><code>offline</code> → taken from the device <code>flags.offline</code></li>
+<li><code>pin_pad_low_battery</code> → taken from <code>status[&quot;pinPadLowBattery&quot;]</code></li>
+<li><code>pin_pad_offline</code> → taken from <code>status[&quot;pinPadOffline&quot;]</code></li>
 </ul>
-<p>For the standard fixture (all the above status/flag fields are <code>False</code>/<code>0</code>), every one of these properties must evaluate falsy.</p>
+<p>With the standard fixture (all of the above status/flag fields being <code>False</code>/<code>0</code>), every one of these properties must evaluate falsy.</p>
 <ul>
-<li><code>state</code> → a <code>LockStates</code> value. When <code>lockState</code> is <code>1</code>, <code>state</code> is <code>LockStates.locked</code>. This property reflects the lock's current known state and updates when lock/unlock operations succeed.</li>
+<li><code>state</code> → a <code>LockStates</code> value. When <code>lockState</code> is <code>1</code>, <code>state</code> is <code>LockStates.locked</code>. The property mirrors the lock's currently known state, and it updates when lock/unlock operations succeed.</li>
 </ul>
 <h5>Operations</h5>
-<p>Provide two async methods on <code>Lock</code>:</p>
+<p>Add two async methods to <code>Lock</code>:</p>
 <ul>
-<li><code>async def lock(self)</code> — sends a request to lock the door lock.</li>
-<li><code>async def unlock(self)</code> — sends a request to unlock the door lock.</li>
+<li><code>async def lock(self)</code> — issues a request to lock the door lock.</li>
+<li><code>async def unlock(self)</code> — issues a request to unlock the door lock.</li>
 </ul>
-<p>Both methods issue an HTTP <code>POST</code> to:</p>
+<p>In both cases the method performs an HTTP <code>POST</code> to:</p>
 <pre><code>/v1/doorlock/{SUBSCRIPTION_ID}/{LOCK_ID}/state
 </code></pre>
-<p>where <code>SUBSCRIPTION_ID</code> is the system's subscription id and <code>LOCK_ID</code> is the lock's serial number.</p>
-<p>The response body is a JSON object of the form <code>{&quot;state&quot;: &quot;lock&quot;}</code> (for a successful lock) or <code>{&quot;state&quot;: &quot;unlock&quot;}</code> (for a successful unlock).</p>
-<p>On a successful <code>unlock()</code>, the lock's <code>state</code> becomes <code>LockStates.unlocked</code>. On a successful <code>lock()</code>, the lock's <code>state</code> becomes <code>LockStates.locked</code>. These state transitions must be observable immediately after the awaited call returns.</p>
-<h4>Error Handling: No State Change on Failure</h4>
-<p>If an operation's remote request fails (server responds with HTTP <code>401</code>, and the subsequent token-refresh attempt also fails with <code>401</code>), the operation must raise <code>simplipy.errors.InvalidCredentialsError</code>, and the local <code>state</code> must remain unchanged.</p>
-<p>Concretely:</p>
+<p>where <code>SUBSCRIPTION_ID</code> stands for the system's subscription id and <code>LOCK_ID</code> for the lock's serial number.</p>
+<p>The response body is a JSON object with the shape <code>{&quot;state&quot;: &quot;lock&quot;}</code> (successful lock) or <code>{&quot;state&quot;: &quot;unlock&quot;}</code> (successful unlock).</p>
+<p>Once <code>unlock()</code> succeeds, the lock's <code>state</code> becomes <code>LockStates.unlocked</code>; once <code>lock()</code> succeeds, the lock's <code>state</code> becomes <code>LockStates.locked</code>. It must be possible to observe these state transitions immediately after the awaited call returns.</p>
+<h4>Error Handling: State Must Not Change on Failure</h4>
+<p>When the remote request an operation makes fails (server responds with HTTP <code>401</code>, and the subsequent token-refresh attempt also fails with <code>401</code>), the operation must raise <code>simplipy.errors.InvalidCredentialsError</code>, and the local <code>state</code> must remain unchanged.</p>
+<p>In concrete terms:</p>
 <ul>
-<li>If a lock is currently <code>LockStates.locked</code> and <code>unlock()</code> fails as described, the call raises <code>InvalidCredentialsError</code> and the lock's <code>state</code> remains <code>LockStates.locked</code>.</li>
+<li>If a lock is currently <code>LockStates.locked</code> and <code>unlock()</code> fails in the described way, the call raises <code>InvalidCredentialsError</code> and the lock's <code>state</code> remains <code>LockStates.locked</code>.</li>
 </ul>
-<p>This same guarantee applies to the existing <code>System</code> arming operations:</p>
+<p>The identical guarantee covers the existing <code>System</code> arming operations:</p>
 <ul>
-<li>If <code>system.state</code> is <code>SystemStates.off</code> and <code>system.set_away()</code> fails (POST to <code>/v1/ss3/subscriptions/{SUBSCRIPTION_ID}/state/away</code> returns <code>401</code> and token refresh returns <code>401</code>), the call raises <code>InvalidCredentialsError</code> and <code>system.state</code> remains <code>SystemStates.off</code>.</li>
+<li>If <code>system.state</code> is <code>SystemStates.off</code> and <code>system.set_away()</code> fails (the POST to <code>/v1/ss3/subscriptions/{SUBSCRIPTION_ID}/state/away</code> returns <code>401</code> and token refresh returns <code>401</code>), the call raises <code>InvalidCredentialsError</code> and <code>system.state</code> remains <code>SystemStates.off</code>.</li>
 </ul>
-<p>In other words, local state must only be updated after a successful remote response; a failure must leave prior state intact.</p>
-<h4>Existing Imports That Must Remain Valid</h4>
+<p>Put differently, local state must be updated only after a successful remote response; a failure must leave the prior state intact.</p>
+<h4>Existing Imports That Must Stay Valid</h4>
+<p>The imports listed below must remain valid:</p>
 <ul>
 <li><code>from simplipy import API</code></li>
 <li><code>from simplipy.errors import InvalidCredentialsError, PinError</code></li>
@@ -1614,70 +1619,71 @@ system = systems[system_id]
 <li><code>from simplipy.entity import EntityTypes</code></li>
 <li><code>from simplipy.lock import LockStates</code></li>
 </ul>
-<p><code>SystemStates</code> must expose <code>SystemStates.off</code>.</p>
-<p><code>InvalidCredentialsError</code> and <code>PinError</code> must be raisable exception types in <code>simplipy.errors</code>.</p>
-<h4>Constraints on Scope</h4>
-<p>Do not change existing behavior beyond what is described here (PIN handling, sensor parsing for non-lock devices, system arming state transitions on success, etc. remain as-is). The only new observable behaviors are: the <code>Lock</code> entity and its API, the <code>locks</code> mapping on <code>System</code>, the increased device count due to the two new devices in the fixture, and the &quot;no state change on failure&quot; guarantee for both lock operations and system arming.</p>
+<p><code>SystemStates.off</code> must be exposed by <code>SystemStates</code>.</p>
+<p>Within <code>simplipy.errors</code>, <code>InvalidCredentialsError</code> and <code>PinError</code> must be raisable exception types.</p>
+<h4>Scope Constraints</h4>
+<p>Do not modify existing behavior beyond what is described here (PIN handling, sensor parsing for non-lock devices, system arming state transitions on success, etc. stay as they are). The only new observable behaviors are: the <code>Lock</code> entity and its API, the <code>locks</code> mapping on <code>System</code>, the increased device count caused by the two new devices in the fixture, and the &quot;no state change on failure&quot; guarantee for both lock operations and system arming.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">The codebase contains two system representation classes</span>
-        <span class="spec-meta muted">321 words · source specification
+        <span class="spec-title">The codebase has two classes that represent systems</span>
+        <span class="spec-meta muted">352 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Add Connection and Power Status Properties to System Objects</h4>
-<h5>Overview</h5>
-<p>The codebase contains two system representation classes: a version 2 system class (<code>SystemV2</code>) and a version 3 system class (<code>SystemV3</code>). Both are constructed from JSON data returned by a subscriptions API endpoint, and both expose various read-only properties describing the system's state.</p>
-<p>You must add new read-only properties to these classes, populated from fields present in the system's JSON data.</p>
-<h5>Required Changes</h5>
+      <div class="spec-body"><h4>Task: Introduce Connection and Power Status Properties on System Objects</h4>
+<h5>Background</h5>
+<p>The codebase has two classes that represent systems: a version 2 system class (<code>SystemV2</code>) and a version 3 system class (<code>SystemV3</code>). Both are built from JSON data that a subscriptions API endpoint returns, and both expose a number of read-only properties describing the state of the system.</p>
+<p>You must add new read-only properties to these classes, populated from fields that appear in the system's JSON data.</p>
+<h5>Required Modifications</h5>
 <h6>SystemV2</h6>
-<p>Add a read-only property <code>connection_type</code> that returns the system's connection type as a string. Its value comes from the <code>connType</code> field in the system's location data (the same nested location/system-info structure from which existing properties such as address and serial number are derived). Observed values are the strings <code>&quot;cell&quot;</code> and <code>&quot;wifi&quot;</code>.</p>
+<p>Add the read-only property <code>connection_type</code>, which returns the system's connection type as a string. The value comes from the <code>connType</code> field in the system's location data (the same nested location/system-info structure that existing properties such as address and serial number are derived from). The observed values are the strings <code>&quot;cell&quot;</code> and <code>&quot;wifi&quot;</code>.</p>
 <h6>SystemV3</h6>
-<p>Add the following read-only properties, all derived from the same nested system-info data used by existing v3 properties (e.g. temperature, exit delay, wall power level):</p>
+<p>Add the following read-only properties, all of which are derived from the same nested system-info data that existing v3 properties (e.g. temperature, exit delay, wall power level) use:</p>
 <ul>
-<li><code>connection_type</code>: a string returning the system's connection type, from the <code>connType</code> field. Observed values are <code>&quot;cell&quot;</code> and <code>&quot;wifi&quot;</code>.</li>
-<li><code>offline</code>: a boolean indicating whether the system is offline, from the <code>isOffline</code> field.</li>
-<li><code>power_outage</code>: a boolean indicating whether the system is currently experiencing a power outage, from the <code>powerOutage</code> field.</li>
+<li><code>connection_type</code>: a string that returns the system's connection type; the value comes from the <code>connType</code> field. The observed values are <code>&quot;cell&quot;</code> and <code>&quot;wifi&quot;</code>.</li>
+<li><code>offline</code>: a boolean indicating whether the system is offline; the value comes from the <code>isOffline</code> field.</li>
+<li><code>power_outage</code>: a boolean indicating whether the system is currently experiencing a power outage; the value comes from the <code>powerOutage</code> field.</li>
 </ul>
-<h5>Behavioral Notes</h5>
+<h5>Notes on Behavior</h5>
 <ul>
-<li>All new properties are read-only accessors that return the corresponding value directly from the underlying JSON data as loaded during system construction/refresh.</li>
-<li>No transformation, normalization, or validation of the values is required — return them as-is (strings for <code>connection_type</code>, booleans for <code>offline</code> and <code>power_outage</code>).</li>
-<li>These properties must be accessible on system instances obtained through the normal system-retrieval flow (i.e., after fetching systems from the API), keyed by system ID.</li>
+<li>All of the new properties are read-only accessors that return the corresponding value directly from the underlying JSON data as loaded during system construction/refresh.</li>
+<li>You are not required to transform, normalize, or validate the values — return them as-is (strings for <code>connection_type</code>, booleans for <code>offline</code> and <code>power_outage</code>).</li>
+<li>These properties must be accessible on system instances that are obtained through the normal system-retrieval flow (i.e., after fetching systems from the API), keyed by system ID.</li>
 </ul>
-<h5>API Surface Summary</h5>
+<h5>Summary of the API Surface</h5>
 <ul>
 <li><code>SystemV2.connection_type</code> → <code>str</code></li>
 <li><code>SystemV3.connection_type</code> → <code>str</code></li>
 <li><code>SystemV3.offline</code> → <code>bool</code></li>
 <li><code>SystemV3.power_outage</code> → <code>bool</code></li>
 </ul>
-<p>These must be exposed as instance properties on the existing <code>SystemV2</code> and <code>SystemV3</code> classes in their current module locations.</p>
+<p>They must be exposed as instance properties on the existing <code>SystemV2</code> and <code>SystemV3</code> classes, in the module locations they currently occupy.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Modify the lock representation in the simplipy library so that a jammed lock is represented as a distinct lock state rather than as a separate boolean…</span>
-        <span class="spec-meta muted">400 words · source specification
+        <span class="spec-title">Change the lock representation in the simplipy library so that a jammed lock is represented as a distinct lock state instead of as a separate boolean…</span>
+        <span class="spec-meta muted">433 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the lock representation in the <code>simplipy</code> library so that a jammed lock is represented as a distinct lock <strong>state</strong> rather than as a separate boolean attribute.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Change the lock representation in the <code>simplipy</code> library so that a jammed lock is represented as a distinct lock <strong>state</strong> instead of as a separate boolean attribute.</p>
+<h4>Public API</h4>
 <h5><code>simplipy.lock.LockStates</code></h5>
-<p>An enumeration exposing lock state members. It must include (at minimum) the following members:</p>
+<p>An enumeration which exposes lock state members. It must include, at minimum, the following members:</p>
 <ul>
 <li><code>LockStates.locked</code></li>
 <li><code>LockStates.jammed</code></li>
 </ul>
-<p>Each member represents a distinct lock state, and members must be comparable by identity (i.e., <code>lock.state is LockStates.jammed</code>).</p>
-<h5>Lock object</h5>
-<p>The lock object (accessed via a system's <code>locks</code> mapping, keyed by the lock's serial/ID string) must expose the following read-only properties:</p>
+<p>Each member stands for a distinct lock state, and members must be comparable by identity (i.e., <code>lock.state is LockStates.jammed</code>).</p>
+<h5>The lock object</h5>
+<p>The lock object (obtained through a system's <code>locks</code> mapping, keyed by the lock's serial/ID string) must expose the following read-only properties:</p>
 <ul>
-<li><code>state</code> → returns a <code>LockStates</code> member reflecting the lock's current state.</li>
+<li><code>state</code> → returns a <code>LockStates</code> member that reflects the lock's current state.</li>
 <li><code>disabled</code> → <code>bool</code></li>
 <li><code>error</code> → <code>bool</code></li>
 <li><code>lock_low_battery</code> → <code>bool</code></li>
@@ -1686,53 +1692,53 @@ system = systems[system_id]
 <li><code>pin_pad_low_battery</code> → <code>bool</code></li>
 <li><code>pin_pad_offline</code> → <code>bool</code></li>
 </ul>
-<p>The lock object <strong>must not</strong> expose a <code>jammed</code> attribute/property. The concept of &quot;jammed&quot; is represented solely through <code>state == LockStates.jammed</code>.</p>
-<h4>Required Behavior</h4>
-<p>Locks are constructed from device data reported by the backend. Each lock's data includes a <code>status</code> object with these relevant fields:</p>
+<p>A <code>jammed</code> attribute/property <strong>must not</strong> be exposed by the lock object. The concept of &quot;jammed&quot; is represented solely via <code>state == LockStates.jammed</code>.</p>
+<h4>Behavior Requirements</h4>
+<p>Locks are built from device data reported by the backend. The data of each lock includes a <code>status</code> object with these relevant fields:</p>
 <ul>
-<li><code>lockState</code> — an integer describing whether the lock is unlocked/locked/etc.</li>
-<li><code>lockJamState</code> — an integer indicating jam status.</li>
-<li>other status flags used to populate the boolean properties.</li>
+<li><code>lockState</code> — an integer that describes whether the lock is unlocked/locked/etc.</li>
+<li><code>lockJamState</code> — an integer that indicates the jam status.</li>
+<li>other status flags that are used to populate the boolean properties.</li>
 </ul>
-<h5>State determination</h5>
-<p>The lock's <code>state</code> property must reflect the underlying status data as follows:</p>
+<h5>Determining the state</h5>
+<p>The <code>state</code> property of a lock must reflect the underlying status data in the following way:</p>
 <ul>
-<li>When the lock's status indicates it is jammed, <code>state</code> must be <code>LockStates.jammed</code>.</li>
-<li>When the lock's status indicates it is locked (and not jammed), <code>state</code> must be <code>LockStates.locked</code>.</li>
+<li>If the status indicates that the lock is jammed, <code>state</code> must be <code>LockStates.jammed</code>.</li>
+<li>If the status indicates that the lock is locked (and not jammed), <code>state</code> must be <code>LockStates.locked</code>.</li>
 </ul>
-<p>Concretely, from the observed device data:</p>
+<p>In concrete terms, from the observed device data:</p>
 <ul>
-<li>A lock whose <code>status</code> contains <code>lockState</code> value <code>1</code> with no jam indication resolves to <code>LockStates.locked</code>.</li>
-<li>A lock whose <code>status</code> is empty/absent such that the reported state resolves to a jam condition must produce <code>state == LockStates.jammed</code>.</li>
+<li>A lock whose <code>status</code> contains a <code>lockState</code> value of <code>1</code> with no jam indication resolves to <code>LockStates.locked</code>.</li>
+<li>A lock for which the <code>status</code> is empty/absent such that the reported state resolves to a jam condition must produce <code>state == LockStates.jammed</code>.</li>
 </ul>
-<p>The jammed state takes precedence: if the data indicates a jam, the state is <code>jammed</code> regardless of the lock/unlock value.</p>
-<h5>Boolean properties</h5>
-<p>For a lock reporting a normal (non-error, non-battery, online) locked status with all status flags false:</p>
+<p>Precedence belongs to the jammed state: if the data indicates a jam, the state is <code>jammed</code> regardless of the lock/unlock value.</p>
+<h5>Boolean property values</h5>
+<p>For a lock that reports a normal (non-error, non-battery, online) locked status with all status flags false:</p>
 <ul>
-<li><code>disabled</code>, <code>error</code>, <code>lock_low_battery</code>, <code>low_battery</code>, <code>offline</code>, <code>pin_pad_low_battery</code>, and <code>pin_pad_offline</code> must all be <code>False</code>.</li>
+<li>All of <code>disabled</code>, <code>error</code>, <code>lock_low_battery</code>, <code>low_battery</code>, <code>offline</code>, <code>pin_pad_low_battery</code>, and <code>pin_pad_offline</code> must be <code>False</code>.</li>
 </ul>
-<p>These properties derive their values from the corresponding fields in the lock's <code>status</code> / <code>flags</code> data.</p>
-<h4>Notes</h4>
+<p>The values of these properties are derived from the corresponding fields in the lock's <code>status</code> / <code>flags</code> data.</p>
+<h4>Additional notes</h4>
 <ul>
-<li>Multiple locks may exist within a single system and are addressed independently by their serial/ID string via the system's <code>locks</code> mapping.</li>
-<li>The library version should be updated to <code>5.1.0</code>.</li>
+<li>A single system may contain multiple locks, and each lock is addressed independently by its serial/ID string through the system's <code>locks</code> mapping.</li>
+<li>The library's version should be updated to <code>5.1.0</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">This codebase provides an async Python client for interacting with SimpliSafe home security systems.</span>
-        <span class="spec-meta muted">425 words · source specification
+        <span class="spec-title">The codebase contains an async Python client for communicating with SimpliSafe home security systems.</span>
+        <span class="spec-meta muted">439 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add support for an &quot;unknown&quot; lock state</h3>
+      <div class="spec-body"><h3>Task: Support an &quot;unknown&quot; lock state</h3>
 <h4>Background</h4>
-<p>This codebase provides an async Python client for interacting with SimpliSafe home security systems. Among the devices a system can expose are locks, each represented by a lock object accessible via a system's <code>locks</code> mapping (keyed by the lock's serial/ID string).</p>
-<p>Each lock reports a raw integer <code>lockState</code> value from the SimpliSafe API. This raw value is mapped to a member of a <code>LockStates</code> enumeration. Currently, only a fixed set of known raw values are handled; an unrecognized value would cause an error. This task adds graceful handling for unrecognized values.</p>
+<p>The codebase contains an async Python client for communicating with SimpliSafe home security systems. Locks are among the devices a system can expose, each represented by a lock object that is accessible through a system's <code>locks</code> mapping (keyed by the lock's serial/ID string).</p>
+<p>Every lock reports a raw integer <code>lockState</code> value from the SimpliSafe API, and that raw value is mapped to a member of a <code>LockStates</code> enumeration. At present, only a fixed set of known raw values are handled; an unrecognized value would cause an error. This task introduces graceful handling for unrecognized values.</p>
 <h4>Required Behavior</h4>
 <h5><code>LockStates</code> enumeration</h5>
-<p>There is an enumeration named <code>LockStates</code> used to represent the state of a lock. It must include the following members (existing behavior — these must continue to work):</p>
+<p>An enumeration called <code>LockStates</code> is used to represent the state of a lock. It must have the following members (existing behavior — these must continue to work):</p>
 <ul>
 <li><code>LockStates.locked</code></li>
 <li><code>LockStates.jammed</code></li>
@@ -1741,34 +1747,34 @@ system = systems[system_id]
 <ul>
 <li><code>LockStates.unknown</code></li>
 </ul>
-<h5>Lock object <code>state</code> property</h5>
-<p>Each lock object exposes a <code>state</code> property that returns a <code>LockStates</code> member derived from the raw <code>lockState</code> integer reported by the API.</p>
+<h5>The <code>state</code> property of a lock object</h5>
+<p>Every lock object exposes a <code>state</code> property that returns a <code>LockStates</code> member derived from the raw <code>lockState</code> integer that the API reports.</p>
 <p>Required behavior:</p>
 <ul>
 <li>
-<p>When the raw <code>lockState</code> corresponds to a known/recognized value, <code>state</code> returns the corresponding existing <code>LockStates</code> member (e.g. the value representing a locked lock maps to <code>LockStates.locked</code>, the value representing a jammed lock maps to <code>LockStates.jammed</code>).</p>
+<p>When the raw <code>lockState</code> corresponds to a known/recognized value, <code>state</code> returns the existing <code>LockStates</code> member that corresponds to it (e.g. the value that represents a locked lock maps to <code>LockStates.locked</code>, the value that represents a jammed lock maps to <code>LockStates.jammed</code>).</p>
 </li>
 <li>
-<p>When the raw <code>lockState</code> is a value that does not correspond to any recognized state, <code>state</code> must return <code>LockStates.unknown</code> rather than raising an exception.</p>
+<p>When the raw <code>lockState</code> is a value that does not correspond to any recognized state, <code>state</code> must return <code>LockStates.unknown</code> instead of raising an exception.</p>
 </li>
 <li>
-<p>When an unrecognized raw <code>lockState</code> is encountered, a warning-level log message must be emitted that contains the exact substring:</p>
+<p>Upon encountering an unrecognized raw <code>lockState</code>, a warning-level log message must be emitted that contains the exact substring:</p>
 <pre><code>Unknown raw lock state
 </code></pre>
-<p>This message should be produced through the module's standard logging facility (the client's normal logger), so that it appears in captured log records.</p>
+<p>The message should be produced through the module's standard logging facility (the client's normal logger), so that it appears in captured log records.</p>
 </li>
 </ul>
-<h4>Notes / Constraints</h4>
+<h4>Notes and Constraints</h4>
 <ul>
-<li>Do not change or remove any existing <code>LockStates</code> members or their meanings.</li>
-<li>The existing <code>state</code> values for recognized raw states must continue to map correctly (a lock reporting a locked raw state yields <code>LockStates.locked</code>; a lock reporting a jammed raw state yields <code>LockStates.jammed</code>).</li>
-<li>Handling an unknown raw state must not raise — it must resolve to <code>LockStates.unknown</code> and log the warning described above.</li>
+<li>Existing <code>LockStates</code> members and their meanings must not be changed or removed.</li>
+<li>For recognized raw states, the existing <code>state</code> values must continue to map correctly (a lock that reports a locked raw state yields <code>LockStates.locked</code>; a lock that reports a jammed raw state yields <code>LockStates.jammed</code>).</li>
+<li>Handling of an unknown raw state must not raise — it must resolve to <code>LockStates.unknown</code> and log the warning described above.</li>
 </ul>
 <h4>Public API Surface</h4>
-<p>The engineer must ensure the following are importable and usable exactly as described:</p>
+<p>The engineer must ensure that the following are importable and usable exactly as described:</p>
 <ul>
-<li>The <code>LockStates</code> enumeration (importable from wherever it is currently defined) with members <code>locked</code>, <code>jammed</code>, and the new <code>unknown</code>.</li>
-<li>Lock objects obtained from a system's <code>locks</code> mapping expose a <code>state</code> property returning a <code>LockStates</code> member, plus the following boolean properties that must continue to behave as before: <code>disabled</code>, <code>error</code>, <code>lock_low_battery</code>, <code>pin_pad_low_battery</code>, <code>pin_pad_offline</code>.</li>
+<li>The <code>LockStates</code> enumeration (importable from wherever it is currently defined), which includes members <code>locked</code>, <code>jammed</code>, and the new <code>unknown</code>.</li>
+<li>Lock objects retrieved from a system's <code>locks</code> mapping expose a <code>state</code> property that returns a <code>LockStates</code> member, plus the following boolean properties, which must continue to behave as before: <code>disabled</code>, <code>error</code>, <code>lock_low_battery</code>, <code>pin_pad_low_battery</code>, <code>pin_pad_offline</code>.</li>
 </ul>
 </div>
     </details>

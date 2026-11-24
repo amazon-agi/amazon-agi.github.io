@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/seqeralabs/seqerakit/compare/f3e2e97fe3dde93919baf7cc36ec8ce813ab1e2a...bbcee5202f47a55a1256ae58678bb85a1a33d542" target="_blank" rel="noopener" class="mono">f3e2e97fe3 … bbcee5202f</a> · 252 commits by 11 authors over 16 mo (2023-07-25 to 2024-11-28)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 23 test-bearing changes · training split</dd></div>
       <div><dt>Size:</dt><dd>1,094 lines of code in 54 files when the chain starts · over the 20 requests the developers added 2,596 and removed 1,488 lines of code, plus 1,095 lines of tests (67 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.8k words · 8 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>10.7k words · 8 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,28 +144,29 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Provide the renamed seqerakit package and its YAML-helper and Seqera Platform command APIs.</span>
-        <span class="spec-meta muted">759 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Deliver the seqerakit package under its new name, together with its YAML-helper and Seqera Platform command APIs.</span>
+        <span class="spec-meta muted">872 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Provide the renamed <code>seqerakit</code> package and its YAML-helper and Seqera Platform command APIs.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Change that is required</h4>
+<p>Deliver the <code>seqerakit</code> package under its new name, together with its YAML-helper and Seqera Platform command APIs.</p>
 <h4>Public API</h4>
-<p>The following imports must succeed:</p>
+<p>The imports below must succeed:</p>
 <pre><code class="language-python">from seqerakit import helper
 from seqerakit import seqeraplatform
 </code></pre>
-<p>Expose the following public interfaces:</p>
+<p>The following public interfaces must be exposed:</p>
 <pre><code class="language-python">helper.parse_all_yaml(paths)
 
 seqeraplatform.SeqeraPlatform(cli_args=None, dryrun=False)
 seqeraplatform.ResourceExistsError
 seqeraplatform.ResourceCreationError
 </code></pre>
-<p><code>SeqeraPlatform</code> must also expose <code>_tw_run(command, **kwargs)</code> and callable Python-facing resource commands such as <code>pipelines</code>. The <code>command</code> accepted by <code>_tw_run</code> is an ordered Python list of command tokens.</p>
-<p>The compute-environments Python resource command must use <code>compute-envs</code> as its CLI resource name. In particular, invoking the Python-facing <code>compute_envs</code> command must produce a token list whose first item is <code>compute-envs</code>.</p>
-<h4>YAML dataset parsing</h4>
-<p><code>helper.parse_all_yaml</code> accepts a list of YAML paths. Given a single path whose contents are:</p>
+<p>In addition, <code>SeqeraPlatform</code> must expose <code>_tw_run(command, **kwargs)</code> as well as resource commands that are callable from Python, such as <code>pipelines</code>. The <code>command</code> that <code>_tw_run</code> accepts is an ordered Python list of command tokens.</p>
+<p>The Python resource command for compute-environments must use <code>compute-envs</code> as its CLI resource name. In particular, when the Python-facing <code>compute_envs</code> command is invoked, the token list produced must have <code>compute-envs</code> as its first item.</p>
+<h4>Parsing of YAML datasets</h4>
+<p>As input, <code>helper.parse_all_yaml</code> accepts a list of YAML paths. When a single path is given whose contents are:</p>
 <pre><code class="language-yaml">datasets:
   - name: 'test_dataset1'
     description: 'My test dataset 1'
@@ -174,10 +175,10 @@ seqeraplatform.ResourceCreationError
     file-path: './examples/yaml/datasets/samples.csv'
     overwrite: True
 </code></pre>
-<p>the call:</p>
+<p>this call:</p>
 <pre><code class="language-python">result = helper.parse_all_yaml([&quot;test_path.yaml&quot;])
 </code></pre>
-<p>must return a mapping containing a <code>datasets</code> key whose value is exactly:</p>
+<p>must return a mapping that contains a <code>datasets</code> key, whose value is exactly:</p>
 <pre><code class="language-python">[
     {
         &quot;cmd_args&quot;: [
@@ -194,36 +195,36 @@ seqeraplatform.ResourceCreationError
     }
 ]
 </code></pre>
-<p>The <code>cmd_args</code> order is significant. <code>header: true</code> becomes the standalone <code>--header</code> token. <code>overwrite</code> remains a separate Boolean field and must not be added to <code>cmd_args</code>.</p>
-<h4>Resource command forwarding</h4>
-<p>A resolved resource callable must:</p>
+<p>The order of <code>cmd_args</code> is significant. <code>header: true</code> is turned into the standalone token <code>--header</code>. <code>overwrite</code> stays a separate Boolean field and must not be added to <code>cmd_args</code>.</p>
+<h4>Forwarding of resource commands</h4>
+<p>Once a resource callable has been resolved, it must:</p>
 <ol>
-<li>Resolve the resource's CLI name and place it first.</li>
-<li>Append all supplied positional arguments in their original order, producing one ordered Python list of tokens.</li>
-<li>Invoke the instance's current <code>_tw_run</code> method exactly once, passing that list as its single positional argument.</li>
-<li>Forward all keyword arguments unchanged.</li>
-<li>Return the value returned by <code>_tw_run</code>.</li>
+<li>Resolve the CLI name of the resource and put it first.</li>
+<li>Append all positional arguments that were supplied, keeping their original order, so that one ordered Python list of tokens is produced.</li>
+<li>Invoke the <code>_tw_run</code> method currently on the instance exactly once, passing that list as the single positional argument.</li>
+<li>Forward all keyword arguments without modifying them.</li>
+<li>Return the value that <code>_tw_run</code> returns.</li>
 </ol>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)
 </code></pre>
-<p>must delegate as:</p>
+<p>must be delegated in this way:</p>
 <pre><code class="language-python">sp._tw_run(
     [&quot;pipelines&quot;, &quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;],
     to_json=True,
 )
 </code></pre>
-<p>Resource callables must not join this list into a string before calling <code>_tw_run</code>. Joining tokens into the shell command occurs only in the command-execution layer.</p>
-<p>The same forwarding contract applies to all resolved resource commands and to the exercised list, add, launch, delete, view, and import command forms. This includes keyword options such as <code>params_file</code>: they are passed through to <code>_tw_run</code> unchanged rather than being incorporated by the resource callable. For the compute-environments resource, the delegated list begins with <code>compute-envs</code> rather than the Python attribute spelling.</p>
-<h4>Command execution and JSON output</h4>
-<p>The <code>_tw_run</code> execution layer converts its ordered command tokens into the single-space-separated shell command while preserving token order.</p>
-<p>With default construction:</p>
+<p>Before <code>_tw_run</code> is called, resource callables must not join this list into a string. The joining of tokens into the shell command happens only in the command-execution layer.</p>
+<p>All resolved resource commands are covered by the same forwarding contract, and so are the exercised command forms list, add, launch, delete, view, and import. Keyword options such as <code>params_file</code> are included in this: the resource callable passes them through to <code>_tw_run</code> unchanged instead of incorporating them itself. With the compute-environments resource, the delegated list begins with <code>compute-envs</code>, not with the Python attribute spelling.</p>
+<h4>Execution of commands and JSON output</h4>
+<p>Within the <code>_tw_run</code> execution layer, the ordered command tokens are converted into the single-space-separated shell command while the token order is preserved.</p>
+<p>When an instance is constructed with its defaults:</p>
 <pre><code class="language-python">sp = seqeraplatform.SeqeraPlatform()
 </code></pre>
-<p>calling:</p>
+<p>the call:</p>
 <pre><code class="language-python">sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)
 </code></pre>
-<p>must start exactly this subprocess:</p>
+<p>must start exactly the subprocess below:</p>
 <pre><code class="language-python">subprocess.Popen(
     &quot;tw -o json pipelines view --name pipeline_name&quot;,
     stdout=subprocess.PIPE,
@@ -231,51 +232,52 @@ seqeraplatform.ResourceCreationError
     shell=True,
 )
 </code></pre>
-<p>Thus, <code>to_json=True</code> adds <code>-o json</code> to the <code>tw</code> invocation. Command output is taken from the first value returned by <code>communicate()</code>; the second value does not supply the return data.</p>
-<p>When <code>to_json=True</code>, decode the command output and return the parsed JSON value. For example, output of:</p>
+<p>As a result, <code>to_json=True</code> adds <code>-o json</code> to the <code>tw</code> invocation. The output of the command is taken from the first value returned by <code>communicate()</code>; the return data is not supplied by the second value.</p>
+<p>When <code>to_json=True</code>, the command output must be decoded and the parsed JSON value must be returned. For example, output of:</p>
 <pre><code class="language-python">b'{&quot;key&quot;: &quot;value&quot;}'
 </code></pre>
-<p>must return:</p>
+<p>means the value returned must be:</p>
 <pre><code class="language-python">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<p>The same behavior applies to larger JSON objects: return the decoded JSON data without altering its fields or values.</p>
-<h4>Command-output errors</h4>
-<p>If decoded command output is exactly:</p>
+<p>Larger JSON objects get the same treatment: the decoded JSON data is returned without its fields or values being altered.</p>
+<h4>Errors from command output</h4>
+<p>If the decoded command output is exactly:</p>
 <pre><code class="language-text">ERROR: Resource already exists
 </code></pre>
-<p>raise <code>seqeraplatform.ResourceExistsError</code>. The same exception must be raised for output exactly equal to:</p>
+<p>then <code>seqeraplatform.ResourceExistsError</code> must be raised. Output that is exactly equal to:</p>
 <pre><code class="language-text">ERROR: Already a participant
 </code></pre>
-<p>If decoded command output is exactly:</p>
+<p>must lead to the same exception being raised.</p>
+<p>If the decoded command output is exactly:</p>
 <pre><code class="language-text">ERROR: Resource creation failed
 </code></pre>
-<p>raise <code>seqeraplatform.ResourceCreationError</code>. These errors must be recognized rather than treated as JSON results when JSON output was requested.</p>
-<h4>Global CLI arguments</h4>
-<p><code>SeqeraPlatform</code> accepts a list through <code>cli_args</code>. Every supplied item must appear in shell commands generated for resource invocations, with the supplied items retained in order.</p>
-<p>For example, an instance initialized with:</p>
+<p>then <code>seqeraplatform.ResourceCreationError</code> must be raised. When JSON output was requested, these errors must be recognized rather than being handled as JSON results.</p>
+<h4>CLI arguments with global scope</h4>
+<p><code>SeqeraPlatform</code> accepts a list via <code>cli_args</code>. In shell commands generated for resource invocations, every supplied item must appear, and the supplied items must be retained in order.</p>
+<p>As an example, an instance initialized with:</p>
 <pre><code class="language-python">SeqeraPlatform(
     cli_args=[&quot;--url&quot;, &quot;http://tower-api.com&quot;, &quot;--insecure&quot;]
 )
 </code></pre>
 <p>must include all three strings in its generated command.</p>
-<p>A custom trust-store item is accepted and included verbatim:</p>
+<p>A custom trust-store item is accepted and is included verbatim:</p>
 <pre><code class="language-text">-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts
 </code></pre>
-<p>The supplied list remains live and observable by an instance created from it; it must not be isolated from later mutations of that list. Consequently, in this sequence:</p>
+<p>A list that is supplied stays live and is observable by an instance created from it; such an instance must not be isolated from later mutations of that list. Consequently, in this sequence:</p>
 <ol>
-<li>Create an instance from a list.</li>
+<li>Construct an instance from a list.</li>
 <li>Append the trust-store item to that same list.</li>
-<li>Initialize another instance using the updated list.</li>
+<li>Initialize another instance with the updated list.</li>
 <li>Invoke a command on the original instance.</li>
 </ol>
-<p>the original instance's generated command must contain the appended trust-store item.</p>
-<p>The <code>--verbose</code> CLI argument is unsupported. Constructing with:</p>
+<p>the command generated by the original instance must contain the trust-store item that was appended.</p>
+<p>The <code>--verbose</code> CLI argument is not supported. Constructing with:</p>
 <pre><code class="language-python">SeqeraPlatform(cli_args=[&quot;--verbose&quot;])
 </code></pre>
-<p>must raise <code>ValueError</code> with exactly this message:</p>
+<p>must raise <code>ValueError</code> carrying exactly this message:</p>
 <pre><code class="language-text">--verbose is not supported as a CLI argument to seqerakit.
 </code></pre>
-<h4>Dry-run behavior</h4>
+<h4>Behavior with dry-run</h4>
 <p>For:</p>
 <pre><code class="language-python">sp = seqeraplatform.SeqeraPlatform(dryrun=True)
 sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)
@@ -286,205 +288,207 @@ sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Environment Variable Checking in SeqeraPlatform</span>
-        <span class="spec-meta muted">357 words · source specification
+        <span class="spec-title">Checking Environment Variables in SeqeraPlatform</span>
+        <span class="spec-meta muted">378 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Environment Variable Checking in SeqeraPlatform</h3>
+      <div class="spec-body"><h3>Task Specification: Checking Environment Variables in SeqeraPlatform</h3>
 <h4>Overview</h4>
-<p>Add a method to the <code>SeqeraPlatform</code> class that validates and processes command arguments containing environment variable references before command execution.</p>
-<h4>Public API Surface</h4>
+<p>The <code>SeqeraPlatform</code> class must be extended with a method that validates and processes command arguments that contain environment variable references before command execution.</p>
+<h4>Public API</h4>
 <p><strong>Module:</strong> <code>seqerakit.seqeraplatform</code></p>
 <p><strong>Class:</strong> <code>SeqeraPlatform</code></p>
-<p><strong>Method to implement:</strong></p>
+<p><strong>Method to be implemented:</strong></p>
 <pre><code class="language-python">def _check_env_vars(self, command)
 </code></pre>
 <ul>
-<li><code>command</code> is a list of string tokens representing a command and its arguments (for example, <code>[&quot;tw&quot;, &quot;pipelines&quot;, &quot;list&quot;, &quot;-w&quot;, &quot;$VAR1&quot;]</code>).</li>
-<li>The method returns a single string: the command tokens joined together by single spaces.</li>
+<li><code>command</code> is a list of string tokens that represent a command and its arguments (for instance, <code>[&quot;tw&quot;, &quot;pipelines&quot;, &quot;list&quot;, &quot;-w&quot;, &quot;$VAR1&quot;]</code>).</li>
+<li>The method returns a single string formed by joining the command tokens with single spaces.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Identifying environment variable references</h5>
-<p>A token is treated as an environment variable reference when it begins with a <code>$</code> character (e.g., <code>$VAR1</code>, <code>$UNSET_VAR</code>). The referenced variable name is the portion of the token following the <code>$</code>.</p>
+<h4>Behavior Requirements</h4>
+<h5>Recognizing environment variable references</h5>
+<p>A token is treated as an environment variable reference when it starts with a <code>$</code> character (e.g., <code>$VAR1</code>, <code>$UNSET_VAR</code>). The variable name being referenced is the portion of the token that follows the <code>$</code>.</p>
 <h5>Validation</h5>
-<p>For every token in the command that is an environment variable reference:</p>
+<p>For every token in the command that counts as an environment variable reference:</p>
 <ul>
 <li>
-<p>If the referenced variable <strong>is defined</strong> in the current process environment, the token is left unchanged in the output.</p>
+<p>If the referenced variable <strong>is defined</strong> in the current process environment, the token remains unchanged in the output.</p>
 </li>
 <li>
-<p>If the referenced variable <strong>is not defined</strong> in the current process environment, the method must raise <code>EnvironmentError</code>. The exception message must contain the substring:</p>
+<p>If the referenced variable <strong>is not defined</strong> in the current process environment, the method must raise <code>EnvironmentError</code>. The message of the exception must contain the substring:</p>
 <pre><code> Environment variable '$UNSET_VAR' not found!
 </code></pre>
-<p>where <code>$UNSET_VAR</code> is replaced by the actual token that was not found (note: the message includes a leading space before <code>Environment</code> and wraps the full <code>$</code>-prefixed token in single quotes, followed by <code> not found!</code>).</p>
+<p>where <code>$UNSET_VAR</code> is substituted with the actual token that was not found (note: the message includes a leading space before <code>Environment</code>, and the full <code>$</code>-prefixed token is wrapped in single quotes, followed by <code> not found!</code>).</p>
 </li>
 </ul>
-<h5>Non-environment-variable tokens</h5>
-<p>Tokens that do not begin with <code>$</code> are passed through unchanged into the output. Ordinary tokens such as <code>tw</code>, <code>info</code>, <code>pipelines</code>, <code>list</code>, and <code>-w</code> are not altered.</p>
-<h5>Output construction</h5>
-<p>When no <code>EnvironmentError</code> is raised, the method returns all tokens joined by single spaces into one string, preserving their original order.</p>
+<h5>Tokens that are not environment variable references</h5>
+<p>A token that does not start with <code>$</code> passes through into the output unchanged. Ordinary tokens such as <code>tw</code>, <code>info</code>, <code>pipelines</code>, <code>list</code>, and <code>-w</code> are not modified.</p>
+<h5>Constructing the output</h5>
+<p>If no <code>EnvironmentError</code> is raised, the method returns all tokens joined by single spaces into one string, keeping their original order.</p>
 <h4>Examples</h4>
-<p>Given <code>VAR1</code> is set in the environment:</p>
+<p>Assuming <code>VAR1</code> is set in the environment:</p>
 <ul>
 <li>Input: <code>[&quot;tw&quot;, &quot;pipelines&quot;, &quot;list&quot;, &quot;-w&quot;, &quot;$VAR1&quot;]</code></li>
 <li>Output: <code>&quot;tw pipelines list -w $VAR1&quot;</code></li>
 </ul>
-<p>With no environment variable references:</p>
+<p>When there are no environment variable references:</p>
 <ul>
 <li>Input: <code>[&quot;tw&quot;, &quot;info&quot;]</code></li>
 <li>Output: <code>&quot;tw info&quot;</code></li>
 </ul>
-<p>Given <code>UNSET_VAR</code> is not set in the environment:</p>
+<p>Assuming <code>UNSET_VAR</code> is not set in the environment:</p>
 <ul>
 <li>Input: <code>[&quot;tw&quot;, &quot;pipelines&quot;, &quot;list&quot;, &quot;-w&quot;, &quot;$UNSET_VAR&quot;]</code></li>
 <li>Result: raises <code>EnvironmentError</code> whose message contains <code> Environment variable '$UNSET_VAR' not found!</code></li>
 </ul>
 <h4>Construction</h4>
-<p>The <code>SeqeraPlatform</code> class must be instantiable with no required arguments (i.e., <code>SeqeraPlatform()</code> must succeed).</p>
+<p>It must be possible to instantiate the <code>SeqeraPlatform</code> class with no required arguments (i.e., <code>SeqeraPlatform()</code> must succeed).</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You must implement/modify the environment variable validation logic in a class that constructs and validates command-line invocations for the Seqera…</span>
-        <span class="spec-meta muted">323 words · source specification
+        <span class="spec-title">What you must implement or modify is the logic that validates environment variables, found in a class tasked with assembling and validating command-line…</span>
+        <span class="spec-meta muted">354 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement/modify the environment variable validation logic in a class that constructs and validates command-line invocations for the Seqera Platform CLI.</p>
-<h4>Public API Surface</h4>
-<p>Within the module <code>seqeraplatform</code> (i.e., importable as used by <code>from seqeraplatform import SeqeraPlatform</code> or equivalent), there is a class exposing an instance method:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Introduction</h4>
+<p>What you must implement or modify is the logic that validates environment variables, found in a class tasked with assembling and validating command-line invocations for the Seqera Platform CLI.</p>
+<h4>Public Interface</h4>
+<p>The module <code>seqeraplatform</code> (that is, importable as in <code>from seqeraplatform import SeqeraPlatform</code> or equivalent) contains a class that exposes an instance method:</p>
 <pre><code class="language-python">def _check_env_vars(self, command)
 </code></pre>
 <ul>
-<li><code>command</code> is a list of string tokens representing a CLI command (for example, tokens such as <code>&quot;tw&quot;</code>, <code>&quot;pipelines&quot;</code>, <code>&quot;list&quot;</code>, <code>&quot;-w&quot;</code>, and a token referencing an environment variable).</li>
-<li>The method returns/validates the command, but its critical observable behavior is its error handling described below.</li>
+<li><code>command</code> is a list of string tokens forming a CLI command (for example, tokens such as <code>&quot;tw&quot;</code>, <code>&quot;pipelines&quot;</code>, <code>&quot;list&quot;</code>, <code>&quot;-w&quot;</code>, plus a token referencing an environment variable).</li>
+<li>Even though the command is returned/validated by the method, the error handling described below makes up its critical observable behavior.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The method must scan the command tokens for references to environment variables. An environment variable reference may be written using <strong>braces</strong>, in the form <code>${VAR_NAME}</code> (a <code>$</code> followed by <code>{</code>, the variable name, and a closing <code>}</code>).</p>
-<p>For each such reference, the method must determine the variable name (the identifier inside the braces) and check whether that variable is defined in the process environment.</p>
-<h5>Error Condition</h5>
-<p>If a referenced environment variable is <strong>not defined</strong> in the current environment, the method must raise <code>EnvironmentError</code>.</p>
-<p>The exception message must be <strong>exactly</strong>:</p>
+<h4>Behavior Requirements</h4>
+<p>The command tokens must be scanned by the method for references to environment variables. Such a reference may be written with <strong>braces</strong>, in the form <code>${VAR_NAME}</code> (a <code>$</code> followed by <code>{</code>, then the variable name, then a closing <code>}</code>).</p>
+<p>For each such reference, the variable name (the identifier enclosed by the braces) must be determined by the method, and it must be checked whether the process environment defines that variable.</p>
+<h5>Error Scenario</h5>
+<p><code>EnvironmentError</code> must be raised by the method if a referenced environment variable is <strong>not defined</strong> in the current environment.</p>
+<p>The message of that exception must be <strong>exactly</strong>:</p>
 <pre><code> Environment variable ${VAR_NAME} not found!
 </code></pre>
-<p>where <code>${VAR_NAME}</code> is the full brace-wrapped reference exactly as it appeared in the command token (including the <code>$</code>, the braces, and the variable name).</p>
-<p>Note the message begins with a single leading space, followed by the text <code>Environment variable </code>, then the brace-wrapped reference, then <code> not found!</code>.</p>
-<p><strong>Concrete example:</strong> For a command token <code>&quot;${UNSET_VAR}&quot;</code> where the environment variable <code>UNSET_VAR</code> is not set, calling <code>_check_env_vars</code> must raise <code>EnvironmentError</code> whose string representation is exactly:</p>
+<p>with <code>${VAR_NAME}</code> denoting the entire brace-wrapped reference, exactly as it was written in the command token (the <code>$</code>, the braces, and the variable name all included).</p>
+<p>Note that a single leading space appears at the start of the message; after it come the text <code>Environment variable </code>, the brace-wrapped reference, and <code> not found!</code>.</p>
+<p><strong>Worked example:</strong> Suppose the command token is <code>&quot;${UNSET_VAR}&quot;</code> and the environment variable <code>UNSET_VAR</code> is not set — calling <code>_check_env_vars</code> must raise <code>EnvironmentError</code> whose string representation is exactly:</p>
 <pre><code> Environment variable ${UNSET_VAR} not found!
 </code></pre>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>The variable name must be correctly extracted from the brace-delimited form so that the correct name is looked up in the environment.</li>
-<li>When the referenced environment variable exists, no error is raised for that reference.</li>
+<li>Extraction of the variable name from the brace-delimited form must be performed correctly, so that the name looked up in the environment is the correct one.</li>
+<li>No error is raised for that reference when the referenced environment variable exists.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">YAML-to-Command-Argument Parser</span>
-        <span class="spec-meta muted">771 words · source specification
+        <span class="spec-title">Parser from YAML to Command-Line Arguments</span>
+        <span class="spec-meta muted">806 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: YAML-to-Command-Argument Parser</h3>
+      <div class="spec-body"><h3>Task Specification: Parser from YAML to Command-Line Arguments</h3>
 <h4>Overview</h4>
-<p>Implement a module <code>seqerakit/helper.py</code> that parses one or more YAML configuration files describing entities (organizations, workspaces, datasets, compute environments, pipelines) and converts each entity definition into a normalized structure containing command-line arguments.</p>
-<h4>Public API</h4>
+<p>Implement a module <code>seqerakit/helper.py</code> that parses one or more YAML configuration files describing entities (organizations, workspaces, datasets, compute environments, pipelines) and turns every entity definition into a normalized structure containing command-line arguments.</p>
+<h4>Public Interface</h4>
 <pre><code class="language-python"># seqerakit/helper.py
 
 def parse_all_yaml(paths: list[str]) -&gt; dict:
     ...
 </code></pre>
 <ul>
-<li><code>paths</code> is a list of file path strings. Each path is opened and read as YAML.</li>
-<li>Returns a dictionary keyed by the top-level entity type found in the YAML (e.g. <code>&quot;organizations&quot;</code>, <code>&quot;workspaces&quot;</code>, <code>&quot;datasets&quot;</code>, <code>&quot;compute-envs&quot;</code>, <code>&quot;pipelines&quot;</code>). Each value is a list of parsed entity blocks.</li>
+<li><code>paths</code> is a list of strings giving file paths. Every path is opened and read as YAML.</li>
+<li>It returns a dictionary keyed by the top-level entity type found in the YAML (e.g. <code>&quot;organizations&quot;</code>, <code>&quot;workspaces&quot;</code>, <code>&quot;datasets&quot;</code>, <code>&quot;compute-envs&quot;</code>, <code>&quot;pipelines&quot;</code>); each value is a list of parsed entity blocks.</li>
 </ul>
-<h4>Input Format</h4>
-<p>Each YAML file is a mapping whose top-level keys are entity-type names. Each such key maps to a list of entity definitions. Every entity definition is a mapping of key/value pairs.</p>
-<h4>Output Format</h4>
-<p>For each entity type key present in the parsed input, the output dictionary contains that same key mapping to a list of blocks — one block per entity definition, preserving order.</p>
-<p>Each block is a dictionary with the following keys:</p>
+<h4>Format of the Input</h4>
+<p>Every YAML file is a mapping with entity-type names as its top-level keys. Each of these keys maps to a list of entity definitions, and every entity definition is a mapping of key/value pairs.</p>
+<h4>Format of the Output</h4>
+<p>For each entity type key present in the parsed input, the output dictionary has that same key mapped to a list of blocks — one block per entity definition, with order preserved.</p>
+<p>Each block is a dictionary containing these keys:</p>
 <ul>
-<li><code>&quot;overwrite&quot;</code>: the boolean value of the entity's <code>overwrite</code> key. This key is consumed from the entity definition and moved into the block (it is not emitted as a command-line argument).</li>
-<li><code>&quot;cmd_args&quot;</code>: a list of strings representing the command-line arguments derived from the remaining keys of the entity definition.</li>
+<li><code>&quot;overwrite&quot;</code>: the boolean value taken from the entity's <code>overwrite</code> key. The key is consumed out of the entity definition and moved into the block (it is not emitted as a command-line argument).</li>
+<li><code>&quot;cmd_args&quot;</code>: a list of strings giving the command-line arguments derived from the entity definition's remaining keys.</li>
 </ul>
-<h4>Rules for Building <code>cmd_args</code></h4>
-<p>The remaining key/value pairs of an entity (after removing the keys that receive special handling described below) are converted to command-line argument tokens according to these rules:</p>
-<h5>General flag/value conversion</h5>
+<h4>Rules for Constructing <code>cmd_args</code></h4>
+<p>An entity's remaining key/value pairs (once the keys given special handling described below have been removed) are converted to command-line argument tokens by these rules:</p>
+<h5>General conversion of flags and values</h5>
 <ul>
-<li>For a normal key <code>k</code> with value <code>v</code>, emit two tokens: <code>&quot;--k&quot;</code> followed by the string form of <code>v</code>.</li>
-<li>Keys retain their original hyphenated spelling (e.g. <code>full-name</code> → <code>--full-name</code>, <code>compute-env</code> → <code>--compute-env</code>, <code>work-dir</code> → <code>--work-dir</code>).</li>
+<li>For a normal key <code>k</code> with value <code>v</code>, two tokens are emitted: <code>&quot;--k&quot;</code> followed by the string form of <code>v</code>.</li>
+<li>Keys keep their original hyphenated spelling (e.g. <code>full-name</code> → <code>--full-name</code>, <code>compute-env</code> → <code>--compute-env</code>, <code>work-dir</code> → <code>--work-dir</code>).</li>
 </ul>
 <h5>Boolean flags</h5>
 <ul>
-<li>A key whose value is boolean <code>True</code> is emitted as a single token <code>&quot;--k&quot;</code> with no following value (e.g. <code>header: true</code> → <code>--header</code>).</li>
+<li>A key whose value is the boolean <code>True</code> is emitted as a single token <code>&quot;--k&quot;</code> with no value after it (e.g. <code>header: true</code> → <code>--header</code>).</li>
 </ul>
-<h5>Positional argument keys</h5>
-<p>Certain keys are emitted as bare positional values (the value only, with <strong>no</strong> <code>--flag</code> prefix):</p>
+<h5>Keys handled as positional arguments</h5>
+<p>Certain keys are emitted as bare positional values (only the value, with <strong>no</strong> <code>--flag</code> prefix):</p>
 <ul>
 <li><code>file-path</code> (used by datasets and compute-envs)</li>
 <li><code>url</code> (used by pipelines)</li>
 </ul>
-<p>The positional value's placement in the <code>cmd_args</code> list is governed by the ordering rules below.</p>
-<h5>Special keys removed before arg building</h5>
+<p>Where the positional value sits in the <code>cmd_args</code> list is governed by the ordering rules below.</p>
+<h5>Special keys removed before the arguments are built</h5>
 <ul>
-<li><code>overwrite</code>: consumed into the block's <code>&quot;overwrite&quot;</code> field, never emitted as an argument.</li>
-<li><code>params-file</code>: consumed and <strong>not</strong> emitted into <code>cmd_args</code> at all. (It is handled separately and does not appear in the output block for these cases.)</li>
+<li><code>overwrite</code>: consumed into the block's <code>&quot;overwrite&quot;</code> field, and never emitted as an argument.</li>
+<li><code>params-file</code>: consumed and <strong>not</strong> emitted into <code>cmd_args</code> at all. (It is dealt with separately and does not appear in the output block for these cases.)</li>
 </ul>
 <h4>Ordering Requirements</h4>
-<p>The order of tokens in <code>cmd_args</code> differs by entity type. The following orderings must be produced exactly.</p>
+<p>The order of tokens in <code>cmd_args</code> is different for each entity type. The orderings below must be produced exactly.</p>
 <h5>Organizations</h5>
-<p>Keys are emitted in alphabetical order of the flag name. For an entity with <code>name</code>, <code>full-name</code>, <code>description</code>, <code>location</code>, <code>url</code>, <code>overwrite</code>:</p>
+<p>Keys are emitted in alphabetical order of the flag name. For an entity having <code>name</code>, <code>full-name</code>, <code>description</code>, <code>location</code>, <code>url</code>, <code>overwrite</code>:</p>
 <pre><code>--description &lt;v&gt; --full-name &lt;v&gt; --location &lt;v&gt; --name &lt;v&gt; --url &lt;v&gt;
 </code></pre>
-<p>(Note: for organizations, <code>url</code> is emitted as a normal <code>--url &lt;value&gt;</code> flag, in alphabetical position.)</p>
+<p>(Note: for organizations, <code>url</code> is emitted as a normal <code>--url &lt;value&gt;</code> flag, in its alphabetical position.)</p>
 <h5>Workspaces</h5>
-<p>Keys emitted in alphabetical order of the flag name. For <code>name</code>, <code>full-name</code>, <code>organization</code>, <code>description</code>, <code>visibility</code>, <code>overwrite</code>:</p>
+<p>Keys are emitted in alphabetical order of the flag name. For <code>name</code>, <code>full-name</code>, <code>organization</code>, <code>description</code>, <code>visibility</code>, <code>overwrite</code>:</p>
 <pre><code>--description &lt;v&gt; --full-name &lt;v&gt; --name &lt;v&gt; --organization &lt;v&gt; --visibility &lt;v&gt;
 </code></pre>
 <h5>Datasets</h5>
-<p>The <code>file-path</code> positional value is emitted <strong>first</strong>, followed by the remaining flags. For <code>name</code>, <code>description</code>, <code>workspace</code>, <code>header</code> (boolean true), <code>file-path</code>, <code>overwrite</code>:</p>
+<p>The <code>file-path</code> positional value is emitted <strong>first</strong>, and the remaining flags follow it. For <code>name</code>, <code>description</code>, <code>workspace</code>, <code>header</code> (boolean true), <code>file-path</code>, <code>overwrite</code>:</p>
 <pre><code>&lt;file-path value&gt; --name &lt;v&gt; --workspace &lt;v&gt; --description &lt;v&gt; --header
 </code></pre>
-<p>Here the flag order after the positional is: <code>--name</code>, <code>--workspace</code>, <code>--description</code>, then boolean <code>--header</code> last.</p>
+<p>After the positional, the flag order is: <code>--name</code>, <code>--workspace</code>, <code>--description</code>, then boolean <code>--header</code> last.</p>
 <h5>Compute-envs</h5>
-<p>Flags are emitted in alphabetical order of flag name, and the <code>file-path</code> positional value is inserted at the position where it sorts among the flag names (i.e. sorted as if by the flag/positional key name). For <code>name</code>, <code>workspace</code>, <code>credentials</code>, <code>file-path</code>, <code>wait</code>, <code>overwrite</code>:</p>
+<p>Flags are emitted in alphabetical order of flag name, with the <code>file-path</code> positional value inserted at the position where it sorts among the flag names (i.e. sorted as if by the flag/positional key name). For <code>name</code>, <code>workspace</code>, <code>credentials</code>, <code>file-path</code>, <code>wait</code>, <code>overwrite</code>:</p>
 <pre><code>--credentials &lt;v&gt; &lt;file-path value&gt; --name &lt;v&gt; --wait &lt;v&gt; --workspace &lt;v&gt;
 </code></pre>
-<p>(The <code>file-path</code> value appears between <code>--credentials</code> and <code>--name</code>, consistent with <code>file-path</code> sorting after <code>credentials</code> and before <code>name</code>.)</p>
+<p>(The <code>file-path</code> value appears between <code>--credentials</code> and <code>--name</code>, matching <code>file-path</code> sorting after <code>credentials</code> and before <code>name</code>.)</p>
 <h5>Pipelines</h5>
-<p>Flags are emitted in alphabetical order of flag name, and the <code>url</code> positional value is emitted <strong>last</strong>. The <code>params-file</code> key is removed and not emitted. For <code>name</code>, <code>url</code>, <code>workspace</code>, <code>description</code>, <code>compute-env</code>, <code>work-dir</code>, <code>profile</code>, <code>params-file</code>, <code>config</code>, <code>pre-run</code>, <code>revision</code>, <code>overwrite</code>:</p>
+<p>Flags are emitted in alphabetical order of flag name, and the <code>url</code> positional value is emitted <strong>last</strong>. The <code>params-file</code> key is dropped and not emitted. For <code>name</code>, <code>url</code>, <code>workspace</code>, <code>description</code>, <code>compute-env</code>, <code>work-dir</code>, <code>profile</code>, <code>params-file</code>, <code>config</code>, <code>pre-run</code>, <code>revision</code>, <code>overwrite</code>:</p>
 <pre><code>--compute-env &lt;v&gt; --config &lt;v&gt; --description &lt;v&gt; --name &lt;v&gt; --pre-run &lt;v&gt; --profile &lt;v&gt; --revision &lt;v&gt; --work-dir &lt;v&gt; --workspace &lt;v&gt; &lt;url value&gt;
 </code></pre>
-<h4>Summary of Positional vs. Flag Placement</h4>
+<h4>Summary: Positional vs. Flag Placement</h4>
 <ul>
-<li>Datasets: positional (<code>file-path</code>) placed at the <strong>beginning</strong>.</li>
-<li>Compute-envs: positional (<code>file-path</code>) placed in <strong>alphabetical order</strong> among the other keys.</li>
-<li>Pipelines: positional (<code>url</code>) placed at the <strong>end</strong>; <code>params-file</code> excluded entirely.</li>
+<li>Datasets: the positional (<code>file-path</code>) is placed at the <strong>beginning</strong>.</li>
+<li>Compute-envs: the positional (<code>file-path</code>) is placed in <strong>alphabetical order</strong> among the other keys.</li>
+<li>Pipelines: the positional (<code>url</code>) is placed at the <strong>end</strong>; <code>params-file</code> is excluded entirely.</li>
 </ul>
 <h4>Dependencies</h4>
 <ul>
-<li>YAML parsing (the <code>yaml</code> package) is used to load file contents.</li>
-<li>File contents are read via the standard <code>open</code> built-in.</li>
+<li>YAML parsing (the <code>yaml</code> package) is used to load the file contents.</li>
+<li>The file contents are read using the standard <code>open</code> built-in.</li>
 </ul>
-<p>All string values must appear in <code>cmd_args</code> as plain strings.</p>
+<p>Every string value must appear in <code>cmd_args</code> as a plain string.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You are working on the seqerakit Python package.</span>
-        <span class="spec-meta muted">364 words · source specification
+        <span class="spec-title">The codebase you are working on is the seqerakit Python package.</span>
+        <span class="spec-meta muted">388 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>seqerakit</code> Python package. The relevant module is <code>seqerakit.helper</code>, which is responsible for parsing YAML configuration files and transforming their contents into command-line argument lists for various resource types (organizations, workspaces, datasets, compute-envs, pipelines).</p>
-<h4>Required Behavior</h4>
-<h5>Pipeline entries with a <code>params-file</code></h5>
-<p>When the helper processes a <code>pipelines</code> block from a parsed YAML configuration, each pipeline entry may include a <code>params-file</code> key. The value of this key is a filesystem path to a params file (for example, <code>./examples/yaml/pipelines/test_pipeline1/params.yaml</code>).</p>
-<p>When a pipeline entry contains a <code>params-file</code> key, the generated command-line argument list for that pipeline <strong>must include</strong> the flag <code>--params-file</code> immediately followed by its value.</p>
-<p>Concretely, for a pipeline entry such as:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Introduction</h4>
+<p>The codebase you are working on is the <code>seqerakit</code> Python package. The module that matters here is <code>seqerakit.helper</code>; it is responsible for parsing YAML configuration files and turning their contents into command-line argument lists for various resource types (organizations, workspaces, datasets, compute-envs, pipelines).</p>
+<h4>Behavior Requirements</h4>
+<h5>Pipeline entries containing a <code>params-file</code></h5>
+<p>When a <code>pipelines</code> block taken from a parsed YAML configuration is processed by the helper, each pipeline entry may include a <code>params-file</code> key. The value of this key is a filesystem path that points to a params file (for example, <code>./examples/yaml/pipelines/test_pipeline1/params.yaml</code>).</p>
+<p>When a pipeline entry contains a <code>params-file</code> key, the command-line argument list generated for that pipeline <strong>must include</strong> the flag <code>--params-file</code> immediately followed by its value.</p>
+<p>To make this concrete, for a pipeline entry such as:</p>
 <pre><code class="language-python">{
     &quot;type&quot;: &quot;add&quot;,
     &quot;name&quot;: &quot;my_pipeline&quot;,
@@ -495,117 +499,117 @@ def parse_all_yaml(paths: list[str]) -&gt; dict:
     ...
 }
 </code></pre>
-<p>the produced argument list for the <code>add</code> command for pipelines must contain, in order, the two consecutive elements:</p>
+<p>the argument list produced for the <code>add</code> command for pipelines must contain, in order, these two consecutive elements:</p>
 <pre><code>&quot;--params-file&quot;,
 &quot;./examples/yaml/pipelines/test_pipeline1/params.yaml&quot;,
 </code></pre>
-<p>within the overall list of generated arguments (alongside the pipeline URL, <code>--name</code>, <code>--workspace</code>, and any other flags derived from the entry). The <code>--params-file</code> flag and its value must appear after the positional pipeline URL argument in the argument ordering.</p>
-<h4>API Surface</h4>
-<p>The functionality lives in the <code>seqerakit.helper</code> module (importable as <code>from seqerakit import helper</code>). The existing public parsing entry point that transforms a parsed YAML mapping into command argument lists per resource block must continue to work as before, with the added guarantee described above for <code>params-file</code> handling in pipeline entries.</p>
-<p>The output structure produced by the parsing entry point is a mapping keyed by resource block name (e.g. <code>pipelines</code>), whose value is a list of per-entry descriptors. Each descriptor includes:</p>
+<p>inside the overall list of generated arguments (together with the pipeline URL, <code>--name</code>, <code>--workspace</code>, and any other flags derived from the entry). In the argument ordering, the <code>--params-file</code> flag and its value must appear after the positional pipeline URL argument.</p>
+<h4>Exposed API</h4>
+<p>This functionality is located in the <code>seqerakit.helper</code> module (importable as <code>from seqerakit import helper</code>). The existing public parsing entry point, which transforms a parsed YAML mapping into command argument lists per resource block, must continue to work as before, with the added guarantee described above concerning <code>params-file</code> handling in pipeline entries.</p>
+<p>The output produced by the parsing entry point has the form of a mapping keyed by resource block name (e.g. <code>pipelines</code>), whose value is a list of per-entry descriptors. Each descriptor contains:</p>
 <ul>
-<li>a <code>cmd_args</code> list containing the generated command-line arguments (this is the list that must include the <code>--params-file</code> flag and value when a <code>params-file</code> key is present), and</li>
-<li>an <code>overwrite</code> boolean reflecting the entry's overwrite setting.</li>
+<li>a <code>cmd_args</code> list holding the generated command-line arguments (this is the list that must include the <code>--params-file</code> flag and value when a <code>params-file</code> key is present), and</li>
+<li>an <code>overwrite</code> boolean that reflects the entry's overwrite setting.</li>
 </ul>
-<h4>Scope</h4>
-<p>The only behavioral change required is ensuring that a <code>params-file</code> key in a pipeline entry is correctly translated into a <code>--params-file &lt;value&gt;</code> pair in the generated command arguments. All other existing parsing behavior for organizations, workspaces, datasets, compute-envs, and pipelines must remain unchanged.</p>
+<h4>Scope of the Change</h4>
+<p>The only behavioral change required is to ensure that a <code>params-file</code> key in a pipeline entry is correctly translated into a <code>--params-file &lt;value&gt;</code> pair within the generated command arguments. For organizations, workspaces, datasets, compute-envs, and pipelines, all other existing parsing behavior must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Boolean Flag Handling in YAML-to-CLI Argument Conversion</span>
-        <span class="spec-meta muted">1002 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Handling Booleans as Flags in the YAML-to-CLI Conversion</span>
+        <span class="spec-meta muted">1072 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Boolean Flag Handling in YAML-to-CLI Argument Conversion</h3>
-<h4>Overview</h4>
-<p>Update the YAML parsing helpers in <code>seqerakit.helper</code> so that parsed YAML booleans become conventional valueless command-line flags. A Boolean <code>true</code> emits the option name only, while <code>false</code> emits no command-line token. Preserve all existing resource-specific conversion behavior, output ordering, positional arguments, parameter-file handling, and overwrite handling.</p>
-<p>Boolean handling must be observable both when parsing an in-memory YAML block and when parsing one or more YAML files.</p>
+      <div class="spec-body"><h3>Task Specification: Handling Booleans as Flags in the YAML-to-CLI Conversion</h3>
+<h4>Summary</h4>
+<p>The YAML parsing helpers in <code>seqerakit.helper</code> must be updated so that parsed YAML booleans turn into the conventional valueless command-line flags. A Boolean <code>true</code> emits the option name only, whereas <code>false</code> emits no command-line token. All existing resource-specific conversion behavior, output ordering, positional arguments, parameter-file handling, and overwrite handling must be preserved.</p>
+<p>Boolean handling must be observable both when an in-memory YAML block is parsed and when one or more YAML files are parsed.</p>
 <h4>Public API</h4>
-<p>The helpers must remain available from <code>seqerakit.helper</code>, including through:</p>
+<p>The helpers must stay available from <code>seqerakit.helper</code>, including via:</p>
 <pre><code class="language-python">from seqerakit import helper
 </code></pre>
 <h5><code>parse_yaml_block</code></h5>
 <pre><code class="language-python">def parse_yaml_block(yaml_data: dict, block_name: str) -&gt; tuple
 </code></pre>
 <ul>
-<li><code>yaml_data</code> is parsed YAML content whose top-level block names map to lists of resource-entry dictionaries.</li>
-<li><code>block_name</code> is the top-level block to convert.</li>
-<li>The function processes <strong>every</strong> entry in that block, in block-list order.</li>
-<li>It returns <code>(block_name, descriptors)</code>, where <code>descriptors</code> is an ordered list containing one descriptor per entry.</li>
-<li>A missing or empty block returns <code>(block_name, [])</code>.</li>
-<li>Existing validation that entry names within one block are unique must remain unchanged.</li>
+<li><code>yaml_data</code> is parsed YAML content in which top-level block names map to lists of resource-entry dictionaries.</li>
+<li><code>block_name</code> identifies the top-level block to convert.</li>
+<li><strong>Every</strong> entry in that block is processed by the function, in block-list order.</li>
+<li>It returns <code>(block_name, descriptors)</code>, where <code>descriptors</code> is an ordered list that contains one descriptor per entry.</li>
+<li>For a missing or empty block, the function returns <code>(block_name, [])</code>.</li>
+<li>The existing validation that entry names within one block are unique must remain unchanged.</li>
 </ul>
-<p>Each entry descriptor has this public shape:</p>
+<p>Every entry descriptor has this public shape:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: list[str],
     &quot;overwrite&quot;: bool,
 }
 </code></pre>
-<p><code>cmd_args</code> contains the generated CLI tokens. <code>overwrite</code> is entry metadata and is not part of that token list.</p>
+<p><code>cmd_args</code> holds the generated CLI tokens. <code>overwrite</code> is entry metadata and does not belong to that token list.</p>
 <h5><code>parse_all_yaml</code></h5>
 <pre><code class="language-python">def parse_all_yaml(file_paths, destroy: bool = False) -&gt; dict
 </code></pre>
 <ul>
-<li>Each supplied path is loaded as YAML.</li>
-<li>Entries under the same block in multiple files are combined in supplied-file order, retaining entry order within each file.</li>
-<li>The result maps each supported block name to its ordered list of entry descriptors, using exactly the same descriptor and Boolean-conversion rules as <code>parse_yaml_block</code>.</li>
-<li>Blocks retain the established dependency order: <code>organizations</code>, <code>teams</code>, <code>workspaces</code>, <code>participants</code>, <code>credentials</code>, <code>compute-envs</code>, <code>secrets</code>, <code>actions</code>, <code>datasets</code>, <code>pipelines</code>, and <code>launch</code>.</li>
-<li>With <code>destroy=True</code>, the established reverse destruction order is retained and <code>launch</code> is excluded. This option must not change entry conversion or Boolean handling.</li>
+<li>Every supplied path is loaded as YAML.</li>
+<li>When the same block appears in multiple files, its entries are combined in supplied-file order, and entry order within each file is retained.</li>
+<li>The result maps each supported block name to its ordered list of entry descriptors, applying exactly the same descriptor and Boolean-conversion rules as <code>parse_yaml_block</code>.</li>
+<li>The blocks keep the established dependency order: <code>organizations</code>, <code>teams</code>, <code>workspaces</code>, <code>participants</code>, <code>credentials</code>, <code>compute-envs</code>, <code>secrets</code>, <code>actions</code>, <code>datasets</code>, <code>pipelines</code>, and <code>launch</code>.</li>
+<li>With <code>destroy=True</code>, the established reverse destruction order is kept and <code>launch</code> is excluded. This option must not alter entry conversion or Boolean handling.</li>
 </ul>
-<h4>Required Argument Conversion</h4>
-<p>For each ordinary entry key/value pair, distinguish actual parsed Boolean values from all other values before string conversion.</p>
+<h4>Argument Conversion Requirements</h4>
+<p>For each ordinary entry key/value pair, a distinction must be made between actual parsed Boolean values and all other values before string conversion.</p>
 <h5>Boolean values</h5>
 <ul>
-<li>Boolean <code>True</code> emits exactly one token: <code>--&lt;key&gt;</code>.</li>
-<li>Boolean <code>False</code> emits no tokens: neither the flag nor a value.</li>
-<li>A Boolean must never be rendered as a two-token pair such as <code>--&lt;key&gt; True</code> or <code>--&lt;key&gt; False</code>.</li>
-<li>A false option must not be replaced by a negated option such as <code>--no-&lt;key&gt;</code>.</li>
-<li>Strings such as <code>&quot;true&quot;</code> and <code>&quot;false&quot;</code> are not Boolean values and therefore follow the non-Boolean rule.</li>
+<li>The Boolean <code>True</code> emits exactly one token: <code>--&lt;key&gt;</code>.</li>
+<li>For the Boolean <code>False</code>, no tokens are emitted: neither the flag nor a value.</li>
+<li>A Boolean must never come out as a two-token pair such as <code>--&lt;key&gt; True</code> or <code>--&lt;key&gt; False</code>.</li>
+<li>A false option must not be swapped for a negated option such as <code>--no-&lt;key&gt;</code>.</li>
+<li>Strings like <code>&quot;true&quot;</code> and <code>&quot;false&quot;</code> do not count as Boolean values and therefore follow the non-Boolean rule.</li>
 </ul>
 <p>Examples:</p>
 <pre><code class="language-python">&quot;fusion-v2&quot;: True   # -&gt; [&quot;--fusion-v2&quot;]
 &quot;stub-run&quot;: True    # -&gt; [&quot;--stub-run&quot;]
 &quot;fargate&quot;: False    # -&gt; []
 </code></pre>
-<p>These rules apply inside every descriptor's <code>cmd_args</code>, including compute-environment and pipeline entries.</p>
+<p>These rules hold inside every descriptor's <code>cmd_args</code>, including for compute-environment and pipeline entries.</p>
 <h5>Non-Boolean values</h5>
-<p>Unless a key has an existing positional or resource-specific rule, emit non-Boolean values as two tokens:</p>
+<p>If a key has no existing positional or resource-specific rule, non-Boolean values are emitted as two tokens:</p>
 <pre><code class="language-python">[&quot;--&lt;key&gt;&quot;, str(value)]
 </code></pre>
-<p>For example:</p>
+<p>For instance:</p>
 <pre><code class="language-python">&quot;credentials&quot;: &quot;my_credentials&quot;
 # -&gt; [&quot;--credentials&quot;, &quot;my_credentials&quot;]
 </code></pre>
 <h5><code>overwrite</code> metadata</h5>
-<p><code>overwrite</code> is a special metadata key and is an exception to normal Boolean flag conversion:</p>
+<p><code>overwrite</code> is a special metadata key and forms an exception to normal Boolean flag conversion:</p>
 <ul>
-<li>Consume it separately from CLI argument generation.</li>
-<li>Store its Boolean value in the descriptor's separate <code>overwrite</code> field.</li>
-<li>If it is absent, the descriptor's <code>overwrite</code> value defaults to <code>False</code>.</li>
-<li>Never place <code>--overwrite</code>, <code>True</code>, or <code>False</code> in <code>cmd_args</code> on behalf of this key, regardless of its value.</li>
+<li>Consume it separately from the generation of CLI arguments.</li>
+<li>Its Boolean value is stored in the descriptor's separate <code>overwrite</code> field.</li>
+<li>If the key is absent, the descriptor's <code>overwrite</code> value defaults to <code>False</code>.</li>
+<li>Never put <code>--overwrite</code>, <code>True</code>, or <code>False</code> into <code>cmd_args</code> on this key's behalf, regardless of its value.</li>
 </ul>
-<p>Thus, <code>overwrite: true</code> produces <code>&quot;overwrite&quot;: True</code> in the descriptor but contributes no command-line token.</p>
-<h5>Existing special keys and resource-specific behavior</h5>
-<p>Preserve existing special handling:</p>
+<p>So <code>overwrite: true</code> results in <code>&quot;overwrite&quot;: True</code> in the descriptor while contributing no command-line token.</p>
+<h5>Existing Special Keys and Resource-Specific Behavior</h5>
+<p>The existing special handling must be preserved:</p>
 <ul>
-<li><code>file-path</code> is emitted as a bare positional value with no <code>--file-path</code> token, at the positional location required by the existing resource conversion.</li>
-<li><code>name</code> remains <code>--name</code> followed by its string value.</li>
-<li>Other established positional keys and resource-specific argument groupings remain unchanged.</li>
-<li>Existing pipeline source handling remains unchanged: a pipeline <code>url</code> or positional <code>file-path</code> is emitted in the pipeline source-argument segment, and generated or supplied parameter-file arguments remain in their existing final segment.</li>
-<li>Existing dataset behavior remains unchanged; for example, <code>header: true</code> emits <code>--header</code>, while <code>header: false</code> emits nothing.</li>
+<li><code>file-path</code> comes out as a bare positional value without a <code>--file-path</code> token, at the positional location that the existing resource conversion requires.</li>
+<li><code>name</code> stays <code>--name</code> followed by its string value.</li>
+<li>Other established positional keys and resource-specific argument groupings stay as they are.</li>
+<li>Existing pipeline source handling stays unchanged: a pipeline <code>url</code> or a positional <code>file-path</code> is emitted in the pipeline source-argument segment, and generated or supplied parameter-file arguments stay in their existing final segment.</li>
+<li>Existing dataset behavior stays unchanged; for instance, <code>header: true</code> emits <code>--header</code>, while <code>header: false</code> emits nothing.</li>
 </ul>
 <h4>Ordering</h4>
 <ul>
-<li>Preserve block-entry order and descriptor order.</li>
-<li>Within each existing argument segment, preserve the loaded entry mapping's key order. Each key expands to two tokens, one token, or zero tokens according to the rules above.</li>
-<li>Omitting a false Boolean or consuming <code>overwrite</code> must not change the relative order of the remaining arguments.</li>
-<li>Positional values and resource-specific argument segments must retain their pre-existing placement; Boolean support must not otherwise reorder arguments.</li>
+<li>Block-entry order and descriptor order must be preserved.</li>
+<li>Within each existing argument segment, the loaded entry mapping's key order is preserved. Each key expands to two tokens, one token, or zero tokens as set out in the rules above.</li>
+<li>Leaving out a false Boolean or consuming <code>overwrite</code> must not change the relative order of the remaining arguments.</li>
+<li>Positional values and resource-specific argument segments must keep their pre-existing placement; Boolean support must not reorder arguments in any other way.</li>
 </ul>
 <h4>Worked Examples</h4>
 <h5>Compute environment</h5>
-<p>Given a loaded entry in this key order:</p>
+<p>Take a loaded entry with this key order:</p>
 <pre><code class="language-yaml">credentials: my_credentials
 fargate: false
 file-path: ./examples/yaml/computeenvs/computeenvs.yaml
@@ -615,7 +619,7 @@ overwrite: true
 wait: AVAILABLE
 workspace: my_organization/my_workspace
 </code></pre>
-<p>its descriptor is:</p>
+<p>the resulting descriptor is:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: [
         &quot;--credentials&quot;,
@@ -632,18 +636,18 @@ workspace: my_organization/my_workspace
     &quot;overwrite&quot;: True,
 }
 </code></pre>
-<p><code>fusion-v2: true</code> becomes a bare flag, <code>fargate: false</code> disappears completely, and <code>overwrite: true</code> is retained only as descriptor metadata.</p>
+<p><code>fusion-v2: true</code> turns into a bare flag, <code>fargate: false</code> vanishes completely, and <code>overwrite: true</code> is kept only as descriptor metadata.</p>
 <h5>Pipeline</h5>
-<p>For a pipeline entry containing ordinary options plus:</p>
+<p>For a pipeline entry that contains ordinary options plus:</p>
 <pre><code class="language-yaml">revision: master
 stub-run: true
 overwrite: true
 </code></pre>
-<p><code>cmd_args</code> contains:</p>
+<p>the following tokens appear in <code>cmd_args</code>:</p>
 <pre><code class="language-python">[&quot;--revision&quot;, &quot;master&quot;, &quot;--stub-run&quot;]
 </code></pre>
-<p>at the corresponding location in the pipeline's regular option segment. It contains no <code>--overwrite</code>. Existing source and parameter-file arguments still follow in their established segments.</p>
-<p>For example, a complete parsed pipeline descriptor can be:</p>
+<p>They sit at the corresponding location in the pipeline's regular option segment. <code>cmd_args</code> contains no <code>--overwrite</code>. Existing source and parameter-file arguments still come afterward in their established segments.</p>
+<p>As an illustration, a complete parsed pipeline descriptor can look like this:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: [
         &quot;--compute-env&quot;, &quot;my_computeenv&quot;,
@@ -664,79 +668,79 @@ overwrite: true
 </code></pre>
 <h4>Compatibility and Non-Goals</h4>
 <ul>
-<li>Do not change key spelling: ordinary key <code>some-option</code> maps to <code>--some-option</code>.</li>
-<li>Do not combine flags and values into a single string; each CLI token remains a separate list element.</li>
-<li>Do not flatten the descriptor list into one argument list or return only the first entry.</li>
-<li>Do not move overwrite behavior into the generated CLI command. It remains separately available to callers that decide whether an existing resource should be replaced.</li>
-<li>Do not alter existing positional-argument, pipeline-source, parameter-file, dataset, or resource-order behavior beyond the Boolean conversion described here.</li>
+<li>Key spelling must stay untouched: the ordinary key <code>some-option</code> maps to <code>--some-option</code>.</li>
+<li>Flags and values must not be merged into a single string; every CLI token remains a separate list element.</li>
+<li>Never flatten the descriptor list into one argument list, and never return only the first entry.</li>
+<li>Overwrite behavior must not be moved into the generated CLI command. It remains separately available to callers that decide whether an existing resource should be replaced.</li>
+<li>Existing positional-argument, pipeline-source, parameter-file, dataset, or resource-order behavior must not be altered beyond the Boolean conversion described here.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">68 words · source specification
+        <span class="spec-title">The following public function is to be updated</span>
+        <span class="spec-meta muted">85 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Change to be made</h4>
+<p>The following public function is to be updated:</p>
 <ul>
 <li><strong>Module:</strong> <code>seqerakit.helper</code></li>
 <li><strong>Function:</strong> <code>parse_all_yaml(file_paths)</code></li>
 </ul>
-<p>When <code>parse_all_yaml</code> receives a list containing a YAML file whose parsed document is an empty mapping (<code>{}</code>), it must raise a <code>ValueError</code>.</p>
-<p>The exception message must include:</p>
+<p>If a YAML file in the list supplied to <code>parse_all_yaml</code> has a parsed document that is an empty mapping (<code>{}</code>), the function must raise a <code>ValueError</code>.</p>
+<p>The message of the raised exception must include:</p>
 <pre><code class="language-text">The YAML file '&lt;file_path&gt;' is empty or does not contain valid data.
 </code></pre>
-<p>Here, <code>&lt;file_path&gt;</code> is the same path supplied to <code>parse_all_yaml</code> for the empty YAML file.</p>
+<p>In the message, <code>&lt;file_path&gt;</code> is the same path that was supplied to <code>parse_all_yaml</code> for the empty YAML file.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">YAML Parsing for Compute Environments</span>
-        <span class="spec-meta muted">792 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Compute-Environment YAML Parsing</span>
+        <span class="spec-meta muted">844 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: YAML Parsing for Compute Environments</h3>
+      <div class="spec-body"><h3>Task Specification: Compute-Environment YAML Parsing</h3>
 <h4>Overview</h4>
-<p>Update the YAML parsing behavior in the <code>helper</code> module so that compute-environment definitions can be converted into command arguments from either a configuration file (<code>file-path</code>) or CLI-style fields (<code>type</code> and optional <code>config-mode</code>). The parser must also produce deterministic argument ordering, keep <code>overwrite</code> as resource metadata rather than a command option, and use the required error wording.</p>
-<p>Existing parsing behavior for all other resource blocks must remain compatible.</p>
+<p>This task updates the YAML parsing behavior of the <code>helper</code> module so that compute-environment definitions can be converted into command arguments from either a configuration file (<code>file-path</code>) or CLI-style fields (<code>type</code> and optional <code>config-mode</code>). The parser must additionally produce deterministic argument ordering, retain <code>overwrite</code> as resource metadata rather than a command option, and use the required error wording.</p>
+<p>For all other resource blocks, the existing parsing behavior must remain compatible.</p>
 <h4>Public API</h4>
-<p>The module <code>helper</code> (importable as <code>helper</code>) must expose:</p>
+<p>The <code>helper</code> module (importable as <code>helper</code>) must expose:</p>
 <pre><code class="language-python">def parse_all_yaml(paths: list[str]) -&gt; dict
 </code></pre>
 <ul>
-<li><code>paths</code> is a list of paths to YAML files.</li>
-<li>The files are parsed and combined using the existing multi-file resource aggregation behavior.</li>
-<li>The return value is a dictionary whose keys are parsed top-level resource block names, such as <code>&quot;datasets&quot;</code>, <code>&quot;compute-envs&quot;</code>, and <code>&quot;pipelines&quot;</code>.</li>
-<li>Each resource block maps to a list of parsed entries.</li>
+<li><code>paths</code>: a list of paths to YAML files.</li>
+<li>These files are parsed and combined following the existing multi-file resource aggregation behavior.</li>
+<li>The return value is a dictionary whose keys are the names of the parsed top-level resource blocks, such as <code>&quot;datasets&quot;</code>, <code>&quot;compute-envs&quot;</code>, and <code>&quot;pipelines&quot;</code>.</li>
+<li>The value for each resource block is a list of parsed entries.</li>
 </ul>
-<p>Every parsed entry has this shape:</p>
+<p>Each parsed entry has the following shape:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: [&lt;command argument strings&gt;],
     &quot;overwrite&quot;: &lt;bool&gt;,
 }
 </code></pre>
-<h4>Required Behavior</h4>
-<h5><code>overwrite</code> metadata</h5>
-<p>For every resource entry, <code>overwrite</code> is parser metadata rather than a CLI option:</p>
+<h4>Behavior Requirements</h4>
+<h5>Metadata for <code>overwrite</code></h5>
+<p>For each resource entry, <code>overwrite</code> serves as parser metadata rather than a CLI option:</p>
 <ul>
-<li>If the YAML entry contains <code>overwrite</code>, its Boolean value is returned in the entry's separate <code>overwrite</code> field.</li>
-<li>If it is omitted, the returned <code>overwrite</code> value defaults to <code>False</code>.</li>
-<li>The <code>overwrite</code> key is consumed separately and must never produce any token in <code>cmd_args</code>. In particular, neither <code>--overwrite</code> nor an overwrite value may appear in the command argument list, whether the value is <code>True</code> or <code>False</code>.</li>
+<li>If <code>overwrite</code> is present in the YAML entry, its Boolean value is returned in the entry's separate <code>overwrite</code> field.</li>
+<li>If the key is omitted, the returned <code>overwrite</code> value defaults to <code>False</code>.</li>
+<li>The <code>overwrite</code> key is consumed on its own and must never produce any token in <code>cmd_args</code>. Specifically, the command argument list may contain neither <code>--overwrite</code> nor an overwrite value, whether the value is <code>True</code> or <code>False</code>.</li>
 </ul>
-<h5>Compute-environment creation modes</h5>
-<p>Each entry in the top-level <code>compute-envs</code> block must identify its creation source with at least one of <code>file-path</code> or <code>type</code>.</p>
-<h6>1. <code>file-path</code> mode</h6>
-<p>When an entry contains <code>file-path</code>:</p>
+<h5>Creation modes for compute environments</h5>
+<p>The creation source of each entry in the top-level <code>compute-envs</code> block must be identified with at least one of <code>file-path</code> or <code>type</code>.</p>
+<h6>1. Mode based on <code>file-path</code></h6>
+<p>If an entry contains <code>file-path</code>:</p>
 <ul>
-<li>The string value of <code>file-path</code> is the first element of <code>cmd_args</code>.</li>
-<li>It is a bare positional argument and is not preceded by <code>--file-path</code>.</li>
-<li>Remaining applicable options are emitted after this positional argument.</li>
+<li>The first element of <code>cmd_args</code> is the string value of <code>file-path</code>.</li>
+<li>It is a bare positional argument and has no preceding <code>--file-path</code>.</li>
+<li>After this positional argument, the remaining applicable options are emitted.</li>
 </ul>
-<p>For example, a source-file entry containing credentials, <code>fusion-v2: true</code>, <code>fargate: false</code>, a name, wait status, workspace, and <code>overwrite: true</code> produces an entry equivalent to:</p>
+<p>As an example, a source-file entry containing credentials, <code>fusion-v2: true</code>, <code>fargate: false</code>, a name, wait status, workspace, and <code>overwrite: true</code> results in an entry equivalent to:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: [
         &quot;./computeenvs/computeenv.json&quot;,
@@ -749,17 +753,17 @@ overwrite: true
     &quot;overwrite&quot;: True,
 }
 </code></pre>
-<p>The false <code>fargate</code> option is omitted, and no overwrite token is included.</p>
-<h6>2. <code>type</code> mode</h6>
-<p>When an entry contains <code>type</code> and does not contain <code>file-path</code>:</p>
+<p>The false <code>fargate</code> option is left out, and no overwrite token is included.</p>
+<h6>2. Mode based on <code>type</code></h6>
+<p>If an entry contains <code>type</code> and does not contain <code>file-path</code>:</p>
 <ul>
-<li>The string value of <code>type</code> is the first element of <code>cmd_args</code>.</li>
-<li>If <code>config-mode</code> is present, its string value is the second element, immediately after <code>type</code>.</li>
-<li>Both are bare positional arguments. The keys must not be converted into <code>--type</code> or <code>--config-mode</code> flags.</li>
-<li><code>config-mode</code> is optional; when absent, no second positional value is added.</li>
-<li>All remaining options are emitted after these positional arguments.</li>
+<li>The first element of <code>cmd_args</code> is the string value of <code>type</code>.</li>
+<li>If <code>config-mode</code> is present, its string value is the second element, placed immediately after <code>type</code>.</li>
+<li>Both are bare positional arguments. The keys must not be turned into <code>--type</code> or <code>--config-mode</code> flags.</li>
+<li><code>config-mode</code> is optional; if it is absent, no second positional value is added.</li>
+<li>After these positional arguments, all remaining options are emitted.</li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-yaml">compute-envs:
   - type: aws-batch
     config-mode: forge
@@ -768,7 +772,7 @@ overwrite: true
     wait: AVAILABLE
     workspace: my_organization/my_workspace
 </code></pre>
-<p>produces:</p>
+<p>results in:</p>
 <pre><code class="language-python">{
     &quot;cmd_args&quot;: [
         &quot;aws-batch&quot;,
@@ -781,73 +785,74 @@ overwrite: true
     &quot;overwrite&quot;: False,
 }
 </code></pre>
-<h5>Option-to-argument conversion and ordering</h5>
-<p>After handling the mode-specific positional fields and the separate <code>overwrite</code> metadata, convert each remaining compute-environment option as follows:</p>
+<h5>Converting options into arguments and ordering them</h5>
+<p>Once the mode-specific positional fields and the separate <code>overwrite</code> metadata have been handled, convert each remaining compute-environment option as follows:</p>
 <ul>
-<li>For a non-Boolean value, emit <code>--&lt;key&gt;</code> followed by the string form of the value as a separate element.</li>
-<li>For Boolean <code>True</code>, emit only <code>--&lt;key&gt;</code>, with no following value element.</li>
-<li>For Boolean <code>False</code>, emit nothing for that option.</li>
-<li>Sort remaining options alphabetically by option key, independently of their order in the YAML input. Each flag and its value, when present, remain grouped together in that position.</li>
-<li>Positional arguments always precede the sorted flags.</li>
+<li>For a value that is not Boolean, emit <code>--&lt;key&gt;</code> followed by the string form of the value as a separate element.</li>
+<li>For Boolean <code>True</code>, emit only <code>--&lt;key&gt;</code>, with no value element following it.</li>
+<li>For Boolean <code>False</code>, nothing is emitted for that option.</li>
+<li>The remaining options are sorted alphabetically by option key, independently of their order in the YAML input. Each flag and its value, when present, stay grouped together in that position.</li>
+<li>The positional arguments always come before the sorted flags.</li>
 </ul>
-<p>The special keys <code>file-path</code>, <code>type</code>, and <code>config-mode</code> must only be represented by their required positional values, and <code>overwrite</code> must only be represented by the separate metadata field.</p>
-<h4>Error Conditions</h4>
-<h5>Empty or invalid input file</h5>
-<p>If any supplied file is empty or contains no valid data, <code>parse_all_yaml</code> must raise <code>ValueError</code> with exactly this message:</p>
+<p>The special keys <code>file-path</code>, <code>type</code>, and <code>config-mode</code> must be represented only by their required positional values, and <code>overwrite</code> must be represented only by the separate metadata field.</p>
+<h4>Error Cases</h4>
+<h5>Input file that is empty or invalid</h5>
+<p>If any supplied file is empty or contains no valid data, <code>parse_all_yaml</code> must raise <code>ValueError</code> carrying exactly this message:</p>
 <pre><code class="language-text">The file '&lt;file_path&gt;' is empty or does not contain valid data.
 </code></pre>
-<p><code>&lt;file_path&gt;</code> is replaced by the path of the offending file.</p>
+<p>The path of the offending file replaces <code>&lt;file_path&gt;</code>.</p>
 <h5>Missing compute-environment source</h5>
-<p>If a <code>compute-envs</code> entry contains neither <code>type</code> nor <code>file-path</code>, <code>parse_all_yaml</code> must raise <code>ValueError</code>. Its message must contain this exact text:</p>
+<p>When a <code>compute-envs</code> entry contains neither <code>type</code> nor <code>file-path</code>, <code>parse_all_yaml</code> must raise <code>ValueError</code>. The message must contain this exact text:</p>
 <pre><code class="language-text">Please specify at least 'type' or 'file-path' for creating the resource.
 </code></pre>
-<p>A <code>config-mode</code> field by itself does not satisfy this requirement.</p>
-<h4>Compatibility Requirements</h4>
+<p>A <code>config-mode</code> field on its own does not satisfy this requirement.</p>
+<h4>Requirements for Compatibility</h4>
 <ul>
-<li>Existing parsing behavior for other resource blocks, including organizations, workspaces, credentials, teams, actions, datasets, pipelines, and launch entries, must continue to work unchanged.</li>
-<li>Preserve existing deterministic flag ordering and all resource-specific positional argument placement.</li>
-<li>Preserve existing handling of pipeline and launch URLs, <code>params</code>, and <code>params-file</code>, including their established placement in <code>cmd_args</code>.</li>
-<li>Every parsed resource entry must continue to include both <code>cmd_args</code> and the separate <code>overwrite</code> Boolean.</li>
+<li>The existing parsing behavior must continue to work unchanged for other resource blocks, including organizations, workspaces, credentials, teams, actions, datasets, pipelines, and launch entries.</li>
+<li>The existing deterministic flag ordering and all resource-specific positional argument placement must be preserved.</li>
+<li>The existing handling of pipeline and launch URLs, <code>params</code>, and <code>params-file</code> must be preserved, including their established placement in <code>cmd_args</code>.</li>
+<li>Both <code>cmd_args</code> and the separate <code>overwrite</code> Boolean must continue to be included in every parsed resource entry.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You must extend an existing YAML-parsing helper module to support two new top-level configuration block types</span>
-        <span class="spec-meta muted">527 words · source specification
+        <span class="spec-title">An existing helper module that parses YAML must be extended by you so that it supports two new top-level configuration block types, teams and members.</span>
+        <span class="spec-meta muted">599 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must extend an existing YAML-parsing helper module to support two new top-level configuration block types: <code>teams</code> and <code>members</code>. The helper transforms declarative YAML configuration into a structured dictionary of command-line argument lists.</p>
-<h4>Public API</h4>
-<p>The module is importable as <code>helper</code> (i.e., <code>from &lt;package&gt; import helper</code> or equivalent, matching the existing module used for pipeline parsing). It exposes:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>An existing helper module that parses YAML must be extended by you so that it supports two new top-level configuration block types, <code>teams</code> and <code>members</code>. Declarative YAML configuration is transformed by the helper into a structured dictionary of command-line argument lists.</p>
+<h4>Public Interface</h4>
+<p>Under the name <code>helper</code>, the module can be imported (i.e., <code>from &lt;package&gt; import helper</code> or equivalent, matching the existing module used for pipeline parsing). Exposed by the module is the following function:</p>
 <pre><code class="language-python">def parse_all_yaml(file_paths: list[str]) -&gt; dict:
     ...
 </code></pre>
 <ul>
-<li><code>parse_all_yaml</code> accepts a list of file paths pointing to YAML files.</li>
-<li>It loads and merges the parsed content of those files.</li>
-<li>It returns a dictionary keyed by the top-level block type names found in the YAML (e.g., <code>&quot;teams&quot;</code>, <code>&quot;members&quot;</code>, plus any block types already supported).</li>
-<li>Each value is a list of processed entries, one per item defined under that block type in the YAML.</li>
+<li>What <code>parse_all_yaml</code> accepts is a list of file paths pointing to YAML files.</li>
+<li>Those files are loaded by the function, and their parsed content is merged.</li>
+<li>What it returns is a dictionary whose keys are the top-level block type names found in the YAML (e.g., <code>&quot;teams&quot;</code>, <code>&quot;members&quot;</code>, plus any block types already supported).</li>
+<li>A list of processed entries makes up each value, one entry per item defined under that block type in the YAML.</li>
 </ul>
-<p>This function already exists and handles other block types (such as <code>pipelines</code>); you are only adding handling for the <code>teams</code> and <code>members</code> block types. Do not change or remove existing behavior.</p>
-<h4>Behavior for the <code>members</code> block</h4>
-<p>Input YAML under the <code>members</code> key is a list of member entries. Each entry is a mapping such as:</p>
+<p>This function is preexisting and already takes care of other block types (such as <code>pipelines</code>); the handling of the <code>teams</code> and <code>members</code> block types is the only thing you add. Existing behavior must not be changed or removed.</p>
+<h4>Handling of the <code>members</code> Block</h4>
+<p>A list of member entries is what the input YAML contains under the <code>members</code> key. Each entry is a mapping, for example:</p>
 <pre><code class="language-yaml">members:
   - user: bob@myorg.io
     organization: myorg
 </code></pre>
-<p>For each member entry, produce a dictionary with exactly these keys:</p>
+<p>For every member entry, the dictionary you produce must contain exactly these keys:</p>
 <ul>
-<li><code>&quot;cmd_args&quot;</code>: a flat list of strings composed of <code>--organization</code> followed by the entry's <code>organization</code> value, then <code>--user</code> followed by the entry's <code>user</code> value. The ordering of the arguments must be:<pre><code>[&quot;--organization&quot;, &lt;organization&gt;, &quot;--user&quot;, &lt;user&gt;]
+<li><code>&quot;cmd_args&quot;</code>: a flat list of strings put together from <code>--organization</code> followed by the entry's <code>organization</code> value, then <code>--user</code> followed by the entry's <code>user</code> value. The arguments must appear in this order:<pre><code>[&quot;--organization&quot;, &lt;organization&gt;, &quot;--user&quot;, &lt;user&gt;]
 </code></pre>
 </li>
-<li><code>&quot;overwrite&quot;</code>: a boolean. If the entry does not specify an <code>overwrite</code> field, this defaults to <code>False</code>.</li>
+<li><code>&quot;overwrite&quot;</code>: a boolean. Whenever the entry has no <code>overwrite</code> field, the value defaults to <code>False</code>.</li>
 </ul>
-<p>The returned dictionary's <code>&quot;members&quot;</code> key maps to the list of these per-entry dictionaries.</p>
-<h4>Behavior for the <code>teams</code> block</h4>
-<p>Input YAML under the <code>teams</code> key is a list of team entries. Each entry is a mapping such as:</p>
+<p>In the returned dictionary, the list of these per-entry dictionaries is the value of the <code>&quot;members&quot;</code> key.</p>
+<h4>Handling of the <code>teams</code> Block</h4>
+<p>Under the <code>teams</code> key, the input YAML holds a list of team entries. Every entry is a mapping, like the following:</p>
 <pre><code class="language-yaml">teams:
   - name: test_team1
     organization: my_organization
@@ -856,96 +861,96 @@ overwrite: true
       - user1@org.io
     overwrite: true
 </code></pre>
-<p>For each team entry, produce a dictionary with exactly these keys:</p>
+<p>For every team entry, the dictionary you produce must contain exactly these keys:</p>
 <ul>
-<li><code>&quot;cmd_args&quot;</code>: a <strong>tuple</strong> of two elements:
+<li><code>&quot;cmd_args&quot;</code>: a <strong>tuple</strong> with two elements:
 <ol>
-<li>A flat list of strings for the team-creation arguments, built from the fields <code>description</code>, <code>name</code>, and <code>organization</code>, emitted in <strong>alphabetical order of the field name</strong>. Each field contributes its <code>--&lt;fieldname&gt;</code> flag followed by its value:<pre><code>[&quot;--description&quot;, &lt;description&gt;, &quot;--name&quot;, &lt;name&gt;, &quot;--organization&quot;, &lt;organization&gt;]
+<li>A flat list of strings holding the team-creation arguments, assembled from the fields <code>description</code>, <code>name</code>, and <code>organization</code> and emitted in <strong>alphabetical order of the field name</strong>. Each field is represented by its <code>--&lt;fieldname&gt;</code> flag followed by its value:<pre><code>[&quot;--description&quot;, &lt;description&gt;, &quot;--name&quot;, &lt;name&gt;, &quot;--organization&quot;, &lt;organization&gt;]
 </code></pre>
 </li>
-<li>A list of member-addition argument lists — one inner list per entry in the team's <code>members</code> list. Each inner list has the form:<pre><code>[&quot;--team&quot;, &lt;name&gt;, &quot;--organization&quot;, &lt;organization&gt;, &quot;add&quot;, &quot;--member&quot;, &lt;member&gt;]
+<li>A list made up of member-addition argument lists, with one inner list per entry of the team's <code>members</code> list. Every inner list follows this pattern:<pre><code>[&quot;--team&quot;, &lt;name&gt;, &quot;--organization&quot;, &lt;organization&gt;, &quot;add&quot;, &quot;--member&quot;, &lt;member&gt;]
 </code></pre>
-where <code>&lt;name&gt;</code> and <code>&lt;organization&gt;</code> are the team's own values and <code>&lt;member&gt;</code> is the individual member value.</li>
+Here, <code>&lt;name&gt;</code> and <code>&lt;organization&gt;</code> are the team's own values, while <code>&lt;member&gt;</code> is the value of the individual member.</li>
 </ol>
 </li>
-<li><code>&quot;overwrite&quot;</code>: a boolean reflecting the entry's <code>overwrite</code> field.</li>
+<li><code>&quot;overwrite&quot;</code>: a boolean whose value mirrors the entry's <code>overwrite</code> field.</li>
 </ul>
-<p>The returned dictionary's <code>&quot;teams&quot;</code> key maps to the list of these per-entry dictionaries.</p>
-<h4>Notes</h4>
+<p>In the returned dictionary, the list of these per-entry dictionaries is the value of the <code>&quot;teams&quot;</code> key.</p>
+<h4>Further Notes</h4>
 <ul>
-<li>Argument ordering must be exactly as specified above.</li>
-<li>The first element of a team's <code>cmd_args</code> is an ordered list of the team's descriptive fields sorted alphabetically by field name; the second element is a list containing one argument list per member.</li>
-<li>The <code>members</code> block's <code>cmd_args</code> is a plain list (not a tuple).</li>
-<li>The <code>overwrite</code> value defaults to <code>False</code> when absent from an entry.</li>
+<li>The order in which the arguments appear must be exactly the one specified above.</li>
+<li>Within a team's <code>cmd_args</code>, the first element is an ordered list made up of that team's descriptive fields sorted alphabetically by field name; the second element is a list that holds one argument list per member.</li>
+<li>For the <code>members</code> block, the <code>cmd_args</code> value is a plain list (not a tuple).</li>
+<li>Whenever an entry omits <code>overwrite</code>, the value defaults to <code>False</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Add duplicate-name detection to the YAML configuration parsing logic in the helper module.</span>
-        <span class="spec-meta muted">237 words · source specification
+        <span class="spec-title">Introduce duplicate-name detection into the YAML configuration parsing logic of the helper module.</span>
+        <span class="spec-meta muted">259 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add duplicate-name detection to the YAML configuration parsing logic in the <code>helper</code> module.</p>
-<h4>Public API</h4>
-<p>The module <code>helper</code> exposes a function:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Introduce duplicate-name detection into the YAML configuration parsing logic of the <code>helper</code> module.</p>
+<h4>Public Interface</h4>
+<p>A function is exposed by the module <code>helper</code>:</p>
 <pre><code class="language-python">parse_all_yaml(paths)
 </code></pre>
 <ul>
-<li><code>paths</code> is an iterable (e.g., a list) of file paths to YAML configuration files.</li>
+<li><code>paths</code> is an iterable (e.g., a list) of file paths that point to YAML configuration files.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When parsing YAML configuration files, the function must detect duplicate <code>name</code> values within the same top-level resource block (a list of resource entries keyed by a block name such as <code>compute-envs</code>).</p>
-<p>Each resource block maps a block key (e.g., <code>&quot;compute-envs&quot;</code>) to a list of entries. Each entry is a mapping that may contain a <code>&quot;name&quot;</code> field.</p>
-<p>If two or more entries within the same block share the same value for their <code>&quot;name&quot;</code> field, the function must raise a <code>ValueError</code>.</p>
-<h5>Error Message Format</h5>
-<p>The raised <code>ValueError</code> message must contain the exact text:</p>
+<h4>Behavior Requirements</h4>
+<p>While parsing YAML configuration files, the function must detect duplicate <code>name</code> values inside the same top-level resource block (a list of resource entries keyed by a block name such as <code>compute-envs</code>).</p>
+<p>Within each resource block, a block key (e.g., <code>&quot;compute-envs&quot;</code>) is mapped to a list of entries. Each entry is a mapping, and it may contain a <code>&quot;name&quot;</code> field.</p>
+<p>The function must raise a <code>ValueError</code> if two or more entries within the same block share the same value for their <code>&quot;name&quot;</code> field.</p>
+<h5>Format of the Error Message</h5>
+<p>The message of the raised <code>ValueError</code> must contain the exact text:</p>
 <pre><code>Duplicate name key specified in config file for &lt;block&gt;: &lt;name&gt;. Please specify a unique value.
 </code></pre>
-<p>where:</p>
+<p>Here:</p>
 <ul>
-<li><code>&lt;block&gt;</code> is the top-level block key under which the duplicate entries appear (e.g., <code>compute-envs</code>).</li>
-<li><code>&lt;name&gt;</code> is the duplicated <code>name</code> value (e.g., <code>test_computeenv</code>).</li>
+<li><code>&lt;block&gt;</code> denotes the top-level block key under which the duplicate entries occur (e.g., <code>compute-envs</code>).</li>
+<li><code>&lt;name&gt;</code> denotes the <code>name</code> value that is duplicated (e.g., <code>test_computeenv</code>).</li>
 </ul>
-<p>For example, given two entries with <code>name: test_computeenv</code> under the <code>compute-envs</code> block, the message must contain:</p>
+<p>For instance, if two entries with <code>name: test_computeenv</code> are present under the <code>compute-envs</code> block, the message must contain:</p>
 <pre><code>Duplicate name key specified in config file for compute-envs: test_computeenv. Please specify a unique value.
 </code></pre>
 <h4>Scope</h4>
 <ul>
-<li>Only the behavior described above must be added.</li>
-<li>Existing parsing behavior for valid, non-duplicate configurations must be preserved.</li>
+<li>The only behavior that must be added is the one described above.</li>
+<li>The parsing behavior that already exists for valid, non-duplicate configurations must be preserved.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Modify the parse_all_yaml function in the seqerakit/helper.py module so that it can read YAML input from standard input (stdin) in addition to reading from…</span>
-        <span class="spec-meta muted">416 words · source specification
+        <span class="spec-title">In the seqerakit/helper.py module, update the parse_all_yaml function so that, besides reading from files, it can also read YAML input from standard input…</span>
+        <span class="spec-meta muted">448 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add stdin support to YAML parsing in <code>seqerakit.helper</code></h3>
-<h4>Overview</h4>
-<p>Modify the <code>parse_all_yaml</code> function in the <code>seqerakit/helper.py</code> module so that it can read YAML input from standard input (stdin) in addition to reading from files.</p>
-<h4>Public API</h4>
-<p>The function under change is:</p>
+      <div class="spec-body"><h3>Task: Add support for reading YAML from stdin in <code>seqerakit.helper</code></h3>
+<h4>Summary</h4>
+<p>In the <code>seqerakit/helper.py</code> module, update the <code>parse_all_yaml</code> function so that, besides reading from files, it can also read YAML input from standard input (stdin).</p>
+<h4>Public Interface</h4>
+<p>The function being updated is:</p>
 <pre><code class="language-python">helper.parse_all_yaml(paths)
 </code></pre>
 <ul>
-<li><code>paths</code>: a list of strings. Each string is normally a file path. The special string <code>&quot;-&quot;</code> indicates that YAML should be read from standard input (<code>sys.stdin</code>) instead of from a file.</li>
-<li>Returns: a dictionary keyed by top-level YAML block names (e.g. <code>&quot;compute-envs&quot;</code>, <code>&quot;organizations&quot;</code>), where each value is a list of processed entries. The existing return structure for file-based input must be preserved unchanged.</li>
+<li><code>paths</code>: a list of strings, where each string is ordinarily a file path. The special string <code>&quot;-&quot;</code> signals that YAML should be read from standard input (<code>sys.stdin</code>) rather than from a file.</li>
+<li>Returns: a dictionary whose keys are top-level YAML block names (e.g. <code>&quot;compute-envs&quot;</code>, <code>&quot;organizations&quot;</code>), each value being a list of processed entries. The return structure that currently exists for file-based input must be preserved unchanged.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Reading from stdin</h5>
-<p>When the <code>&quot;-&quot;</code> marker appears in the <code>paths</code> list, the function must read the full YAML document from <code>sys.stdin</code> and process it exactly as it would process the equivalent content read from a file. All existing parsing, validation, and transformation logic that applies to file input applies identically to stdin input.</p>
-<h5>Empty stdin</h5>
-<p>If the content read from stdin is empty (or otherwise contains no valid YAML data), the function must raise <code>ValueError</code> with a message that contains exactly:</p>
+<h4>Mandatory Behavior</h4>
+<h5>Reading input from stdin</h5>
+<p>When the <code>&quot;-&quot;</code> marker is present in the <code>paths</code> list, the function must read the full YAML document from <code>sys.stdin</code> and process it exactly as it would process equivalent content read from a file. All of the existing parsing, validation, and transformation logic that applies to file input applies identically to input from stdin.</p>
+<h5>Empty stdin content</h5>
+<p>If the content read from stdin is empty (or otherwise contains no valid YAML data), the function must raise <code>ValueError</code> with a message containing exactly:</p>
 <pre><code>The input from stdin is empty or does not contain valid YAML data.
 </code></pre>
-<h5>Example — compute-envs from stdin</h5>
-<p>Given the following on stdin:</p>
+<h5>Example — compute-envs supplied on stdin</h5>
+<p>Suppose the following is supplied on stdin:</p>
 <pre><code class="language-yaml">compute-envs:
   - name: test_computeenv
     config-mode: forge
@@ -954,7 +959,7 @@ where <code>&lt;name&gt;</code> and <code>&lt;organization&gt;</code> are the te
     type: aws-batch
     wait: AVAILABLE
 </code></pre>
-<p>calling <code>parse_all_yaml([&quot;-&quot;])</code> must produce a result whose <code>&quot;compute-envs&quot;</code> key equals:</p>
+<p>A call to <code>parse_all_yaml([&quot;-&quot;])</code> must produce a result whose <code>&quot;compute-envs&quot;</code> key equals:</p>
 <pre><code class="language-python">[
     {
         &quot;cmd_args&quot;: [
@@ -973,128 +978,128 @@ where <code>&lt;name&gt;</code> and <code>&lt;organization&gt;</code> are the te
     }
 ]
 </code></pre>
-<p>That is: the entry's <code>type</code> and <code>config-mode</code> values become the first two positional elements of <code>cmd_args</code>, the remaining recognized fields (<code>name</code>, <code>workspace</code>, <code>credentials</code>, <code>wait</code>) become <code>--&lt;key&gt; &lt;value&gt;</code> pairs in the order shown, and <code>overwrite</code> defaults to <code>False</code> when not specified.</p>
-<h4>Constraints on Existing Behavior</h4>
-<p>All existing behavior for file-based input must remain intact, including:</p>
+<p>In other words: the values of the entry's <code>type</code> and <code>config-mode</code> become the first two positional elements of <code>cmd_args</code>, the remaining recognized fields (<code>name</code>, <code>workspace</code>, <code>credentials</code>, <code>wait</code>) become <code>--&lt;key&gt; &lt;value&gt;</code> pairs in the order shown, and <code>overwrite</code> defaults to <code>False</code> when it is not specified.</p>
+<h4>Constraints on Behavior That Already Exists</h4>
+<p>All behavior that already exists for file-based input must remain intact, including the following:</p>
 <ul>
 <li>
-<p>Parsing of top-level blocks such as <code>organizations</code> and <code>compute-envs</code> from one or more file paths.</p>
+<p>Parsing of top-level blocks such as <code>organizations</code> and <code>compute-envs</code> when one or more file paths are given.</p>
 </li>
 <li>
-<p>Raising <code>ValueError</code> when a config block contains duplicate <code>name</code> values. The message for duplicates must contain (as a contiguous string):</p>
+<p>Raising <code>ValueError</code> when a config block has duplicate <code>name</code> values. The message in the duplicate case must contain (as a contiguous string):</p>
 <pre><code>Duplicate name key specified in config file for compute-envs: test_computeenv. Please specify a unique value.
 </code></pre>
-<p>Note there is a single space after <code>for</code> (no trailing space before the block name).</p>
+<p>Note that a single space appears after <code>for</code> (no trailing space before the block name).</p>
 </li>
 <li>
-<p>Existing validation for empty YAML files and for invalid/unsupported types.</p>
+<p>The validation that already exists for empty YAML files and for invalid/unsupported types.</p>
 </li>
 </ul>
-<p>No other behavior should be added or changed.</p>
+<p>No behavior beyond the above should be added or changed.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Maintain the YAML helper functionality in seqerakit.helper while normalizing the relevant Python source to standard formatting.</span>
-        <span class="spec-meta muted">769 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Carry out maintenance on the YAML helper functionality in seqerakit.helper while bringing the relevant Python source to a standard format.</span>
+        <span class="spec-meta muted">842 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Maintain the YAML helper functionality in <code>seqerakit.helper</code> while normalizing the relevant Python source to standard formatting. In addition to formatting, correct the file-input merge behavior so that loading a YAML file does not cause that file's resource definitions to be appended repeatedly.</p>
-<p>The only intended observable behavior change is the removal of this self-duplication. All other helper behavior and compatibility must remain unchanged.</p>
+<p>Carry out maintenance on the YAML helper functionality in <code>seqerakit.helper</code> while bringing the relevant Python source to a standard format. Beyond the formatting work, fix the merge behavior for file input so that loading a YAML file does not result in that file's resource definitions being appended repeatedly.</p>
+<p>Removing this self-duplication is the only intended change to observable behavior. Helper behavior and compatibility in every other respect must remain unchanged.</p>
 <h4>Scope</h4>
 <ul>
-<li>Preserve the existing YAML loading, merging, validation, block parsing, resource ordering, and command-descriptor behavior.</li>
-<li>Normalize whitespace and layout in the helper and adjacent Python support code.</li>
-<li>Eliminate redundant processing that causes already-merged file content to be merged again.</li>
-<li>Avoid unrelated refactoring or behavioral changes.</li>
+<li>Keep the existing YAML loading, merging, validation, block parsing, resource ordering, and command-descriptor behavior intact.</li>
+<li>Normalize whitespace and layout within the helper and the Python support code adjacent to it.</li>
+<li>Remove the redundant processing that results in already-merged file content being merged again.</li>
+<li>Refrain from unrelated refactoring or changes to behavior.</li>
 </ul>
-<h4>Public API Compatibility</h4>
+<h4>Compatibility of the Public API</h4>
 <ul>
-<li>Do not add public functions, classes, or modules.</li>
-<li>Do not change any existing public API signature. In particular, <code>parse_all_yaml(file_paths, destroy=False)</code> must retain its current signature and return type.</li>
-<li>Preserve the existing descriptor structure: recognized top-level resource blocks map to lists of descriptors containing <code>cmd_args</code> and <code>overwrite</code>.</li>
-<li>Preserve all existing block-specific parsing, including generic resources and the specialized handling for teams, datasets, typed resources, pipelines, and launches.</li>
-<li>Preserve the established creation order of recognized resource blocks and the established reverse deletion order when <code>destroy=True</code>.</li>
-<li>Preserve standard-input handling, multi-file behavior, empty-input handling, missing-file handling, validation messages, duplicate-name validation, overwrite extraction, and handling of unsupported top-level blocks, except where directly affected by the self-duplication correction below.</li>
+<li>Public functions, classes, or modules must not be added.</li>
+<li>No existing public API signature may be altered. Specifically, <code>parse_all_yaml(file_paths, destroy=False)</code> must keep its current signature and return type.</li>
+<li>The existing descriptor structure must be preserved: recognized top-level resource blocks map to lists of descriptors that contain <code>cmd_args</code> and <code>overwrite</code>.</li>
+<li>All existing block-specific parsing must be preserved, including generic resources and the specialized handling for teams, datasets, typed resources, pipelines, and launches.</li>
+<li>The established creation order of recognized resource blocks and the established reverse deletion order when <code>destroy=True</code> must both be preserved.</li>
+<li>Standard-input handling, multi-file behavior, empty-input handling, missing-file handling, validation messages, duplicate-name validation, overwrite extraction, and handling of unsupported top-level blocks must all be preserved, except where they are directly affected by the self-duplication correction below.</li>
 </ul>
-<h4>YAML File Merge and Parsing Contract</h4>
-<p>For file-based input, every resource definition retained by the existing merge semantics must be merged and parsed exactly once. After a file's data has been incorporated into the aggregate configuration, that same data must not be extended or appended again merely as another step in processing the same file.</p>
+<h4>Contract for YAML File Merging and Parsing</h4>
+<p>When input comes from files, each resource definition that the existing merge semantics retain must be merged and parsed exactly once. Once a file's data has been absorbed into the aggregate configuration, that same data must not be extended or appended again merely as another step in processing the same file.</p>
 <p>Consequently:</p>
 <ul>
-<li>A valid file with one definition under a resource block must produce exactly one descriptor for that block.</li>
-<li>A valid file with multiple uniquely named definitions must produce one descriptor per definition, without helper-generated copies.</li>
-<li>A resource must not be treated as a duplicate of itself solely because its source file was merged more than once internally.</li>
-<li>This requirement applies uniformly to all supported resource blocks, including organizations, workspaces, datasets, teams, members, pipelines, and compute environments supplied either through CLI-style fields or a source file.</li>
-<li>Existing semantics for combining separate input sources, including any established cross-file deduplication or replacement behavior, must otherwise remain intact.</li>
-<li>Standard-input content must continue to be processed according to its existing behavior and must not be duplicated by the file merge path.</li>
+<li>If a valid file contains a single definition under a resource block, exactly one descriptor for that block must be produced.</li>
+<li>If a valid file contains multiple uniquely named definitions, one descriptor per definition must be produced, with no helper-generated copies.</li>
+<li>A resource must not be treated as a duplicate of itself only because its source file was merged more than once internally.</li>
+<li>This requirement holds uniformly for all supported resource blocks, including organizations, workspaces, datasets, teams, members, pipelines, and compute environments supplied either through CLI-style fields or a source file.</li>
+<li>In all other respects, the existing semantics for combining separate input sources, including any established cross-file deduplication or replacement behavior, must remain intact.</li>
+<li>Content supplied via standard input must continue to be processed in accordance with its existing behavior and must not be duplicated by the file merge path.</li>
 </ul>
-<h5>Duplicate validation</h5>
-<p>The correction must not disable genuine duplicate validation. If the input itself contains multiple definitions in the same resource block that resolve to the same identifying value, parsing must continue to raise <code>ValueError</code> with the established duplicate-name diagnostic. Definitions identified through existing <code>--name</code>, <code>--user</code>, or <code>--email</code> argument handling remain subject to that validation.</p>
-<p>A unique, single definition must not raise that error.</p>
+<h5>Validation of duplicates</h5>
+<p>The correction must not switch off genuine duplicate validation. When the input itself contains multiple definitions in the same resource block that resolve to the same identifying value, parsing must continue to raise <code>ValueError</code> with the established duplicate-name diagnostic. Definitions identified through the existing <code>--name</code>, <code>--user</code>, or <code>--email</code> argument handling remain subject to that validation.</p>
+<p>A single, unique definition must not cause that error to be raised.</p>
 <h5>Existing input errors</h5>
-<p>Existing error behavior must remain unchanged, including:</p>
+<p>The existing error behavior must remain unchanged, including:</p>
 <ul>
-<li>Empty or invalid file content raises <code>ValueError</code> indicating that the named file is empty or does not contain valid data.</li>
-<li>Empty or invalid standard input raises <code>ValueError</code> indicating that standard input is empty or does not contain valid YAML data.</li>
-<li>Typed resources that provide neither <code>type</code> nor <code>file-path</code> continue to raise the established <code>ValueError</code>.</li>
-<li>A missing file continues to use the existing user-visible error and exit behavior.</li>
+<li>File content that is empty or invalid raises <code>ValueError</code> indicating that the named file is empty or contains no valid data.</li>
+<li>Standard input that is empty or invalid raises <code>ValueError</code> indicating that standard input is empty or contains no valid YAML data.</li>
+<li>Typed resources that supply neither <code>type</code> nor <code>file-path</code> continue to raise the established <code>ValueError</code>.</li>
+<li>A missing file continues to rely on the existing user-visible error and exit behavior.</li>
 </ul>
-<h4>Formatting Requirements</h4>
+<h4>Requirements for Formatting</h4>
 <ul>
-<li>Python code must conform to Black-compatible formatting and standard top-level spacing conventions.</li>
-<li>Use the proper two blank lines between an import block and a following top-level definition or decorated construct.</li>
-<li>Normalize trailing whitespace, blank lines, and related layout without altering runtime behavior.</li>
-<li>Redundant or extraneous logic may be removed where it contributes no required behavior; beyond the file self-duplication fix, such cleanup must be behavior-preserving.</li>
+<li>The Python code must conform to Black-compatible formatting and the standard conventions for top-level spacing.</li>
+<li>Place the correct two blank lines between an import block and a top-level definition or decorated construct that follows it.</li>
+<li>Normalize trailing whitespace, blank lines, and related layout while runtime behavior is left unaltered.</li>
+<li>Where redundant or extraneous logic contributes no required behavior, it may be removed; apart from the file self-duplication fix, such cleanup must be behavior-preserving.</li>
 </ul>
 <h4>Non-Goals</h4>
 <ul>
-<li>Do not redesign YAML schemas or command argument generation.</li>
-<li>Do not change resource ordering, overwrite semantics, deletion semantics, validation rules, or error text.</li>
-<li>Do not introduce a new deduplication policy to conceal genuinely duplicated names in user input.</li>
-<li>Do not change the Seqera Platform command wrapper or unrelated CLI behavior.</li>
-<li>Do not make any functional change beyond ensuring that each retained file-based resource definition is processed once.</li>
+<li>YAML schemas and command argument generation must not be redesigned.</li>
+<li>Resource ordering, overwrite semantics, deletion semantics, validation rules, and error text must not be changed.</li>
+<li>A new deduplication policy must not be introduced to conceal genuinely duplicated names in user input.</li>
+<li>Neither the Seqera Platform command wrapper nor unrelated CLI behavior may be changed.</li>
+<li>Beyond ensuring that each retained file-based resource definition is processed once, no functional change may be made.</li>
 </ul>
-<h4>Completion Criteria</h4>
-<p>The completed maintenance must leave the public APIs unchanged, satisfy the formatting requirements, successfully parse ordinary file-based configurations with unique resource names into one descriptor per definition, continue to reject genuine duplicate identifiers, and preserve all behavior unrelated to the redundant merge processing.</p>
+<h4>Criteria for Completion</h4>
+<p>In its completed state, the maintenance must leave the public APIs unchanged, meet the formatting requirements, successfully parse ordinary file-based configurations with unique resource names into one descriptor per definition, continue to reject genuine duplicate identifiers, and preserve all behavior unrelated to the redundant merge processing.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Constructor-Level JSON Output Handling in SeqeraPlatform</span>
-        <span class="spec-meta muted">1022 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Constructor-Level JSON Output Configuration in SeqeraPlatform</span>
+        <span class="spec-meta muted">1079 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Constructor-Level JSON Output Handling in <code>SeqeraPlatform</code></h3>
+      <div class="spec-body"><h3>Task Specification: Constructor-Level JSON Output Configuration in <code>SeqeraPlatform</code></h3>
 <h4>Overview</h4>
-<p>Update <code>seqerakit.seqeraplatform.SeqeraPlatform</code> so that JSON output is configured once when an instance is constructed, rather than selected separately for each command call. The setting applies consistently to every command invoked through that instance. Existing command construction, CLI-option handling, textual output, error classification, environment-variable handling, and dry-run behavior must remain compatible.</p>
+<p>Modify <code>seqerakit.seqeraplatform.SeqeraPlatform</code> so that JSON output is configured a single time when an instance is constructed, instead of being chosen individually on each command invocation. That configuration must apply uniformly to every command invoked through the instance. Existing command construction, CLI-option handling, textual output, error classification, environment-variable handling, and dry-run behavior must remain compatible.</p>
 <h4>Public API</h4>
-<h5><code>SeqeraPlatform</code> constructor</h5>
-<p>The constructor must support the existing <code>cli_args</code> and <code>dryrun</code> options and add a Boolean <code>json</code> keyword argument whose default is <code>False</code>. A compatible signature is:</p>
+<h5>The <code>SeqeraPlatform</code> constructor</h5>
+<p>The constructor must support the existing <code>cli_args</code> and <code>dryrun</code> options and must add a Boolean <code>json</code> keyword argument whose default value is <code>False</code>. A compatible signature is:</p>
 <pre><code class="language-python">SeqeraPlatform(cli_args=None, dryrun=False, json=False)
 </code></pre>
-<p>The existing constructor parameters must retain their positional and keyword compatibility; <code>json</code> is intended to be supplied as a keyword.</p>
+<p>The parameters that already exist must keep their positional and keyword compatibility; <code>json</code> is meant to be supplied as a keyword.</p>
 <ul>
-<li><code>json=False</code> selects the existing plain-text behavior.</li>
-<li><code>json=True</code> selects JSON-output behavior for all commands invoked through the instance.</li>
-<li><code>cli_args</code>, when supplied, remains a sequence of global <code>tw</code> CLI tokens to include in every generated command. Options such as <code>--url</code>, <code>--insecure</code>, and <code>-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts</code> must continue to be supported.</li>
-<li>Supplying <code>--verbose</code> in <code>cli_args</code> must continue to raise <code>ValueError</code> with the message <code>--verbose is not supported as a CLI argument to seqerakit.</code></li>
-<li><code>dryrun=True</code> retains the existing no-execution behavior described below.</li>
+<li>With <code>json=False</code>, the existing plain-text behavior is selected.</li>
+<li>With <code>json=True</code>, JSON-output behavior is selected for all commands invoked through the instance.</li>
+<li>When provided, <code>cli_args</code> stays a sequence of global <code>tw</code> CLI tokens included in every generated command. Options such as <code>--url</code>, <code>--insecure</code>, and <code>-Djavax.net.ssl.trustStore=/absolute/path/to/cacerts</code> must continue to be supported.</li>
+<li>Passing <code>--verbose</code> in <code>cli_args</code> must continue to raise <code>ValueError</code> with the message <code>--verbose is not supported as a CLI argument to seqerakit.</code></li>
+<li>With <code>dryrun=True</code>, the existing no-execution behavior described below is retained.</li>
 </ul>
-<h5>Dynamic command invocation</h5>
-<p>Command groups remain dynamically accessible as attributes and callable with positional string tokens:</p>
+<h5>Dynamically invoked commands</h5>
+<p>Command groups stay dynamically accessible as attributes and callable with positional string tokens:</p>
 <pre><code class="language-python">platform = SeqeraPlatform(json=True)
 result = platform.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;)
 </code></pre>
-<p>The dynamic attribute name forms the command group. Existing underscore-to-hyphen normalization must be preserved, so, for example, <code>platform.compute_envs(...)</code> invokes the <code>compute-envs</code> group. Positional tokens must retain their supplied order.</p>
-<p>Existing non-JSON command keywords must remain compatible. In particular, <code>config=value</code> appends <code>--config=value</code>, while <code>params_file=value</code> appends <code>--params-file=value</code>. These options do not select the output format.</p>
-<h5>Removal of per-call <code>to_json</code></h5>
-<p><code>to_json</code> is no longer a supported per-call keyword. It must not appear in the command-call API, be forwarded as a CLI token, or override the constructor setting. Passing it is an API error rather than an alternative way to select JSON output. There is no per-command JSON override: callers that require both modes must use separate <code>SeqeraPlatform</code> instances.</p>
+<p>The command group is taken from the dynamic attribute name. The existing underscore-to-hyphen normalization must be preserved, so, for instance, <code>platform.compute_envs(...)</code> invokes the <code>compute-envs</code> group. Positional tokens must keep the order in which they are supplied.</p>
+<p>The existing non-JSON command keywords must stay compatible. Specifically, <code>config=value</code> appends <code>--config=value</code>, and <code>params_file=value</code> appends <code>--params-file=value</code>. These options do not choose the output format.</p>
+<h5>Dropping per-call <code>to_json</code></h5>
+<p><code>to_json</code> is no longer accepted as a per-call keyword. It must not appear in the command-call API, be forwarded as a CLI token, or take precedence over the constructor setting. Supplying it is an API error, not another means of selecting JSON output. No per-command JSON override exists: callers that require both modes must use separate <code>SeqeraPlatform</code> instances.</p>
 <h4>Command Construction</h4>
-<p>Every dynamic command starts with the <code>tw</code> executable, followed by configured global CLI arguments.</p>
-<p>When <code>json=True</code>, the wrapper must add exactly the output-format tokens <code>-o json</code>. They are global <code>tw</code> options and must occur before the command group and all group-specific arguments. The command order is therefore:</p>
+<p>Each dynamic command begins with the <code>tw</code> executable, followed by the configured global CLI arguments.</p>
+<p>When <code>json=True</code>, the wrapper must add exactly the output-format tokens <code>-o json</code>. These are global <code>tw</code> options and must appear before the command group and all group-specific arguments. So the command order is:</p>
 <pre><code class="language-text">tw [cli_args ...] -o json &lt;command-group&gt; &lt;subcommand-and-option tokens ...&gt;
 </code></pre>
 <p>For example:</p>
@@ -1104,19 +1109,19 @@ platform.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quo
 <p>must execute the command string:</p>
 <pre><code class="language-text">tw -o json pipelines view --name pipeline_name
 </code></pre>
-<p>With global CLI arguments:</p>
+<p>With global CLI arguments supplied:</p>
 <pre><code class="language-python">platform = SeqeraPlatform(
     cli_args=[&quot;--url&quot;, &quot;http://tower-api.com&quot;, &quot;--insecure&quot;],
     json=True,
 )
 </code></pre>
-<p>the corresponding ordering is:</p>
+<p>the resulting ordering is:</p>
 <pre><code class="language-text">tw --url http://tower-api.com --insecure -o json pipelines view --name pipeline_name
 </code></pre>
-<p>When <code>json=False</code>, the wrapper must not add <code>-o json</code>; commands retain their existing form and their output remains textual.</p>
-<p>Existing shell rendering and environment-variable validation must be preserved. Ordinary tokens are safely shell-quoted, recognized shell constructs remain usable, and references such as <code>$VAR</code> or <code>${VAR}</code> remain in the rendered command after verifying that the named environment variable exists. For example, with <code>VAR1</code> set, <code>['tw', 'pipelines', 'list', '-w', '$VAR1']</code> renders as <code>tw pipelines list -w $VAR1</code>. An unset reference must raise <code>EnvironmentError</code> before command execution; <code>${UNSET_VAR}</code> continues to produce <code> Environment variable ${UNSET_VAR} not found!</code>.</p>
+<p>When <code>json=False</code>, the wrapper must not add <code>-o json</code>; commands keep their existing form and their output stays textual.</p>
+<p>The existing shell rendering and environment-variable validation must be preserved. Ordinary tokens are shell-quoted safely, recognized shell constructs stay usable, and references such as <code>$VAR</code> or <code>${VAR}</code> remain in the rendered command after it has been verified that the named environment variable exists. For instance, with <code>VAR1</code> set, <code>['tw', 'pipelines', 'list', '-w', '$VAR1']</code> renders as <code>tw pipelines list -w $VAR1</code>. A reference to an unset variable must raise <code>EnvironmentError</code> before command execution; <code>${UNSET_VAR}</code> continues to produce <code> Environment variable ${UNSET_VAR} not found!</code>.</p>
 <h4>Process Execution and Return Values</h4>
-<p>Unless dry-run mode is enabled, generated commands must be executed with <code>subprocess.Popen</code> using the existing process configuration:</p>
+<p>Except when dry-run mode is enabled, generated commands must be executed with <code>subprocess.Popen</code> using the existing process configuration:</p>
 <pre><code class="language-python">subprocess.Popen(
     full_command,
     stdout=subprocess.PIPE,
@@ -1124,38 +1129,38 @@ platform.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quo
     shell=True,
 )
 </code></pre>
-<p>The wrapper must call <code>communicate()</code>, decode captured stdout as UTF-8, strip surrounding whitespace, and read the completed process's <code>returncode</code>. A return code equal to integer <code>0</code> is success and must not be mistaken for an absent or false failure status.</p>
-<h5>Successful JSON mode</h5>
-<p>For a successful command on an instance constructed with <code>json=True</code>, parse the decoded stdout as a JSON document and return the resulting Python value. This applies to any valid JSON type, including objects, arrays, strings, numbers, booleans, and null. Invalid JSON on this success path may surface the normal JSON decoding exception.</p>
+<p>The wrapper must call <code>communicate()</code>, decode the captured stdout as UTF-8, strip the surrounding whitespace, and read the completed process's <code>returncode</code>. A return code equal to integer <code>0</code> is success and must not be mistaken for an absent or false failure status.</p>
+<h5>JSON mode on success</h5>
+<p>For a successful command on an instance constructed with <code>json=True</code>, the wrapper must parse the decoded stdout as a JSON document and return the resulting Python value. This holds for any valid JSON type, including objects, arrays, strings, numbers, booleans, and null. On this success path, invalid JSON may surface the normal JSON decoding exception.</p>
 <p>For example, stdout containing:</p>
 <pre><code class="language-json">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-python">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<h5>Successful plain-text mode</h5>
-<p>For a successful command on an instance constructed with <code>json=False</code>, return the decoded and stripped stdout string without JSON parsing. Thus JSON-looking stdout remains a string in the default mode.</p>
-<h4>Command Error Handling</h4>
-<p>The public exception classes <code>seqerakit.seqeraplatform.ResourceExistsError</code> and <code>seqerakit.seqeraplatform.ResourceCreationError</code> must remain available. Existing <code>tw</code> error classification applies in both output modes.</p>
-<p>An error response must be classified before any attempt to decode stdout as JSON. In particular:</p>
+<h5>Plain-text mode on success</h5>
+<p>For a successful command on an instance constructed with <code>json=False</code>, the wrapper must return the decoded and stripped stdout string without JSON parsing. So stdout that looks like JSON remains a string in the default mode.</p>
+<h4>Handling of Command Errors</h4>
+<p>The public exception classes <code>seqerakit.seqeraplatform.ResourceExistsError</code> and <code>seqerakit.seqeraplatform.ResourceCreationError</code> must stay available. The existing <code>tw</code> error classification applies in both output modes.</p>
+<p>An error response must be classified before any attempt to decode stdout as JSON. Specifically:</p>
 <ul>
-<li>An <code>ERROR:</code> response indicating that a resource already exists, including messages matching <code>ERROR: ... already exists</code>, must raise <code>ResourceExistsError</code>.</li>
-<li><code>ERROR: Already a participant</code> must also raise <code>ResourceExistsError</code>.</li>
-<li>Matching of the established “already exists” and “already a participant” phrases remains case-insensitive.</li>
+<li>An <code>ERROR:</code> response signaling that a resource already exists, including messages matching <code>ERROR: ... already exists</code>, must raise <code>ResourceExistsError</code>.</li>
+<li><code>ERROR: Already a participant</code> must likewise raise <code>ResourceExistsError</code>.</li>
+<li>Matching of the established “already exists” and “already a participant” phrases stays case-insensitive.</li>
 <li>Other <code>ERROR:</code> responses, such as <code>ERROR: Resource creation failed</code>, must raise <code>ResourceCreationError</code>.</li>
 </ul>
-<p>This classification must still occur for an unsuccessful process when constructor-level JSON mode is enabled. Such textual error output must never be passed to the JSON decoder, and a JSON decoding error must not replace the appropriate domain exception. Standard error is merged into stdout by the process configuration, so the same rules apply to error text emitted on either stream.</p>
+<p>When constructor-level JSON mode is enabled, this classification must still occur for an unsuccessful process. Textual error output of this kind must never be passed to the JSON decoder, and a JSON decoding error must not take the place of the appropriate domain exception. Standard error is merged into stdout by the process configuration, so the same rules apply to error text emitted on either stream.</p>
 <h4>Dry-Run Mode</h4>
-<p>When constructed with <code>dryrun=True</code>, invoking a command may construct and report the command as before, but it must not call <code>subprocess.Popen</code> or spawn any process. This requirement applies whether <code>json</code> is <code>True</code> or <code>False</code>; dry-run calls retain the existing no-result behavior.</p>
+<p>When the instance is constructed with <code>dryrun=True</code>, invoking a command may construct and report the command as before, but it must not call <code>subprocess.Popen</code> or spawn any process. This requirement holds whether <code>json</code> is <code>True</code> or <code>False</code>; dry-run calls keep the existing no-result behavior.</p>
 <h4>Compatibility and Non-Goals</h4>
 <ul>
-<li>Preserve the existing <code>cli_args</code> placement and all configured tokens in generated commands.</li>
-<li>Preserve dynamic command-group access, underscore-to-hyphen normalization, positional argument ordering, supported non-JSON keywords, shell quoting, and environment-variable checks.</li>
-<li>Preserve default plain-text behavior for callers that do not request constructor-level JSON mode.</li>
-<li>Preserve command-error handling rather than treating every response from a JSON-enabled instance as JSON.</li>
-<li>Do not retain a compatibility alias or fallback for per-call <code>to_json</code>.</li>
-<li>Do not spawn a process during dry-run operation.</li>
-<li>No changes are required to unrelated YAML parsing or resource-definition behavior.</li>
+<li>Keep the existing <code>cli_args</code> placement and all configured tokens in generated commands.</li>
+<li>Keep dynamic command-group access, underscore-to-hyphen normalization, positional argument ordering, supported non-JSON keywords, shell quoting, and environment-variable checks.</li>
+<li>Keep the default plain-text behavior for callers that do not request constructor-level JSON mode.</li>
+<li>Keep command-error handling in place rather than treating every response from a JSON-enabled instance as JSON.</li>
+<li>A compatibility alias or fallback for per-call <code>to_json</code> must not be retained.</li>
+<li>During dry-run operation, a process must not be spawned.</li>
+<li>No changes are needed for unrelated YAML parsing or resource-definition behavior.</li>
 </ul>
 </div>
     </details>
@@ -1163,73 +1168,73 @@ platform.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quo
       <summary class="spec-summary">
         <span class="spec-num">14</span>
         <span class="spec-title">SeqeraPlatform CLI Wrapper</span>
-        <span class="spec-meta muted">415 words · source specification
+        <span class="spec-meta muted">467 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task Specification: SeqeraPlatform CLI Wrapper</h3>
 <h4>Overview</h4>
-<p>Implement/modify a <code>SeqeraPlatform</code> class in the module <code>seqeraplatform</code> that wraps invocation of an external <code>tw</code> CLI tool via <code>subprocess.Popen</code>. JSON output handling must move from a constructor-level flag to a per-call flag, and argument validation for empty strings must be added.</p>
+<p>A <code>SeqeraPlatform</code> class must be implemented/modified in the module <code>seqeraplatform</code>; it wraps invocation of an external <code>tw</code> CLI tool via <code>subprocess.Popen</code>. Handling of JSON output must be moved from a constructor-level flag to a flag applied per call, and validation of arguments for empty strings must be added.</p>
 <h4>Public API Surface</h4>
 <h5>Module: <code>seqeraplatform</code></h5>
-<p>Must expose:</p>
+<p>The module must expose:</p>
 <ul>
-<li>Class <code>SeqeraPlatform</code></li>
-<li>Exception class <code>ResourceCreationError</code> (raised on resource creation failures, as existing behavior).</li>
+<li>The class <code>SeqeraPlatform</code></li>
+<li>The exception class <code>ResourceCreationError</code> (raised when resource creation fails, as existing behavior).</li>
 </ul>
-<h5><code>SeqeraPlatform</code> construction</h5>
-<p>The class must be constructible with <strong>no arguments</strong>:</p>
+<h5>Constructing <code>SeqeraPlatform</code></h5>
+<p>The class must support construction with <strong>no arguments</strong>:</p>
 <pre><code class="language-python">sp = seqeraplatform.SeqeraPlatform()
 </code></pre>
-<p>It must also continue to accept keyword options used elsewhere (e.g. a <code>dryrun</code> mode). JSON behavior is <strong>no longer</strong> controlled by a constructor argument.</p>
+<p>It must also continue to accept keyword options that are used elsewhere (e.g. a <code>dryrun</code> mode). JSON behavior is <strong>no longer</strong> governed by a constructor argument.</p>
 <h5>Dynamic command methods</h5>
-<p>Accessing an attribute named after a CLI subcommand (e.g. <code>sp.pipelines</code>) must return a callable. Calling it invokes the <code>tw</code> CLI with the subcommand followed by the provided positional arguments.</p>
-<p>The callable signature must accept:</p>
+<p>An attribute named after a CLI subcommand (e.g. <code>sp.pipelines</code>) must return a callable when accessed. When that callable is called, it invokes the <code>tw</code> CLI with the subcommand followed by the positional arguments that were provided.</p>
+<p>The signature of the callable must accept:</p>
 <ul>
-<li>Any number of positional string arguments (the CLI arguments).</li>
-<li>A keyword-only argument <code>to_json</code> (default <code>False</code>).</li>
+<li>Any number of positional string arguments (these are the CLI arguments).</li>
+<li>A keyword-only argument <code>to_json</code> (with <code>False</code> as the default).</li>
 </ul>
 <p>Example:</p>
 <pre><code class="language-python">sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)
 </code></pre>
 <h6>JSON behavior (<code>to_json</code>)</h6>
 <ul>
-<li>When <code>to_json=True</code>, the constructed command passed to <code>subprocess.Popen</code> must include the JSON output flag <code>-o json</code> inserted immediately after the base <code>tw</code> command and before the subcommand. That is, for <code>sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)</code> the command list begins with the <code>tw</code> executable, then <code>-o</code>, then <code>json</code>, then <code>pipelines</code>, then the remaining arguments.</li>
-<li>When <code>to_json=True</code>, the process stdout is parsed as JSON and the parsed Python object is returned.</li>
-<li>When <code>to_json=False</code> (default), no <code>-o json</code> flag is added and output is returned as-is (not JSON-parsed).</li>
+<li>When <code>to_json=True</code>, the command that gets constructed and passed to <code>subprocess.Popen</code> must include the JSON output flag <code>-o json</code>, inserted immediately after the base <code>tw</code> command and before the subcommand. In other words, for <code>sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;, to_json=True)</code> the command list starts with the <code>tw</code> executable, followed by <code>-o</code>, then <code>json</code>, then <code>pipelines</code>, and then the remaining arguments.</li>
+<li>When <code>to_json=True</code>, the stdout of the process is parsed as JSON, and the parsed Python object is returned.</li>
+<li>When <code>to_json=False</code> (the default), no <code>-o json</code> flag is added, and the output is returned as-is (not JSON-parsed).</li>
 </ul>
 <h6>Dryrun behavior</h6>
-<p>When the instance is configured for dryrun, calling a command method (including with <code>to_json=True</code>) must <strong>not</strong> invoke <code>subprocess.Popen</code>.</p>
+<p>When the instance has been configured for dryrun, calling a command method (including when <code>to_json=True</code>) must <strong>not</strong> invoke <code>subprocess.Popen</code>.</p>
 <h5>Method: <code>_check_empty_args</code></h5>
 <pre><code class="language-python">def _check_empty_args(self, command: list) -&gt; None
 </code></pre>
-<p>Given a command represented as a list of tokens where option flags are followed by their values (e.g. <code>[&quot;--profile&quot;, &quot;test_profile&quot;, &quot;--config&quot;, &quot;my_config&quot;]</code>):</p>
+<p>Given a command expressed as a list of tokens in which option flags are followed by their values (e.g. <code>[&quot;--profile&quot;, &quot;test_profile&quot;, &quot;--config&quot;, &quot;my_config&quot;]</code>):</p>
 <ul>
 <li>
-<p>If any value token is an empty or whitespace-only string, raise <code>ValueError</code>. The exception message must identify the offending parameter, using the exact phrasing:</p>
+<p>If any value token is an empty string or a string containing only whitespace, <code>ValueError</code> must be raised. The exception message must identify the parameter at fault, using this exact phrasing:</p>
 <p><code>Empty string argument found for parameter '&lt;param&gt;'</code></p>
-<p>where <code>&lt;param&gt;</code> is the preceding flag/parameter token. For example, given <code>[&quot;--profile&quot;, &quot; &quot;, &quot;--config&quot;, &quot;my_config&quot;]</code>, the message must contain:</p>
+<p>where <code>&lt;param&gt;</code> is the flag/parameter token preceding it. As an example, given <code>[&quot;--profile&quot;, &quot; &quot;, &quot;--config&quot;, &quot;my_config&quot;]</code>, the message must contain:</p>
 <p><code>Empty string argument found for parameter '--profile'</code></p>
 </li>
 <li>
-<p>If no value token is empty or whitespace-only, the method must return normally without raising.</p>
+<p>If none of the value tokens is empty or whitespace-only, the method must return normally, without raising.</p>
 </li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>Existing resource-creation error handling (raising <code>ResourceCreationError</code>) must be preserved.</li>
-<li>The <code>tw</code> invocations continue to run through <code>subprocess.Popen</code>.</li>
+<li>The existing resource-creation error handling (which raises <code>ResourceCreationError</code>) must be preserved.</li>
+<li>Invocations of <code>tw</code> continue to run through <code>subprocess.Popen</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Update the public class SeqeraPlatform in module</span>
-        <span class="spec-meta muted">134 words · source specification
+        <span class="spec-title">Modify the public class SeqeraPlatform inside the module</span>
+        <span class="spec-meta muted">144 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public class <code>SeqeraPlatform</code> in module:</p>
+      <div class="spec-body"><h4>Change to be made</h4>
+<p>Modify the public class <code>SeqeraPlatform</code> inside the module:</p>
 <pre><code class="language-python">seqerakit.seqeraplatform
 </code></pre>
 <h5>Public API</h5>
@@ -1237,124 +1242,125 @@ platform.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quo
     def info(self):
         ...
 </code></pre>
-<p>The existing writable instance attribute <code>dryrun</code> must affect this method.</p>
-<h5><code>info()</code> behavior</h5>
+<p>This method must be affected by the existing writable instance attribute <code>dryrun</code>.</p>
+<h5>Behavior of <code>info()</code></h5>
 <ul>
 <li>
-<p>When <code>dryrun</code> is false, <code>info()</code> must execute the platform CLI through <code>subprocess.Popen</code>.</p>
+<p>If <code>dryrun</code> is false, <code>info()</code> must execute the platform CLI through <code>subprocess.Popen</code>.</p>
 </li>
 <li>
-<p>The command passed as the first positional argument to <code>subprocess.Popen</code> must include the configured CLI arguments before the <code>info</code> subcommand.</p>
+<p>The command provided as the first positional argument to <code>subprocess.Popen</code> must include the configured CLI arguments before the <code>info</code> subcommand.</p>
 </li>
 <li>
-<p>For a <code>tw</code> CLI configured with arguments for the API URL and insecure mode, the command must contain this exact contiguous sequence:</p>
+<p>Given a <code>tw</code> CLI configured with arguments for the API URL and insecure mode, the command must contain the following exact contiguous sequence:</p>
 <pre><code class="language-text">tw --url http://tower-api.com --insecure info
 </code></pre>
 </li>
 <li>
-<p>Every entry in the instance’s configured <code>cli_args</code> must be present in the command passed to <code>subprocess.Popen</code>.</p>
+<p>Every entry from the <code>cli_args</code> configured on the instance must be present in the command given to <code>subprocess.Popen</code>.</p>
 </li>
 </ul>
-<h5>Dry-run behavior</h5>
-<p>If <code>dryrun</code> is true when <code>info()</code> is called, the method must not invoke <code>subprocess.Popen</code>.</p>
+<h5>Behavior during dry-run</h5>
+<p>When <code>info()</code> is called and <code>dryrun</code> is true, the method must not invoke <code>subprocess.Popen</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">In module seqerakit.seqeraplatform, provide</span>
-        <span class="spec-meta muted">323 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Inside the module seqerakit.seqeraplatform, provide</span>
+        <span class="spec-meta muted">403 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>In module <code>seqerakit.seqeraplatform</code>, provide:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>API that must be provided</h4>
+<p>Inside the module <code>seqerakit.seqeraplatform</code>, provide:</p>
 <ul>
 <li>
 <p><code>SeqeraPlatform</code></p>
 <ul>
-<li>Constructible as <code>SeqeraPlatform()</code>.</li>
-<li><code>suppress_output(self)</code>: returns a context manager.</li>
+<li>It has to be constructible as <code>SeqeraPlatform()</code>.</li>
+<li><code>suppress_output(self)</code>: the return value is a context manager.</li>
 <li><code>_execute_command(self, command: str, to_json: bool = False, print_stdout: optional bool = ...)</code>
 <ul>
-<li><code>print_stdout</code> must be omittable and must accept explicit <code>True</code> or <code>False</code>.</li>
+<li>Omitting <code>print_stdout</code> must be allowed, and explicit <code>True</code> or <code>False</code> must also be accepted.</li>
 </ul>
 </li>
-<li><code>pipelines(self, action: str)</code>, supporting <code>action=&quot;list&quot;</code>.</li>
+<li><code>pipelines(self, action: str)</code>, with support for <code>action=&quot;list&quot;</code>.</li>
 </ul>
 </li>
 <li>
-<p><code>ResourceCreationError</code>, an exception raised for command-execution failures described below.</p>
+<p><code>ResourceCreationError</code>, an exception that is raised for the command-execution failures described below.</p>
 </li>
 </ul>
-<h4>Command execution and return values</h4>
-<p>For a successfully executed command whose stdout is returned as bytes:</p>
+<h4>Command execution and the values it returns</h4>
+<p>For a command that has been executed successfully and whose stdout is returned as bytes:</p>
 <ul>
-<li><code>_execute_command(..., to_json=True)</code> must decode and JSON-parse stdout.
+<li><code>_execute_command(..., to_json=True)</code> must decode stdout and parse it as JSON.
 <ul>
-<li>For stdout <code>b'{&quot;key&quot;: &quot;value&quot;}'</code>, return <code>{&quot;key&quot;: &quot;value&quot;}</code>.</li>
+<li>When the stdout is <code>b'{&quot;key&quot;: &quot;value&quot;}'</code>, it must return <code>{&quot;key&quot;: &quot;value&quot;}</code>.</li>
 </ul>
 </li>
-<li><code>_execute_command(..., to_json=False)</code> must return decoded text without JSON parsing.
+<li><code>_execute_command(..., to_json=False)</code> must return the decoded text, with no JSON parsing performed.
 <ul>
-<li>For stdout <code>b'{&quot;key&quot;: &quot;value&quot;}'</code>, return <code>'{&quot;key&quot;: &quot;value&quot;}'</code>.</li>
+<li>When the stdout is <code>b'{&quot;key&quot;: &quot;value&quot;}'</code>, it must return <code>'{&quot;key&quot;: &quot;value&quot;}'</code>.</li>
 </ul>
 </li>
-<li>If <code>to_json=True</code> and stdout is invalid JSON, such as <code>b&quot;Invalid JSON&quot;</code>, propagate a <code>json.JSONDecodeError</code>.</li>
+<li>When <code>to_json=True</code> and the stdout is invalid JSON — for example <code>b&quot;Invalid JSON&quot;</code> — a <code>json.JSONDecodeError</code> must be propagated.</li>
 </ul>
-<h4>Logging controls</h4>
-<p>Command activity must use Python logging in a way that is visible to handlers attached to the root logger.</p>
+<h4>Control over logging</h4>
+<p>Command activity must be logged through Python logging in a way that makes it visible to handlers attached to the root logger.</p>
 <ul>
-<li>Executing <code>pipelines(&quot;list&quot;)</code> must emit a log record containing:
+<li>A call of <code>pipelines(&quot;list&quot;)</code> must emit a log record containing:
 <ul>
 <li><code>Running command:</code></li>
 </ul>
 </li>
-<li>When <code>_execute_command(..., print_stdout=True)</code> receives stdout <code>b&quot;output&quot;</code>, it must emit a log record containing:
+<li>When <code>_execute_command(..., print_stdout=True)</code> receives the stdout <code>b&quot;output&quot;</code>, it must emit a log record containing:
 <ul>
 <li><code>Command output: output</code></li>
 </ul>
 </li>
-<li>When <code>_execute_command(..., print_stdout=False)</code> receives the same stdout, it must not emit that command-output message.</li>
-<li>The <code>Running command:</code> and <code>Command output: &lt;stdout&gt;</code> records must be emitted at logging severity <code>INFO</code> or higher, so both are delivered to root-logger handlers when the root logger's level is <code>INFO</code>.</li>
+<li>When the same stdout is received by <code>_execute_command(..., print_stdout=False)</code>, that command-output message must not be emitted.</li>
+<li>The <code>Running command:</code> and <code>Command output: &lt;stdout&gt;</code> records must be emitted at a logging severity of <code>INFO</code> or higher, so that both are delivered to root-logger handlers when the root logger's level is <code>INFO</code>.</li>
 </ul>
-<h4>Output-suppression context</h4>
+<h4>Context for output suppression</h4>
 <p>Within:</p>
 <pre><code class="language-python">with platform.suppress_output():
     ...
 </code></pre>
-<p>command execution must continue normally, but command-output logging must be suppressed:</p>
+<p>commands must keep executing normally, but the logging of command output must be suppressed:</p>
 <ul>
-<li>The <code>Running command:</code> log remains present.</li>
-<li>No log containing <code>Command output:</code> is emitted for <code>pipelines(&quot;list&quot;)</code>.</li>
-<li>Suppression must not discard stdout needed for return values. For example, <code>_execute_command(..., to_json=True)</code> must still return the parsed JSON object.</li>
-<li>Commands must remain executable after leaving the context.</li>
+<li>The <code>Running command:</code> log stays present.</li>
+<li>For <code>pipelines(&quot;list&quot;)</code>, no log that contains <code>Command output:</code> gets emitted.</li>
+<li>The stdout that return values depend on must not be discarded by the suppression. As an example, <code>_execute_command(..., to_json=True)</code> must still return the parsed JSON object.</li>
+<li>After the context has been left, commands must remain executable.</li>
 </ul>
-<h4>Failure handling</h4>
-<p>If command execution has return code <code>1</code> and stdout is:</p>
+<h4>Handling of failures</h4>
+<p>When the execution of a command ends with return code <code>1</code> and its stdout is:</p>
 <pre><code class="language-text">ERROR: Something went wrong
 </code></pre>
-<p><code>_execute_command</code> must raise <code>seqerakit.seqeraplatform.ResourceCreationError</code>, including when called inside <code>suppress_output()</code>.</p>
+<p><code>_execute_command</code> must raise <code>seqerakit.seqeraplatform.ResourceCreationError</code>, including when the call happens inside <code>suppress_output()</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">182 words · source specification
+        <span class="spec-title">Modify the public function</span>
+        <span class="spec-meta muted">199 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Change to be made</h4>
+<p>Modify the public function:</p>
 <pre><code class="language-python">helper.parse_all_yaml(file_paths, targets=None)
 </code></pre>
-<p>The function must accept an optional <code>targets</code> keyword argument.</p>
-<h5>When <code>targets</code> is provided</h5>
-<p><code>targets</code> is a comma-separated string of top-level YAML block names. Only those blocks may be included in the returned mapping.</p>
-<p>For example, given YAML containing <code>organizations</code>, <code>workspaces</code>, and <code>pipelines</code>:</p>
+<p>An optional <code>targets</code> keyword argument must be accepted by the function.</p>
+<h5>When <code>targets</code> is supplied</h5>
+<p><code>targets</code> is a string of top-level YAML block names, separated by commas. Only those blocks may be included in the mapping that gets returned.</p>
+<p>As an example, for YAML that contains <code>organizations</code>, <code>workspaces</code>, and <code>pipelines</code>:</p>
 <pre><code class="language-python">parse_all_yaml([&quot;dummy_path.yaml&quot;], targets=&quot;organizations,workspaces&quot;)
 </code></pre>
-<p>must return <code>organizations</code> and <code>workspaces</code>, while omitting <code>pipelines</code>.</p>
-<p>For this input:</p>
+<p>must return <code>organizations</code> and <code>workspaces</code>, with <code>pipelines</code> omitted.</p>
+<p>Given this input:</p>
 <pre><code class="language-yaml">organizations:
   - name: org1
     description: Organization 1
@@ -1367,7 +1373,7 @@ pipelines:
     workspace: workspace1
     description: Pipeline 1
 </code></pre>
-<p>the selected entries must be represented as:</p>
+<p>the selected entries must be represented in the following form:</p>
 <pre><code class="language-python">{
     &quot;organizations&quot;: [
         {
@@ -1395,53 +1401,54 @@ pipelines:
     ],
 }
 </code></pre>
-<p>The returned mapping must not contain a <code>pipelines</code> key in this case.</p>
-<h5>When <code>targets</code> is omitted</h5>
-<p>Existing behavior must remain unchanged: all top-level YAML blocks are parsed and included. For the YAML above, the returned mapping must contain <code>organizations</code>, <code>workspaces</code>, and <code>pipelines</code>.</p>
+<p>In this case, the returned mapping must not contain a <code>pipelines</code> key.</p>
+<h5>When <code>targets</code> is left out</h5>
+<p>Behavior that already exists must remain unchanged: all top-level YAML blocks are parsed and included. For the YAML shown above, the returned mapping must contain <code>organizations</code>, <code>workspaces</code>, and <code>pipelines</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Update seqerakit.seqeraplatform.SeqeraPlatform, importable with</span>
-        <span class="spec-meta muted">826 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Update seqerakit.seqeraplatform.SeqeraPlatform, which is importable with</span>
+        <span class="spec-meta muted">905 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update <code>seqerakit.seqeraplatform.SeqeraPlatform</code>, importable with:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Update <code>seqerakit.seqeraplatform.SeqeraPlatform</code>, which is importable with:</p>
 <pre><code class="language-python">from seqerakit import seqeraplatform
 </code></pre>
-<p>Add an instance-level JSON output mode while preserving the existing command-wrapper API and behavior.</p>
-<h4>Constructor API</h4>
-<p><code>SeqeraPlatform</code> must accept an optional <code>json</code> keyword argument in addition to its existing <code>cli_args</code>, <code>dryrun</code>, and <code>print_stdout</code> options. The new option defaults to <code>False</code>, and the existing options retain their defaults and semantics. Conceptually, the compatible signature is:</p>
+<p>Add an instance-level JSON output mode, with the existing command-wrapper API and behavior preserved.</p>
+<h4>Constructor interface</h4>
+<p>In addition to its existing <code>cli_args</code>, <code>dryrun</code>, and <code>print_stdout</code> options, <code>SeqeraPlatform</code> must accept an optional <code>json</code> keyword argument. The default of the new option is <code>False</code>, and the existing options keep their defaults and semantics. In conceptual terms, the compatible signature is:</p>
 <pre><code class="language-python">SeqeraPlatform(cli_args=None, dryrun=False, print_stdout=True, json=False)
 </code></pre>
-<p>Both existing and JSON-enabled construction must be valid:</p>
+<p>Construction must be valid both in the existing form and in the JSON-enabled form:</p>
 <pre><code class="language-python">plain_sp = seqeraplatform.SeqeraPlatform()
 json_sp = seqeraplatform.SeqeraPlatform(json=True)
 </code></pre>
-<p>Existing positional and keyword uses of the original constructor parameters must not be broken.</p>
-<h4>Constructor-level JSON mode</h4>
-<p>When <code>json=True</code>, commands exposed dynamically by the instance must request JSON from the Seqera Platform CLI and parse the response automatically. The caller must not need to pass <code>to_json=True</code> on each call. This applies equally to direct attribute calls and attributes obtained with <code>getattr</code>:</p>
+<p>Positional and keyword uses of the original constructor parameters that already exist must not be broken.</p>
+<h4>JSON mode at the constructor level</h4>
+<p>With <code>json=True</code>, the commands that the instance exposes dynamically must request JSON from the Seqera Platform CLI and parse the response automatically. Passing <code>to_json=True</code> on each call must not be necessary for the caller. Direct attribute calls and attributes obtained with <code>getattr</code> are covered in the same way:</p>
 <pre><code class="language-python">sp = seqeraplatform.SeqeraPlatform(json=True)
 
 result = sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;)
 other = getattr(sp, &quot;pipelines&quot;)(&quot;arg1&quot;, &quot;arg2&quot;)
 </code></pre>
-<p>All positional command arguments must remain supported and must retain their original order. Dynamic command naming remains compatible with the existing wrapper, including conversion of underscores in Python attribute names to hyphens in CLI resource names.</p>
-<h5>JSON option syntax and placement</h5>
-<p>JSON output must be requested with the two CLI tokens <code>-o</code> and <code>json</code>. They are global CLI options and must occur before the resource or subcommand; a trailing <code>--json</code> option must not be used.</p>
-<p>The command layout is:</p>
+<p>Support for all positional command arguments must remain in place, and their original order must be retained. Dynamic command naming stays compatible with the existing wrapper, including the conversion of underscores in Python attribute names to hyphens in CLI resource names.</p>
+<h5>Syntax and placement of the JSON option</h5>
+<p>Requesting JSON output must be done with the two CLI tokens <code>-o</code> and <code>json</code>. They are global CLI options and must occur before the resource or subcommand; a trailing <code>--json</code> option must not be used.</p>
+<p>The command has this layout:</p>
 <pre><code class="language-text">tw [configured CLI arguments] -o json &lt;resource-or-command&gt; &lt;arguments...&gt;
 </code></pre>
-<p>Thus, with no configured CLI arguments, the first example above must execute this command text:</p>
+<p>So, if no CLI arguments are configured, the first example above must execute this command text:</p>
 <pre><code class="language-text">tw -o json pipelines view --name pipeline_name
 </code></pre>
-<p>If global CLI arguments are configured, they remain immediately after <code>tw</code>, in their supplied order, and <code>-o json</code> follows them but still precedes the resource. For example:</p>
+<p>When global CLI arguments are configured, they stay immediately after <code>tw</code>, in the order they were supplied, and <code>-o json</code> comes after them yet still precedes the resource. For example:</p>
 <pre><code class="language-text">tw --url http://tower-api.com --insecure -o json pipelines view --name pipeline_name
 </code></pre>
-<h4>Command execution contract</h4>
-<p>An actual command is rendered as a single shell command string, not passed as an argument-vector list. It must be launched with <code>shell=True</code>, standard output captured with <code>subprocess.PIPE</code>, and standard error merged into the captured standard-output stream with <code>subprocess.STDOUT</code>. For the no-<code>cli_args</code> example, the observable invocation is equivalent to:</p>
+<h4>Contract for command execution</h4>
+<p>A real command is rendered as a single shell command string rather than passed as an argument-vector list. The command must be launched with <code>shell=True</code>; standard output must be captured with <code>subprocess.PIPE</code>, and standard error must be merged into the captured standard-output stream with <code>subprocess.STDOUT</code>. For the example without <code>cli_args</code>, the observable invocation is equivalent to:</p>
 <pre><code class="language-python">subprocess.Popen(
     &quot;tw -o json pipelines view --name pipeline_name&quot;,
     stdout=subprocess.PIPE,
@@ -1449,79 +1456,79 @@ other = getattr(sp, &quot;pipelines&quot;)(&quot;arg1&quot;, &quot;arg2&quot;)
     shell=True,
 )
 </code></pre>
-<p>This preserves the wrapper's existing execution convention. JSON mode changes the command's global output option and response handling, not its shell or stream-redirection convention.</p>
+<p>This keeps the wrapper's existing execution convention. JSON mode alters the command's global output option and its response handling; it does not alter the shell or stream-redirection convention.</p>
 <h4>Results and errors</h4>
-<p>The merged command output must be decoded as UTF-8 and handled according to the existing command status rules before any JSON parsing is attempted.</p>
-<p>On a successful JSON-mode command, parse stdout as JSON and return the resulting Python value. For example, stdout containing:</p>
+<p>Before any JSON parsing is attempted, the merged command output must be decoded as UTF-8 and handled in line with the existing command status rules.</p>
+<p>When a JSON-mode command succeeds, stdout must be parsed as JSON and the resulting Python value must be returned. For example, stdout containing:</p>
 <pre><code class="language-json">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
 <p>must produce:</p>
 <pre><code class="language-python">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<p>Any valid JSON value may be returned. If a successful JSON-mode response is not valid JSON, the normal <code>json.JSONDecodeError</code> must remain visible to the caller. A command not operating in JSON mode continues to return its decoded, stripped output as a string.</p>
-<p>Command failure classification takes precedence over JSON parsing, including when constructor-level JSON mode is enabled:</p>
+<p>The value that is returned may be any valid JSON value. When a successful JSON-mode response is not valid JSON, the normal <code>json.JSONDecodeError</code> must remain visible to the caller. A command that is not operating in JSON mode keeps returning its decoded, stripped output as a string.</p>
+<p>Classifying command failures takes precedence over JSON parsing, including when constructor-level JSON mode is enabled:</p>
 <ul>
-<li>Output indicating that a resource already exists or is already a participant, case-insensitively (for example, <code>ERROR: Resource already exists</code> or <code>ERROR: Already a participant</code>), must raise <code>seqeraplatform.ResourceExistsError</code>.</li>
-<li>Other error output or any other unsuccessful process result must raise <code>seqeraplatform.ResourceCreationError</code>.</li>
+<li>Output that indicates a resource already exists or is already a participant, case-insensitively (for example, <code>ERROR: Resource already exists</code> or <code>ERROR: Already a participant</code>), must raise <code>seqeraplatform.ResourceExistsError</code>.</li>
+<li>Other error output, or any other unsuccessful process result, must raise <code>seqeraplatform.ResourceCreationError</code>.</li>
 </ul>
-<p>Plain-text CLI errors in JSON mode must therefore produce the established domain exception rather than a JSON decoding exception.</p>
+<p>Consequently, a plain-text CLI error in JSON mode must produce the established domain exception rather than a JSON decoding exception.</p>
 <h4>Backward compatibility</h4>
 <ul>
-<li><code>SeqeraPlatform()</code> without <code>json</code> must preserve the existing non-JSON default behavior.</li>
-<li>Existing per-command <code>to_json=True</code> usage must remain supported for callers that do not use constructor-level JSON mode. It must continue to add <code>-o json</code> in the global-option position and return parsed JSON.</li>
-<li>Commands must remain callable without a <code>to_json</code> keyword regardless of whether <code>cli_args</code> are configured. Configured arguments, including options such as <code>--url</code>, <code>--insecure</code>, and a custom Java trust-store argument, must remain present in the generated command. Existing rejection of <code>--verbose</code> as a <code>cli_args</code> value must remain unchanged.</li>
-<li>Existing dynamic resource methods and <code>info()</code> must continue to honor configured CLI arguments and all supplied positional command arguments.</li>
-<li>Existing argument validation remains in effect. In particular, a blank or whitespace-only command value must raise <code>ValueError</code> identifying the preceding parameter, while non-empty values must proceed normally. Existing environment-variable validation and shell quoting behavior must also remain intact.</li>
-<li>Existing output controls remain intact: constructor-level and per-command <code>print_stdout</code> behavior and <code>suppress_output()</code> may suppress command-output logging, but must not alter execution, return-value parsing, or exception handling.</li>
+<li>When <code>json</code> is absent, <code>SeqeraPlatform()</code> must preserve the existing non-JSON default behavior.</li>
+<li>For callers not using constructor-level JSON mode, existing per-command <code>to_json=True</code> usage must remain supported. It must continue to add <code>-o json</code> in the global-option position and return parsed JSON.</li>
+<li>Whether or not <code>cli_args</code> are configured, commands must remain callable without a <code>to_json</code> keyword. Arguments that are configured, including options such as <code>--url</code>, <code>--insecure</code>, and a custom Java trust-store argument, must remain present in the generated command. The existing rejection of <code>--verbose</code> as a <code>cli_args</code> value must stay unchanged.</li>
+<li>The existing dynamic resource methods and <code>info()</code> must continue to honor the configured CLI arguments as well as all supplied positional command arguments.</li>
+<li>The existing argument validation stays in effect. Specifically, a blank or whitespace-only command value must raise <code>ValueError</code> identifying the preceding parameter; non-empty values, on the other hand, must proceed normally. The existing environment-variable validation and shell quoting behavior must remain intact too.</li>
+<li>The existing output controls stay intact: constructor-level and per-command <code>print_stdout</code> behavior, as well as <code>suppress_output()</code>, may suppress command-output logging, yet must not alter execution, return-value parsing, or exception handling.</li>
 </ul>
-<h4>Dry-run behavior</h4>
-<p>Dry-run operation must not start a subprocess, and callers must not need to provide <code>to_json</code> merely to use it:</p>
+<h4>Behavior during dry-run</h4>
+<p>In dry-run operation, a subprocess must not be started, and callers must not need to provide <code>to_json</code> just to use it:</p>
 <pre><code class="language-python">dryrun_sp = seqeraplatform.SeqeraPlatform(dryrun=True)
 dryrun_sp.pipelines(&quot;view&quot;, &quot;--name&quot;, &quot;pipeline_name&quot;)
 </code></pre>
-<p>The call above must preserve the existing dry-run result and logging behavior and must not invoke <code>subprocess.Popen</code>. Dry-run must remain compatible with configured CLI arguments and with constructor-level JSON mode.</p>
+<p>The call shown above must keep the existing dry-run result and logging behavior and must not invoke <code>subprocess.Popen</code>. Dry-run must stay compatible with configured CLI arguments as well as with constructor-level JSON mode.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Module: seqeraplatform</span>
-        <span class="spec-meta muted">137 words · source specification
+        <span class="spec-title">The module is seqeraplatform.</span>
+        <span class="spec-meta muted">162 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>Module: <code>seqeraplatform</code></p>
-<p>Class: <code>seqeraplatform.SeqeraPlatform</code></p>
+      <div class="spec-body"><h4>API Requirements</h4>
+<p>The module is <code>seqeraplatform</code>.</p>
+<p>The class is <code>seqeraplatform.SeqeraPlatform</code>.</p>
 <ul>
 <li>
-<p>The constructor must accept a boolean keyword argument named <code>json</code>, including:</p>
+<p>The constructor must accept a boolean keyword argument called <code>json</code>; for example:</p>
 <pre><code class="language-python">SeqeraPlatform(json=True)
 </code></pre>
 </li>
 <li>
-<p>The class must provide:</p>
+<p>The class must have:</p>
 <pre><code class="language-python">_execute_command(command: str, to_json: bool)
 </code></pre>
 </li>
 </ul>
-<h4>Required output behavior</h4>
-<p>For a successfully executed command whose standard output is:</p>
+<h4>Output behavior requirements</h4>
+<p>For a command that executes successfully and whose standard output is:</p>
 <pre><code class="language-json">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<p>JSON deserialization must be enabled when either:</p>
+<p>JSON deserialization must be enabled when either of the following holds:</p>
 <ul>
-<li>the <code>SeqeraPlatform</code> instance was created with <code>json=True</code>, or</li>
-<li><code>_execute_command</code> is called with <code>to_json=True</code>.</li>
+<li>the <code>SeqeraPlatform</code> instance was constructed with <code>json=True</code>, or</li>
+<li><code>_execute_command</code> is invoked with <code>to_json=True</code>.</li>
 </ul>
-<p>Thus, for an instance created with <code>SeqeraPlatform(json=True)</code>, both calls:</p>
+<p>Consequently, for an instance constructed with <code>SeqeraPlatform(json=True)</code>, both of these calls:</p>
 <pre><code class="language-python">instance._execute_command(&quot;tw pipelines list&quot;, to_json=False)
 instance._execute_command(&quot;tw pipelines list&quot;, to_json=True)
 </code></pre>
 <p>must return the deserialized Python object:</p>
 <pre><code class="language-python">{&quot;key&quot;: &quot;value&quot;}
 </code></pre>
-<p>A per-call <code>to_json=False</code> must not disable JSON deserialization when the instance-level <code>json</code> option is true.</p>
-<p>When neither the instance-level option nor <code>to_json</code> enables JSON handling, the command output remains the raw string:</p>
+<p>A <code>to_json=False</code> specified for an individual call must not disable JSON deserialization when the <code>json</code> option at the instance level is true.</p>
+<p>If neither the option at the instance level nor <code>to_json</code> enables JSON handling, the output of the command remains the raw string:</p>
 <pre><code class="language-python">'{&quot;key&quot;: &quot;value&quot;}'
 </code></pre>
 </div>
@@ -1529,33 +1536,34 @@ instance._execute_command(&quot;tw pipelines list&quot;, to_json=True)
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Update seqerakit.seqeraplatform.SeqeraPlatform._check_env_vars(self, command</span>
-        <span class="spec-meta muted">335 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify seqerakit.seqeraplatform.SeqeraPlatform._check_env_vars(self, command</span>
+        <span class="spec-meta muted">378 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Environment-variable handling for Seqera Platform commands</h4>
-<p>Update <code>seqerakit.seqeraplatform.SeqeraPlatform._check_env_vars(self, command: list[str]) -&gt; str</code>. The class and method must be available through the package’s public module import:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Handling of environment variables for Seqera Platform commands</h4>
+<p>Modify <code>seqerakit.seqeraplatform.SeqeraPlatform._check_env_vars(self, command: list[str]) -&gt; str</code>. The class and the method must be accessible via the package's public module import:</p>
 <pre><code class="language-python">from seqerakit import seqeraplatform
 
 platform = seqeraplatform.SeqeraPlatform()
 </code></pre>
-<p>The method must convert the command argument list into a single space-separated command string while handling variable arguments as follows.</p>
-<h5>Ordinary environment variables</h5>
-<p>Expand ordinary, unescaped environment-variable arguments using their current environment values. For example, if <code>VAR1=value1</code>, then:</p>
+<p>The method must convert the list of command arguments into a single space-separated command string, with variable arguments handled as follows.</p>
+<h5>Ordinary environment-variable arguments</h5>
+<p>Ordinary, unescaped environment-variable arguments must be expanded using the values they currently have in the environment. As an example, with <code>VAR1=value1</code>, the following:</p>
 <pre><code class="language-python">[&quot;tw&quot;, &quot;pipelines&quot;, &quot;list&quot;, &quot;-w&quot;, &quot;$VAR1&quot;]
 </code></pre>
 <p>must return:</p>
 <pre><code class="language-text">tw pipelines list -w value1
 </code></pre>
-<p>Ordinary and preserved variables may occur in the same command and must each receive the appropriate handling described below.</p>
-<h5>Preserved agent work directory</h5>
-<p>Preserve <code>$TW_AGENT_WORK</code> for later evaluation when it is supplied as the work directory. Do not expand it from the current environment. The returned argument must include surrounding double quotes and exactly three backslashes before <code>$</code>. Thus:</p>
+<p>Ordinary and preserved variables may appear in the same command, and each of them must receive the appropriate handling described below.</p>
+<h5>Agent work directory that is preserved</h5>
+<p>When <code>$TW_AGENT_WORK</code> is supplied as the work directory, it must be preserved for later evaluation. It must not be expanded from the current environment. The argument that is returned must include surrounding double quotes and exactly three backslashes before <code>$</code>. Accordingly:</p>
 <pre><code class="language-python">[&quot;tw&quot;, &quot;credentials&quot;, &quot;add&quot;, &quot;agent&quot;, &quot;--work-dir&quot;, &quot;$TW_AGENT_WORK&quot;]
 </code></pre>
 <p>must return:</p>
 <pre><code class="language-text">tw credentials add agent --work-dir &quot;\\\$TW_AGENT_WORK&quot;
 </code></pre>
-<p>With <code>VAR1=value1</code>, a command containing both an ordinary variable and the preserved work-directory variable:</p>
+<p>Given <code>VAR1=value1</code>, a command that contains both an ordinary variable and the preserved work-directory variable:</p>
 <pre><code class="language-python">[
     &quot;tw&quot;,
     &quot;credentials&quot;,
@@ -1569,19 +1577,19 @@ platform = seqeraplatform.SeqeraPlatform()
 <p>must return:</p>
 <pre><code class="language-text">tw credentials add --var value1 --work-dir &quot;\\\$TW_AGENT_WORK&quot;
 </code></pre>
-<h5>Already escaped variables</h5>
-<p>Treat a variable argument already escaped with one leading backslash as a literal variable reference. Remove that one escape and do not look up or expand the variable. For example:</p>
+<h5>Variables that are already escaped</h5>
+<p>A variable argument that has already been escaped with one leading backslash must be treated as a literal variable reference. That one escape must be removed, and the variable must not be looked up or expanded. For instance:</p>
 <pre><code class="language-python">[&quot;tw&quot;, &quot;credentials&quot;, &quot;add&quot;, &quot;--var&quot;, &quot;\\$SOME_VAR&quot;]
 </code></pre>
 <p>must return:</p>
 <pre><code class="language-text">tw credentials add --var $SOME_VAR
 </code></pre>
-<p><code>SOME_VAR</code> need not exist in the environment in this case, and its absence must not cause an error.</p>
-<h5>Missing ordinary variables</h5>
-<p>An unescaped ordinary variable that is absent from the environment must continue to raise <code>EnvironmentError</code>. Its message must be exactly:</p>
+<p>In this case, <code>SOME_VAR</code> need not be present in the environment, and its absence must not cause an error.</p>
+<h5>Ordinary variables that are missing</h5>
+<p>When an unescaped ordinary variable is absent from the environment, the method must continue to raise <code>EnvironmentError</code>. The error's message must be exactly:</p>
 <pre><code class="language-text"> Environment variable $&lt;VARIABLE_NAME&gt; not found!
 </code></pre>
-<p>The leading space is part of the required message. Preserve the variable-reference form used by the command; for example, an absent <code>${UNSET_VAR}</code> produces <code> Environment variable ${UNSET_VAR} not found!</code>.</p>
+<p>That leading space forms part of the required message. The variable-reference form used by the command must be preserved; for instance, an absent <code>${UNSET_VAR}</code> results in <code> Environment variable ${UNSET_VAR} not found!</code>.</p>
 </div>
     </details>
   </div>

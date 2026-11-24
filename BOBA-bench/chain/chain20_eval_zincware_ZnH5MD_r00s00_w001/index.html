@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/zincware/ZnH5MD/compare/496844f5e668373f4ebcc5bc4a6b2a319b98bb54...d9b76428b9204675f1fac2c99b88a399bd9fe45e" target="_blank" rel="noopener" class="mono">496844f5e6 … d9b76428b9</a> · 39 commits by 2 authors over 10 mo (2023-12-21 to 2024-11-04)</dd></div>
       <div><dt>Window:</dt><dd>requests 6–25 of a run of 25 test-bearing changes (overlaps the previous window by 15) · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,477 lines of code in 28 files when the chain starts · over the 20 requests the developers added 4,672 and removed 6,618 lines of code, plus 1,952 lines of tests (414 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.6k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 2</dd></div>
+      <div><dt>Specifications:</dt><dd>10.8k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 2</dd></div>
     </dl>
   </header>
 </section>
@@ -144,140 +144,140 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">znh5md H5MD Compliance and API Simplification</span>
-        <span class="spec-meta muted">492 words · source specification
+        <span class="spec-title">H5MD Compliance and API Simplification for znh5md</span>
+        <span class="spec-meta muted">542 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: znh5md H5MD Compliance and API Simplification</h3>
+      <div class="spec-body"><h3>Task Specification: H5MD Compliance and API Simplification for znh5md</h3>
 <h4>Overview</h4>
-<p>You are working on the <code>znh5md</code> package, a library for writing/reading ASE (Atomic Simulation Environment) trajectory data to/from HDF5 files following the H5MD standard. This task requires three changes: removing an explicit initialization step, ensuring H5MD compliance so that files can be read by external tools, and bumping the version.</p>
+<p>The <code>znh5md</code> package — a library that writes ASE (Atomic Simulation Environment) trajectory data to HDF5 files and reads such data back from them, in accordance with the H5MD standard — is the focus of this task. Three changes are required: dropping an explicit initialization step, ensuring H5MD compliance so that external tools can read the files, and raising the version.</p>
 <h4>Requirements</h4>
 <h5>1. Version bump</h5>
-<p>The package must expose <code>znh5md.__version__</code> equal to the string <code>&quot;0.2.0&quot;</code>.</p>
-<h5>2. Remove the <code>initialize_database_groups</code> step</h5>
-<p>The <code>DataWriter</code> class (importable as <code>znh5md.io.DataWriter</code>) must no longer require any explicit group-initialization step before writing data.</p>
+<p><code>znh5md.__version__</code> must be exposed by the package, equal to the string <code>&quot;0.2.0&quot;</code>.</p>
+<h5>2. Drop the <code>initialize_database_groups</code> step</h5>
+<p>The <code>DataWriter</code> class (importable as <code>znh5md.io.DataWriter</code>) must no longer require any explicit group-initialization step before the data is written.</p>
 <ul>
-<li>The public method <code>initialize_database_groups()</code> must be removed from <code>DataWriter</code> (it must no longer be part of the public API).</li>
-<li>Any HDF5 groups needed to store data must be created automatically and only when required, as part of the normal writing workflow.</li>
+<li>The public method <code>initialize_database_groups()</code> must be dropped from <code>DataWriter</code> (it must no longer form part of the public API).</li>
+<li>As part of the normal writing workflow, any HDF5 groups needed to store data must be created automatically, and only when required.</li>
 </ul>
-<p>The typical workflow must be:</p>
+<p>The typical workflow must look as follows:</p>
 <pre><code class="language-python">db = znh5md.io.DataWriter(filename=&quot;db.h5&quot;)
 reader = znh5md.io.AtomsReader(atoms_list)
 db.add(reader)
 </code></pre>
-<p>Immediately calling <code>db.add(...)</code> on a freshly constructed <code>DataWriter</code> (with no prior initialization call) must successfully write the data to the file. All existing reading/slicing/property behavior via <code>znh5md.ASEH5MD(&quot;db.h5&quot;)</code> must continue to work after writing this way.</p>
-<p><code>DataWriter(filename=...)</code> must accept a filename given either as a string or as a <code>pathlib.Path</code>.</p>
-<h5>3. H5MD compliance (readable by MDAnalysis)</h5>
-<p>Files written by <code>DataWriter</code> must comply with the H5MD standard closely enough that the trajectory positions can be read back correctly by the standard <code>MDAnalysis</code> H5MD reader (<code>MDAnalysis.coordinates.H5MD.H5MDReader</code>).</p>
-<p>Concretely, given a list of <code>ase.Atoms</code> objects written to an H5 file via:</p>
+<p>When <code>db.add(...)</code> is called immediately on a freshly constructed <code>DataWriter</code> (with no prior initialization call), the data must be written to the file successfully. After a write carried out this way, all of the existing reading/slicing/property behavior via <code>znh5md.ASEH5MD(&quot;db.h5&quot;)</code> must continue to work.</p>
+<p>A filename must be accepted by <code>DataWriter(filename=...)</code> when given either as a string or as a <code>pathlib.Path</code>.</p>
+<h5>3. H5MD compliance (files readable by MDAnalysis)</h5>
+<p>Files written by <code>DataWriter</code> must conform to the H5MD standard closely enough that the standard <code>MDAnalysis</code> H5MD reader (<code>MDAnalysis.coordinates.H5MD.H5MDReader</code>) can read the trajectory positions back correctly.</p>
+<p>Concretely, when a list of <code>ase.Atoms</code> objects has been written to an H5 file via:</p>
 <pre><code class="language-python">db = znh5md.io.DataWriter(filename=filename)   # filename is a pathlib.Path
 reader = znh5md.io.AtomsReader(trajectory)
 db.add(reader)
 </code></pre>
-<p>opening the resulting file with the MDAnalysis H5MD reader must yield a trajectory whose:</p>
+<p>the MDAnalysis H5MD reader, on opening the resulting file, must yield a trajectory for which the following hold:</p>
 <ul>
-<li>length equals the number of written frames, and</li>
-<li>per-frame positions match (elementwise, within floating-point tolerance) the positions of the corresponding input <code>ase.Atoms</code> objects.</li>
+<li>its length equals the number of written frames, and</li>
+<li>for every frame, the positions match (elementwise, within floating-point tolerance) the positions of the corresponding input <code>ase.Atoms</code> objects.</li>
 </ul>
-<p>To achieve this compliance:</p>
+<p>To reach this compliance:</p>
 <ul>
-<li><strong>Units must be stored as HDF5 <code>attrs</code></strong> (attribute metadata) on the appropriate datasets/groups, rather than as separate datasets, as required by the H5MD specification.</li>
-<li>Time information must be written correctly per the H5MD standard.</li>
-<li>Periodic boundary conditions (PBC) and box/edges information must be written such that the file represents standard 3-dimensional data. (The trajectories in scope are 3D atomic systems; e.g. a water molecule of 3 atoms whose positions translate linearly frame to frame.)</li>
+<li><strong>Units must be stored as HDF5 <code>attrs</code></strong> (attribute metadata) attached to the appropriate datasets/groups — not as separate datasets — because the H5MD specification requires this.</li>
+<li>Per the H5MD standard, time information must be written correctly.</li>
+<li>Periodic boundary conditions (PBC) and box/edges information must be written in a way that makes the file represent standard 3-dimensional data. (The trajectories covered here are 3D atomic systems; e.g. a water molecule made up of 3 atoms whose positions translate linearly from frame to frame.)</li>
 </ul>
-<p>The reading must work for trajectories where atoms have positions but no attached calculator/energy data (i.e., position-only trajectories must be fully valid).</p>
-<h4>Public API Surface</h4>
-<p>The following must remain importable and callable:</p>
+<p>For trajectories in which the atoms have positions but no attached calculator/energy data, reading must work (i.e., position-only trajectories must be fully valid).</p>
+<h4>Public API</h4>
+<p>The items listed below must stay importable and callable:</p>
 <ul>
 <li><code>znh5md.__version__</code> → <code>&quot;0.2.0&quot;</code></li>
-<li><code>znh5md.io.DataWriter(filename=&lt;str | pathlib.Path&gt;)</code> with method <code>.add(reader)</code> — no <code>initialize_database_groups</code> method.</li>
+<li><code>znh5md.io.DataWriter(filename=&lt;str | pathlib.Path&gt;)</code> with method <code>.add(reader)</code> — it has no <code>initialize_database_groups</code> method.</li>
 <li><code>znh5md.io.AtomsReader(atoms_list, frames_per_chunk=&lt;int&gt;)</code> — accepts a list of <code>ase.Atoms</code>.</li>
-<li><code>znh5md.ASEH5MD(&lt;filename&gt;)</code> — for reading back written files.</li>
+<li><code>znh5md.ASEH5MD(&lt;filename&gt;)</code> — for reading written files back.</li>
 </ul>
-<h4>Out of Scope / Constraints</h4>
+<h4>Out of Scope and Constraints</h4>
 <ul>
-<li>Do not reintroduce or preserve <code>initialize_database_groups</code> as a required or optional step.</li>
-<li>No behavior beyond correct H5MD-compliant writing (units in attrs, correct time, 3D/PBC/box data) and the version bump is required.</li>
+<li><code>initialize_database_groups</code> must not be reintroduced or preserved as a required or optional step.</li>
+<li>Nothing beyond correct H5MD-compliant writing (units in attrs, correct time, 3D/PBC/box data) and the version bump is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">H5MD-Compliant Reading and Writing for ASE Atoms</span>
-        <span class="spec-meta muted">587 words · source specification
+        <span class="spec-title">Reading and Writing ASE Atoms in H5MD-Compliant Form</span>
+        <span class="spec-meta muted">633 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: H5MD-Compliant Reading and Writing for ASE Atoms</h3>
-<h4>Overview</h4>
-<p>Implement a Python package <code>znh5md</code> that reads and writes molecular structure trajectories (sequences of ASE <code>Atoms</code> objects) to/from HDF5 files following the H5MD file layout. The output files must be interoperable with the reference <code>pyh5md</code> library — i.e., files written by <code>znh5md</code> must be readable by <code>pyh5md</code>, and files written by <code>pyh5md</code> must be readable by <code>znh5md</code>.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as described:</p>
+      <div class="spec-body"><h3>Task Specification: Reading and Writing ASE Atoms in H5MD-Compliant Form</h3>
+<h4>Summary</h4>
+<p>Implement a Python package <code>znh5md</code> that reads molecular structure trajectories (sequences of ASE <code>Atoms</code> objects) from and writes them to HDF5 files following the H5MD file layout. The output files must be interoperable with the reference <code>pyh5md</code> library — that is, files written by <code>znh5md</code> must be readable by <code>pyh5md</code>, and files written by <code>pyh5md</code> must be readable by <code>znh5md</code>.</p>
+<h4>Public API</h4>
+<p>Everything listed in this section must be importable and callable exactly as described:</p>
 <h5><code>znh5md.ASEH5MD</code></h5>
-<p>A class constructed with a single positional argument: a filesystem path (<code>str</code> or <code>pathlib.Path</code>) to an existing H5MD file.</p>
+<p>A class whose constructor takes one positional argument: a filesystem path (<code>str</code> or <code>pathlib.Path</code>) pointing to an existing H5MD file.</p>
 <pre><code class="language-python">reader = znh5md.ASEH5MD(path)
 </code></pre>
-<p>It must provide the method:</p>
+<p>It must expose the method:</p>
 <pre><code class="language-python">reader.get_atoms_list() -&gt; list[ase.Atoms]
 </code></pre>
-<p>which returns the list of <code>ase.Atoms</code> objects reconstructed from the file, one per stored frame/step, in stored order.</p>
+<p>which returns the list of <code>ase.Atoms</code> objects reconstructed from the file — one object per stored frame/step, in the order in which they are stored.</p>
 <h5><code>znh5md.io.DataWriter</code></h5>
-<p>A class constructed with a single positional argument: a filesystem path (<code>str</code> or <code>pathlib.Path</code>) where an H5MD file is to be written/created.</p>
+<p>A class whose constructor accepts one positional argument: a filesystem path (<code>str</code> or <code>pathlib.Path</code>) at which an H5MD file is to be written/created.</p>
 <pre><code class="language-python">db = znh5md.io.DataWriter(path)
 </code></pre>
-<p>It must provide the method:</p>
+<p>It must expose the method:</p>
 <pre><code class="language-python">db.add(reader)
 </code></pre>
-<p>where <code>reader</code> is an <code>AtomsReader</code> instance (see below). Calling <code>add</code> writes the data provided by the reader into the H5MD file at the writer's path.</p>
+<p>where <code>reader</code> is an <code>AtomsReader</code> instance (see below). Calling <code>add</code> writes the data supplied by the reader into the H5MD file at the writer's path.</p>
 <h5><code>znh5md.io.AtomsReader</code></h5>
-<p>A class constructed with a single positional argument: a list of <code>ase.Atoms</code> objects.</p>
+<p>A class whose constructor takes one positional argument: a list of <code>ase.Atoms</code> objects.</p>
 <pre><code class="language-python">reader = znh5md.io.AtomsReader(list_of_atoms)
 </code></pre>
-<p>It adapts an in-memory list of <code>Atoms</code> into the form consumed by <code>DataWriter.add</code>.</p>
-<h4>H5MD File Layout Requirements</h4>
-<p>Files written by <code>DataWriter</code> must conform to the H5MD group/dataset structure such that the <code>pyh5md</code> reference implementation can open them and access the following elements. For a particle group named <code>&quot;atoms&quot;</code> (accessed via <code>pyh5md</code>'s <code>particles_group(&quot;atoms&quot;)</code>), the following time-dependent elements must be present, each with a per-frame <code>value</code> array indexed by frame:</p>
+<p>It adapts an in-memory list of <code>Atoms</code> into the form that <code>DataWriter.add</code> consumes.</p>
+<h4>Requirements for the H5MD File Layout</h4>
+<p>Files that <code>DataWriter</code> writes must conform to the H5MD group/dataset structure so that the <code>pyh5md</code> reference implementation can open them and access the elements below. For a particle group named <code>&quot;atoms&quot;</code> (accessed via <code>pyh5md</code>'s <code>particles_group(&quot;atoms&quot;)</code>), the time-dependent elements below must be present, each with a per-frame <code>value</code> array indexed by frame:</p>
 <ul>
-<li><code>position</code> — shape <code>(n_atoms, 3)</code> per frame, float; equals each frame's atomic positions.</li>
-<li><code>species</code> — shape <code>(n_atoms,)</code> per frame, integer; equals each frame's atomic numbers.</li>
-<li><code>momentum</code> — shape <code>(n_atoms, 3)</code> per frame, float; equals each frame's atomic momenta.</li>
-<li><code>forces</code> — shape <code>(n_atoms, 3)</code> per frame, float; equals each frame's atomic forces.</li>
+<li><code>position</code> — float, with shape <code>(n_atoms, 3)</code> per frame; equals the atomic positions of each frame.</li>
+<li><code>species</code> — integer, with shape <code>(n_atoms,)</code> per frame; equals the atomic numbers of each frame.</li>
+<li><code>momentum</code> — float, with shape <code>(n_atoms, 3)</code> per frame; equals the atomic momenta of each frame.</li>
+<li><code>forces</code> — float, with shape <code>(n_atoms, 3)</code> per frame; equals the atomic forces of each frame.</li>
 </ul>
-<p>Additionally, an observable element at path <code>observables/atoms/energy</code> (accessed via <code>pyh5md</code>'s <code>element(file, &quot;observables/atoms/energy&quot;)</code>) must be present, storing the per-frame potential energy.</p>
-<p>For each frame index <code>idx</code>, reading these elements back must yield, respectively: the positions, atomic numbers, momenta, forces, and potential energy of the corresponding input <code>Atoms</code> object.</p>
-<h4>Reading Requirements</h4>
-<p><code>ASEH5MD(path).get_atoms_list()</code> must reconstruct <code>Atoms</code> objects from an H5MD file that follows the above layout (including files produced by <code>pyh5md</code>). Reading files that contain the standard H5MD <code>h5md</code> metadata group (with <code>version</code>, <code>author</code>, and <code>creator</code> subgroups/attributes) must work without error. For each frame, the reconstructed <code>Atoms</code> must reproduce:</p>
+<p>In addition, an observable element at path <code>observables/atoms/energy</code> (accessed via <code>pyh5md</code>'s <code>element(file, &quot;observables/atoms/energy&quot;)</code>) must be present, storing the per-frame potential energy.</p>
+<p>For each frame index <code>idx</code>, these elements, when read back, must yield, respectively: the positions, atomic numbers, momenta, forces, and potential energy of the corresponding input <code>Atoms</code> object.</p>
+<h4>Requirements for Reading</h4>
+<p><code>ASEH5MD(path).get_atoms_list()</code> must reconstruct <code>Atoms</code> objects from an H5MD file that follows the layout above (including files produced by <code>pyh5md</code>). Reading files containing the standard H5MD <code>h5md</code> metadata group (with <code>version</code>, <code>author</code>, and <code>creator</code> subgroups/attributes) must work without error. For each frame, the reconstructed <code>Atoms</code> must reproduce:</p>
 <ul>
-<li>positions (from <code>position</code>)</li>
-<li>atomic numbers (from <code>species</code>)</li>
-<li>momenta (from <code>momentum</code>)</li>
-<li>forces (from <code>forces</code>)</li>
-<li>potential energy (from <code>observables/atoms/energy</code>)</li>
+<li>the positions (taken from <code>position</code>)</li>
+<li>the atomic numbers (taken from <code>species</code>)</li>
+<li>the momenta (taken from <code>momentum</code>)</li>
+<li>the forces (taken from <code>forces</code>)</li>
+<li>the potential energy (taken from <code>observables/atoms/energy</code>)</li>
 </ul>
-<p>so that these values compare equal to the source data used to write the file.</p>
-<h4>Round-Trip and Interoperability Constraints</h4>
+<p>so that these values compare equal to the source data from which the file was written.</p>
+<h4>Constraints for Round-Trip and Interoperability</h4>
 <ul>
-<li>Data written by <code>znh5md.io.DataWriter</code> (fed by <code>znh5md.io.AtomsReader</code>) must be readable by <code>pyh5md</code> and yield exactly the original positions, atomic numbers, momenta, forces, and per-frame energies.</li>
-<li>Data written by <code>pyh5md</code> in the layout described above must be readable by <code>znh5md.ASEH5MD</code> and yield <code>Atoms</code> whose positions, momenta, forces, potential energy, and atomic numbers match the originals exactly.</li>
-<li>The values across distinct frames are generally different; per-frame indexing must be preserved (frame <code>idx</code> maps to input structure <code>idx</code>).</li>
+<li>Data that <code>znh5md.io.DataWriter</code> writes (fed by <code>znh5md.io.AtomsReader</code>) must be readable by <code>pyh5md</code> and yield exactly the original positions, atomic numbers, momenta, forces, and per-frame energies.</li>
+<li>Data that <code>pyh5md</code> writes in the layout described above must be readable by <code>znh5md.ASEH5MD</code> and yield <code>Atoms</code> whose positions, momenta, forces, potential energy, and atomic numbers match the originals exactly.</li>
+<li>The values for distinct frames are in general different; per-frame indexing must be preserved (frame <code>idx</code> maps to input structure <code>idx</code>).</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The energy stored is the potential energy obtained from each <code>Atoms</code>' attached calculator.</li>
-<li>All numeric comparisons for interoperability are exact (not merely approximate).</li>
+<li>The energy that gets stored is the potential energy obtained from each <code>Atoms</code>' attached calculator.</li>
+<li>For interoperability, all numeric comparisons are exact (not merely approximate).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Implement an ASE-compatible H5MD trajectory API with the following public surface and behavior.</span>
-        <span class="spec-meta muted">1673 words · source specification
+        <span class="spec-title">Implement an ASE-compatible H5MD trajectory API that provides the public surface and behavior laid out below.</span>
+        <span class="spec-meta muted">1844 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>ZnH5MD trajectory I/O redesign</h3>
-<p>Implement an ASE-compatible H5MD trajectory API with the following public surface and behavior.</p>
-<h4>Public API</h4>
-<p>The package root, <code>znh5md</code>, must expose:</p>
+      <div class="spec-body"><h3>Redesign of the ZnH5MD trajectory I/O</h3>
+<p>Implement an ASE-compatible H5MD trajectory API that provides the public surface and behavior laid out below.</p>
+<h4>Public API surface</h4>
+<p>The package root <code>znh5md</code> must expose:</p>
 <pre><code class="language-python">class IO:
     def __init__(
         self,
@@ -300,7 +300,7 @@ db.add(reader)
     def __len__(self) -&gt; int: ...
     def __getitem__(self, index: int | slice) -&gt; ase.Atoms | list[ase.Atoms]: ...
 </code></pre>
-<p>Also expose:</p>
+<p>In addition, expose:</p>
 <pre><code class="language-python">def write(
     filename: str | os.PathLike,
     images: ase.Atoms | Iterable[ase.Atoms],
@@ -321,23 +321,23 @@ def iread(
     **io_options,
 ) -&gt; Iterator[ase.Atoms]: ...
 </code></pre>
-<p>The utility functions described below must be importable from <code>znh5md.utils</code>, and the CLI application must be importable as <code>znh5md.cli.app</code>.</p>
-<h4><code>IO</code> sequence behavior</h4>
+<p>The utility functions described further down must be importable from <code>znh5md.utils</code>, and the CLI application must be importable as <code>znh5md.cli.app</code>.</p>
+<h4>Sequence behavior of <code>IO</code></h4>
 <ul>
-<li><code>IO</code> must work with either:
+<li><code>IO</code> must work with either of the following:
 <ul>
-<li>a filesystem path supplied as <code>filename</code>, or</li>
-<li>an already-open <code>h5py.File</code> supplied as <code>file_handle</code> without a filename.</li>
+<li>a filesystem path given as <code>filename</code>, or</li>
+<li>an already-open <code>h5py.File</code> given as <code>file_handle</code> with no filename.</li>
 </ul>
 </li>
-<li><code>append()</code> adds one frame.</li>
-<li><code>extend()</code> adds all supplied frames in order.</li>
-<li>Existing frames must remain when another frame or sequence is appended through the same <code>IO</code>.</li>
-<li>Repeated <code>extend()</code> calls continue the trajectory rather than replacing it.</li>
-<li><code>len(io)</code> returns the number of frames in the selected particle group.</li>
-<li>Integer indexing returns one <code>ase.Atoms</code>.</li>
-<li>Slicing returns a list of <code>ase.Atoms</code>.</li>
-<li>Support ordinary positive-step slicing, including:
+<li><code>append()</code> adds a single frame.</li>
+<li>When <code>extend()</code> is called, all supplied frames are added, in order.</li>
+<li>When another frame or sequence is appended through the same <code>IO</code>, the frames already present must remain.</li>
+<li>Calling <code>extend()</code> repeatedly continues the trajectory rather than replacing it.</li>
+<li><code>len(io)</code> returns the number of frames that the selected particle group contains.</li>
+<li>Indexing with an integer returns a single <code>ase.Atoms</code>.</li>
+<li>Indexing with a slice returns a list of <code>ase.Atoms</code>.</li>
+<li>Ordinary positive-step slicing must be supported, including:
 <ul>
 <li>full slices,</li>
 <li>omitted bounds,</li>
@@ -346,31 +346,31 @@ def iread(
 <li>and empty slices.</li>
 </ul>
 </li>
-<li>Reading does not change the trajectory length.</li>
-<li>The last frame must be accessible through negative indexing, as required by the default <code>read()</code> behavior.</li>
+<li>Reads do not change the trajectory length.</li>
+<li>The last frame must be accessible through negative indexing, which the default <code>read()</code> behavior requires.</li>
 </ul>
-<p>Different particle groups in the same file must be independent. For example, two instances using <code>particle_group=&quot;a&quot;</code> and <code>particle_group=&quot;b&quot;</code> must be able to write and read their own trajectories without overwriting one another. This must work both for path-based access and when both instances share one externally owned <code>h5py.File</code>.</p>
-<p>An externally supplied file handle must remain usable by the caller and by other <code>IO</code> instances for the duration of its surrounding context.</p>
-<h4>ASE data round-trip</h4>
+<p>Particle groups that differ within the same file must be independent. For instance, two instances configured with <code>particle_group=&quot;a&quot;</code> and <code>particle_group=&quot;b&quot;</code> must be able to write and read their own trajectories without overwriting one another. This must work both for path-based access and when both instances share a single externally owned <code>h5py.File</code>.</p>
+<p>When a file handle is supplied externally, it must remain usable by the caller and by other <code>IO</code> instances for the duration of its surrounding context.</p>
+<h4>Round-tripping ASE data</h4>
 <p>Writing and reading an <code>ase.Atoms</code> trajectory must preserve, frame by frame:</p>
 <ul>
-<li>positions,</li>
-<li>atomic numbers,</li>
-<li>full cell matrices,</li>
-<li>per-axis PBC flags,</li>
-<li>velocities and the corresponding ASE arrays,</li>
-<li>all existing keys and values in <code>Atoms.arrays</code>,</li>
-<li>all existing keys and values in <code>Atoms.info</code>,</li>
-<li>calculator result keys and values.</li>
+<li>the positions,</li>
+<li>the atomic numbers,</li>
+<li>complete cell matrices,</li>
+<li>PBC flags per axis,</li>
+<li>the velocities and the ASE arrays corresponding to them,</li>
+<li>all keys and values already present in <code>Atoms.arrays</code>,</li>
+<li>all keys and values already present in <code>Atoms.info</code>,</li>
+<li>the keys and values of calculator results.</li>
 </ul>
-<p>Trajectories may contain different numbers of atoms in different frames. Variable-sized positions, species, velocities, per-particle arrays, and per-particle calculator results must be reconstructed with their original shapes.</p>
-<p>Reading a frame adds exactly these two metadata keys to <code>Atoms.info</code> in addition to the original keys:</p>
+<p>The number of atoms may differ between frames of a trajectory. Positions, species, velocities, per-particle arrays, and per-particle calculator results that vary in size must be reconstructed with their original shapes.</p>
+<p>Reading a frame adds exactly the following two metadata keys to <code>Atoms.info</code>, in addition to the original keys:</p>
 <ul>
 <li><code>h5md_step</code></li>
 <li><code>h5md_time</code></li>
 </ul>
-<p>No other extra info keys may be added. No extra calculator-result or atom-array keys may be introduced.</p>
-<p>The following <code>SinglePointCalculator.results</code> values must survive round-trip with their original key names, shapes, and values:</p>
+<p>Other than these, no extra info keys may be added. No extra calculator-result or atom-array keys may be introduced either.</p>
+<p>The <code>SinglePointCalculator.results</code> values listed next must survive a round trip with their original key names, shapes, and values:</p>
 <ul>
 <li><code>energy</code></li>
 <li><code>energies</code></li>
@@ -385,19 +385,19 @@ def iread(
 <li><code>born_effective_charges</code></li>
 <li><code>polarization</code></li>
 </ul>
-<p>A nonstandard calculator result named <code>mlip_energy</code> must also be preserved rather than rejected or discarded.</p>
-<p>When an <code>energy</code> result exists:</p>
+<p>A nonstandard calculator result named <code>mlip_energy</code> must be preserved as well, rather than being rejected or discarded.</p>
+<p>If an <code>energy</code> result exists:</p>
 <ul>
-<li><code>get_potential_energy()</code> on the loaded frame must return the original value.</li>
-<li>A scalar energy must be returned as a Python <code>float</code>.</li>
+<li>calling <code>get_potential_energy()</code> on the loaded frame must return the original value;</li>
+<li>a scalar energy must be returned as a Python <code>float</code>.</li>
 </ul>
-<p>The following custom data must also round-trip:</p>
+<p>The following custom data must round-trip too:</p>
 <ul>
 <li>scalar and array-valued <code>Atoms.info</code>, including <code>mlip_energy</code>, <code>mlip_energy_2</code>, and a six-element <code>mlip_stress</code>;</li>
-<li>per-particle arrays named <code>mlip_forces</code> and <code>mlip_forces_2</code>.</li>
+<li>the per-particle arrays named <code>mlip_forces</code> and <code>mlip_forces_2</code>.</li>
 </ul>
-<h4>HDF5/H5MD layout</h4>
-<p>For the default <code>particle_group=&quot;atoms&quot;</code>, generated files must contain these datasets when the corresponding data exists:</p>
+<h4>HDF5/H5MD file layout</h4>
+<p>With the default <code>particle_group=&quot;atoms&quot;</code>, generated files must contain the following datasets when the corresponding data exists:</p>
 <ul>
 <li><code>particles/atoms/position/value</code></li>
 <li><code>particles/atoms/species/value</code></li>
@@ -406,49 +406,49 @@ def iread(
 <li><code>observables/atoms/energy/value</code></li>
 <li><code>particles/atoms/box/edges/value</code></li>
 </ul>
-<p>Use the singular names <code>velocity</code> and <code>force</code> for generated files.</p>
-<p>Data placement must satisfy the following:</p>
+<p>For generated files, use the singular names <code>velocity</code> and <code>force</code>.</p>
+<p>Data placement must satisfy these rules:</p>
 <ul>
-<li>Calculator forces are stored under <code>particles/&lt;group&gt;/force</code>, not under observables.</li>
-<li>Velocities are stored under <code>particles/&lt;group&gt;/velocity</code>, not under observables.</li>
-<li>Calculator energy is stored under <code>observables/&lt;group&gt;/energy</code>, not under particles.</li>
-<li><code>mlip_forces</code> and <code>mlip_forces_2</code> are stored under <code>particles/&lt;group&gt;/...</code>.</li>
-<li><code>mlip_energy</code>, <code>mlip_energy_2</code>, and <code>mlip_stress</code> from <code>Atoms.info</code> are stored under <code>observables/&lt;group&gt;/...</code>.</li>
+<li>Calculator forces are stored under <code>particles/&lt;group&gt;/force</code> and not under observables.</li>
+<li>Velocities are stored under <code>particles/&lt;group&gt;/velocity</code> and not under observables.</li>
+<li>Calculator energy is stored under <code>observables/&lt;group&gt;/energy</code> and not under particles.</li>
+<li>The arrays <code>mlip_forces</code> and <code>mlip_forces_2</code> are stored under <code>particles/&lt;group&gt;/...</code>.</li>
+<li><code>mlip_energy</code>, <code>mlip_energy_2</code>, and <code>mlip_stress</code> taken from <code>Atoms.info</code> are stored under <code>observables/&lt;group&gt;/...</code>.</li>
 </ul>
-<p>With unit storage enabled by default:</p>
+<p>Since unit storage is enabled by default:</p>
 <ul>
-<li><code>particles/&lt;group&gt;/velocity/value</code> has a <code>unit</code> attribute equal to <code>&quot;Angstrom/fs&quot;</code>.</li>
-<li><code>particles/&lt;group&gt;/force/value</code> has a <code>unit</code> attribute equal to <code>&quot;eV/Angstrom&quot;</code>.</li>
+<li><code>particles/&lt;group&gt;/velocity/value</code> carries a <code>unit</code> attribute equal to <code>&quot;Angstrom/fs&quot;</code>.</li>
+<li><code>particles/&lt;group&gt;/force/value</code> carries a <code>unit</code> attribute equal to <code>&quot;eV/Angstrom&quot;</code>.</li>
 </ul>
-<h5>Cell and PBC data</h5>
-<p><code>particles/&lt;group&gt;/box</code> must exist and its <code>boundary</code> attribute must describe the first frame’s PBC state using:</p>
+<h5>Cell and PBC storage</h5>
+<p><code>particles/&lt;group&gt;/box</code> must exist, and its <code>boundary</code> attribute must describe the PBC state of the first frame using:</p>
 <ul>
-<li><code>&quot;periodic&quot;</code> for a periodic axis,</li>
-<li><code>&quot;none&quot;</code> for a nonperiodic axis.</li>
+<li><code>&quot;periodic&quot;</code> marks a periodic axis,</li>
+<li><code>&quot;none&quot;</code> marks a nonperiodic axis.</li>
 </ul>
-<p>For a fully nonperiodic structure, this attribute is <code>[&quot;none&quot;, &quot;none&quot;, &quot;none&quot;]</code>.</p>
-<p><code>particles/&lt;group&gt;/box/edges/value</code> must contain each frame’s cell. Full 3×3 cells must be preserved.</p>
-<p>By default, a changing-PBC trajectory must also contain:</p>
+<p>If the structure is fully nonperiodic, the attribute is <code>[&quot;none&quot;, &quot;none&quot;, &quot;none&quot;]</code>.</p>
+<p>Each frame’s cell must be contained in <code>particles/&lt;group&gt;/box/edges/value</code>. The full 3×3 cells must be preserved.</p>
+<p>By default, a trajectory whose PBC changes must also contain:</p>
 <pre><code class="language-text">particles/&lt;group&gt;/box/pbc/value
 </code></pre>
-<p>with each frame’s three Boolean PBC flags.</p>
-<p>When <code>pbc_group=False</code>, the <code>pbc</code> child must be omitted from <code>particles/&lt;group&gt;/box</code>. A nonperiodic molecule written this way must still read back with the correct all-false PBC flags.</p>
-<h4>Time and step storage</h4>
-<p>Support <code>store=&quot;time&quot;</code> and <code>store=&quot;linear&quot;</code>.</p>
-<p>For <code>store=&quot;time&quot;</code>:</p>
+<p>holding each frame’s three Boolean PBC flags.</p>
+<p>If <code>pbc_group=False</code>, the <code>pbc</code> child must be left out of <code>particles/&lt;group&gt;/box</code>. A nonperiodic molecule written in this way must still read back with the correct all-false PBC flags.</p>
+<h4>Storage of time and step</h4>
+<p><code>store=&quot;time&quot;</code> and <code>store=&quot;linear&quot;</code> must both be supported.</p>
+<p>With <code>store=&quot;time&quot;</code>:</p>
 <ul>
-<li>dynamic elements such as position and energy have one-dimensional <code>time</code> and <code>step</code> datasets with one entry per frame;</li>
-<li>frame <code>i</code> has step <code>i</code> and time <code>i * timestep</code>;</li>
-<li>appending more frames continues this sequence.</li>
+<li>dynamic elements such as position and energy have <code>time</code> and <code>step</code> datasets that are one-dimensional, with one entry per frame;</li>
+<li>frame <code>i</code> carries step <code>i</code> and time <code>i * timestep</code>;</li>
+<li>appending further frames continues this sequence.</li>
 </ul>
-<p>For <code>store=&quot;linear&quot;</code>:</p>
+<p>With <code>store=&quot;linear&quot;</code>:</p>
 <ul>
-<li>the element’s <code>time</code> dataset is scalar and equals <code>timestep</code>;</li>
-<li>the element’s <code>step</code> dataset is scalar and equals <code>1</code>;</li>
-<li>loaded frames must still expose <code>h5md_step == i</code> and <code>h5md_time == i * timestep</code>.</li>
+<li>the <code>time</code> dataset of the element is scalar and equals <code>timestep</code>;</li>
+<li>the <code>step</code> dataset of the element is scalar and equals <code>1</code>;</li>
+<li>frames that are loaded must still expose <code>h5md_step == i</code> and <code>h5md_time == i * timestep</code>.</li>
 </ul>
-<p>This sequencing must remain continuous when the same trajectory is extended multiple times.</p>
-<p>Files using either storage mode must be detected and read correctly when reopened without passing the original <code>store</code> argument.</p>
+<p>When the same trajectory is extended multiple times, this sequencing must remain continuous.</p>
+<p>When a file is reopened without passing the original <code>store</code> argument, files using either storage mode must be detected and read correctly.</p>
 <h4>Metadata</h4>
 <p>The constructor parameters:</p>
 <ul>
@@ -457,30 +457,30 @@ def iread(
 <li><code>creator</code></li>
 <li><code>creator_version</code></li>
 </ul>
-<p>must be persisted in the H5MD file. Reopening the file through <code>IO</code> must expose them as string attributes with the same names and values:</p>
+<p>must be persisted in the H5MD file. Reopening the file through <code>IO</code> must expose them as string attributes carrying the same names and values:</p>
 <pre><code class="language-python">io.author
 io.author_email
 io.creator
 io.creator_version
 </code></pre>
-<h4>Convenience read/write functions</h4>
-<p><code>znh5md.write()</code> must accept either one <code>ase.Atoms</code> or an iterable of frames and create a readable H5MD file.</p>
+<h4>Convenience functions for reading and writing</h4>
+<p><code>znh5md.write()</code> must accept either a single <code>ase.Atoms</code> or an iterable of frames, and must create a readable H5MD file.</p>
 <ul>
-<li><code>compression=None</code> and <code>compression=&quot;gzip&quot;</code> must both be accepted.</li>
-<li>Writing a large sequence, including 10,000 small frames, must succeed.</li>
-<li>If the destination already exists and <code>append=False</code> is explicitly supplied, raise <code>FileExistsError</code> rather than replacing it.</li>
+<li>Both <code>compression=None</code> and <code>compression=&quot;gzip&quot;</code> must be accepted.</li>
+<li>Writing a large sequence, including one of 10,000 small frames, must succeed.</li>
+<li>If the destination already exists and <code>append=False</code> is explicitly supplied, the call must raise <code>FileExistsError</code> rather than replacing it.</li>
 </ul>
-<p><code>znh5md.read()</code> behavior:</p>
+<p>Behavior of <code>znh5md.read()</code>:</p>
 <ul>
-<li>With no <code>index</code>, return the last frame.</li>
-<li>With a slice, return the selected frames as a list.</li>
-<li>With a list of integer indices, return those frames as a list in the requested order.</li>
+<li>Without an <code>index</code>, return the last frame.</li>
+<li>Given a slice, return the selected frames as a list.</li>
+<li>Given a list of integer indices, return those frames as a list in the order that was requested.</li>
 </ul>
-<p><code>znh5md.iread()</code> must yield every frame in trajectory order.</p>
-<h4>External H5MD compatibility</h4>
-<h5>Reading pyh5md files</h5>
-<p><code>IO</code> must read H5MD files produced through <code>pyh5md</code>, in both <code>&quot;time&quot;</code> and <code>&quot;linear&quot;</code> storage modes.</p>
-<p>Support input element names and locations including:</p>
+<p>Every frame must be yielded by <code>znh5md.iread()</code>, in trajectory order.</p>
+<h4>Compatibility with external H5MD</h4>
+<h5>Reading files written by pyh5md</h5>
+<p><code>IO</code> must be able to read H5MD files produced with <code>pyh5md</code>, in both the <code>&quot;time&quot;</code> and <code>&quot;linear&quot;</code> storage modes.</p>
+<p>Input element names and locations that must be supported include:</p>
 <ul>
 <li><code>particles/atoms/position</code></li>
 <li><code>particles/atoms/species</code></li>
@@ -489,56 +489,56 @@ io.creator_version
 <li><code>observables/atoms/energy</code></li>
 <li><code>particles/atoms/box/edges</code></li>
 </ul>
-<p>The loaded ASE structures must preserve positions, velocities, forces, potential energies, atomic numbers, and cells. Box edges represented as three diagonal lengths must produce the corresponding ASE cell.</p>
-<h5>Reading generated files with pyh5md</h5>
-<p>Files generated by <code>IO</code> must be readable through <code>pyh5md.File</code> and <code>pyh5md.element</code>. In particular, pyh5md must be able to retrieve:</p>
+<p>The loaded ASE structures must preserve positions, velocities, forces, potential energies, atomic numbers, and cells. Where box edges are represented as three diagonal lengths, they must produce the corresponding ASE cell.</p>
+<h5>Reading generated files through pyh5md</h5>
+<p>Files that <code>IO</code> generated must be readable through <code>pyh5md.File</code> and <code>pyh5md.element</code>. Specifically, pyh5md must be able to retrieve:</p>
 <ul>
 <li>position,</li>
 <li>species,</li>
 <li>velocity,</li>
-<li>singular <code>force</code>,</li>
+<li>the singular <code>force</code>,</li>
 <li>energy,</li>
 <li>box edges,</li>
-<li>position time and step metadata.</li>
+<li>the time and step metadata of position.</li>
 </ul>
-<p>The retrieved values must equal the original ASE data.</p>
-<h5>MDAnalysis compatibility</h5>
-<p>Files generated with <code>store=&quot;time&quot;</code> must be accepted by <code>MDAnalysis.coordinates.H5MD.H5MDReader</code>.</p>
-<p>For a trajectory containing positions, velocities, and forces:</p>
+<p>The values retrieved must equal the original ASE data.</p>
+<h5>Compatibility with MDAnalysis</h5>
+<p>Files written using <code>store=&quot;time&quot;</code> must be accepted by <code>MDAnalysis.coordinates.H5MD.H5MDReader</code>.</p>
+<p>For a trajectory that contains positions, velocities, and forces:</p>
 <ul>
-<li>with <code>save_units=False</code> and <code>convert_units=False</code>, MDAnalysis must expose the original positions, ASE velocities, and forces;</li>
-<li>frame numbers must begin at zero and increase in order.</li>
+<li>with <code>save_units=False</code> and <code>convert_units=False</code>, MDAnalysis must expose the original positions, the ASE velocities, and the forces;</li>
+<li>the frame numbers must start at zero and increase in order.</li>
 </ul>
-<p>With default unit storage and <code>convert_units=True</code>, positions must still equal the original ASE positions.</p>
+<p>Using the default unit storage together with <code>convert_units=True</code>, the positions must still equal the original ASE positions.</p>
 <h4>CLI</h4>
-<p>Expose a Typer application as:</p>
+<p>A Typer application must be exposed as:</p>
 <pre><code class="language-python">from znh5md.cli import app
 </code></pre>
-<p>It must support:</p>
+<p>It must provide support for:</p>
 <pre><code class="language-text">znh5md export INPUT.h5md OUTPUT.xyz
 </code></pre>
-<p>This command must exit successfully, create the output file, and export an ASE-readable structure with the same chemical symbols.</p>
-<p>It must also support:</p>
+<p>This command must exit successfully, create the output file, and export a structure readable by ASE with the same chemical symbols.</p>
+<p>Support must also be available for:</p>
 <pre><code class="language-text">znh5md convert INPUT.xyz OUTPUT.h5md
 </code></pre>
-<p>This command must exit successfully and create an H5MD file containing at least one frame readable by <code>znh5md.IO</code>.</p>
+<p>This command must exit successfully and create an H5MD file that contains at least one frame which <code>znh5md.IO</code> can read.</p>
 <p>The global option:</p>
 <pre><code class="language-text">znh5md --version
 </code></pre>
-<p>must exit successfully and print output containing the substring <code>&quot;znh5md&quot;</code>.</p>
+<p>must exit successfully and print output that contains the substring <code>&quot;znh5md&quot;</code>.</p>
 <h4>Utility functions</h4>
-<p>Expose the following from <code>znh5md.utils</code>.</p>
+<p>The following must be exposed from <code>znh5md.utils</code>.</p>
 <h5><code>concatenate_varying_shape_arrays</code></h5>
 <pre><code class="language-python">def concatenate_varying_shape_arrays(
     arrays: Sequence[np.ndarray],
 ) -&gt; np.ndarray:
     ...
 </code></pre>
-<p>It combines arrays with a varying first dimension into one array with a new leading frame dimension. Shorter arrays are padded with <code>NaN</code> along their first dimension.</p>
+<p>It merges arrays whose first dimension varies into one array that gains a new leading frame dimension. Arrays that are shorter are padded with <code>NaN</code> along their first dimension.</p>
 <p>Examples:</p>
 <ul>
 <li>
-<p><code>[array([1]), array([1, 2]), array([1, 2, 3])]</code> becomes:</p>
+<p><code>[array([1]), array([1, 2]), array([1, 2, 3])]</code> is turned into:</p>
 <pre><code class="language-python">array([
     [1, nan, nan],
     [1, 2, nan],
@@ -547,150 +547,151 @@ io.creator_version
 </code></pre>
 </li>
 <li>
-<p>Arrays shaped <code>(1, 2)</code>, <code>(2, 2)</code>, and <code>(3, 2)</code> become a <code>(3, 3, 2)</code> result, with missing rows filled entirely with <code>NaN</code>.</p>
+<p>Arrays with shapes <code>(1, 2)</code>, <code>(2, 2)</code>, and <code>(3, 2)</code> produce a <code>(3, 3, 2)</code> result, with missing rows filled entirely with <code>NaN</code>.</p>
 </li>
 <li>
-<p>An empty one-dimensional array contributes one all-<code>NaN</code> row in the combined output.</p>
+<p>An empty one-dimensional array contributes a single all-<code>NaN</code> row to the combined output.</p>
 </li>
 </ul>
 <h5><code>split_varying_shape_array</code></h5>
 <pre><code class="language-python">def split_varying_shape_array(array: np.ndarray) -&gt; list[np.ndarray]:
     ...
 </code></pre>
-<p>It reverses the above representation by removing trailing all-<code>NaN</code> padding rows from each frame. A frame consisting entirely of <code>NaN</code> padding becomes an empty one-dimensional array.</p>
+<p>It inverts the representation above by removing the trailing all-<code>NaN</code> padding rows from each frame. A frame made up entirely of <code>NaN</code> padding becomes an empty one-dimensional array.</p>
 <h5><code>fill_dataset</code></h5>
 <pre><code class="language-python">def fill_dataset(dataset: h5py.Dataset, data: np.ndarray) -&gt; None:
     ...
 </code></pre>
-<p>It appends <code>data</code> along the dataset’s first dimension. If another dimension of the existing dataset or new data is smaller than the required combined shape, that portion is filled with <code>NaN</code>.</p>
-<p>Required examples include:</p>
+<p>It appends <code>data</code> along the first dimension of the dataset. If some other dimension of the existing dataset or of the new data is smaller than the required combined shape, that portion is filled with <code>NaN</code>.</p>
+<p>Examples that must be handled include:</p>
 <ul>
-<li><code>(2,)</code> plus <code>(3,)</code> becoming a single <code>(5,)</code> concatenation;</li>
-<li>an existing <code>(2, 2)</code> array plus <code>(1, 3)</code> becoming <code>(3, 3)</code>, with a <code>NaN</code> column added to the original rows;</li>
-<li>an existing <code>(1, 1, 3)</code> array plus <code>(1, 2, 3)</code> becoming <code>(2, 2, 3)</code>, with one all-<code>NaN</code> row added to the original item.</li>
+<li><code>(2,)</code> plus <code>(3,)</code> forming a single <code>(5,)</code> concatenation;</li>
+<li>an existing <code>(2, 2)</code> array plus <code>(1, 3)</code> becoming <code>(3, 3)</code>, where a <code>NaN</code> column is added to the original rows;</li>
+<li>an existing <code>(1, 1, 3)</code> array plus <code>(1, 2, 3)</code> becoming <code>(2, 2, 3)</code>, where one all-<code>NaN</code> row is added to the original item.</li>
 </ul>
 <h5><code>remove_nan_rows</code></h5>
 <pre><code class="language-python">def remove_nan_rows(array):
     ...
 </code></pre>
-<p>Required behavior:</p>
+<p>The behavior that is required:</p>
 <ul>
-<li>For a one-dimensional array, remove <code>NaN</code> entries.</li>
-<li>For a two-dimensional array, remove rows consisting entirely of <code>NaN</code>.</li>
-<li>A non-NaN scalar remains unchanged.</li>
-<li>A scalar <code>NaN</code> returns <code>None</code>.</li>
+<li>For a one-dimensional array, remove the <code>NaN</code> entries.</li>
+<li>For a two-dimensional array, remove the rows that consist entirely of <code>NaN</code>.</li>
+<li>A non-NaN scalar is left unchanged.</li>
+<li>For a scalar <code>NaN</code>, the function returns <code>None</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Expose the package version as a module-level attribute on the znh5md package.</span>
-        <span class="spec-meta muted">88 words · source specification
+        <span class="spec-title">Expose the version of the package as a module-level attribute on the znh5md package.</span>
+        <span class="spec-meta muted">98 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Expose the package version as a module-level attribute on the <code>znh5md</code> package.</p>
-<h4>Required Behavior</h4>
-<p>The <code>znh5md</code> package must define a module-level attribute <code>__version__</code> that is importable directly from the package:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Expose the version of the package as a module-level attribute on the <code>znh5md</code> package.</p>
+<h4>Behavior That Is Required</h4>
+<p>The <code>znh5md</code> package must define <code>__version__</code> as a module-level attribute that is importable directly from the package:</p>
 <pre><code class="language-python">import znh5md
 znh5md.__version__
 </code></pre>
-<p>The value of <code>znh5md.__version__</code> must be the string <code>&quot;0.3.1&quot;</code>.</p>
-<h4>Details</h4>
+<p>The value held by <code>znh5md.__version__</code> must be the string <code>&quot;0.3.1&quot;</code>.</p>
+<h4>Specifics</h4>
 <ul>
-<li><code>__version__</code> must be accessible as an attribute of the top-level <code>znh5md</code> package immediately upon import.</li>
-<li>Its value must be exactly the string <code>&quot;0.3.1&quot;</code> (a Python <code>str</code>).</li>
+<li>Immediately upon import, <code>__version__</code> must be accessible as an attribute of the top-level <code>znh5md</code> package.</li>
+<li>The value it holds must be exactly the string <code>&quot;0.3.1&quot;</code> (a Python <code>str</code>).</li>
 </ul>
-<p>No other behavior is required for this task.</p>
+<p>For this task, no other behavior is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">znh5md HDF5 Trajectory I/O Enhancements</span>
-        <span class="spec-meta muted">731 words · source specification
+        <span class="spec-title">znh5md HDF5 Trajectory I/O Improvements</span>
+        <span class="spec-meta muted">776 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: znh5md HDF5 Trajectory I/O Enhancements</h3>
+      <div class="spec-body"><h3>Task Specification: znh5md HDF5 Trajectory I/O Improvements</h3>
 <h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python package that reads and writes ASE (Atomic Simulation Environment) atomic trajectory data to/from HDF5 files following the H5MD conventions. This task requires three related changes: version bump, support for high-dimensional per-atom and per-frame data, and support for explicitly controlling H5MD <code>time</code> and <code>step</code> values via ASE <code>Atoms</code> metadata.</p>
+<p>You will be working on <code>znh5md</code>, a Python package that reads and writes ASE (Atomic Simulation Environment) atomic trajectory data to and from HDF5 files following the H5MD conventions. The task requires three related changes: a version bump, support for high-dimensional per-atom and per-frame data, and support for explicitly controlling the H5MD <code>time</code> and <code>step</code> values through ASE <code>Atoms</code> metadata.</p>
 <h4>Public API</h4>
 <p>The package must expose:</p>
 <ul>
-<li><code>znh5md.__version__</code> — a string equal to <code>&quot;0.3.2&quot;</code>.</li>
-<li><code>znh5md.IO</code> — a class for reading/writing trajectory data, constructed as:<pre><code class="language-python">znh5md.IO(filename, store=&quot;time&quot;)
+<li><code>znh5md.__version__</code> — a string that equals <code>&quot;0.3.2&quot;</code>.</li>
+<li><code>znh5md.IO</code> — a class for reading and writing trajectory data, constructed as:<pre><code class="language-python">znh5md.IO(filename, store=&quot;time&quot;)
 </code></pre>
-where <code>filename</code> is a path (accepts <code>str</code> or <code>pathlib.Path</code>) pointing to the HDF5 file, and <code>store</code> is a keyword argument (a string) selecting the storage mode. Supported values include <code>&quot;time&quot;</code> and <code>&quot;linear&quot;</code>.</li>
+where <code>filename</code> is a path pointing to the HDF5 file (it accepts <code>str</code> or <code>pathlib.Path</code>), and <code>store</code> is a keyword argument (a string) that selects the storage mode. The supported values include <code>&quot;time&quot;</code> and <code>&quot;linear&quot;</code>.</li>
 </ul>
 <p>The <code>IO</code> instance must support:</p>
 <ul>
-<li><code>io.append(atoms)</code> — append a single ASE <code>Atoms</code> object as one frame.</li>
-<li><code>io.extend(images)</code> — append an iterable of ASE <code>Atoms</code> objects.</li>
-<li>Indexing/slicing: <code>io[0]</code> returns a single <code>Atoms</code> object; <code>io[:]</code> returns a list of <code>Atoms</code> objects (slicing must be supported).</li>
+<li><code>io.append(atoms)</code> — appends a single ASE <code>Atoms</code> object as one frame.</li>
+<li><code>io.extend(images)</code> — appends an iterable of ASE <code>Atoms</code> objects.</li>
+<li>Indexing and slicing: <code>io[0]</code> returns a single <code>Atoms</code> object, while <code>io[:]</code> returns a list of <code>Atoms</code> objects (slicing must be supported).</li>
 </ul>
-<h4>Requirement 1: High-dimensional data round-trip</h4>
-<p>The package must be able to store and faithfully retrieve arbitrarily high-dimensional numpy arrays held in an <code>Atoms</code> object's <code>arrays</code> and <code>info</code> dictionaries under custom keys.</p>
+<h4>Requirement 1: Round-trip of high-dimensional data</h4>
+<p>The package must be able to store numpy arrays of arbitrarily high dimension that are held under custom keys in an <code>Atoms</code> object's <code>arrays</code> and <code>info</code> dictionaries, and to retrieve them faithfully.</p>
 <p>Behavior:</p>
 <ul>
-<li>Given an <code>Atoms</code> object with <code>atoms.arrays[&quot;&lt;key&gt;&quot;]</code> set to a numpy array whose first dimension equals the number of atoms and which has additional trailing dimensions (e.g. shape <code>(n_atoms, 10, 5, 4, 3)</code>), after appending and reading back, the retrieved <code>Atoms</code> object must contain <code>arrays[&quot;&lt;key&gt;&quot;]</code> that is element-wise equal to the original array, preserving its full shape and values.</li>
-<li>Given an <code>Atoms</code> object with <code>atoms.info[&quot;&lt;key&gt;&quot;]</code> set to a numpy array of arbitrary shape (e.g. <code>(5, 10, 4, 4, 3)</code>), after appending and reading back, the retrieved <code>Atoms</code> object must contain <code>info[&quot;&lt;key&gt;&quot;]</code> that is element-wise equal to the original array, preserving its full shape and values.</li>
+<li>If an <code>Atoms</code> object has <code>atoms.arrays[&quot;&lt;key&gt;&quot;]</code> set to a numpy array whose first dimension equals the number of atoms and which has additional trailing dimensions (e.g. shape <code>(n_atoms, 10, 5, 4, 3)</code>), then after appending and reading back, the retrieved <code>Atoms</code> object must contain <code>arrays[&quot;&lt;key&gt;&quot;]</code> that is element-wise equal to the original array, with its full shape and values preserved.</li>
+<li>If an <code>Atoms</code> object has <code>atoms.info[&quot;&lt;key&gt;&quot;]</code> set to a numpy array of arbitrary shape (e.g. <code>(5, 10, 4, 4, 3)</code>), then after appending and reading back, the retrieved <code>Atoms</code> object must contain <code>info[&quot;&lt;key&gt;&quot;]</code> that is element-wise equal to the original array, with its full shape and values preserved.</li>
 </ul>
-<p>This must work regardless of the number of trailing dimensions.</p>
-<h4>Requirement 2: Setting H5MD <code>time</code> and <code>step</code> from ASE metadata</h4>
-<p>When operating in <code>store=&quot;time&quot;</code> mode, the caller may specify the H5MD <code>step</code> and <code>time</code> values for each frame via the <code>Atoms</code> object's <code>info</code> dictionary using the reserved keys:</p>
+<p>This must work no matter how many trailing dimensions the array has.</p>
+<h4>Requirement 2: Controlling H5MD <code>time</code> and <code>step</code> via ASE metadata</h4>
+<p>In <code>store=&quot;time&quot;</code> mode, the caller may specify the H5MD <code>step</code> and <code>time</code> values for each frame through the <code>Atoms</code> object's <code>info</code> dictionary, using the reserved keys:</p>
 <ul>
-<li><code>atoms.info[&quot;h5md_step&quot;]</code> — an integer step value.</li>
-<li><code>atoms.info[&quot;h5md_time&quot;]</code> — a floating-point time value.</li>
+<li><code>atoms.info[&quot;h5md_step&quot;]</code> — an integer value for the step.</li>
+<li><code>atoms.info[&quot;h5md_time&quot;]</code> — a floating-point value for the time.</li>
 </ul>
-<h5>Writing behavior (<code>store=&quot;time&quot;</code>)</h5>
-<p>When frames carrying these keys are appended, the written HDF5 file must record the given values in the standard H5MD locations:</p>
+<h5>Write behavior (<code>store=&quot;time&quot;</code>)</h5>
+<p>Whenever frames that carry these keys are appended, the written HDF5 file must record the given values in the standard H5MD locations:</p>
 <ul>
-<li><code>particles/atoms/position/step</code> — the sequence of provided <code>h5md_step</code> values (in frame order).</li>
-<li><code>particles/atoms/position/time</code> — the sequence of provided <code>h5md_time</code> values (in frame order).</li>
-<li>For each stored observable (e.g. an energy value produced by an attached calculator), the corresponding <code>observables/atoms/&lt;name&gt;/step</code> and <code>observables/atoms/&lt;name&gt;/time</code> datasets must contain the same per-frame <code>step</code> and <code>time</code> sequences respectively, and <code>observables/atoms/&lt;name&gt;/value</code> must contain the observable values in frame order.</li>
+<li><code>particles/atoms/position/step</code> — the sequence of supplied <code>h5md_step</code> values (in frame order).</li>
+<li><code>particles/atoms/position/time</code> — the sequence of supplied <code>h5md_time</code> values (in frame order).</li>
+<li>For each stored observable (e.g. an energy value produced by an attached calculator), the corresponding <code>observables/atoms/&lt;name&gt;/step</code> and <code>observables/atoms/&lt;name&gt;/time</code> datasets must hold the same per-frame <code>step</code> and <code>time</code> sequences respectively, and <code>observables/atoms/&lt;name&gt;/value</code> must hold the observable values in frame order.</li>
 </ul>
-<p>Concretely, if frames are appended with <code>h5md_step</code> values <code>s_0, s_1, ...</code> and <code>h5md_time</code> values <code>t_0, t_1, ...</code>, then the <code>step</code> datasets contain <code>[s_0, s_1, ...]</code> and the <code>time</code> datasets contain <code>[t_0, t_1, ...]</code>.</p>
-<h5>Reading behavior (<code>store=&quot;time&quot;</code>)</h5>
-<p>When reading frames back, each returned <code>Atoms</code> object must expose the stored per-frame step and time via:</p>
+<p>Concretely: if frames carrying <code>h5md_step</code> values <code>s_0, s_1, ...</code> and <code>h5md_time</code> values <code>t_0, t_1, ...</code> are appended, then the <code>step</code> datasets hold <code>[s_0, s_1, ...]</code> and the <code>time</code> datasets hold <code>[t_0, t_1, ...]</code>.</p>
+<h5>Read behavior (<code>store=&quot;time&quot;</code>)</h5>
+<p>When frames are read back, each returned <code>Atoms</code> object must expose the stored per-frame step and time through:</p>
 <ul>
-<li><code>atoms.info[&quot;h5md_step&quot;]</code> — the integer step for that frame.</li>
-<li><code>atoms.info[&quot;h5md_time&quot;]</code> — the float time for that frame.</li>
+<li><code>atoms.info[&quot;h5md_step&quot;]</code> — the integer step of that frame.</li>
+<li><code>atoms.info[&quot;h5md_time&quot;]</code> — the float time of that frame.</li>
 </ul>
-<p>Any observable stored for the frame (e.g. potential energy) must be accessible through the normal ASE mechanism (e.g. <code>atoms.get_potential_energy()</code>), returning the stored value.</p>
-<h5>Consistency validation (<code>store=&quot;time&quot;</code>)</h5>
-<p>When appending/extending multiple frames in <code>&quot;time&quot;</code> mode, the presence of the <code>h5md_step</code> / <code>h5md_time</code> keys must be consistent across all frames in the batch:</p>
+<p>Any observable stored for the frame (e.g. potential energy) must be accessible through the normal ASE mechanism (e.g. <code>atoms.get_potential_energy()</code>), which returns the stored value.</p>
+<h5>Consistency checks (<code>store=&quot;time&quot;</code>)</h5>
+<p>When multiple frames are appended/extended in <code>&quot;time&quot;</code> mode, the presence of the <code>h5md_step</code> / <code>h5md_time</code> keys must be consistent across all frames in the batch:</p>
 <ul>
-<li>If some frames in a batch provide <code>h5md_time</code> while others do not, a <code>ValueError</code> must be raised.</li>
-<li>If some frames in a batch provide <code>h5md_step</code> while others do not, a <code>ValueError</code> must be raised.</li>
+<li>If some frames in a batch provide <code>h5md_time</code> while the remaining frames do not, a <code>ValueError</code> must be raised.</li>
+<li>If some frames in a batch provide <code>h5md_step</code> while the remaining frames do not, a <code>ValueError</code> must be raised.</li>
 </ul>
 <h5><code>store=&quot;linear&quot;</code> mode</h5>
-<p>In <code>&quot;linear&quot;</code> storage mode, the <code>h5md_step</code> and <code>h5md_time</code> info keys are not honored. When an <code>Atoms</code> object carrying either (or both) of these keys is appended in <code>&quot;linear&quot;</code> mode, a <code>UserWarning</code> must be emitted whose message contains the text:</p>
+<p>The <code>h5md_step</code> and <code>h5md_time</code> info keys are not honored in <code>&quot;linear&quot;</code> storage mode. If an <code>Atoms</code> object carrying either (or both) of these keys is appended in <code>&quot;linear&quot;</code> mode, a <code>UserWarning</code> must be emitted, and the message of that warning must contain the text:</p>
 <pre><code>time and step are ignored in 'linear' storage mode
 </code></pre>
-<p>The append operation itself must still succeed (the keys are simply ignored aside from the warning).</p>
-<h4>General Notes</h4>
+<p>The append operation itself must still succeed (aside from the warning, the keys are simply ignored).</p>
+<h4>General remarks</h4>
 <ul>
-<li>All numeric round-trips must be exact for integer/float values written and read back.</li>
-<li>Existing read/write behavior for standard ASE quantities (positions, cell, calculator results such as energy, custom <code>arrays</code>/<code>info</code> entries) must continue to function.</li>
+<li>All numeric round-trips must be exact for integer/float values that are written and read back.</li>
+<li>Read/write behavior that already exists for standard ASE quantities (positions, cell, calculator results such as energy, custom <code>arrays</code>/<code>info</code> entries) must continue to work.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Update the public znh5md API with the following behavior</span>
-        <span class="spec-meta muted">110 words · source specification
+        <span class="spec-title">Modify the public znh5md API so that it has the following behavior</span>
+        <span class="spec-meta muted">129 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change</h3>
-<p>Update the public <code>znh5md</code> API with the following behavior:</p>
+      <div class="spec-body"><h3>Required modification</h3>
+<p>Modify the public <code>znh5md</code> API so that it has the following behavior:</p>
 <ul>
 <li>
-<p><code>znh5md.__version__</code> must equal <code>&quot;0.3.3&quot;</code>.</p>
+<p>The value of <code>znh5md.__version__</code> must equal <code>&quot;0.3.3&quot;</code>.</p>
 </li>
 <li>
-<p>The existing public APIs must remain importable and callable:</p>
+<p>The public APIs that already exist must remain importable and callable:</p>
 <ul>
 <li><code>znh5md.write(file, structures)</code></li>
 <li><code>znh5md.iread(file)</code></li>
@@ -698,15 +699,15 @@ where <code>filename</code> is a path (accepts <code>str</code> or <code>pathlib
 </ul>
 </li>
 <li>
-<p>After writing a sequence of structures to a filesystem path with <code>znh5md.write(file, structures)</code>:</p>
+<p>After a sequence of structures has been written to a filesystem path via <code>znh5md.write(file, structures)</code>:</p>
 <ul>
-<li><code>znh5md.iread(file)</code> must return an iterable that can be converted to a <code>list</code> without error.</li>
-<li><code>znh5md.IO(file)</code> instances must themselves be iterable and convertible to a <code>list</code> without error.</li>
-<li>Both resulting lists must contain exactly one item for each structure originally written.</li>
+<li>An iterable that can be converted to a <code>list</code> without error must be returned by <code>znh5md.iread(file)</code>.</li>
+<li>Instances of <code>znh5md.IO(file)</code> must themselves be iterable and convertible to a <code>list</code> without error.</li>
+<li>Both of the resulting lists must contain exactly one item for each structure that was originally written.</li>
 </ul>
 </li>
 <li>
-<p>Iteration through <code>znh5md.iread(file)</code> must continue to yield structures whose positions and atomic numbers match the corresponding written structures.</p>
+<p>Iteration over <code>znh5md.iread(file)</code> must continue to yield structures whose positions and atomic numbers match those of the corresponding written structures.</p>
 </li>
 </ul>
 </div>
@@ -714,69 +715,70 @@ where <code>filename</code> is a path (accepts <code>str</code> or <code>pathlib
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You must implement functionality in the znh5md package related to (1) a new znh5md.format module for extracting and combining atomic data from ASE Atoms…</span>
-        <span class="spec-meta muted">369 words · source specification
+        <span class="spec-title">You must implement functionality in the znh5md package covering (1) a new znh5md.format module for the extraction and combination of atomic data from ASE…</span>
+        <span class="spec-meta muted">404 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement functionality in the <code>znh5md</code> package related to (1) a new <code>znh5md.format</code> module for extracting and combining atomic data from ASE <code>Atoms</code> objects, and (2) a correction to warning behavior in the <code>znh5md.IO</code> class when appending atoms in <code>&quot;linear&quot;</code> storage mode.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You must implement functionality in the <code>znh5md</code> package covering (1) a new <code>znh5md.format</code> module for the extraction and combination of atomic data from ASE <code>Atoms</code> objects, and (2) a correction to the warning behavior of the <code>znh5md.IO</code> class when atoms are appended in <code>&quot;linear&quot;</code> storage mode.</p>
 <hr />
-<h4>Part 1: <code>znh5md.format</code> module</h4>
-<p>Create a module importable as <code>znh5md.format</code> that exposes the following public API.</p>
-<h5>Class: <code>ASEData</code></h5>
-<p>A data container class. Instances are produced by the functions below. It must support Python's <code>len()</code> builtin (i.e., implement length semantics). The meaning of the length is described in the functions below.</p>
-<h5>Function: <code>extract_atoms_data(atoms)</code></h5>
+<h4>Part 1: the <code>znh5md.format</code> module</h4>
+<p>Create a module that is importable as <code>znh5md.format</code> and that exposes the following public API.</p>
+<h5>The <code>ASEData</code> class</h5>
+<p>A class serving as a data container. The functions described below produce its instances. It must support Python's <code>len()</code> builtin (i.e., it implements length semantics). What the length signifies is explained in the functions below.</p>
+<h5>The <code>extract_atoms_data(atoms)</code> function</h5>
 <ul>
-<li><strong>Input:</strong> a single ASE <code>Atoms</code> object (e.g., the kind produced by <code>ase.build.molecule(&quot;H2O&quot;)</code>).</li>
-<li><strong>Output:</strong> an instance of <code>ASEData</code> representing the extracted data from the given <code>Atoms</code> object.</li>
+<li><strong>Input:</strong> a single ASE <code>Atoms</code> object (for example, the kind produced by <code>ase.build.molecule(&quot;H2O&quot;)</code>).</li>
+<li><strong>Output:</strong> an <code>ASEData</code> instance that represents the data extracted from the given <code>Atoms</code> object.</li>
 </ul>
-<h5>Function: <code>combine_asedata(data_list)</code></h5>
+<h5>The <code>combine_asedata(data_list)</code> function</h5>
 <ul>
-<li><strong>Input:</strong> a list of <code>ASEData</code> instances.</li>
-<li><strong>Output:</strong> a single <code>ASEData</code> instance that represents the combination (concatenation) of all the input <code>ASEData</code> instances.</li>
-<li><strong>Length requirement:</strong> The length (<code>len()</code>) of the combined <code>ASEData</code> must equal the number of <code>ASEData</code> instances combined. For example, combining a list of two <code>ASEData</code> instances (each derived from a single <code>Atoms</code> object) yields a combined <code>ASEData</code> whose length is <code>2</code>.</li>
+<li><strong>Input:</strong> a list consisting of <code>ASEData</code> instances.</li>
+<li><strong>Output:</strong> a single <code>ASEData</code> instance that represents the combination (concatenation) of all the supplied <code>ASEData</code> instances.</li>
+<li><strong>Length requirement:</strong> The length (<code>len()</code>) of the combined <code>ASEData</code> must equal the number of <code>ASEData</code> instances that were combined. As an example, when a list of two <code>ASEData</code> instances (each derived from a single <code>Atoms</code> object) is combined, this yields a combined <code>ASEData</code> whose length is <code>2</code>.</li>
 </ul>
 <hr />
-<h4>Part 2: Warning behavior in <code>znh5md.IO.append</code></h4>
-<p>The <code>znh5md.IO</code> class (importable as <code>znh5md.IO</code>) is constructed with a file path and a <code>store</code> keyword argument. When constructed with <code>store=&quot;linear&quot;</code>, its <code>append</code> method must behave as follows when given a single ASE <code>Atoms</code> object:</p>
-<h5>Case A — atoms carry step/time metadata</h5>
-<p>When the passed <code>Atoms</code> object has a <code>&quot;h5md_time&quot;</code> entry in its <code>.info</code> dictionary (and/or <code>&quot;h5md_step&quot;</code>), calling <code>append</code> in <code>&quot;linear&quot;</code> storage mode must emit a <code>UserWarning</code> whose message matches the phrase:</p>
+<h4>Part 2: Warning behavior of <code>znh5md.IO.append</code></h4>
+<p>You construct the <code>znh5md.IO</code> class (importable as <code>znh5md.IO</code>) with a file path and a <code>store</code> keyword argument. When it is constructed with <code>store=&quot;linear&quot;</code>, its <code>append</code> method must behave in the following way when it is passed a single ASE <code>Atoms</code> object:</p>
+<h5>Case A — the atoms carry step/time metadata</h5>
+<p>If the <code>Atoms</code> object that is passed has a <code>&quot;h5md_time&quot;</code> entry in its <code>.info</code> dictionary (and/or <code>&quot;h5md_step&quot;</code>), calling <code>append</code> in <code>&quot;linear&quot;</code> storage mode must emit a <code>UserWarning</code> whose message matches the phrase:</p>
 <pre><code>time is ignored in 'linear' storage mode
 </code></pre>
-<h5>Case B — atoms carry no step/time metadata</h5>
-<p>When the passed <code>Atoms</code> object has no such metadata in <code>.info</code>, calling <code>append</code> in <code>&quot;linear&quot;</code> storage mode must <strong>not</strong> emit any warning at all.</p>
+<h5>Case B — the atoms carry no step/time metadata</h5>
+<p>If the <code>Atoms</code> object that is passed has no such metadata in <code>.info</code>, calling <code>append</code> in <code>&quot;linear&quot;</code> storage mode must <strong>not</strong> emit any warning at all.</p>
 <hr />
-<h4>Notes</h4>
+<h4>Additional notes</h4>
 <ul>
-<li>The warning message text must contain the exact substring <code>time is ignored in 'linear' storage mode</code>.</li>
-<li>No warnings of any kind may be raised in Case B.</li>
-<li>Both <code>append</code> cases operate on a single <code>Atoms</code> object at a time.</li>
+<li>The text of the warning message must contain the exact substring <code>time is ignored in 'linear' storage mode</code>.</li>
+<li>In Case B, no warnings of any kind may be raised.</li>
+<li>Both <code>append</code> cases handle a single <code>Atoms</code> object at a time.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Expose the following public API from the package root</span>
-        <span class="spec-meta muted">77 words · source specification
+        <span class="spec-title">The following public API must be exposed from the package root</span>
+        <span class="spec-meta muted">93 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Expose the following public API from the package root:</p>
+      <div class="spec-body"><h4>Change to implement</h4>
+<p>The following public API must be exposed from the package root:</p>
 <ul>
 <li><code>znh5md.IO(path)</code></li>
 <li><code>IO.extend(data)</code></li>
 <li><code>len(IO_instance)</code></li>
 </ul>
-<p><code>path</code> must accept a <code>pathlib.Path</code>-compatible filesystem path.</p>
+<p><code>path</code> must accept a filesystem path that is compatible with <code>pathlib.Path</code>.</p>
 <h5>Behavior</h5>
 <ol>
-<li>Extending a new <code>IO</code> instance with <code>list(ase.collections.s22)</code> must store all 22 entries, so <code>len(io)</code> returns <code>22</code>.</li>
-<li>Calling <code>io.extend([])</code> on that populated instance must:
+<li>When a new <code>IO</code> instance is extended with <code>list(ase.collections.s22)</code>, all 22 entries must be stored, so that <code>len(io)</code> returns <code>22</code>.</li>
+<li>When <code>io.extend([])</code> is called on that populated instance, the call must:
 <ul>
-<li>Emit a <code>UserWarning</code> whose message contains <code>&quot;No data provided&quot;</code>.</li>
-<li>Leave the stored data unchanged; <code>len(io)</code> must remain <code>22</code>.</li>
-<li>Not raise an exception.</li>
+<li>Emit a <code>UserWarning</code> with a message that contains <code>&quot;No data provided&quot;</code>.</li>
+<li>Keep the stored data unchanged; <code>len(io)</code> must remain <code>22</code>.</li>
+<li>Raise no exception.</li>
 </ul>
 </li>
 </ol>
@@ -785,264 +787,266 @@ where <code>filename</code> is a path (accepts <code>str</code> or <code>pathlib
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You are working on znh5md, a Python library for storing and reading sequences of ASE (Atomic Simulation Environment) Atoms objects in HDF5 files.</span>
-        <span class="spec-meta muted">1133 words · source specification
+        <span class="spec-title">The codebase this task concerns is znh5md, a Python library whose purpose is storing sequences of ASE (Atomic Simulation Environment) Atoms objects in HDF5…</span>
+        <span class="spec-meta muted">1258 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python library for storing and reading sequences of ASE (Atomic Simulation Environment) <code>Atoms</code> objects in HDF5 files. This task adds a <code>use_ase_calc</code> option that controls how per-frame data is split between an <code>Atoms</code> object's calculator results, its <code>info</code> dictionary, and its <code>arrays</code> dictionary during writing and reading. It also enforces validation rules and fixes scalar-property handling.</p>
+      <div class="spec-body"><h4>Summary</h4>
+<p>The codebase this task concerns is <code>znh5md</code>, a Python library whose purpose is storing sequences of ASE (Atomic Simulation Environment) <code>Atoms</code> objects in HDF5 files and reading them back. What the task adds is a <code>use_ase_calc</code> option deciding how per-frame data is divided among an <code>Atoms</code> object's calculator results, its <code>info</code> dictionary and its <code>arrays</code> dictionary, both when writing and when reading. In addition, validation rules are enforced and the handling of scalar properties is fixed.</p>
 <h4>Public API</h4>
 <h5><code>znh5md.format.extract_atoms_data</code></h5>
 <p>Signature:</p>
 <pre><code class="language-python">def extract_atoms_data(atoms: ase.Atoms, use_ase_calc: bool = True) -&gt; ASEData:
 </code></pre>
-<p>Extracts the data from a single <code>Atoms</code> object into an <code>ASEData</code> instance (see below). The <code>use_ase_calc</code> parameter controls categorization and validation behavior described in the &quot;Data categorization&quot; section.</p>
+<p>From a single <code>Atoms</code> object, the data is extracted into an <code>ASEData</code> instance (see below). How the data is categorized and validated is determined by the <code>use_ase_calc</code> parameter, as laid out in the &quot;Data categorization&quot; section.</p>
 <h5><code>znh5md.format.ASEData</code></h5>
-<p>A data container (returned by <code>extract_atoms_data</code>) exposing at least the following attributes:</p>
+<p>A container for the extracted data, handed back by <code>extract_atoms_data</code>, that exposes at least the following attributes:</p>
 <ul>
-<li><code>particles</code>: a mapping (dict-like) keyed by property name, holding per-atom data (data whose leading dimension corresponds to the number of atoms).</li>
-<li><code>observables</code>: a mapping (dict-like) keyed by property name, holding per-frame / global data.</li>
-<li><code>metadata</code>: a mapping (dict-like) keyed by property name. Each value is itself a mapping that may contain a <code>&quot;calc&quot;</code> boolean flag indicating whether the property originated from an ASE calculator's results. When a key is absent from <code>metadata</code>, or the <code>&quot;calc&quot;</code> entry is absent, the effective value of the flag is <code>False</code>.</li>
+<li><code>particles</code>: a dict-like mapping with property names as keys, whose values are per-atom data (data with a leading dimension that corresponds to the number of atoms).</li>
+<li><code>observables</code>: a dict-like mapping with property names as keys, whose values are per-frame / global data.</li>
+<li><code>metadata</code>: a dict-like mapping with property names as keys. Each value forms a mapping in its own right, possibly carrying a boolean flag <code>&quot;calc&quot;</code> that tells whether the property originated in an ASE calculator's results. When the key is missing from <code>metadata</code>, or when no <code>&quot;calc&quot;</code> entry exists inside it, the flag effectively evaluates to <code>False</code>.</li>
 </ul>
-<p>It must support <code>len(...)</code> returning the number of frames represented (a single extracted <code>Atoms</code> yields length 1).</p>
+<p><code>len(...)</code> must be supported as well, giving back the number of frames represented (one extracted <code>Atoms</code> therefore means length 1).</p>
 <h5><code>znh5md.format.combine_asedata</code></h5>
 <p>Signature:</p>
 <pre><code class="language-python">def combine_asedata(data: list[ASEData]) -&gt; ASEData:
 </code></pre>
-<p>Combines multiple <code>ASEData</code> instances into a single <code>ASEData</code>. The resulting length is the sum of the input lengths (e.g. combining two single-frame <code>ASEData</code> objects yields length 2).</p>
+<p>Several <code>ASEData</code> instances get combined by this function into one <code>ASEData</code>. Its length is the sum taken over the input lengths (e.g. two single-frame <code>ASEData</code> objects combine into something of length 2).</p>
 <h5><code>znh5md.IO</code></h5>
-<p>Constructor must accept a <code>use_ase_calc</code> keyword argument:</p>
+<p>A <code>use_ase_calc</code> keyword argument must be accepted by the constructor:</p>
 <pre><code class="language-python">znh5md.IO(filename, use_ase_calc: bool = True)
 </code></pre>
-<p><code>IO</code> already supports <code>append(atoms)</code>, <code>extend(list_of_atoms)</code>, indexing (<code>io[i]</code> returns an <code>ase.Atoms</code>), and <code>len(io)</code>. The <code>use_ase_calc</code> flag affects both writing (via <code>append</code>/<code>extend</code>) and reading (via indexing), as described below.</p>
+<p>Support already exists in <code>IO</code> for <code>append(atoms)</code>, <code>extend(list_of_atoms)</code>, indexing (<code>io[i]</code> returns an <code>ase.Atoms</code>), and <code>len(io)</code>. As described below, the <code>use_ase_calc</code> flag has an effect on both writing (through <code>append</code>/<code>extend</code>) and reading (through indexing).</p>
 <h4>ASE &quot;calculator properties&quot;</h4>
-<p>The set of recognized ASE calculator property names is <code>ase.calculators.calculator.all_properties</code>. This includes names such as <code>energy</code>, <code>forces</code>, <code>magmom</code>, <code>free_energy</code>, and others. Two of these names are subject to a singular/plural renaming on storage: the stored/metadata key for <code>forces</code> is <code>force</code> (and correspondingly <code>stress</code>→<code>stresses</code> behavior is not required by this task beyond the <code>forces</code>→<code>force</code> rule). Only the <code>forces</code>→<code>force</code> rename is required.</p>
-<p>The scalar calculator properties for the purpose of this task are: <code>energy</code>, <code>magmom</code>, and <code>free_energy</code>. All other calculator properties are treated as (potentially multi-dimensional) array data.</p>
+<p>The set of ASE calculator property names that are recognized is <code>ase.calculators.calculator.all_properties</code>. The set contains names such as <code>energy</code>, <code>forces</code>, <code>magmom</code>, <code>free_energy</code>, and others. On storage, a singular/plural renaming applies to two of these names: the key used for storage/metadata of <code>forces</code> is <code>force</code> (correspondingly, behavior around <code>stress</code>→<code>stresses</code> is not required by this task beyond the <code>forces</code>→<code>force</code> rule). The only rename this task requires is <code>forces</code>→<code>force</code>.</p>
+<p>The scalar calculator properties, for the purpose of this task, are: <code>energy</code>, <code>magmom</code>, and <code>free_energy</code>. All remaining calculator properties are treated as (potentially multi-dimensional) array data.</p>
 <h4>Data categorization in <code>extract_atoms_data</code></h4>
-<h5>When <code>use_ase_calc=False</code></h5>
-<p>The calculator is ignored entirely for categorization. Splitting between <code>particles</code> and <code>observables</code> is based purely on where the data lives, not on the key name or ASE property semantics:</p>
+<h5>With <code>use_ase_calc=False</code></h5>
+<p>Categorization here completely ignores the calculator. Whether data lands in <code>particles</code> or in <code>observables</code> is decided solely by where the data lives — neither the key name nor ASE property semantics play a role:</p>
 <ul>
-<li>Every entry in <code>atoms.arrays</code> (including any key that happens to match an ASE calculator property name) goes into <code>particles</code>.</li>
-<li>Every entry in <code>atoms.info</code> (including any key that happens to match an ASE calculator property name) goes into <code>observables</code>.</li>
-<li>For any such key, the <code>&quot;calc&quot;</code> flag in <code>metadata</code> must be <code>False</code> (i.e. <code>data.metadata.get(key, {}).get(&quot;calc&quot;, False)</code> is <code>False</code>).</li>
+<li>Each entry found in <code>atoms.arrays</code> (including any key that happens to match an ASE calculator property name) goes into <code>particles</code>.</li>
+<li>Each entry found in <code>atoms.info</code> (including any key that happens to match an ASE calculator property name) goes into <code>observables</code>.</li>
+<li>For any key of this kind, the <code>&quot;calc&quot;</code> flag in <code>metadata</code> must be <code>False</code> (i.e. <code>data.metadata.get(key, {}).get(&quot;calc&quot;, False)</code> evaluates to <code>False</code>).</li>
 </ul>
-<p>No error is raised in this mode even if calculator-property names appear in <code>info</code> or <code>arrays</code>.</p>
-<h5>When <code>use_ase_calc=True</code></h5>
+<p>Even when <code>info</code> or <code>arrays</code> contain calculator-property names, this mode raises no error.</p>
+<h5>With <code>use_ase_calc=True</code></h5>
 <ul>
-<li>If any key in <code>atoms.info</code> matches an ASE calculator property name, raise <code>ValueError</code>.</li>
-<li>If any key in <code>atoms.arrays</code> matches an ASE calculator property name, raise <code>ValueError</code>.
-(This validation applies regardless of the value's shape/type.)</li>
-<li>Data present in <code>atoms.calc.results</code> is extracted as calculator data. For each such property, the corresponding <code>metadata</code> entry must have its <code>&quot;calc&quot;</code> flag set to <code>True</code>. The metadata key uses the storage renaming rule, so a calculator result named <code>forces</code> is recorded under the metadata key <code>force</code> with <code>&quot;calc&quot;</code> = <code>True</code>.</li>
+<li><code>ValueError</code> must be raised if any key of <code>atoms.info</code> matches an ASE calculator property name.</li>
+<li><code>ValueError</code> must be raised if any key of <code>atoms.arrays</code> matches an ASE calculator property name.
+(The value's shape/type is irrelevant here; the validation applies regardless.)</li>
+<li>Everything found in <code>atoms.calc.results</code> is extracted as calculator data. Each of these properties must have <code>&quot;calc&quot;</code> set to <code>True</code> in the matching <code>metadata</code> entry. The storage renaming rule also applies to the metadata key: a calculator result called <code>forces</code> is therefore recorded as the metadata key <code>force</code>, with <code>&quot;calc&quot;</code> = <code>True</code>.</li>
 </ul>
-<p>Note: the standard positional/cell/atomic-number data of the <code>Atoms</code> (positions, numbers, etc.) continues to be handled as before and is not a calculator property for the above validation purposes.</p>
-<h4>Read/write round-trip behavior in <code>IO</code></h4>
-<h5>Writing with <code>use_ase_calc=False</code></h5>
-<p>When writing (<code>append</code>/<code>extend</code>) with <code>use_ase_calc=False</code>:</p>
+<p>Note: the <code>Atoms</code>' standard positional/cell/atomic-number data (positions, numbers, etc.) keeps being handled as before, and for the validation purposes above it does not count as a calculator property.</p>
+<h4>Round-trip behavior of <code>IO</code> for reading and writing</h4>
+<h5>Writing under <code>use_ase_calc=False</code></h5>
+<p>While writing (<code>append</code>/<code>extend</code>) under <code>use_ase_calc=False</code>:</p>
 <ul>
-<li>Keys in <code>atoms.arrays</code> are stored as per-atom data and read back into <code>arrays</code>.</li>
-<li>Keys in <code>atoms.info</code> are stored as per-frame data and read back into <code>info</code>.</li>
-<li>This split is independent of whether the key name matches an ASE calculator property; any key name (including arbitrary names like <code>&quot;dummy&quot;</code>, and including calculator-property names) is allowed.</li>
-<li>No <code>ValueError</code> is raised for calculator-property names in this mode.</li>
+<li>Data under keys of <code>atoms.arrays</code> gets stored as per-atom data, and reading places it back into <code>arrays</code>.</li>
+<li>Data under keys of <code>atoms.info</code> gets stored as per-frame data, and reading places it back into <code>info</code>.</li>
+<li>Whether or not a key name matches an ASE calculator property plays no role in this split; any key name is permitted (arbitrary names like <code>&quot;dummy&quot;</code> as well as calculator-property names included).</li>
+<li>In this mode, calculator-property names cause no <code>ValueError</code>.</li>
 </ul>
-<h5>Writing with <code>use_ase_calc=True</code> (default)</h5>
-<p>When writing with <code>use_ase_calc=True</code>:</p>
+<h5>Writing under <code>use_ase_calc=True</code> (default)</h5>
+<p>While writing under <code>use_ase_calc=True</code>:</p>
 <ul>
-<li>If a calculator-property name is present in <code>atoms.info</code>, writing must raise <code>ValueError</code>.</li>
-<li>If a calculator-property name is present in <code>atoms.arrays</code>, writing must raise <code>ValueError</code>.</li>
-<li>Calculator results (from <code>atoms.calc.results</code>) are stored appropriately (scalar properties as scalars, array properties as arrays — see &quot;Scalar property handling&quot;).</li>
+<li>Writing must raise <code>ValueError</code> when <code>atoms.info</code> contains a calculator-property name.</li>
+<li>Writing must raise <code>ValueError</code> when <code>atoms.arrays</code> contains a calculator-property name.</li>
+<li>What comes from <code>atoms.calc.results</code> (the calculator results) is stored appropriately — scalar properties as scalars, array properties as arrays (see &quot;Scalar property handling&quot;).</li>
 </ul>
-<h5>Reading with <code>use_ase_calc=False</code></h5>
-<p>When a file (written with any mode) is read back through an <code>IO</code> opened with <code>use_ase_calc=False</code>:</p>
+<h5>Reading under <code>use_ase_calc=False</code></h5>
+<p>When any file — whatever mode it was written in — is read back through an <code>IO</code> opened with <code>use_ase_calc=False</code>, the following holds:</p>
 <ul>
-<li>The returned <code>Atoms</code> has <code>atoms.calc is None</code>.</li>
-<li>Data originally stored as per-frame (info) values is available in <code>atoms.info</code>.</li>
-<li>Data originally stored as per-atom (arrays) values is available in <code>atoms.arrays</code>.</li>
-<li>Data that was originally calculator results is redistributed into <code>info</code> and/or <code>arrays</code>: a calculator result appears in <code>atoms.arrays</code> if it is per-atom data, otherwise in <code>atoms.info</code>. In all cases the numeric values round-trip (equal within floating-point tolerance) to the originally written values.</li>
+<li>For the <code>Atoms</code> that comes back, <code>atoms.calc is None</code>.</li>
+<li>Values that were originally stored as per-frame (info) data can be found in <code>atoms.info</code>.</li>
+<li>Values that were originally stored as per-atom (arrays) data can be found in <code>atoms.arrays</code>.</li>
+<li>Former calculator results are redistributed into <code>info</code> and/or <code>arrays</code>: a calculator result shows up in <code>atoms.arrays</code> when the data is per-atom, and in <code>atoms.info</code> otherwise. In all cases, the numeric values round-trip (equal within floating-point tolerance) against what was originally written.</li>
 </ul>
-<h5>Reading with <code>use_ase_calc=True</code></h5>
-<p>When a file that contained calculator results is read back through an <code>IO</code> opened with <code>use_ase_calc=True</code>:</p>
+<h5>Reading under <code>use_ase_calc=True</code></h5>
+<p>When the file being read contained calculator results and the <code>IO</code> is opened with <code>use_ase_calc=True</code>:</p>
 <ul>
-<li>The calculator results are restored into <code>atoms.calc.results</code> under their original ASE property names (e.g. <code>energy</code>, <code>forces</code>).</li>
+<li><code>atoms.calc.results</code> gets the calculator results restored, under the ASE property names they originally had (e.g. <code>energy</code>, <code>forces</code>).</li>
 </ul>
-<h4>Round-trip type/shape fidelity</h4>
-<p>The following fidelity requirements must hold across a write-then-read round-trip:</p>
-<h5><code>use_ase_calc=False</code> info/arrays fidelity</h5>
+<h4>Fidelity of types and shapes across a round-trip</h4>
+<p>Across a write-then-read round-trip, the fidelity requirements below must hold:</p>
+<h5>Fidelity of info/arrays for <code>use_ase_calc=False</code></h5>
 <ul>
-<li>A value written from <code>info</code> that was a Python/NumPy scalar float is read back from <code>info</code> as a Python <code>float</code> (an instance of <code>float</code>).</li>
-<li>A value written from <code>info</code> that was a 1-D NumPy array is read back from <code>info</code> as a <code>numpy.ndarray</code>.</li>
-<li>A value written from <code>arrays</code> (per-atom 2-D data) is read back from <code>arrays</code> as a <code>numpy.ndarray</code>.</li>
-<li>All values must match the originals within floating-point tolerance.</li>
+<li>If a Python/NumPy scalar float was written from <code>info</code>, reading brings it back from <code>info</code> as a Python <code>float</code> (an instance of <code>float</code>).</li>
+<li>If a 1-D NumPy array was written from <code>info</code>, reading brings it back from <code>info</code> as a <code>numpy.ndarray</code>.</li>
+<li>If a value was written from <code>arrays</code> (per-atom 2-D data), reading brings it back from <code>arrays</code> as a <code>numpy.ndarray</code>.</li>
+<li>All values must match what was written originally, within floating-point tolerance.</li>
 </ul>
 <h5>Scalar calculator property handling (<code>use_ase_calc=True</code>)</h5>
-<p>Scalar calculator properties (<code>energy</code>, <code>magmom</code>, <code>free_energy</code>) must be stored so that they are not inadvertently promoted to 1-D arrays. Whether the incoming value was provided as a plain scalar float or as a length-1 NumPy array, the stored value must round-trip such that the numeric value is preserved (equal within tolerance). Non-scalar calculator properties (e.g. <code>forces</code>) are stored and round-trip as <code>numpy.ndarray</code>.</p>
-<h4>Additional notes</h4>
+<p>Storage of the scalar calculator properties (<code>energy</code>, <code>magmom</code>, <code>free_energy</code>) must happen in a way that avoids inadvertently promoting them to 1-D arrays. It makes no difference whether the value came in as a plain scalar float or as a length-1 NumPy array: the round-trip must preserve the numeric value of what is stored (equal within tolerance). Calculator properties that are not scalar (e.g. <code>forces</code>) are stored — and round-trip — as <code>numpy.ndarray</code>.</p>
+<h4>Extra notes</h4>
 <ul>
-<li>Writing an empty list via <code>extend([])</code> must not add frames and should emit a <code>UserWarning</code> containing the text &quot;No data provided&quot; (existing behavior; preserve it).</li>
-<li>The library must be able to ingest <code>Atoms</code> objects produced by <code>ase.io.iread</code> of an extxyz file (which attaches a <code>SinglePointCalculator</code> with <code>energy</code> and <code>forces</code>), write them with <code>use_ase_calc=True</code>, and read them back correctly in both <code>use_ase_calc=True</code> and <code>use_ase_calc=False</code> modes as described above.</li>
+<li>An empty list passed to <code>extend([])</code> must not add frames, and a <code>UserWarning</code> containing the text &quot;No data provided&quot; should be emitted (this behavior already exists; keep it).</li>
+<li>The library must be able to ingest <code>Atoms</code> objects that <code>ase.io.iread</code> produced from an extxyz file (this attaches a <code>SinglePointCalculator</code> with <code>energy</code> and <code>forces</code>), write them using <code>use_ase_calc=True</code>, and read them back correctly in both <code>use_ase_calc=True</code> and <code>use_ase_calc=False</code> mode, as described above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Update the version identifier of the znh5md package.</span>
-        <span class="spec-meta muted">90 words · source specification
+        <span class="spec-title">Change the znh5md package&#39;s version identifier.</span>
+        <span class="spec-meta muted">97 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Update the version identifier of the <code>znh5md</code> package.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Change the <code>znh5md</code> package's version identifier.</p>
 <h4>Requirements</h4>
-<p>The <code>znh5md</code> package must expose a module-level attribute <code>__version__</code> that is accessible directly on the package (i.e., <code>znh5md.__version__</code> after <code>import znh5md</code>).</p>
-<p>The value of <code>znh5md.__version__</code> must be exactly the string:</p>
+<p>A module-level attribute <code>__version__</code> must be exposed by the <code>znh5md</code> package in such a way that it is directly accessible on the package (that is, <code>znh5md.__version__</code> after <code>import znh5md</code>).</p>
+<p>The value that <code>znh5md.__version__</code> holds must be exactly this string:</p>
 <pre><code>&quot;0.3.4&quot;
 </code></pre>
-<h4>API Surface</h4>
+<h4>API</h4>
 <ul>
 <li><strong>Module:</strong> <code>znh5md</code></li>
-<li><strong>Attribute:</strong> <code>__version__</code> (a string), importable and accessible as <code>znh5md.__version__</code>.</li>
+<li><strong>Attribute:</strong> <code>__version__</code> (a string), importable and reachable as <code>znh5md.__version__</code>.</li>
 </ul>
-<h4>Notes</h4>
-<p>Ensure any relevant package metadata that determines the exposed version is consistent so that importing the package and reading <code>__version__</code> yields the string <code>&quot;0.3.4&quot;</code>.</p>
+<h4>Remarks</h4>
+<p>Ensure that any relevant package metadata which determines the exposed version is consistent, so that importing the package and reading <code>__version__</code> yields the string <code>&quot;0.3.4&quot;</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Support String and Scalar Info Data in znh5md</span>
-        <span class="spec-meta muted">577 words · source specification
+        <span class="spec-title">Handling String and Scalar Info Data in znh5md</span>
+        <span class="spec-meta muted">672 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support String and Scalar Info Data in <code>znh5md</code></h3>
-<h4>Overview</h4>
-<p>You are working on the <code>znh5md</code> package, which stores sequences of ASE <code>Atoms</code> objects in HDF5 files. This task requires extending the storage layer to support additional data types in the per-frame <code>Atoms.info</code> dictionary, adding input validation to the public <code>append</code>/<code>extend</code> methods, and bumping the package version.</p>
-<h4>Public API Surface</h4>
-<p>The package exposes a class <code>IO</code> at the top level, importable as:</p>
+      <div class="spec-body"><h3>Task Specification: Handling String and Scalar Info Data in <code>znh5md</code></h3>
+<h4>Summary</h4>
+<p>You will be working on <code>znh5md</code>, a package for storing sequences of ASE <code>Atoms</code> objects in HDF5 files. This task requires that the storage layer be extended so that additional data types are supported in the <code>Atoms.info</code> dictionary of each frame, that input validation be added to the public <code>append</code>/<code>extend</code> methods, and that the package version be bumped.</p>
+<h4>Public Interface</h4>
+<p>A class <code>IO</code> is exposed by the package at its top level; it can be imported like this:</p>
 <pre><code class="language-python">import znh5md
 io = znh5md.IO(path)
 </code></pre>
 <ul>
-<li><code>znh5md.IO(path)</code> — constructor accepting a filesystem path (may be a <code>pathlib.Path</code>) to an HDF5 file. If the file does not yet exist, it is created on first write.</li>
-<li><code>io.append(atoms)</code> — append a single ASE <code>Atoms</code> object to the stored sequence.</li>
-<li><code>io.extend(images)</code> — append multiple ASE <code>Atoms</code> objects, given as a list of ASE <code>Atoms</code> objects.</li>
-<li><code>io[index]</code> — retrieve the stored <code>Atoms</code> object at the given integer index, reconstructing its data (including entries in <code>.info</code>).</li>
+<li><code>znh5md.IO(path)</code> — a constructor which accepts a filesystem path (a <code>pathlib.Path</code> may be passed in) pointing to an HDF5 file. Should the file not exist yet, it gets created when the first write happens.</li>
+<li><code>io.append(atoms)</code> — adds a single ASE <code>Atoms</code> object to the sequence that is stored.</li>
+<li><code>io.extend(images)</code> — adds multiple ASE <code>Atoms</code> objects, which are supplied in the form of a list of ASE <code>Atoms</code> objects.</li>
+<li><code>io[index]</code> — fetches the <code>Atoms</code> object stored at the given integer index and rebuilds its data (the entries in <code>.info</code> included).</li>
 </ul>
-<p>The package also exposes a version string:</p>
+<p>A version string is likewise exposed:</p>
 <pre><code class="language-python">znh5md.__version__
 </code></pre>
-<h4>Required Behavior</h4>
-<h5>1. Version</h5>
-<p><code>znh5md.__version__</code> must equal the string <code>&quot;0.3.5&quot;</code>.</p>
-<h5>2. String data in <code>Atoms.info</code></h5>
-<p>When an <code>Atoms</code> object has a string value in its <code>.info</code> dictionary, that string must be stored and retrieved without loss.</p>
+<h4>Required Functionality</h4>
+<h5>1. Version string</h5>
+<p><code>znh5md.__version__</code> must be equal to the string <code>&quot;0.3.5&quot;</code>.</p>
+<h5>2. String values in <code>Atoms.info</code></h5>
+<p>Whenever a string value is present in the <code>.info</code> dictionary of an <code>Atoms</code> object, storing and retrieving that string must happen without loss.</p>
 <ul>
-<li>After appending an <code>Atoms</code> object whose <code>.info</code> contains a string entry (e.g. <code>info[&quot;smiles&quot;] = &quot;O&quot;</code>), retrieving that frame via <code>io[index]</code> must yield an <code>Atoms</code> object whose <code>.info</code> contains the identical string value.</li>
-<li>This must work across multiple appends where the same key holds strings of differing lengths. Appending a first frame with a short string, then a second frame with a longer string, must not corrupt or truncate previously stored values: each retrieved frame must return exactly the string that was stored for it.</li>
+<li>Once an <code>Atoms</code> object with a string entry in its <code>.info</code> (e.g. <code>info[&quot;smiles&quot;] = &quot;O&quot;</code>) has been appended, reading that frame back via <code>io[index]</code> must yield an <code>Atoms</code> object in whose <code>.info</code> the identical string value is present.</li>
+<li>This must also hold when several appends are made and the same key ends up carrying strings of different lengths. If the first frame comes with a short string and the second with a longer one, the values that were stored before must not be corrupted or truncated: each frame that is retrieved must return exactly the string that was stored for it.</li>
 </ul>
-<h5>3. Scalar integer data in <code>Atoms.info</code></h5>
-<p>When an <code>Atoms</code> object has an integer value in its <code>.info</code> dictionary (e.g. <code>info[&quot;test&quot;] = 123</code>), that value must be stored and retrieved so that <code>io[index].info[&quot;test&quot;] == 123</code>.</p>
-<h5>4. Overly long string guard</h5>
-<p>There is an upper bound on the length of a string that can be stored for a given <code>.info</code> key. If a string value is too long to be stored, <code>append</code> must raise <code>ValueError</code>. The error message must contain the text:</p>
+<h5>3. Scalar integer values in <code>Atoms.info</code></h5>
+<p>Suppose an integer value (e.g. <code>info[&quot;test&quot;] = 123</code>) is present in the <code>.info</code> dictionary of an <code>Atoms</code> object. That value must be stored and read back such that <code>io[index].info[&quot;test&quot;] == 123</code>.</p>
+<h5>4. Upper bound for string length</h5>
+<p>The length of a string that can be stored for a given <code>.info</code> key has an upper bound. Should a string value be too long to be stored, <code>append</code> must raise <code>ValueError</code>. The message of this error must contain the text:</p>
 <pre><code>String &lt;key&gt; is too long to be stored.
 </code></pre>
-<p>where <code>&lt;key&gt;</code> is the name of the offending <code>.info</code> key. For example, for a key named <code>test</code>, the message must include <code>String test is too long to be stored.</code>. (A string formed from <code>str(list(range(1_000)))</code> exceeds this bound and must trigger the error.)</p>
-<h5>5. Input type validation</h5>
-<p>The public write methods must validate their argument types before doing any work:</p>
+<p>Here, <code>&lt;key&gt;</code> stands for the name of the <code>.info</code> key at fault. As an example: when the key is named <code>test</code>, <code>String test is too long to be stored.</code> must be included in the message. (A string produced by way of <code>str(list(range(1_000)))</code> goes beyond this bound and must trigger the error.)</p>
+<h5>5. Input type checks</h5>
+<p>Before any work is done, the types of the arguments handed to the public write methods must be validated:</p>
 <ul>
 <li>
-<p><code>io.append(atoms)</code> must accept a single ASE <code>Atoms</code> object. If given anything that is not a single <code>Atoms</code> object (e.g. a list), it must raise <code>ValueError</code> with a message containing:</p>
+<p>A single ASE <code>Atoms</code> object is what <code>io.append(atoms)</code> must accept. If the input is anything other than a single <code>Atoms</code> object (e.g. a list), <code>ValueError</code> must be raised with a message that contains:</p>
 <pre><code>atoms must be an ASE Atoms object
 </code></pre>
 </li>
 <li>
-<p><code>io.extend(images)</code> must accept a list of ASE <code>Atoms</code> objects. If given anything that is not such a list (e.g. a single <code>Atoms</code> object), it must raise <code>ValueError</code> with a message containing:</p>
+<p>A list of ASE <code>Atoms</code> objects is what <code>io.extend(images)</code> must accept. If the input is not a list of that kind (e.g. a single <code>Atoms</code> object), <code>ValueError</code> must be raised with a message that contains:</p>
 <pre><code>images must be a list of ASE Atoms objects
 </code></pre>
 </li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>Existing functionality for storing and retrieving <code>Atoms</code> objects (positions, atomic numbers, cell, etc.) must continue to work; the changes above are additive plus validation.</li>
-<li>Error conditions must be raised as <code>ValueError</code> with messages that contain (as a substring) the exact text specified above.</li>
+<li>The functionality that is already in place for storing and retrieving <code>Atoms</code> objects (positions, atomic numbers, cell, etc.) must continue to work; the modifications described above are additive in nature, with validation on top.</li>
+<li>Whenever an error condition arises, it must be raised as <code>ValueError</code>, and the message must contain the exact text specified above as a substring.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">znh5md HDF5 Atoms Storage</span>
-        <span class="spec-meta muted">699 words · source specification
+        <span class="spec-title">HDF5 storage of ase.Atoms with znh5md</span>
+        <span class="spec-meta muted">800 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>znh5md</code> HDF5 Atoms Storage</h3>
-<h4>Overview</h4>
-<p><code>znh5md</code> is a Python library for reading and writing sequences of <code>ase.Atoms</code> objects to HDF5 files (following the H5MD convention). You must implement/fix behavior in this library so that a variety of per-frame data attached to <code>ase.Atoms</code> objects survives a write/read round-trip correctly.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and usable exactly as described:</p>
+      <div class="spec-body"><h3>Task Specification: HDF5 storage of <code>ase.Atoms</code> with <code>znh5md</code></h3>
+<h4>Background</h4>
+<p><code>znh5md</code> is a Python library whose job is reading and writing sequences of <code>ase.Atoms</code> objects into HDF5 files that follow the H5MD convention. What you must do inside this library is implement or fix behavior such that the various kinds of per-frame data attached to <code>ase.Atoms</code> objects come through a write/read round-trip intact.</p>
+<h4>Public API</h4>
+<p>Each item below must be importable and usable exactly in the way described:</p>
 <ul>
 <li>
-<p><code>znh5md.__version__</code> — a module-level string, whose value must be <code>&quot;0.3.6&quot;</code>.</p>
+<p><code>znh5md.__version__</code> — a string defined at module level, whose value must be <code>&quot;0.3.6&quot;</code>.</p>
 </li>
 <li>
-<p><code>znh5md.IO(path)</code> — a class instantiated with a filesystem path to an HDF5 file. Instances must support:</p>
+<p><code>znh5md.IO(path)</code> — a class that receives a filesystem path to an HDF5 file at construction time. Every instance must provide:</p>
 <ul>
-<li><code>io.append(atoms)</code> — store a single <code>ase.Atoms</code> object as a new frame.</li>
-<li><code>io.extend(list_of_atoms)</code> — store multiple <code>ase.Atoms</code> objects, each as a new frame.</li>
-<li><code>len(io)</code> — the number of stored frames.</li>
-<li><code>io[i]</code> — return the frame at integer index <code>i</code> as an <code>ase.Atoms</code> object.</li>
-<li><code>io[:]</code> (slice access) — return a list of <code>ase.Atoms</code> objects for the selected frames.</li>
+<li><code>io.append(atoms)</code> — takes one <code>ase.Atoms</code> object and stores it as a new frame.</li>
+<li><code>io.extend(list_of_atoms)</code> — takes multiple <code>ase.Atoms</code> objects and stores each of them as a new frame.</li>
+<li><code>len(io)</code> — the count of frames that have been stored.</li>
+<li><code>io[i]</code> — must return, in the form of an <code>ase.Atoms</code> object, the frame located at integer index <code>i</code>.</li>
+<li><code>io[:]</code> (slice access) — must return the frames picked out by the slice, in the form of a list of <code>ase.Atoms</code> objects.</li>
 </ul>
 </li>
 <li>
-<p><code>znh5md.write(path, atoms)</code> — write a single <code>ase.Atoms</code> object to the given HDF5 file path, creating one frame. After calling this, opening the file with <code>znh5md.IO(path)</code> must yield exactly one frame.</p>
+<p><code>znh5md.write(path, atoms)</code> — writes one <code>ase.Atoms</code> object into the HDF5 file at the path given; one frame is created. Afterward, opening that file via <code>znh5md.IO(path)</code> must yield exactly one frame.</p>
 </li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>General round-trip</h5>
-<p>When <code>ase.Atoms</code> objects are written and then read back, the reconstructed objects must faithfully reproduce the stored data. Specifically, for each frame the following must round-trip (within floating-point tolerance where numeric):</p>
+<h4>Behavior Requirements</h4>
+<h5>Round-trip in the general case</h5>
+<p>Writing <code>ase.Atoms</code> objects and reading them back again must give reconstructed objects that faithfully mirror whatever was stored. Frame by frame, every item listed below must survive the round-trip (numerical values within floating-point tolerance):</p>
 <ul>
-<li>Atomic positions.</li>
-<li>Atomic numbers.</li>
-<li>Cell.</li>
-<li>Periodic boundary condition flags (<code>pbc</code>), including cases where a frame has mixed per-axis PBC settings.</li>
-<li>Velocities.</li>
-<li>All entries in <code>atoms.arrays</code> (the set of array keys must be preserved, and each array's values must match). Array entries may have shapes such as <code>(n_atoms,)</code>, <code>(n_atoms, 3)</code>, etc.</li>
-<li>The attached calculator results (<code>atoms.calc.results</code>), when a calculator is present: the set of result keys must be preserved, and each result's values must match. Calculator results may include scalar quantities (e.g. energy), 1-D vectors (e.g. a length-6 stress, a length-3 polarization, per-atom charges/magmoms), and multi-dimensional arrays (e.g. a <code>(3, 3)</code> dielectric tensor, <code>(n_atoms, 3)</code> forces, <code>(n_atoms, 3)</code> Born effective charges).</li>
-<li>When an <code>energy</code> result is present, reading back and calling <code>get_potential_energy()</code> must return the same value, and that value must be a Python <code>float</code>.</li>
+<li>Positions of the atoms.</li>
+<li>The atomic numbers.</li>
+<li>The cell.</li>
+<li>The <code>pbc</code> periodic-boundary-condition flags — including frames whose per-axis PBC settings are mixed.</li>
+<li>Velocities of the atoms.</li>
+<li>Every entry in <code>atoms.arrays</code> (the set of array keys must be kept, and the values of each array must match). Array entries may come with shapes such as <code>(n_atoms,)</code>, <code>(n_atoms, 3)</code>, etc.</li>
+<li>When a calculator is attached, its results (<code>atoms.calc.results</code>): the set of result keys must be kept, and the values of each result must match. Calculator results may include scalars (e.g. energy), 1-D vectors (e.g. a length-6 stress, a length-3 polarization, per-atom charges/magmoms), and multi-dimensional arrays (e.g. a <code>(3, 3)</code> dielectric tensor, <code>(n_atoms, 3)</code> forces, <code>(n_atoms, 3)</code> Born effective charges).</li>
+<li>If an <code>energy</code> result is present, calling <code>get_potential_energy()</code> after reading back must return the same value, and the value must be a Python <code>float</code>.</li>
 </ul>
-<h5><code>atoms.info</code> handling</h5>
-<p>All entries in <code>atoms.info</code> must round-trip. The set of info keys after reading must equal the original set of info keys plus exactly the two additional keys <code>&quot;h5md_step&quot;</code> and <code>&quot;h5md_time&quot;</code> (these are added automatically on read).</p>
-<p>Info values may be of several types, all of which must round-trip correctly:</p>
+<h5>Handling of <code>atoms.info</code></h5>
+<p>Everything sitting in <code>atoms.info</code> must round-trip. Once the read has happened, the info-key set must equal the original info-key set plus exactly the two additional keys <code>&quot;h5md_step&quot;</code> and <code>&quot;h5md_time&quot;</code> (the read adds these two automatically).</p>
+<p>There are several types an info value may take, and all of them must round-trip correctly:</p>
 <ul>
-<li><strong>Scalars</strong>, including Python <code>int</code> (e.g. <code>123</code> must come back equal to <code>123</code>) and floats.</li>
-<li><strong>NumPy arrays</strong> of arbitrary dimensionality. The array shape must be preserved exactly on round-trip — no extra leading/trailing dimension may be introduced. For example, an info value that is an array of shape <code>(3, 3, 2, 3)</code> must be read back with shape <code>(3, 3, 2, 3)</code> and equal values. This must hold both when writing via <code>znh5md.write(path, single_atoms)</code> and when using <code>IO.append</code> / <code>IO.extend</code>.</li>
-<li><strong>Strings</strong> (e.g. <code>&quot;s22&quot;</code>) must be read back equal to the original string.</li>
-<li><strong>Dictionaries</strong> (e.g. <code>{&quot;author&quot;: &quot;Jane Doe&quot;, &quot;date&quot;: &quot;2021-09-01&quot;}</code> or <code>{&quot;a&quot;: 1, &quot;b&quot;: 2}</code>) must be read back equal to the original dict.</li>
+<li><strong>Scalar values</strong>, with Python <code>int</code> (e.g. <code>123</code> must come back equal to <code>123</code>) and floats among them.</li>
+<li><strong>NumPy arrays</strong> with any number of dimensions. Round-trip must preserve the array shape exactly — no extra leading/trailing dimension may be introduced. As an example, take an info value that is an array of shape <code>(3, 3, 2, 3)</code>: reading it back must give shape <code>(3, 3, 2, 3)</code> together with equal values. This must hold both for writes done with <code>znh5md.write(path, single_atoms)</code> and for <code>IO.append</code> / <code>IO.extend</code> usage.</li>
+<li><strong>Strings</strong> (e.g. <code>&quot;s22&quot;</code>) must come back equal to the string as it was stored.</li>
+<li><strong>Dictionaries</strong> (e.g. <code>{&quot;author&quot;: &quot;Jane Doe&quot;, &quot;date&quot;: &quot;2021-09-01&quot;}</code> or <code>{&quot;a&quot;: 1, &quot;b&quot;: 2}</code>) must come back equal to the dict in its original form.</li>
 </ul>
-<h5>Empty / incremental usage</h5>
+<h5>Empty and incremental usage</h5>
 <ul>
-<li><code>IO.extend</code> must work when called on a freshly created (empty) file, producing a frame count equal to the number of atoms objects passed.</li>
-<li><code>IO.append</code> on a single atoms object must produce one additional frame whose info values (including plain scalar ints) round-trip.</li>
+<li>On a file that has just been created (and is thus empty), <code>IO.extend</code> must work; the frame count that results must equal the number of atoms objects passed to it.</li>
+<li>Giving <code>IO.append</code> a single atoms object must result in one additional frame, and the info values of that frame — plain scalar ints included — must round-trip.</li>
 </ul>
-<h5>Compatibility with external data sources</h5>
-<p>The stored data must correctly handle atoms objects that originate from ASE's extended XYZ format. That is, a set of atoms objects written to an <code>.xyz</code> file with <code>ase.io.write</code> and then re-read via <code>ase.io.iread</code>, then passed to <code>IO.extend</code>, must round-trip according to all the rules above (positions, numbers, cell, pbc, velocities, arrays, calculator results, and info values of scalar/string/dict/array types).</p>
-<h4>Notes on Scope</h4>
+<h5>Compatibility with data from external sources</h5>
+<p>Atoms objects that have their origin in ASE's extended XYZ format must be handled correctly by the stored data as well. In other words: first write a set of atoms objects to an <code>.xyz</code> file using <code>ase.io.write</code>, then read it back in with <code>ase.io.iread</code>, and then hand it to <code>IO.extend</code>; the atoms objects must then round-trip in accordance with all of the rules above (positions, numbers, cell, pbc, velocities, arrays, calculator results, and info values of scalar/string/dict/array types).</p>
+<h4>Scope Notes</h4>
 <ul>
-<li>The <code>&quot;h5md_step&quot;</code> and <code>&quot;h5md_time&quot;</code> info keys are the only keys that may be added during reading; no other keys may appear or disappear.</li>
-<li>No new dimension may be added to any array-valued <code>info</code> or array data during the write/read cycle; shapes must be exactly preserved.</li>
+<li>Reading may add only the info keys <code>&quot;h5md_step&quot;</code> and <code>&quot;h5md_time&quot;</code>; every other key may neither appear nor disappear.</li>
+<li>At no point in the write/read cycle may a new dimension be added to any array-valued <code>info</code> or array data; shapes must be preserved exactly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">You are working on znh5md, a Python package that stores and retrieves sequences of ASE (Atomic Simulation Environment) Atoms objects in an HDF5 file.</span>
-        <span class="spec-meta muted">564 words · source specification
+        <span class="spec-title">znh5md — the Python package you will be working on — is used to store sequences of ASE (Atomic Simulation Environment) Atoms objects inside an HDF5 file and…</span>
+        <span class="spec-meta muted">684 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python package that stores and retrieves sequences of ASE (Atomic Simulation Environment) <code>Atoms</code> objects in an HDF5 file. Your task is to ensure the storage/retrieval round-trip works correctly when the sequence of <code>Atoms</code> objects has <strong>inconsistent keys</strong> — specifically, when some frames carry calculator results (e.g., energy, forces) and others do not.</p>
-<h4>Public API</h4>
-<p>The tests use the package via:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>General Description</h4>
+<p><code>znh5md</code> — the Python package you will be working on — is used to store sequences of ASE (Atomic Simulation Environment) <code>Atoms</code> objects inside an HDF5 file and to retrieve them from it again. The task at hand is to ensure that the round trip consisting of storage followed by retrieval behaves correctly for a sequence of <code>Atoms</code> objects that has <strong>inconsistent keys</strong> — that is to say, one in which some frames carry calculator results (e.g., <code>energy</code>, <code>forces</code>) while other frames carry none.</p>
+<h4>Public Interface</h4>
+<p>The tests exercise the package in the following way:</p>
 <pre><code class="language-python">import znh5md
 
 io = znh5md.IO(path)          # path is a pathlib.Path / str to an .h5 file
@@ -1050,371 +1054,372 @@ io.extend(images)             # images is a list of ase.Atoms objects
 len(io)                       # number of stored frames
 list(io)                      # iterate to retrieve stored frames as ase.Atoms
 </code></pre>
-<p>The <code>znh5md.IO</code> class must be constructible with a single positional argument: the filesystem path of the HDF5 file to use.</p>
-<p><code>IO</code> must support:</p>
+<p>Constructing the <code>znh5md.IO</code> class must be possible with a single positional argument: the filesystem path of the HDF5 file that is to be used.</p>
+<p><code>IO</code> must provide:</p>
 <ul>
-<li><code>IO.extend(images: list[ase.Atoms]) -&gt; None</code> — append a list of <code>Atoms</code> frames to the file.</li>
-<li><code>__len__</code> — the number of frames currently stored.</li>
-<li><code>__iter__</code> — yield the stored frames in the order they were added, each reconstructed as an <code>ase.Atoms</code> object (with attached calculator when applicable).</li>
+<li><code>IO.extend(images: list[ase.Atoms]) -&gt; None</code> — takes a list of <code>Atoms</code> frames and appends them to the file.</li>
+<li><code>__len__</code> — reports the number of frames currently in storage.</li>
+<li><code>__iter__</code> — yields the frames that are stored, in the order in which they were added, each one reconstructed as an <code>ase.Atoms</code> object (with a calculator attached when applicable).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>Given a list of <code>Atoms</code> frames where the frames are <strong>not homogeneous</strong> with respect to calculator results:</p>
+<h4>Behavior Requirements</h4>
+<p>Take as input a list of <code>Atoms</code> frames that is <strong>not homogeneous</strong> with respect to calculator results:</p>
 <ul>
-<li>Some frames have a calculator with results such as <code>energy</code> and <code>forces</code>.</li>
-<li>Other frames have <strong>no calculator</strong> (their <code>calc</code> is <code>None</code>) and therefore lack those result keys entirely.</li>
+<li>A calculator is present on some of the frames, with results such as <code>energy</code> and <code>forces</code>.</li>
+<li>Other frames carry <strong>no calculator</strong> (<code>calc</code> is <code>None</code>); those result keys are therefore entirely missing from them.</li>
 </ul>
-<p>When such a mixed list is passed to <code>extend</code> in a single call, the library must store all frames without error and preserve each frame's data faithfully.</p>
-<h5>Round-trip guarantees</h5>
-<p>After extending with a list <code>images</code> and then iterating over the <code>IO</code> instance:</p>
+<p>Hand a list of this mixed composition to <code>extend</code> in a single call, and the library must store all frames without an error and preserve each frame's data faithfully.</p>
+<h5>Guarantees for the Round Trip</h5>
+<p>The following holds once the <code>IO</code> instance has been extended with a list <code>images</code> and has then been iterated over:</p>
 <ol>
 <li>
-<p><strong>Count preservation:</strong> <code>len(io)</code> equals <code>len(images)</code>, and iterating yields exactly <code>len(images)</code> frames.</p>
+<p><strong>Count preservation:</strong> the count given by <code>len(io)</code> is equal to <code>len(images)</code>, and iterating over the instance yields exactly <code>len(images)</code> frames.</p>
 </li>
 <li>
-<p><strong>Order preservation:</strong> The i-th retrieved frame corresponds to the i-th input frame.</p>
+<p><strong>Order preservation:</strong> retrieved frame number i corresponds to input frame number i.</p>
 </li>
 <li>
-<p><strong>Structural equality:</strong> Each retrieved frame must compare equal (<code>==</code>) to its corresponding input frame (i.e., identical atomic structure — positions, atomic numbers, cell, etc.).</p>
+<p><strong>Structural equality:</strong> every retrieved frame must compare equal (<code>==</code>) to the input frame it corresponds to (that is, an atomic structure that is identical — positions, atomic numbers, cell, etc.).</p>
 </li>
 <li>
 <p><strong>Calculator results preservation:</strong></p>
 <ul>
-<li>For an input frame that <strong>had</strong> a calculator, the retrieved frame must also have a calculator, and every key present in the retrieved calculator's <code>results</code> must hold a value equal (element-wise, for arrays) to the same key in the input frame's calculator results.</li>
-<li>For an input frame that had <strong>no</strong> calculator (<code>calc is None</code>), the retrieved frame must also have <code>calc is None</code>. It must <strong>not</strong> be assigned a calculator or fabricated result values just because other frames in the same batch had them.</li>
+<li>If the input frame <strong>had</strong> a calculator, a calculator must be present on the retrieved frame as well, and for every key that is present in the retrieved calculator's <code>results</code>, the value it holds must be equal (element-wise, for arrays) to the value that the same key has in the input frame's calculator results.</li>
+<li>If the input frame had <strong>no</strong> calculator (<code>calc is None</code>), the retrieved frame must likewise have <code>calc is None</code>. It must <strong>not</strong> be given a calculator or have result values fabricated for it merely because other frames in the same batch had them.</li>
 </ul>
 </li>
 </ol>
-<h5>Key edge case</h5>
-<p>The central requirement: frames added together in one <code>extend</code> call may have differing sets of keys. Frames missing a given key (such as a frame with no calculator among frames that do have <code>energy</code>/<code>forces</code>) must not inherit, borrow, or be filled with values from other frames, nor cause the operation to fail. Missing data must remain absent (represented as no calculator) on retrieval; present data must be returned unchanged.</p>
-<h4>Notes</h4>
+<h5>Central Edge Case</h5>
+<p>At the heart of this task: the frames that go into one <code>extend</code> call together may carry differing sets of keys. A frame that lacks a particular key (for instance a frame with no calculator among frames that do have <code>energy</code>/<code>forces</code>) must not inherit, borrow, or be filled with values that belong to other frames, nor make the operation fail. When retrieval happens, data that was missing must remain absent (represented as no calculator); data that was present must be returned unchanged.</p>
+<h4>Additional Notes</h4>
 <ul>
-<li>Frames with and without calculators may appear in any order and in any proportion within the same <code>extend</code> call.</li>
-<li>The internal naming of a data-type marker was changed from <code>type</code> to <code>ZNH5MD_TYPE</code>; ensure any internal key/attribute used to tag stored data uses the name <code>ZNH5MD_TYPE</code>. This is an internal detail and is not part of the public API, but it must be consistent throughout so storage and retrieval agree.</li>
+<li>Within one and the same <code>extend</code> call, frames that have calculators and frames that lack them may show up in any order and in any proportion.</li>
+<li>Internally, the name given to a data-type marker was changed: <code>type</code> has become <code>ZNH5MD_TYPE</code>. Ensure that any internal key/attribute employed to tag stored data carries the name <code>ZNH5MD_TYPE</code>. This is a detail that lives internally and forms no part of the public API; all the same, it must be consistent throughout, so that storage and retrieval are in agreement.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">You are working on znh5md, a Python library that stores lists of ASE Atoms objects in HDF5 files.</span>
-        <span class="spec-meta muted">421 words · source specification
+        <span class="spec-title">Your work targets znh5md, a Python library that stores lists of ASE Atoms objects in HDF5 files.</span>
+        <span class="spec-meta muted">430 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python library that stores lists of ASE <code>Atoms</code> objects in HDF5 files. The public entry point is the <code>znh5md.IO</code> class, which is constructed with a file path and supports appending <code>Atoms</code> objects.</p>
-<p>You must implement two behaviors:</p>
+<p>Your work targets <code>znh5md</code>, a Python library that stores lists of ASE <code>Atoms</code> objects in HDF5 files. Its public entry point is the <code>znh5md.IO</code> class, which is constructed with a file path and supports appending <code>Atoms</code> objects.</p>
+<p>You must implement the following two behaviors:</p>
 <ol>
-<li>Reject appends that introduce previously-unseen data keys after the dataset structure has been established.</li>
-<li>Ensure that reading back frames that were stored without any calculator-related energy/force/etc. data yields <code>Atoms</code> objects with no attached calculator.</li>
+<li>Reject appends that bring in previously-unseen data keys after the dataset structure has been established.</li>
+<li>Ensure that reading back frames stored without any calculator-related energy/force/etc. data yields <code>Atoms</code> objects that have no attached calculator.</li>
 </ol>
 <h4>Public API</h4>
-<p>The following must be importable and usable:</p>
+<p>These must be importable and usable:</p>
 <ul>
-<li><code>znh5md.IO(filename)</code> — constructor taking a path (e.g. a <code>pathlib.Path</code>) to an HDF5 file. The file need not already exist.</li>
-<li><code>IO.append(atoms)</code> — append a single ASE <code>Atoms</code> object to the dataset.</li>
-<li><code>IO.__getitem__(index)</code> — return the stored <code>Atoms</code> object at the given integer index.</li>
-<li><code>IO.__len__()</code> — return the number of stored frames.</li>
+<li><code>znh5md.IO(filename)</code> — constructor that takes a path (e.g. a <code>pathlib.Path</code>) to an HDF5 file. The file does not need to exist already.</li>
+<li><code>IO.append(atoms)</code> — appends a single ASE <code>Atoms</code> object to the dataset.</li>
+<li><code>IO.__getitem__(index)</code> — returns the stored <code>Atoms</code> object located at the given integer index.</li>
+<li><code>IO.__len__()</code> — returns the number of frames that have been stored.</li>
 </ul>
 <h4>Required Behavior</h4>
-<h5>1. Rejecting new keys after initial construction</h5>
-<p>The set of <code>info</code> keys and the set of <code>arrays</code> keys that a dataset tracks is fixed by the <strong>first</strong> <code>Atoms</code> object appended.</p>
+<h5>1. Rejecting new keys after the initial construction</h5>
+<p>The <strong>first</strong> <code>Atoms</code> object appended fixes the set of <code>info</code> keys and the set of <code>arrays</code> keys that a dataset tracks.</p>
 <ul>
-<li>On the first <code>append</code>, the keys present in <code>atoms.info</code> and <code>atoms.arrays</code> define the dataset's known keys and are stored normally.</li>
-<li>On any subsequent <code>append</code>, if the <code>Atoms</code> object contains an <code>info</code> key that was not present in the first appended object, <code>append</code> must raise <code>ValueError</code>.</li>
-<li>Likewise, on any subsequent <code>append</code>, if the <code>Atoms</code> object contains an <code>arrays</code> key that was not present in the first appended object, <code>append</code> must raise <code>ValueError</code>.</li>
+<li>At the first <code>append</code>, the keys present in <code>atoms.info</code> and <code>atoms.arrays</code> define the dataset's known keys and are stored normally.</li>
+<li>On any later <code>append</code>, if the <code>Atoms</code> object contains an <code>info</code> key that was missing from the first appended object, <code>append</code> must raise <code>ValueError</code>.</li>
+<li>Likewise, on any later <code>append</code>, if the <code>Atoms</code> object contains an <code>arrays</code> key that was absent from the first appended object, <code>append</code> must raise <code>ValueError</code>.</li>
 </ul>
-<p>Concretely: after appending an <code>Atoms</code> object once, if that same object is then given a new entry in its <code>info</code> dictionary (or its <code>arrays</code> dictionary) and appended again, the second <code>append</code> must raise <code>ValueError</code>.</p>
-<h5>2. No calculator when no energy data is stored</h5>
-<p>When frames are written that carry no calculator-derived quantities (such as potential energy), reading a frame back via <code>IO.__getitem__</code> must produce an <code>Atoms</code> object whose <code>.calc</code> attribute is <code>None</code>.</p>
-<p>When frames do carry calculator-derived quantities, reading them back must produce <code>Atoms</code> objects that retain those quantities (e.g. <code>get_potential_energy()</code> returns the stored float value), and the per-atom <code>arrays</code> data must round-trip: the set of <code>arrays</code> keys read back must equal the set of <code>arrays</code> keys that were written.</p>
+<p>Concretely: after appending an <code>Atoms</code> object one time, if that same object is then given a new entry in its <code>info</code> dictionary (or its <code>arrays</code> dictionary) and appended again, the second <code>append</code> must raise <code>ValueError</code>.</p>
+<h5>2. No attached calculator when no energy data is stored</h5>
+<p>If the frames being written carry no calculator-derived quantities (such as potential energy), then reading a frame back via <code>IO.__getitem__</code> must produce an <code>Atoms</code> object whose <code>.calc</code> attribute is <code>None</code>.</p>
+<p>When frames do carry calculator-derived quantities, reading them back must produce <code>Atoms</code> objects that still hold those quantities (e.g. <code>get_potential_energy()</code> returns the stored float value), and the per-atom <code>arrays</code> data must round-trip: the set of <code>arrays</code> keys that come back from a read must equal the set of <code>arrays</code> keys that were written.</p>
 <h4>Notes</h4>
 <ul>
-<li>Both <code>info</code>-level (scalar/global) keys and <code>arrays</code>-level (per-atom) keys are subject to the new-key rejection rule.</li>
-<li>The rejection applies only to keys <em>not</em> seen in the first appended frame; appending frames that use only the originally-known keys must continue to work.</li>
+<li>The new-key rejection rule covers both <code>info</code>-level (scalar/global) keys and <code>arrays</code>-level (per-atom) keys.</li>
+<li>Rejection is limited to keys <em>not</em> seen in the first appended frame; appending frames that use only the originally-known keys must continue to work.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">You are working on znh5md, a Python package for storing and retrieving ase.Atoms objects in HDF5 files.</span>
-        <span class="spec-meta muted">288 words · source specification
+        <span class="spec-title">For this task, you are working on znh5md, a Python package for storing and retrieving ase.Atoms objects in HDF5 files.</span>
+        <span class="spec-meta muted">321 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python package for storing and retrieving <code>ase.Atoms</code> objects in HDF5 files. Two changes are required: a version bump and correct handling of non-ASCII string data stored in atom <code>info</code> metadata.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>For this task, you are working on <code>znh5md</code>, a Python package for storing and retrieving <code>ase.Atoms</code> objects in HDF5 files. Two changes are required: one is a version bump, the other is correct handling of non-ASCII string data stored in atom <code>info</code> metadata.</p>
 <h4>Requirements</h4>
 <h5>1. Version</h5>
-<p>The package <code>znh5md</code> must expose a <code>__version__</code> attribute equal to the string <code>&quot;0.3.7&quot;</code>.</p>
-<h5>2. Non-ASCII string round-tripping in <code>info</code></h5>
-<p>The public API entry point is the class <code>znh5md.IO</code>, constructed with a single path-like argument specifying the HDF5 file location:</p>
+<p>The <code>znh5md</code> package must expose a <code>__version__</code> attribute equal to the string <code>&quot;0.3.7&quot;</code>.</p>
+<h5>2. Round-tripping non-ASCII strings in <code>info</code></h5>
+<p>The class <code>znh5md.IO</code> is the entry point of the public API and is constructed with a single path-like argument that specifies the HDF5 file location:</p>
 <pre><code class="language-python">io = znh5md.IO(&quot;test.h5&quot;)
 </code></pre>
-<p>The <code>IO</code> instance must support:</p>
+<p>The following must be supported by the <code>IO</code> instance:</p>
 <ul>
-<li><strong><code>io.extend(images)</code></strong> — accept an iterable of <code>ase.Atoms</code> objects and append/store them in the file.</li>
-<li><strong>Iteration</strong> — iterating over the <code>io</code> instance must yield the stored <code>ase.Atoms</code> objects back, in the same order they were added.</li>
+<li><strong><code>io.extend(images)</code></strong> — it accepts an iterable of <code>ase.Atoms</code> objects and appends/stores them in the file.</li>
+<li><strong>Iteration</strong> — looping over the <code>io</code> instance must yield the stored <code>ase.Atoms</code> objects back, in the same order in which they were added.</li>
 </ul>
-<p><strong>Behavior to implement:</strong> When an <code>ase.Atoms</code> object carries string values in its <code>.info</code> dictionary that contain non-ASCII characters (e.g. <code>atoms.info[&quot;config&quot;] = &quot;βγ&quot;</code>), those values must be stored and retrieved losslessly. After writing a set of atoms via <code>extend</code> and reading them back via iteration, each retrieved atom's <code>.info</code> dictionary must contain exactly the same string value (including non-ASCII characters) as the original object had.</p>
-<p>Concretely: given atoms whose <code>info[&quot;config&quot;]</code> equals <code>&quot;βγ&quot;</code>, iterating over the <code>IO</code> instance after extending it with those atoms must produce atoms whose <code>info[&quot;config&quot;]</code> still equals <code>&quot;βγ&quot;</code>.</p>
-<p>This must hold for a collection of many atoms objects (each carrying the same non-ASCII <code>info</code> string), preserving order and value on the round trip.</p>
+<p><strong>Behavior to be implemented:</strong> If string values in the <code>.info</code> dictionary of an <code>ase.Atoms</code> object contain non-ASCII characters (e.g. <code>atoms.info[&quot;config&quot;] = &quot;βγ&quot;</code>), those values must be stored and retrieved losslessly. After a set of atoms is written via <code>extend</code> and read back via iteration, the <code>.info</code> dictionary of each retrieved atom must contain exactly the same string value (including non-ASCII characters) as the original object had.</p>
+<p>To be concrete: given atoms whose <code>info[&quot;config&quot;]</code> equals <code>&quot;βγ&quot;</code>, iterating over the <code>IO</code> instance after it has been extended with those atoms must produce atoms whose <code>info[&quot;config&quot;]</code> still equals <code>&quot;βγ&quot;</code>.</p>
+<p>This must hold for a collection of many atoms objects (each of which carries the same non-ASCII <code>info</code> string), with order and value preserved on the round trip.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Existing storage and retrieval behavior for standard <code>ase.Atoms</code> data (positions, symbols, ASCII metadata, etc.) must continue to work unchanged.</li>
-<li>The only new functional guarantee is correct lossless handling of non-ASCII string values within the <code>.info</code> dictionary.</li>
+<li>The storage and retrieval behavior that already exists for standard <code>ase.Atoms</code> data (positions, symbols, ASCII metadata, etc.) must continue to work unchanged.</li>
+<li>The only new functional guarantee is that non-ASCII string values within the <code>.info</code> dictionary are handled correctly and losslessly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Expose the following from the top-level znh5md package</span>
-        <span class="spec-meta muted">235 words · source specification
+        <span class="spec-title">The following must be exposed from the top-level znh5md package</span>
+        <span class="spec-meta muted">276 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>Expose the following from the top-level <code>znh5md</code> package:</p>
+      <div class="spec-body"><h4>Public API that must be exposed</h4>
+<p>The following must be exposed from the top-level <code>znh5md</code> package:</p>
 <ul>
 <li><code>znh5md.__version__</code></li>
 <li><code>znh5md.IO</code></li>
 </ul>
-<h5>Version</h5>
-<p><code>znh5md.__version__</code> must equal the string <code>&quot;0.3.7&quot;</code>.</p>
-<h5><code>znh5md.IO</code></h5>
-<p><code>znh5md.IO(path)</code> must accept a <code>pathlib.Path</code> identifying a new HDF5 file.</p>
-<p>A newly constructed instance must expose these default attributes:</p>
+<h5>Version attribute</h5>
+<p>The value of <code>znh5md.__version__</code> must equal the string <code>&quot;0.3.7&quot;</code>.</p>
+<h5>The <code>znh5md.IO</code> class</h5>
+<p><code>znh5md.IO(path)</code> must accept a <code>pathlib.Path</code> that identifies a new HDF5 file.</p>
+<p>An instance that has just been constructed must expose the following default attributes:</p>
 <ul>
 <li><code>io.creator == &quot;znh5md&quot;</code></li>
 <li><code>io.creator_version == znh5md.__version__</code></li>
 </ul>
-<p>The class must provide:</p>
+<p>The following must be provided by the class:</p>
 <ul>
-<li><code>io.extend(frames)</code>, accepting an iterable of <code>ase.Atoms</code></li>
-<li>Iteration over <code>io</code>, yielding stored frames as objects exposing the ASE <code>Atoms.arrays</code> mapping</li>
+<li><code>io.extend(frames)</code>, which accepts an iterable of <code>ase.Atoms</code></li>
+<li>Iterating over <code>io</code>, which yields the stored frames as objects that expose the ASE <code>Atoms.arrays</code> mapping</li>
 </ul>
-<h4>ASE array round-trip behavior</h4>
-<p>Frames added with <code>IO.extend(...)</code> must retain every array present in each input frame. When the <code>IO</code> instance is iterated, each corresponding array must have the same shape and element values as the original NumPy array.</p>
-<p>This includes NumPy string arrays containing non-ASCII Unicode and strings whose lengths differ between frames. In particular, support round-tripping frames equivalent to:</p>
+<h4>Round-trip behavior of ASE arrays</h4>
+<p>When frames are added with <code>IO.extend(...)</code>, every array present in each input frame must be retained. While the <code>IO</code> instance is being iterated, each corresponding array must have the same shape and element values as the original NumPy array.</p>
+<p>This coverage includes NumPy string arrays containing non-ASCII Unicode as well as strings whose lengths differ between frames. In particular, round-tripping must be supported for frames equivalent to:</p>
 <ul>
-<li>An <code>H2O</code> frame with:
+<li>An <code>H2O</code> frame that has:
 <ul>
 <li><code>residuenames = np.array([&quot;H2O&quot;, &quot;H2O&quot;, &quot;H2O&quot;])</code></li>
 <li><code>atomtypes = np.array([&quot;γO&quot;, &quot;βH&quot;, &quot;βH&quot;])</code></li>
 </ul>
 </li>
-<li>A <code>C2H6</code> frame with:
+<li>A <code>C2H6</code> frame that has:
 <ul>
 <li><code>residuenames = np.array([&quot;C2H6&quot;] * 8)</code></li>
 <li><code>atomtypes = np.array([&quot;γC&quot;, &quot;βH&quot;, &quot;βH&quot;, &quot;βH&quot;, &quot;βH&quot;, &quot;βH&quot;])</code></li>
 </ul>
 </li>
 </ul>
-<p>The custom array length must be preserved as supplied, even when it does not equal the number of atoms in the frame, as in the six-element <code>atomtypes</code> array on the eight-atom <code>C2H6</code> frame. Unicode characters must not be lost, replaced, or truncated. Standard ASE arrays such as <code>numbers</code> and <code>positions</code> must continue to round-trip alongside these custom arrays.</p>
+<p>The length of a custom array must be preserved as supplied, even when it does not equal the number of atoms in the frame, as with the six-element <code>atomtypes</code> array on the eight-atom <code>C2H6</code> frame. There must be no loss, replacement, or truncation of Unicode characters. Alongside these custom arrays, standard ASE arrays such as <code>numbers</code> and <code>positions</code> must continue to round-trip.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Append Support for Frames with Differing Property Keys</span>
-        <span class="spec-meta muted">839 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Support for Appending Frames with Differing Property Keys</span>
+        <span class="spec-meta muted">927 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Append Support for Frames with Differing Property Keys</h3>
+      <div class="spec-body"><h3>Task Specification: Support for Appending Frames with Differing Property Keys</h3>
 <h4>Overview</h4>
-<p>You are working on <code>znh5md</code>, a Python library for storing sequences of ASE <code>Atoms</code> objects in an HDF5 file. The public entry point is the class <code>znh5md.IO</code>, constructed with a single path argument (a <code>str</code> or path-like object) pointing to an HDF5 file:</p>
+<p>You are working on <code>znh5md</code>, a Python library that stores sequences of ASE <code>Atoms</code> objects in an HDF5 file. The class <code>znh5md.IO</code> is the public entry point; it is constructed with a single path argument (a <code>str</code> or path-like object) that points to an HDF5 file:</p>
 <pre><code class="language-python">io = znh5md.IO(path)
 </code></pre>
-<p>The <code>IO</code> object behaves like a sequence of frames (ASE <code>Atoms</code> objects). You must ensure the behaviors described below hold.</p>
+<p>An <code>IO</code> object behaves like a sequence of frames (ASE <code>Atoms</code> objects). You must ensure that the behaviors described below hold.</p>
 <h4>Public API Surface</h4>
 <p>The following must be importable and callable as shown:</p>
 <ul>
-<li><code>znh5md.IO(path)</code> — constructor taking a file path.</li>
-<li><code>io.append(atoms)</code> — append a single ASE <code>Atoms</code> object.</li>
-<li><code>io.extend(list_of_atoms)</code> — append multiple ASE <code>Atoms</code> objects.</li>
-<li><code>len(io)</code> — total number of stored frames.</li>
-<li><code>iter(io)</code> / <code>list(io)</code> — iteration yielding the stored frames in order.</li>
-<li><code>io[i]</code> — integer indexing (supports negative indices).</li>
-<li><code>io[a:b]</code> — slice indexing, returning the corresponding frames.</li>
+<li><code>znh5md.IO(path)</code> — constructor that takes a file path.</li>
+<li><code>io.append(atoms)</code> — appends a single ASE <code>Atoms</code> object.</li>
+<li><code>io.extend(list_of_atoms)</code> — appends multiple ASE <code>Atoms</code> objects.</li>
+<li><code>len(io)</code> — the total number of stored frames.</li>
+<li><code>iter(io)</code> / <code>list(io)</code> — iteration that yields the stored frames in order.</li>
+<li><code>io[i]</code> — indexing with an integer (negative indices are supported).</li>
+<li><code>io[a:b]</code> — indexing with a slice, which returns the corresponding frames.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Heterogeneous keys across appended frames</h5>
-<p>Frames appended or extended into the same file need not share the same set of property keys. Frames written with different <code>info</code> keys, different <code>arrays</code> keys, or different calculator results must all coexist correctly. When a frame is read back, it must expose exactly the user-supplied optional keys that were present when that frame was written, subject only to the reserved H5MD metadata exception described below.</p>
-<p>Specifically:</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Heterogeneous keys across frames that are appended</h5>
+<p>Frames that are appended or extended into the same file need not share the same set of property keys. Frames written with different <code>info</code> keys, different <code>arrays</code> keys, or different calculator results must all coexist correctly. When a frame is read back, it must expose exactly the optional keys supplied by the user that were present when that frame was written; the only exception is the reserved H5MD metadata exception described below.</p>
+<p>In particular:</p>
 <ul>
-<li>If some frames carry a given user <code>info</code> key and others do not, reading back each frame must yield that key only on the frames that originally had it. It must be absent from frames that did not have it.</li>
-<li>The same applies independently to <code>arrays</code> keys.</li>
-<li>The same applies independently to attached ASE calculators and their results: frames written without a calculator must read back with <code>calc is None</code>; frames written with a calculator must read back with a calculator whose <code>results</code> equal the originally stored results.</li>
+<li>If a given user <code>info</code> key is carried by some frames and not by others, then reading each frame back must yield that key only on the frames that originally had it; on frames that did not have it, that key must be absent.</li>
+<li>The same holds, independently, for <code>arrays</code> keys.</li>
+<li>The same holds, independently, for attached ASE calculators and their results: a frame written without a calculator must read back with <code>calc is None</code>; a frame written with a calculator must read back with a calculator whose <code>results</code> are equal to the originally stored results.</li>
 </ul>
-<p>This must hold regardless of the order in which mixed frames are written, including interleaving batches of frames that have a key with batches that do not (for example, write-with, write-without, write-with, and so on). Values written earlier must not be overwritten or leaked into later frames, and vice versa.</p>
-<h5>2. Reserved H5MD metadata on read-back</h5>
-<p>Every stored frame reconstructed as an ASE <code>Atoms</code> object must have the reserved entries <code>h5md_step</code> and <code>h5md_time</code> in its <code>info</code> mapping. These entries report the H5MD step and time associated with that frame and are added on read-back even when they were not ordinary user-supplied <code>info</code> properties. This applies whether frames are read by integer index, slice, or iteration.</p>
-<p>Consequently, for a round-tripped frame, the expected <code>info</code> key set is:</p>
+<p>This must hold regardless of the order in which mixed frames are written, including cases where batches of frames that have a key are interleaved with batches that do not (for example, write-with, write-without, write-with, and so on). Values that were written earlier must not be overwritten or leaked into later frames, and vice versa.</p>
+<h5>2. Reserved H5MD metadata during read-back</h5>
+<p>Every stored frame, when reconstructed as an ASE <code>Atoms</code> object, must have the reserved entries <code>h5md_step</code> and <code>h5md_time</code> in its <code>info</code> mapping. These entries report the H5MD step and time that are associated with that frame; they are added on read-back even when they were not ordinary user-supplied <code>info</code> properties. This applies whether frames are read by integer index, by slice, or by iteration.</p>
+<p>As a consequence, for a frame that has been round-tripped, the expected set of <code>info</code> keys is:</p>
 <pre><code class="language-python">set(read_frame.info) == set(original_frame.info) | {&quot;h5md_step&quot;, &quot;h5md_time&quot;}
 </code></pre>
-<p>The requirement that optional keys be preserved exactly per frame applies to all user-supplied keys; the two reserved metadata entries are the only exception to the no-extra-keys rule. Their automatic presence must not cause a user property missing from a frame to appear on that frame.</p>
-<h5>3. Preservation of values</h5>
+<p>The requirement that optional keys be preserved exactly per frame applies to all keys supplied by the user; the only exception to the no-extra-keys rule is the two reserved metadata entries. The automatic presence of these entries must not cause a user property that is missing from a frame to appear on that frame.</p>
+<h5>3. Preserving values</h5>
 <ul>
-<li>Round-tripped user <code>info</code> values must equal the original values. This includes:
+<li>User <code>info</code> values that have been round-tripped must equal the original values. This includes:
 <ul>
-<li>Numeric (float) values.</li>
-<li>String values containing non-ASCII characters (for example, <code>&quot;γC&quot;</code>), preserved exactly.</li>
+<li>Values that are numeric (float).</li>
+<li>String values that contain non-ASCII characters (for example, <code>&quot;γC&quot;</code>), preserved exactly.</li>
 </ul>
 </li>
-<li>Round-tripped <code>arrays</code> values (for example, an array of shape <code>(n_atoms, 3)</code>) must be element-for-element equal to the original.</li>
+<li><code>arrays</code> values that have been round-tripped (for example, an array of shape <code>(n_atoms, 3)</code>) must be element-for-element equal to the original.</li>
 </ul>
-<h5>4. Length and iteration consistency</h5>
+<h5>4. Consistency of length and iteration</h5>
 <ul>
-<li><code>len(io)</code> must equal the total number of frames written across all <code>append</code> and <code>extend</code> calls.</li>
-<li><code>len(list(io))</code> must equal the same total; iteration yields every stored frame exactly once, in insertion order.</li>
-<li>When frames of differing lengths or property sets are combined through repeated <code>extend</code> calls on differently sized or typed batches, the total count is the sum of the individual batch sizes.</li>
+<li><code>len(io)</code> must equal the total number of frames that were written across all <code>append</code> and <code>extend</code> calls.</li>
+<li><code>len(list(io))</code> must equal that same total; iteration yields every stored frame exactly once, in insertion order.</li>
+<li>When frames of differing lengths or property sets are combined via repeated <code>extend</code> calls on batches of differing sizes or types, the total count is the sum of the individual batch sizes.</li>
 </ul>
 <h5>5. Indexing and error conditions</h5>
 <ul>
-<li>Accessing any index, whether an integer or a slice, on an <code>IO</code> whose backing file does not yet exist must raise <code>FileNotFoundError</code>.</li>
+<li>Accessing any index on an <code>IO</code> whose backing file does not yet exist must raise <code>FileNotFoundError</code>, whether that index is an integer or a slice.</li>
 <li>After at least one frame has been written:
 <ul>
-<li><code>io[0]</code> returns the first frame and is not <code>None</code>.</li>
-<li><code>io[-1]</code> returns the last frame and is not <code>None</code>.</li>
-<li>Slices such as <code>io[0:1]</code> and <code>io[0:2]</code> return valid, non-<code>None</code> results.</li>
-<li>An integer index at or beyond the number of stored frames must raise <code>IndexError</code> (for example, <code>io[1]</code> when only one frame exists).</li>
-<li>A negative integer index that resolves before the first frame must raise <code>IndexError</code> (for example, <code>io[-2]</code> when only one frame exists).</li>
+<li><code>io[0]</code> returns the first frame, which is not <code>None</code>.</li>
+<li><code>io[-1]</code> returns the last frame, which is not <code>None</code>.</li>
+<li>Slices such as <code>io[0:1]</code> and <code>io[0:2]</code> return results that are valid and not <code>None</code>.</li>
+<li>An integer index that is at or beyond the number of stored frames must raise <code>IndexError</code> (for example, <code>io[1]</code> when only one frame exists).</li>
+<li>A negative integer index that resolves to a position before the first frame must raise <code>IndexError</code> (for example, <code>io[-2]</code> when only one frame exists).</li>
 </ul>
 </li>
 </ul>
-<h5>6. Extending after construction on an empty file</h5>
-<p><code>extend</code> may be called on a freshly constructed <code>IO</code> whose file does not yet exist. The file and frames must be created, and <code>len(io)</code> must reflect the number of frames added.</p>
+<h5>6. Extending on an empty file after construction</h5>
+<p><code>extend</code> may be called on a freshly constructed <code>IO</code> whose file does not yet exist. The file, together with the frames, must be created, and <code>len(io)</code> must reflect the number of frames that were added.</p>
 <h4>Notes</h4>
 <ul>
-<li>All read-back comparisons are against the original ASE <code>Atoms</code> objects. Calculator results are compared through the calculator's <code>results</code> dictionary.</li>
-<li><code>append</code> must accept frames that introduce keys not present in previously written frames without raising an error.</li>
-<li>The automatic <code>h5md_step</code> and <code>h5md_time</code> entries are reserved read-back metadata, not leaked optional properties from another frame.</li>
+<li>All comparisons performed on read-back are against the original ASE <code>Atoms</code> objects. Calculator results are compared by way of the calculator's <code>results</code> dictionary.</li>
+<li><code>append</code> must accept, without raising an error, frames that introduce keys not present in previously written frames.</li>
+<li>The automatic <code>h5md_step</code> and <code>h5md_time</code> entries are reserved read-back metadata; they are not optional properties leaked from another frame.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Support variable-length dictionary and sequence values stored in an ASE Atoms.info mapping across frames in a znh5md.IO file.</span>
-        <span class="spec-meta muted">377 words · source specification
+        <span class="spec-title">Add support for dictionary and sequence values of variable length that are stored in an ASE Atoms.info mapping across the frames of a znh5md.IO file.</span>
+        <span class="spec-meta muted">463 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change</h3>
-<p>Support variable-length dictionary and sequence values stored in an ASE <code>Atoms.info</code> mapping across frames in a <code>znh5md.IO</code> file.</p>
+      <div class="spec-body"><h3>Change that is required</h3>
+<p>Add support for dictionary and sequence values of variable length that are stored in an ASE <code>Atoms.info</code> mapping across the frames of a <code>znh5md.IO</code> file.</p>
 <h4>Public API</h4>
-<p>The package must expose:</p>
+<p>The following must be exposed by the package:</p>
 <ul>
 <li><code>znh5md.IO(path)</code>
 <ul>
-<li><code>path</code> may be a <code>pathlib.Path</code> or equivalent filesystem path.</li>
+<li><code>path</code> may be a <code>pathlib.Path</code> or a filesystem path that is equivalent.</li>
 </ul>
 </li>
 <li><code>IO.append(atoms)</code>
 <ul>
-<li>Accepts an <code>ase.Atoms</code> object.</li>
+<li>An <code>ase.Atoms</code> object is accepted.</li>
 </ul>
 </li>
 <li><code>IO.__getitem__(index: int)</code>
 <ul>
-<li>Returns the stored frame as an <code>ase.Atoms</code> object whose <code>info</code> data can be accessed through <code>.info</code>.</li>
+<li>The frame that is stored is returned as an <code>ase.Atoms</code> object, and its <code>info</code> data can be accessed through <code>.info</code>.</li>
 </ul>
 </li>
 </ul>
-<h4>Required behavior</h4>
-<h5>Dictionary-valued info</h5>
-<p><code>IO.append()</code> must accept <code>Atoms.info</code> entries whose values are dictionaries with string keys and integer values, including values produced after an ASE <code>extxyz</code> write/read round trip.</p>
-<p>For a given info key, successive frames may contain dictionaries with different sets or numbers of entries. Reading each frame must return the dictionary associated with that frame, rather than coercing it to a string, truncating it, or applying another frame’s shape/content.</p>
+<h4>Behavior that is required</h4>
+<h5>Info whose values are dictionaries</h5>
+<p>Entries in <code>Atoms.info</code> whose values are dictionaries with string keys and integer values must be accepted by <code>IO.append()</code>, including values that are produced after a write/read round trip through ASE <code>extxyz</code>.</p>
+<p>For one and the same info key, successive frames may contain dictionaries with different sets of entries or different numbers of entries. When each frame is read, the dictionary associated with that frame must be returned, rather than the value being coerced to a string, being truncated, or having another frame’s shape/content applied to it.</p>
 <p>Examples of values that must round-trip independently include:</p>
 <ul>
 <li><code>{&quot;a&quot;: 1, &quot;b&quot;: 2}</code></li>
 <li><code>{&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 3}</code></li>
 <li><code>{&quot;a&quot;: 1}</code></li>
 </ul>
-<p>New dictionary-valued info keys may also be introduced in later frames, such as a later frame containing:</p>
+<p>New info keys with dictionary values may also be introduced in later frames, such as a later frame that contains:</p>
 <ul>
 <li><code>&quot;b&quot;: {&quot;a&quot;: 1, &quot;b&quot;: 2, &quot;c&quot;: 3, &quot;d&quot;: 4}</code></li>
 </ul>
-<p>Different <code>Atoms</code> objects, including molecules with different atom counts, may use the same info key with differently sized dictionaries.</p>
-<h5>Sequence-valued info</h5>
-<p><code>IO.append()</code> must accept numeric sequence values in <code>Atoms.info</code>, including:</p>
+<p>Different <code>Atoms</code> objects may use the same info key with differently sized dictionaries; this includes molecules with different atom counts.</p>
+<h5>Info whose values are sequences</h5>
+<p>Numeric sequence values in <code>Atoms.info</code> must be accepted by <code>IO.append()</code>, including:</p>
 <ul>
 <li>Python lists.</li>
-<li>Array-like values produced by reading an ASE <code>extxyz</code> file.</li>
+<li>Array-like values that result from reading an ASE <code>extxyz</code> file.</li>
 </ul>
-<p>The same info key may have different sequence lengths in successive frames, such as <code>[1, 2]</code> followed by <code>[1, 2, 3]</code>. A new sequence-valued key may be introduced in a later frame, such as <code>&quot;b&quot;: [1, 2, 3, 4]</code>.</p>
-<p>When read through integer indexing, each returned value must be array-equivalent to the sequence stored for that frame, with the same element order and length. No specific concrete return container type or numeric dtype is required.</p>
-<h5>Per-frame snapshot semantics</h5>
-<p>Appending an <code>Atoms</code> object must preserve that frame’s current <code>info</code> values. Later mutation of the original object’s dictionaries, lists, or info keys must not alter previously appended frames.</p>
-<p>Thus, if an object is appended with a two-entry value, modified to a three-entry value, and appended again, indexing the first frame must still yield the original two-entry value while the second yields the updated value.</p>
+<p>Successive frames may have sequences of different lengths under the same info key, such as <code>[1, 2]</code> followed by <code>[1, 2, 3]</code>. A later frame may introduce a new key whose value is a sequence, such as <code>&quot;b&quot;: [1, 2, 3, 4]</code>.</p>
+<p>Each value returned by reading through integer indexing must be array-equivalent to the sequence stored for that frame, and it must have the same element order and length. There is no requirement for a specific concrete return container type or numeric dtype.</p>
+<h5>Snapshot semantics for each frame</h5>
+<p>The <code>info</code> values that an <code>Atoms</code> object holds at the moment it is appended must be preserved for that frame. If the original object’s dictionaries, lists, or info keys are mutated at a later point, previously appended frames must not be altered.</p>
+<p>Therefore, if an object is appended while it holds a two-entry value, is then changed to a three-entry value, and is appended once more, indexing the first frame must still yield the original two-entry value while the second yields the updated value.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Update the molecule metadata round-trip behavior exposed by znh5md.IO.</span>
-        <span class="spec-meta muted">190 words · source specification
+        <span class="spec-title">Modify the molecule metadata round-trip behavior that znh5md.IO exposes.</span>
+        <span class="spec-meta muted">211 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the molecule metadata round-trip behavior exposed by <code>znh5md.IO</code>.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Change to implement</h4>
+<p>Modify the molecule metadata round-trip behavior that <code>znh5md.IO</code> exposes.</p>
+<h5>Public interface</h5>
 <ul>
 <li><code>znh5md.IO(file_handle, ...)</code></li>
 <li><code>IO.append(molecule)</code></li>
 <li><code>IO.__getitem__(index: int)</code></li>
 </ul>
-<p>The molecules are ASE-style objects exposing metadata through <code>molecule.info</code>.</p>
-<h5>Required behavior</h5>
-<p>When a molecule is appended and later retrieved by integer index:</p>
+<p>The molecules are ASE-style objects that expose metadata through <code>molecule.info</code>.</p>
+<h5>Behavior requirements</h5>
+<p>Whenever a molecule is appended and later fetched by integer index:</p>
 <ol>
 <li>
-<p>A string-only dictionary stored in <code>molecule.info</code> must round-trip without conversion to bytes or loss of entries.</p>
+<p>If a dictionary containing only strings is stored in <code>molecule.info</code>, it must round-trip with neither conversion to bytes nor loss of entries.</p>
 <pre><code class="language-python">molecule.info[&quot;elements&quot;] = {&quot;H&quot;: &quot;H&quot;, &quot;O&quot;: &quot;O&quot;}
 io.append(molecule)
 
 restored = io[3]
 </code></pre>
-<p><code>restored.info[&quot;elements&quot;]</code> must compare equal to:</p>
+<p><code>restored.info[&quot;elements&quot;]</code> must compare equal to the following:</p>
 <pre><code class="language-python">{&quot;H&quot;: &quot;H&quot;, &quot;O&quot;: &quot;O&quot;}
 </code></pre>
-<p>Both dictionary keys and values must be text strings.</p>
+<p>Both the dictionary keys and the values must be text strings.</p>
 </li>
 <li>
-<p>A sequence of strings stored in <code>molecule.info</code> must round-trip with the same element order and values.</p>
+<p>If a sequence of strings is stored in <code>molecule.info</code>, it must round-trip with the same element order and the same values.</p>
 <pre><code class="language-python">molecule.info[&quot;elements&quot;] = [&quot;H&quot;, &quot;O&quot;]
 io.append(molecule)
 
 restored = io[3]
 </code></pre>
-<p><code>restored.info[&quot;elements&quot;]</code> must compare element-wise equal to <code>[&quot;H&quot;, &quot;O&quot;]</code> using NumPy array comparison. The returned container type is not constrained, but its elements must be text strings rather than byte strings.</p>
+<p>Using NumPy array comparison, <code>restored.info[&quot;elements&quot;]</code> must compare element-wise equal to <code>[&quot;H&quot;, &quot;O&quot;]</code>. The type of the returned container is not constrained, but its elements must be text strings rather than byte strings.</p>
 </li>
 </ol>
-<p>These values may be added on a later append after earlier records have already been written; the newly appended record must remain accessible at its corresponding integer index. No behavior for dictionaries with mixed key types is required.</p>
+<p>These values may be added on a later append, after earlier records have already been written; the record that was newly appended must remain accessible at its corresponding integer index. No behavior is required for dictionaries with mixed key types.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">The public class znh5md.IO must support NumPy int64 scalar values as indices.</span>
-        <span class="spec-meta muted">81 words · source specification
+        <span class="spec-title">NumPy int64 scalar values must be supported as indices by the public class znh5md.IO.</span>
+        <span class="spec-meta muted">100 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-none" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>The public class <code>znh5md.IO</code> must support NumPy <code>int64</code> scalar values as indices.</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>NumPy <code>int64</code> scalar values must be supported as indices by the public class <code>znh5md.IO</code>.</p>
 <h5>Public API</h5>
 <ul>
 <li><code>znh5md.IO(path)</code></li>
 <li><code>IO.append(atoms)</code></li>
-<li><code>IO.__getitem__(index)</code>, used as <code>io[index]</code></li>
+<li><code>IO.__getitem__(index)</code>, with the usage form <code>io[index]</code></li>
 </ul>
-<h5>Required behavior</h5>
-<p>Given an <code>IO</code> instance containing exactly one appended structure:</p>
+<h5>Behavior that is required</h5>
+<p>For an <code>IO</code> instance that contains exactly one appended structure:</p>
 <ul>
-<li><code>io[np.int64(0)]</code> must return a non-<code>None</code> item.</li>
-<li><code>io[np.int64(-1)]</code> must return a non-<code>None</code> item.</li>
-<li><code>io[np.int64(1)]</code> must raise <code>IndexError</code>.</li>
-<li><code>io[np.int64(-2)]</code> must raise <code>IndexError</code>.</li>
+<li>Accessing <code>io[np.int64(0)]</code> must return an item that is not <code>None</code>.</li>
+<li>Accessing <code>io[np.int64(-1)]</code> must return an item that is not <code>None</code>.</li>
+<li>Accessing <code>io[np.int64(1)]</code> must raise <code>IndexError</code>.</li>
+<li>Accessing <code>io[np.int64(-2)]</code> must raise <code>IndexError</code>.</li>
 </ul>
-<p>Thus, <code>numpy.int64</code> indices must follow the same valid positive-index, negative-index, and out-of-range behavior as ordinary integer sequence indices.</p>
+<p>Consequently, <code>numpy.int64</code> indices must exhibit the same valid positive-index, negative-index, and out-of-range behavior as ordinary integer sequence indices.</p>
 </div>
     </details>
   </div>

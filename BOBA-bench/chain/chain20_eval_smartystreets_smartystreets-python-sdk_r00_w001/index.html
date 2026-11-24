@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/smartystreets/smartystreets-python-sdk/compare/18b45cdc248ea81175aa64619245d9cc6d8e3beb...7522ce32d8c2a84d731cb0f6f4d695331e5b7bf9" target="_blank" rel="noopener" class="mono">18b45cdc24 … 7522ce32d8</a> · 160 commits by 22 authors over 3.9 y (2020-08-18 to 2024-07-05)</dd></div>
       <div><dt>Window:</dt><dd>requests 21–40 of a run of 42 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>2,478 lines of code in 100 files when the chain starts · over the 20 requests the developers added 1,917 and removed 502 lines of code, plus 406 lines of tests (67 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>7.6k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 15 and symbols introduced by earlier ones to depth 5</dd></div>
+      <div><dt>Specifications:</dt><dd>8.3k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 15 and symbols introduced by earlier ones to depth 5</dd></div>
     </dl>
   </header>
 </section>
@@ -144,191 +144,195 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">US Reverse Geo API Client</span>
-        <span class="spec-meta muted">332 words · source specification
+        <span class="spec-title">Client for the US Reverse Geo API</span>
+        <span class="spec-meta muted">377 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: US Reverse Geo API Client</h3>
-<h4>Overview</h4>
-<p>Implement a new client package for a US Reverse Geo API within the <code>smartystreets_python_sdk</code> library. This package allows sending a lookup consisting of geographic coordinates (latitude and longitude) to a backend service.</p>
-<h4>Package Structure</h4>
-<p>Create a new package at:</p>
+      <div class="spec-body"><h3>Task Specification: Client for the US Reverse Geo API</h3>
+<h4>Summary</h4>
+<p>Inside the <code>smartystreets_python_sdk</code> library, implement a new client package for a US Reverse Geo API. The package provides the ability to send a lookup made up of geographic coordinates (latitude and longitude) to a backend service.</p>
+<h4>Package Layout</h4>
+<p>Create a new package at this location:</p>
 <pre><code>smartystreets_python_sdk/us_reverse_geo/
 </code></pre>
-<p>The following names must be importable directly from <code>smartystreets_python_sdk.us_reverse_geo</code>:</p>
+<p>It must be possible to import the following names directly from <code>smartystreets_python_sdk.us_reverse_geo</code>:</p>
 <ul>
 <li><code>Lookup</code></li>
 <li><code>Client</code></li>
 <li><code>Response</code></li>
 </ul>
-<h4>Required Components</h4>
-<h5><code>Lookup</code></h5>
-<p>A class representing a reverse-geo lookup by coordinates.</p>
-<p><strong>Constructor signature:</strong></p>
+<h4>Components Required</h4>
+<h5>The <code>Lookup</code> class</h5>
+<p>A class that represents a reverse-geo lookup by coordinates.</p>
+<p><strong>Signature of the constructor:</strong></p>
 <pre><code class="language-python">Lookup(latitude, longitude)
 </code></pre>
 <ul>
-<li>Accepts a <code>latitude</code> and a <code>longitude</code> (numeric values).</li>
-<li>Stores these values so they are accessible/usable by the <code>Client</code> when building a request.</li>
+<li>Accepts a <code>latitude</code> and a <code>longitude</code>, which are numeric values.</li>
+<li>Stores these values so that the <code>Client</code> can access/use them when it builds a request.</li>
 </ul>
-<h5><code>Client</code></h5>
-<p>A class responsible for sending a <code>Lookup</code> to the backend.</p>
-<p><strong>Constructor signature:</strong></p>
+<h5>The <code>Client</code> class</h5>
+<p>A class whose job is to send a <code>Lookup</code> to the backend.</p>
+<p><strong>Signature of the constructor:</strong></p>
 <pre><code class="language-python">Client(sender, serializer)
 </code></pre>
 <ul>
-<li><code>sender</code>: an object with a <code>send(request)</code> method. When <code>send</code> is invoked, it receives a request object; that request object exposes a <code>parameters</code> dictionary (a mapping of parameter name to value) which the client populates.</li>
-<li><code>serializer</code>: a deserializer object (used for processing responses).</li>
+<li><code>sender</code>: an object that has a <code>send(request)</code> method. When <code>send</code> is invoked, it is given a request object; that request object exposes a <code>parameters</code> dictionary (a mapping of parameter name to value), and the client populates it.</li>
+<li><code>serializer</code>: a deserializer object (used to process responses).</li>
 </ul>
 <p><strong>Method:</strong></p>
 <pre><code class="language-python">Client.send(lookup)
 </code></pre>
-<p>Behavior when <code>send</code> is called with a <code>Lookup</code>:</p>
+<p>What happens when <code>send</code> is called with a <code>Lookup</code>:</p>
 <ul>
 <li>
-<p>Construct a request and pass it to the sender's <code>send</code> method.</p>
+<p>Build a request and pass it to the <code>send</code> method of the sender.</p>
 </li>
 <li>
-<p>The request's <code>parameters</code> dictionary must contain the following keys, populated from the <code>Lookup</code>:</p>
+<p>The <code>parameters</code> dictionary of the request must contain the following keys, populated from the <code>Lookup</code>:</p>
 <ul>
-<li><code>'latitude'</code>: the lookup's latitude value, <strong>rounded to 8 decimal places</strong>.</li>
-<li><code>'longitude'</code>: the lookup's longitude value, <strong>rounded to 8 decimal places</strong>.</li>
+<li><code>'latitude'</code>: the latitude value of the lookup, <strong>rounded to 8 decimal places</strong>.</li>
+<li><code>'longitude'</code>: the longitude value of the lookup, <strong>rounded to 8 decimal places</strong>.</li>
 </ul>
-<p>For example, a latitude of <code>44.888888888</code> must appear in <code>parameters['latitude']</code> as <code>44.88888889</code>, and a longitude of <code>-111.111111111</code> must appear in <code>parameters['longitude']</code> as <code>-111.11111111</code>.</p>
+<p>As an example, a latitude of <code>44.888888888</code> must appear in <code>parameters['latitude']</code> as <code>44.88888889</code>, and a longitude of <code>-111.111111111</code> must appear in <code>parameters['longitude']</code> as <code>-111.11111111</code>.</p>
 </li>
 </ul>
-<h5><code>Response</code></h5>
-<p>A class representing the response from the US Reverse Geo API. It must be importable from the package namespace. No specific behavior beyond being importable and constructible is exercised.</p>
-<h4>Notes</h4>
+<h5>The <code>Response</code> class</h5>
+<p>A class that represents the response from the US Reverse Geo API. This class must be importable from the package namespace. Beyond being importable and constructible, no specific behavior is exercised.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The <code>sender.send</code> method is guaranteed to be called exactly once per <code>Client.send</code> invocation, with a single request argument whose <code>parameters</code> attribute is a mutable dictionary.</li>
-<li>Rounding must be applied to the coordinate values before they are placed into the request parameters.</li>
+<li>The <code>sender.send</code> method is guaranteed to be called exactly once per <code>Client.send</code> invocation, and the argument handed to it is a single request whose <code>parameters</code> attribute is a mutable dictionary.</li>
+<li>The coordinate values must be rounded before they are placed into the request parameters.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Add support for a new field, dpv_no_stat, to the US Street address analysis data model.</span>
-        <span class="spec-meta muted">233 words · source specification
+        <span class="spec-title">Introduce support for a new field, dpv_no_stat, in the US Street address analysis data model.</span>
+        <span class="spec-meta muted">233 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add support for a new field, <code>dpv_no_stat</code>, to the US Street address analysis data model.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Objective</h4>
+<p>Introduce support for a new field, <code>dpv_no_stat</code>, in the US Street address analysis data model.</p>
 <h4>Location</h4>
-<p>The <code>Analysis</code> class used by the US Street API within the SmartyStreets Python SDK. This class is responsible for parsing a dictionary of address analysis data (as returned by the API) into an object with named attributes.</p>
+<p>The <code>Analysis</code> class that the US Street API uses within the SmartyStreets Python SDK. Its responsibility is to parse a dictionary of address analysis data (as returned by the API) into an object with named attributes.</p>
 <h4>Required Behavior</h4>
-<p>The <code>Analysis</code> class is constructed from a single dictionary argument containing address analysis fields. Each field in the dictionary is mapped to a corresponding attribute on the resulting object.</p>
-<p>Add handling for a new field keyed <code>&quot;dpv_no_stat&quot;</code> in the input dictionary. When the <code>Analysis</code> object is constructed:</p>
+<p>The <code>Analysis</code> class is built from a single dictionary argument holding address analysis fields. Each field in the dictionary gets mapped to the corresponding attribute on the resulting object.</p>
+<p>Add handling for the new field <code>&quot;dpv_no_stat&quot;</code> found in the input dictionary. When an <code>Analysis</code> object is constructed:</p>
 <ul>
-<li>The value associated with the dictionary key <code>&quot;dpv_no_stat&quot;</code> must be exposed as the attribute <code>dpv_no_stat</code> on the <code>Analysis</code> instance.</li>
-<li>The value must be preserved exactly as provided (e.g., a string value such as <code>&quot;N&quot;</code> must be accessible unchanged via <code>instance.dpv_no_stat</code>).</li>
-<li>If the key is absent from the input dictionary, the attribute must still exist and default to <code>None</code> (consistent with how other optional fields on this class behave).</li>
+<li>The value stored under the dictionary key <code>&quot;dpv_no_stat&quot;</code> must be exposed as the attribute <code>dpv_no_stat</code> on the <code>Analysis</code> instance.</li>
+<li>The value must be preserved exactly as provided (e.g., a string value such as <code>&quot;N&quot;</code> must be accessible unchanged through <code>instance.dpv_no_stat</code>).</li>
+<li>If the key is missing from the input dictionary, the attribute must still exist and default to <code>None</code> (matching the way other optional fields on this class behave).</li>
 </ul>
-<p>All existing fields and their current behavior must remain unchanged.</p>
+<p>Every existing field and its current behavior must remain unchanged.</p>
 <h4>Public API Surface</h4>
 <ul>
-<li>Class: <code>Analysis</code> (the US Street analysis model class).</li>
-<li>New public attribute: <code>dpv_no_stat</code>, populated from the input dictionary key <code>&quot;dpv_no_stat&quot;</code>.</li>
+<li>Class: <code>Analysis</code> (the model class for US Street analysis).</li>
+<li>New public attribute: <code>dpv_no_stat</code>, sourced from the input dictionary key <code>&quot;dpv_no_stat&quot;</code>.</li>
 </ul>
-<p>The <code>Analysis</code> instance is reachable in normal usage as the <code>analysis</code> attribute of a US Street candidate object.</p>
+<p>In ordinary usage, the <code>Analysis</code> instance is reachable as the <code>analysis</code> attribute of a US Street candidate object.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You must modify the license-handling behavior in a request-sending component so that license values are attached to outgoing requests under the correct…</span>
-        <span class="spec-meta muted">207 words · source specification
+        <span class="spec-title">You must change the license-handling behavior of a component that sends requests so that outgoing requests have license values attached under the correct…</span>
+        <span class="spec-meta muted">221 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must modify the license-handling behavior in a request-sending component so that license values are attached to outgoing requests under the correct query-string parameter name.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and usable exactly as described:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You must change the license-handling behavior of a component that sends requests so that outgoing requests have license values attached under the correct query-string parameter name.</p>
+<h4>Public API</h4>
+<p>The items below must be importable and usable exactly as described:</p>
 <ul>
-<li>A module <code>smarty</code> exposing a class <code>RequestsSender</code>.</li>
-<li><code>RequestsSender</code> must provide a <code>send(request)</code> method that accepts a request object.</li>
-<li>The request object passed to <code>send</code> exposes a mutable dictionary attribute named <code>parameters</code>.</li>
+<li>A module <code>smarty</code> that exposes a class <code>RequestsSender</code>.</li>
+<li><code>RequestsSender</code> must supply a <code>send(request)</code> method that accepts a request object.</li>
+<li>The request object given to <code>send</code> exposes a mutable dictionary attribute that is named <code>parameters</code>.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When <code>RequestsSender.send(request)</code> is called with a request that carries one or more license values, the sender must serialize those licenses and store them into the request's <code>parameters</code> dictionary.</p>
-<p>Specifically:</p>
+<h4>Behavior Requirements</h4>
+<p>When <code>RequestsSender.send(request)</code> is called with a request that contains one or more license values, the sender must serialize those licenses and store them into the <code>parameters</code> dictionary of the request.</p>
+<p>To be precise:</p>
 <ul>
-<li>The licenses must be written to <code>request.parameters</code> under the key <strong><code>licenses</code></strong> (plural).</li>
-<li>When multiple license values are present, they must be joined into a single comma-separated string with no surrounding spaces (e.g., three license values <code>one</code>, <code>two</code>, <code>three</code> must produce the string <code>&quot;one,two,three&quot;</code>).</li>
+<li>The licenses must be written into <code>request.parameters</code> under the key <strong><code>licenses</code></strong> (plural).</li>
+<li>When multiple license values are present, they must be joined together into a single comma-separated string with no surrounding spaces (e.g., the three license values <code>one</code>, <code>two</code>, <code>three</code> must produce the string <code>&quot;one,two,three&quot;</code>).</li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>The key name is exactly <code>licenses</code>; the previously-used key name must no longer be the one under which the value is stored.</li>
-<li>Only the parameter key naming and the comma-joined serialization of license values are in scope for this task. No other request parameters or behaviors are affected.</li>
+<li>The key name is exactly <code>licenses</code>; the key name that was used previously must no longer be the one under which the value is stored.</li>
+<li>Only the parameter key naming and the comma-joined serialization of license values fall within the scope of this task. No other request parameters or behaviors are impacted.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Implement the SDK&#39;s license-parameter behavior in the license sender decorator.</span>
-        <span class="spec-meta muted">374 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The SDK&#39;s license-parameter behavior is to be implemented in the license sender decorator.</span>
+        <span class="spec-meta muted">397 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement the SDK's license-parameter behavior in the license sender decorator. License values configured on the decorator must be serialized onto an outgoing request under the API's singular <code>license</code> parameter name, after which the request must continue through the wrapped sender chain.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>The SDK's license-parameter behavior is to be implemented in the license sender decorator. License values configured on the decorator must be serialized onto an outgoing request under the API's singular <code>license</code> parameter name. After that, the request must continue through the wrapped sender chain.</p>
 <h4>Public API</h4>
-<h5>Package export</h5>
-<p>The root <code>smartystreets_python_sdk</code> package (commonly imported as <code>smarty</code>) must expose <code>LicenseSender</code>:</p>
+<h5>Export from the package</h5>
+<p><code>LicenseSender</code> must be exposed by the root <code>smartystreets_python_sdk</code> package (commonly imported as <code>smarty</code>):</p>
 <pre><code class="language-python">import smartystreets_python_sdk as smarty
 
 sender = smarty.LicenseSender(licenses, inner_sender)
 </code></pre>
-<p><code>LicenseSender</code> accepts two constructor arguments:</p>
+<p><code>LicenseSender</code> accepts the following two constructor arguments:</p>
 <ul>
-<li><code>licenses</code>: a collection, such as a list, whose entries are individual license strings.</li>
-<li><code>inner_sender</code>: a wrapped sender object exposing <code>send(request)</code>.</li>
+<li><code>licenses</code>: a collection (such as a list) whose entries are individual license strings.</li>
+<li><code>inner_sender</code>: a wrapped sender object that exposes <code>send(request)</code>.</li>
 </ul>
-<p>The existing <code>RequestsSender</code> API, including no-argument construction with <code>smarty.RequestsSender()</code>, remains available and may be used as the inner sender. It is not the component from which license values are obtained.</p>
+<p>The existing <code>RequestsSender</code> API — including no-argument construction with <code>smarty.RequestsSender()</code> — remains available and may be used as the inner sender. License values are not obtained from it.</p>
 <h5><code>LicenseSender.send(request)</code></h5>
-<p><code>request</code> must expose a <code>parameters</code> attribute that behaves as a mutable mapping with string keys.</p>
-<p>For a non-empty constructor-supplied license collection, <code>send</code> must:</p>
+<p><code>request</code> must expose a <code>parameters</code> attribute behaving as a mutable mapping with string keys.</p>
+<p>When the constructor-supplied license collection is non-empty, <code>send</code> must:</p>
 <ol>
-<li>Serialize the license entries in collection order by joining them with commas and no surrounding spaces.</li>
-<li>Set the resulting string in <code>request.parameters</code> under the exact key <code>license</code> (singular). It must not use the key <code>licenses</code>.</li>
-<li>Perform this mutation before passing the same request to <code>inner_sender.send(request)</code>.</li>
-<li>Return the value returned by the inner sender.</li>
+<li>Serialize the license entries in collection order, joining them with commas and no surrounding spaces.</li>
+<li>Set the resulting string in <code>request.parameters</code> under the exact key <code>license</code> (singular). The key <code>licenses</code> must not be used.</li>
+<li>Carry out this mutation before passing the same request to <code>inner_sender.send(request)</code>.</li>
+<li>Return the value that the inner sender returns.</li>
 </ol>
-<p>Setting <code>license</code> replaces any previous value associated with that same key. Parameters under other keys must remain intact.</p>
-<p>For example, constructor-supplied licenses <code>['one', 'two', 'three']</code> must result in:</p>
+<p>Setting <code>license</code> replaces any previous value that was associated with that same key. Parameters under other keys must remain intact.</p>
+<p>For instance, constructor-supplied licenses <code>['one', 'two', 'three']</code> must result in:</p>
 <pre><code class="language-python">request.parameters['license'] == 'one,two,three'
 </code></pre>
-<h5>Empty license collection</h5>
-<p>An empty collection represents the absence of configured license information. In this case, <code>send</code> must:</p>
+<h5>Empty collection of licenses</h5>
+<p>An empty collection signifies the absence of configured license information. In this situation, <code>send</code> must:</p>
 <ul>
 <li>not add a <code>license</code> parameter;</li>
-<li>not insert an empty string or a plural <code>licenses</code> parameter;</li>
-<li>leave the request's parameter mapping unchanged by the license decorator; and</li>
+<li>insert neither an empty string nor a plural <code>licenses</code> parameter;</li>
+<li>keep the request's parameter mapping unchanged by the license decorator; and</li>
 <li>still forward the request to the inner sender and return its result.</li>
 </ul>
-<p>Consequently, if <code>license</code> was absent before sending with an empty collection, it must remain absent, and the operation must not fail merely because there are no licenses to combine.</p>
-<h4>Behavioral Ownership and Compatibility</h4>
-<p>License values come from the <code>LicenseSender</code> constructor, not from an attribute on the request and not from <code>RequestsSender</code>. <code>RequestsSender</code> and all unrelated request transport, serialization, retry, custom-header, client, and response behavior must remain unchanged.</p>
+<p>As a result, if <code>license</code> was absent before sending with an empty collection, it must remain absent, and the operation must not fail merely because there are no licenses to combine.</p>
+<h4>Ownership of Behavior and Compatibility</h4>
+<p>License values come from the <code>LicenseSender</code> constructor; they do not come from an attribute on the request, and they do not come from <code>RequestsSender</code>.</p>
+<p><code>RequestsSender</code>, together with all unrelated request transport, serialization, retry, custom-header, client, and response behavior, must remain unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">The Analysis component of the US Street address service must be extended to support two additional integration fields returned in the analysis portion of a…</span>
-        <span class="spec-meta muted">289 words · source specification
+        <span class="spec-title">The Analysis component of the US Street address service must be extended so that it supports two additional integration fields that are returned in the…</span>
+        <span class="spec-meta muted">306 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>The <code>Analysis</code> component of the US Street address service must be extended to support two additional integration fields returned in the analysis portion of a candidate result.</p>
-<h4>Required Changes</h4>
-<h5><code>Analysis</code> class (US Street)</h5>
-<p>The <code>Analysis</code> class used to represent the analysis data of a US Street address candidate must accept and expose two additional fields sourced from an incoming dictionary of analysis data.</p>
-<p>When the <code>Analysis</code> object is constructed from a dictionary of raw analysis values, it must read the following keys and store them as instance attributes:</p>
+<p>The <code>Analysis</code> component of the US Street address service must be extended so that it supports two additional integration fields that are returned in the analysis portion of a candidate result.</p>
+<h4>Required Modifications</h4>
+<h5>The <code>Analysis</code> class (US Street)</h5>
+<p>The <code>Analysis</code> class, which represents the analysis data of a US Street address candidate, must accept and expose two additional fields taken from an incoming dictionary of analysis data.</p>
+<p>Upon construction from a dictionary of raw analysis values, the <code>Analysis</code> object must read the following keys and store them as instance attributes:</p>
 <table>
 <thead>
 <tr>
-<th>Source dictionary key</th>
+<th>Key in the source dictionary</th>
 <th>Instance attribute</th>
 </tr>
 </thead>
@@ -343,89 +347,90 @@ sender = smarty.LicenseSender(licenses, inner_sender)
 </tr>
 </tbody>
 </table>
-<p>The values must be stored exactly as provided (string values pass through unchanged). If a key is absent from the source dictionary, the corresponding attribute must still exist (defaulting appropriately, consistent with the existing fields on this class).</p>
-<h4>Behavioral Requirements</h4>
+<p>The values must be stored exactly as they are provided (string values are passed through unchanged). When a key is not present in the source dictionary, the corresponding attribute must still exist (with an appropriate default, consistent with the existing fields on this class).</p>
+<h4>Required Behavior</h4>
 <ul>
-<li>When a candidate is parsed from a service response whose <code>analysis</code> object contains <code>match_mode</code> and <code>match_details</code> string values, the resulting candidate's <code>analysis</code> attribute must expose those exact values via <code>analysis.match_mode</code> and <code>analysis.match_details</code>.</li>
-<li>These new fields must coexist with all existing analysis attributes (e.g., footnotes, LACSLink code/indicator, SuiteLink match, and the other pre-existing analysis fields), which must continue to behave as before.</li>
+<li>When a candidate is parsed from a service response in which the <code>analysis</code> object contains <code>match_mode</code> and <code>match_details</code> string values, the <code>analysis</code> attribute of the resulting candidate must expose those exact values through <code>analysis.match_mode</code> and <code>analysis.match_details</code>.</li>
+<li>The new fields must coexist with all existing analysis attributes (e.g., footnotes, LACSLink code/indicator, SuiteLink match, and the other pre-existing analysis fields), and those attributes must continue to behave as before.</li>
 </ul>
 <h4>Scope</h4>
 <ul>
-<li>Only the addition of the <code>match_mode</code> and <code>match_details</code> attributes to the US Street <code>Analysis</code> class is in scope.</li>
-<li>No other classes, parsing logic, or fields should be altered beyond what is needed to expose these two attributes.</li>
+<li>The only change in scope is the addition of the <code>match_mode</code> and <code>match_details</code> attributes to the US Street <code>Analysis</code> class.</li>
+<li>Beyond what is needed to expose these two attributes, no other classes, parsing logic, or fields should be altered.</li>
 </ul>
-<p>&lt;sub&gt;(A Makefile update referenced in the change history relates to Python version support and is not verified by any behavior described here; no such change is required by this specification.)&lt;/sub&gt;</p>
+<p>&lt;sub&gt;(A Makefile update mentioned in the change history concerns Python version support and is not verified by any of the behavior described here; this specification requires no such change.)&lt;/sub&gt;</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Modify the US Street address analysis data model to change how a specific match-related field is represented when parsing an API response.</span>
-        <span class="spec-meta muted">268 words · source specification
+        <span class="spec-title">Update the data model for US Street address analysis so that the representation of one specific match-related field changes when an API response is parsed.</span>
+        <span class="spec-meta muted">300 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the US Street address analysis data model to change how a specific match-related field is represented when parsing an API response.</p>
-<h4>Required Change</h4>
-<p>In the US Street analysis component, an <code>Analysis</code> object is constructed from a dictionary (parsed from a JSON API response). This object currently exposes attributes derived from keys in that dictionary.</p>
-<p>You must update the field handling so that:</p>
+<p>Update the data model for US Street address analysis so that the representation of one specific match-related field changes when an API response is parsed.</p>
+<h4>Change That Is Required</h4>
+<p>Within the US Street analysis component, an <code>Analysis</code> object is built from a dictionary (obtained by parsing a JSON API response). At present, this object exposes attributes that are derived from keys in that dictionary.</p>
+<p>You must update how the fields are handled so that:</p>
 <ol>
-<li>A JSON response key named <code>enhanced_match</code> maps to an attribute named <code>enhanced_match</code> on the analysis object.</li>
-<li>The previously existing attributes <code>match_mode</code> and <code>match_details</code> must no longer exist on the analysis object.</li>
+<li>A key named <code>enhanced_match</code> from the JSON response maps to an attribute called <code>enhanced_match</code> on the analysis object.</li>
+<li>The attributes <code>match_mode</code> and <code>match_details</code>, which existed previously, must no longer exist on the analysis object.</li>
 </ol>
-<h4>Behavior Details</h4>
-<p>Given a candidate analysis dictionary that contains the key <code>&quot;enhanced_match&quot;</code> with a string value, the resulting analysis object must expose that value through an attribute named <code>enhanced_match</code>.</p>
-<p>For example, if the analysis portion of the response contains:</p>
+<h4>Details of the Behavior</h4>
+<p>When a candidate analysis dictionary contains the key <code>&quot;enhanced_match&quot;</code> with a string value, the analysis object that results must expose that value through an attribute called <code>enhanced_match</code>.</p>
+<p>As an example, if the analysis portion of the response contains:</p>
 <pre><code class="language-json">{
     &quot;enhanced_match&quot;: &quot;enhanced_match&quot;
 }
 </code></pre>
-<p>then accessing <code>analysis.enhanced_match</code> on the constructed object must return <code>&quot;enhanced_match&quot;</code>.</p>
-<p>The keys <code>&quot;match_mode&quot;</code> and <code>&quot;match_details&quot;</code> are no longer part of the model. The attributes <code>match_mode</code> and <code>match_details</code> must be removed and must not be populated.</p>
+<p>then looking up <code>analysis.enhanced_match</code> on the constructed object must return <code>&quot;enhanced_match&quot;</code>.</p>
+<p>The keys <code>&quot;match_mode&quot;</code> and <code>&quot;match_details&quot;</code> no longer belong to the model. The attributes <code>match_mode</code> and <code>match_details</code> must be removed, and they must not be populated.</p>
 <h4>Scope</h4>
 <ul>
-<li>All other existing analysis attributes (e.g. those derived from keys such as <code>lacslink_code</code>, <code>lacslink_indicator</code>, <code>suitelink_match</code>, etc.) must continue to function exactly as before.</li>
-<li>This change affects only the <code>enhanced_match</code>/<code>match_mode</code>/<code>match_details</code> handling within the US Street <code>Analysis</code> model.</li>
+<li>All other analysis attributes that already exist (for example, the ones derived from keys such as <code>lacslink_code</code>, <code>lacslink_indicator</code>, <code>suitelink_match</code>, etc.) must continue to work exactly as they did before.</li>
+<li>Only the <code>enhanced_match</code>/<code>match_mode</code>/<code>match_details</code> handling within the US Street <code>Analysis</code> model is affected by this change.</li>
 </ul>
 <h4>API Surface</h4>
-<p>The <code>Analysis</code> class used by the US Street client for candidate analysis must:</p>
+<p>The <code>Analysis</code> class, which the US Street client uses for candidate analysis, must:</p>
 <ul>
-<li>Accept a dictionary during construction (as it currently does).</li>
-<li>Expose an <code>enhanced_match</code> attribute populated from the dictionary key <code>&quot;enhanced_match&quot;</code>.</li>
-<li>No longer expose <code>match_mode</code> or <code>match_details</code> attributes.</li>
+<li>Accept a dictionary when constructed (in the same way it does now).</li>
+<li>Expose an <code>enhanced_match</code> attribute that is populated from the dictionary key <code>&quot;enhanced_match&quot;</code>.</li>
+<li>No longer expose the attributes <code>match_mode</code> or <code>match_details</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Create a new subpackage, smartystreets_python_sdk.international_autocomplete, that provides a client for querying the international address autocomplete API.</span>
-        <span class="spec-meta muted">653 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Introduce a new subpackage, smartystreets_python_sdk.international_autocomplete, that supplies a client for querying the international address autocomplete…</span>
+        <span class="spec-meta muted">751 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Implement International Autocomplete Client</h4>
-<p>Create a new subpackage, <code>smartystreets_python_sdk.international_autocomplete</code>, that provides a client for querying the international address autocomplete API. The subpackage must expose <code>Client</code>, <code>Lookup</code>, and <code>Suggestion</code> so that all three names can be imported directly from <code>smartystreets_python_sdk.international_autocomplete</code>.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Build the International Autocomplete Client</h4>
+<p>Introduce a new subpackage, <code>smartystreets_python_sdk.international_autocomplete</code>, that supplies a client for querying the international address autocomplete API. <code>Client</code>, <code>Lookup</code>, and <code>Suggestion</code> must be exposed by the subpackage such that all three names can be imported directly from <code>smartystreets_python_sdk.international_autocomplete</code>.</p>
 <h4><code>Lookup</code></h4>
-<p><code>Lookup</code> represents one international autocomplete query.</p>
+<p>A <code>Lookup</code> stands for a single international autocomplete query.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">Lookup(search=None)
 </code></pre>
-<p>The optional positional argument initializes the query's search text. If it is omitted, <code>search</code> defaults to <code>None</code>.</p>
-<p>Every <code>Lookup</code> must provide the following publicly readable and writable attributes. Unless assigned another value, each defaults to <code>None</code>:</p>
+<p>The optional positional argument supplies the initial value of the query's search text. If the argument is left out, <code>search</code> defaults to <code>None</code>.</p>
+<p>Every <code>Lookup</code> must provide the attributes below, all of them publicly readable and writable. Unless another value has been assigned, each of them defaults to <code>None</code>:</p>
 <ul>
-<li><code>search</code> — the query prefix, initialized from the constructor argument.</li>
-<li><code>country</code> — an optional country restriction.</li>
-<li><code>administrative_area</code> — an optional administrative-area restriction.</li>
-<li><code>locality</code> — an optional locality restriction.</li>
-<li><code>postal_code</code> — an optional postal-code restriction.</li>
-<li><code>result</code> — the parsed suggestions associated with this lookup after a successful send.</li>
+<li><code>search</code> — the prefix for the query, given its initial value by the constructor argument.</li>
+<li><code>country</code> — an optional restriction by country.</li>
+<li><code>administrative_area</code> — an optional restriction by administrative area.</li>
+<li><code>locality</code> — an optional restriction by locality.</li>
+<li><code>postal_code</code> — an optional restriction by postal code.</li>
+<li><code>result</code> — the parsed suggestions belonging to this lookup after a successful send.</li>
 </ul>
 <h4><code>Suggestion</code></h4>
-<p><code>Suggestion</code> represents one returned address suggestion.</p>
+<p>A <code>Suggestion</code> stands for a single address suggestion that has been returned.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">Suggestion(obj)
 </code></pre>
-<p><code>obj</code> is a dictionary. The constructor must read the following keys and expose their values through attributes with the same names:</p>
+<p><code>obj</code> is a dictionary. The constructor must read the keys listed below and expose their values by way of attributes bearing the same names:</p>
 <ul>
 <li><code>street</code></li>
 <li><code>locality</code></li>
@@ -433,95 +438,95 @@ sender = smarty.LicenseSender(licenses, inner_sender)
 <li><code>postal_code</code></li>
 <li><code>country_iso3</code></li>
 </ul>
-<p>If any listed key is absent from <code>obj</code>, its corresponding attribute must be <code>None</code>.</p>
+<p>If any listed key does not appear in <code>obj</code>, the attribute corresponding to it must be <code>None</code>.</p>
 <h4><code>Client</code></h4>
-<p><code>Client</code> sends a <code>Lookup</code> to the API and associates parsed suggestions with that same lookup.</p>
+<p><code>Client</code> sends a <code>Lookup</code> to the API and ties the parsed suggestions to that same lookup.</p>
 <h5>Constructor</h5>
 <pre><code class="language-python">Client(sender, serializer)
 </code></pre>
 <ul>
-<li><code>sender</code> is an object providing <code>send(request)</code>. It returns a response object with a <code>payload</code> attribute containing the raw response body and an <code>error</code> attribute containing either <code>None</code> on success or an error to be raised.</li>
-<li><code>serializer</code> is an object providing <code>deserialize(payload)</code>, which converts the raw response body into result data.</li>
+<li><code>sender</code> is an object that provides <code>send(request)</code>. It returns a response object whose <code>payload</code> attribute contains the raw response body and whose <code>error</code> attribute contains either <code>None</code> on success or an error to be raised.</li>
+<li><code>serializer</code> is an object that provides <code>deserialize(payload)</code>, which takes the raw response body and converts it into result data.</li>
 </ul>
 <h5><code>send</code></h5>
 <pre><code class="language-python">client.send(lookup)
 </code></pre>
-<p>The method must behave as follows, in this order:</p>
+<p>The method must behave in the manner described below, carrying out the steps in this order:</p>
 <ol>
 <li>
-<p><strong>Reject a blank lookup.</strong> If <code>lookup.search</code> is missing or empty (including <code>None</code>), raise <code>smartystreets_python_sdk.exceptions.SmartyException</code>. Do not send a request for such a lookup.</p>
+<p><strong>Reject a lookup that is blank.</strong> When <code>lookup.search</code> is missing or empty (<code>None</code> included), raise <code>smartystreets_python_sdk.exceptions.SmartyException</code>. Do not send a request for a lookup of this kind.</p>
 </li>
 <li>
-<p><strong>Build the request.</strong> For a valid lookup, create a request with parameters mapped as follows:</p>
+<p><strong>Construct the request.</strong> Given a valid lookup, create a request with its parameters mapped in the following way:</p>
 <table>
 <thead>
 <tr>
 <th>Lookup attribute</th>
 <th>Request parameter</th>
-<th>Inclusion</th>
+<th>When to include</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>search</code></td>
 <td><code>search</code></td>
-<td>Always include for a valid lookup.</td>
+<td>Always included for a valid lookup.</td>
 </tr>
 <tr>
 <td><code>country</code></td>
 <td><code>country</code></td>
-<td>Include only when the attribute has a value.</td>
+<td>Include only if the attribute has a value.</td>
 </tr>
 <tr>
 <td><code>administrative_area</code></td>
 <td><code>include_only_administrative_area</code></td>
-<td>Include only when the attribute has a value.</td>
+<td>Include only if the attribute has a value.</td>
 </tr>
 <tr>
 <td><code>locality</code></td>
 <td><code>include_only_locality</code></td>
-<td>Include only when the attribute has a value.</td>
+<td>Include only if the attribute has a value.</td>
 </tr>
 <tr>
 <td><code>postal_code</code></td>
 <td><code>include_only_postal_code</code></td>
-<td>Include only when the attribute has a value.</td>
+<td>Include only if the attribute has a value.</td>
 </tr>
 </tbody>
 </table>
-<p>An unset optional attribute must not create its corresponding request parameter.</p>
+<p>If an optional attribute is unset, its corresponding request parameter must not be created.</p>
 </li>
 <li>
-<p><strong>Send the request.</strong> Pass the built request to <code>sender.send(request)</code>. If <code>sender.send</code> itself raises an exception, allow that exception to propagate unchanged.</p>
+<p><strong>Send the request.</strong> Hand the request that was built to <code>sender.send(request)</code>. If an exception is raised by <code>sender.send</code> itself, let that exception propagate unchanged.</p>
 </li>
 <li>
-<p><strong>Handle errors carried by the response.</strong> After <code>sender.send</code> returns, inspect the response's <code>error</code> attribute before attempting deserialization. If it contains an error (that is, it is set to a non-<code>None</code> exception value or exception type), raise that supplied error directly rather than wrapping or replacing it. An error response must not be deserialized, and it must not assign suggestions to or otherwise treat the lookup as successfully completed. This rule applies even if the response also has a payload.</p>
+<p><strong>Handle errors that the response carries.</strong> After <code>sender.send</code> returns, examine the response's <code>error</code> attribute prior to any deserialization being attempted. If that attribute contains an error (that is, it is set to a non-<code>None</code> exception value or exception type), raise the supplied error directly instead of wrapping it or replacing it. An error response must not be deserialized, and it must not assign suggestions to the lookup or otherwise treat the lookup as successfully completed. This rule still applies even if the response also has a payload.</p>
 </li>
 <li>
-<p><strong>Deserialize a successful response.</strong> Pass <code>response.payload</code> directly to <code>serializer.deserialize(...)</code>.</p>
+<p><strong>Deserialize a successful response.</strong> Supply <code>response.payload</code> directly to <code>serializer.deserialize(...)</code>.</p>
 </li>
 <li>
-<p><strong>Convert and assign results.</strong> The deserialized successful value is a list of dictionaries. Convert each dictionary, in order, to a <code>Suggestion</code>, then assign the resulting list to <code>lookup.result</code>. Thus, after a successful non-empty response, <code>lookup.result</code> is a list of <code>Suggestion</code> objects whose attributes preserve the corresponding dictionary values. For example, the first suggestion's <code>street</code> equals the first dictionary's <code>street</code> value. If the deserialized value is empty or otherwise falsy, no suggestions are produced and the lookup's result must remain an empty or absent result rather than containing placeholder entries.</p>
+<p><strong>Convert the results and assign them.</strong> The value obtained from a successful deserialization is a list of dictionaries. Convert each dictionary, in sequence, into a <code>Suggestion</code>, then assign the list that results to <code>lookup.result</code>. So, following a successful non-empty response, <code>lookup.result</code> is a list of <code>Suggestion</code> objects whose attributes preserve the values from the corresponding dictionaries. As an example, the first suggestion's <code>street</code> equals the <code>street</code> value of the first dictionary. If the deserialized value is empty or is otherwise falsy, no suggestions are produced, and the lookup's result must remain an empty or absent result rather than one that contains placeholder entries.</p>
 </li>
 </ol>
-<h4>Existing SDK Types</h4>
-<p><code>smartystreets_python_sdk.Response</code>, <code>smartystreets_python_sdk.exceptions.SmartyException</code>, and <code>smartystreets_python_sdk.exceptions.BadCredentialsError</code> already exist. Use their established public contracts; do not redefine them as part of this subpackage.</p>
+<h4>SDK Types That Already Exist</h4>
+<p>The types <code>smartystreets_python_sdk.Response</code>, <code>smartystreets_python_sdk.exceptions.SmartyException</code>, and <code>smartystreets_python_sdk.exceptions.BadCredentialsError</code> are already in existence. Rely on their established public contracts; do not redefine them inside this subpackage.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
         <span class="spec-title">US Street Address Lookup</span>
-        <span class="spec-meta muted">535 words · source specification
+        <span class="spec-meta muted">591 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: US Street Address Lookup</h3>
+      <div class="spec-body"><h3>Specification: US Street Address Lookup</h3>
 <h4>Overview</h4>
-<p>Implement/modify the US Street address lookup functionality in the SmartyStreets Python SDK so that a <code>Lookup</code> object correctly serializes its fields into request parameters when a lookup is sent through the client.</p>
+<p>The task is to implement or modify the US Street address lookup functionality in the SmartyStreets Python SDK so that, when a lookup is sent through the client, a <code>Lookup</code> object serializes its fields into request parameters correctly.</p>
 <h4>Public API Surface</h4>
-<h5><code>Lookup</code> class (US Street)</h5>
-<p>Module: <code>smartystreets_python_sdk.us_street</code> (importable as <code>from smartystreets_python_sdk.us_street import Lookup</code>)</p>
-<p>The <code>Lookup</code> class must be constructible with no arguments (<code>Lookup()</code>) and must expose the following writable attributes:</p>
+<h5>The <code>Lookup</code> class (US Street)</h5>
+<p>Module: <code>smartystreets_python_sdk.us_street</code> (importable via <code>from smartystreets_python_sdk.us_street import Lookup</code>)</p>
+<p>It must be possible to construct the <code>Lookup</code> class with no arguments (<code>Lookup()</code>), and the class must expose these writable attributes:</p>
 <ul>
 <li><code>street</code></li>
 <li><code>street2</code></li>
@@ -535,13 +540,13 @@ sender = smarty.LicenseSender(licenses, inner_sender)
 <li><code>match</code></li>
 <li><code>candidates</code></li>
 </ul>
-<h5><code>match_type</code> constants (US Street)</h5>
-<p>Module: <code>smartystreets_python_sdk.us_street</code> (accessible as a <code>match_type</code> namespace with named constants)</p>
-<p>Must provide at least the constant <code>ENHANCED</code>.</p>
-<h5>Client <code>send_lookup</code></h5>
-<p>The US Street client must expose a <code>send_lookup(lookup)</code> method that builds a request whose <code>parameters</code> dictionary is populated from the lookup's attributes as described below.</p>
+<h5>The <code>match_type</code> constants (US Street)</h5>
+<p>Module: <code>smartystreets_python_sdk.us_street</code> (available as a <code>match_type</code> namespace that provides named constants)</p>
+<p>It must provide at least the constant <code>ENHANCED</code>.</p>
+<h5><code>send_lookup</code> on the client</h5>
+<p>The US Street client must expose a method <code>send_lookup(lookup)</code> that builds a request in which the <code>parameters</code> dictionary is populated from the attributes of the lookup, as described below.</p>
 <h4>Required Behavior</h4>
-<p>When a <code>Lookup</code> is populated and passed to <code>send_lookup</code>, the resulting request's <code>parameters</code> mapping must contain the following keys with values derived from the corresponding lookup attributes:</p>
+<p>After a <code>Lookup</code> has been populated and passed to <code>send_lookup</code>, the <code>parameters</code> mapping on the resulting request must contain the following keys, each with a value derived from the corresponding lookup attribute:</p>
 <table>
 <thead>
 <tr>
@@ -554,313 +559,315 @@ sender = smarty.LicenseSender(licenses, inner_sender)
 <tr>
 <td><code>street</code></td>
 <td><code>lookup.street</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>street2</code></td>
 <td><code>lookup.street2</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>secondary</code></td>
 <td><code>lookup.secondary</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>city</code></td>
 <td><code>lookup.city</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>state</code></td>
 <td><code>lookup.state</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>zipcode</code></td>
 <td><code>lookup.zipcode</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>lastline</code></td>
 <td><code>lookup.lastline</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>addressee</code></td>
 <td><code>lookup.addressee</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>urbanization</code></td>
 <td><code>lookup.urbanization</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>match</code></td>
 <td><code>lookup.match</code></td>
-<td>The attribute value as-is</td>
+<td>The value of the attribute as-is</td>
 </tr>
 <tr>
 <td><code>candidates</code></td>
 <td><code>lookup.candidates</code></td>
-<td>See candidates rule below</td>
+<td>See the candidates rule below</td>
 </tr>
 </tbody>
 </table>
-<p>Each of the above values must appear in <code>parameters</code> exactly equal to what was assigned to the lookup attribute (string values pass through unchanged, including strings containing punctuation such as <code>&quot;1.1&quot;</code>).</p>
-<h5>Candidates default rule</h5>
-<p>The <code>candidates</code> field must have a default value of <code>5</code>. If the lookup's <code>candidates</code> attribute is left at its default (i.e., not explicitly set to a different value), the <code>candidates</code> parameter in the request must be the integer <code>5</code>.</p>
-<p>When <code>candidates</code> is assigned a specific integer value, that exact integer value must appear as the <code>candidates</code> parameter.</p>
-<p>The relevant construction context is: a lookup created with default <code>candidates</code>, and <code>match</code> set to <code>ENHANCED</code>, must produce a <code>candidates</code> parameter equal to the integer <code>5</code>. When <code>candidates</code> is explicitly assigned an integer, that integer value is used unchanged.</p>
-<h5>Match value</h5>
-<p>The <code>match</code> parameter must carry through the value assigned to <code>lookup.match</code> unchanged, including when it is the <code>ENHANCED</code> match-type constant.</p>
+<p>Every one of the values above must appear in <code>parameters</code> exactly equal to what was assigned to the lookup attribute (string values pass through unchanged, including strings that contain punctuation, such as <code>&quot;1.1&quot;</code>).</p>
+<h5>Default rule for candidates</h5>
+<p>The <code>candidates</code> field must come with a default value of <code>5</code>. If the lookup's <code>candidates</code> attribute is left at that default (i.e., not explicitly set to another value), the <code>candidates</code> parameter in the request must be the integer <code>5</code>.</p>
+<p>If a specific integer value is assigned to <code>candidates</code>, the <code>candidates</code> parameter must be that exact integer value.</p>
+<p>The construction context this applies to is: a lookup created with default <code>candidates</code> and <code>match</code> set to <code>ENHANCED</code> must produce a <code>candidates</code> parameter equal to the integer <code>5</code>. When <code>candidates</code> is explicitly assigned an integer, that integer value is used unchanged.</p>
+<h5>The match value</h5>
+<p>The <code>match</code> parameter must carry over the value assigned to <code>lookup.match</code> unchanged, including when that value is the <code>ENHANCED</code> match-type constant.</p>
 <h4>Notes</h4>
 <ul>
-<li>Values assigned as strings must remain strings in the parameters; integer values must remain integers.</li>
-<li>No transformation, formatting, or coercion of the pass-through fields beyond direct assignment is required.</li>
+<li>Values that were assigned as strings must remain strings in the parameters; values that are integers must remain integers.</li>
+<li>The pass-through fields require no transformation, formatting, or coercion beyond direct assignment.</li>
 </ul>
-<h4>Additional Requirements</h4>
+<h4>Extra Requirements</h4>
 <ul>
-<li>When <code>lookup.match</code> is set to <code>match_type.ENHANCED</code>, the request parameter <code>candidates</code> must be the integer <code>5</code>, even if <code>lookup.candidates</code> was explicitly assigned a different value, such as the integer <code>1</code>.</li>
-<li>This <code>ENHANCED</code>-match rule takes precedence over the general rule that explicitly assigned <code>candidates</code> values pass through unchanged.</li>
+<li>If <code>lookup.match</code> is set to <code>match_type.ENHANCED</code>, the request parameter <code>candidates</code> must be the integer <code>5</code>, even if a different value was explicitly assigned to <code>lookup.candidates</code>, such as the integer <code>1</code>.</li>
+<li>This <code>ENHANCED</code>-match rule takes precedence over the general rule under which explicitly assigned <code>candidates</code> values pass through unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">International Autocomplete Candidate Handling</span>
-        <span class="spec-meta muted">371 words · source specification
+        <span class="spec-title">Handling of International Autocomplete Candidates</span>
+        <span class="spec-meta muted">406 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: International Autocomplete Candidate Handling</h3>
+      <div class="spec-body"><h3>Task Specification: Handling of International Autocomplete Candidates</h3>
 <h4>Overview</h4>
-<p>You must modify the international autocomplete functionality in the <code>smartystreets_python_sdk</code> package. The changes involve renaming a class and updating how the client extracts results from a deserialized response.</p>
-<h4>Requirement 1: Rename <code>Suggestion</code> to <code>Candidate</code></h4>
-<p>In the <code>smartystreets_python_sdk.international_autocomplete</code> package, there must be a class named <code>Candidate</code> that is importable directly from the package:</p>
+<p>You must modify the international autocomplete functionality located in the <code>smartystreets_python_sdk</code> package. The changes consist of renaming a class and updating the way the client extracts results from a deserialized response.</p>
+<h4>Requirement 1: Renaming <code>Suggestion</code> to <code>Candidate</code></h4>
+<p>The <code>smartystreets_python_sdk.international_autocomplete</code> package must contain a class named <code>Candidate</code> that is importable directly from the package:</p>
 <pre><code class="language-python">from smartystreets_python_sdk.international_autocomplete import Candidate
 </code></pre>
 <h5>Behavior</h5>
-<p>The <code>Candidate</code> class constructor accepts a single argument: a dictionary of response fields. Upon construction, it must populate instance attributes from the corresponding dictionary keys:</p>
+<p>The constructor of the <code>Candidate</code> class accepts a single argument: a dictionary containing response fields. During construction, it must populate instance attributes using the corresponding dictionary keys:</p>
 <ul>
-<li><code>street</code> — from the <code>&quot;street&quot;</code> key</li>
-<li><code>locality</code> — from the <code>&quot;locality&quot;</code> key</li>
-<li><code>administrative_area</code> — from the <code>&quot;administrative_area&quot;</code> key</li>
-<li><code>postal_code</code> — from the <code>&quot;postal_code&quot;</code> key</li>
-<li><code>country_iso3</code> — from the <code>&quot;country_iso3&quot;</code> key</li>
+<li><code>street</code> — taken from the <code>&quot;street&quot;</code> key</li>
+<li><code>locality</code> — taken from the <code>&quot;locality&quot;</code> key</li>
+<li><code>administrative_area</code> — taken from the <code>&quot;administrative_area&quot;</code> key</li>
+<li><code>postal_code</code> — taken from the <code>&quot;postal_code&quot;</code> key</li>
+<li><code>country_iso3</code> — taken from the <code>&quot;country_iso3&quot;</code> key</li>
 </ul>
-<p>Given a dictionary such as:</p>
+<p>Given a dictionary such as the following:</p>
 <pre><code class="language-python">{&quot;street&quot;: &quot;1&quot;, &quot;locality&quot;: &quot;2&quot;, &quot;administrative_area&quot;: &quot;3&quot;, &quot;postal_code&quot;: &quot;4&quot;, &quot;country_iso3&quot;: &quot;5&quot;}
 </code></pre>
-<p>Constructing a <code>Candidate</code> from it must yield an object whose <code>.street</code> equals <code>&quot;1&quot;</code>, <code>.locality</code> equals <code>&quot;2&quot;</code>, <code>.administrative_area</code> equals <code>&quot;3&quot;</code>, <code>.postal_code</code> equals <code>&quot;4&quot;</code>, and <code>.country_iso3</code> equals <code>&quot;5&quot;</code>. The constructed object must not be <code>None</code>.</p>
-<p>This class replaces the previously named <code>Suggestion</code> class; the old name is no longer required.</p>
-<h4>Requirement 2: Client Result Extraction</h4>
-<p>The international autocomplete client sends a lookup and receives a deserialized response. The deserialized response is now a dictionary whose candidate entries are located under the key <code>&quot;candidates&quot;</code> (rather than being the top-level list itself).</p>
+<p>Building a <code>Candidate</code> from it must yield an object whose <code>.street</code> equals <code>&quot;1&quot;</code>, <code>.locality</code> equals <code>&quot;2&quot;</code>, <code>.administrative_area</code> equals <code>&quot;3&quot;</code>, <code>.postal_code</code> equals <code>&quot;4&quot;</code>, and <code>.country_iso3</code> equals <code>&quot;5&quot;</code>. The object produced this way must not be <code>None</code>.</p>
+<p>This class takes the place of the previously named <code>Suggestion</code> class; the old name is no longer required.</p>
+<h4>Requirement 2: Extraction of Results by the Client</h4>
+<p>The client for international autocomplete sends a lookup and then receives a deserialized response. That deserialized response is now a dictionary whose candidate entries are found under the key <code>&quot;candidates&quot;</code> (rather than being the top-level list itself).</p>
 <h5>Behavior</h5>
-<p>When the client processes a lookup, the deserialized payload is a dictionary of the form:</p>
+<p>Whenever the client processes a lookup, the deserialized payload is a dictionary with the following form:</p>
 <pre><code class="language-python">{&quot;candidates&quot;: [ ... ]}
 </code></pre>
-<p>The client must read the list found under the <code>&quot;candidates&quot;</code> key and assign the resulting candidates to the corresponding lookup's result. If the deserialized payload does not contain a <code>&quot;candidates&quot;</code> list (e.g., it is absent or empty), the client must handle this gracefully without error, resulting in no candidates being assigned.</p>
-<p>The list under <code>&quot;candidates&quot;</code> contains dictionaries; each such dictionary is used to build a candidate result associated with the lookup.</p>
-<h4>Summary of Public API</h4>
+<p>The client must read the list found under the <code>&quot;candidates&quot;</code> key and assign the candidates obtained from it to the result of the corresponding lookup. If the deserialized payload does not contain a <code>&quot;candidates&quot;</code> list (for instance, when it is absent or empty), the client must handle this gracefully without error, and no candidates are assigned as a result.</p>
+<p>The list under <code>&quot;candidates&quot;</code> contains dictionaries; each of those dictionaries is used to build a candidate result associated with the lookup.</p>
+<h4>Public API Summary</h4>
 <ul>
-<li><code>smartystreets_python_sdk.international_autocomplete.Candidate</code> — class with constructor taking a response dictionary; exposes attributes <code>street</code>, <code>locality</code>, <code>administrative_area</code>, <code>postal_code</code>, <code>country_iso3</code>.</li>
-<li>The international autocomplete client's send logic must extract candidates from the <code>&quot;candidates&quot;</code> key of the deserialized dictionary response.</li>
+<li><code>smartystreets_python_sdk.international_autocomplete.Candidate</code> — a class whose constructor takes a response dictionary; it exposes the attributes <code>street</code>, <code>locality</code>, <code>administrative_area</code>, <code>postal_code</code>, <code>country_iso3</code>.</li>
+<li>The send logic of the international autocomplete client must extract candidates from the <code>&quot;candidates&quot;</code> key of the deserialized dictionary response.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">In smartystreets_python_sdk.retry_sender</span>
-        <span class="spec-meta muted">123 words · source specification
+        <span class="spec-title">Within smartystreets_python_sdk.retry_sender</span>
+        <span class="spec-meta muted">145 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>In <code>smartystreets_python_sdk.retry_sender</code>:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Within <code>smartystreets_python_sdk.retry_sender</code>:</p>
 <ul>
-<li>Preserve the public class <code>RetrySender</code>, constructed as <code>RetrySender(max_retries, inner_sender)</code>.</li>
-<li>Preserve its <code>send(request)</code> method, where <code>inner_sender.send(request)</code> returns an object with a <code>status_code</code>.</li>
-<li>Preserve the module-level callable <code>backoff(duration)</code> so it can be replaced or observed externally.</li>
+<li>Keep the public class <code>RetrySender</code>, which is constructed as <code>RetrySender(max_retries, inner_sender)</code>.</li>
+<li>Keep its <code>send(request)</code> method, in which <code>inner_sender.send(request)</code> returns an object that has a <code>status_code</code>.</li>
+<li>Keep the module-level callable <code>backoff(duration)</code> so that external code can replace it or observe it.</li>
 </ul>
-<p>When an attempt receives a response whose <code>status_code</code> is <code>429</code>:</p>
+<p>Whenever an attempt receives a response with a <code>status_code</code> of <code>429</code>:</p>
 <ol>
-<li>Call <code>smartystreets_python_sdk.retry_sender.backoff(5)</code> exactly once.</li>
-<li>Retry the request, subject to the configured retry count.</li>
+<li>Make exactly one call to <code>smartystreets_python_sdk.retry_sender.backoff(5)</code>.</li>
+<li>Perform a retry of the request, subject to the configured retry count.</li>
 </ol>
-<p>For example, with <code>max_retries=1</code> and inner responses of <code>429</code> followed by <code>200</code>, <code>send(request)</code> must complete after the second attempt, and the only backoff duration must be <code>5</code>.</p>
-<p>This rate-limit delay is fixed at <code>5</code>; it must not use the normal attempt-based backoff value. Existing normal retry backoff behavior remains unchanged, including capping backoff durations at <code>10</code>.</p>
+<p>As an example, given <code>max_retries=1</code> and inner responses of <code>429</code> followed by <code>200</code>, <code>send(request)</code> must complete after the second attempt, and <code>5</code> must be the only backoff duration.</p>
+<p>The rate-limit delay has a fixed value of <code>5</code>; the normal attempt-based backoff value must not be used for it. The existing backoff behavior for normal retries stays unchanged, including the cap that limits backoff durations to <code>10</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Extend the US Street response model to expose coordinate-license information returned for a candidate.</span>
-        <span class="spec-meta muted">85 words · source specification
+        <span class="spec-title">This change extends the US Street response model so that it exposes coordinate-license information returned for a candidate.</span>
+        <span class="spec-meta muted">99 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>US Street coordinate-license metadata</h4>
-<p>Extend the US Street response model to expose coordinate-license information returned for a candidate.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Coordinate-license metadata in US Street</h4>
+<p>This change extends the US Street response model so that it exposes coordinate-license information returned for a candidate.</p>
+<h5>Public API surface</h5>
 <ul>
 <li><code>smartystreets_python_sdk.us_street.client.Client(sender, serializer)</code></li>
 <li><code>Client.send_lookup(lookup)</code></li>
 <li><code>smartystreets_python_sdk.us_street.candidate.Candidate.metadata</code></li>
 <li><code>smartystreets_python_sdk.us_street.metadata.Metadata.coordinate_license</code></li>
 </ul>
-<h5>Required behavior</h5>
-<p>When a US Street lookup response contains a candidate with this metadata:</p>
+<h5>Behavior that is required</h5>
+<p>When a candidate with this metadata is present in a US Street lookup response:</p>
 <pre><code class="language-python">{
     &quot;coordinate_license&quot;: 1
 }
 </code></pre>
-<p>the candidate produced by <code>Client.send_lookup(lookup)</code> must expose the value through:</p>
+<p>the candidate that <code>Client.send_lookup(lookup)</code> produces must expose the value via:</p>
 <pre><code class="language-python">candidate.metadata.coordinate_license
 </code></pre>
-<p>For the example above, the attribute value must be the integer <code>1</code>, preserving the value supplied in the response metadata.</p>
+<p>For the example shown above, the value of the attribute must be the integer <code>1</code>, with the value supplied in the response metadata preserved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Update the smartystreets_python_sdk response and retry APIs so responses can carry headers and errors independently, existing two-argument response…</span>
-        <span class="spec-meta muted">884 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The smartystreets_python_sdk response and retry APIs are to be updated so that responses can carry headers and errors independently, the existing…</span>
+        <span class="spec-meta muted">987 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Update the <code>smartystreets_python_sdk</code> response and retry APIs so responses can carry headers and errors independently, existing two-argument response construction remains compatible, and HTTP 429 rate limiting uses the retry sender's maximum backoff step. Existing SDK behavior outside these response and retry contracts must remain unchanged.</p>
-<h4>1. <code>Response</code> public data model</h4>
-<p><code>Response</code> must remain importable with:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The <code>smartystreets_python_sdk</code> response and retry APIs are to be updated so that responses can carry headers and errors independently, the existing two-argument form of response construction remains compatible, and the retry sender's maximum backoff step is what HTTP 429 rate limiting uses. Existing SDK behavior that lies outside these response and retry contracts must remain unchanged.</p>
+<h4>1. The public data model of <code>Response</code></h4>
+<p><code>Response</code> must stay importable via:</p>
 <pre><code class="language-python">from smartystreets_python_sdk import Response
 </code></pre>
-<p>Its constructor must support this signature:</p>
+<p>The constructor must support the following signature:</p>
 <pre><code class="language-python">Response(payload, status_code, headers=None, error=None)
 </code></pre>
-<p>The values have the following meanings and must be exposed without transformation on attributes of the same names:</p>
+<p>The values have these meanings and must be exposed without transformation on attributes of the same names:</p>
 <ul>
 <li><code>payload</code> -&gt; <code>response.payload</code></li>
 <li><code>status_code</code> -&gt; <code>response.status_code</code></li>
 <li><code>headers</code> -&gt; <code>response.headers</code></li>
 <li><code>error</code> -&gt; <code>response.error</code></li>
 </ul>
-<p>The first two arguments remain required. Both trailing arguments are optional, preserving existing calls such as <code>Response(payload, status_code)</code>. In that two-argument form, both <code>response.headers</code> and <code>response.error</code> must be <code>None</code>. Three-argument construction assigns the third value to <code>headers</code>, not to <code>error</code>.</p>
-<p>All four positions may contain <code>None</code>. In particular, an error-only response can be represented as:</p>
+<p>The first two arguments are still required. Both trailing arguments are optional, which preserves existing calls such as <code>Response(payload, status_code)</code>. In that two-argument form, <code>response.headers</code> and <code>response.error</code> must both be <code>None</code>. When the constructor is given three arguments, it assigns the third value to <code>headers</code>, not to <code>error</code>.</p>
+<p>Every one of the four positions may contain <code>None</code>. In particular, a response that carries only an error can be represented like this:</p>
 <pre><code class="language-python">response = Response(None, None, None, some_error)
 assert response.error is some_error
 </code></pre>
-<p>The fourth value may be an exception or any other error value; <code>Response</code> must retain that value as supplied.</p>
-<h4>2. HTTP sender integration</h4>
-<p>Responses produced from a completed raw HTTP response must preserve all three transport values:</p>
+<p>The fourth value may be an exception or any other error value; <code>Response</code> must retain that value as it was supplied.</p>
+<h4>2. Integration with the HTTP sender</h4>
+<p>When a raw HTTP response has completed, the responses built from it must preserve all three transport values:</p>
 <ul>
 <li>the raw response text as <code>payload</code>;</li>
 <li>the raw status code as <code>status_code</code>; and</li>
 <li>the raw response headers as <code>headers</code>.</li>
 </ul>
-<p>The headers value must be preserved even when it is <code>None</code>. A raw response whose <code>headers</code> attribute is <code>None</code> is valid and must not cause response conversion to fail. No copying, parsing, or normalization of the headers is required.</p>
-<p>When the HTTP sender catches a transport exception, the resulting SDK response must place the exception in the fourth constructor position so it is available through <code>.error</code>; its payload, status code, and headers are <code>None</code>. This preserves the existing behavior of API clients that raise a non-null response error.</p>
-<h4>3. Module-level <code>backoff</code> function</h4>
-<p>The <code>smartystreets_python_sdk.retry_sender</code> module must expose:</p>
+<p>Even when it is <code>None</code>, the headers value must be preserved. A raw response whose <code>headers</code> attribute is <code>None</code> is valid, and it must not cause response conversion to fail. The headers require no copying, parsing, or normalization.</p>
+<p>If the HTTP sender catches a transport exception, the SDK response that results must put the exception into the fourth constructor position so that it is available through <code>.error</code>; its payload, status code, and headers are <code>None</code>. This is what keeps the existing behavior of API clients that raise a non-null response error in place.</p>
+<h4>3. The module-level <code>backoff</code> function</h4>
+<p>The <code>smartystreets_python_sdk.retry_sender</code> module must expose the function below:</p>
 <pre><code class="language-python">backoff(attempt, ignore_max=False)
 </code></pre>
 <ul>
-<li><code>attempt</code> supplies the wait-duration step.</li>
-<li><code>ignore_max</code> is optional, defaults to <code>False</code>, and must be accepted either positionally or by keyword.</li>
-<li>With the normal capped behavior, the effective wait must not exceed <code>RetrySender.MAX_BACKOFF_DURATION</code>, whose value is <code>10</code>. If <code>ignore_max=True</code>, the caller is explicitly requesting that the maximum-duration cap not be applied.</li>
+<li>The wait-duration step is what <code>attempt</code> supplies.</li>
+<li><code>ignore_max</code> is optional, has a default of <code>False</code>, and must be accepted either positionally or by keyword.</li>
+<li>Under the normal capped behavior, the effective wait must not exceed <code>RetrySender.MAX_BACKOFF_DURATION</code>, whose value is <code>10</code>. If <code>ignore_max=True</code>, the caller is explicitly requesting that the cap on maximum duration not be applied.</li>
 </ul>
-<p>The function remains responsible for performing the wait associated with the effective duration.</p>
-<h4>4. <code>RetrySender</code> behavior</h4>
-<p>The public retry component remains the class importable as:</p>
+<p>The function is still responsible for performing the wait tied to the effective duration.</p>
+<h4>4. The behavior of <code>RetrySender</code></h4>
+<p>The public retry component is still the class importable via:</p>
 <pre><code class="language-python">from smartystreets_python_sdk import RetrySender
 </code></pre>
-<p>It is constructed and used as follows:</p>
+<p>It is constructed and used this way:</p>
 <pre><code class="language-python">sender = RetrySender(max_retries, inner_sender)
 response = sender.send(request)
 </code></pre>
-<p><code>inner_sender</code> must provide <code>send(request)</code> and return a <code>Response</code>. Retry behavior belongs to <code>RetrySender.send(request)</code> itself. A separate module-level <code>send_with_retry(max_retries, sender)</code> API is not required.</p>
-<h5>General retry contract</h5>
+<p>The <code>inner_sender</code> must provide <code>send(request)</code> and return a <code>Response</code>. Retry behavior lives in <code>RetrySender.send(request)</code> itself. No separate module-level <code>send_with_retry(max_retries, sender)</code> API is required.</p>
+<h5>The general retry contract</h5>
 <ol>
-<li><code>send(request)</code> first calls <code>inner_sender.send(request)</code> once.</li>
-<li>A response with <code>status_code == 200</code> is returned immediately without backoff or another send. Success is determined by the status code; the retry sender must not clear or replace response fields, including <code>.error</code>.</li>
-<li>A response whose status code is not <code>200</code> is retried while retries remain. Before each retry, the retry sender invokes the module-level <code>backoff</code> callable.</li>
-<li>Every retry must pass the same request object originally supplied to <code>RetrySender.send</code>.</li>
-<li><code>max_retries</code> counts sends after the initial send. Thus, at most <code>max_retries + 1</code> sends occur. With zero retries, the first response is returned directly.</li>
-<li>If a later response has status <code>200</code>, that exact final response is returned. If the retry allowance is exhausted without a <code>200</code>, the exact last response is returned.</li>
+<li><code>send(request)</code> first calls <code>inner_sender.send(request)</code> a single time.</li>
+<li>When a response has <code>status_code == 200</code>, it is returned immediately without backoff or another send. The status code is what determines success; the retry sender must not clear or replace response fields, including <code>.error</code>.</li>
+<li>A response whose status code is not <code>200</code> is retried as long as retries remain. The retry sender invokes the module-level <code>backoff</code> callable before each retry.</li>
+<li>Each retry must pass the same request object that was originally supplied to <code>RetrySender.send</code>.</li>
+<li><code>max_retries</code> counts the sends that happen after the initial send. Therefore at most <code>max_retries + 1</code> sends take place. If there are zero retries, the first response is returned directly.</li>
+<li>If a later response has status <code>200</code>, that exact final response is the one returned. If the retry allowance is used up without a <code>200</code>, the exact last response is the one returned.</li>
 </ol>
-<p>For ordinary non-<code>200</code>, non-<code>429</code> responses, the backoff attempt values retain their zero-based progression: <code>0</code> before the first retry, then <code>1</code>, <code>2</code>, and so on. The effective ordinary wait remains capped at <code>10</code>. For example, four allowed retries after repeated ordinary failures produce four backoff steps corresponding to <code>0</code>, <code>1</code>, <code>2</code>, and <code>3</code>, followed by return of the fifth response if it is still unsuccessful.</p>
-<h5>HTTP 429 rate limiting</h5>
-<p>HTTP status <code>429</code> is retryable under the same retry allowance, but it has special backoff behavior. Before resending after a <code>429</code>, <code>RetrySender.send</code> must invoke the module-level <code>backoff</code> callable with a first argument of exactly <code>10</code>, the maximum backoff step. It must not use the old fixed value <code>5</code> or the ordinary zero-based retry index for this argument.</p>
-<p>Consequently, with one retry allowed and an inner sender that returns <code>429</code> followed by <code>200</code>:</p>
+<p>With ordinary non-<code>200</code>, non-<code>429</code> responses, the backoff attempt values keep their zero-based progression: <code>0</code> before the first retry, then <code>1</code>, <code>2</code>, and so on. The effective ordinary wait is still capped at <code>10</code>. For example, four allowed retries after repeated ordinary failures produce four backoff steps corresponding to <code>0</code>, <code>1</code>, <code>2</code>, and <code>3</code>, after which the fifth response is returned if it is still unsuccessful.</p>
+<h5>Rate limiting on HTTP 429</h5>
+<p>An HTTP status of <code>429</code> is retryable under the same retry allowance, but its backoff behavior is special. Before it resends after a <code>429</code>, <code>RetrySender.send</code> must invoke the module-level <code>backoff</code> callable with a first argument of exactly <code>10</code>, the maximum backoff step. For this argument, it must not use the old fixed value <code>5</code> or the ordinary zero-based retry index.</p>
+<p>As a result, with one retry allowed and an inner sender that returns <code>429</code> followed by <code>200</code>:</p>
 <ul>
-<li>the inner sender is called twice with the same request;</li>
-<li><code>backoff</code> is called once with first argument <code>10</code>; and</li>
-<li>the second, successful response is returned.</li>
+<li>the inner sender is called twice, with the same request both times;</li>
+<li><code>backoff</code> is called once, with <code>10</code> as the first argument; and</li>
+<li>the second response, the successful one, is returned.</li>
 </ul>
-<p>The retry sender must return the final response without discarding its error value. For example, if the sender's <code>429</code> and subsequent <code>200</code> responses are constructed with <code>&quot;Big bad&quot;</code> as their fourth value, the returned successful response must have <code>response.error == &quot;Big bad&quot;</code>.</p>
-<h4>Compatibility and scope</h4>
+<p>The final response must be returned by the retry sender without its error value being discarded. For example, if the sender's <code>429</code> and subsequent <code>200</code> responses are constructed with <code>&quot;Big bad&quot;</code> as their fourth value, the successful response that is returned must have <code>response.error == &quot;Big bad&quot;</code>.</p>
+<h4>Compatibility and scope of the changes</h4>
 <ul>
-<li>Existing two-argument <code>Response</code> calls must continue to work unchanged.</li>
-<li>Code that supplies headers uses the third constructor value; code that supplies an error uses the fourth value or the <code>error</code> keyword.</li>
-<li>Existing API clients must continue to raise errors obtained from <code>response.error</code> and otherwise continue their established serialization, request-building, and result-assignment behavior.</li>
-<li>Do not introduce unrelated changes to other SDK APIs or behavior.</li>
+<li>Two-argument <code>Response</code> calls that already exist must continue to work unchanged.</li>
+<li>When code supplies headers, it uses the third constructor value; when it supplies an error, it uses the fourth value or the <code>error</code> keyword.</li>
+<li>Existing API clients must continue to raise errors obtained from <code>response.error</code> and in other respects continue their established serialization, request-building, and result-assignment behavior.</li>
+<li>Do not make unrelated changes to other SDK APIs or behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Add New Fields to International Street Address Components and Lookup</span>
-        <span class="spec-meta muted">474 words · source specification
+        <span class="spec-title">New Fields for International Street Address Components and Lookup</span>
+        <span class="spec-meta muted">497 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add New Fields to International Street Address Components and Lookup</h3>
-<h4>Overview</h4>
-<p>You must extend the International Street functionality in two areas: the address <code>Components</code> class (used when parsing candidate responses) and the <code>Lookup</code> class (used when building requests). Specifically, new fields must be added and correctly populated/serialized.</p>
-<h4>Part 1: Components — New Fields</h4>
-<p>The <code>Components</code> class located in the international_street module parses a dictionary of address component data (as produced by deserializing a JSON response) and exposes each component as an attribute.</p>
-<p>Add support for the following four new fields. Each must be populated from the correspondingly-named key in the input component dictionary, and exposed as an instance attribute with the exact same name:</p>
+      <div class="spec-body"><h3>Task Specification: New Fields for International Street Address Components and Lookup</h3>
+<h4>Goal</h4>
+<p>You are required to extend the International Street functionality in two places: the address <code>Components</code> class (used to parse candidate responses) and the <code>Lookup</code> class (used to build requests). In particular, new fields must be added and correctly populated/serialized.</p>
+<h4>Part 1: Components — Additional Fields</h4>
+<p>The <code>Components</code> class, found in the international_street module, parses a dictionary of address component data (as produced by deserializing a JSON response), with each component exposed as an attribute.</p>
+<p>Add support for these four new fields. Each must be filled from the key of the same name in the input component dictionary and exposed as an instance attribute with exactly that name:</p>
 <ul>
-<li><code>administrative_area_short</code> — populated from the <code>administrative_area_short</code> key</li>
-<li><code>administrative_area_long</code> — populated from the <code>administrative_area_long</code> key</li>
-<li><code>level_type</code> — populated from the <code>level_type</code> key</li>
-<li><code>level_number</code> — populated from the <code>level_number</code> key</li>
+<li><code>administrative_area_short</code> — sourced from the <code>administrative_area_short</code> key</li>
+<li><code>administrative_area_long</code> — sourced from the <code>administrative_area_long</code> key</li>
+<li><code>level_type</code> — sourced from the <code>level_type</code> key</li>
+<li><code>level_number</code> — sourced from the <code>level_number</code> key</li>
 </ul>
-<p>These fields must behave consistently with the existing component fields:</p>
+<p>Their behavior must be consistent with that of the existing component fields:</p>
 <ul>
-<li>The value stored is exactly the value found under the matching key in the input dictionary (string values are preserved as-is).</li>
-<li>These fields are used both for the top-level parsed components of a candidate and for the components found within the &quot;changes&quot; (analysis) section of a candidate. The same <code>Components</code> class handles both cases, so adding the fields once must cover both.</li>
+<li>The stored value is exactly the value found under the matching key in the input dictionary (string values are preserved as-is).</li>
+<li>The fields apply both to the top-level parsed components of a candidate and to the components found in the &quot;changes&quot; (analysis) section of a candidate. Both cases are handled by the same <code>Components</code> class, so adding the fields once must cover both.</li>
 </ul>
-<h5>Context of usage</h5>
-<p>A candidate is constructed from a single element of a deserialized response. That candidate exposes a <code>components</code> attribute (an instance of <code>Components</code>) and, within its analysis data, a <code>changes.components</code> attribute (also an instance of <code>Components</code>). Both must expose the four new attributes with the values taken from their respective input dictionaries.</p>
+<h5>Usage context</h5>
+<p>A candidate is built from a single element of a deserialized response. That candidate exposes a <code>components</code> attribute (an instance of <code>Components</code>) and, inside its analysis data, a <code>changes.components</code> attribute (also an instance of <code>Components</code>). Both must expose the four new attributes, with the values sourced from their respective input dictionaries.</p>
 <h4>Part 2: Lookup — New <code>unit</code> Field</h4>
-<p>The <code>Lookup</code> class in the international_street module represents an address lookup request. Its attributes are used to populate the outgoing request's parameters.</p>
-<p>Add a new writable attribute named <code>unit</code> to the <code>Lookup</code> class:</p>
+<p>In the international_street module, the <code>Lookup</code> class represents an address lookup request. The outgoing request's parameters are populated from its attributes.</p>
+<p>Add to the <code>Lookup</code> class a new writable attribute named <code>unit</code>:</p>
 <ul>
-<li>The attribute must be settable and readable directly (e.g., assigning a string value to <code>lookup.unit</code>).</li>
-<li>Its default value when not explicitly set must not cause a parameter to be added under normal empty conditions (behave consistently with the other optional string address fields such as <code>address4</code>).</li>
-<li>When the lookup is sent, if <code>unit</code> has a value, the outgoing request parameters must include a key <code>unit</code> whose value equals the value assigned to <code>lookup.unit</code>.</li>
+<li>It must be possible to set and read the attribute directly (for example, assigning a string value to <code>lookup.unit</code>).</li>
+<li>When the attribute has not been explicitly set, its default value must not cause a parameter to be added under normal empty conditions (this means behaving consistently with the other optional string address fields, such as <code>address4</code>).</li>
+<li>If <code>unit</code> has a value at the time the lookup is sent, the outgoing request parameters must include a key <code>unit</code> whose value equals the value assigned to <code>lookup.unit</code>.</li>
 </ul>
-<p>The <code>unit</code> parameter must be serialized into the request parameters alongside the existing address fields (e.g., <code>address1</code> through <code>address4</code>, <code>organization</code>, <code>locality</code>, <code>administrative_area</code>, etc.), using the parameter key name <code>unit</code>.</p>
-<h4>Summary of Required Public API Additions</h4>
+<p>The <code>unit</code> parameter must be serialized into the request parameters alongside the existing address fields (for example, <code>address1</code> through <code>address4</code>, <code>organization</code>, <code>locality</code>, <code>administrative_area</code>, and so on), using the parameter key name <code>unit</code>.</p>
+<h4>Recap of Required Public API Additions</h4>
 <ul>
-<li><code>Components</code>: new instance attributes <code>administrative_area_short</code>, <code>administrative_area_long</code>, <code>level_type</code>, <code>level_number</code>, each sourced from the matching input dictionary key.</li>
-<li><code>Lookup</code>: new instance attribute <code>unit</code>, which when set is emitted as the request parameter <code>unit</code>.</li>
+<li>On <code>Components</code>: the new instance attributes <code>administrative_area_short</code>, <code>administrative_area_long</code>, <code>level_type</code>, <code>level_number</code>, each sourced from the matching input dictionary key.</li>
+<li>On <code>Lookup</code>: the new instance attribute <code>unit</code>, which, when set, is emitted as the request parameter <code>unit</code>.</li>
 </ul>
-<p>All existing fields and behavior must remain unchanged.</p>
+<p>All existing fields and behavior must stay unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">You are modifying the SmartyStreets Python SDK.</span>
-        <span class="spec-meta muted">486 words · source specification
+        <span class="spec-title">Your work is on the SmartyStreets Python SDK.</span>
+        <span class="spec-meta muted">526 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are modifying the SmartyStreets Python SDK. There are three areas to address, all within the international address APIs.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>Your work is on the SmartyStreets Python SDK. Three areas need changes, and all of them lie within the international address APIs.</p>
 <h4>1. International Autocomplete — Candidate</h4>
-<p><strong>Module:</strong> <code>smartystreets_python_sdk.international_autocomplete</code> — class <code>Candidate</code></p>
-<p>The <code>Candidate</code> class is constructed from a single dictionary argument (<code>Candidate(response_dictionary)</code>). It must read values from that dictionary and expose them as instance attributes.</p>
-<p>The constructor must populate the following attributes from the corresponding dictionary keys (using <code>dict.get</code>-style lookup so missing keys yield <code>None</code>):</p>
+<p><strong>Module:</strong> <code>smartystreets_python_sdk.international_autocomplete</code> — the <code>Candidate</code> class</p>
+<p>A <code>Candidate</code> is created by passing a single dictionary argument to the constructor (<code>Candidate(response_dictionary)</code>). The class must read the values out of that dictionary and expose them as instance attributes.</p>
+<p>From the matching dictionary keys, the constructor must populate these attributes (with <code>dict.get</code>-style lookups, so that a missing key yields <code>None</code>):</p>
 <table>
 <thead>
 <tr>
@@ -899,17 +906,17 @@ response = sender.send(request)
 </tr>
 </tbody>
 </table>
-<p>The two attributes that must be <strong>added</strong> in this task are <code>super_administrative_area</code> and <code>sub_administrative_area</code>.</p>
+<p>In this task, two attributes must be <strong>added</strong>: <code>super_administrative_area</code> and <code>sub_administrative_area</code>.</p>
 <h4>2. International Autocomplete — Client, Lookup, and Geolocation Type</h4>
-<p><strong>New module/class:</strong> <code>smartystreets_python_sdk.international_autocomplete.international_geolocate_type</code> — class <code>InternationalGeolocateType</code></p>
-<p>This class provides named string constants for geolocation modes. It must expose at least:</p>
+<p><strong>New module/class:</strong> <code>smartystreets_python_sdk.international_autocomplete.international_geolocate_type</code> — the <code>InternationalGeolocateType</code> class</p>
+<p>The class holds named string constants that represent geolocation modes. It must expose at least the following:</p>
 <ul>
-<li><code>InternationalGeolocateType.geocodes</code> with the string value <code>'geocodes'</code></li>
+<li><code>InternationalGeolocateType.geocodes</code>, having the string value <code>'geocodes'</code></li>
 </ul>
 <p><strong>Class:</strong> <code>smartystreets_python_sdk.international_autocomplete.Lookup</code></p>
-<p>The <code>Lookup</code> is constructed with a single positional search argument (<code>Lookup('1')</code>). It must support the following assignable attributes (settable after construction):</p>
+<p>A <code>Lookup</code> takes a single positional search argument at construction time (<code>Lookup('1')</code>). It must support the following assignable attributes (settable after construction):</p>
 <ul>
-<li><code>search</code> (set via the constructor argument)</li>
+<li><code>search</code> (assigned through the constructor argument)</li>
 <li><code>country</code></li>
 <li><code>max_results</code></li>
 <li><code>distance</code></li>
@@ -920,13 +927,13 @@ response = sender.send(request)
 <li><code>latitude</code></li>
 <li><code>longitude</code></li>
 </ul>
-<p>Default values for a freshly constructed <code>Lookup</code> must include:</p>
+<p>The default values carried by a freshly constructed <code>Lookup</code> must include:</p>
 <ul>
 <li><code>max_results</code> = <code>5</code></li>
 <li><code>distance</code> = <code>5</code></li>
 </ul>
 <p><strong>Class:</strong> <code>smartystreets_python_sdk.international_autocomplete.Client</code></p>
-<p>When <code>client.send(lookup)</code> is called, the client builds a request whose <code>parameters</code> dictionary is populated from the lookup. The mapping from lookup attributes to request parameter keys must be:</p>
+<p>Calling <code>client.send(lookup)</code> makes the client assemble a request whose <code>parameters</code> dictionary is populated from the lookup. Lookup attributes must map to the request parameter keys as follows:</p>
 <table>
 <thead>
 <tr>
@@ -977,115 +984,116 @@ response = sender.send(request)
 </tr>
 </tbody>
 </table>
-<p>Required behaviors:</p>
+<p>The following behaviors are required:</p>
 <ul>
-<li>Sending a <code>Lookup('1')</code> with no other attributes set produces <code>parameters['search'] == '1'</code>, <code>parameters['max_results'] == 5</code>, and <code>parameters['distance'] == 5</code> (the two numeric values come from the defaults).</li>
-<li>Sending a fully populated lookup produces request parameters equal to the assigned values. Values must be passed through with their native types preserved — numeric integers stay integers (e.g. <code>max_results = 7</code> → <code>parameters['max_results'] == 7</code>, <code>distance = 3</code> → <code>parameters['distance'] == 3</code>), floats stay floats (e.g. <code>latitude = 40.202830239007696</code>, <code>longitude = -111.62195073669359</code>), and strings stay strings.</li>
-<li><code>geolocation</code> set to <code>InternationalGeolocateType.geocodes</code> must appear in the request as <code>parameters['geolocation'] == 'geocodes'</code>.</li>
+<li>Sending a <code>Lookup('1')</code> with none of the other attributes set produces <code>parameters['search'] == '1'</code>, <code>parameters['max_results'] == 5</code>, and <code>parameters['distance'] == 5</code> (the two numeric values are taken from the defaults).</li>
+<li>Sending a fully populated lookup produces request parameters that are equal to the values assigned to the lookup. The values must be passed through with their native types preserved — numeric integers remain integers (e.g. <code>max_results = 7</code> → <code>parameters['max_results'] == 7</code>, <code>distance = 3</code> → <code>parameters['distance'] == 3</code>), floats remain floats (e.g. <code>latitude = 40.202830239007696</code>, <code>longitude = -111.62195073669359</code>), and strings remain strings.</li>
+<li>When <code>geolocation</code> has been set to <code>InternationalGeolocateType.geocodes</code>, it must appear in the request as <code>parameters['geolocation'] == 'geocodes'</code>.</li>
 </ul>
-<p>The client is constructed as <code>Client(sender, serializer)</code>.</p>
+<p>The client is constructed with the call <code>Client(sender, serializer)</code>.</p>
 <h4>3. International Street — Lookup</h4>
 <p><strong>Class:</strong> <code>smartystreets_python_sdk.international_street.Lookup</code></p>
-<p>Remove the <code>unit</code> attribute from this lookup and remove its corresponding <code>unit</code> request parameter. The international street lookup must no longer support or emit a <code>unit</code> field. All other existing fields (including <code>address1</code>–<code>address4</code>, <code>organization</code>, <code>locality</code>, <code>administrative_area</code>, and others already present) must remain unchanged in behavior.</p>
+<p>The <code>unit</code> attribute must be removed from this lookup, and the corresponding <code>unit</code> request parameter must be removed as well. The international street lookup must no longer support or emit a <code>unit</code> field. All other existing fields (including <code>address1</code>–<code>address4</code>, <code>organization</code>, <code>locality</code>, <code>administrative_area</code>, along with the others already present) must remain unchanged in behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">You will implement changes across several modules of a Python SDK.</span>
-        <span class="spec-meta muted">405 words · source specification
+        <span class="spec-title">In this task you will make changes spanning several modules of a Python SDK.</span>
+        <span class="spec-meta muted">438 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You will implement changes across several modules of a Python SDK. The following describes exactly the required public API surface and behavior.</p>
-<h4>1. US Street <code>MatchType</code> Enum</h4>
-<p>In the module <code>smartystreets_python_sdk.us_street.match_type</code>, provide a class named <code>MatchType</code> that is an enumeration. It must define at least the following member:</p>
+      <div class="spec-body"><p>In this task you will make changes spanning several modules of a Python SDK. What follows describes exactly the public API surface and behavior that is required.</p>
+<h4>1. The US Street <code>MatchType</code> enum</h4>
+<p>Within the module <code>smartystreets_python_sdk.us_street.match_type</code>, supply a class called <code>MatchType</code> that is an enumeration. It must define at least the following member:</p>
 <ul>
 <li><code>MatchType.ENHANCED</code></li>
 </ul>
-<p>The <code>.value</code> of <code>MatchType.ENHANCED</code> must be the string <code>&quot;enhanced&quot;</code>.</p>
-<p>This enum must be <strong>backward compatible</strong> with the previously-used hardcoded string values. That means:</p>
+<p>The <code>.value</code> carried by <code>MatchType.ENHANCED</code> must be the string <code>&quot;enhanced&quot;</code>.</p>
+<p>This enum must be <strong>backward compatible</strong> with the hardcoded string values that were previously used. That means:</p>
 <ul>
-<li>When a <code>MatchType</code> member is assigned as a lookup's match value and later serialized into request parameters, the value placed into the request parameters must be the underlying string value (e.g., the <code>match</code> parameter equals <code>MatchType.ENHANCED.value</code>, i.e. <code>&quot;enhanced&quot;</code>).</li>
-<li>Existing plain-string usage (e.g. assigning the raw string <code>&quot;enhanced&quot;</code>) must continue to work equivalently.</li>
+<li>When a <code>MatchType</code> member is assigned as a lookup's match value and is later serialized into request parameters, the value put into the request parameters must be the underlying string value (e.g., the <code>match</code> parameter equals <code>MatchType.ENHANCED.value</code>, i.e. <code>&quot;enhanced&quot;</code>).</li>
+<li>Existing usage of plain strings (e.g. assigning the raw string <code>&quot;enhanced&quot;</code>) must keep working equivalently.</li>
 </ul>
-<p>Concretely, when a US Street <code>Lookup</code> has its <code>match</code> attribute set to a <code>MatchType</code> member, the resulting request parameter <code>match</code> must equal that member's <code>.value</code> string.</p>
-<h4>2. International Autocomplete <code>InternationalGeolocateType</code> Enum</h4>
-<p>The enumeration <code>InternationalGeolocateType</code> (imported alongside the international autocomplete client code) must expose a member named <code>GEOCODES</code> (uppercase). Assigning <code>InternationalGeolocateType.GEOCODES</code> to a lookup's <code>geolocation</code> attribute must be a valid, supported value.</p>
-<h4>3. US Street <code>Candidate</code> — <code>smarty_key</code> field</h4>
-<p>The US Street <code>Candidate</code> class (<code>smartystreets_python_sdk.us_street.Candidate</code>) must support a <code>smarty_key</code> attribute. When a candidate is constructed from a response dictionary that includes a <code>&quot;smarty_key&quot;</code> key, the resulting <code>Candidate</code> object's <code>smarty_key</code> attribute must equal the value from that key (a string). This field sits alongside the existing candidate fields such as <code>delivery_line_1</code>, <code>delivery_line_2</code>, <code>last_line</code>, <code>delivery_point_barcode</code>, and <code>components</code>.</p>
-<h4>4. <code>RequestsSender</code> — context-manager response handling</h4>
-<p>The <code>RequestsSender</code> (accessible as <code>smartystreets_python_sdk.RequestsSender</code>) must send HTTP requests in a way that treats the underlying HTTP session's response as a context manager. Specifically, the object returned by the underlying session send call is used within a <code>with</code> block (i.e., its <code>__enter__</code>/<code>__exit__</code> are invoked), and the response data (status code, headers, and body/text) is read from that context-managed object.</p>
-<p>The observable behavior — parsing status code, headers, and payload into the SDK's <code>Response</code> object — must remain unchanged from before; only the requirement that the session-send result be entered as a context manager is added.</p>
-<h4>Import surfaces summary</h4>
-<p>The following must be importable and usable exactly as named:</p>
+<p>Concretely: when the <code>match</code> attribute of a US Street <code>Lookup</code> is set to a <code>MatchType</code> member, the resulting request parameter <code>match</code> must equal that member's <code>.value</code> string.</p>
+<h4>2. The <code>InternationalGeolocateType</code> enum for International Autocomplete</h4>
+<p>The <code>InternationalGeolocateType</code> enumeration (imported alongside the international autocomplete client code) must expose a member called <code>GEOCODES</code> (uppercase). Assigning <code>InternationalGeolocateType.GEOCODES</code> to the <code>geolocation</code> attribute of a lookup must be a valid, supported value.</p>
+<h4>3. The <code>smarty_key</code> field on the US Street <code>Candidate</code></h4>
+<p>The <code>Candidate</code> class for US Street (<code>smartystreets_python_sdk.us_street.Candidate</code>) must support a <code>smarty_key</code> attribute. When a candidate is built from a response dictionary that includes a <code>&quot;smarty_key&quot;</code> key, the <code>smarty_key</code> attribute of the resulting <code>Candidate</code> object must equal the value that comes from that key (a string). This field exists alongside the existing candidate fields such as <code>delivery_line_1</code>, <code>delivery_line_2</code>, <code>last_line</code>, <code>delivery_point_barcode</code>, and <code>components</code>.</p>
+<h4>4. Context-manager response handling in <code>RequestsSender</code></h4>
+<p><code>RequestsSender</code> (accessible as <code>smartystreets_python_sdk.RequestsSender</code>) must send HTTP requests such that the response of the underlying HTTP session is treated as a context manager. To be specific, the object that the underlying session send call returns is used inside a <code>with</code> block (i.e., its <code>__enter__</code>/<code>__exit__</code> are invoked), and the response data (status code, headers, and body/text) is read from that context-managed object.</p>
+<p>The observable behavior — parsing status code, headers, and payload into the SDK's <code>Response</code> object — must remain unchanged from before; the only change is the added requirement that the session-send result be entered as a context manager.</p>
+<h4>Summary of import surfaces</h4>
+<p>The items below must be importable and usable exactly as named:</p>
 <ul>
-<li><code>from smartystreets_python_sdk.us_street.match_type import MatchType</code> with member <code>MatchType.ENHANCED</code> whose <code>.value</code> is <code>&quot;enhanced&quot;</code>.</li>
-<li><code>from smartystreets_python_sdk.us_street import Client, Lookup, Candidate</code> (unchanged availability).</li>
+<li><code>from smartystreets_python_sdk.us_street.match_type import MatchType</code> with a member <code>MatchType.ENHANCED</code> whose <code>.value</code> is <code>&quot;enhanced&quot;</code>.</li>
+<li><code>from smartystreets_python_sdk.us_street import Client, Lookup, Candidate</code> (availability unchanged).</li>
 <li><code>smartystreets_python_sdk.RequestsSender</code>, <code>smartystreets_python_sdk.LicenseSender</code>, <code>smartystreets_python_sdk.Request</code>.</li>
-<li><code>InternationalGeolocateType.GEOCODES</code> for the international autocomplete lookup.</li>
+<li><code>InternationalGeolocateType.GEOCODES</code> for use with the international autocomplete lookup.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add support for selecting the Project USA output format for US Street address lookups in the SmartyStreets Python SDK.</span>
-        <span class="spec-meta muted">380 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Provide support in the SmartyStreets Python SDK for choosing the Project USA output format when performing US Street address lookups.</span>
+        <span class="spec-meta muted">421 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add support for selecting the Project USA output format for US Street address lookups in the SmartyStreets Python SDK. A lookup configured with this option must serialize it to the US Street request's <code>format</code> parameter without changing existing lookup or request behavior.</p>
-<h4>Required New Module and Enum</h4>
-<p>Create the module <code>smartystreets_python_sdk/us_street/output_format.py</code>.</p>
-<p>The module must define an enumeration class named <code>OutputFormat</code> with a member named <code>PROJECT_USA</code>. Its exact string value is:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Provide support in the SmartyStreets Python SDK for choosing the Project USA output format when performing US Street address lookups. A lookup that has this option configured must serialize it into the <code>format</code> parameter of the US Street request, with no change to existing lookup or request behavior.</p>
+<h4>New Module and Enum to Create</h4>
+<p>Create a module named <code>smartystreets_python_sdk/us_street/output_format.py</code>.</p>
+<p>The module must define an enumeration class named <code>OutputFormat</code> containing a member named <code>PROJECT_USA</code>. That member's exact string value is:</p>
 <pre><code class="language-python">OutputFormat.PROJECT_USA.value == &quot;project-usa&quot;
 </code></pre>
-<p>The spelling, capitalization, and hyphen in <code>&quot;project-usa&quot;</code> are part of the public wire-format contract. The enum must be importable as follows:</p>
+<p>The way <code>&quot;project-usa&quot;</code> is spelled—including its capitalization and its hyphen—forms part of the public wire-format contract. The enum must be importable in the following way:</p>
 <pre><code class="language-python">from smartystreets_python_sdk.us_street.output_format import OutputFormat
 </code></pre>
-<h4><code>Lookup</code> Public API</h4>
-<p>The existing <code>Lookup</code> class, importable with <code>from smartystreets_python_sdk.us_street import Lookup</code>, must expose a public, settable instance attribute named <code>outputformat</code>. Callers must be able to assign an <code>OutputFormat</code> member to it after constructing a lookup:</p>
+<h4>Public API of <code>Lookup</code></h4>
+<p>The <code>Lookup</code> class, which already exists and is importable via <code>from smartystreets_python_sdk.us_street import Lookup</code>, must expose a settable, public instance attribute named <code>outputformat</code>. After a lookup has been constructed, callers must be able to assign an <code>OutputFormat</code> member to it:</p>
 <pre><code class="language-python">lookup = Lookup()
 lookup.outputformat = OutputFormat.PROJECT_USA
 </code></pre>
-<p>The output-format option is optional. A lookup for which no output format has been selected must remain usable and must retain the prior request behavior; in particular, it must not force a <code>format</code> parameter into an otherwise unchanged request.</p>
-<h4>US Street Request Serialization</h4>
-<p>When a configured <code>Lookup</code> is submitted through <code>Client.send_lookup</code>, the request passed to the client's underlying sender must contain a parameter named <code>format</code>. Its value must be the <code>.value</code> of the <code>OutputFormat</code> member assigned to <code>lookup.outputformat</code>.</p>
-<p>Consequently, this configuration:</p>
+<p>Output format selection is optional. A lookup for which no output format has been chosen must continue to be usable and must keep the previous request behavior; in particular, it must not insert a <code>format</code> parameter into a request that would otherwise be unchanged.</p>
+<h4>Serialization of the US Street Request</h4>
+<p>Whenever a configured <code>Lookup</code> is submitted via <code>Client.send_lookup</code>, the request handed to the client's underlying sender must contain a parameter named <code>format</code>. The value of that parameter must be the <code>.value</code> of the <code>OutputFormat</code> member assigned to <code>lookup.outputformat</code>.</p>
+<p>As a result, the following configuration:</p>
 <pre><code class="language-python">lookup.outputformat = OutputFormat.PROJECT_USA
 client.send_lookup(lookup)
 </code></pre>
-<p>must produce the following parameter in the outgoing request:</p>
+<p>must generate the following parameter in the outgoing request:</p>
 <pre><code class="language-python">request.parameters[&quot;format&quot;] == &quot;project-usa&quot;
 </code></pre>
-<p>The public lookup attribute is named <code>outputformat</code> (without an underscore), while the HTTP parameter is named <code>format</code>.</p>
-<h4>Compatibility and Existing Behavior</h4>
-<p>Adding output-format support must not disturb any existing request fields or US Street client behavior. Existing lookup data must continue to map as before, including <code>input_id</code>, <code>street</code>, <code>street2</code>, <code>secondary</code>, <code>city</code>, <code>state</code>, <code>zipcode</code>, <code>lastline</code>, <code>addressee</code>, <code>urbanization</code>, <code>match</code>, and <code>candidates</code>. In particular:</p>
+<p>The public attribute on the lookup is named <code>outputformat</code> (without an underscore), whereas the HTTP parameter is named <code>format</code>.</p>
+<h4>Existing Behavior and Compatibility</h4>
+<p>The addition of output-format support must not disturb any existing request fields or US Street client behavior. The mapping of existing lookup data must continue as before, including <code>input_id</code>, <code>street</code>, <code>street2</code>, <code>secondary</code>, <code>city</code>, <code>state</code>, <code>zipcode</code>, <code>lastline</code>, <code>addressee</code>, <code>urbanization</code>, <code>match</code>, and <code>candidates</code>. Specifically:</p>
 <ul>
-<li>A <code>MatchType</code> value must continue to be serialized through its <code>.value</code> into the <code>match</code> parameter.</li>
-<li>Existing candidate-count behavior, including the behavior used with enhanced matching, must remain unchanged.</li>
-<li>Address lookup response deserialization, candidate assignment, batch handling, and error propagation must remain unchanged.</li>
+<li>A <code>MatchType</code> value must still be serialized through its <code>.value</code> into the <code>match</code> parameter.</li>
+<li>Candidate-count behavior that already exists, including the behavior used with enhanced matching, must remain unchanged.</li>
+<li>Deserialization of address lookup responses, assignment of candidates, batch handling, and error propagation must stay unchanged.</li>
 </ul>
-<p>The new <code>format</code> mapping is additive and must not rename, remove, replace, or otherwise alter existing parameters.</p>
+<p>The newly added <code>format</code> mapping is additive: it must not rename, remove, replace, or otherwise alter existing parameters.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Implement the following public behavior.</span>
-        <span class="spec-meta muted">326 words · source specification
+        <span class="spec-title">The public behavior described below must be implemented.</span>
+        <span class="spec-meta muted">381 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>International autocomplete v2 support</h3>
-<p>Implement the following public behavior.</p>
+      <div class="spec-body"><h3>Support for international autocomplete v2</h3>
+<p>The public behavior described below must be implemented.</p>
 <h4><code>Candidate</code></h4>
-<p>Expose <code>Candidate</code> from:</p>
+<p>Expose <code>Candidate</code> using this import:</p>
 <pre><code class="language-python">from smartystreets_python_sdk.international_autocomplete import Candidate
 </code></pre>
-<p>Constructor:</p>
+<p>The constructor is:</p>
 <pre><code class="language-python">Candidate(response_dictionary)
 </code></pre>
-<p>For a response dictionary, populate same-named public attributes without changing their values:</p>
+<p>Given a response dictionary, populate the public attributes with matching names, leaving their values unchanged:</p>
 <ul>
 <li><code>street</code></li>
 <li><code>locality</code></li>
@@ -1096,15 +1104,15 @@ client.send_lookup(lookup)
 <li><code>address_text</code></li>
 <li><code>address_id</code></li>
 </ul>
-<p>For example, the key <code>&quot;address_id&quot;: &quot;8&quot;</code> must result in <code>candidate.address_id == &quot;8&quot;</code>.</p>
-<h4>International autocomplete <code>Lookup</code> and <code>Client</code></h4>
-<p>Expose:</p>
+<p>As an example, the key <code>&quot;address_id&quot;: &quot;8&quot;</code> must result in <code>candidate.address_id == &quot;8&quot;</code>.</p>
+<h4><code>Lookup</code> and <code>Client</code> for international autocomplete</h4>
+<p>Expose the following:</p>
 <pre><code class="language-python">from smartystreets_python_sdk.international_autocomplete import Client, Lookup
 </code></pre>
-<p><code>Lookup</code> must support:</p>
+<p><code>Lookup</code> must support construction in the following form:</p>
 <pre><code class="language-python">Lookup(search)
 </code></pre>
-<p>and the following assignable attributes:</p>
+<p>It must also support assignment to the following attributes:</p>
 <ul>
 <li><code>country</code></li>
 <li><code>max_results</code></li>
@@ -1112,10 +1120,10 @@ client.send_lookup(lookup)
 <li><code>postal_code</code></li>
 <li><code>address_id</code></li>
 </ul>
-<p><code>Client</code> must support construction with a sender and serializer and provide:</p>
+<p><code>Client</code> must support construction with a sender and serializer, and must provide:</p>
 <pre><code class="language-python">client.send(lookup)
 </code></pre>
-<p>The request sent through the configured sender must be populated as follows:</p>
+<p>The request that is sent through the configured sender must be populated as follows:</p>
 <ul>
 <li><code>lookup.search</code> → request parameter <code>&quot;search&quot;</code></li>
 <li><code>lookup.country</code> → request parameter <code>&quot;country&quot;</code></li>
@@ -1124,11 +1132,11 @@ client.send_lookup(lookup)
 <li><code>lookup.postal_code</code> → request parameter <code>&quot;include_only_postal_code&quot;</code></li>
 <li><code>lookup.address_id</code> → request <code>url_prefix</code>, formatted as <code>&quot;/&quot; + address_id</code></li>
 </ul>
-<p>A lookup created only as <code>Lookup(&quot;1&quot;)</code> must produce:</p>
+<p>When a lookup is created only as <code>Lookup(&quot;1&quot;)</code>, it must produce:</p>
 <pre><code class="language-python">request.parameters[&quot;search&quot;] == &quot;1&quot;
 request.parameters[&quot;max_results&quot;] == 5
 </code></pre>
-<p>A lookup populated as:</p>
+<p>If a lookup is populated as follows:</p>
 <pre><code class="language-python">lookup = Lookup(&quot;1&quot;)
 lookup.country = &quot;2&quot;
 lookup.max_results = 7
@@ -1136,7 +1144,7 @@ lookup.locality = &quot;3&quot;
 lookup.postal_code = &quot;4&quot;
 lookup.address_id = &quot;5&quot;
 </code></pre>
-<p>must produce a request equivalent to:</p>
+<p>then it must produce a request equivalent to:</p>
 <pre><code class="language-python">request.parameters[&quot;search&quot;] == &quot;1&quot;
 request.parameters[&quot;country&quot;] == &quot;2&quot;
 request.parameters[&quot;max_results&quot;] == 7
@@ -1145,23 +1153,23 @@ request.parameters[&quot;include_only_postal_code&quot;] == &quot;4&quot;
 request.url_prefix == &quot;/5&quot;
 </code></pre>
 <h4><code>URLPrefixSender</code></h4>
-<p>Expose both classes at the package root:</p>
+<p>At the package root, expose both classes:</p>
 <pre><code class="language-python">from smartystreets_python_sdk import Request, URLPrefixSender
 </code></pre>
-<p>Constructor and method:</p>
+<p>The constructor and the method take these forms:</p>
 <pre><code class="language-python">URLPrefixSender(url_prefix, sender)
 prefix_sender.send(request)
 </code></pre>
-<p><code>send</code> must apply the configured prefix to the request’s existing <code>url_prefix</code> and send it through the wrapped sender. The wrapped sender’s result is returned.</p>
-<p>Required cases:</p>
+<p><code>send</code> must apply the configured prefix to the existing <code>url_prefix</code> on the request and then send the request through the wrapped sender. The result from the wrapped sender is returned.</p>
+<p>The following cases are required:</p>
 <ul>
 <li>
-<p>With configured prefix <code>&quot;https://mysite.com&quot;</code> and request <code>url_prefix == &quot;/jimbo&quot;</code>, the resulting request must have:</p>
+<p>Given a configured prefix of <code>&quot;https://mysite.com&quot;</code> and a request with <code>url_prefix == &quot;/jimbo&quot;</code>, the resulting request must have:</p>
 <pre><code class="language-python">url_prefix == &quot;https://mysite.com/jimbo&quot;
 </code></pre>
 </li>
 <li>
-<p>With configured prefix <code>&quot;https://mysite.com&quot;</code> and a new <code>Request()</code> with no URL prefix set, the resulting request must have:</p>
+<p>Given a configured prefix of <code>&quot;https://mysite.com&quot;</code> and a new <code>Request()</code> with no URL prefix set, the resulting request must have:</p>
 <pre><code class="language-python">url_prefix == &quot;https://mysite.com&quot;
 </code></pre>
 </li>
@@ -1171,130 +1179,130 @@ prefix_sender.send(request)
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Create an importable smartystreets_python_sdk.us_enrichment package with the following public modules and APIs.</span>
-        <span class="spec-meta muted">351 words · source specification
+        <span class="spec-title">Create an importable smartystreets_python_sdk.us_enrichment package containing the following public modules and APIs.</span>
+        <span class="spec-meta muted">395 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add US Enrichment API support</h3>
-<p>Create an importable <code>smartystreets_python_sdk.us_enrichment</code> package with the following public modules and APIs.</p>
+      <div class="spec-body"><h3>Add support for the US Enrichment API</h3>
+<p>Create an importable <code>smartystreets_python_sdk.us_enrichment</code> package containing the following public modules and APIs.</p>
 <h4>Lookup types</h4>
 <p>Module: <code>smartystreets_python_sdk.us_enrichment.lookup</code></p>
 <h5><code>FinancialLookup</code></h5>
 <pre><code class="language-python">FinancialLookup(smarty_key)
 </code></pre>
-<p>Accepts a SmartyKey value. When processed by the enrichment client, the lookup must expose:</p>
+<p>This lookup accepts a SmartyKey value. Once the enrichment client processes it, the lookup must expose:</p>
 <ul>
 <li><code>dataset == &quot;property&quot;</code></li>
 <li><code>dataSubset == &quot;financial&quot;</code></li>
-<li><code>result</code>, containing the lookup result</li>
+<li><code>result</code>, holding the lookup result</li>
 </ul>
 <h5><code>PrincipalLookup</code></h5>
 <pre><code class="language-python">PrincipalLookup(smarty_key)
 </code></pre>
-<p>Accepts a SmartyKey value. When processed by the enrichment client, the lookup must expose:</p>
+<p>This lookup accepts a SmartyKey value. Once the enrichment client processes it, the lookup must expose:</p>
 <ul>
 <li><code>dataset == &quot;property&quot;</code></li>
 <li><code>dataSubset == &quot;principal&quot;</code></li>
-<li><code>result</code>, containing the lookup result</li>
+<li><code>result</code>, holding the lookup result</li>
 </ul>
-<p>The field name <code>dataSubset</code> is case-sensitive.</p>
+<p>The name of the <code>dataSubset</code> field is case-sensitive.</p>
 <h4>Client API</h4>
 <p>Module: <code>smartystreets_python_sdk.us_enrichment.client</code></p>
 <h5><code>Client</code></h5>
 <pre><code class="language-python">Client(sender, serializer)
 </code></pre>
-<p>The client must accept an SDK sender, including a <code>URLPrefixSender</code>, and a serializer.</p>
-<p>Provide these methods:</p>
+<p>The client must accept an SDK sender — including a <code>URLPrefixSender</code> — together with a serializer.</p>
+<p>The following methods must be provided:</p>
 <pre><code class="language-python">client.send_property_financial_lookup(smarty_key)
 client.send_property_principal_lookup(smarty_key)
 </code></pre>
-<p>Each method returns the result for the corresponding property lookup. Given the same client dependencies and SmartyKey, its return value must compare equal to the result produced by explicitly constructing the corresponding lookup and passing it to <code>send_lookup</code>.</p>
+<p>Each method returns the result of the corresponding property lookup. When the client dependencies and the SmartyKey are the same, its return value must compare equal to the result obtained by explicitly constructing the corresponding lookup and passing it to <code>send_lookup</code>.</p>
 <h5><code>send_lookup</code></h5>
 <pre><code class="language-python">send_lookup(client, lookup)
 </code></pre>
-<p>This module-level function must support both <code>FinancialLookup</code> and <code>PrincipalLookup</code>.</p>
-<p>After processing:</p>
+<p>Defined at module level, this function must support both <code>FinancialLookup</code> and <code>PrincipalLookup</code>.</p>
+<p>After the function processes a lookup:</p>
 <ul>
-<li>The function’s return value must compare equal to <code>lookup.result</code>.</li>
-<li>The lookup must have the dataset and subset values described above.</li>
-<li>A serializer that supplies no deserialized response data (<code>None</code>) must be handled without raising an error; the helper and convenience methods must still return their corresponding result values consistently.</li>
+<li>The return value of the function must compare equal to <code>lookup.result</code>.</li>
+<li>The lookup must carry the dataset and subset values described above.</li>
+<li>A serializer supplying no deserialized response data (<code>None</code>) must be handled without raising an error, and the helper and convenience methods must still return their corresponding result values consistently.</li>
 </ul>
-<h4>Enrichment response deserialization</h4>
+<h4>Deserialization of the enrichment response</h4>
 <p>Module: <code>smartystreets_python_sdk.us_enrichment.response</code></p>
 <h5><code>Response</code></h5>
 <pre><code class="language-python">Response(response_data)
 </code></pre>
-<p><code>response_data</code> is a dictionary with these top-level fields:</p>
+<p><code>response_data</code> is a dictionary whose top-level fields are:</p>
 <ul>
 <li><code>smarty_key</code></li>
 <li><code>data_set_name</code></li>
 <li><code>data_subset_name</code></li>
 <li><code>attributes</code></li>
 </ul>
-<p>Expose the first three fields directly on the <code>Response</code> instance, preserving their values exactly:</p>
+<p>The first three fields must be exposed directly on the <code>Response</code> instance, with their values preserved exactly:</p>
 <pre><code class="language-python">response.smarty_key
 response.data_set_name
 response.data_subset_name
 </code></pre>
-<p>Expose <code>response.attributes</code> as an attribute-bearing object populated from the input <code>attributes</code> dictionary. Preserve every supplied value without type conversion, including numeric-looking values and dates represented as strings.</p>
-<p>Attribute names must normally remain unchanged, except for these two source keys, which are not valid Python identifiers beginning with a letter:</p>
+<p>Expose <code>response.attributes</code> as an object that carries attributes, populated from the input <code>attributes</code> dictionary. Every supplied value must be preserved without type conversion, including values that look numeric and dates represented as strings.</p>
+<p>Attribute names must normally stay unchanged, except for these two source keys, which are not valid Python identifiers that begin with a letter:</p>
 <ul>
-<li><code>&quot;1st_floor_sqft&quot;</code> must be exposed as <code>first_floor_sqft</code></li>
-<li><code>&quot;2nd_floor_sqft&quot;</code> must be exposed as <code>second_floor_sqft</code></li>
+<li>The source key <code>&quot;1st_floor_sqft&quot;</code> must be exposed as <code>first_floor_sqft</code></li>
+<li>The source key <code>&quot;2nd_floor_sqft&quot;</code> must be exposed as <code>second_floor_sqft</code></li>
 </ul>
-<p>All other enrichment attribute keys retain their original spelling.</p>
+<p>All other enrichment attribute keys keep their original spelling.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">A Request must support separate mutable attributes</span>
-        <span class="spec-meta muted">193 words · source specification
+        <span class="spec-title">A Request must provide separate mutable attributes</span>
+        <span class="spec-meta muted">215 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API and behavior</h4>
+      <div class="spec-body"><h4>API and behavior requirements</h4>
 <h5><code>smartystreets_python_sdk.request.Request</code></h5>
-<p>A <code>Request</code> must support separate mutable attributes:</p>
+<p>A <code>Request</code> must provide separate mutable attributes:</p>
 <ul>
 <li><code>url_components</code></li>
 <li><code>url_prefix</code></li>
 </ul>
-<p>A newly created <code>Request()</code> may be sent without explicitly setting <code>url_components</code>; in that case it is treated as empty when constructing the URL prefix.</p>
+<p>A newly created <code>Request()</code> may be sent even when <code>url_components</code> has not been explicitly set; in that case it is regarded as empty during URL prefix construction.</p>
 <h5><code>smartystreets_python_sdk.url_prefix_sender.URLPrefixSender</code></h5>
-<p>Constructor:</p>
+<p>The constructor:</p>
 <pre><code class="language-python">URLPrefixSender(url_prefix, sender)
 </code></pre>
-<p>Method:</p>
+<p>The method:</p>
 <pre><code class="language-python">send(request)
 </code></pre>
-<p>Before forwarding the request to the wrapped sender, <code>send</code> must set:</p>
+<p><code>send</code> must set the following before it forwards the request to the wrapped sender:</p>
 <pre><code class="language-python">request.url_prefix = configured_url_prefix + request.url_components
 </code></pre>
-<p>Required examples:</p>
+<p>The following examples are required:</p>
 <ul>
-<li>Base prefix <code>https://mysite.com</code> and <code>request.url_components == '/jimbo'</code> produce <code>request.url_prefix == 'https://mysite.com/jimbo'</code>.</li>
-<li>If no URL components were set, the resulting prefix is <code>https://mysite.com</code>.</li>
-<li>Sending the same request through the same <code>URLPrefixSender</code> multiple times must remain idempotent. Two sends with components <code>/jimbo</code> must still produce <code>https://mysite.com/jimbo</code>, not a duplicated or otherwise compounded URL.</li>
+<li>With a base prefix of <code>https://mysite.com</code> and <code>request.url_components == '/jimbo'</code>, the result is <code>request.url_prefix == 'https://mysite.com/jimbo'</code>.</li>
+<li>When no URL components have been set, the prefix that results is <code>https://mysite.com</code>.</li>
+<li>The same request sent multiple times through the same <code>URLPrefixSender</code> must remain idempotent. With components <code>/jimbo</code>, two sends must still produce <code>https://mysite.com/jimbo</code> rather than a duplicated or otherwise compounded URL.</li>
 </ul>
-<p>The endpoint components must therefore remain separate from the fully constructed <code>url_prefix</code>; an existing <code>request.url_prefix</code> must not be reused as the components on subsequent sends.</p>
+<p>Consequently, the endpoint components must stay separate from the fully constructed <code>url_prefix</code>; on subsequent sends, an existing <code>request.url_prefix</code> must not be reused as the components.</p>
 <h5><code>smartystreets_python_sdk.international_autocomplete.client.Client</code></h5>
-<p>When <code>Client.send(lookup)</code> creates the outbound request for international autocomplete, it must assign:</p>
+<p>When <code>Client.send(lookup)</code> builds the outbound request for international autocomplete, it must assign:</p>
 <pre><code class="language-python">request.url_components = '/5'
 </code></pre>
-<p>The request passed to the configured sender must expose <code>/5</code> through <code>url_components</code>, allowing <code>URLPrefixSender</code> to combine it with its configured base URL.</p>
+<p>The request handed to the configured sender must expose <code>/5</code> through <code>url_components</code>, which lets <code>URLPrefixSender</code> combine it with the base URL it was configured with.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add optional X-Forwarded-For support to the SDK&#39;s low-level HTTP request construction while preserving all existing usage that does not provide an IP address.</span>
-        <span class="spec-meta muted">582 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Extend the SDK&#39;s low-level HTTP request construction with optional X-Forwarded-For support while preserving all existing usage that does not provide an IP…</span>
+        <span class="spec-meta muted">633 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Add optional <code>X-Forwarded-For</code> support to the SDK's low-level HTTP request construction while preserving all existing usage that does not provide an IP address.</p>
+<p>Extend the SDK's low-level HTTP request construction with optional <code>X-Forwarded-For</code> support while preserving all existing usage that does not provide an IP address.</p>
 <h4>Public API surface</h4>
-<p>The following imports must remain available:</p>
+<p>The imports below must remain available:</p>
 <pre><code class="language-python">from smartystreets_python_sdk import Request, RequestsSender
 import smartystreets_python_sdk as smarty
 
@@ -1302,64 +1310,64 @@ smarty.Request
 smarty.RequestsSender
 smarty.requests_sender.build_request
 </code></pre>
-<p>In particular, <code>Request</code> and <code>RequestsSender</code> must remain directly importable from the package root, and the <code>requests_sender</code> submodule must remain accessible as an attribute of that package.</p>
+<p>Specifically, it must remain possible to import <code>Request</code> and <code>RequestsSender</code> directly from the package root, and the <code>requests_sender</code> submodule must remain accessible as an attribute of that package.</p>
 <h4><code>RequestsSender</code></h4>
-<p>The constructor must support the backward-compatible public form:</p>
+<p>The constructor must support the following backward-compatible public form:</p>
 <pre><code class="language-python">RequestsSender(max_timeout=None, proxy=None, ip=None)
 </code></pre>
 <ul>
 <li>
-<p><code>ip</code> is optional and must be accepted as a keyword argument.</p>
+<p><code>ip</code> is optional, and the constructor must accept it as a keyword argument.</p>
 </li>
 <li>
-<p>Existing calls such as <code>RequestsSender()</code>, <code>RequestsSender(max_timeout)</code>, and <code>RequestsSender(max_timeout, proxy)</code> must retain their previous meanings. Adding <code>ip</code> must not change the positional meaning of <code>max_timeout</code> or <code>proxy</code>.</p>
+<p>Calls that already exist, such as <code>RequestsSender()</code>, <code>RequestsSender(max_timeout)</code>, and <code>RequestsSender(max_timeout, proxy)</code>, must keep their previous meanings. Adding <code>ip</code> must not alter the positional meaning of <code>max_timeout</code> or <code>proxy</code>.</p>
 </li>
 <li>
-<p>The sender must expose the configured value through its public <code>ip</code> attribute without parsing, normalizing, or otherwise changing it. For example:</p>
+<p>Through its public <code>ip</code> attribute, the sender must expose the value that was configured, without parsing, normalizing, or otherwise changing it. As an example:</p>
 <pre><code class="language-python">sender = smarty.RequestsSender(ip='0.0.0.0')
 assert sender.ip == '0.0.0.0'
 </code></pre>
 </li>
 <li>
-<p>If no IP is supplied, the sender must still be constructible and usable for normal sends. Such sends must retain their previous behavior and must not require an IP or install an invalid <code>X-Forwarded-For</code> header value.</p>
+<p>When no IP is supplied, the sender must still be constructible and usable for normal sends. Those sends must keep their previous behavior and must not require an IP or install an invalid <code>X-Forwarded-For</code> header value.</p>
 </li>
 <li>
-<p>When a sender has a configured IP and constructs an HTTP request from an SDK <code>Request</code>, that IP must be supplied to the request-construction behavior described below so the outgoing request carries the forwarding header.</p>
+<p>When a sender has an IP configured and constructs an HTTP request from an SDK <code>Request</code>, that IP must be supplied to the request-construction behavior described below, so that the outgoing request carries the forwarding header.</p>
 </li>
 </ul>
 <h4><code>requests_sender.build_request</code></h4>
-<p>The module-level function must have a backward-compatible optional IP argument:</p>
+<p>For backward compatibility, the module-level function must have an optional IP argument:</p>
 <pre><code class="language-python">build_request(smarty_request, ip=None)
 </code></pre>
-<p>Both of these forms are required:</p>
+<p>Both of the following forms are required:</p>
 <pre><code class="language-python">build_request(smarty_request)
 build_request(smarty_request, ip)
 </code></pre>
-<p>The <code>ip</code> argument may also be supplied by keyword.</p>
+<p>The <code>ip</code> argument may likewise be supplied by keyword.</p>
 <h5>Forwarding header</h5>
-<p>When an SDK <code>Request</code> and a non-<code>None</code> IP value are supplied, the returned HTTP request object's <code>headers</code> mapping must contain <code>X-Forwarded-For</code>, and its value must be exactly the supplied value. The value must not be reformatted or replaced.</p>
+<p>When the call is given an SDK <code>Request</code> and a non-<code>None</code> IP value, the <code>headers</code> mapping of the returned HTTP request object must contain <code>X-Forwarded-For</code>, and that entry's value must be exactly the value supplied; it must not be reformatted or replaced.</p>
 <pre><code class="language-python">smarty_request = smarty.Request()
 smarty_request.url_prefix = 'http://localhost'
 
 request = smarty.requests_sender.build_request(smarty_request, '0.0.0.0')
 assert request.headers['X-Forwarded-For'] == '0.0.0.0'
 </code></pre>
-<p>If <code>ip</code> is omitted or is <code>None</code>, request construction must proceed normally without adding an <code>X-Forwarded-For</code> header whose value is <code>None</code>.</p>
+<p>If <code>ip</code> is omitted or is <code>None</code>, request construction must proceed normally and must not add an <code>X-Forwarded-For</code> header whose value is <code>None</code>.</p>
 <h5>Compatibility with existing request construction</h5>
-<p>Adding the optional IP must not otherwise change the established behavior of <code>build_request</code>:</p>
+<p>The established behavior of <code>build_request</code> must not otherwise change merely because the optional IP was added:</p>
 <ul>
-<li>A one-argument call remains valid.</li>
-<li>For an SDK <code>Request</code>, the returned HTTP request continues to use <code>url_prefix</code> as its URL and <code>parameters</code> as its query parameters.</li>
-<li>Existing <code>User-Agent</code> and <code>Content-Type</code> header construction remains intact.</li>
-<li>A configured <code>referer</code> continues to produce the existing <code>Referer</code> header.</li>
-<li>A non-empty payload continues to become the request body and causes the method to be <code>POST</code>; without such a payload, the method remains <code>GET</code>.</li>
-<li>Existing headers unrelated to <code>X-Forwarded-For</code> must not be changed merely because IP support was added.</li>
-<li>Existing one-argument pass-through behavior for an already-built HTTP request, including requests carrying custom headers, must remain supported and preserve those headers.</li>
+<li>Calling with one argument remains valid.</li>
+<li>When the input is an SDK <code>Request</code>, the returned HTTP request continues to use <code>url_prefix</code> as its URL and <code>parameters</code> as its query parameters.</li>
+<li>Construction of the existing <code>User-Agent</code> and <code>Content-Type</code> headers remains intact.</li>
+<li>When <code>referer</code> is configured, the existing <code>Referer</code> header continues to be produced.</li>
+<li>When the payload is non-empty, it continues to become the request body and causes the method to be <code>POST</code>; if there is no such payload, the method remains <code>GET</code>.</li>
+<li>Headers that already exist and are unrelated to <code>X-Forwarded-For</code> must not be changed merely because IP support was added.</li>
+<li>The existing one-argument pass-through behavior for an HTTP request that has already been built, including requests carrying custom headers, must remain supported, and those headers must be preserved.</li>
 </ul>
 <h4><code>Request</code> compatibility</h4>
-<p><code>smartystreets_python_sdk.Request</code> must remain constructible with no arguments and continue to expose its existing request data attributes, including <code>parameters</code>, <code>payload</code>, <code>url_prefix</code>, <code>url_components</code>, <code>referer</code>, and <code>content_type</code>. It must continue to be accepted as the <code>smarty_request</code> argument to <code>build_request</code>. No IP is required on the <code>Request</code> itself; callers may continue using it exactly as before when forwarding information is not needed.</p>
+<p>It must remain possible to construct <code>smartystreets_python_sdk.Request</code> with no arguments, and it must continue to expose its existing request data attributes, including <code>parameters</code>, <code>payload</code>, <code>url_prefix</code>, <code>url_components</code>, <code>referer</code>, and <code>content_type</code>. Passing it as the <code>smarty_request</code> argument to <code>build_request</code> must continue to be accepted. The <code>Request</code> itself requires no IP; callers may continue using it exactly as before when forwarding information is not needed.</p>
 <h4>Backward-compatibility requirement</h4>
-<p>IP forwarding is strictly opt-in. Code that neither configures <code>RequestsSender.ip</code> nor passes <code>ip</code> to <code>build_request</code> must continue to construct and send requests, preserve custom headers, choose request methods and bodies, and produce SDK responses as it did previously.</p>
+<p>IP forwarding is strictly opt-in. Code that neither configures <code>RequestsSender.ip</code> nor passes <code>ip</code> to <code>build_request</code> must continue, as it did previously, to construct and send requests, preserve custom headers, choose request methods and bodies, and produce SDK responses.</p>
 </div>
     </details>
   </div>

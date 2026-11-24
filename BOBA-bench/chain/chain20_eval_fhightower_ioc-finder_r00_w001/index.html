@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/fhightower/ioc-finder/compare/41a9b3ebf991258af7a82d6d29220f7672bb36c3...98a0cf6c9a355b449d035093304407eb1f8c63ab" target="_blank" rel="noopener" class="mono">41a9b3ebf9 … 98a0cf6c9a</a> · 34 commits by 1 author over 39 d (2019-03-11 to 2019-04-19)</dd></div>
       <div><dt>Window:</dt><dd>requests 21–40 of a run of 43 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>2,840 lines of code in 21 files when the chain starts · over the 20 requests the developers added 217 and removed 92 lines of code, plus 605 lines of tests (31 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>7.6k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 0</dd></div>
+      <div><dt>Specifications:</dt><dd>8.4k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 0</dd></div>
     </dl>
   </header>
 </section>
@@ -144,362 +144,364 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">URL Extraction from Text</span>
-        <span class="spec-meta muted">475 words · source specification
+        <span class="spec-title">Extracting URLs from Text</span>
+        <span class="spec-meta muted">503 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: URL Extraction from Text</h3>
+      <div class="spec-body"><h3>Task Specification: Extracting URLs from Text</h3>
 <h4>Overview</h4>
-<p>Implement (or modify) a function that extracts indicators of compromise (IOCs) — specifically URLs — from an arbitrary text string. The function must correctly parse URLs that are embedded in HTML attributes, wrapped in brackets/parentheses, and terminated by trailing punctuation.</p>
+<p>Write (or modify) a function that extracts indicators of compromise (IOCs) — URLs specifically — out of an arbitrary text string. The function must parse URLs correctly when they are embedded in HTML attributes, wrapped in brackets/parentheses, and terminated by trailing punctuation.</p>
 <h4>Public API</h4>
-<p>Provide a module named <code>ioc_finder</code> exposing a top-level function:</p>
+<p>Provide a module named <code>ioc_finder</code> that exposes a top-level function:</p>
 <pre><code class="language-python">find_iocs(text: str) -&gt; dict
 </code></pre>
 <ul>
-<li><strong>Input:</strong> a single string of arbitrary text.</li>
-<li><strong>Output:</strong> a dictionary. Among its keys it must contain the key <code>'urls'</code>, whose value is a collection (supporting membership tests via <code>in</code> and length queries via <code>len()</code>) of the distinct URL strings found in the input.</li>
+<li><strong>Input:</strong> a single string containing arbitrary text.</li>
+<li><strong>Output:</strong> a dictionary. Its keys must include the key <code>'urls'</code>, whose value is a collection of the distinct URL strings found in the input, supporting membership tests via <code>in</code> and length queries via <code>len()</code>.</li>
 </ul>
-<p>Only the behavior of the <code>'urls'</code> key is specified here.</p>
+<p>Only the behavior of the <code>'urls'</code> key is specified in this document.</p>
 <h4>Required Behavior</h4>
-<h5>URLs embedded in HTML attributes</h5>
-<p>When a URL appears inside an HTML attribute value delimited by double quotes, only the URL itself must be extracted — the surrounding quote, tag markup, and other attributes must not be included.</p>
+<h5>URLs inside HTML attributes</h5>
+<p>When a URL occurs within an HTML attribute value delimited by double quotes, the function must extract only the URL itself — the surrounding quote, tag markup, and other attributes must not be included.</p>
 <ul>
 <li>
-<p>Input containing <code>href=&quot;http://fonts.googleapis.com/css?family=Lato:400,700&quot;</code> within a <code>&lt;link ...&gt;</code> tag must yield the URL <code>http://fonts.googleapis.com/css?family=Lato:400,700</code>. Query strings, colons, and commas within the query must be preserved.</p>
+<p>Input that contains <code>href=&quot;http://fonts.googleapis.com/css?family=Lato:400,700&quot;</code> inside a <code>&lt;link ...&gt;</code> tag must yield the URL <code>http://fonts.googleapis.com/css?family=Lato:400,700</code>. Query strings must be preserved, as must the colons and commas within the query.</p>
 </li>
 <li>
-<p>Input containing <code>href=&quot;https://bit.ly/12345#abcd&quot;</code> within an <code>&lt;a ...&gt;</code> tag must yield exactly one URL: <code>https://bit.ly/12345#abcd</code>. The fragment (<code>#abcd</code>) must be preserved, and none of the trailing tag content must be captured.</p>
+<p>Input that contains <code>href=&quot;https://bit.ly/12345#abcd&quot;</code> inside an <code>&lt;a ...&gt;</code> tag must yield exactly one URL: <code>https://bit.ly/12345#abcd</code>. The fragment (<code>#abcd</code>) must be preserved, and none of the trailing tag content must be captured.</p>
 </li>
 <li>
-<p>Input containing <code>href=&quot;https://bit.ly/12345&quot;</code> must yield exactly one URL: <code>https://bit.ly/12345</code>.</p>
+<p>Input that contains <code>href=&quot;https://bit.ly/12345&quot;</code> must yield exactly one URL: <code>https://bit.ly/12345</code>.</p>
 </li>
 <li>
-<p>Input containing <code>href=&quot;https://bit.ly&quot;</code> (no path) must yield exactly one URL: <code>https://bit.ly</code>.</p>
+<p>Input that contains <code>href=&quot;https://bit.ly&quot;</code> (no path) must yield exactly one URL: <code>https://bit.ly</code>.</p>
 </li>
 <li>
-<p>Input containing <code>href=&quot;https://bit.ly/&quot;</code> (bare trailing slash) must yield exactly one URL: <code>https://bit.ly/</code>. The trailing slash must be preserved.</p>
+<p>Input that contains <code>href=&quot;https://bit.ly/&quot;</code> (a bare trailing slash) must yield exactly one URL: <code>https://bit.ly/</code>. The trailing slash must be preserved.</p>
 </li>
 </ul>
-<h5>URLs wrapped in parentheses and brackets</h5>
-<p>When a URL is enclosed in parentheses <code>( ... )</code> or square brackets <code>[ ... ]</code>, the enclosing bracket characters must not be part of the extracted URL. A trailing <code>)</code> or <code>]</code> must be stripped from the end of a URL.</p>
+<h5>URLs enclosed in parentheses and brackets</h5>
+<p>When a URL is enclosed in parentheses <code>( ... )</code> or square brackets <code>[ ... ]</code>, the bracket characters that enclose it must not be part of the extracted URL. A trailing <code>)</code> or <code>]</code> must be stripped from a URL's end.</p>
 <ul>
 <li>
-<p>Input <code>(https://i.imgur.com/abc.png)</code> must yield exactly one URL: <code>https://i.imgur.com/abc.png</code> (no trailing <code>)</code>).</p>
+<p>The input <code>(https://i.imgur.com/abc.png)</code> must yield exactly one URL: <code>https://i.imgur.com/abc.png</code> (with no trailing <code>)</code>).</p>
 </li>
 <li>
-<p>Input <code>(https://i.imgur.com/abc.png#abc)</code> must yield exactly one URL: <code>https://i.imgur.com/abc.png#abc</code>. The fragment must be preserved and the trailing <code>)</code> stripped.</p>
+<p>The input <code>(https://i.imgur.com/abc.png#abc)</code> must yield exactly one URL: <code>https://i.imgur.com/abc.png#abc</code>. The fragment must be preserved, and the trailing <code>)</code> must be stripped.</p>
 </li>
 <li>
-<p>Input <code>[https://i.imgur.com/abc.png](https://i.imgur.com/abc.png)</code> (the same URL appearing twice, in Markdown link form) must yield exactly one distinct URL: <code>https://i.imgur.com/abc.png</code>. Duplicate occurrences collapse to a single entry, and neither <code>]</code> nor <code>)</code> is included.</p>
+<p>The input <code>[https://i.imgur.com/abc.png](https://i.imgur.com/abc.png)</code> (the same URL occurring twice, in the form of a Markdown link) must yield exactly one distinct URL: <code>https://i.imgur.com/abc.png</code>. Duplicate occurrences collapse into a single entry, and neither <code>]</code> nor <code>)</code> is included.</p>
 </li>
 <li>
-<p>Input <code>[https://i.imgur.com/abc.png#abc](https://i.imgur.com/abc.png#abc)</code> must yield exactly one distinct URL: <code>https://i.imgur.com/abc.png#abc</code>, with the fragment preserved.</p>
+<p>The input <code>[https://i.imgur.com/abc.png#abc](https://i.imgur.com/abc.png#abc)</code> must yield exactly one distinct URL: <code>https://i.imgur.com/abc.png#abc</code>, with the fragment retained.</p>
 </li>
 </ul>
 <h4>Edge Cases and Constraints</h4>
 <ul>
-<li><strong>Deduplication:</strong> identical URLs appearing multiple times in the input must be represented once in the <code>'urls'</code> result.</li>
-<li><strong>Fragment preservation:</strong> URL fragments introduced by <code>#</code> are part of the URL and must be retained.</li>
-<li><strong>Trailing punctuation:</strong> a single trailing <code>)</code> or <code>]</code> character immediately following a URL is not part of the URL and must be removed.</li>
-<li><strong>Path/query preservation:</strong> paths, query strings (including embedded <code>:</code> and <code>,</code> characters), and bare/present trailing slashes must be preserved exactly as they appear.</li>
+<li><strong>Deduplication:</strong> when identical URLs appear multiple times in the input, they must be represented once in the <code>'urls'</code> result.</li>
+<li><strong>Fragment preservation:</strong> URL fragments introduced by <code>#</code> form part of the URL and must be retained.</li>
+<li><strong>Trailing punctuation:</strong> a single trailing <code>)</code> or <code>]</code> character that immediately follows a URL is not part of the URL and must be removed.</li>
+<li><strong>Preservation of paths and queries:</strong> paths, query strings (including embedded <code>:</code> and <code>,</code> characters), and bare/present trailing slashes must be preserved exactly as they appear.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Support .onion Domain Parsing</span>
-        <span class="spec-meta muted">268 words · source specification
+        <span class="spec-title">.onion Domain Parsing Support</span>
+        <span class="spec-meta muted">310 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support <code>.onion</code> Domain Parsing</h3>
+      <div class="spec-body"><h3>Task Specification: <code>.onion</code> Domain Parsing Support</h3>
 <h4>Overview</h4>
-<p>Extend the IOC (Indicator of Compromise) extraction functionality to recognize <code>.onion</code> domain names when parsing text.</p>
+<p>Extend the IOC (Indicator of Compromise) extraction functionality so that <code>.onion</code> domain names are recognized when text is parsed.</p>
 <h4>Public API</h4>
-<p>The functionality is accessed through a module-level function:</p>
+<p>Access to the functionality is provided by a module-level function:</p>
 <pre><code class="language-python">find_iocs(text: str) -&gt; dict
 </code></pre>
-<p>This function must be importable such that <code>find_iocs</code> is available for direct call (as it currently is in the codebase). It accepts a single string argument and returns a dictionary whose values are collections of extracted indicators. Relevant keys for this task are:</p>
+<p>This function must be importable so that <code>find_iocs</code> is available for direct call (as is already the case in the codebase). It accepts a single string argument and returns a dictionary; the values of this dictionary are collections of extracted indicators. The keys relevant to this task are:</p>
 <ul>
-<li><code>'domains'</code> — collection of domain names found in the input</li>
-<li><code>'urls'</code> — collection of URLs found in the input</li>
+<li><code>'domains'</code> — a collection of the domain names found in the input</li>
+<li><code>'urls'</code> — a collection of the URLs found in the input</li>
 </ul>
 <h4>Required Behavior</h4>
-<p><code>.onion</code> domains must be recognized and extracted as domains. This behavior must integrate with existing IOC parsing so that both standalone <code>.onion</code> domains and <code>.onion</code> domains appearing inside URLs are handled correctly.</p>
-<h5>Case 1: Standalone <code>.onion</code> domain</h5>
-<p>Given input text consisting of a bare <code>.onion</code> domain, e.g.:</p>
+<p><code>.onion</code> domains must be recognized and extracted as domains. This behavior must work together with the existing IOC parsing so that both standalone <code>.onion</code> domains and <code>.onion</code> domains that appear inside URLs are handled correctly.</p>
+<h5>Case 1: A standalone <code>.onion</code> domain</h5>
+<p>When the input text consists of a bare <code>.onion</code> domain, for example:</p>
 <pre><code>foo.onion
 </code></pre>
-<p>The result must contain exactly one domain, and that domain must be <code>foo.onion</code>.</p>
-<h5>Case 2: <code>.onion</code> domain within a URL</h5>
-<p>Given input text containing a URL that uses a <code>.onion</code> domain, e.g.:</p>
+<p>Exactly one domain must be present in the result, and that domain must be <code>foo.onion</code>.</p>
+<h5>Case 2: An <code>.onion</code> domain inside a URL</h5>
+<p>When the input text contains a URL that uses a <code>.onion</code> domain, for example:</p>
 <pre><code>http://foo.onion/test
 </code></pre>
-<p>The result must contain:</p>
+<p>The result must contain the following:</p>
 <ul>
-<li>Exactly one URL, equal to <code>http://foo.onion/test</code></li>
-<li>Exactly one domain, equal to <code>foo.onion</code></li>
+<li>There must be exactly one URL, and it must be equal to <code>http://foo.onion/test</code>.</li>
+<li>There must be exactly one domain, and it must be equal to <code>foo.onion</code>.</li>
 </ul>
-<p>That is, the full URL is captured under <code>'urls'</code>, and the domain component (<code>foo.onion</code>) is captured under <code>'domains'</code>.</p>
+<p>In other words, the full URL is captured under <code>'urls'</code>, while the domain component (<code>foo.onion</code>) is captured under <code>'domains'</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The domain matching should treat <code>.onion</code> as a valid top-level domain for the purposes of extraction.</li>
-<li>No other keys or indicator types are affected by this change beyond the interaction described above.</li>
+<li>For the purposes of extraction, domain matching should treat <code>.onion</code> as a valid top-level domain.</li>
+<li>Aside from the interaction described above, no other keys or indicator types are affected by this change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Add support for a keyword argument parse_domain_from_email_address to the IOC-finding function, controlling whether domain names are extracted from email…</span>
-        <span class="spec-meta muted">211 words · source specification
+        <span class="spec-title">Extend the IOC-finding function with a keyword argument parse_domain_from_email_address, which controls whether domain names are extracted from the email…</span>
+        <span class="spec-meta muted">234 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add support for a keyword argument <code>parse_domain_from_email_address</code> to the IOC-finding function, controlling whether domain names are extracted from email addresses found in the input text.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Extend the IOC-finding function with a keyword argument <code>parse_domain_from_email_address</code>, which controls whether domain names are extracted from the email addresses found in the input text.</p>
 <h4>Public API</h4>
-<p>The function <code>find_iocs</code> must be importable and callable as follows:</p>
+<p>It must be possible to import the function <code>find_iocs</code> and to call it in the following way:</p>
 <pre><code class="language-python">find_iocs(text, parse_domain_from_email_address=True)
 </code></pre>
 <ul>
-<li><code>text</code> (str): the input string to scan for indicators of compromise (IOCs).</li>
-<li><code>parse_domain_from_email_address</code> (bool, keyword argument, default <code>True</code>): controls whether the domain portion of any email address is additionally parsed and reported as a domain IOC.</li>
+<li><code>text</code> (str): the string supplied as input, to be scanned for indicators of compromise (IOCs).</li>
+<li><code>parse_domain_from_email_address</code> (bool, keyword argument, default <code>True</code>): determines whether the domain portion of any email address is additionally parsed and reported as a domain IOC.</li>
 </ul>
-<p>The function returns a dictionary of IOC categories. Among its keys is <code>'email_addresses'</code>, whose value is a list of email address strings found in the input.</p>
+<p>The return value is a dictionary of IOC categories. One of its keys is <code>'email_addresses'</code>, and the value under that key is a list of the email address strings that appear in the input.</p>
 <h4>Required Behavior</h4>
-<p>Given an input string containing a single email address (e.g. <code>'foo@bar.com'</code>):</p>
+<p>For an input string that contains a single email address (e.g. <code>'foo@bar.com'</code>):</p>
 <ol>
 <li>
-<p>When called with default arguments (<code>find_iocs(s)</code>):</p>
+<p>On a call with default arguments (<code>find_iocs(s)</code>):</p>
 <ul>
-<li>The <code>'email_addresses'</code> list must contain exactly one entry, equal to the full email address (<code>'foo@bar.com'</code>).</li>
+<li>The <code>'email_addresses'</code> list must have exactly one entry, equal to the full email address (<code>'foo@bar.com'</code>).</li>
 </ul>
 </li>
 <li>
-<p>When called with <code>parse_domain_from_email_address=False</code>:</p>
+<p>On a call passing <code>parse_domain_from_email_address=False</code>:</p>
 <ul>
-<li>The <code>'email_addresses'</code> list must still contain exactly one entry, equal to the full email address (<code>'foo@bar.com'</code>).</li>
+<li>The <code>'email_addresses'</code> list must continue to have exactly one entry, equal to the full email address (<code>'foo@bar.com'</code>).</li>
 </ul>
 </li>
 </ol>
-<p>In both cases, email address detection and reporting is unaffected by the value of <code>parse_domain_from_email_address</code> — the email address itself is always found and returned as-is in the <code>'email_addresses'</code> list. The <code>parse_domain_from_email_address</code> argument must be accepted without error in either state.</p>
+<p>In both cases, detection and reporting of email addresses are unaffected by the value of <code>parse_domain_from_email_address</code> — the email address itself is always found and returned as-is in the <code>'email_addresses'</code> list. The <code>parse_domain_from_email_address</code> argument must be accepted without error for either state.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">URL Extraction with Multiple Consecutive Forward Slashes</span>
-        <span class="spec-meta muted">253 words · source specification
+        <span class="spec-title">Extracting URLs That Contain Multiple Consecutive Forward Slashes</span>
+        <span class="spec-meta muted">263 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: URL Extraction with Multiple Consecutive Forward Slashes</h3>
-<h4>Objective</h4>
-<p>Modify the IOC (Indicator of Compromise) extraction logic so that URLs containing multiple consecutive forward slashes in their path are correctly extracted in their entirety.</p>
+      <div class="spec-body"><h3>Task Specification: Extracting URLs That Contain Multiple Consecutive Forward Slashes</h3>
+<h4>Goal</h4>
+<p>Adjust the IOC (Indicator of Compromise) extraction logic so that URLs whose path includes multiple consecutive forward slashes are extracted correctly and in their entirety.</p>
 <h4>Public API</h4>
-<p>The behavior is exercised through a module-level function:</p>
+<p>The behavior is exercised by means of a module-level function:</p>
 <pre><code class="language-python">find_iocs(text)
 </code></pre>
 <ul>
-<li><strong>Input:</strong> <code>text</code> — a string that may contain one or more URLs (and potentially other indicators).</li>
-<li><strong>Return value:</strong> a dictionary (mapping) whose <code>'urls'</code> key maps to a collection of the URLs found in the input string.</li>
+<li><strong>Input:</strong> <code>text</code> — a string that may hold one or more URLs (and potentially other indicators).</li>
+<li><strong>Return value:</strong> a dictionary (mapping) in which the <code>'urls'</code> key maps to a collection of the URLs discovered in the input string.</li>
 </ul>
-<p>This function must be importable such that <code>from &lt;package&gt; import find_iocs</code> works as it does today (i.e., preserve the existing import surface used to call <code>find_iocs</code>).</p>
+<p>It must be possible to import this function, so that <code>from &lt;package&gt; import find_iocs</code> keeps working as it does today (i.e., the existing import surface used to call <code>find_iocs</code> must be preserved).</p>
 <h4>Required Behavior</h4>
-<p>When the input string contains a URL whose path segment includes multiple consecutive forward slashes, the full URL — including the repeated slashes — must be extracted as a single URL.</p>
+<p>If the input string contains a URL whose path segment has multiple consecutive forward slashes, the entire URL — repeated slashes included — must be extracted as a single URL.</p>
 <h5>Concrete requirement</h5>
-<p>Given the input string:</p>
+<p>For the input string:</p>
 <pre><code>http://example.com//test
 </code></pre>
-<p><code>find_iocs</code> must return a result in which:</p>
+<p><code>find_iocs</code> must return a result where:</p>
 <ul>
-<li><code>results['urls']</code> contains exactly one entry.</li>
-<li>That entry is the complete string <code>http://example.com//test</code> (the double slash after the host and the trailing path must be preserved; the URL must not be truncated at the double slash).</li>
+<li><code>results['urls']</code> holds exactly one entry.</li>
+<li>That entry is the complete string <code>http://example.com//test</code> (the double slash after the host and the trailing path must be kept intact; the URL must not be truncated at the double slash).</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Existing URL extraction behavior must remain intact. In particular, other valid URLs must continue to be extracted correctly and yield the expected single-entry results where a single URL is present.</li>
-<li>Do not alter the shape of the returned dictionary or the meaning of the <code>'urls'</code> key.</li>
+<li>The existing URL extraction behavior must stay intact. Specifically, other valid URLs must still be extracted correctly and yield the expected single-entry results where a single URL is present.</li>
+<li>The shape of the returned dictionary and the meaning of the <code>'urls'</code> key must not be altered.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">134 words · source specification
+        <span class="spec-title">Modify the public function</span>
+        <span class="spec-meta muted">145 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Registry key abbreviation support</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Support for registry key abbreviations</h4>
+<p>Modify the public function:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 
 find_iocs(text: str)
 </code></pre>
-<p><code>find_iocs</code> must recognize Windows Registry paths whose root is enclosed in angle brackets and uses either <code>HKCU</code> or <code>HKLM</code>, for example:</p>
+<p><code>find_iocs</code> must detect Windows Registry paths whose root is enclosed in angle brackets and uses either <code>HKCU</code> or <code>HKLM</code>, for example:</p>
 <pre><code class="language-text">&lt;HKCU&gt;\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\ADVANCED
 &lt;HKLM&gt;\SOFTWARE\WOW6432NODE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN
 </code></pre>
-<p>The returned mapping’s <code>registry_key_paths</code> collection must contain each extracted path with the angle brackets removed from the root:</p>
+<p>The <code>registry_key_paths</code> collection of the returned mapping must contain each extracted path with the angle brackets stripped from the root:</p>
 <pre><code class="language-text">HKCU\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\EXPLORER\ADVANCED
 HKLM\SOFTWARE\WOW6432NODE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN
 </code></pre>
 <p>Requirements:</p>
 <ul>
-<li>Support both <code>&lt;HKCU&gt;</code> and <code>&lt;HKLM&gt;</code> roots.</li>
-<li>Preserve the remainder and capitalization of each registry path.</li>
-<li>Stop extraction at the end of the registry-path line; following lines such as <code>Value Name: ...</code> are not part of the path.</li>
-<li>Deduplicate repeated registry paths in <code>registry_key_paths</code>.</li>
+<li>Both <code>&lt;HKCU&gt;</code> and <code>&lt;HKLM&gt;</code> roots must be supported.</li>
+<li>The remainder and the capitalization of each registry path must be preserved.</li>
+<li>Extraction must stop at the end of the registry-path line; following lines such as <code>Value Name: ...</code> are not part of the path.</li>
+<li>Repeated registry paths must be deduplicated in <code>registry_key_paths</code>.</li>
 </ul>
-<p>For an input containing three occurrences of one HKCU path and three distinct HKLM paths, <code>registry_key_paths</code> must therefore contain exactly four entries.</p>
+<p>If an input contains three occurrences of one HKCU path and three distinct HKLM paths, <code>registry_key_paths</code> must therefore contain exactly four entries.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You must modify the IPv4 address extraction behavior in the IOC (Indicator of Compromise) parsing functionality.</span>
-        <span class="spec-meta muted">287 words · source specification
+        <span class="spec-title">You must modify how IPv4 addresses are extracted within the IOC (Indicator of Compromise) parsing functionality.</span>
+        <span class="spec-meta muted">306 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>You must modify the IPv4 address extraction behavior in the IOC (Indicator of Compromise) parsing functionality. The relevant public API is the function <code>find_iocs</code>, importable as:</p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<h5>High-Level Overview</h5>
+<p>You must modify how IPv4 addresses are extracted within the IOC (Indicator of Compromise) parsing functionality. The public API that matters is the function <code>find_iocs</code>, importable as:</p>
 <pre><code class="language-python">from &lt;package&gt; import find_iocs
 </code></pre>
-<p>(The function is already available in the codebase at its existing import location.)</p>
-<h5>API Behavior</h5>
-<p><code>find_iocs(text)</code> accepts a string and returns a dictionary of extracted indicators. The relevant key is <code>'ipv4s'</code>, whose value is a collection of extracted IPv4 address strings.</p>
-<h5>Required Behavior for IPv4 Parsing</h5>
-<p>The IPv4 extraction must correctly handle octets that contain <strong>leading zeros</strong>, according to these rules:</p>
+<p>(The function is already present in the codebase at its existing import location.)</p>
+<h5>Behavior of the API</h5>
+<p><code>find_iocs(text)</code> accepts a string and returns a dictionary of the extracted indicators. The key of interest is <code>'ipv4s'</code>, whose value is a collection of extracted IPv4 address strings.</p>
+<h5>Required IPv4 Parsing Behavior</h5>
+<p>IPv4 extraction must handle octets that contain <strong>leading zeros</strong> correctly, in accordance with these rules:</p>
 <ol>
 <li>
-<p><strong>Leading zeros must be stripped from each octet</strong>, and the extracted IPv4 address must be reported in its normalized form (with leading zeros removed).</p>
+<p><strong>Each octet must have its leading zeros stripped</strong>, and the extracted IPv4 address must be reported in its normalized form — that is, with leading zeros removed.</p>
 <ul>
-<li>Input containing <code>1.01.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
-<li>Input containing <code>01.1.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
-<li>Input containing <code>01.01.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
+<li>Input that contains <code>1.01.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
+<li>Input that contains <code>01.1.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
+<li>Input that contains <code>01.01.1.1</code> must yield exactly one IPv4 address, and that address must be <code>1.1.1.1</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Each octet is limited in length.</strong> An octet consisting of more than three characters (i.e., a run of digits whose length exceeds three) must NOT be recognized as part of a valid IPv4 address.</p>
+<p><strong>Each octet has a length limit.</strong> An octet composed of more than three characters (i.e., a digit run whose length exceeds three) must NOT be recognized as part of a valid IPv4 address.</p>
 <ul>
-<li>Input containing <code>0001.1.1.1</code> must yield <strong>zero</strong> IPv4 addresses. (The first section <code>0001</code> has four digits, exceeding the maximum allowed length, so no valid IPv4 address is extracted from this text.)</li>
+<li>Input that contains <code>0001.1.1.1</code> must yield <strong>zero</strong> IPv4 addresses. (The first section, <code>0001</code>, is four digits long, which exceeds the maximum allowed length, so no valid IPv4 address is extracted from this text.)</li>
 </ul>
 </li>
 </ol>
-<h5>Summary of Constraints</h5>
+<h5>Constraint Summary</h5>
 <ul>
-<li>A single octet may consist of at most three digit characters.</li>
-<li>Leading zeros in octets are permitted (for octets up to three digits) but must be removed in the returned address string.</li>
-<li>The returned address string reflects the normalized (leading-zero-stripped) form.</li>
+<li>An individual octet may consist of at most three digit characters.</li>
+<li>Leading zeros are permitted in octets (for octets up to three digits) but must be removed in the returned address string.</li>
+<li>The address string that is returned reflects the normalized form (with leading zeros stripped).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You must modify the IOC (Indicator of Compromise) extraction functionality so that URLs are correctly parsed when they are embedded within quoted strings…</span>
-        <span class="spec-meta muted">342 words · source specification
+        <span class="spec-title">You must adjust the IOC (Indicator of Compromise) extraction functionality so that URLs are parsed correctly when they are embedded inside quoted strings…</span>
+        <span class="spec-meta muted">375 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must modify the IOC (Indicator of Compromise) extraction functionality so that URLs are correctly parsed when they are embedded within quoted strings (single or double quotes) followed by additional characters.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>You must adjust the IOC (Indicator of Compromise) extraction functionality so that URLs are parsed correctly when they are embedded inside quoted strings (single or double quotes) that are followed by additional characters.</p>
 <h4>Public API</h4>
-<p>The function under test is:</p>
+<p>The function that is being tested is:</p>
 <pre><code class="language-python">find_iocs(text: str) -&gt; dict
 </code></pre>
-<p>It is importable from the package's public interface (i.e., <code>from &lt;package&gt; import find_iocs</code>). It accepts a string and returns a dictionary of extracted indicators. The relevant key for this task is <code>'urls'</code>, whose value is a collection (iterable supporting <code>in</code> membership tests and <code>len()</code>) of extracted URL strings.</p>
+<p>It can be imported from the package's public interface (that is, <code>from &lt;package&gt; import find_iocs</code>). It accepts a string and returns a dictionary of the extracted indicators. The key that is relevant for this task is <code>'urls'</code>, whose value is a collection (an iterable supporting <code>in</code> membership tests and <code>len()</code>) of extracted URL strings.</p>
 <h4>Required Behavior</h4>
-<p>The function must correctly identify URL boundaries when a URL is enclosed in quotes and immediately followed by non-URL content such as closing parentheses, semicolons, and subsequent text.</p>
-<p>Specifically, when a URL appears inside single or double quotes, the extracted URL must terminate at the closing quote and must NOT include any characters that follow the quote (such as <code>');...</code> or <code>&quot;);...</code>).</p>
-<p>Additionally, defanged URL notation must be refanged during extraction: the sequence <code>[.]</code> used to obfuscate a dot in a hostname must be normalized back to a literal <code>.</code>.</p>
-<h5>Concrete Cases</h5>
+<p>When a URL is enclosed in quotes and immediately followed by non-URL content such as closing parentheses, semicolons, and text that comes afterwards, the function must correctly determine the URL's boundaries.</p>
+<p>More precisely, when a URL occurs inside single or double quotes, the URL that is extracted must end at the closing quote and must NOT include any characters that follow the quote (such as <code>');...</code> or <code>&quot;);...</code>).</p>
+<p>In addition, defanged URL notation must be refanged during extraction: the sequence <code>[.]</code>, which is used to obfuscate a dot in a hostname, must be normalized back to a literal <code>.</code>.</p>
+<h5>Specific Cases</h5>
 <ol>
 <li>
-<p>Given the input:</p>
+<p>For the following input:</p>
 <pre><code>DownloadString('https://hacks4all[.]net/rdp.ps1');g $I
 </code></pre>
-<p>The <code>'urls'</code> result must contain exactly one entry: <code>https://hacks4all.net/rdp.ps1</code>.</p>
+<p>The result for the <code>'urls'</code> key must contain exactly one entry: <code>https://hacks4all.net/rdp.ps1</code>.</p>
 </li>
 <li>
-<p>Given the input:</p>
+<p>For the following input:</p>
 <pre><code>DownloadString(&quot;https://hacks4all[.]net/rdp.ps1&quot;);g $I
 </code></pre>
-<p>The <code>'urls'</code> result must contain exactly one entry: <code>https://hacks4all.net/rdp.ps1</code>.</p>
+<p>The result for the <code>'urls'</code> key must contain exactly one entry: <code>https://hacks4all.net/rdp.ps1</code>.</p>
 </li>
 </ol>
-<p>In both cases:</p>
+<p>In both of these cases:</p>
 <ul>
-<li>The single URL <code>https://hacks4all.net/rdp.ps1</code> must be present in the <code>'urls'</code> collection.</li>
-<li>The total number of URLs extracted must be exactly one.</li>
-<li>The trailing characters after the closing quote (<code>');g $I</code> / <code>&quot;);g $I</code>) must not be included in the extracted URL, and must not produce any additional URL entries.</li>
+<li>The <code>'urls'</code> collection must contain the single URL <code>https://hacks4all.net/rdp.ps1</code>.</li>
+<li>The total number of extracted URLs must be exactly one.</li>
+<li>The characters that come after the closing quote (<code>');g $I</code> / <code>&quot;);g $I</code>) must not be included in the extracted URL, and they must not produce any additional URL entries.</li>
 </ul>
-<h4>Constraints on Existing Behavior</h4>
-<p>Existing URL extraction behavior must be preserved. In particular, URLs delimited by boundaries other than quotes (e.g., a URL containing a fragment identifier that stands alone in the text) must continue to be extracted as a single, complete URL including its fragment. This new quote-handling must not break the extraction of otherwise well-formed URLs.</p>
+<h4>Constraints on Current Behavior</h4>
+<p>The URL extraction behavior that already exists must be preserved. In particular, URLs separated by boundaries other than quotes (e.g., a URL with a fragment identifier that stands alone in the text) must continue to be extracted as a single, complete URL that includes its fragment. The new quote-handling must not break the extraction of otherwise well-formed URLs.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
         <span class="spec-title">IOC Finder</span>
-        <span class="spec-meta muted">798 words · source specification
+        <span class="spec-meta muted">905 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task Specification: IOC Finder</h3>
-<h4>Overview</h4>
-<p>Implement/modify a Python package named <code>ioc_finder</code> that extracts indicators of compromise (IOCs) from arbitrary text. The package must expose a top-level function:</p>
+<h4>Summary</h4>
+<p>The task is to implement or modify a Python package called <code>ioc_finder</code> that extracts indicators of compromise (IOCs) from arbitrary text. A top-level function must be exposed by the package:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
-<h5>Function Signature</h5>
+<h5>Signature of the Function</h5>
 <pre><code class="language-python">def find_iocs(text, parse_domain_from_email_address=True):
     ...
 </code></pre>
 <ul>
-<li><code>text</code> (str): input text to scan.</li>
-<li><code>parse_domain_from_email_address</code> (bool, keyword, default <code>True</code>): controls whether the domain portion of an email address is additionally extracted as a domain IOC.</li>
+<li><code>text</code> (str): the text that is to be scanned.</li>
+<li><code>parse_domain_from_email_address</code> (bool, keyword, default <code>True</code>): determines whether the domain portion of an email address is additionally extracted as a domain IOC.</li>
 </ul>
-<h5>Return Value</h5>
-<p><code>find_iocs</code> returns a dictionary. The keys relevant to this task are:</p>
+<h5>Value Returned</h5>
+<p>When called, <code>find_iocs</code> returns a dictionary. The keys that this task is concerned with are:</p>
 <ul>
-<li><code>'domains'</code>: list of domain-name strings found.</li>
-<li><code>'email_addresses'</code>: list of email-address strings found.</li>
-<li><code>'ipv6s'</code>: list of IPv6-address strings found.</li>
-<li><code>'urls'</code>: list of URL strings found.</li>
+<li><code>'domains'</code>: the list of domain-name strings that were found.</li>
+<li><code>'email_addresses'</code>: the list of email-address strings that were found.</li>
+<li><code>'ipv6s'</code>: the list of IPv6-address strings that were found.</li>
+<li><code>'urls'</code>: the list of URL strings that were found.</li>
 </ul>
-<p>Every value is a list. Results are deduplicated (no duplicate entries within a list).</p>
-<p>This task focuses on the behavior described below. Do not change unrelated extraction behavior.</p>
+<p>Every value is a list. Results are deduplicated (no list contains duplicate entries).</p>
+<p>This task centers on the behavior described below. Unrelated extraction behavior must not be changed.</p>
 <hr />
-<h4>Required Behaviors</h4>
-<h5>1. Domain names followed by a trailing period</h5>
-<p>When a domain name is immediately followed by a period (a sentence-ending period, not part of the domain), the trailing period must NOT be included in the extracted domain.</p>
+<h4>Behaviors That Are Required</h4>
+<h5>1. A trailing period after a domain name</h5>
+<p>If a period comes immediately after a domain name (a period that ends a sentence and is not part of the domain), that trailing period must NOT be included in the extracted domain.</p>
 <ul>
-<li>Input <code>&quot;bar.com.&quot;</code> → <code>'domains'</code> contains exactly one entry: <code>'bar.com'</code>.</li>
+<li>For the input <code>&quot;bar.com.&quot;</code>, <code>'domains'</code> has exactly one entry: <code>'bar.com'</code>.</li>
 </ul>
-<h5>2. Email address domains followed by a trailing period</h5>
-<p>When an email address's domain is followed by a trailing period, the extracted email address must not include the trailing period.</p>
+<h5>2. A trailing period after an email address's domain</h5>
+<p>If a trailing period follows the domain of an email address, the trailing period must not be part of the extracted email address.</p>
 <ul>
-<li>Input <code>&quot;foo@bar.com.&quot;</code> → <code>'email_addresses'</code> contains exactly one entry: <code>'foo@bar.com'</code>.</li>
+<li>For the input <code>&quot;foo@bar.com.&quot;</code>, <code>'email_addresses'</code> has exactly one entry: <code>'foo@bar.com'</code>.</li>
 </ul>
-<h5>3. Email address preceded by a stray quote character</h5>
-<p>A leading double-quote character before an email address must not be captured as part of the email address.</p>
+<h5>3. A stray quote character in front of an email address</h5>
+<p>A leading double-quote character in front of an email address must not be captured as part of the email address.</p>
 <ul>
-<li>Input <code>'&quot;foo@bar.com'</code> (with <code>parse_domain_from_email_address=False</code>) → <code>'email_addresses'</code> contains exactly one entry: <code>'foo@bar.com'</code>.</li>
+<li>For the input <code>'&quot;foo@bar.com'</code> (with <code>parse_domain_from_email_address=False</code>), <code>'email_addresses'</code> has exactly one entry: <code>'foo@bar.com'</code>.</li>
 </ul>
-<h5>4. Email addresses with IPv6 literal domains</h5>
-<p>An email address whose domain is an IPv6 address literal (bracketed, <code>IPv6:</code>-prefixed form) must be captured in full, and the embedded IPv6 address must additionally be extracted into <code>'ipv6s'</code>.</p>
+<h5>4. Email addresses whose domain is an IPv6 literal</h5>
+<p>When the domain of an email address is an IPv6 address literal (a bracketed form carrying the <code>IPv6:</code> prefix), the email address must be captured in full, and the IPv6 address embedded in it must additionally be extracted into <code>'ipv6s'</code>.</p>
 <ul>
-<li>Input <code>'jsmith@[IPv6:2001:db8::1]'</code>:
+<li>For the input <code>'jsmith@[IPv6:2001:db8::1]'</code>:
 <ul>
-<li><code>'email_addresses'</code> contains exactly one entry: <code>'jsmith@[IPv6:2001:db8::1]'</code>.</li>
-<li><code>'ipv6s'</code> contains exactly one entry: <code>'2001:db8::1'</code>.</li>
+<li><code>'email_addresses'</code> has exactly one entry: <code>'jsmith@[IPv6:2001:db8::1]'</code>.</li>
+<li><code>'ipv6s'</code> has exactly one entry: <code>'2001:db8::1'</code>.</li>
 </ul>
 </li>
 </ul>
-<h5>5. Unicode domain names</h5>
-<p>Domain names containing non-ASCII (Unicode) characters must be captured, and the extracted domain must represent the non-ASCII characters using their escaped Unicode form.</p>
+<h5>5. Domain names containing Unicode characters</h5>
+<p>A domain name that includes non-ASCII (Unicode) characters must be captured, and the extracted domain must represent the non-ASCII characters by means of their escaped Unicode form.</p>
 <ul>
-<li>Input <code>&quot;ȩxample.com&quot;</code> → <code>'domains'</code> contains exactly one entry whose value is the string <code>'\u0229xample.com'</code> (i.e., the character <code>ȩ</code> represented as the literal escape sequence <code>\u0229</code>).</li>
+<li>For the input <code>&quot;ȩxample.com&quot;</code>, <code>'domains'</code> has exactly one entry, and that entry's value is the string <code>'\u0229xample.com'</code> (i.e., the character <code>ȩ</code> represented as the literal escape sequence <code>\u0229</code>).</li>
 </ul>
-<h5>6. URL parsing — valid URLs</h5>
-<p>For each of the following inputs, <code>'urls'</code> must contain exactly one entry equal to the entire input string (the full URL captured verbatim):</p>
+<h5>6. URL parsing for valid URLs</h5>
+<p>For every input in the list below, <code>'urls'</code> must contain exactly one entry equal to the entire input string (the complete URL captured verbatim):</p>
 <pre><code>http://foo.com/blah_blah
 http://foo.com/blah_blah/
 http://foo.com/blah_blah_(wikipedia)
@@ -537,17 +539,17 @@ http://1337.net
 http://a.b-c.de
 http://223.255.255.254
 </code></pre>
-<p>Requirements implied by the above:</p>
+<p>Requirements that follow from the list above:</p>
 <ul>
-<li>URLs with <code>http</code>, <code>https</code>, and <code>ftp</code> schemes are recognized.</li>
-<li>URLs with userinfo (<code>user@</code>, <code>user:password@</code>), ports (<code>:8080</code>), paths, query strings (<code>?...</code>), and fragments (<code>#...</code>) are captured in full.</li>
-<li>URLs with Unicode host names and Unicode path/query characters are captured in full.</li>
-<li>URLs whose host is a literal IPv4 address are captured (e.g. <code>142.42.1.1</code>, <code>223.255.255.254</code>).</li>
-<li>Parentheses, and the special characters shown (e.g. <code>_!$&amp;'()*+,;=:%40:80%2f::::::</code>), that are part of the URL must be retained.</li>
-<li>The captured URL string must exactly equal the input; no leading/trailing characters may be added or dropped.</li>
+<li>URLs that use the <code>http</code>, <code>https</code>, and <code>ftp</code> schemes are recognized.</li>
+<li>URLs containing userinfo (<code>user@</code>, <code>user:password@</code>), ports (<code>:8080</code>), paths, query strings (<code>?...</code>), and fragments (<code>#...</code>) are captured in full.</li>
+<li>URLs that have Unicode host names and Unicode characters in their path/query are captured in full.</li>
+<li>URLs whose host is an IPv4 address literal are captured (e.g. <code>142.42.1.1</code>, <code>223.255.255.254</code>).</li>
+<li>Parentheses and the special characters shown (e.g. <code>_!$&amp;'()*+,;=:%40:80%2f::::::</code>) must be retained when they are part of the URL.</li>
+<li>The URL string that gets captured must be exactly equal to the input; no leading or trailing characters may be added or dropped.</li>
 </ul>
-<h5>7. URL parsing — invalid inputs</h5>
-<p>For each of the following inputs, <code>'urls'</code> must be empty (contain zero entries):</p>
+<h5>7. URL parsing for invalid inputs</h5>
+<p>For every input in the list below, <code>'urls'</code> must be empty (that is, it must contain zero entries):</p>
 <pre><code>http://
 http://.
 http://..
@@ -584,97 +586,98 @@ http://www.foo.bar./
 http://.www.foo.bar./
 http://10.1.1.1
 </code></pre>
-<p>Requirements implied by the above:</p>
+<p>Requirements that follow from the list above:</p>
 <ul>
-<li>A scheme with no host (<code>http://</code>, <code>http:///a</code>) yields no URL.</li>
-<li>Hosts consisting only of dots (<code>.</code>, <code>..</code>, <code>../</code>), or query/fragment-only remainders (<code>?</code>, <code>#</code>, etc.), yield no URL.</li>
-<li>Scheme-relative (<code>//</code>, <code>//a</code>, <code>///a</code>, <code>///</code>) inputs yield no URL.</li>
-<li>A bare domain with no scheme (<code>foo.com</code>) yields no URL.</li>
-<li>Unsupported/unknown schemes (<code>rdar://</code>, <code>h://</code>, <code>ftps://</code>, an empty scheme in <code>:// should fail</code>) yield no URL.</li>
-<li>Malformed host labels — leading/trailing hyphens on a label (<code>-error-.invalid</code>, <code>-a.b.co</code>, <code>a.b-.co</code>), or double hyphens as in <code>a.b--c.de</code> — yield no URL.</li>
-<li>Host labels with a leading or trailing dot (<code>.www.foo.bar/</code>, <code>www.foo.bar./</code>, <code>.www.foo.bar./</code>) yield no URL.</li>
-<li>The following IPv4-literal hosts yield no URL: <code>0.0.0.0</code>, <code>10.1.1.0</code>, <code>10.1.1.255</code>, <code>10.1.1.1</code>, <code>224.1.1.1</code> (i.e. <code>0.0.0.0</code>, any address in the <code>10.x.x.x</code> private range, and multicast addresses such as <code>224.x.x.x</code> are rejected).</li>
-<li>Malformed numeric hosts yield no URL: <code>1.1.1.1.1</code> (too many octets), <code>123.123.123</code> (too few octets), <code>3628126748</code> (bare integer host).</li>
+<li>A scheme that has no host (<code>http://</code>, <code>http:///a</code>) yields no URL.</li>
+<li>Hosts that consist only of dots (<code>.</code>, <code>..</code>, <code>../</code>), or remainders holding only a query or fragment (<code>?</code>, <code>#</code>, etc.), yield no URL.</li>
+<li>Inputs given in scheme-relative form (<code>//</code>, <code>//a</code>, <code>///a</code>, <code>///</code>) yield no URL.</li>
+<li>A bare domain lacking a scheme (<code>foo.com</code>) yields no URL.</li>
+<li>Schemes that are unsupported or unknown (<code>rdar://</code>, <code>h://</code>, <code>ftps://</code>, an empty scheme in <code>:// should fail</code>) yield no URL.</li>
+<li>Host labels that are malformed — labels carrying leading/trailing hyphens (<code>-error-.invalid</code>, <code>-a.b.co</code>, <code>a.b-.co</code>), or double hyphens as in <code>a.b--c.de</code> — yield no URL.</li>
+<li>Host labels that have a leading or trailing dot (<code>.www.foo.bar/</code>, <code>www.foo.bar./</code>, <code>.www.foo.bar./</code>) yield no URL.</li>
+<li>These IPv4-literal hosts yield no URL: <code>0.0.0.0</code>, <code>10.1.1.0</code>, <code>10.1.1.255</code>, <code>10.1.1.1</code>, <code>224.1.1.1</code> (i.e. <code>0.0.0.0</code>, any address in the <code>10.x.x.x</code> private range, and multicast addresses such as <code>224.x.x.x</code> are rejected).</li>
+<li>Malformed numeric hosts yield no URL: <code>1.1.1.1.1</code> (too many octets), <code>123.123.123</code> (too few octets), <code>3628126748</code> (a host that is a bare integer).</li>
 </ul>
 <hr />
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>Only the <code>'domains'</code>, <code>'email_addresses'</code>, <code>'ipv6s'</code>, and <code>'urls'</code> result keys are covered by this task; other IOC categories, if present, are unaffected.</li>
-<li>All result lists are deduplicated.</li>
+<li>This task covers only the result keys <code>'domains'</code>, <code>'email_addresses'</code>, <code>'ipv6s'</code>, and <code>'urls'</code>; other IOC categories, if present, are unaffected.</li>
+<li>Every result list is deduplicated.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">This task involves a change to the IOC (Indicator of Compromise) finding library.</span>
-        <span class="spec-meta muted">552 words · source specification
+        <span class="spec-title">The change asked for in this task targets the IOC (Indicator of Compromise) finding library.</span>
+        <span class="spec-meta muted">643 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>This task involves a change to the IOC (Indicator of Compromise) finding library. The library exposes a function <code>find_iocs</code> that scans a text string for various indicators and returns a dictionary of results keyed by category.</p>
-<h4>Required Change</h4>
-<p>The result dictionary currently contains a key named <code>complete_email_addresses</code>. This key must be <strong>renamed</strong> to <code>email_addresses_complete</code>.</p>
-<p>The value and behavior associated with this key must remain exactly the same as before — only the key name changes. Every place the results dictionary is produced (including empty-result output) must use the new key name <code>email_addresses_complete</code> and must no longer include a key named <code>complete_email_addresses</code>.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>The change asked for in this task targets the IOC (Indicator of Compromise) finding library. A function <code>find_iocs</code> is exposed by that library: handed a text string, it searches the string for various indicators and returns a dictionary of category-keyed results.</p>
+<h4>The Change to Make</h4>
+<p>At present, the result dictionary carries a key called <code>complete_email_addresses</code>. This key must be <strong>renamed</strong> — <code>email_addresses_complete</code> is the new name.</p>
+<p>The value and the behavior bound to this key must remain exactly what they were before; the name is the only thing that changes. Every spot at which the results dictionary is produced (empty-result output included) must use the new key name <code>email_addresses_complete</code>, and a key named <code>complete_email_addresses</code> must no longer be included in it.</p>
 <h4>Public API</h4>
 <ul>
-<li>Module/function: <code>find_iocs(text)</code> — importable and callable as it currently is.</li>
-<li>The command-line interface must produce output where the same rename is reflected.</li>
+<li>Module/function: <code>find_iocs(text)</code> — it remains importable and callable in its current form.</li>
+<li>The output produced by the command-line interface must reflect the same rename.</li>
 </ul>
-<h4>Behavioral Requirements (unchanged, but must remain correct under the new key)</h4>
-<p><code>find_iocs</code> returns a dictionary. The renamed key <code>email_addresses_complete</code> holds a list of &quot;complete&quot; email addresses — email addresses captured including surrounding/leading characters that are part of the raw address as it appears in the text. A separate key <code>email_addresses</code> holds the &quot;normalized&quot; (cleaned) form of the same addresses.</p>
-<p>The following behaviors must hold for the two keys:</p>
+<h4>Behavioral Requirements (these do not change, but must stay correct under the new key)</h4>
+<p>A dictionary is what <code>find_iocs</code> returns. Under the renamed key <code>email_addresses_complete</code>, a list of &quot;complete&quot; email addresses is stored — addresses captured including the surrounding/leading characters that form part of the raw address as it occurs in the text. The &quot;normalized&quot; (cleaned) form of these same addresses is stored under the separate key <code>email_addresses</code>.</p>
+<p>The behaviors listed below must hold for the two keys:</p>
 <ul>
 <li>
-<p>Input <code>'my email is: foo&quot;bar@gmail.com'</code>:</p>
+<p>Given the input <code>'my email is: foo&quot;bar@gmail.com'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['foo&quot;bar@gmail.com']</code></li>
 <li><code>email_addresses</code> → <code>['bar@gmail.com']</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'foobar@gmail.com&quot;'</code>:</p>
+<p>For the input <code>'foobar@gmail.com&quot;'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['foobar@gmail.com']</code></li>
 <li><code>email_addresses</code> → <code>['foobar@gmail.com']</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'foobar@gmail.comahhhhhhhh'</code>:</p>
+<p>With the input <code>'foobar@gmail.comahhhhhhhh'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>[]</code></li>
 <li><code>email_addresses</code> → <code>[]</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'&quot;foobar@gmail.com'</code>:</p>
+<p>Given the input <code>'&quot;foobar@gmail.com'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['&quot;foobar@gmail.com']</code></li>
 <li><code>email_addresses</code> → <code>['foobar@gmail.com']</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'smtp.mailfrom=example@example.com'</code>:</p>
+<p>For the input <code>'smtp.mailfrom=example@example.com'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['smtp.mailfrom=example@example.com']</code></li>
 <li><code>email_addresses</code> → <code>['example@example.com']</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'&quot;foo@bar.com&quot;'</code>:</p>
+<p>With the input <code>'&quot;foo@bar.com&quot;'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['&quot;foo@bar.com']</code></li>
 <li><code>email_addresses</code> → <code>['foo@bar.com']</code></li>
 </ul>
 </li>
 <li>
-<p>Input <code>'a@example.com'</code>:</p>
+<p>Given the input <code>'a@example.com'</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['a@example.com']</code></li>
 </ul>
 </li>
 <li>
-<p>For the input string:
+<p>For the following input string:
 <code>test@a.com bingo@en.wikipedia.com foo@a.com'.format('a'*63 bar@b.a.com'.format('a'*63, 'a'*63 bad@test-ing.com me@2600.com john.smith(comment)@example.com (comment)john.smith@example.com &quot;John..Doe&quot;@example.com' test@[192.168.0.1]</code></p>
 <ul>
 <li><code>email_addresses_complete</code> must contain exactly 10 entries:
@@ -682,11 +685,11 @@ http://10.1.1.1
 </ul>
 </li>
 </ul>
-<h5>Address-literal (bracketed IP) email addresses</h5>
-<p>Email addresses whose domain part is a bracketed IP literal must be recognized and populate both keys, and the embedded IP must also be recognized as an IP indicator:</p>
+<h5>Email addresses that use an address literal (bracketed IP)</h5>
+<p>When the domain part of an email address is a bracketed IP literal, that address must be recognized and must populate both keys; the IP embedded in it must also be recognized as an IP indicator:</p>
 <ul>
 <li>
-<p>Input <code>&gt;test@[192.168.2.1]&lt;</code>:</p>
+<p>Given the input <code>&gt;test@[192.168.2.1]&lt;</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['test@[192.168.2.1]']</code></li>
 <li><code>email_addresses</code> → <code>['test@[192.168.2.1]']</code></li>
@@ -694,7 +697,7 @@ http://10.1.1.1
 </ul>
 </li>
 <li>
-<p>Input containing <code>bad@[192.168.7.3]</code> (also when immediately followed by other characters, e.g. <code>bad@[192.168.7.3]aaaaa</code>):</p>
+<p>For input that includes <code>bad@[192.168.7.3]</code> (also when other characters come immediately after it, e.g. <code>bad@[192.168.7.3]aaaaa</code>):</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['bad@[192.168.7.3]']</code></li>
 <li><code>email_addresses</code> → <code>['bad@[192.168.7.3]']</code></li>
@@ -702,7 +705,7 @@ http://10.1.1.1
 </ul>
 </li>
 <li>
-<p>Input <code>jsmith@[IPv6:2001:db8::1]</code>:</p>
+<p>Given the input <code>jsmith@[IPv6:2001:db8::1]</code>:</p>
 <ul>
 <li><code>email_addresses_complete</code> → <code>['jsmith@[IPv6:2001:db8::1]']</code></li>
 <li><code>email_addresses</code> → <code>['jsmith@[IPv6:2001:db8::1]']</code></li>
@@ -710,35 +713,35 @@ http://10.1.1.1
 </ul>
 </li>
 <li>
-<p>In a mixed text containing <code>bad12312@example.org</code> (among domains and IPs):</p>
+<p>In a mixed text where <code>bad12312@example.org</code> appears (among domains and IPs):</p>
 <ul>
-<li><code>email_addresses_complete</code> contains exactly the one entry <code>bad12312@example.org</code></li>
+<li><code>email_addresses_complete</code> contains exactly the single entry <code>bad12312@example.org</code></li>
 </ul>
 </li>
 </ul>
-<h4>Result Dictionary Shape</h4>
-<p>When no indicators of a given category are found, that category's key must still be present with an empty list value. In particular, the empty/default result set includes the key <code>email_addresses_complete</code> mapped to <code>[]</code> (and does <strong>not</strong> include <code>complete_email_addresses</code>). All other existing keys (e.g. <code>asns</code>, <code>bitcoin_addresses</code>, <code>cves</code>, <code>domains</code>, <code>email_addresses</code>, <code>google_adsense_publisher_ids</code>, <code>google_analytics_tracker_ids</code>, <code>ipv4_cidrs</code>, <code>ipv4s</code>, <code>ipv6s</code>, <code>registry_key_paths</code>, <code>ssdeeps</code>, etc.) remain unchanged.</p>
+<h4>Shape of the Result Dictionary</h4>
+<p>Whenever no indicators are found for a given category, that category's key must nonetheless be present, with an empty list serving as its value. The empty/default result set is one specific instance of this: it includes the key <code>email_addresses_complete</code>, mapped to <code>[]</code>, and it does <strong>not</strong> include <code>complete_email_addresses</code>. Every other key that already exists (for instance <code>asns</code>, <code>bitcoin_addresses</code>, <code>cves</code>, <code>domains</code>, <code>email_addresses</code>, <code>google_adsense_publisher_ids</code>, <code>google_analytics_tracker_ids</code>, <code>ipv4_cidrs</code>, <code>ipv4s</code>, <code>ipv6s</code>, <code>registry_key_paths</code>, <code>ssdeeps</code>, etc.) is left unchanged.</p>
 <h4>Constraint</h4>
-<p>The implementation must be compatible with Python 3.5 and lower/later 3.x versions (avoid constructs unavailable in Python 3.5). This affects any grammar/parsing logic for the address-literal email addresses described above, which must continue to function correctly on those interpreter versions.</p>
+<p>The implementation must stay compatible with Python 3.5 and lower/later 3.x versions (avoid constructs that Python 3.5 does not have). Any grammar/parsing logic for the address-literal email addresses covered above is affected by this and must keep functioning correctly on those interpreter versions.</p>
 <h4>Out of Scope</h4>
-<p>No other keys, categories, or behaviors change. Do not add or remove any category besides performing the described rename.</p>
+<p>There is no change to any other keys, categories, or behaviors. Apart from performing the described rename, do not add or remove any category.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">IOC Extraction Casing Normalization and Deduplication</span>
-        <span class="spec-meta muted">592 words · source specification
+        <span class="spec-title">Casing Normalization and Deduplication for IOC Extraction</span>
+        <span class="spec-meta muted">636 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: IOC Extraction Casing Normalization and Deduplication</h3>
+      <div class="spec-body"><h3>Task Specification: Casing Normalization and Deduplication for IOC Extraction</h3>
 <h4>Overview</h4>
-<p>You are working on an IOC (Indicator of Compromise) extraction library. There is a public function that scans arbitrary input text and returns a dictionary of extracted indicators grouped by type. You must adjust how certain indicator types handle character casing so that indicators that differ only by case are normalized to a canonical form and deduplicated.</p>
+<p>You are working on a library for IOC (Indicator of Compromise) extraction. It provides a public function that scans arbitrary input text and returns a dictionary of the extracted indicators, grouped by type. You must adjust the way certain indicator types handle character casing, so that indicators differing only by case are normalized to a canonical form and deduplicated.</p>
 <h4>Public API</h4>
-<p>The function under change is:</p>
+<p>The function being changed is:</p>
 <pre><code class="language-python">find_iocs(text: str) -&gt; dict
 </code></pre>
-<p>It is importable such that <code>from &lt;package&gt; import find_iocs</code> works (the existing import path used by the library must remain valid; do not change it). It returns a dictionary whose values are lists of strings, keyed by indicator type. The relevant keys for this task are:</p>
+<p>It can be imported such that <code>from &lt;package&gt; import find_iocs</code> works (the import path the library currently uses must remain valid; do not change it). It returns a dictionary keyed by indicator type, whose values are lists of strings. For this task, the relevant keys are:</p>
 <ul>
 <li><code>'domains'</code></li>
 <li><code>'email_addresses'</code></li>
@@ -749,176 +752,176 @@ http://10.1.1.1
 </ul>
 <h4>Required Behavior</h4>
 <h5>Domains</h5>
-<p>Domains are case-insensitive and must be normalized to <strong>lowercase</strong>. Multiple occurrences that differ only by case must be collapsed into a single entry.</p>
+<p>Domains are case-insensitive and must be normalized to <strong>lowercase</strong>. When multiple occurrences differ only by case, they must be collapsed into a single entry.</p>
 <ul>
-<li>Input containing <code>example.com</code>, <code>Example.com</code>, and <code>exAmplE.com</code> must yield exactly one domain: <code>example.com</code>.</li>
+<li>Input that contains <code>example.com</code>, <code>Example.com</code>, and <code>exAmplE.com</code> must yield exactly one domain: <code>example.com</code>.</li>
 </ul>
 <h5>Email Addresses</h5>
-<p>Email addresses must be normalized to <strong>lowercase</strong> in their entirety (both the local part and the domain part). Multiple occurrences that differ only by case must be collapsed into a single entry.</p>
+<p>An email address must be normalized to <strong>lowercase</strong> in full, covering both the local part and the domain part. Where multiple occurrences differ only by case, they must be collapsed into a single entry.</p>
 <ul>
-<li>Input containing <code>bad@example.com</code>, <code>bad@Example.com</code>, and <code>bad@exAmplE.com</code> must yield exactly one email address: <code>bad@example.com</code>.</li>
-<li>Input containing <code>bad@example.com</code> and <code>Bad@example.com</code> must yield exactly one email address: <code>bad@example.com</code>.</li>
+<li>Input that contains <code>bad@example.com</code>, <code>bad@Example.com</code>, and <code>bad@exAmplE.com</code> must yield exactly one email address: <code>bad@example.com</code>.</li>
+<li>Input that contains <code>bad@example.com</code> and <code>Bad@example.com</code> must yield exactly one email address: <code>bad@example.com</code>.</li>
 </ul>
 <h5>URLs</h5>
-<p>For URLs, the scheme and host (domain) portion must be treated case-insensitively and normalized to <strong>lowercase</strong>, but the <strong>path portion is case-sensitive</strong> and must be preserved exactly as written. Deduplication applies only after this normalization.</p>
+<p>With URLs, the scheme and the host (domain) portion must be treated case-insensitively and normalized to <strong>lowercase</strong>; however, the <strong>path portion is case-sensitive</strong> and must be preserved exactly as written. Deduplication is applied only after this normalization.</p>
 <ul>
-<li>Input containing <code>http://example.com/test</code> and <code>http://EXAMple.com/test</code> must yield exactly one URL: <code>http://example.com/test</code> (the host was normalized, paths matched, so they deduplicate).</li>
-<li>Input containing <code>http://example.com/test</code> and <code>http://EXAMple.com/TEST</code> must yield exactly two URLs: <code>http://example.com/test</code> and <code>http://example.com/TEST</code> (hosts normalize to the same value, but the differing-case paths are distinct and both retained).</li>
+<li>Input that contains <code>http://example.com/test</code> and <code>http://EXAMple.com/test</code> must yield exactly one URL: <code>http://example.com/test</code> (the host was normalized and the paths matched, so they deduplicate).</li>
+<li>Input that contains <code>http://example.com/test</code> and <code>http://EXAMple.com/TEST</code> must yield exactly two URLs: <code>http://example.com/test</code> and <code>http://example.com/TEST</code> (the hosts normalize to the same value, but the differing-case paths are distinct and both are retained).</li>
 </ul>
 <h5>ASNs</h5>
-<p>An autonomous system number written using the lowercase prefix <code>as</code> immediately followed by digits must be recognized and normalized to the canonical uppercase form <code>ASN</code> followed by the digits.</p>
+<p>An autonomous system number that is written with the lowercase prefix <code>as</code> immediately followed by digits must be recognized and normalized to the canonical uppercase form <code>ASN</code> followed by the digits.</p>
 <ul>
-<li>Input <code>as8</code> must yield exactly one ASN: <code>ASN8</code>.</li>
+<li>The input <code>as8</code> must yield exactly one ASN: <code>ASN8</code>.</li>
 </ul>
 <h5>Google AdSense Publisher IDs</h5>
-<p>A Google AdSense publisher ID consists of the prefix <code>pub-</code> followed by 16 digits. Recognition of the prefix is <strong>case-insensitive only for a fully-uppercase or fully-lowercase prefix</strong>, and the canonical output form uses a <strong>lowercase</strong> <code>pub-</code> prefix.</p>
+<p>A Google AdSense publisher ID is made up of the prefix <code>pub-</code> followed by 16 digits. Recognition of the prefix is <strong>case-insensitive only when the prefix is fully-uppercase or fully-lowercase</strong>, and the canonical output form uses a <strong>lowercase</strong> <code>pub-</code> prefix.</p>
 <ul>
-<li>Input <code>PUB-1234567891234567</code> must yield exactly one publisher ID: <code>pub-1234567891234567</code>.</li>
-<li>Input <code>pub-1234567891234567</code> must yield exactly one publisher ID: <code>pub-1234567891234567</code>.</li>
-<li>Input with a mixed-case prefix such as <code>pUb-1234567891234567</code> must <strong>not</strong> be recognized as a publisher ID (yields zero results).</li>
-<li>Input containing <code>pub-1234567891234567</code>, <code>PUB-1234567891234567</code>, and <code>pUb-1234567891234567</code> together must yield exactly one publisher ID: <code>pub-1234567891234567</code> (the two recognized fully-cased forms normalize and deduplicate; the mixed-case form is ignored).</li>
+<li>The input <code>PUB-1234567891234567</code> must yield exactly one publisher ID: <code>pub-1234567891234567</code>.</li>
+<li>The input <code>pub-1234567891234567</code> must yield exactly one publisher ID: <code>pub-1234567891234567</code>.</li>
+<li>Input whose prefix has mixed casing, such as <code>pUb-1234567891234567</code>, must <strong>not</strong> be recognized as a publisher ID (this yields zero results).</li>
+<li>Input that contains <code>pub-1234567891234567</code>, <code>PUB-1234567891234567</code>, and <code>pUb-1234567891234567</code> together must yield exactly one publisher ID: <code>pub-1234567891234567</code> (the two fully-cased forms, which are recognized, normalize and deduplicate; the form with mixed casing is ignored).</li>
 </ul>
 <h5>Google Analytics Tracker IDs</h5>
-<p>A Google Analytics tracker ID consists of the prefix <code>ua-</code> followed by a numeric account/property pattern (e.g. <code>ua-000000-1</code>). The prefix is recognized case-insensitively and the canonical output form uses an <strong>uppercase</strong> <code>UA-</code> prefix.</p>
+<p>A Google Analytics tracker ID is composed of the prefix <code>ua-</code> followed by a numeric account/property pattern (for example, <code>ua-000000-1</code>). Recognition of the prefix is case-insensitive, and the canonical output form uses an <strong>uppercase</strong> <code>UA-</code> prefix.</p>
 <ul>
-<li>Input <code>ua-000000-1</code> must yield exactly one tracker ID: <code>UA-000000-1</code>.</li>
-<li>Input containing <code>UA-000000-1</code> and <code>ua-000000-1</code> must yield exactly one tracker ID: <code>UA-000000-1</code> (case-insensitive deduplication).</li>
+<li>The input <code>ua-000000-1</code> must yield exactly one tracker ID: <code>UA-000000-1</code>.</li>
+<li>Input that contains <code>UA-000000-1</code> and <code>ua-000000-1</code> must yield exactly one tracker ID: <code>UA-000000-1</code> (deduplication is case-insensitive).</li>
 </ul>
 <h4>General Notes</h4>
 <ul>
-<li>In all deduplication cases above, the returned list must contain each canonical indicator exactly once (no duplicates that differ only by the normalized casing).</li>
-<li>Only the behaviors described above are in scope. Do not alter behavior for indicator types or inputs not covered here.</li>
+<li>In all of the deduplication cases above, the list that is returned must contain each canonical indicator exactly once, with no duplicates that differ only by the normalized casing.</li>
+<li>This task covers only the behaviors described above. For indicator types or inputs not covered here, do not change the behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Implement the following IOC finder behavior update.</span>
-        <span class="spec-meta muted">576 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Implement the following update to the IOC finder&#39;s behavior.</span>
+        <span class="spec-meta muted">645 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement the following IOC finder behavior update.</p>
+      <div class="spec-body"><p>Implement the following update to the IOC finder's behavior.</p>
 <h4>Public API</h4>
-<p>Expose the following callable from the package root:</p>
+<p>The following callable must be exposed from the package root:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
-<p>Required callable interface:</p>
+<p>The callable is required to have this interface:</p>
 <pre><code class="language-python">find_iocs(
     s: str,
     parse_domain_name_from_xmpp_address: bool = True,
 ) -&gt; dict
 </code></pre>
-<p>The returned dictionary must contain the indicator-category keys described below, with list values supporting membership checks, indexing, and <code>len()</code>.</p>
-<p>No ordering is required for categories containing multiple values unless explicitly stated.</p>
+<p>The dictionary that is returned must contain the indicator-category keys described below, with list values that support membership checks, indexing, and <code>len()</code>.</p>
+<p>Unless explicitly stated, no ordering is required for categories that contain multiple values.</p>
 <h4>Required behavior</h4>
 <h5>IPv6 filtering</h5>
-<p>A source string containing <code>1:1</code> must not return that value in:</p>
+<p>When the source string contains <code>1:1</code>, that value must not be returned in:</p>
 <pre><code class="language-python">result[&quot;ipv6s&quot;]
 </code></pre>
 <h5>Complete email addresses</h5>
-<p>Every entry in <code>result[&quot;email_addresses_complete&quot;]</code> must reproduce the complete email address verbatim as it appears in the source text. Preserve its original character casing and syntax, including quoted local parts and parenthesized comments; do not lowercase or otherwise normalize the returned complete address.</p>
-<p>A parenthesized comment may occur after the local part. For:</p>
+<p>Every entry in <code>result[&quot;email_addresses_complete&quot;]</code> must reproduce, verbatim, the complete email address as it appears in the source text. Its original character casing and syntax, including quoted local parts and parenthesized comments, must be preserved; the returned complete address must not be lowercased or otherwise normalized.</p>
+<p>A parenthesized comment may appear after the local part. For:</p>
 <pre><code class="language-text">john.smith(comment)@example.com
 </code></pre>
 <p><code>result[&quot;email_addresses_complete&quot;]</code> must contain the complete, unchanged address:</p>
 <pre><code class="language-text">john.smith(comment)@example.com
 </code></pre>
-<p>A parenthesized comment may also occur before the local part. For:</p>
+<p>A parenthesized comment may also appear before the local part. For:</p>
 <pre><code class="language-text">(comment)john.smith@example.com
 </code></pre>
 <p><code>result[&quot;email_addresses_complete&quot;]</code> must contain exactly that unchanged address:</p>
 <pre><code class="language-text">(comment)john.smith@example.com
 </code></pre>
-<p>Original casing must be preserved, including in a quoted local part. For:</p>
+<p>Casing from the original must be preserved, including within a quoted local part. For:</p>
 <pre><code class="language-text">&quot;John..Doe&quot;@example.com
 </code></pre>
 <p><code>result[&quot;email_addresses_complete&quot;]</code> must contain:</p>
 <pre><code class="language-text">&quot;John..Doe&quot;@example.com
 </code></pre>
-<p>and must not replace it with a lowercased variant such as <code>&quot;john..doe&quot;@example.com</code>.</p>
+<p>and it must not be replaced with a lowercased variant such as <code>&quot;john..doe&quot;@example.com</code>.</p>
 <h5>CVE identifiers</h5>
-<p>For this input:</p>
+<p>Given this input:</p>
 <pre><code class="language-text">cve-2014-1000 cve 2014-1001 cve-1999-1002 CVE 2999-1003 CVE 1928-1004
 </code></pre>
-<p><code>result[&quot;cves&quot;]</code> must contain exactly five entries:</p>
+<p><code>result[&quot;cves&quot;]</code> must hold exactly five entries:</p>
 <pre><code class="language-text">CVE-2014-1000
 CVE-2014-1001
 CVE-1999-1002
 CVE-2999-1003
 CVE-1928-1004
 </code></pre>
-<p>Both a hyphen and a space between <code>cve</code> and the year must be accepted. Returned identifiers must use uppercase <code>CVE</code> and hyphens.</p>
+<p>Both a space and a hyphen between <code>cve</code> and the year must be accepted. The identifiers that are returned must use uppercase <code>CVE</code> and hyphens.</p>
 <h5>Google AdSense publisher IDs</h5>
-<p>For:</p>
+<p>For the following input:</p>
 <pre><code class="language-text">pub-1234567891234567 pub-9383614236930773
 </code></pre>
-<p><code>result[&quot;google_adsense_publisher_ids&quot;]</code> must contain exactly these two values:</p>
+<p>exactly these two values must be contained in <code>result[&quot;google_adsense_publisher_ids&quot;]</code>:</p>
 <pre><code class="language-text">pub-1234567891234567
 pub-9383614236930773
 </code></pre>
 <h5>Google Analytics tracker IDs</h5>
-<p>For:</p>
+<p>For the input:</p>
 <pre><code class="language-text">UA-000000-2
 </code></pre>
-<p><code>result[&quot;google_analytics_tracker_ids&quot;]</code> must be a one-item list whose item is:</p>
+<p>the value of <code>result[&quot;google_analytics_tracker_ids&quot;]</code> must be a one-item list whose item is:</p>
 <pre><code class="language-text">UA-000000-2
 </code></pre>
-<p>For:</p>
+<p>For the input:</p>
 <pre><code class="language-text">UA-000000-2 UA-00000000-99
 </code></pre>
-<p>the list must contain exactly two entries, including both tracker IDs unchanged.</p>
+<p>the list must contain exactly two entries, with both tracker IDs included unchanged.</p>
 <h5>Bitcoin addresses</h5>
-<p>Given text containing these three addresses:</p>
+<p>For text that contains these three addresses:</p>
 <pre><code class="language-text">1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2
 3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy
 bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq
 </code></pre>
-<p><code>result[&quot;bitcoin_addresses&quot;]</code> must contain exactly those three values.</p>
+<p>exactly those three values must be contained in <code>result[&quot;bitcoin_addresses&quot;]</code>.</p>
 <h5>XMPP addresses and domain extraction</h5>
-<p>For:</p>
+<p>For the input:</p>
 <pre><code class="language-text">foo@swissjabber.de bar@jabber.zone bom@jabber.sow.as me@example.com
 </code></pre>
-<p><code>result[&quot;xmpp_addresses&quot;]</code> must contain exactly:</p>
+<p><code>result[&quot;xmpp_addresses&quot;]</code> must contain exactly the following:</p>
 <pre><code class="language-text">foo@swissjabber.de
 bar@jabber.zone
 bom@jabber.sow.as
 </code></pre>
-<p>With the default <code>parse_domain_name_from_xmpp_address=True</code> behavior:</p>
+<p>Under the default <code>parse_domain_name_from_xmpp_address=True</code> behavior:</p>
 <ul>
-<li><code>result[&quot;domains&quot;]</code> must contain four entries.</li>
-<li><code>result[&quot;email_addresses&quot;]</code> must contain one entry; the three XMPP addresses must not also be counted as email addresses.</li>
+<li>There must be four entries in <code>result[&quot;domains&quot;]</code>.</li>
+<li>There must be one entry in <code>result[&quot;email_addresses&quot;]</code>; the three XMPP addresses must not additionally be counted as email addresses.</li>
 </ul>
-<p>When called as:</p>
+<p>When the function is called as:</p>
 <pre><code class="language-python">find_iocs(s, parse_domain_name_from_xmpp_address=False)
 </code></pre>
 <ul>
-<li>The same three XMPP addresses must still be returned.</li>
-<li><code>result[&quot;domains&quot;]</code> must contain one entry.</li>
-<li><code>result[&quot;email_addresses&quot;]</code> must still contain one entry.</li>
+<li>Those same three XMPP addresses must still be returned.</li>
+<li>One entry must be present in <code>result[&quot;domains&quot;]</code>.</li>
+<li>One entry must still be present in <code>result[&quot;email_addresses&quot;]</code>.</li>
 </ul>
 <h5>MAC addresses</h5>
-<p>For:</p>
+<p>For the following input:</p>
 <pre><code class="language-text">AA-F2-C9-A6-B3-4F AB:F2:C9:A6:B3:4F ACF2.C9A6.B34F
 </code></pre>
-<p><code>result[&quot;mac_addresses&quot;]</code> must contain exactly those three values.</p>
-<p>The equivalent lowercase forms must also be recognized and preserved unchanged:</p>
+<p>exactly those three values must be present in <code>result[&quot;mac_addresses&quot;]</code>.</p>
+<p>The lowercase equivalents must also be recognized and preserved unchanged:</p>
 <pre><code class="language-text">aa-f2-c9-a6-b3-4f
 ab:f2:c9:a6:b3:4f
 acf2.c9a6.b34f
 </code></pre>
 <h5>SSDeep hashes</h5>
-<p><code>result[&quot;ssdeeps&quot;]</code> must recognize and return the SSDeep value without surrounding prose, CSV delimiters, commas, or following identifiers.</p>
-<p>For a source containing only the following hash, the result must be a one-item list containing it exactly:</p>
+<p><code>result[&quot;ssdeeps&quot;]</code> must recognize the SSDeep value and return it without surrounding prose, CSV delimiters, commas, or identifiers that follow.</p>
+<p>When a source contains only the following hash, the result must be a one-item list that contains it exactly:</p>
 <pre><code class="language-text">1536:yB+A8bMtMeRlbIzvDqZL4QzNxVDm+5gt+M2hDDDvNZ3YZ7sU:N4tMsbOGcyrV6BQvnoZ4U
 </code></pre>
-<p>The same exact one-item result is required when that hash appears within prose and is immediately followed by:</p>
+<p>The same exact one-item result is required when that hash is embedded within prose and is immediately followed by:</p>
 <pre><code class="language-text">,000/000/000000001
 </code></pre>
-<p>A labeled source containing the following hash must likewise return it as the only SSDeep result:</p>
+<p>For a labeled source containing the following hash, that hash must likewise be returned as the only SSDeep result:</p>
 <pre><code class="language-text">12288:QYV6MorX7qzuC3QHO9FQVHPF51jgcSj2EtPo/V7I6R+Lqaw8i6hG0:vBXu9HGaVHh4Po/VU6RkqaQ6F
 </code></pre>
-<p>A multiline CSV-like source containing the following nine SSDeep hashes must produce exactly nine entries in <code>result[&quot;ssdeeps&quot;]</code>, containing every value below:</p>
+<p>When a multiline CSV-like source contains the following nine SSDeep hashes, the result in <code>result[&quot;ssdeeps&quot;]</code> must be exactly nine entries, containing every value below:</p>
 <pre><code class="language-text">393216:EW/eKCo9QgoHfHYebwoyC0QStQYEb+G8j3wfVOglnimQyCK+mteYREDWXKF2b:MKg3lbwoyCnCkNHlnimfCSQx8b
 196608:AGSE26mYSK0iwH8HW9TDl0vnvCZwZEkzzeap7R:Ak28siwH8eRSn25k3eg
 98304:O1OCzezOgr4XMP7Af0+Kh7MzplFKuu5XcS9QnCD/VWR6yf4OB6S/mwRTwjf0ih87:k/Y4XMT7YguEXqCD/VWR6yf4Ux/mwR0S
@@ -934,33 +937,33 @@ acf2.c9a6.b34f
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Expose the existing public function</span>
-        <span class="spec-meta muted">165 words · source specification
+        <span class="spec-title">Expose the public function that already exists</span>
+        <span class="spec-meta muted">187 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add labeled import-hash detection</h3>
-<p>Expose the existing public function:</p>
+      <div class="spec-body"><h3>Implement detection of labeled import hashes</h3>
+<p>Expose the public function that already exists:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
-<p>with the callable signature:</p>
+<p>along with this callable signature:</p>
 <pre><code class="language-python">find_iocs(text: str)
 </code></pre>
-<p>The returned mapping must contain an <code>imphashes</code> key whose value is a list.</p>
-<h4>Required behavior</h4>
-<p>Recognize the 32-character hexadecimal value:</p>
+<p>The mapping that is returned must contain an <code>imphashes</code> key whose value is a list.</p>
+<h4>Behavior that is required</h4>
+<p>Recognize this 32-character hexadecimal value:</p>
 <pre><code class="language-text">18ddf28a71089acdbab5038f58044c0a
 </code></pre>
-<p>as an import hash when it follows either of these labels:</p>
+<p>as an import hash if it follows either of these labels:</p>
 <ul>
 <li><code>imphash</code></li>
 <li><code>import hash</code></li>
 </ul>
-<p>The all-uppercase label forms must also be recognized:</p>
+<p>The all-uppercase forms of these labels must also be recognized:</p>
 <ul>
 <li><code>IMPHASH</code></li>
 <li><code>IMPORT HASH</code></li>
 </ul>
-<p>The label and value must be accepted with each of these separators:</p>
+<p>The label and the value must be accepted with each of the separators below:</p>
 <ul>
 <li><code>: </code></li>
 <li>one space</li>
@@ -970,55 +973,55 @@ acf2.c9a6.b34f
 <li>a newline</li>
 <li><code>-</code></li>
 </ul>
-<p>The label may appear after preceding text on the same line, such as:</p>
+<p>The label may show up after text that precedes it on the same line, such as:</p>
 <pre><code class="language-text">Dropper imphash: 18ddf28a71089acdbab5038f58044c0a
 </code></pre>
-<p>For each supported form, <code>find_iocs</code> must return exactly:</p>
+<p>For each of the supported forms, <code>find_iocs</code> must return exactly:</p>
 <pre><code class="language-python">result[&quot;imphashes&quot;] == [&quot;18ddf28a71089acdbab5038f58044c0a&quot;]
 </code></pre>
-<p>Other surrounding indicators, including a SHA-256 value and an IP address with a port, must not add entries to <code>imphashes</code>.</p>
+<p>Other indicators present in the surrounding text, including a SHA-256 value and an IP address with a port, must not add entries to <code>imphashes</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Differentiate Authentihashes and Imphashes from Generic Hashes</span>
-        <span class="spec-meta muted">637 words · source specification
+        <span class="spec-title">Distinguishing Authentihashes and Imphashes from Generic Hashes</span>
+        <span class="spec-meta muted">690 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Differentiate Authentihashes and Imphashes from Generic Hashes</h3>
+      <div class="spec-body"><h3>Task Specification: Distinguishing Authentihashes and Imphashes from Generic Hashes</h3>
 <h4>Overview</h4>
-<p>The IOC (Indicator of Compromise) finder library extracts various indicators from arbitrary text. This task requires adding the ability to recognize labeled <strong>authentihashes</strong> (SHA256-format hashes) and <strong>imphashes</strong> (MD5-format hashes) as distinct IOC categories, separate from generic <code>sha256s</code> and <code>md5s</code>.</p>
+<p>The IOC (Indicator of Compromise) finder library pulls a variety of indicators out of arbitrary text. This task requires adding the ability to recognize <strong>authentihashes</strong> (SHA256-format hashes) and <strong>imphashes</strong> (MD5-format hashes) that carry a label as distinct IOC categories, separate from the generic <code>sha256s</code> and <code>md5s</code>.</p>
 <h4>Public API</h4>
-<p>The primary entry point is:</p>
+<p>The main entry point is:</p>
 <pre><code class="language-python">find_iocs(text, ...) -&gt; dict
 </code></pre>
-<p>located in the library's main module (the same module that already exposes <code>find_iocs</code>, importable as it currently is). This function returns a dictionary whose keys are IOC category names and whose values are lists of extracted indicators.</p>
-<p>Two new keyword parameters must be added to <code>find_iocs</code>:</p>
+<p>residing in the library's main module (the same module that already exposes <code>find_iocs</code>, importable as it currently is). The function returns a dictionary in which the keys are IOC category names and the values are lists of extracted indicators.</p>
+<p><code>find_iocs</code> must be extended with two new keyword parameters:</p>
 <ul>
 <li><code>parse_imphashes: bool = True</code></li>
 <li><code>parse_authentihashes: bool = True</code></li>
 </ul>
 <h4>Required Behavior</h4>
-<h5>1. New output categories</h5>
-<p>The dictionary returned by <code>find_iocs</code> must include two categories:</p>
+<h5>1. New categories in the output</h5>
+<p>The dictionary returned by <code>find_iocs</code> must have two categories:</p>
 <ul>
-<li><code>&quot;authentihashes&quot;</code> — a list of SHA256-format hashes (64 hexadecimal characters) that appear in the text preceded by an &quot;authentihash&quot; label.</li>
-<li><code>&quot;imphashes&quot;</code> — a list of MD5-format hashes (32 hexadecimal characters) that appear in the text preceded by an &quot;imphash&quot; label.</li>
+<li><code>&quot;authentihashes&quot;</code> — a list of SHA256-format hashes (64 hexadecimal characters) that occur in the text preceded by an &quot;authentihash&quot; label.</li>
+<li><code>&quot;imphashes&quot;</code> — a list of MD5-format hashes (32 hexadecimal characters) that occur in the text preceded by an &quot;imphash&quot; label.</li>
 </ul>
-<p>When no such indicators are present, these keys must still be present with empty list values.</p>
-<h5>2. Label recognition</h5>
-<p>A hash is classified as an authentihash or imphash when it is immediately preceded by the corresponding label keyword. The label matching must be case-insensitive (e.g., both <code>authentihash</code> and <code>AUTHENTIHASH</code> are recognized; both <code>imphash</code> and <code>IMPHASH</code> are recognized).</p>
-<p>The label may be separated from the hash value by any of the following separators (one or more):</p>
+<p>If no such indicators are present, these keys must still be present, holding empty lists as their values.</p>
+<h5>2. Recognizing labels</h5>
+<p>A hash is classified as an authentihash or an imphash when the corresponding label keyword appears immediately before it. Matching on the label must be case-insensitive (e.g., both <code>authentihash</code> and <code>AUTHENTIHASH</code> are recognized; both <code>imphash</code> and <code>IMPHASH</code> are recognized).</p>
+<p>Any of the following separators (one or more) may sit between the label and the hash value:</p>
 <ul>
 <li>One or more spaces</li>
-<li>A colon optionally followed by spaces (e.g., <code>label:</code> or <code>label:    </code>)</li>
-<li>A hyphen surrounded by spaces (<code>-</code>)</li>
-<li>A hyphen with no spaces (<code>-</code>)</li>
+<li>A colon with spaces optionally after it (e.g., <code>label:</code> or <code>label:    </code>)</li>
+<li>A hyphen with a space on either side (<code>-</code>)</li>
+<li>A hyphen without spaces (<code>-</code>)</li>
 <li>A tab character</li>
 <li>A newline character</li>
 </ul>
-<p>Examples of recognized forms (where <code>&lt;hash&gt;</code> is the appropriate hex string):</p>
+<p>Examples of forms that are recognized (where <code>&lt;hash&gt;</code> stands for the appropriate hex string):</p>
 <ul>
 <li><code>imphash &lt;hash&gt;</code></li>
 <li><code>imphash   &lt;hash&gt;</code></li>
@@ -1029,42 +1032,42 @@ acf2.c9a6.b34f
 <li><code>imphash\t&lt;hash&gt;</code></li>
 <li><code>imphash\n&lt;hash&gt;</code></li>
 </ul>
-<p>(and likewise for <code>authentihash</code>).</p>
-<h5>3. Mutual exclusivity with generic hash categories</h5>
-<p>When a hash value is recognized as an authentihash or imphash, it must <strong>not</strong> also appear in the generic hash categories:</p>
+<p>(and the same applies to <code>authentihash</code>).</p>
+<h5>3. Mutual exclusivity versus the generic hash categories</h5>
+<p>Once a hash value is recognized as an authentihash or an imphash, it must <strong>not</strong> also appear in the generic hash categories:</p>
 <ul>
-<li>A labeled imphash (32-hex-char value) must appear only in <code>&quot;imphashes&quot;</code> and must <strong>not</strong> appear in <code>&quot;md5s&quot;</code>. In this case <code>&quot;md5s&quot;</code> remains empty (with respect to that value).</li>
-<li>A labeled authentihash (64-hex-char value) must appear only in <code>&quot;authentihashes&quot;</code> and must <strong>not</strong> appear in <code>&quot;sha256s&quot;</code>. In this case <code>&quot;sha256s&quot;</code> remains empty (with respect to that value).</li>
+<li>An imphash carrying a label (a 32-hex-char value) must appear only in <code>&quot;imphashes&quot;</code> and must <strong>not</strong> appear in <code>&quot;md5s&quot;</code>. In that case <code>&quot;md5s&quot;</code> stays empty (with respect to that value).</li>
+<li>An authentihash carrying a label (a 64-hex-char value) must appear only in <code>&quot;authentihashes&quot;</code> and must <strong>not</strong> appear in <code>&quot;sha256s&quot;</code>. In that case <code>&quot;sha256s&quot;</code> stays empty (with respect to that value).</li>
 </ul>
-<h5>4. Disabling parsing</h5>
+<h5>4. Turning the parsing off</h5>
 <ul>
 <li>
-<p>When <code>parse_imphashes=False</code>, the <code>&quot;imphashes&quot;</code> key must be <strong>absent</strong> from the returned dictionary. In this case, a hash that would otherwise have been classified as an imphash must instead be treated as a generic MD5 and appear in <code>&quot;md5s&quot;</code>.</p>
-<p>Example: <code>find_iocs('imphash 18ddf28a71089acdbab5038f58044c0a', parse_imphashes=False)</code> yields no <code>&quot;imphashes&quot;</code> key, and <code>&quot;md5s&quot;</code> contains exactly one entry.</p>
+<p>If <code>parse_imphashes=False</code>, the <code>&quot;imphashes&quot;</code> key must be <strong>absent</strong> from the dictionary that is returned. In that case, a hash that would otherwise have been classified as an imphash must instead be handled as a generic MD5 and show up in <code>&quot;md5s&quot;</code>.</p>
+<p>Example: the call <code>find_iocs('imphash 18ddf28a71089acdbab5038f58044c0a', parse_imphashes=False)</code> yields no <code>&quot;imphashes&quot;</code> key, and <code>&quot;md5s&quot;</code> holds exactly one entry.</p>
 </li>
 <li>
-<p>When <code>parse_authentihashes=False</code>, the <code>&quot;authentihashes&quot;</code> key must be <strong>absent</strong> from the returned dictionary. In this case, a hash that would otherwise have been classified as an authentihash must instead be treated as a generic SHA256 and appear in <code>&quot;sha256s&quot;</code>.</p>
-<p>Example: <code>find_iocs('authentihash 3f1b149d07e7e8636636b8b7f7043c40ed64a10b28986181fb046c498432c2d4', parse_authentihashes=False)</code> yields no <code>&quot;authentihashes&quot;</code> key, and <code>&quot;sha256s&quot;</code> contains exactly one entry.</p>
+<p>If <code>parse_authentihashes=False</code>, the <code>&quot;authentihashes&quot;</code> key must be <strong>absent</strong> from the dictionary that is returned. In that case, a hash that would otherwise have been classified as an authentihash must instead be handled as a generic SHA256 and show up in <code>&quot;sha256s&quot;</code>.</p>
+<p>Example: the call <code>find_iocs('authentihash 3f1b149d07e7e8636636b8b7f7043c40ed64a10b28986181fb046c498432c2d4', parse_authentihashes=False)</code> yields no <code>&quot;authentihashes&quot;</code> key, and <code>&quot;sha256s&quot;</code> holds exactly one entry.</p>
 </li>
 </ul>
 <h4>CLI Output</h4>
-<p>The library also exposes a command-line interface that emits the full IOC dictionary as formatted JSON. With default settings (all parsing enabled), the emitted JSON object must include the keys <code>&quot;authentihashes&quot;</code> and <code>&quot;imphashes&quot;</code> (as empty lists when no such indicators are found), positioned in alphabetical key order alongside the other existing categories. Specifically, <code>&quot;authentihashes&quot;</code> appears between <code>&quot;asns&quot;</code> and <code>&quot;bitcoin_addresses&quot;</code>, and <code>&quot;imphashes&quot;</code> appears between <code>&quot;google_analytics_tracker_ids&quot;</code> and <code>&quot;ipv4_cidrs&quot;</code>.</p>
+<p>A command-line interface is also exposed by the library; it emits the complete IOC dictionary as formatted JSON. Under the default settings (all parsing enabled), the JSON object that gets emitted must include the keys <code>&quot;authentihashes&quot;</code> and <code>&quot;imphashes&quot;</code> (as empty lists if no such indicators are found), placed in alphabetical key order alongside the other existing categories. To be precise, <code>&quot;authentihashes&quot;</code> appears between <code>&quot;asns&quot;</code> and <code>&quot;bitcoin_addresses&quot;</code>, and <code>&quot;imphashes&quot;</code> appears between <code>&quot;google_analytics_tracker_ids&quot;</code> and <code>&quot;ipv4_cidrs&quot;</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The existing <code>imphash</code> recognition behavior (extracting the value into <code>&quot;imphashes&quot;</code>) must be preserved; the new requirement is that recognized imphash values are excluded from <code>&quot;md5s&quot;</code>.</li>
-<li>The <code>authentihashes</code> category and its exclusion from <code>&quot;sha256s&quot;</code> is new.</li>
+<li>The <code>imphash</code> recognition behavior that already exists (extracting the value into <code>&quot;imphashes&quot;</code>) must be preserved; the new requirement is that imphash values which get recognized are excluded from <code>&quot;md5s&quot;</code>.</li>
+<li>The <code>authentihashes</code> category, together with its exclusion from <code>&quot;sha256s&quot;</code>, is new.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Expose the following public API</span>
-        <span class="spec-meta muted">162 words · source specification
+        <span class="spec-title">Expose the public API below</span>
+        <span class="spec-meta muted">202 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Expose the following public API:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Expose the public API below:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
 <pre><code class="language-python">find_iocs(
@@ -1072,66 +1075,66 @@ acf2.c9a6.b34f
     parse_domain_from_email_address: bool = ...,
 ) -&gt; dict
 </code></pre>
-<p><code>find_iocs</code> must recognize email addresses with these behaviors:</p>
+<p>The <code>find_iocs</code> function must recognize email addresses with the following behaviors:</p>
 <ul>
-<li>Given <code>foo@bar.com.</code>, return <code>foo@bar.com</code> in the <code>email_addresses</code> collection; the trailing period is excluded.</li>
-<li>When called with <code>parse_domain_from_email_address=False</code>, no domain may be derived from an email address. For <code>foo@bar.com.</code>, the returned <code>domains</code> collection must therefore be empty.</li>
-<li>Given <code>&quot;foo@bar.com</code>, return <code>foo@bar.com</code>; the leading quotation mark is excluded.</li>
-<li>Given <code>-----foo@bar.com</code>, return exactly <code>foo@bar.com</code>; leading hyphens are not part of the email address.</li>
-<li>Hyphens remain valid after the initial alphanumeric character of the email local part:
+<li>When the input is <code>foo@bar.com.</code>, <code>foo@bar.com</code> must be returned in the <code>email_addresses</code> collection; the period at the end is excluded.</li>
+<li>If the function is called with <code>parse_domain_from_email_address=False</code>, no domain may be derived from an email address. As a result, for <code>foo@bar.com.</code>, the returned <code>domains</code> collection must be empty.</li>
+<li>For the input <code>&quot;foo@bar.com</code>, the function must return <code>foo@bar.com</code>; the quotation mark at the start is excluded.</li>
+<li>For the input <code>-----foo@bar.com</code>, exactly <code>foo@bar.com</code> must be returned; hyphens at the beginning are not part of the email address.</li>
+<li>After the initial alphanumeric character of the email local part, hyphens remain valid:
 <ul>
-<li><code>foo-burt@bar.com</code> must be recognized in full.</li>
-<li><code>f-1@bar.com</code> must be recognized in full.</li>
+<li>The address <code>foo-burt@bar.com</code> must be recognized in full.</li>
+<li>The address <code>f-1@bar.com</code> must be recognized in full.</li>
 </ul>
 </li>
-<li>For input containing both <code>foo-burt@bar.com f-1@bar.com</code>, <code>email_addresses</code> must contain exactly those two addresses.</li>
+<li>When the input contains both <code>foo-burt@bar.com f-1@bar.com</code>, <code>email_addresses</code> must contain exactly those two addresses.</li>
 </ul>
-<p>The returned mapping must provide at least the keys:</p>
+<p>The mapping that is returned must provide at least these keys:</p>
 <pre><code class="language-python">&quot;email_addresses&quot;
 &quot;domains&quot;
 </code></pre>
-<p>with collection values supporting length checks and membership/index access.</p>
+<p>with the collection values of these listed keys supporting length checks and membership/index access.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">57 words · source specification
+        <span class="spec-title">Modify the public function</span>
+        <span class="spec-meta muted">69 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Modify the public function:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 
 find_iocs(text: str)
 </code></pre>
-<p>When called with the exact input:</p>
+<p>When the function is called with the following exact input:</p>
 <pre><code class="language-python">find_iocs(&quot;2019.02.15&quot;)
 </code></pre>
-<p>the returned IOC mapping must:</p>
+<p>the IOC mapping that is returned must:</p>
 <ul>
-<li>Include the key <code>&quot;mac_addresses&quot;</code>.</li>
-<li>Associate <code>&quot;mac_addresses&quot;</code> with an empty collection, so <code>len(result[&quot;mac_addresses&quot;]) == 0</code>.</li>
+<li>Contain the key <code>&quot;mac_addresses&quot;</code>.</li>
+<li>Map <code>&quot;mac_addresses&quot;</code> to an empty collection, such that <code>len(result[&quot;mac_addresses&quot;]) == 0</code>.</li>
 </ul>
-<p>The date-like string <code>2019.02.15</code> must not be identified as a MAC address.</p>
+<p>It must not be the case that the date-like string <code>2019.02.15</code> is identified as a MAC address.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">The package-level module ioc_finder must expose</span>
-        <span class="spec-meta muted">238 words · source specification
+        <span class="spec-title">The package-level ioc_finder module must expose</span>
+        <span class="spec-meta muted">258 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Add user-agent extraction to <code>find_iocs</code></h3>
+      <div class="spec-body"><h3>Extend <code>find_iocs</code> with user-agent extraction</h3>
 <h4>Public API</h4>
-<p>The package-level module <code>ioc_finder</code> must expose:</p>
+<p>The package-level <code>ioc_finder</code> module must expose:</p>
 <pre><code class="language-python">find_iocs(text: str)
 </code></pre>
-<p>The function’s returned mapping must include a <code>&quot;user_agents&quot;</code> key whose value is a list of user-agent strings found in <code>text</code>.</p>
-<h4>Required behavior</h4>
-<p>User-agent detection must be case-insensitive, while each extracted value must preserve the exact casing and text from the input.</p>
+<p>The mapping that the function returns must include a <code>&quot;user_agents&quot;</code> key whose value is a list of user-agent strings found in <code>text</code>.</p>
+<h4>Behavior requirements</h4>
+<p>Detection of user agents must be case-insensitive, while each value that is extracted must preserve the exact casing and text from the input.</p>
 <p>The following input:</p>
 <pre><code class="language-text">Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.1; .NET CLR 1.1.4322; InfoPath.1)
 </code></pre>
@@ -1140,59 +1143,60 @@ find_iocs(text: str)
     &quot;Mozilla/4.0 (compatible; MSIE 7.0b; Windows NT 5.1; .NET CLR 1.1.4322; InfoPath.1)&quot;
 ]
 </code></pre>
-<p>Multiple adjacent user agents must be returned as separate entries. For this input:</p>
+<p>When multiple user agents appear next to each other, they must be returned as separate entries. Given this input:</p>
 <pre><code class="language-text">mozilla/5.0 (windows nt 6.1; wow64) applewebkit/535.11 (khtml, like gecko) chrome/17.0.963.56 safari/535.11 mozilla/5.0 (windows nt 6.1; wow64; rv:11.0) gecko firefox/11.0
 </code></pre>
-<p><code>iocs[&quot;user_agents&quot;]</code> must contain exactly these two values:</p>
+<p><code>iocs[&quot;user_agents&quot;]</code> must contain exactly the following two values:</p>
 <pre><code class="language-python">[
     &quot;mozilla/5.0 (windows nt 6.1; wow64) applewebkit/535.11 (khtml, like gecko) chrome/17.0.963.56 safari/535.11&quot;,
     &quot;mozilla/5.0 (windows nt 6.1; wow64; rv:11.0) gecko firefox/11.0&quot;,
 ]
 </code></pre>
-<p>Mixed casing must also be recognized and preserved. For this input:</p>
+<p>Mixed casing must also be recognized, and that casing must be preserved. Given this input:</p>
 <pre><code class="language-text">Mozilla/5.0 (Windows nt 6.1; wow64) Applewebkit/535.11 (khtml, like Gecko) Chrome/17.0.963.56 Safari/535.11 Mozilla/5.0 (Windows nt 6.1; wow64; rv:11.0) Gecko Firefox/11.0
 </code></pre>
-<p><code>iocs[&quot;user_agents&quot;]</code> must contain exactly these two values:</p>
+<p><code>iocs[&quot;user_agents&quot;]</code> must contain exactly the following two values:</p>
 <pre><code class="language-python">[
     &quot;Mozilla/5.0 (Windows nt 6.1; wow64) Applewebkit/535.11 (khtml, like Gecko) Chrome/17.0.963.56 Safari/535.11&quot;,
     &quot;Mozilla/5.0 (Windows nt 6.1; wow64; rv:11.0) Gecko Firefox/11.0&quot;,
 ]
 </code></pre>
-<p>No ordering requirement is imposed for the two-entry results. Existing IOC extraction behavior must remain available.</p>
+<p>For the two-entry results, no ordering requirement is imposed. The existing behavior for IOC extraction must remain available.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Update IOC Finder’s existing command-line interface so that each successful indicator-extraction invocation emits one clean JSON result and always…</span>
-        <span class="spec-meta muted">703 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The existing command-line interface of IOC Finder must be updated so that each successful indicator-extraction invocation emits one clean JSON result and…</span>
+        <span class="spec-meta muted">748 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Goal</h4>
-<p>Update IOC Finder’s existing command-line interface so that each successful indicator-extraction invocation emits one clean JSON result and always represents the user-agent result category.</p>
-<p>This behavior is required on both existing public command surfaces:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Objective</h4>
+<p>The existing command-line interface of IOC Finder must be updated so that each successful indicator-extraction invocation emits one clean JSON result and always represents the user-agent result category.</p>
+<p>Both existing public command surfaces are required to provide this behavior:</p>
 <ul>
-<li>the Click command object <code>ioc_finder.ioc_finder.cli_find_iocs</code> (also reachable after <code>from ioc_finder import ioc_finder</code> as <code>ioc_finder.cli_find_iocs</code>); and</li>
-<li>the installed <code>ioc-finder</code> console entry point.</li>
+<li>the Click command object <code>ioc_finder.ioc_finder.cli_find_iocs</code> (which is also reachable as <code>ioc_finder.cli_find_iocs</code> after <code>from ioc_finder import ioc_finder</code>); and</li>
+<li>the installed console entry point <code>ioc-finder</code>.</li>
 </ul>
-<p>Both surfaces must expose the same behavior. Adding a separate command or limiting the change to a newly named command does not satisfy this requirement.</p>
-<h4>Existing command interface and compatibility</h4>
-<p>Keep the existing invocation shape:</p>
+<p>The same behavior must be exposed by both surfaces. Introducing a separate command, or restricting the change to a command with a new name, does not satisfy this requirement.</p>
+<h4>Current command interface and compatibility</h4>
+<p>Preserve the existing invocation shape:</p>
 <pre><code class="language-text">ioc-finder [OPTIONS] TEXT
 </code></pre>
-<p><code>TEXT</code> remains the required text from which indicators are extracted. Preserve the names and existing meanings of all command options:</p>
+<p><code>TEXT</code> continues to be the required text from which indicators are extracted. The names of all command options, together with their existing meanings, must be preserved:</p>
 <ul>
-<li><code>--no_url_domain_parsing</code>: do not derive domain-name results from URLs.</li>
-<li><code>--no_email_addr_domain_parsing</code>: do not derive domain-name results from email addresses.</li>
-<li><code>--no_cidr_address_parsing</code>: do not derive IP-address results from CIDR ranges.</li>
-<li><code>--no_xmpp_addr_domain_parsing</code>: do not derive domain-name results from XMPP addresses.</li>
-<li><code>--no_urls_without_schemes</code>: do not recognize schemeless values as URLs.</li>
+<li><code>--no_url_domain_parsing</code>: domain-name results are not derived from URLs.</li>
+<li><code>--no_email_addr_domain_parsing</code>: domain-name results are not derived from email addresses.</li>
+<li><code>--no_cidr_address_parsing</code>: IP-address results are not derived from CIDR ranges.</li>
+<li><code>--no_xmpp_addr_domain_parsing</code>: domain-name results are not derived from XMPP addresses.</li>
+<li><code>--no_urls_without_schemes</code>: schemeless values are not recognized as URLs.</li>
 </ul>
-<p>All existing IOC recognition, normalization, deduplication, and option behavior must remain unchanged except for the output requirements stated below.</p>
-<h4>Successful command output</h4>
-<p>For every successful extraction invocation, standard output must contain exactly one valid JSON object representing the extraction result. The object must remain pretty-printed with four-space indentation; a trailing newline is permitted. A caller must be able to pass the output directly to a standards-compliant JSON parser.</p>
-<p>Do not emit parser diagnostics, debug output, progress messages, Python representations, or any other non-JSON text before or after the JSON document. This applies to ordinary text, scheme-qualified URLs, schemeless-URL parsing, disabled schemeless-URL parsing, inputs with no user agent, and inputs containing a recognized user agent.</p>
-<p>Retain the existing result categories. For a normal command invocation, serialize them in the following key order:</p>
+<p>Except for the output requirements stated below, all existing IOC recognition, normalization, deduplication, and option behavior must remain unchanged.</p>
+<h4>Output of successful commands</h4>
+<p>The standard output of every successful extraction invocation must contain exactly one valid JSON object representing the extraction result. The object must remain pretty-printed with four-space indentation; a trailing newline is allowed. It must be possible for a caller to pass the output directly to a standards-compliant JSON parser.</p>
+<p>Before or after the JSON document, do not emit parser diagnostics, debug output, progress messages, Python representations, or any other non-JSON text. This holds for ordinary text, scheme-qualified URLs, schemeless-URL parsing, disabled schemeless-URL parsing, inputs with no user agent, and inputs containing a recognized user agent.</p>
+<p>Keep the existing result categories. In the case of a normal command invocation, serialize them in the following key order:</p>
 <ol>
 <li><code>asns</code></li>
 <li><code>authentihashes</code></li>
@@ -1218,22 +1222,22 @@ find_iocs(text: str)
 <li><code>user_agents</code></li>
 <li><code>xmpp_addresses</code></li>
 </ol>
-<p>In particular, <code>user_agents</code> is part of the command’s stable JSON schema:</p>
+<p>In particular, <code>user_agents</code> belongs to the command’s stable JSON schema:</p>
 <ul>
-<li>It must be present even when no user agent is found.</li>
+<li>The key must be present even when no user agent is found.</li>
 <li>Its value must be a JSON array.</li>
-<li>It must be <code>[]</code> when no user agent is found.</li>
-<li>In serialized output it must occur immediately after <code>urls</code> and immediately before <code>xmpp_addresses</code>.</li>
-<li>When user agents are found, the array must contain the values produced by the existing user-agent extraction behavior, without an additional diagnostic line.</li>
+<li>The value must be <code>[]</code> when no user agent is found.</li>
+<li>In the serialized output it must appear immediately after <code>urls</code> and immediately before <code>xmpp_addresses</code>.</li>
+<li>When user agents are found, the array must contain the values that the existing user-agent extraction behavior produces, without an additional diagnostic line.</li>
 </ul>
-<h4>Required URL behavior</h4>
-<p>Given the input:</p>
+<h4>URL behavior requirements</h4>
+<p>Consider the input:</p>
 <pre><code class="language-text">https://example.org/test/bingo.php
 </code></pre>
-<p>with URL-domain extraction disabled, the URL must remain in <code>urls</code>, <code>example.org</code> must not be added to <code>domains</code> merely because it is the URL authority, and no user agent may be inferred from any part of the URL. For example:</p>
+<p>When URL-domain extraction is disabled, the URL must remain in <code>urls</code>, <code>example.org</code> must not be added to <code>domains</code> merely because it is the URL authority, and no user agent may be inferred from any part of the URL. For instance:</p>
 <pre><code class="language-text">ioc-finder --no_url_domain_parsing &quot;https://example.org/test/bingo.php&quot;
 </code></pre>
-<p>must produce this JSON document:</p>
+<p>must produce the following JSON document:</p>
 <pre><code class="language-json">{
     &quot;asns&quot;: [],
     &quot;authentihashes&quot;: [],
@@ -1262,162 +1266,162 @@ find_iocs(text: str)
     &quot;xmpp_addresses&quot;: []
 }
 </code></pre>
-<p>Disabling domain extraction from URLs affects only domains derived from those URLs. An independent domain elsewhere in the same input must still be reported. Thus, in text containing both standalone <code>example.com</code> and <code>https://example.org/test/bingo.php</code>, <code>--no_url_domain_parsing</code> must retain <code>example.com</code> in <code>domains</code>, omit the URL-derived <code>example.org</code> from <code>domains</code>, and retain the complete URL in <code>urls</code>.</p>
-<h4>Schemeless URL modes</h4>
-<p>The clean-JSON and <code>user_agents</code> schema requirements apply equally in both schemeless-URL modes:</p>
+<p>Turning off domain extraction from URLs has an effect only on domains derived from those URLs. An independent domain located elsewhere in the same input must still be reported. Therefore, in text containing both standalone <code>example.com</code> and <code>https://example.org/test/bingo.php</code>, <code>--no_url_domain_parsing</code> must keep <code>example.com</code> in <code>domains</code>, must leave the URL-derived <code>example.org</code> out of <code>domains</code>, and must keep the complete URL in <code>urls</code>.</p>
+<h4>Modes for schemeless URLs</h4>
+<p>In both schemeless-URL modes, the clean-JSON and <code>user_agents</code> schema requirements apply equally:</p>
 <ul>
-<li>By default, an input such as <code>example.org/test/bingo.php</code> must be reported in <code>urls</code>, and <code>example.org</code> must continue to be reported in <code>domains</code> according to the existing domain-extraction behavior.</li>
-<li>With <code>--no_urls_without_schemes</code>, that value must not be reported in <code>urls</code>, while <code>example.org</code> must still be reported in <code>domains</code>.</li>
-<li>If these inputs contain no user-agent string, <code>user_agents</code> must still be present as <code>[]</code>.</li>
+<li>By default, an input such as <code>example.org/test/bingo.php</code> must be reported in <code>urls</code>, and <code>example.org</code> must continue to be reported in <code>domains</code> in accordance with the existing domain-extraction behavior.</li>
+<li>With <code>--no_urls_without_schemes</code>, that value must not be reported in <code>urls</code>, whereas <code>example.org</code> must still be reported in <code>domains</code>.</li>
+<li>If there is no user-agent string in these inputs, <code>user_agents</code> must still be present as <code>[]</code>.</li>
 </ul>
-<h4>Non-goals</h4>
-<p>Do not introduce user-agent values merely to populate the field, do not reclassify a URL as a user agent, and do not change existing indicator-recognition semantics beyond the command-output requirements above.</p>
+<h4>Out of scope</h4>
+<p>Do not introduce user-agent values merely in order to populate the field, do not reclassify a URL as a user agent, and do not alter existing indicator-recognition semantics beyond the command-output requirements stated above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Modify the IOC (Indicator of Compromise) extraction functionality so that SHA1 file hashes are correctly identified even when they are prefixed with a…</span>
-        <span class="spec-meta muted">200 words · source specification
+        <span class="spec-title">Update the IOC (Indicator of Compromise) extraction functionality so that SHA1 file hashes are identified correctly even when a hexadecimal marker (0x or…</span>
+        <span class="spec-meta muted">217 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the IOC (Indicator of Compromise) extraction functionality so that SHA1 file hashes are correctly identified even when they are prefixed with a hexadecimal marker (<code>0x</code> or <code>0X</code>).</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Update the IOC (Indicator of Compromise) extraction functionality so that SHA1 file hashes are identified correctly even when a hexadecimal marker (<code>0x</code> or <code>0X</code>) appears as a prefix.</p>
 <h4>Public API</h4>
-<p>The function <code>find_iocs</code> must be importable and callable as follows:</p>
+<p>It must be possible to import and call the function <code>find_iocs</code> as follows:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
-<p><strong>Signature:</strong></p>
+<p><strong>Function signature:</strong></p>
 <pre><code class="language-python">find_iocs(text: str) -&gt; dict
 </code></pre>
-<p>It accepts a string and returns a dictionary of extracted IOCs. Among its keys, the returned dictionary includes:</p>
+<p>The function accepts a string and returns a dictionary of the extracted IOCs. The keys of the returned dictionary include:</p>
 <ul>
-<li><code>'sha1s'</code> — a list of extracted SHA1 hash strings.</li>
-<li><code>'md5s'</code> — a list of extracted MD5 hash strings.</li>
+<li><code>'sha1s'</code> — a list of the SHA1 hash strings that were extracted.</li>
+<li><code>'md5s'</code> — a list of the MD5 hash strings that were extracted.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When the input text contains a 40-character hexadecimal SHA1 hash that is immediately preceded by a <code>0x</code> or <code>0X</code> prefix, the SHA1 hash must still be detected and included in the <code>'sha1s'</code> result list.</p>
-<p>For example, given input text containing:</p>
+<h4>Behavior Requirements</h4>
+<p>If a <code>0x</code> or <code>0X</code> prefix appears immediately before a 40-character hexadecimal SHA1 hash in the input text, that SHA1 hash must still be detected and included in the <code>'sha1s'</code> result list.</p>
+<p>As an example, for input text containing:</p>
 <pre><code>0x1a1db93766e31994507511c9c70a1dd94465cf6d
 </code></pre>
-<p>The <code>'sha1s'</code> list in the returned dictionary must contain exactly one entry corresponding to the 40-character hash.</p>
+<p>In this case, the <code>'sha1s'</code> list in the returned dictionary must contain exactly one entry that corresponds to the 40-character hash.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The presence of a leading <code>0x</code> / <code>0X</code> marker before a valid SHA1-length hex string must not prevent the hash from being recognized.</li>
-<li>Existing hash-detection behavior (e.g., detection of MD5 hashes) must continue to function unchanged.</li>
+<li>A leading <code>0x</code> / <code>0X</code> marker appearing before a valid SHA1-length hex string must not prevent the hash from being recognized.</li>
+<li>Hash-detection behavior that already exists (for example, the detection of MD5 hashes) must continue to function unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Add CLI Flag to Control Import Hash Parsing</span>
-        <span class="spec-meta muted">312 words · source specification
+        <span class="spec-title">Adding a CLI Flag That Governs Import Hash Parsing</span>
+        <span class="spec-meta muted">351 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add CLI Flag to Control Import Hash Parsing</h3>
-<h4>Overview</h4>
-<p>Extend the command-line interface of the <code>ioc_finder</code> package to support a new option that controls whether import hashes (imphashes) are parsed from input text.</p>
-<h4>Public API Surface</h4>
-<p>The CLI entry point is exposed as <code>ioc_finder.cli_find_iocs</code>. It is a Click-based command invoked with a positional text argument followed by optional flags. When run, it emits a JSON object to standard output and exits with code <code>0</code> on success.</p>
-<p>The JSON output contains keys for the various IOC categories, including at least:</p>
+      <div class="spec-body"><h3>Task Specification: Adding a CLI Flag That Governs Import Hash Parsing</h3>
+<h4>Summary</h4>
+<p>The <code>ioc_finder</code> package's command-line interface is to be extended with a new option; that option governs whether import hashes (imphashes) get parsed from input text.</p>
+<h4>The Public API Surface</h4>
+<p>The CLI exposes its entry point as <code>ioc_finder.cli_find_iocs</code>. This entry point is a Click-based command. Callers invoke it with a positional text argument first, and optional flags come after that argument. Whenever the command runs, a JSON object is emitted to standard output; on success, it exits with code <code>0</code>.</p>
+<p>Keys for the various IOC categories appear in the JSON output, including at least:</p>
 <ul>
-<li><code>imphashes</code> — a list of import hashes found in the input.</li>
-<li><code>md5s</code> — a list of MD5 hashes found in the input.</li>
+<li><code>imphashes</code> — a list of the import hashes that the input contains.</li>
+<li><code>md5s</code> — a list of the MD5 hashes that the input contains.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>New Option: <code>--no_import_hashes</code></h5>
-<p>Add a boolean flag <code>--no_import_hashes</code> to the <code>cli_find_iocs</code> command. This flag disables import-hash parsing when present.</p>
-<h5>Default behavior (flag absent)</h5>
-<p>When the input text contains an import hash expressed in the form of the keyword <code>imphash</code> followed by whitespace and a 32-character hexadecimal value (for example, <code>imphash 18ddf28a71089acdbab5038f58044c0a</code>), the parser must:</p>
+<h4>Behavior Requirements</h4>
+<h5>The New <code>--no_import_hashes</code> Option</h5>
+<p>A boolean flag named <code>--no_import_hashes</code> is to be added to the <code>cli_find_iocs</code> command. When this flag is present, import-hash parsing is disabled.</p>
+<h5>Default Behavior (Flag Not Present)</h5>
+<p>Suppose an import hash is present in the input text, written as the keyword <code>imphash</code> followed by whitespace and a 32-character hexadecimal value (for instance, <code>imphash 18ddf28a71089acdbab5038f58044c0a</code>). In that case, the parser must:</p>
 <ul>
-<li>Include the 32-character hex value in the <code>imphashes</code> list.</li>
-<li>The <code>imphashes</code> list must contain exactly that one value (i.e., a single import hash extracted from that input).</li>
+<li>place the 32-character hex value into the <code>imphashes</code> list;</li>
+<li>produce an <code>imphashes</code> list that contains exactly that one value (that is, a single import hash gets extracted from that input).</li>
 </ul>
-<h5>With <code>--no_import_hashes</code> present</h5>
-<p>When the same input is processed with the <code>--no_import_hashes</code> flag:</p>
+<h5>When the <code>--no_import_hashes</code> Flag Is Present</h5>
+<p>If that same input is processed while the <code>--no_import_hashes</code> flag is set:</p>
 <ul>
-<li>No import hash is extracted; the <code>imphashes</code> result must be empty (or absent/falsy).</li>
-<li>The 32-character hex value is instead treated as a plain MD5 hash and appears in the <code>md5s</code> list.</li>
-<li>The <code>md5s</code> list must contain exactly that one value.</li>
+<li>No import hash gets extracted; the <code>imphashes</code> result must be empty (or absent/falsy).</li>
+<li>Instead, the 32-character hex value is handled as a plain MD5 hash and shows up in the <code>md5s</code> list.</li>
+<li>Exactly that one value is what the <code>md5s</code> list must contain.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>In the default (non-disabled) case, the value associated with an <code>imphash</code> keyword is classified only as an import hash and is not additionally reported as a generic MD5.</li>
-<li>The command must exit with code <code>0</code> in both cases and produce valid JSON on standard output.</li>
+<li>In the default (non-disabled) case, the value accompanying an <code>imphash</code> keyword gets classified only as an import hash and does not additionally get reported as a generic MD5.</li>
+<li>Both cases require the command to exit with code <code>0</code> and to produce valid JSON on standard output.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add File Path Detection to IOC Finder</span>
-        <span class="spec-meta muted">591 words · source specification
+        <span class="spec-title">Adding File Path Detection to the IOC Finder</span>
+        <span class="spec-meta muted">699 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add File Path Detection to IOC Finder</h3>
-<h4>Overview</h4>
-<p>Extend the existing IOC (Indicator of Compromise) extraction functionality to detect and extract <strong>file paths</strong> (both Windows-style and Unix-style) from arbitrary text input.</p>
+      <div class="spec-body"><h3>Task Specification: Adding File Path Detection to the IOC Finder</h3>
+<h4>Summary</h4>
+<p>The IOC (Indicator of Compromise) extraction functionality that already exists is to be extended so that <strong>file paths</strong> — both Windows-style and Unix-style — are detected and extracted from arbitrary text input.</p>
 <h4>Public API</h4>
-<p>The behavior is exercised through the existing function:</p>
+<p>The behavior is exercised by means of this existing function:</p>
 <pre><code class="language-python">from ioc_finder import find_iocs
 </code></pre>
-<p><code>find_iocs(text: str) -&gt; dict</code> accepts a string and returns a dictionary of extracted indicators.</p>
-<h4>Required Changes</h4>
-<h5>1. New result key</h5>
-<p>The dictionary returned by <code>find_iocs</code> must always include a new key:</p>
+<p>The function <code>find_iocs(text: str) -&gt; dict</code> accepts a string and returns a dictionary of the extracted indicators.</p>
+<h4>Changes Required</h4>
+<h5>1. New key in the result</h5>
+<p>The dictionary that <code>find_iocs</code> returns must always contain a new key:</p>
 <ul>
-<li><code>&quot;file_paths&quot;</code> — a list of strings containing every detected file path.</li>
+<li><code>&quot;file_paths&quot;</code> — a list of strings holding every detected file path.</li>
 </ul>
-<p>When no file paths are present in the input, this key must still be present and map to an empty list (<code>[]</code>). This applies to all inputs, including inputs that contain other kinds of indicators but no file paths.</p>
-<h5>2. File path detection behavior</h5>
-<p><code>find_iocs</code> must detect the following forms of file paths and include the full matched path string as an element of <code>file_paths</code>.</p>
-<h6>Windows-style paths</h6>
+<p>If the input contains no file paths, the key must still be present and map to an empty list (<code>[]</code>). This holds for all inputs, including inputs that contain other kinds of indicators but no file paths.</p>
+<h5>2. Behavior of file path detection</h5>
+<p><code>find_iocs</code> must detect the following forms of file path, and the full matched path string must be included as an element of <code>file_paths</code>.</p>
+<h6>Windows-style file paths</h6>
 <ul>
-<li>A drive-letter prefixed path such as <code>C:\...</code> where the path continues through backslash-separated segments.</li>
-<li>Segments may contain spaces. For example, the segment <code>Flash Player</code> is part of a single path.</li>
-<li>Segments may contain spaces adjacent to a backslash. For example, <code>AppData \Local</code> must remain part of the same single path.</li>
-<li>Paths may include placeholder-style segments containing angle brackets, e.g. <code>&lt;username&gt;</code>.</li>
-<li>Paths may end in a filename with an extension (e.g. <code>shedaudio.exe</code>, <code>flashplayer.exe</code>).</li>
-<li>A path may end with a trailing backslash; when it does, the trailing backslash is included in the matched result.</li>
+<li>A path prefixed with a drive letter, such as <code>C:\...</code>, that then continues through segments separated by backslashes.</li>
+<li>Segments may have spaces inside them. For example, the segment <code>Flash Player</code> forms part of a single path.</li>
+<li>Segments may have spaces that sit adjacent to a backslash. For example, <code>AppData \Local</code> must stay part of the same single path.</li>
+<li>A path may contain placeholder-style segments that include angle brackets, e.g. <code>&lt;username&gt;</code>.</li>
+<li>A path may finish with a filename that has an extension (for example <code>shedaudio.exe</code>, <code>flashplayer.exe</code>).</li>
+<li>A path may terminate with a trailing backslash; if it does, the trailing backslash forms part of the matched result.</li>
 </ul>
-<p>Examples of complete single matches:</p>
+<p>Each of the paths below is a complete single match:</p>
 <ul>
 <li><code>C:\Users\&lt;username&gt;\AppData\Roaming\Macromedia\Flash Player\macromedia\bin</code></li>
-<li><code>C:\Users\&lt;username&gt;\AppData\Roaming\Macromedia\Flash Player\macromedia\bin\</code> (trailing backslash retained)</li>
+<li><code>C:\Users\&lt;username&gt;\AppData\Roaming\Macromedia\Flash Player\macromedia\bin\</code> (trailing backslash kept)</li>
 <li><code>C:\Users\&lt;username&gt;\AppData \Local\Microsoft\Windows\shedaudio.exe</code></li>
 <li><code>C:\Windows\11987416.exe</code></li>
 <li><code>C:\Windows\System32\46615275.exe</code></li>
 <li><code>C:\Windows\System32\shedaudio.exe</code></li>
 <li><code>C:\Windows\SysWOW64\f9jwqSbS.exe</code></li>
 </ul>
-<h6>Unix-style paths</h6>
+<h6>Unix-style file paths</h6>
 <ul>
-<li>An absolute path beginning with <code>/</code> and continuing through forward-slash-separated segments.</li>
-<li>Segments may contain spaces (e.g. <code>File System</code>).</li>
-<li>Paths may end in a filename with an extension (e.g. <code>pivtoken.appex</code>).</li>
-<li>A path may end with a trailing slash; when it does, the trailing slash is included in the matched result.</li>
-<li>A home-directory path beginning with <code>~/</code> (e.g. <code>~/Desktop/test.py</code>).</li>
-<li>Filenames beginning with a dot are supported (e.g. the final segment <code>.rebootime</code> in <code>/etc/init.d/.rebootime</code>).</li>
+<li>An absolute path that starts with <code>/</code> and then continues through segments separated by forward slashes.</li>
+<li>Segments may have spaces in them (for example <code>File System</code>).</li>
+<li>A path may finish with a filename that has an extension (for example <code>pivtoken.appex</code>).</li>
+<li>A path may terminate in a trailing slash; if it does, the trailing slash forms part of the matched result.</li>
+<li>A home-directory path that starts with <code>~/</code> (for example <code>~/Desktop/test.py</code>).</li>
+<li>Filenames that start with a dot are supported (for example, the final segment <code>.rebootime</code> of <code>/etc/init.d/.rebootime</code>).</li>
 </ul>
-<p>Examples of complete single matches:</p>
+<p>Each of the paths below is a complete single match:</p>
 <ul>
 <li><code>/Library/Storage/File System/HFS/25cf5d02-e50b-4288-870a-528d56c3cf6e</code></li>
-<li><code>/Library/Storage/File System/HFS/25cf5d02-e50b-4288-870a-528d56c3cf6e/</code> (trailing slash retained)</li>
+<li><code>/Library/Storage/File System/HFS/25cf5d02-e50b-4288-870a-528d56c3cf6e/</code> (trailing slash kept)</li>
 <li><code>/Library/Storage/File System/HFS/25cf5d02-e50b-4288-870a-528d56c3cf6e/pivtoken.appex</code></li>
 <li><code>~/Desktop/test.py</code></li>
 <li><code>/etc/init.d/.rebootime</code></li>
 </ul>
-<h5>3. Extraction from surrounding text</h5>
-<p>File paths must be extracted even when embedded within a larger sentence. Leading/trailing non-path words separated by whitespace must not be included in the match. For example, given <code>test C:\...\bin is a bad file path</code>, only the path portion (<code>C:\...\bin</code>) is captured; the surrounding words are excluded.</p>
-<p>When a path is followed by a space and then additional words, the match must stop at the path boundary and not consume the following words. Likewise, a trailing slash/backslash immediately before a following space is retained as part of the path, but the following space and words are not.</p>
-<h5>4. Multiple paths</h5>
-<p>When the input contains multiple distinct file paths (e.g. across multiple lines), each must be extracted as a separate element of <code>file_paths</code>. Non-path content interspersed between paths (e.g. registry keys like <code>HKEY_LOCAL_MACHINE\Software\...</code>, or descriptive headings) must not be captured as file paths.</p>
-<p>For the multi-line Windows example, exactly the six drive-letter paths listed in section 2 must appear in <code>file_paths</code> and nothing else.</p>
-<h4>Constraints</h4>
+<h5>3. Extracting paths out of surrounding text</h5>
+<p>A file path must be extracted even in cases where it is embedded within a larger sentence. Non-path words that come before or after the path, separated by whitespace, must not be included in the match. For example, given the text <code>test C:\...\bin is a bad file path</code>, only the path portion (<code>C:\...\bin</code>) is captured; the words surrounding it are excluded.</p>
+<p>When a space follows a path and more words come after that space, the match must stop at the path boundary and must not consume the words that follow. In the same way, a trailing slash/backslash that sits immediately before a following space is retained as part of the path, but the following space and the words after it are not.</p>
+<h5>4. Handling multiple paths</h5>
+<p>When the input contains multiple distinct file paths (for example across multiple lines), each of them must be extracted as a separate element of <code>file_paths</code>. Content that is not itself a path and is interspersed between the paths (for example registry keys like <code>HKEY_LOCAL_MACHINE\Software\...</code>, or descriptive headings) must not be captured as file paths.</p>
+<p>For the multi-line Windows example, <code>file_paths</code> must contain exactly the six drive-letter paths listed in section 2, and nothing else.</p>
+<h4>Restrictions</h4>
 <ul>
-<li>Do not remove or alter any existing keys in the returned dictionary; only add the <code>&quot;file_paths&quot;</code> key.</li>
-<li>All previously supported indicator types must continue to work unchanged.</li>
+<li>None of the keys already present in the returned dictionary may be removed or altered; the <code>&quot;file_paths&quot;</code> key is the only one that may be added.</li>
+<li>All indicator types that were supported previously must continue to work unchanged.</li>
 </ul>
 </div>
     </details>

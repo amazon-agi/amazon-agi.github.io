@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/mindsdb/mindsdb_sql_parser/compare/ee524457e9c6e9aba8303fba51aec5f3d3a09af8...ba5a0e6030bf556638c5474f6bcd9bf1fc0eb560" target="_blank" rel="noopener" class="mono">ee524457e9 … ba5a0e6030</a> · 80 commits by 7 authors over 3 mo (2025-03-07 to 2025-06-11)</dd></div>
       <div><dt>Window:</dt><dd>requests 6–25 of a run of 25 test-bearing changes (overlaps the previous window by 15) · training split</dd></div>
       <div><dt>Size:</dt><dd>11,650 lines of code in 115 files when the chain starts · over the 20 requests the developers added 824 and removed 426 lines of code, plus 513 lines of tests (60 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.3k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 9</dd></div>
+      <div><dt>Specifications:</dt><dd>9.0k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 9</dd></div>
     </dl>
   </header>
 </section>
@@ -144,37 +144,37 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">The codebase includes an SQL parser exposed via a top-level function</span>
-        <span class="spec-meta muted">437 words · source specification
+        <span class="spec-title">The codebase contains an SQL parser exposed through a top-level function</span>
+        <span class="spec-meta muted">459 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Add support for the <code>-&gt;&gt;</code> JSON operator in the SQL parser</h4>
-<h5>Context</h5>
-<p>The codebase includes an SQL parser exposed via a top-level function:</p>
+      <div class="spec-body"><h4>Task: Support the <code>-&gt;&gt;</code> JSON operator in the SQL parser</h4>
+<h5>Background</h5>
+<p>The codebase contains an SQL parser exposed through a top-level function:</p>
 <pre><code class="language-python">parse_sql(sql: str)
 </code></pre>
-<p>This function parses an SQL string and returns an Abstract Syntax Tree (AST) composed of node objects. The relevant AST node classes are importable from the parser's AST package and include (at minimum):</p>
+<p>The function takes an SQL string, parses it, and returns an Abstract Syntax Tree (AST) built from node objects. The AST node classes that matter here are importable from the parser's AST package and include (at minimum):</p>
 <ul>
-<li><code>Select</code> — represents a <code>SELECT</code> statement. Relevant constructor keyword arguments used here: <code>targets</code> (list of expression nodes), <code>where</code> (an expression node), and <code>from_table</code>.</li>
-<li><code>BinaryOperation(op, args)</code> — represents a binary operation, where <code>op</code> is a string naming the operator and <code>args</code> is a two-element list of operand nodes.</li>
-<li><code>Identifier(...)</code> — represents a column/table identifier. Can be constructed with a single name string, or with <code>parts=[...]</code>.</li>
-<li><code>Constant(value)</code> — represents a literal value.</li>
-<li><code>Star()</code> — represents <code>*</code>.</li>
+<li><code>Select</code> — models a <code>SELECT</code> statement. Constructor keyword arguments used here that are relevant: <code>targets</code> (a list of expression nodes), <code>where</code> (an expression node), and <code>from_table</code>.</li>
+<li><code>BinaryOperation(op, args)</code> — models a binary operation, where <code>op</code> is a string naming the operator and <code>args</code> is a two-element list of operand nodes.</li>
+<li><code>Identifier(...)</code> — models a column/table identifier. It can be built either from a single name string or with <code>parts=[...]</code>.</li>
+<li><code>Constant(value)</code> — models a literal value.</li>
+<li><code>Star()</code> — models <code>*</code>.</li>
 </ul>
 <p>Each AST node supports:</p>
 <ul>
-<li><code>str(node)</code> — renders the node back to an SQL string.</li>
-<li><code>node.to_tree()</code> — produces a structured tree representation.</li>
+<li><code>str(node)</code> — renders the node back into an SQL string.</li>
+<li><code>node.to_tree()</code> — produces a structured representation of the tree.</li>
 </ul>
-<p>Two AST trees are considered equivalent when both their <code>str(...)</code> renderings and their <code>to_tree()</code> renderings match.</p>
-<h5>Required behavior</h5>
-<p>The parser must recognize <code>-&gt;&gt;</code> as a binary operator (the JSON &quot;get value as text&quot; operator), in addition to the already-supported <code>-&gt;</code> operator.</p>
-<h6>JSON operator parsing</h6>
-<p>When parsing an expression that uses <code>-&gt;</code> and <code>-&gt;&gt;</code>, these operators are left-associative and share the same precedence, so they chain left-to-right.</p>
-<p>For the input:</p>
+<p>Two AST trees are regarded as equivalent when their <code>str(...)</code> renderings and their <code>to_tree()</code> renderings both match.</p>
+<h5>Behavior requirements</h5>
+<p>In addition to the already-supported <code>-&gt;</code> operator, the parser must recognize <code>-&gt;&gt;</code> as a binary operator (the JSON &quot;get value as text&quot; operator).</p>
+<h6>Parsing the JSON operators</h6>
+<p>When parsing an expression that uses <code>-&gt;</code> and <code>-&gt;&gt;</code>, the two operators are left-associative and have the same precedence, so they chain left-to-right.</p>
+<p>Given the input:</p>
 <pre><code class="language-sql">SELECT col-&gt;1-&gt;&gt;'c' from TAB1
 </code></pre>
-<p>the parsed target expression must be:</p>
+<p>the target expression produced by parsing must be:</p>
 <pre><code class="language-python">BinaryOperation(
     op='-&gt;&gt;',
     args=[
@@ -189,139 +189,139 @@
     ],
 )
 </code></pre>
-<p>i.e. <code>col-&gt;1</code> is grouped first as a <code>-&gt;</code> operation, and the result becomes the left operand of the outer <code>-&gt;&gt;</code> operation whose right operand is the string constant <code>'c'</code>.</p>
-<p>The resulting <code>Select</code> has this as its single target and <code>from_table=Identifier(parts=['TAB1'])</code>.</p>
-<p>Rendering this AST back to a string and to a tree must be consistent with re-parsing (round-trip stable): the <code>-&gt;&gt;</code> operator must render as <code>-&gt;&gt;</code>.</p>
-<h6>Existing operators must remain intact</h6>
-<p>The following operators must continue to parse as <code>BinaryOperation</code> nodes with the operator string preserved exactly, without regression:</p>
+<p>That is, <code>col-&gt;1</code> is grouped first as a <code>-&gt;</code> operation, and that result becomes the left operand of the outer <code>-&gt;&gt;</code> operation, whose right operand is the string constant <code>'c'</code>.</p>
+<p>The resulting <code>Select</code> has this expression as its single target, together with <code>from_table=Identifier(parts=['TAB1'])</code>.</p>
+<p>Rendering this AST back to a string and to a tree must stay consistent with re-parsing (round-trip stable): the <code>-&gt;&gt;</code> operator must render as <code>-&gt;&gt;</code>.</p>
+<h6>Existing operators must stay intact</h6>
+<p>The following operators must continue to parse as <code>BinaryOperation</code> nodes with the operator string preserved exactly, with no regression:</p>
 <ul>
 <li>
-<p>The vector operators <code>&lt;-&gt;</code>, <code>&lt;+&gt;</code>, <code>&lt;#&gt;</code>, <code>&lt;=&gt;</code>, <code>&lt;~&gt;</code>, <code>&lt;%&gt;</code>. For an input of the form:</p>
+<p>The vector operators <code>&lt;-&gt;</code>, <code>&lt;+&gt;</code>, <code>&lt;#&gt;</code>, <code>&lt;=&gt;</code>, <code>&lt;~&gt;</code>, <code>&lt;%&gt;</code>. Given an input of the form:</p>
 <pre><code class="language-sql">SELECT * from TAB1 WHERE embedding &lt;op&gt; '[3,1,2]'
 </code></pre>
-<p>the result must be a <code>Select</code> with <code>targets=[Star()]</code>, <code>from_table=Identifier(parts=['TAB1'])</code>, and</p>
+<p>the result must be a <code>Select</code> with <code>targets=[Star()]</code>, with <code>from_table=Identifier(parts=['TAB1'])</code>, and with</p>
 <pre><code class="language-python">where=BinaryOperation(
     op='&lt;op&gt;',
     args=[Identifier('embedding'), Constant('[3,1,2]')],
 )
 </code></pre>
-<p>where <code>&lt;op&gt;</code> is the exact operator string.</p>
+<p>with <code>&lt;op&gt;</code> being the exact operator string.</p>
 </li>
 <li>
-<p>The <code>-&gt;</code> JSON operator must continue to parse and render as before.</p>
+<p>The <code>-&gt;</code> JSON operator must keep parsing and rendering as it did before.</p>
 </li>
 </ul>
-<p>All of the above must round-trip: parsing, then rendering via <code>str(...)</code> and <code>to_tree()</code>, must yield output equivalent to the corresponding hand-built AST.</p>
+<p>All of the above must round-trip: parsing and then rendering via <code>str(...)</code> and <code>to_tree()</code> must yield output equivalent to the corresponding hand-built AST.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Extend the SQL parser to recognize and correctly parse join clauses that use the LATERAL keyword, specifically INNER JOIN LATERAL, where the right-hand side…</span>
-        <span class="spec-meta muted">446 words · source specification
+        <span class="spec-title">Extend the SQL parser so that it recognizes and correctly parses join clauses that use the LATERAL keyword, specifically INNER JOIN LATERAL, where the…</span>
+        <span class="spec-meta muted">465 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Support <code>LATERAL</code> Joins in SQL Parsing</h3>
-<h4>Objective</h4>
-<p>Extend the SQL parser to recognize and correctly parse join clauses that use the <code>LATERAL</code> keyword, specifically <code>INNER JOIN LATERAL</code>, where the right-hand side of the join is a parenthesized subquery.</p>
+      <div class="spec-body"><h3>Task: Adding <code>LATERAL</code> Join Support to SQL Parsing</h3>
+<h4>Goal</h4>
+<p>Extend the SQL parser so that it recognizes and correctly parses join clauses that use the <code>LATERAL</code> keyword, specifically <code>INNER JOIN LATERAL</code>, where the join's right-hand side is a parenthesized subquery.</p>
 <h4>Public API</h4>
 <p>The parser is invoked via:</p>
 <pre><code class="language-python">parse_sql(query: str) -&gt; ASTNode
 </code></pre>
-<p>This function already exists and returns an AST. The AST node classes used below already exist and are importable from the project's AST module (the same module used by <code>Select</code>, <code>Join</code>, <code>Identifier</code>, <code>Star</code>, <code>Constant</code>, <code>BinaryOperation</code>). This task only requires that <code>parse_sql</code> correctly handle the new join syntax.</p>
-<h4>Required Behavior</h4>
-<p>The parser must accept queries containing a lateral join written as:</p>
+<p>This function already exists and returns an AST. The AST node classes referenced below already exist and are importable from the project's AST module (the same module used by <code>Select</code>, <code>Join</code>, <code>Identifier</code>, <code>Star</code>, <code>Constant</code>, <code>BinaryOperation</code>). This task only requires that <code>parse_sql</code> handle the new join syntax correctly.</p>
+<h4>Behavior Requirements</h4>
+<p>The parser must accept queries that contain a lateral join written as:</p>
 <pre><code class="language-sql">select * from table1 a
 INNER JOIN LATERAL (SELECT *
     FROM table2 b
     WHERE a.x=b.x
     LIMIT 1) b ON true
 </code></pre>
-<p>When such a query is parsed, the result must be a <code>Select</code> node structured as follows:</p>
+<p>When a query like this is parsed, the result must be a <code>Select</code> node with the following structure:</p>
 <ul>
 <li><strong><code>targets</code></strong>: <code>[Star()]</code></li>
-<li><strong><code>from_table</code></strong>: a <code>Join</code> node with:
+<li><strong><code>from_table</code></strong>: a <code>Join</code> node having:
 <ul>
 <li><strong><code>join_type</code></strong>: the string <code>'INNER JOIN LATERAL'</code></li>
 <li><strong><code>left</code></strong>: <code>Identifier('table1', alias=Identifier('a'))</code></li>
-<li><strong><code>right</code></strong>: the parsed subquery (see below)</li>
-<li><strong><code>condition</code></strong>: <code>Constant(True)</code> (from the <code>ON true</code> clause)</li>
+<li><strong><code>right</code></strong>: the subquery after parsing (see below)</li>
+<li><strong><code>condition</code></strong>: <code>Constant(True)</code> (derived from the <code>ON true</code> clause)</li>
 </ul>
 </li>
 </ul>
-<p>The subquery on the right side of the join must parse to a <code>Select</code> node with:</p>
+<p>The subquery on the join's right side must parse to a <code>Select</code> node with:</p>
 <ul>
 <li><strong><code>targets</code></strong>: <code>[Star()]</code></li>
 <li><strong><code>from_table</code></strong>: <code>Identifier('table2', alias=Identifier('b'))</code></li>
 <li><strong><code>where</code></strong>: <code>BinaryOperation(op='=', args=[Identifier('a.x'), Identifier('b.x')])</code></li>
 <li><strong><code>limit</code></strong>: <code>Constant(1)</code></li>
-<li><strong><code>alias</code></strong>: <code>Identifier('b')</code> (the alias given to the parenthesized subquery)</li>
+<li><strong><code>alias</code></strong>: <code>Identifier('b')</code> (the alias assigned to the parenthesized subquery)</li>
 <li><strong><code>parentheses</code></strong>: <code>True</code></li>
 </ul>
-<h4>Correctness Requirements</h4>
-<p>For the query above:</p>
+<h4>Requirements for Correctness</h4>
+<p>For the query shown above:</p>
 <ul>
-<li>The parsed AST's string representation (<code>str(ast)</code>) must equal the string representation of the expected <code>Select</code> structure described above.</li>
-<li>The parsed AST's tree representation (<code>ast.to_tree()</code>) must equal the tree representation of that same expected structure.</li>
+<li>The string representation of the parsed AST (<code>str(ast)</code>) must equal the string representation of the expected <code>Select</code> structure described above.</li>
+<li>The tree representation of the parsed AST (<code>ast.to_tree()</code>) must equal the tree representation of that same expected structure.</li>
 </ul>
 <h4>Scope</h4>
-<p>The join type keyword <code>INNER JOIN LATERAL</code> must be preserved verbatim as the <code>join_type</code> value. The rest of the parsing behavior (subquery parsing, aliasing, where clauses, limits, <code>ON</code> conditions) follows existing parser conventions; only the recognition of the <code>LATERAL</code> keyword as part of the join type needs to be added.</p>
-<h3>Bicultural Identity Formation</h3>
-<p>I'll explain the developmental process of how people integrate two cultural identities.</p>
-<h4>Key Stages</h4>
-<p><strong>1. Cultural Awareness</strong> - Recognizing that one belongs to two distinct cultural frameworks, often triggered by moving between contexts (home vs. school, for instance).</p>
-<p><strong>2. Exploration and Negotiation</strong> - Actively examining what each culture means, sometimes experiencing tension when values conflict.</p>
-<p><strong>3. Integration</strong> - Developing a coherent sense of self that incorporates both cultures rather than choosing one over the other.</p>
-<h4>Common Patterns</h4>
+<p>The join type keyword <code>INNER JOIN LATERAL</code> must be preserved verbatim as the value of <code>join_type</code>. The remaining parsing behavior (subquery parsing, aliasing, where clauses, limits, <code>ON</code> conditions) follows the parser's existing conventions; the recognition of the <code>LATERAL</code> keyword as part of the join type is the only thing that needs to be added.</p>
+<h3>Forming a Bicultural Identity</h3>
+<p>I'll explain the developmental process through which people integrate two cultural identities.</p>
+<h4>Main Stages</h4>
+<p><strong>1. Cultural Awareness</strong> - Realizing that one belongs to two distinct cultural frameworks, often triggered by moving between contexts (home vs. school, for instance).</p>
+<p><strong>2. Exploration and Negotiation</strong> - Actively examining what each culture means, and sometimes running into tension when values conflict.</p>
+<p><strong>3. Integration</strong> - Forming a coherent sense of self that incorporates both cultures instead of choosing one over the other.</p>
+<h4>Typical Patterns</h4>
 <ul>
-<li><strong>Blended/Fused</strong>: Both cultures merge into a single integrated identity</li>
-<li><strong>Alternating</strong>: Switching between cultural frames depending on context (code-switching)</li>
-<li><strong>Separated</strong>: Keeping cultures compartmentalized</li>
+<li><strong>Blended/Fused</strong>: Both cultures merge together into a single integrated identity</li>
+<li><strong>Alternating</strong>: Moving between cultural frames depending on context (code-switching)</li>
+<li><strong>Separated</strong>: Maintaining compartmentalization of cultures</li>
 </ul>
-<p>Would you like me to expand on any particular aspect?</p>
+<p>Would you like me to elaborate on any particular aspect?</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Support DISTINCT ON in SELECT statements</span>
-        <span class="spec-meta muted">505 words · source specification
+        <span class="spec-title">DISTINCT ON Support in SELECT statements</span>
+        <span class="spec-meta muted">525 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support <code>DISTINCT ON</code> in SELECT statements</h3>
-<h4>Overview</h4>
-<p>Extend the SQL parser and AST to support the PostgreSQL-style <code>DISTINCT ON (...)</code> clause in <code>SELECT</code> statements. Parsing must produce an AST node whose <code>distinct</code> attribute carries the list of columns specified in the <code>DISTINCT ON</code> clause, and rendering that AST back to a string must reproduce the original SQL.</p>
-<h4>Existing Context</h4>
+      <div class="spec-body"><h3>Task Specification: <code>DISTINCT ON</code> Support in SELECT statements</h3>
+<h4>Summary</h4>
+<p>Extend the SQL parser and AST with support for the PostgreSQL-style <code>DISTINCT ON (...)</code> clause in <code>SELECT</code> statements. Parsing must result in an AST node whose <code>distinct</code> attribute carries the list of columns specified in the <code>DISTINCT ON</code> clause, and rendering that AST back into a string must reproduce the original SQL.</p>
+<h4>Background</h4>
 <ul>
-<li>There is a <code>Select</code> AST node (importable as <code>Select</code>) that already supports a <code>distinct</code> attribute. Previously, <code>distinct</code> was a plain boolean flag indicating the presence of a bare <code>DISTINCT</code> keyword.</li>
-<li>There is a <code>parse_sql(sql_string)</code> function that parses a SQL string into an AST.</li>
-<li>There is an <code>Identifier</code> node and a <code>Star</code> node.</li>
+<li>A <code>Select</code> AST node (importable as <code>Select</code>) already exists and supports a <code>distinct</code> attribute. Up to now, <code>distinct</code> was a plain boolean flag indicating whether a bare <code>DISTINCT</code> keyword was present.</li>
+<li>A <code>parse_sql(sql_string)</code> function exists that parses a SQL string into an AST.</li>
+<li>An <code>Identifier</code> node and a <code>Star</code> node are available.</li>
 <li>AST nodes support:
 <ul>
-<li><code>str(ast)</code> — renders the node back to SQL text.</li>
-<li><code>ast.to_tree()</code> — produces a structural tree representation.</li>
-<li>Equality of rendered output and tree output is how two ASTs are compared for equivalence.</li>
+<li><code>str(ast)</code> — renders the node back into SQL text.</li>
+<li><code>ast.to_tree()</code> — gives a structural tree representation.</li>
+<li>Two ASTs are compared for equivalence by checking equality of their rendered output and tree output.</li>
 </ul>
 </li>
 </ul>
-<h4>Required Behavior</h4>
-<h5><code>Select.distinct</code> semantics</h5>
-<p>The <code>distinct</code> attribute of <code>Select</code> must now support carrying a list of <code>Identifier</code> objects, in addition to its existing boolean behavior.</p>
+<h4>Behavior Requirements</h4>
+<h5>Semantics of <code>Select.distinct</code></h5>
+<p>In addition to its existing boolean behavior, the <code>distinct</code> attribute of <code>Select</code> must now support carrying a list of <code>Identifier</code> objects.</p>
 <ul>
-<li>When <code>distinct</code> is a list of <code>Identifier</code> objects, it represents a <code>DISTINCT ON (...)</code> clause, where the listed identifiers are the columns inside the parentheses, in order.</li>
+<li>If <code>distinct</code> is a list of <code>Identifier</code> objects, it represents a <code>DISTINCT ON (...)</code> clause; the identifiers in the list are the columns inside the parentheses, in order.</li>
 </ul>
 <h5>Parsing</h5>
-<p><code>parse_sql</code> must accept the <code>DISTINCT ON (col1, col2, ...)</code> syntax immediately following <code>SELECT</code>. When present:</p>
+<p><code>parse_sql</code> must accept <code>DISTINCT ON (col1, col2, ...)</code> syntax placed immediately after <code>SELECT</code>. When this syntax is present:</p>
 <ul>
-<li>The columns inside the parentheses must be parsed into a list of <code>Identifier</code> objects and assigned to the resulting <code>Select</code> node's <code>distinct</code> attribute, preserving their order.</li>
-<li>Each column may be a simple identifier (e.g. <code>column1</code>) or a dotted/multi-part identifier (e.g. <code>t1.column1</code>). Dotted identifiers must be represented as a single <code>Identifier</code> whose value reflects the full dotted path.</li>
-<li>One or more columns may be listed, comma-separated.</li>
-<li>The remainder of the <code>SELECT</code> statement (targets, <code>FROM</code>, etc.) is parsed as usual. Targets may be a <code>Star</code> or a list of identifiers.</li>
+<li>The columns within the parentheses must be parsed into a list of <code>Identifier</code> objects, which is assigned to the <code>distinct</code> attribute of the resulting <code>Select</code> node with their order preserved.</li>
+<li>Each column may be a simple identifier (e.g. <code>column1</code>) or a dotted/multi-part identifier (e.g. <code>t1.column1</code>). A dotted identifier must be represented as a single <code>Identifier</code> whose value reflects the complete dotted path.</li>
+<li>One or more comma-separated columns may be listed.</li>
+<li>The rest of the <code>SELECT</code> statement (targets, <code>FROM</code>, etc.) is parsed as usual. The targets may be a <code>Star</code> or a list of identifiers.</li>
 </ul>
-<p>Examples of input that must parse correctly:</p>
+<p>Example inputs that must parse correctly:</p>
 <pre><code>SELECT DISTINCT ON (t1.column1) * FROM t1
 </code></pre>
-<p>produces a <code>Select</code> equivalent to:</p>
+<p>results in a <code>Select</code> equivalent to:</p>
 <pre><code class="language-python">Select(
     targets=[Star()],
     from_table=Identifier('t1'),
@@ -330,7 +330,7 @@ INNER JOIN LATERAL (SELECT *
 </code></pre>
 <pre><code>SELECT DISTINCT ON (column1, column2) column3, column4 FROM t1
 </code></pre>
-<p>produces a <code>Select</code> equivalent to:</p>
+<p>parses to a <code>Select</code> equivalent to:</p>
 <pre><code class="language-python">Select(
     targets=[Identifier('column3'), Identifier('column4')],
     from_table=Identifier('t1'),
@@ -338,29 +338,29 @@ INNER JOIN LATERAL (SELECT *
 )
 </code></pre>
 <h5>Rendering</h5>
-<p>For a <code>Select</code> node whose <code>distinct</code> attribute is a list of <code>Identifier</code> objects, <code>str(...)</code> must render a <code>DISTINCT ON (...)</code> clause after <code>SELECT</code>, listing the identifiers in order, comma-separated, inside parentheses. The round-trip <code>str(parse_sql(sql))</code> must reproduce equivalent SQL for the inputs above.</p>
-<p>The <code>to_tree()</code> output must reflect the list of distinct identifiers such that two <code>Select</code> nodes constructed with equal <code>distinct</code> lists produce identical trees.</p>
-<h4>Public API Surface</h4>
+<p>When a <code>Select</code> node's <code>distinct</code> attribute is a list of <code>Identifier</code> objects, <code>str(...)</code> must render a <code>DISTINCT ON (...)</code> clause after <code>SELECT</code>, with the identifiers listed in order, comma-separated, inside parentheses. For the inputs above, the round-trip <code>str(parse_sql(sql))</code> must reproduce equivalent SQL.</p>
+<p>The output of <code>to_tree()</code> must reflect the list of distinct identifiers such that two <code>Select</code> nodes constructed with equal <code>distinct</code> lists produce identical trees.</p>
+<h4>Public API</h4>
 <ul>
-<li><code>Select</code> — AST node accepting keyword arguments <code>targets</code>, <code>from_table</code>, and <code>distinct</code> (where <code>distinct</code> may be a list of <code>Identifier</code>).</li>
-<li><code>Identifier</code> — accepts a string value that may contain dotted parts.</li>
-<li><code>Star</code> — represents <code>*</code>.</li>
+<li><code>Select</code> — an AST node that accepts the keyword arguments <code>targets</code>, <code>from_table</code>, and <code>distinct</code> (where <code>distinct</code> may be a list of <code>Identifier</code>).</li>
+<li><code>Identifier</code> — accepts a string value, which may contain dotted parts.</li>
+<li><code>Star</code> — stands for <code>*</code>.</li>
 <li><code>parse_sql(sql: str)</code> — returns an AST node.</li>
 </ul>
-<p>All of the above must be importable from the same locations they are currently exposed.</p>
+<p>All of the items above must be importable from the same locations where they are currently exposed.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Update the public SQL parser to support the following syntax while producing the existing normalized AST forms.</span>
-        <span class="spec-meta muted">254 words · source specification
+        <span class="spec-title">The public SQL parser must be updated so that it supports the following syntax while producing the existing normalized AST forms.</span>
+        <span class="spec-meta muted">286 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Oracle SQL syntax support</h3>
-<p>Update the public SQL parser to support the following syntax while producing the existing normalized AST forms.</p>
+      <div class="spec-body"><h3>Support for Oracle SQL syntax</h3>
+<p>The public SQL parser must be updated so that it supports the following syntax while producing the existing normalized AST forms.</p>
 <h4>Public API</h4>
-<p>The behavior must be available through:</p>
+<p>The behavior must be accessible through:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql)</code></li>
 <li>AST classes from <code>mindsdb_sql_parser.ast</code>:
@@ -375,12 +375,12 @@ INNER JOIN LATERAL (SELECT *
 </li>
 <li><code>mindsdb_sql_parser.utils.JoinType.INNER_JOIN</code></li>
 </ul>
-<p>Existing AST string conversion via <code>str(node)</code> and tree conversion via <code>node.to_tree()</code> must reflect the structures described below.</p>
-<h4>Oracle outer-join marker</h4>
-<p>Parsing:</p>
+<p>String conversion of the existing AST via <code>str(node)</code> and tree conversion via <code>node.to_tree()</code> must reflect the structures described below.</p>
+<h4>The Oracle outer-join marker</h4>
+<p>The following statement:</p>
 <pre><code class="language-sql">SELECT * FROM customer, orders WHERE c_custkey = o_custkey(+)
 </code></pre>
-<p>must produce the equivalent of:</p>
+<p>must, when parsed, produce the equivalent of:</p>
 <pre><code class="language-python">Select(
     targets=[Star()],
     from_table=Join(
@@ -398,94 +398,94 @@ INNER JOIN LATERAL (SELECT *
     ),
 )
 </code></pre>
-<p>Requirements:</p>
+<p>The following requirements apply:</p>
 <ul>
-<li><code>Identifier</code> must accept the keyword argument <code>is_outer</code>.</li>
-<li>The identifier parsed with the <code>(+)</code> suffix must expose <code>is_outer is True</code>.</li>
-<li>The <code>(+)</code> marker is AST metadata only and must not be emitted by <code>str(...)</code>.</li>
-<li>Rendering the parsed statement must otherwise represent the original query with <code>(+)</code> removed.</li>
-<li><code>to_tree()</code> must match the tree produced by the explicitly constructed AST above.</li>
+<li>The keyword argument <code>is_outer</code> must be accepted by <code>Identifier</code>.</li>
+<li>The identifier that was parsed with the <code>(+)</code> suffix must expose <code>is_outer is True</code>.</li>
+<li>The <code>(+)</code> marker exists only as AST metadata and must not be emitted by <code>str(...)</code>.</li>
+<li>Otherwise, rendering the parsed statement must represent the original query with <code>(+)</code> removed.</li>
+<li><code>to_tree()</code> must match the tree that the explicitly constructed AST above produces.</li>
 </ul>
-<h4><code>FETCH FIRST/NEXT</code> row limit</h4>
-<p>Both statements below must parse successfully:</p>
+<h4>Row limit via <code>FETCH FIRST/NEXT</code></h4>
+<p>Both of the statements below must parse successfully:</p>
 <pre><code class="language-sql">SELECT * FROM customer FETCH NEXT 10 ROWS ONLY
 SELECT * FROM customer FETCH FIRST 10 ROWS ONLY
 </code></pre>
-<p>Each must normalize to the equivalent of:</p>
+<p>Each of them must normalize to the equivalent of:</p>
 <pre><code class="language-python">Select(
     targets=[Star()],
     from_table=Identifier('customer'),
     limit=Constant(10),
 )
 </code></pre>
-<p>For either <code>FIRST</code> or <code>NEXT</code>:</p>
+<p>With either <code>FIRST</code> or <code>NEXT</code>:</p>
 <ul>
-<li>The row count must become the <code>Select.limit</code> value.</li>
-<li>The limit must be represented as <code>Constant(10)</code>.</li>
-<li><code>str(...)</code> and <code>to_tree()</code> must match those of the explicitly constructed normalized <code>Select</code> AST.</li>
+<li>The row count must become the value of <code>Select.limit</code>.</li>
+<li>The limit must be represented in the form of <code>Constant(10)</code>.</li>
+<li>The outputs of <code>str(...)</code> and <code>to_tree()</code> must match those of the explicitly constructed normalized <code>Select</code> AST.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You must extend the SQL CREATE TABLE parser to correctly handle column type definitions that include two numeric parameters (e.g.</span>
-        <span class="spec-meta muted">386 words · source specification
+        <span class="spec-title">The SQL CREATE TABLE parser must be extended so that it correctly handles column type definitions carrying two numeric parameters (e.g.</span>
+        <span class="spec-meta muted">402 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must extend the SQL <code>CREATE TABLE</code> parser to correctly handle column type definitions that include <strong>two numeric parameters</strong> (e.g. precision and scale), such as <code>decimal(5,2)</code> and <code>NUMBER(10, 0)</code>.</p>
+<p>The SQL <code>CREATE TABLE</code> parser must be extended so that it correctly handles column type definitions carrying <strong>two numeric parameters</strong> (e.g. precision and scale), for instance <code>decimal(5,2)</code> and <code>NUMBER(10, 0)</code>.</p>
 <h4>Public API</h4>
 <h5><code>TableColumn</code></h5>
-<p>The <code>TableColumn</code> class represents a single column definition parsed from a <code>CREATE TABLE</code> statement. It must support the following attributes/constructor keyword arguments:</p>
+<p>The <code>TableColumn</code> class models a single column definition taken from a parsed <code>CREATE TABLE</code> statement. It must support the following attributes/constructor keyword arguments:</p>
 <ul>
-<li><code>name</code> (str): the column name.</li>
-<li><code>type</code> (str): the column type name, preserved exactly as written in the source (e.g. <code>decimal</code>, <code>NUMBER</code>, <code>INT</code>, <code>TEXT</code>).</li>
-<li><code>is_primary_key</code> (bool): whether the column is part of the table's primary key.</li>
-<li><code>nullable</code> (bool): whether the column allows NULL values.</li>
-<li><code>length</code> (int, optional): the first numeric parameter of the type, when present.</li>
-<li><code>length2</code> (int, optional): the <strong>second</strong> numeric parameter of the type, when present.</li>
+<li><code>name</code> (str): the name of the column.</li>
+<li><code>type</code> (str): the name of the column's type, kept exactly as it is written in the source (e.g. <code>decimal</code>, <code>NUMBER</code>, <code>INT</code>, <code>TEXT</code>).</li>
+<li><code>is_primary_key</code> (bool): whether the column belongs to the table's primary key.</li>
+<li><code>nullable</code> (bool): whether the column permits NULL values.</li>
+<li><code>length</code> (int, optional): the type's first numeric parameter, when present.</li>
+<li><code>length2</code> (int, optional): the type's <strong>second</strong> numeric parameter, when present.</li>
 </ul>
-<p><code>TableColumn</code> instances that carry identical attribute values must compare as equal.</p>
-<h4>Required Behavior</h4>
-<p>When parsing a <code>CREATE TABLE</code> statement, each column definition must produce a <code>TableColumn</code>:</p>
+<p>Instances of <code>TableColumn</code> that hold the same attribute values must compare as equal.</p>
+<h4>Behavior Requirements</h4>
+<p>Parsing a <code>CREATE TABLE</code> statement must produce a <code>TableColumn</code> for each column definition:</p>
 <ol>
 <li>
-<p><strong>Type name preservation</strong>: The <code>type</code> attribute must retain the exact spelling used in the source text (do not normalize case). For example, <code>decimal(5,2)</code> yields <code>type='decimal'</code> and <code>NUMBER(10, 0)</code> yields <code>type='NUMBER'</code>.</p>
+<p><strong>Type name preservation</strong>: The <code>type</code> attribute must keep the exact spelling found in the source text (case must not be normalized). For example, <code>decimal(5,2)</code> produces <code>type='decimal'</code> and <code>NUMBER(10, 0)</code> produces <code>type='NUMBER'</code>.</p>
 </li>
 <li>
-<p><strong>Two-parameter numeric types</strong>: A type declared with two comma-separated numeric parameters must populate both <code>length</code> (first parameter) and <code>length2</code> (second parameter) as integers.</p>
+<p><strong>Two-parameter numeric types</strong>: When a type is declared with two comma-separated numeric parameters, both <code>length</code> (first parameter) and <code>length2</code> (second parameter) must be populated as integers.</p>
 <ul>
 <li><code>decimal(5,2)</code> → <code>length=5</code>, <code>length2=2</code></li>
 <li><code>NUMBER(10, 0)</code> → <code>length=10</code>, <code>length2=0</code></li>
-<li>Whitespace surrounding the parameters (as in <code>NUMBER(10, 0)</code>) must be tolerated.</li>
-<li>A second parameter of <code>0</code> must be captured as <code>length2=0</code> (i.e. treated as present, not omitted).</li>
+<li>Whitespace around the parameters (as in <code>NUMBER(10, 0)</code>) must be tolerated.</li>
+<li>A second parameter of <code>0</code> must be captured as <code>length2=0</code> (i.e. counted as present, not omitted).</li>
 </ul>
 </li>
 <li>
-<p><strong>Nullability</strong>: A column declared with a <code>NOT NULL</code> constraint must set <code>nullable=False</code>. For example, <code>links NUMBER(10, 0) NOT NULL</code> yields <code>nullable=False</code>.</p>
+<p><strong>Nullability</strong>: If a column is declared with a <code>NOT NULL</code> constraint, <code>nullable=False</code> must be set on it. For example, <code>links NUMBER(10, 0) NOT NULL</code> yields <code>nullable=False</code>.</p>
 </li>
 <li>
-<p><strong>Primary keys</strong>: A table-level <code>PRIMARY KEY (col_a, col_b)</code> clause must mark each named column with <code>is_primary_key=True</code>.</p>
+<p><strong>Primary keys</strong>: A table-level <code>PRIMARY KEY (col_a, col_b)</code> clause must mark every column it names with <code>is_primary_key=True</code>.</p>
 </li>
 <li>
-<p><strong>Simple types</strong>: Columns declared with a bare type and no parameters (e.g. <code>INT</code>, <code>TEXT</code>) produce a <code>TableColumn</code> with just <code>name</code> and <code>type</code> set (no <code>length</code>/<code>length2</code>).</p>
+<p><strong>Simple types</strong>: A column declared with a bare type and no parameters (e.g. <code>INT</code>, <code>TEXT</code>) produces a <code>TableColumn</code> in which only <code>name</code> and <code>type</code> are set (no <code>length</code>/<code>length2</code>).</p>
 </li>
 </ol>
-<p>The parser must be able to process a <code>CREATE TABLE</code> statement whose column list mixes simple typed columns, single-token constrained columns, two-parameter numeric columns (with and without <code>NOT NULL</code>), and a trailing table-level composite <code>PRIMARY KEY</code> clause.</p>
+<p>The parser must be able to handle a <code>CREATE TABLE</code> statement whose column list combines simple typed columns, single-token constrained columns, two-parameter numeric columns (with and without <code>NOT NULL</code>), and a trailing table-level composite <code>PRIMARY KEY</code> clause.</p>
 <h4>Note</h4>
-<p>The table-level primary key keyword is written as <code>PRIMARY KEY</code> (two words separated by a space). There is no support for a single underscored <code>PRIMARY_KEY</code> token.</p>
+<p>The table-level primary key keyword is spelled <code>PRIMARY KEY</code> (two words with a space between them). A single underscored <code>PRIMARY_KEY</code> token is not supported.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Expose</span>
-        <span class="spec-meta muted">272 words · source specification
+        <span class="spec-title">The following must be exposed</span>
+        <span class="spec-meta muted">295 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>Expose:</p>
+      <div class="spec-body"><h4>Public API that must be exposed</h4>
+<p>The following must be exposed:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql: str)</code></li>
 <li>AST classes from <code>mindsdb_sql_parser.ast</code>:
@@ -499,15 +499,15 @@ SELECT * FROM customer FETCH FIRST 10 ROWS ONLY
 </ul>
 </li>
 </ul>
-<p>Parsed AST objects must remain structurally comparable with ASTs constructed from these public classes, including through the existing tree representation/equality behavior.</p>
-<h4>Required parsing behavior</h4>
-<h5>Identifier values in a <code>USING</code> clause</h5>
+<p>AST objects produced by parsing must remain structurally comparable with ASTs built from these public classes, including via the existing tree representation/equality behavior.</p>
+<h4>Parsing behavior requirements</h4>
+<h5>Identifier values inside a <code>USING</code> clause</h5>
 <p>Parsing:</p>
 <pre><code class="language-sql">SELECT status FROM tbl1
 GROUP BY 1
 USING p1=1, p2='2', p3=column
 </code></pre>
-<p>must produce the equivalent of:</p>
+<p>must result in the equivalent of:</p>
 <pre><code class="language-python">Select(
     targets=[Identifier('status')],
     from_table=Identifier('tbl1'),
@@ -519,14 +519,14 @@ USING p1=1, p2='2', p3=column
     },
 )
 </code></pre>
-<p>Within the <code>using</code> mapping:</p>
+<p>Inside the <code>using</code> mapping:</p>
 <ul>
-<li>An unquoted numeric value is represented as its Python numeric value.</li>
-<li>A quoted string is represented as its Python string value.</li>
-<li>An unquoted column/identifier value is represented as an <code>Identifier</code>, not as a string or scalar constant.</li>
+<li>A numeric value written without quotes is represented as its Python numeric value.</li>
+<li>A string written with quotes is represented as its Python string value.</li>
+<li>A column/identifier value written without quotes is represented as an <code>Identifier</code>, not as a string or scalar constant.</li>
 </ul>
-<p>Rendering this AST must preserve <code>column</code> as an SQL identifier rather than converting it into a quoted string.</p>
-<h5>Numeric equality as a lateral join condition</h5>
+<p>Rendering this AST must keep <code>column</code> as an SQL identifier rather than turning it into a quoted string.</p>
+<h5>Numeric equality used as a lateral join condition</h5>
 <p>Parsing a query equivalent to:</p>
 <pre><code class="language-sql">SELECT *
 FROM table1 a
@@ -537,11 +537,11 @@ INNER JOIN LATERAL (
     LIMIT 1
 ) b ON 1=1
 </code></pre>
-<p>must produce a <code>Select</code> whose <code>from_table</code> is a <code>Join</code> with:</p>
+<p>must result in a <code>Select</code> whose <code>from_table</code> is a <code>Join</code> with:</p>
 <ul>
 <li><code>join_type='INNER JOIN LATERAL'</code></li>
-<li>left side: <code>Identifier('table1', alias=Identifier('a'))</code></li>
-<li>right side: the lateral subquery</li>
+<li>left-hand side: <code>Identifier('table1', alias=Identifier('a'))</code></li>
+<li>right-hand side: the lateral subquery</li>
 <li>condition:</li>
 </ul>
 <pre><code class="language-python">BinaryOperation(
@@ -549,29 +549,29 @@ INNER JOIN LATERAL (
     args=[Constant(1), Constant(1)],
 )
 </code></pre>
-<p>The lateral subquery must contain:</p>
+<p>The lateral subquery must have:</p>
 <ul>
-<li>target <code>Star()</code></li>
-<li>source table <code>table2</code> aliased as <code>b</code></li>
+<li>a <code>Star()</code> target</li>
+<li>table <code>table2</code> as the source, aliased as <code>b</code></li>
 <li>the equality condition <code>a.x = b.x</code></li>
 <li><code>LIMIT 1</code></li>
 </ul>
-<p>The join condition must remain a numeric equality expression. It must not be represented or rendered as a Boolean <code>true</code> condition.</p>
+<p>The join condition must continue to be a numeric equality expression. It must not be rendered or represented as a Boolean <code>true</code> condition.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">The following existing public interfaces must support the described behavior</span>
-        <span class="spec-meta muted">403 words · source specification
+        <span class="spec-title">These existing public interfaces must support the behavior described below</span>
+        <span class="spec-meta muted">442 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required SQL parser behavior</h3>
-<h4>Public API</h4>
-<p>The following existing public interfaces must support the described behavior:</p>
+      <div class="spec-body"><h3>Behavior required from the SQL parser</h3>
+<h4>Public interfaces</h4>
+<p>These existing public interfaces must support the behavior described below:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql: str)</code></li>
-<li>Classes exported from <code>mindsdb_sql_parser.ast</code>:
+<li>Classes that are exported from <code>mindsdb_sql_parser.ast</code>:
 <ul>
 <li><code>Select</code></li>
 <li><code>Star</code></li>
@@ -585,11 +585,11 @@ INNER JOIN LATERAL (
 <li><code>mindsdb_sql_parser.utils.JoinType</code>, including <code>JoinType.INNER_JOIN</code></li>
 <li>AST nodes must continue to expose <code>str(node)</code> rendering and <code>node.to_tree()</code>.</li>
 </ul>
-<h4>Oracle outer-join marker</h4>
-<p>Parsing:</p>
+<h4>The Oracle outer-join marker</h4>
+<p>Parsing this statement:</p>
 <pre><code class="language-sql">SELECT * FROM customer, orders WHERE c_custkey = o_custkey(+)
 </code></pre>
-<p>must produce the same AST structure as:</p>
+<p>must result in the same AST structure as:</p>
 <pre><code class="language-python">Select(
     targets=[Star()],
     from_table=Join(
@@ -610,44 +610,44 @@ INNER JOIN LATERAL (
 <p>Requirements:</p>
 <ul>
 <li>
-<p><code>Identifier</code> must accept the keyword argument <code>is_outer</code>.</p>
+<p><code>Identifier</code> must accept <code>is_outer</code> as a keyword argument.</p>
 </li>
 <li>
-<p>The identifier parsed from <code>o_custkey(+)</code> must expose <code>.is_outer is True</code>.</p>
+<p>The identifier that comes from parsing <code>o_custkey(+)</code> must expose <code>.is_outer is True</code>.</p>
 </li>
 <li>
-<p>The comma-separated tables must remain an implicit inner <code>Join</code>.</p>
+<p>The tables separated by the comma must remain an implicit inner <code>Join</code>.</p>
 </li>
 <li>
-<p>Rendering the parsed AST must not include the <code>(+)</code> marker. The rendered SQL is:</p>
+<p>The <code>(+)</code> marker must not appear when the parsed AST is rendered. The rendered SQL is:</p>
 <pre><code class="language-sql">SELECT * FROM customer, orders WHERE c_custkey = o_custkey
 </code></pre>
-<p>SQL keyword capitalization may follow the AST’s normal canonical rendering.</p>
+<p>The capitalization of SQL keywords may follow the AST's usual canonical rendering.</p>
 </li>
 <li>
-<p><code>to_tree()</code> must be equivalent to that of the manually constructed AST above.</p>
+<p><code>to_tree()</code> must be equivalent to that of the AST constructed manually above.</p>
 </li>
 </ul>
-<h4><code>FETCH FIRST</code> and <code>FETCH NEXT</code></h4>
-<p>Both statements:</p>
+<h4>Parsing <code>FETCH FIRST</code> and <code>FETCH NEXT</code></h4>
+<p>Both of these statements:</p>
 <pre><code class="language-sql">SELECT * FROM customer FETCH NEXT 10 ROWS ONLY
 SELECT * FROM customer FETCH FIRST 10 ROWS ONLY
 </code></pre>
-<p>must parse to the same AST structure:</p>
+<p>must parse into the same AST structure:</p>
 <pre><code class="language-python">Select(
     targets=[Star()],
     from_table=Identifier('customer'),
     limit=Constant(10),
 )
 </code></pre>
-<p>The parsed AST’s string rendering and <code>to_tree()</code> output must be identical to those of this ordinary limit-bearing <code>Select</code> AST. The <code>FIRST</code> or <code>NEXT</code> distinction is not retained in the resulting AST.</p>
-<h4>Two-parameter column types in <code>CREATE TABLE</code></h4>
-<p>Within a <code>CREATE TABLE</code> column list, two numeric type parameters must be captured as separate integer metadata fields.</p>
-<p>Given these declarations:</p>
+<p>The parsed AST's rendering as a string and its <code>to_tree()</code> output must be identical to those of this ordinary <code>Select</code> AST that carries a limit. The resulting AST does not retain the <code>FIRST</code> or <code>NEXT</code> distinction.</p>
+<h4>Column types with two parameters in <code>CREATE TABLE</code></h4>
+<p>Inside a <code>CREATE TABLE</code> column list, two numeric type parameters must be captured as separate integer metadata fields.</p>
+<p>Given the following declarations:</p>
 <pre><code class="language-sql">balance decimal(5,2),
 links NUMBER(10, 0) NOT NULL
 </code></pre>
-<p>the parsed column metadata must contain, in the corresponding positions:</p>
+<p>the metadata for the parsed columns must contain, in the corresponding positions:</p>
 <pre><code class="language-python">TableColumn(
     name='balance',
     type='decimal',
@@ -664,8 +664,8 @@ links NUMBER(10, 0) NOT NULL
     length2=0,
 )
 </code></pre>
-<p>This must work both without whitespace after the comma, as in <code>decimal(5,2)</code>, and with whitespace, as in <code>NUMBER(10, 0)</code>. A second parameter value of zero must be preserved as integer <code>0</code>, not omitted.</p>
-<p>For a table body containing:</p>
+<p>It must work both with no whitespace after the comma, as in <code>decimal(5,2)</code>, and with whitespace after it, as in <code>NUMBER(10, 0)</code>. A second parameter whose value is zero must be preserved as the integer <code>0</code>, not omitted.</p>
+<p>For a table body that contains:</p>
 <pre><code class="language-sql">location_id INT,
 num INT,
 name TEXT,
@@ -673,7 +673,7 @@ balance decimal(5,2),
 links NUMBER(10, 0) NOT NULL,
 PRIMARY KEY (location_id, num)
 </code></pre>
-<p>the parsed columns, in order, must be equivalent to:</p>
+<p>the columns obtained from parsing, in order, must be equivalent to:</p>
 <pre><code class="language-python">[
     TableColumn(name='location_id', type='INT', is_primary_key=True),
     TableColumn(name='num', type='INT', is_primary_key=True),
@@ -693,33 +693,33 @@ PRIMARY KEY (location_id, num)
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">The following existing imports and calls must remain available</span>
-        <span class="spec-meta muted">210 words · source specification
+        <span class="spec-title">The imports and calls shown below already exist and must remain available</span>
+        <span class="spec-meta muted">241 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change: MySQL <code>GROUP BY ... WITH ROLLUP</code> support</h4>
-<h5>Public API</h5>
-<p>The following existing imports and calls must remain available:</p>
+      <div class="spec-body"><h4>Required change: support for <code>GROUP BY ... WITH ROLLUP</code> in MySQL</h4>
+<h5>Public interface</h5>
+<p>The imports and calls shown below already exist and must remain available:</p>
 <pre><code class="language-python">from mindsdb_sql_parser import parse_sql
 from mindsdb_sql_parser.ast import Select, Identifier, Function
 </code></pre>
-<p>Required callable interfaces:</p>
+<p>Callable interfaces that are required:</p>
 <ul>
 <li><code>parse_sql(sql: str)</code></li>
 <li><code>Select(targets=..., from_table=..., group_by=...)</code></li>
 <li><code>Identifier(name, with_rollup=True)</code>
 <ul>
-<li><code>with_rollup</code> must be an optional keyword argument so existing calls such as <code>Identifier('country')</code> continue to work.</li>
+<li><code>with_rollup</code> must be an optional keyword argument so that existing calls such as <code>Identifier('country')</code> keep working.</li>
 </ul>
 </li>
 <li><code>Function(op=..., args=...)</code></li>
-<li>AST objects must support <code>str(ast)</code> and <code>ast.to_tree()</code>.</li>
+<li><code>str(ast)</code> and <code>ast.to_tree()</code> must be supported on AST objects.</li>
 </ul>
-<h5>Parsing behavior</h5>
-<p>Parsing:</p>
+<h5>Behavior when parsing</h5>
+<p>Parsing the statement</p>
 <pre><code class="language-sql">SELECT country, SUM(sales) FROM booksales GROUP BY country WITH ROLLUP
 </code></pre>
-<p>must return a <code>Select</code> AST structurally equivalent to:</p>
+<p>must return a <code>Select</code> AST that is structurally equivalent to:</p>
 <pre><code class="language-python">Select(
     targets=[
         Identifier('country'),
@@ -731,37 +731,38 @@ from mindsdb_sql_parser.ast import Select, Identifier, Function
     ]
 )
 </code></pre>
-<p><code>WITH ROLLUP</code> must therefore be represented by setting <code>with_rollup=True</code> on the relevant <code>GROUP BY</code> identifier, rather than treating it as part of the identifier’s name.</p>
-<h5>SQL rendering</h5>
-<p>Converting either the parsed AST or the directly constructed AST above to a string must render the complete query with <code>WITH ROLLUP</code> after the grouped identifier:</p>
+<p>Consequently, <code>WITH ROLLUP</code> must be represented by setting <code>with_rollup=True</code> on the relevant <code>GROUP BY</code> identifier, rather than being treated as part of the identifier's name.</p>
+<h5>Rendering to SQL</h5>
+<p>When either the AST produced by parsing or the directly constructed AST shown above is converted to a string, the full query must be rendered with <code>WITH ROLLUP</code> after the grouped identifier:</p>
 <pre><code class="language-sql">SELECT country, SUM(sales) FROM booksales GROUP BY country WITH ROLLUP
 </code></pre>
-<p>The rendered text must match that spacing and token order; letter casing may differ.</p>
-<p>The parsed and directly constructed ASTs must:</p>
+<p>That spacing and token order must be matched by the rendered text; letter casing may differ.</p>
+<p>The AST obtained by parsing and the one constructed directly must:</p>
 <ul>
-<li>produce identical <code>str(...)</code> output;</li>
-<li>produce equal <code>to_tree()</code> results.</li>
+<li>produce <code>str(...)</code> output that is identical;</li>
+<li>produce <code>to_tree()</code> results that are equal.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Expose and support the following public API</span>
-        <span class="spec-meta muted">306 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The following public API is to be exposed and supported</span>
+        <span class="spec-meta muted">336 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Support variables inside knowledge-base JSON parameters</h4>
-<p>Expose and support the following public API:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Variable support inside knowledge-base JSON parameters</h4>
+<p>The following public API is to be exposed and supported:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql: str)</code></li>
-<li><code>mindsdb_sql_parser.Variable</code>, constructible as <code>Variable(name: str)</code></li>
-<li><code>mindsdb_sql_parser.ast.Identifier</code>, constructible with <code>Identifier(parts=[...])</code></li>
+<li><code>mindsdb_sql_parser.Variable</code>, able to be constructed as <code>Variable(name: str)</code></li>
+<li><code>mindsdb_sql_parser.ast.Identifier</code>, able to be constructed with <code>Identifier(parts=[...])</code></li>
 <li><code>mindsdb_sql_parser.ast.mindsdb.knowledge_base.CreateKnowledgeBase</code></li>
-<li>SQL rendering of <code>CreateKnowledgeBase</code> through its standard <code>to_string()</code> API</li>
+<li>SQL rendering of <code>CreateKnowledgeBase</code> via its standard <code>to_string()</code> API</li>
 </ul>
 <h5>Parsing</h5>
-<p><code>parse_sql</code> must accept a <code>CREATE KNOWLEDGE_BASE</code> statement whose <code>USING</code> clause contains a JSON-like object with a variable as a value. Variable names that end in one or more digits must be consumed as a single variable name. For example, this statement must parse successfully:</p>
+<p><code>parse_sql</code> must accept a <code>CREATE KNOWLEDGE_BASE</code> statement in which the <code>USING</code> clause holds a JSON-like object that has a variable as a value. A variable name that ends in one or more digits must be consumed as a single variable name. As an example, the following statement must parse successfully:</p>
 <pre><code class="language-sql">CREATE KNOWLEDGE_BASE my_knowledge_base
 USING
     MODEL = mindsdb.my_embedding_model,
@@ -769,13 +770,13 @@ USING
     some_param = 'some value',
     other_param = {'key': @var1}
 </code></pre>
-<p>The resulting <code>CreateKnowledgeBase</code> AST must represent the statement with:</p>
+<p>The <code>CreateKnowledgeBase</code> AST that results must represent the statement as follows:</p>
 <ul>
-<li>its knowledge-base name in the statement's corresponding <code>Identifier</code></li>
+<li>its knowledge-base name being held in the statement's corresponding <code>Identifier</code></li>
 <li><code>model = Identifier(parts=[&quot;mindsdb&quot;, &quot;my_embedding_model&quot;])</code></li>
 <li><code>storage = Identifier(parts=[&quot;my_vector_database&quot;, &quot;some_table&quot;])</code></li>
 <li><code>from_select = None</code></li>
-<li><code>params</code> equal to:</li>
+<li><code>params</code> equal to the following:</li>
 </ul>
 <pre><code class="language-python">{
     &quot;some_param&quot;: &quot;some value&quot;,
@@ -784,40 +785,40 @@ USING
     },
 }
 </code></pre>
-<p>The variable node must contain the complete name <code>var1</code>, without the leading <code>@</code>. It must remain a <code>Variable</code> AST value at its position inside the JSON-like object rather than being converted to a string or an identifier.</p>
-<h5>SQL rendering and round-trip behavior</h5>
-<p>Rendering a <code>CreateKnowledgeBase</code> AST whose <code>params</code> data contains a nested <code>Variable</code> must produce valid, parseable SQL. The variable must be emitted using SQL variable syntax, such as <code>@var1</code>, at the corresponding location in the JSON-like object. It must not be quoted, converted to a plain string, or emitted using a Python or object representation.</p>
-<p>This rendering requirement applies both to an AST returned by <code>parse_sql</code> and to an equivalent directly constructed <code>CreateKnowledgeBase</code> AST. Reparsing the result of <code>to_string()</code> with <code>parse_sql</code> must produce an equivalent statement AST, including the knowledge-base name, model, storage, source selection, ordinary parameter values, and the nested <code>Variable(&quot;var1&quot;)</code> with its full name preserved.</p>
+<p>The variable node must carry the complete name <code>var1</code>, with no leading <code>@</code>. At its position inside the JSON-like object, it must remain a <code>Variable</code> AST value instead of being converted to a string or an identifier.</p>
+<h5>Rendering of SQL and round-trip behavior</h5>
+<p>If a <code>CreateKnowledgeBase</code> AST has <code>params</code> data that contains a nested <code>Variable</code>, rendering it must produce valid, parseable SQL. The variable must be emitted with SQL variable syntax, for example <code>@var1</code>, at the corresponding location in the JSON-like object. It must not be quoted, turned into a plain string, or emitted by means of a Python or object representation.</p>
+<p>Both an AST returned by <code>parse_sql</code> and an equivalent directly constructed <code>CreateKnowledgeBase</code> AST are subject to this rendering requirement. When the result of <code>to_string()</code> is reparsed with <code>parse_sql</code>, an equivalent statement AST must be produced, including the knowledge-base name, model, storage, source selection, ordinary parameter values, and the nested <code>Variable(&quot;var1&quot;)</code> with its full name retained.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Extend SQL variable parsing to support MySQL-style system variables prefixed with @@.</span>
-        <span class="spec-meta muted">161 words · source specification
+        <span class="spec-title">Extend the parsing of SQL variables so that MySQL-style system variables carrying the @@ prefix are supported.</span>
+        <span class="spec-meta muted">194 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Extend SQL variable parsing to support MySQL-style system variables prefixed with <code>@@</code>.</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Extend the parsing of SQL variables so that MySQL-style system variables carrying the <code>@@</code> prefix are supported.</p>
 <h5>Public API</h5>
-<p>The following existing public interfaces must support this behavior:</p>
+<p>This behavior must be supported by the following existing public interfaces:</p>
 <ul>
 <li><code>mindsdb_sql.parse_sql(sql: str)</code></li>
 <li><code>mindsdb_sql.parser.ast.Select</code></li>
 <li><code>mindsdb_sql.parser.ast.Variable</code></li>
 </ul>
-<p>The exercised AST constructors are:</p>
+<p>The AST constructors that get exercised are:</p>
 <ul>
 <li><code>Select(targets=[...])</code></li>
 <li><code>Variable(name: str, is_system_var=True)</code></li>
 </ul>
-<h5>Parsing behavior</h5>
-<p>Calling:</p>
+<h5>Behavior when parsing</h5>
+<p>The call</p>
 <pre><code class="language-python">parse_sql(
     &quot;select @@session.auto_increment_increment, @@character_set_client&quot;
 )
 </code></pre>
-<p>must return an AST equivalent to:</p>
+<p>must return an AST that is equivalent to:</p>
 <pre><code class="language-python">Select(
     targets=[
         Variable(
@@ -831,90 +832,90 @@ USING
     ]
 )
 </code></pre>
-<p>Required details:</p>
+<p>The following details are required:</p>
 <ul>
-<li>The leading <code>@@</code> is not part of the <code>Variable</code> name.</li>
-<li>Both qualified system-variable names such as <code>session.auto_increment_increment</code> and unqualified names such as <code>character_set_client</code> are supported.</li>
-<li>Each parsed <code>@@</code> variable has <code>is_system_var=True</code>.</li>
-<li>Target order is preserved.</li>
+<li>The leading <code>@@</code> does not form part of the <code>Variable</code> name.</li>
+<li>Qualified system-variable names such as <code>session.auto_increment_increment</code> and unqualified names such as <code>character_set_client</code> are both supported.</li>
+<li>Every <code>@@</code> variable that is parsed has <code>is_system_var=True</code>.</li>
+<li>The order of targets is preserved.</li>
 </ul>
-<h5>SQL serialization</h5>
-<p>Converting the resulting AST to <code>str</code> must serialize both variables with the <code>@@</code> prefix and reproduce:</p>
+<h5>Serialization to SQL</h5>
+<p>When the resulting AST is converted to <code>str</code>, both variables must be serialized with the <code>@@</code> prefix, and the following must be reproduced:</p>
 <pre><code class="language-sql">select @@session.auto_increment_increment, @@character_set_client
 </code></pre>
-<p>apart from keyword/identifier letter casing. A manually constructed equivalent AST must produce the same string representation as the parsed AST.</p>
+<p>apart from the letter casing of keywords/identifiers. An equivalent AST built manually must produce the same string representation as the parsed AST.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Create/Drop Index on Knowledge Base</span>
-        <span class="spec-meta muted">311 words · source specification
+        <span class="spec-title">Creating and Dropping a Knowledge Base Index</span>
+        <span class="spec-meta muted">337 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Create/Drop Index on Knowledge Base</h3>
+      <div class="spec-body"><h3>Task Specification: Creating and Dropping a Knowledge Base Index</h3>
 <h4>Overview</h4>
-<p>Add support for parsing two new SQL statements that create and drop an index on a knowledge base. This requires two new AST node classes and integration into the SQL parser so these statements can be parsed and rendered back to SQL.</p>
+<p>Introduce support for parsing two new SQL statements — one that creates an index on a knowledge base and one that drops such an index. Doing so requires two new AST node classes together with integration into the SQL parser, so that these statements can be parsed and rendered back to SQL.</p>
 <h4>Public API Surface</h4>
-<p>Two new AST node classes must be importable from the module:</p>
+<p>The two new AST node classes must be importable from the module:</p>
 <pre><code>mindsdb_sql_parser.ast.mindsdb.knowledge_base
 </code></pre>
-<p>with these names:</p>
+<p>under these names:</p>
 <ul>
 <li><code>CreateKnowledgeBaseIndex</code></li>
 <li><code>DropKnowledgeBaseIndex</code></li>
 </ul>
-<p>Each class must be constructible with a single keyword argument <code>name</code>, which is an <code>Identifier</code> instance:</p>
+<p>Each class must be constructible by supplying a single keyword argument <code>name</code>, which is an <code>Identifier</code> instance:</p>
 <pre><code class="language-python">CreateKnowledgeBaseIndex(name=Identifier('my_kb'))
 DropKnowledgeBaseIndex(name=Identifier('my_kb'))
 </code></pre>
-<p>Both classes must be AST nodes consistent with the rest of the codebase: they must support the <code>.to_tree()</code> method (producing a tree representation as other AST nodes do) and <code>str()</code> rendering (see below). Two nodes constructed with equal <code>name</code> values must produce identical <code>.to_tree()</code> output.</p>
-<h4>Parser Behavior</h4>
+<p>Both classes must be AST nodes in keeping with the rest of the codebase: they must support the <code>.to_tree()</code> method (which produces a tree representation the way other AST nodes do) and <code>str()</code> rendering (see below). Two nodes created with equal <code>name</code> values must produce identical <code>.to_tree()</code> output.</p>
+<h4>Parsing Behavior</h4>
 <p>The top-level parse entry point:</p>
 <pre><code class="language-python">from mindsdb_sql_parser import parse_sql
 </code></pre>
-<p>must accept the following two statement forms and produce the corresponding AST nodes.</p>
+<p>must accept the two statement forms that follow and produce the corresponding AST nodes.</p>
 <h5>CREATE INDEX</h5>
 <p>Input SQL:</p>
 <pre><code class="language-sql">CREATE INDEX ON KNOWLEDGE_BASE my_kb
 </code></pre>
-<p>Parsing this must yield a <code>CreateKnowledgeBaseIndex</code> node whose <code>name</code> attribute is an <code>Identifier</code> equal to <code>Identifier('my_kb')</code>.</p>
+<p>Parsing the SQL above must yield a <code>CreateKnowledgeBaseIndex</code> node whose <code>name</code> attribute is an <code>Identifier</code> equal to <code>Identifier('my_kb')</code>.</p>
 <h5>DROP INDEX</h5>
 <p>Input SQL:</p>
 <pre><code class="language-sql">DROP INDEX ON KNOWLEDGE_BASE my_kb
 </code></pre>
-<p>Parsing this must yield a <code>DropKnowledgeBaseIndex</code> node whose <code>name</code> attribute is an <code>Identifier</code> equal to <code>Identifier('my_kb')</code>.</p>
+<p>Parsing the SQL above must yield a <code>DropKnowledgeBaseIndex</code> node whose <code>name</code> attribute is an <code>Identifier</code> equal to <code>Identifier('my_kb')</code>.</p>
 <h4>String Rendering</h4>
-<p>Calling <code>str()</code> on a parsed <code>CreateKnowledgeBaseIndex</code> node must produce SQL that, when compared case-insensitively, exactly equals:</p>
+<p>Calling <code>str()</code> on a parsed <code>CreateKnowledgeBaseIndex</code> node must produce SQL that, under a case-insensitive comparison, exactly equals:</p>
 <pre><code>CREATE INDEX ON KNOWLEDGE_BASE my_kb
 </code></pre>
-<p>(That is, <code>str(ast).lower()</code> must equal the original input string lowercased, with no additional or missing tokens, clauses, or whitespace differences.)</p>
+<p>(In other words, <code>str(ast).lower()</code> must equal the lowercased original input string, with no additional or missing tokens, clauses, or whitespace differences.)</p>
 <h4>Notes</h4>
 <ul>
-<li>The knowledge base name is a single identifier following the <code>KNOWLEDGE_BASE</code> keyword.</li>
-<li>No <code>SELECT</code>, column list, <code>USING</code>, or other clauses are part of these statements.</li>
-<li>Only the two exact statement forms above must be supported.</li>
+<li>The name of the knowledge base is a single identifier that follows the <code>KNOWLEDGE_BASE</code> keyword.</li>
+<li>These statements contain no <code>SELECT</code>, column list, <code>USING</code>, or other clauses.</li>
+<li>Only the two exact statement forms shown above must be supported.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Add EvaluateKnowledgeBase AST Node and Parser Support</span>
-        <span class="spec-meta muted">465 words · source specification
+        <span class="spec-title">New EvaluateKnowledgeBase AST Node with Parser Support</span>
+        <span class="spec-meta muted">553 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>EvaluateKnowledgeBase</code> AST Node and Parser Support</h3>
-<h4>Overview</h4>
-<p>Add support for parsing an <code>EVALUATE</code> SQL statement that evaluates a knowledge base. This requires a new AST node class and integration into the SQL parser so that <code>parse_sql</code> returns an instance of the new node when given an <code>EVALUATE ...</code> statement.</p>
-<h4>Public API Surface</h4>
-<h5>New AST Class: <code>EvaluateKnowledgeBase</code></h5>
+      <div class="spec-body"><h3>Task Specification: New <code>EvaluateKnowledgeBase</code> AST Node with Parser Support</h3>
+<h4>Summary</h4>
+<p>Support for parsing an <code>EVALUATE</code> SQL statement — one whose purpose is to evaluate a knowledge base — is to be added. A new AST node class and integration into the SQL parser are required here, with the result that <code>parse_sql</code> returns an instance of the new node whenever an <code>EVALUATE ...</code> statement is handed to it.</p>
+<h4>Public API</h4>
+<h5><code>EvaluateKnowledgeBase</code>: the New AST Class</h5>
 <ul>
 <li><strong>Module:</strong> <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code></li>
 <li><strong>Class name:</strong> <code>EvaluateKnowledgeBase</code></li>
-<li>Must also be importable from the top-level package <code>mindsdb_sql_parser</code> (i.e., exported so existing sibling classes like <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code> are accessible the same way).</li>
+<li>Importing it from the top-level package <code>mindsdb_sql_parser</code> must work as well; the class is to be exported there so that existing sibling classes like <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code> remain accessible in the same fashion.</li>
 </ul>
-<p><strong>Constructor signature (keyword arguments):</strong></p>
+<p><strong>Constructor signature (arguments are passed as keywords):</strong></p>
 <pre><code class="language-python">EvaluateKnowledgeBase(
     name,           # Identifier: the knowledge base name
     test_table,     # Identifier: fully-qualified test table
@@ -923,9 +924,9 @@ DropKnowledgeBaseIndex(name=Identifier('my_kb'))
     generate_data,  # dict
 )
 </code></pre>
-<p>The class must be a proper AST node consistent with the other node classes in the package: two instances constructed with equal field values must compare equal via <code>==</code>. It should support the same construction and equality semantics used across the existing AST node types in this codebase (including the standard render/repr infrastructure those nodes provide).</p>
-<h4>Parsing Behavior</h4>
-<p><code>parse_sql</code> (from <code>mindsdb_sql_parser</code>) must recognize a statement of the form:</p>
+<p>The class must qualify as a proper AST node, in keeping with the package's other node classes: when two instances are constructed with equal field values, <code>==</code> must compare them as equal. Construction and equality should work the same way as they do across the AST node types already present in this codebase, and that covers the standard render/repr infrastructure those nodes provide.</p>
+<h4>Behavior During Parsing</h4>
+<p>A statement shaped as below must be recognized by <code>parse_sql</code> (from <code>mindsdb_sql_parser</code>):</p>
 <pre><code>EVALUATE &lt;knowledge_base_name&gt;
 USING
     TEST_TABLE = &lt;table_identifier&gt;,
@@ -933,21 +934,21 @@ USING
     LLM = { ...json object... },
     generate_data = { ...json object... }
 </code></pre>
-<h5>Mapping rules</h5>
+<h5>Rules for Mapping</h5>
 <ul>
-<li>The identifier immediately following <code>EVALUATE</code> becomes <code>name</code>, an <code>Identifier</code> built from that single name.</li>
-<li>After the <code>USING</code> keyword, a comma-separated list of <code>key = value</code> assignments follows. Parameter keys are case-insensitive.</li>
-<li>The parameters and their handling:
+<li>Whatever identifier appears immediately after <code>EVALUATE</code> turns into <code>name</code> — an <code>Identifier</code> created from that single name.</li>
+<li>What comes after the <code>USING</code> keyword is a list of <code>key = value</code> assignments separated by commas. The keys of these parameters are case-insensitive.</li>
+<li>The parameters and how they get handled:
 <ul>
-<li><code>TEST_TABLE</code> — value is a table reference (dot-separated parts). Stored in <code>test_table</code> as an <code>Identifier</code> whose <code>parts</code> list contains each dotted segment (e.g. <code>my_database.some_table_1</code> → <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>).</li>
-<li><code>SAVE_TO</code> — same handling as <code>TEST_TABLE</code>, stored in <code>save_to</code>.</li>
-<li><code>LLM</code> — value is a JSON object literal. Stored in <code>llm</code> as a Python <code>dict</code> with the corresponding keys and values (strings preserved as strings).</li>
-<li><code>generate_data</code> — value is a JSON object literal. Stored in <code>generate_data</code> as a Python <code>dict</code>, where values may be strings or integers preserved with their native Python types (e.g. <code>&quot;count&quot;: 100</code> → integer <code>100</code>).</li>
+<li><code>TEST_TABLE</code> — the value here is a table reference (its parts separated by dots); it is stored in <code>test_table</code> as an <code>Identifier</code> whose <code>parts</code> list holds each dotted segment (e.g. <code>my_database.some_table_1</code> → <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>).</li>
+<li><code>SAVE_TO</code> — handled in the same manner as <code>TEST_TABLE</code>, with the result stored in <code>save_to</code>.</li>
+<li><code>LLM</code> — a JSON object literal serves as the value; what gets stored in <code>llm</code> is a Python <code>dict</code> carrying the corresponding keys and values, with strings preserved as strings.</li>
+<li><code>generate_data</code> — a JSON object literal appears as the value; it is stored in <code>generate_data</code> as a Python <code>dict</code> whose values may be strings or integers, preserved with their native Python types (e.g. <code>&quot;count&quot;: 100</code> → integer <code>100</code>).</li>
 </ul>
 </li>
 </ul>
-<h5>Expected result</h5>
-<p>Given:</p>
+<h5>Expected Outcome</h5>
+<p>For the statement below:</p>
 <pre><code class="language-sql">EVALUATE my_knowledge_base
 USING
     TEST_TABLE = my_database.some_table_1,
@@ -962,7 +963,7 @@ USING
         &quot;count&quot;: 100
     }
 </code></pre>
-<p><code>parse_sql</code> must return:</p>
+<p>the following object is what <code>parse_sql</code> must return:</p>
 <pre><code class="language-python">EvaluateKnowledgeBase(
     name=Identifier(&quot;my_knowledge_base&quot;),
     test_table=Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;]),
@@ -978,41 +979,42 @@ USING
     }
 )
 </code></pre>
-<h4>Notes / Scope</h4>
+<h4>Scope and Notes</h4>
 <ul>
-<li>Only the behavior described above is required. No other statement forms, optional parameters, or defaults are in scope.</li>
-<li>The returned object must equal a directly-constructed <code>EvaluateKnowledgeBase</code> with the field values shown, using <code>==</code>.</li>
+<li>Required here is only the behavior described above. No statement forms, optional parameters, or defaults other than these are within scope.</li>
+<li>The object that is returned must equal an <code>EvaluateKnowledgeBase</code> constructed directly with the field values shown, when <code>==</code> is applied.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Add complete parsing, AST construction, and SQL-rendering support for EVALUATE KNOWLEDGE_BASE statements through the public API below</span>
-        <span class="spec-meta muted">527 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add full support for parsing, AST construction, and SQL rendering of EVALUATE KNOWLEDGE_BASE statements through the public API below</span>
+        <span class="spec-meta muted">563 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add complete parsing, AST construction, and SQL-rendering support for <code>EVALUATE KNOWLEDGE_BASE</code> statements through the public API below:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Change required</h4>
+<p>Add full support for parsing, AST construction, and SQL rendering of <code>EVALUATE KNOWLEDGE_BASE</code> statements through the public API below:</p>
 <pre><code class="language-python">from mindsdb_sql import parse_sql
 from mindsdb_sql.parser.ast import EvaluateKnowledgeBase, Identifier
 </code></pre>
-<p>This change must be additive: existing SQL parsing and AST behavior must remain compatible.</p>
-<h4>AST API</h4>
-<p><code>EvaluateKnowledgeBase</code> must support construction with:</p>
+<p>The change must be additive: existing behavior in SQL parsing and the AST must remain compatible.</p>
+<h4>AST interface</h4>
+<p><code>EvaluateKnowledgeBase</code> must be constructible with:</p>
 <pre><code class="language-python">EvaluateKnowledgeBase(name: Identifier, params: dict)
 </code></pre>
-<p>The node must retain the knowledge-base name as an <code>Identifier</code> and all <code>USING</code> assignments in the single <code>params</code> dictionary.</p>
-<p><code>Identifier</code> must continue to support both forms used by this statement:</p>
+<p>The node must retain the knowledge-base name as an <code>Identifier</code> as well as all <code>USING</code> assignments in the single <code>params</code> dictionary.</p>
+<p><code>Identifier</code> must keep supporting both forms this statement uses:</p>
 <pre><code class="language-python">Identifier(&quot;my_knowledge_base&quot;)
 Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])
 </code></pre>
-<h4>Parsing behavior</h4>
-<p>The parser must recognize the following statement form:</p>
+<h4>Parser behavior</h4>
+<p>The following statement form must be recognized by the parser:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE &lt;knowledge_base_name&gt;
 USING &lt;parameter_name&gt; = &lt;parameter_value&gt; [, ...]
 </code></pre>
-<p>For example, given:</p>
+<p>As an example, given:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE my_knowledge_base
 USING
     TEST_TABLE = my_database.some_table_1,
@@ -1027,7 +1029,7 @@ USING
         &quot;count&quot;: 100
     }
 </code></pre>
-<p><code>parse_sql(sql)</code> must return an AST structurally equivalent to:</p>
+<p><code>parse_sql(sql)</code> must return an AST that is structurally equivalent to:</p>
 <pre><code class="language-python">EvaluateKnowledgeBase(
     name=Identifier(&quot;my_knowledge_base&quot;),
     params={
@@ -1049,106 +1051,106 @@ USING
     },
 )
 </code></pre>
-<p>The following mapping rules apply:</p>
+<p>The following mapping rules hold:</p>
 <ul>
-<li>Every top-level <code>USING</code> parameter name is case-insensitive in SQL and must be stored as a lowercase key in <code>params</code>. This normalization applies to names such as <code>TEST_TABLE</code>, <code>SAVE_TO</code>, <code>LLM</code>, and <code>GENERATE_DATA</code>; it does not alter keys inside object values.</li>
-<li>The source order of the <code>USING</code> assignments must be retained in the insertion order of <code>params</code>.</li>
-<li>Qualified table references such as <code>my_database.some_table_1</code> and <code>my_database.some_table_2</code> must be represented as multipart <code>Identifier</code> nodes, not plain strings.</li>
-<li>Brace-delimited object values must remain dictionaries. Their string and integer values must retain their original values and types. In particular, the SQL text held in <code>from_sql</code> remains a string rather than being parsed as a separate SQL statement.</li>
+<li>Every <code>USING</code> parameter name at the top level is case-insensitive in SQL and must be stored as a lowercase key in <code>params</code>. This normalization covers names such as <code>TEST_TABLE</code>, <code>SAVE_TO</code>, <code>LLM</code>, and <code>GENERATE_DATA</code>; it does not modify keys inside object values.</li>
+<li>The insertion order of <code>params</code> must retain the source order of the <code>USING</code> assignments.</li>
+<li>Qualified table references such as <code>my_database.some_table_1</code> and <code>my_database.some_table_2</code> must be represented as multipart <code>Identifier</code> nodes, not as plain strings.</li>
+<li>Object values delimited by braces must remain dictionaries. The string and integer values within them must retain their original values and types. In particular, the SQL text held in <code>from_sql</code> stays a string instead of being parsed as a separate SQL statement.</li>
 </ul>
-<h4>SQL rendering and round-trip behavior</h4>
-<p><code>EvaluateKnowledgeBase</code> must participate in the normal AST SQL-rendering API. Calling <code>to_string()</code> must produce a syntactically valid statement beginning with:</p>
+<h4>Rendering SQL and round-trip behavior</h4>
+<p><code>EvaluateKnowledgeBase</code> must take part in the normal AST SQL-rendering API. A call to <code>to_string()</code> must produce a syntactically valid statement that starts with:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE &lt;knowledge_base_name&gt; USING
 </code></pre>
-<p>The <code>USING</code> clause must contain an assignment for each entry in <code>params</code>, in dictionary insertion order. Rendering must observe these rules:</p>
+<p>The <code>USING</code> clause must contain an assignment for each entry in <code>params</code>, in the dictionary's insertion order. Rendering must adhere to these rules:</p>
 <ul>
-<li>Lowercase parameter keys produced by parsing remain lowercase and in the same order.</li>
-<li><code>Identifier</code> values are rendered as SQL identifiers, including every part of multipart identifiers, rather than as quoted string literals or Python object representations.</li>
-<li>Dictionary values are rendered in a brace-delimited form accepted by <code>parse_sql</code>.</li>
-<li>Nested dictionary contents, strings, and integers retain their values and types.</li>
-<li>The knowledge-base name is rendered using the existing <code>Identifier</code> rendering behavior.</li>
+<li>Lowercase parameter keys that parsing produces remain lowercase and in the same order.</li>
+<li><code>Identifier</code> values are rendered as SQL identifiers, with every part of multipart identifiers included, rather than as quoted string literals or Python object representations.</li>
+<li>Dictionary values are rendered in a brace-delimited form that <code>parse_sql</code> accepts.</li>
+<li>The contents of nested dictionaries, along with strings and integers, retain their values and types.</li>
+<li>The knowledge-base name is rendered via the existing <code>Identifier</code> rendering behavior.</li>
 </ul>
-<p>Parsing the SQL returned by <code>to_string()</code> must produce an <code>EvaluateKnowledgeBase</code> node structurally equivalent to the node that was rendered. The round trip must preserve the node name, lowercase parameter keys, assignment order, multipart <code>Identifier</code> values, dictionaries, strings, and integers. The standard string representation of the node must likewise render the supported SQL statement consistently with the AST rendering API. Exact whitespace and quote style need not reproduce the original input, provided the rendered SQL is valid and reparses to the equivalent AST.</p>
+<p>Parsing the SQL that <code>to_string()</code> returns must produce an <code>EvaluateKnowledgeBase</code> node that is structurally equivalent to the node that was rendered. The round trip must preserve the node name, the lowercase parameter keys, the assignment order, the multipart <code>Identifier</code> values, the dictionaries, the strings, and the integers. Likewise, the standard string representation of the node must render the supported SQL statement consistently with the AST rendering API. Exact whitespace and quote style do not need to reproduce the original input, provided that the rendered SQL is valid and reparses to the equivalent AST.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Expose the class</span>
-        <span class="spec-meta muted">198 words · source specification
+        <span class="spec-title">Expose the following class</span>
+        <span class="spec-meta muted">219 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Add <code>ALTER VIEW</code> AST and parsing support</h4>
 <h5>Public API</h5>
-<p>Expose the class:</p>
+<p>Expose the following class:</p>
 <ul>
 <li><code>mindsdb_sql_parser.ast.mindsdb.AlterView</code></li>
-<li>It must be available from the package’s public AST exports used by wildcard imports.</li>
+<li>It must be available from the package’s public AST exports that wildcard imports use.</li>
 </ul>
-<p>The constructor must support these named arguments:</p>
+<p>The following named arguments must be supported by the constructor:</p>
 <pre><code class="language-python">AlterView(
     name: Identifier,
     query_str: str,
     from_table: Identifier | None = None,
 )
 </code></pre>
-<p>Existing APIs involved are:</p>
+<p>The following existing APIs are involved:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql: str)</code></li>
 <li><code>mindsdb_sql_parser.ast.Identifier</code></li>
 </ul>
 <h5>Parsing behavior</h5>
-<p><code>parse_sql</code> must recognize both of these forms:</p>
+<p>Both of the following forms must be recognized by <code>parse_sql</code>:</p>
 <pre><code class="language-sql">ALTER VIEW &lt;view_name&gt; AS ( &lt;query&gt; ) FROM &lt;source&gt;
 </code></pre>
 <pre><code class="language-sql">ALTER VIEW &lt;view_name&gt; AS ( &lt;query&gt; )
 </code></pre>
-<p>For:</p>
+<p>For the statement</p>
 <pre><code class="language-sql">ALTER VIEW my_view AS ( SELECT * FROM pred ) FROM integr
 </code></pre>
-<p>return an <code>AlterView</code> equivalent to:</p>
+<p>return an <code>AlterView</code> that is equivalent to:</p>
 <pre><code class="language-python">AlterView(
     name=Identifier(&quot;my_view&quot;),
     from_table=Identifier(&quot;integr&quot;),
     query_str=&quot;SELECT * FROM pred&quot;,
 )
 </code></pre>
-<p>For:</p>
+<p>For the statement</p>
 <pre><code class="language-sql">ALTER VIEW my_view AS ( SELECT * FROM pred )
 </code></pre>
-<p>return an <code>AlterView</code> equivalent to:</p>
+<p>return an <code>AlterView</code> that is equivalent to:</p>
 <pre><code class="language-python">AlterView(
     name=Identifier(&quot;my_view&quot;),
     query_str=&quot;SELECT * FROM pred&quot;,
 )
 </code></pre>
-<p>The outer query parentheses and surrounding interior whitespace are not included in <code>query_str</code>.</p>
+<p>The outer query parentheses, together with the surrounding interior whitespace, are not part of <code>query_str</code>.</p>
 <h5>AST behavior</h5>
-<p><code>AlterView</code> must participate in the existing AST representation protocols. An object returned by <code>parse_sql</code> must produce the same:</p>
+<p><code>AlterView</code> must take part in the existing AST representation protocols. An object that <code>parse_sql</code> returns must produce the same:</p>
 <ul>
 <li><code>str(...)</code> representation</li>
 <li><code>.to_tree()</code> result</li>
 </ul>
-<p>as an <code>AlterView</code> constructed directly with the corresponding arguments above.</p>
+<p>as an <code>AlterView</code> constructed directly with the corresponding arguments shown above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">The following symbols must remain publicly available</span>
-        <span class="spec-meta muted">211 words · source specification
+        <span class="spec-title">The symbols listed below must remain publicly available</span>
+        <span class="spec-meta muted">237 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Support inline <code>PRIMARY KEY NOT NULL</code> column constraints in <code>CREATE TABLE</code></h4>
-<h5>Public API</h5>
-<p>The following symbols must remain publicly available:</p>
+      <div class="spec-body"><h4>Support for <code>PRIMARY KEY NOT NULL</code> column constraints inline in <code>CREATE TABLE</code></h4>
+<h5>Publicly available API</h5>
+<p>The symbols listed below must remain publicly available:</p>
 <ul>
 <li><code>mindsdb_sql_parser.parse_sql(sql: str)</code></li>
 <li><code>mindsdb_sql_parser.ast.CreateTable</code></li>
 <li><code>mindsdb_sql_parser.ast.Identifier</code></li>
 <li><code>mindsdb_sql_parser.ast.TableColumn</code></li>
 </ul>
-<p>The AST classes must support these exercised constructor forms:</p>
+<p>The following exercised constructor forms must be supported by the AST classes:</p>
 <pre><code class="language-python">Identifier(value: str)
 
 TableColumn(
@@ -1164,15 +1166,15 @@ CreateTable(
     columns: list[TableColumn],
 )
 </code></pre>
-<h5>Required behavior</h5>
-<p><code>parse_sql</code> must accept a qualified <code>CREATE TABLE</code> statement whose column definition places <code>PRIMARY KEY</code> before <code>NOT NULL</code>, including mixed SQL keyword casing and ordinary whitespace/newlines.</p>
-<p>For example, parsing:</p>
+<h5>Behavior requirements</h5>
+<p>A qualified <code>CREATE TABLE</code> statement whose column definition places <code>PRIMARY KEY</code> before <code>NOT NULL</code> must be accepted by <code>parse_sql</code>, including mixed SQL keyword casing and ordinary whitespace/newlines.</p>
+<p>As an example, parsing:</p>
 <pre><code class="language-sql">CREATE TABLE mydb.Persons(
     Person varchar(10) PRIMARY KEY not null,
     name TEXT NULL
 )
 </code></pre>
-<p>must produce an AST equivalent to:</p>
+<p>must produce an AST that is equivalent to:</p>
 <pre><code class="language-python">CreateTable(
     name=Identifier('mydb.Persons'),
     columns=[
@@ -1191,99 +1193,100 @@ CreateTable(
     ],
 )
 </code></pre>
-<p>Specifically:</p>
+<p>In particular:</p>
 <ul>
-<li>The qualified table name is represented as <code>Identifier('mydb.Persons')</code>.</li>
-<li><code>varchar(10)</code> records type <code>varchar</code> and length <code>10</code>.</li>
-<li><code>PRIMARY KEY</code> sets <code>is_primary_key=True</code>.</li>
-<li>A following <code>NOT NULL</code> sets <code>nullable=False</code>.</li>
-<li>Explicit <code>NULL</code> sets <code>nullable=True</code>.</li>
-<li>Column order is preserved.</li>
-<li><code>str(ast)</code> must render equivalently to the corresponding manually constructed AST, ignoring letter case.</li>
-<li><code>ast.to_tree()</code> must exactly match the tree produced by the corresponding manually constructed AST.</li>
+<li>The qualified name of the table is represented as <code>Identifier('mydb.Persons')</code>.</li>
+<li><code>varchar(10)</code> is recorded as type <code>varchar</code> and length <code>10</code>.</li>
+<li><code>is_primary_key=True</code> is set by <code>PRIMARY KEY</code>.</li>
+<li><code>nullable=False</code> is set by a following <code>NOT NULL</code>.</li>
+<li><code>nullable=True</code> is set by an explicit <code>NULL</code>.</li>
+<li>The order of the columns is preserved.</li>
+<li>Ignoring letter case, <code>str(ast)</code> must render equivalently to the corresponding manually constructed AST.</li>
+<li><code>ast.to_tree()</code> must match exactly the tree produced by the corresponding manually constructed AST.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Extend the MindsDB SQL parser with a new top-level statement, EVALUATE KNOWLEDGE_BASE.</span>
-        <span class="spec-meta muted">917 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add a new top-level statement, EVALUATE KNOWLEDGE_BASE, to the MindsDB SQL parser.</span>
+        <span class="spec-meta muted">990 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Extend the MindsDB SQL parser with a new top-level statement, <code>EVALUATE KNOWLEDGE_BASE</code>. The statement must be accepted by the existing <code>mindsdb_sql_parser.parse_sql</code> entry point, represented by a dedicated AST node, and supported by the normal AST-to-SQL rendering interface.</p>
-<h4>Public API</h4>
-<h5><code>EvaluateKnowledgeBase</code> AST node</h5>
-<p>Add a class named <code>EvaluateKnowledgeBase</code> to:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Add a new top-level statement, <code>EVALUATE KNOWLEDGE_BASE</code>, to the MindsDB SQL parser. The existing <code>mindsdb_sql_parser.parse_sql</code> entry point must accept the statement, a dedicated AST node must represent it, and the normal AST-to-SQL rendering interface must support it.</p>
+<h4>Public Interface</h4>
+<h5>The <code>EvaluateKnowledgeBase</code> AST node</h5>
+<p>Add a class with the name <code>EvaluateKnowledgeBase</code> to:</p>
 <pre><code class="language-python">mindsdb_sql_parser.ast.mindsdb.knowledge_base
 </code></pre>
-<p>It must be importable alongside <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code>:</p>
+<p>It must be possible to import it alongside <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code>:</p>
 <pre><code class="language-python">from mindsdb_sql_parser.ast.mindsdb.knowledge_base import EvaluateKnowledgeBase
 </code></pre>
-<p>It must also be exported from the aggregate MindsDB AST namespace, consistently with the existing knowledge-base nodes:</p>
+<p>It must likewise be exported from the aggregate MindsDB AST namespace, consistently with the existing knowledge-base nodes:</p>
 <pre><code class="language-python">from mindsdb_sql_parser.ast.mindsdb import EvaluateKnowledgeBase
 </code></pre>
-<p>The constructor signature is:</p>
+<p>The constructor has the following signature:</p>
 <pre><code class="language-python">EvaluateKnowledgeBase(name, params, *args, **kwargs)
 </code></pre>
 <ul>
-<li><code>name</code> is an <code>Identifier</code> representing the knowledge-base name.</li>
-<li><code>params</code> is a <code>dict</code> containing the normalized options parsed from the <code>USING</code> clause.</li>
-<li><code>*args</code> and <code>**kwargs</code> must be accepted and forwarded through the standard AST base-class initialization so that ordinary base-node attributes continue to work.</li>
+<li><code>name</code> is an <code>Identifier</code> that represents the knowledge-base name.</li>
+<li><code>params</code> is a <code>dict</code> that contains the normalized options parsed from the <code>USING</code> clause.</li>
+<li><code>*args</code> and <code>**kwargs</code> must be accepted and forwarded through the standard AST base-class initialization so that ordinary base-node attributes keep working.</li>
 </ul>
-<p>The node exposes <code>name</code> and <code>params</code> as attributes and participates in the standard AST interface, including structural representation, SQL rendering, <code>str(...)</code>, copying, and equality. Two nodes must compare equal when their names, parameter contents, and standard base-node attributes are equal, and unequal when any of those observable values differ. Its structural representation must include both the name and parameters.</p>
-<h4>Accepted SQL syntax</h4>
-<p><code>parse_sql</code> must recognize a top-level statement with this shape:</p>
+<p>The node exposes <code>name</code> and <code>params</code> as attributes and takes part in the standard AST interface, including structural representation, SQL rendering, <code>str(...)</code>, copying, and equality. Two nodes must compare equal when their names, parameter contents, and standard base-node attributes are equal, and must compare unequal when any of those observable values differ. Both the name and the parameters must be included in its structural representation.</p>
+<h4>SQL syntax accepted by the parser</h4>
+<p>A top-level statement with the following shape must be recognized by <code>parse_sql</code>:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE &lt;name&gt;
 USING
     &lt;key&gt; = &lt;value&gt;,
     &lt;key&gt; = &lt;value&gt;,
     ...
 </code></pre>
-<p>Equivalently, the required grammar is a knowledge-base identifier followed by a required <code>USING</code> clause containing one or more comma-separated assignments. Parsing returns one <code>EvaluateKnowledgeBase</code> node.</p>
-<h5>Knowledge-base name</h5>
-<p>The identifier immediately following <code>KNOWLEDGE_BASE</code> is stored in <code>node.name</code> as an <code>Identifier</code>.</p>
-<h5><code>USING</code> parameters</h5>
-<p>The assignments are combined into the single dictionary stored in <code>node.params</code>. Assignment order must be retained so that subsequent SQL rendering emits parameters in the same order.</p>
+<p>Equivalently, the required grammar is a knowledge-base identifier followed by a required <code>USING</code> clause that contains one or more comma-separated assignments. One <code>EvaluateKnowledgeBase</code> node is returned by parsing.</p>
+<h5>The knowledge-base name</h5>
+<p>The identifier that immediately follows <code>KNOWLEDGE_BASE</code> is stored in <code>node.name</code> as an <code>Identifier</code>.</p>
+<h5>Parameters from the <code>USING</code> clause</h5>
+<p>The assignments are combined into the single dictionary that is stored in <code>node.params</code>. Assignment order must be retained so that later SQL rendering emits the parameters in the same order.</p>
 <h6>Parameter keys</h6>
-<p>Every top-level assignment name is normalized to lowercase before being stored. For example:</p>
+<p>Every top-level assignment name is normalized to lowercase before it is stored. For example:</p>
 <ul>
-<li><code>TEST_TABLE</code> becomes <code>&quot;test_table&quot;</code>.</li>
-<li><code>SAVE_TO</code> becomes <code>&quot;save_to&quot;</code>.</li>
-<li><code>LLM</code> becomes <code>&quot;llm&quot;</code>.</li>
-<li><code>GENERATE_DATA</code> becomes <code>&quot;generate_data&quot;</code>.</li>
+<li><code>TEST_TABLE</code> is turned into <code>&quot;test_table&quot;</code>.</li>
+<li><code>SAVE_TO</code> is turned into <code>&quot;save_to&quot;</code>.</li>
+<li><code>LLM</code> is turned into <code>&quot;llm&quot;</code>.</li>
+<li><code>GENERATE_DATA</code> is turned into <code>&quot;generate_data&quot;</code>.</li>
 </ul>
-<p>This normalization applies only to top-level <code>USING</code> parameter names. Keys inside object literals retain their original spelling and case.</p>
+<p>Only top-level <code>USING</code> parameter names undergo this normalization. Keys inside object literals keep their original spelling and case.</p>
 <h6>Parameter values</h6>
-<p>Values must retain the type implied by their SQL syntax:</p>
+<p>Values must retain the type that their SQL syntax implies:</p>
 <ul>
-<li>A dotted identifier such as <code>my_database.some_table_1</code> becomes an <code>Identifier</code> containing all dot-separated parts in order, for example <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>. Multipart identifiers must not be flattened into quoted strings or lose any component.</li>
-<li>An object literal becomes a native Python <code>dict</code>. Object member names are preserved rather than lowercased, including member names in nested objects.</li>
-<li>String members remain Python <code>str</code> values. Their contents are data and are not interpreted as SQL. In particular, a string containing a complete SQL query remains one unchanged string value.</li>
-<li>Integer members remain Python <code>int</code> values rather than strings.</li>
+<li>A dotted identifier such as <code>my_database.some_table_1</code> is turned into an <code>Identifier</code> that contains all dot-separated parts in order, for example <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>. Multipart identifiers must not be flattened into quoted strings or lose any component.</li>
+<li>An object literal is converted into a native Python <code>dict</code>. Object member names are preserved rather than lowercased, including member names in nested objects.</li>
+<li>String members remain Python <code>str</code> values. Their contents are data and are not interpreted as SQL. In particular, a string that contains a complete SQL query remains one unchanged string value.</li>
+<li>Integer members remain Python <code>int</code> values instead of strings.</li>
 </ul>
-<h4>SQL rendering and round-trip behavior</h4>
-<p><code>EvaluateKnowledgeBase</code> must support the normal <code>get_string()</code>, <code>to_string()</code>, and <code>str(node)</code> serialization path used by other AST nodes. For a top-level node, the rendered result must be valid SQL of the form:</p>
+<h4>Rendering SQL and round-trip behavior</h4>
+<p><code>EvaluateKnowledgeBase</code> must support the normal <code>get_string()</code>, <code>to_string()</code>, and <code>str(node)</code> serialization path that other AST nodes use. For a top-level node, the rendered result must be valid SQL of this form:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE &lt;rendered-name&gt; USING &lt;key&gt;=&lt;rendered-value&gt;, ...
 </code></pre>
-<p>The rendering may normalize whitespace, keyword case, and literal quote style, but it must satisfy all of the following:</p>
+<p>The rendering may normalize whitespace, keyword case, and literal quote style, but it must meet all of the following requirements:</p>
 <ul>
-<li>It uses the <code>EVALUATE KNOWLEDGE_BASE</code> statement form and includes the required <code>USING</code> clause.</li>
-<li>The knowledge-base name is rendered as an SQL identifier through the standard identifier representation.</li>
-<li>Parameters are emitted in their stored insertion order; rendering must not sort or otherwise reorder them.</li>
-<li>Multipart <code>Identifier</code> parameter values are rendered as SQL identifiers, not as Python object representations or quoted string literals.</li>
-<li>Dictionary values are rendered as parseable object literals. Object member names and their spelling/case, nested object structure, string contents, and integer types must be retained.</li>
-<li>Strings are quoted and escaped as needed to produce valid input for <code>parse_sql</code>; integers are rendered as numeric literals rather than quoted values.</li>
-<li>No debug or tree-representation text may leak into the generated SQL.</li>
+<li>It uses the <code>EVALUATE KNOWLEDGE_BASE</code> statement form and contains the required <code>USING</code> clause.</li>
+<li>The knowledge-base name is rendered as an SQL identifier via the standard identifier representation.</li>
+<li>Parameters are emitted in their stored insertion order; the rendering must not sort or otherwise reorder them.</li>
+<li>Multipart <code>Identifier</code> parameter values are rendered as SQL identifiers rather than as Python object representations or quoted string literals.</li>
+<li>Dictionary values are rendered as object literals that can be parsed. Object member names and their spelling/case, nested object structure, string contents, and integer types must be retained.</li>
+<li>Strings are quoted and escaped as needed so that the result is valid input for <code>parse_sql</code>; integers are rendered as numeric literals rather than quoted values.</li>
+<li>No debug or tree-representation text may leak into the SQL that gets generated.</li>
 </ul>
-<p>Rendering and reparsing must be stable. Given a parsed node <code>node</code>, the following operation must produce an equivalent <code>EvaluateKnowledgeBase</code> node:</p>
+<p>Rendering and reparsing must be stable. For a parsed node <code>node</code>, the following operation must produce an equivalent <code>EvaluateKnowledgeBase</code> node:</p>
 <pre><code class="language-python">rendered = node.to_string()
 round_tripped = parse_sql(rendered)
 </code></pre>
-<p>The round-tripped node must preserve the knowledge-base name, the ordered parameter sequence and content, every part of identifier-valued parameters, object member names and nesting, exact string contents, and integer values. <code>str(node)</code> must use the same valid SQL representation and be reparsable in the same way.</p>
+<p>The node obtained from the round trip must preserve the knowledge-base name, the ordered parameter sequence and content, every part of identifier-valued parameters, object member names and nesting, exact string contents, and integer values. <code>str(node)</code> must use that same valid SQL representation and must be reparsable in the same way.</p>
 <h4>Required example</h4>
-<p>Given:</p>
+<p>Given the following SQL:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE my_knowledge_base
 USING
     TEST_TABLE = my_database.some_table_1,
@@ -1298,7 +1301,7 @@ USING
         &quot;count&quot;: 100
     }
 </code></pre>
-<p><code>parse_sql</code> must return a node equal to:</p>
+<p><code>parse_sql</code> must return a node that is equal to:</p>
 <pre><code class="language-python">EvaluateKnowledgeBase(
     name=Identifier(&quot;my_knowledge_base&quot;),
     params={
@@ -1316,65 +1319,65 @@ USING
     }
 )
 </code></pre>
-<p>Serializing this node and passing the resulting SQL back to <code>parse_sql</code> must reproduce the same ordered names and values. The <code>from_sql</code> member remains the plain Python string <code>&quot;SELECT content FROM my_database.some_table&quot;</code>; it is never parsed as a nested SQL statement. The value <code>100</code> remains an integer.</p>
+<p>When this node is serialized and the resulting SQL is passed back to <code>parse_sql</code>, the same ordered names and values must be reproduced. The <code>from_sql</code> member stays the plain Python string <code>&quot;SELECT content FROM my_database.some_table&quot;</code>; it is never parsed as a nested SQL statement. The value <code>100</code> stays an integer.</p>
 <h4>Integration and compatibility</h4>
 <ul>
-<li>Leading and trailing whitespace and multiline formatting must be tolerated.</li>
-<li>The statement must work through a normal <code>parse_sql(sql)</code> call without dialect flags or other configuration.</li>
-<li>The new knowledge-base form must coexist with the parser's existing statement forms, including the existing non-knowledge-base <code>EVALUATE</code> syntax. Existing knowledge-base creation, dropping, indexing, and other SQL parsing and rendering behavior must remain unchanged.</li>
+<li>Multiline formatting and leading and trailing whitespace must be tolerated.</li>
+<li>The statement must work via a normal <code>parse_sql(sql)</code> call without dialect flags or other configuration.</li>
+<li>The new knowledge-base form must coexist with the parser's existing statement forms, including the existing non-knowledge-base <code>EVALUATE</code> syntax. Knowledge-base creation, dropping, indexing, and other SQL parsing and rendering behavior that already exists must remain unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add ALTER VIEW Support to SQL Parser</span>
-        <span class="spec-meta muted">509 words · source specification
+        <span class="spec-title">Add ALTER VIEW Parsing to the SQL Parser</span>
+        <span class="spec-meta muted">548 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add ALTER VIEW Support to SQL Parser</h3>
-<h4>Overview</h4>
-<p>You must add support for parsing <code>ALTER VIEW</code> statements to the <code>mindsdb_sql_parser</code> package, including a new AST node class. You must also remove existing support for <code>EVALUATE KNOWLEDGE_BASE</code> statements.</p>
-<h4>1. New AST Node: <code>AlterView</code></h4>
-<p>Create a new AST node class named <code>AlterView</code> that represents an <code>ALTER VIEW</code> statement.</p>
-<h5>Location / Importability</h5>
-<p>The class must be importable via the package's mindsdb AST namespace such that the following works:</p>
+      <div class="spec-body"><h3>Task Specification: Add ALTER VIEW Parsing to the SQL Parser</h3>
+<h4>Summary</h4>
+<p>Support for parsing <code>ALTER VIEW</code> statements must be added to the <code>mindsdb_sql_parser</code> package, together with a new AST node class. In addition, you must remove the existing support for <code>EVALUATE KNOWLEDGE_BASE</code> statements.</p>
+<h4>1. New AST Node Class: <code>AlterView</code></h4>
+<p>Add a new AST node class called <code>AlterView</code> that represents an <code>ALTER VIEW</code> statement.</p>
+<h5>Location / Import Path</h5>
+<p>The class must be importable through the package's mindsdb AST namespace, so that the following works:</p>
 <pre><code class="language-python">from mindsdb_sql_parser.ast.mindsdb import AlterView
 </code></pre>
-<p>(i.e. it must be exported from the <code>mindsdb_sql_parser.ast.mindsdb</code> package's public surface, alongside the other mindsdb AST nodes.)</p>
+<p>(that is, it must be exported from the public surface of the <code>mindsdb_sql_parser.ast.mindsdb</code> package, alongside the other mindsdb AST nodes.)</p>
 <h5>Constructor Signature</h5>
 <pre><code class="language-python">AlterView(name, query_str=None, from_table=None, *args, **kwargs)
 </code></pre>
 <ul>
-<li><code>name</code>: an <code>Identifier</code> node giving the view name.</li>
-<li><code>query_str</code>: a string containing the inner query text (without surrounding parentheses).</li>
-<li><code>from_table</code>: an optional <code>Identifier</code> node giving a source/integration name. May be omitted (defaults to absent/<code>None</code>).</li>
+<li><code>name</code>: an <code>Identifier</code> node providing the view name.</li>
+<li><code>query_str</code>: a string holding the inner query text (without the surrounding parentheses).</li>
+<li><code>from_table</code>: an optional <code>Identifier</code> node providing a source/integration name. It may be omitted (defaults to absent/<code>None</code>).</li>
 </ul>
-<p>The class must behave like the other AST nodes in this package: it must accept and forward standard AST base-class keyword arguments (such as those used by all nodes), support the <code>to_tree()</code> method, and support <code>__str__</code>/<code>repr</code> rendering consistent with the other nodes. Two <code>AlterView</code> instances built with equal attributes must compare and render identically (equal string output and equal <code>to_tree()</code> output).</p>
-<h4>2. Parser Support for <code>ALTER VIEW</code></h4>
+<p>Like the other AST nodes in this package, the class must accept and forward the standard AST base-class keyword arguments (such as the ones all nodes use), must support the <code>to_tree()</code> method, and must support <code>__str__</code>/<code>repr</code> rendering consistent with the other nodes. Two <code>AlterView</code> instances constructed with equal attributes must compare and render identically (equal string output and equal <code>to_tree()</code> output).</p>
+<h4>2. Parsing <code>ALTER VIEW</code> Statements</h4>
 <p>The parser (invoked via <code>mindsdb_sql_parser.parse_sql</code>) must recognize <code>ALTER VIEW</code> statements and produce an <code>AlterView</code> AST node.</p>
-<h5>Supported Grammar</h5>
-<p>Two forms must be supported:</p>
-<p><strong>Form 1 — with FROM clause:</strong></p>
+<h5>Grammar That Must Be Supported</h5>
+<p>Both of the following forms must be supported:</p>
+<p><strong>Form 1 — with a FROM clause:</strong></p>
 <pre><code>ALTER VIEW &lt;name&gt; FROM &lt;from_identifier&gt; AS ( &lt;query&gt; )
 </code></pre>
 <p>Example:</p>
 <pre><code class="language-sql">ALTER VIEW my_view FROM integr AS ( SELECT * FROM pred )
 </code></pre>
-<p>Must produce:</p>
+<p>This must produce:</p>
 <pre><code class="language-python">AlterView(
     name=Identifier('my_view'),
     from_table=Identifier('integr'),
     query_str=&quot;SELECT * FROM pred&quot;
 )
 </code></pre>
-<p><strong>Form 2 — without FROM clause:</strong></p>
+<p><strong>Form 2 — without a FROM clause:</strong></p>
 <pre><code>ALTER VIEW &lt;name&gt; AS ( &lt;query&gt; )
 </code></pre>
 <p>Example:</p>
 <pre><code class="language-sql">ALTER VIEW my_view AS ( SELECT * FROM pred )
 </code></pre>
-<p>Must produce:</p>
+<p>This must produce:</p>
 <pre><code class="language-python">AlterView(
     name=Identifier('my_view'),
     query_str=&quot;SELECT * FROM pred&quot;
@@ -1383,46 +1386,47 @@ USING
 <h5>Parsing Details</h5>
 <ul>
 <li><code>&lt;name&gt;</code> is parsed into an <code>Identifier</code>.</li>
-<li>When present, <code>&lt;from_table&gt;</code> is parsed into an <code>Identifier</code>.</li>
-<li>The query enclosed in parentheses after <code>AS</code> is captured as a raw string in <code>query_str</code>, with the surrounding parentheses removed and leading/trailing whitespace stripped. For the examples above, <code>query_str</code> is exactly <code>&quot;SELECT * FROM pred&quot;</code>.</li>
-<li>The <code>FROM</code> clause, when present, appears <strong>before</strong> the <code>AS ( ... )</code> query clause in the statement.</li>
+<li>If <code>&lt;from_table&gt;</code> is present, it is parsed into an <code>Identifier</code>.</li>
+<li><code>query_str</code> captures, as a raw string, the query enclosed in parentheses after <code>AS</code>, with the surrounding parentheses removed and leading/trailing whitespace stripped. In the examples above, <code>query_str</code> is exactly <code>&quot;SELECT * FROM pred&quot;</code>.</li>
+<li>When the <code>FROM</code> clause is present, it appears <strong>before</strong> the <code>AS ( ... )</code> query clause in the statement.</li>
 </ul>
-<p>The resulting AST node, when converted with <code>str(...)</code> and <code>to_tree()</code>, must exactly match a directly-constructed <code>AlterView</code> with the equivalent attributes. This mirrors the existing behavior of <code>CREATE VIEW</code> parsing.</p>
-<h4>3. Remove <code>EVALUATE KNOWLEDGE_BASE</code> Support</h4>
-<p>Remove support for the <code>EVALUATE KNOWLEDGE_BASE</code> statement:</p>
+<p>When the resulting AST node is converted with <code>str(...)</code> and <code>to_tree()</code>, it must exactly match an <code>AlterView</code> constructed directly with the equivalent attributes. This mirrors how <code>CREATE VIEW</code> parsing already behaves.</p>
+<h4>3. Removal of <code>EVALUATE KNOWLEDGE_BASE</code> Support</h4>
+<p>Support for the <code>EVALUATE KNOWLEDGE_BASE</code> statement must be removed:</p>
 <ul>
-<li>Remove the <code>EvaluateKnowledgeBase</code> AST class so that it is no longer importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code>.</li>
-<li>Remove it from the package's public exports.</li>
-<li>Parsing an <code>EVALUATE KNOWLEDGE_BASE ...</code> statement is no longer a supported operation.</li>
+<li>The <code>EvaluateKnowledgeBase</code> AST class must be removed so that it is no longer importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code>.</li>
+<li>It must be removed from the package's public exports as well.</li>
+<li>It is no longer a supported operation to parse an <code>EVALUATE KNOWLEDGE_BASE ...</code> statement.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Existing behavior for <code>CREATE VIEW</code>, <code>CREATE KNOWLEDGE_BASE</code>, <code>DROP KNOWLEDGE_BASE</code>, and other statements must remain unchanged, except as noted above.</li>
-<li>Do not change behavior beyond what is described here.</li>
+<li>The existing behavior for <code>CREATE VIEW</code>, <code>CREATE KNOWLEDGE_BASE</code>, <code>DROP KNOWLEDGE_BASE</code>, and other statements must remain unchanged, except for the points noted above.</li>
+<li>Do not change any behavior beyond what is described here.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You must extend a SQL parser package (mindsdb_sql_parser) to support three new/changed behaviors.</span>
-        <span class="spec-meta muted">551 words · source specification
+        <span class="spec-title">The SQL parser package (mindsdb_sql_parser) must be extended so that it supports three new/changed behaviors.</span>
+        <span class="spec-meta muted">606 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You must extend a SQL parser package (<code>mindsdb_sql_parser</code>) to support three new/changed behaviors. All parsing is done through the public entry point <code>parse_sql(sql: str)</code>, which returns an AST object. AST nodes support equality comparison (<code>==</code>), string rendering (<code>str(...)</code>), and a <code>to_tree()</code> method producing a structural representation.</p>
-<p>Implement the following.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>The SQL parser package (<code>mindsdb_sql_parser</code>) must be extended so that it supports three new/changed behaviors. All parsing happens through the public entry point <code>parse_sql(sql: str)</code>, which returns an AST object. AST nodes support equality comparison (<code>==</code>), string rendering (<code>str(...)</code>), and a <code>to_tree()</code> method that produces a structural representation.</p>
+<p>The following must be implemented.</p>
 <hr />
-<h4>1. Length support in <code>PRIMARY KEY</code> column types (<code>CREATE TABLE</code>)</h4>
-<p>The <code>CREATE TABLE</code> parser must accept a column definition where a type with a parenthesized length is combined with <code>PRIMARY KEY</code> and a nullability clause, in this order:</p>
+<h4>1. Length support for <code>PRIMARY KEY</code> column types (<code>CREATE TABLE</code>)</h4>
+<p>The <code>CREATE TABLE</code> parser must accept a column definition in which a type with a parenthesized length is combined with <code>PRIMARY KEY</code> and a nullability clause, in this order:</p>
 <pre><code>&lt;type&gt;(&lt;length&gt;) PRIMARY KEY NOT NULL
 </code></pre>
-<p>For example, parsing:</p>
+<p>As an example, this input:</p>
 <pre><code class="language-sql">CREATE TABLE mydb.Persons(
    Person varchar(10) PRIMARY KEY not null,
    name TEXT NULL
 )
 </code></pre>
-<p>must produce a <code>CreateTable</code> node whose <code>columns</code> list contains <code>TableColumn</code> entries. For the example, the first column must have:</p>
+<p>must produce a <code>CreateTable</code> node whose <code>columns</code> list contains <code>TableColumn</code> entries. In this example, the first column must have:</p>
 <ul>
 <li><code>name='Person'</code></li>
 <li><code>type='varchar'</code></li>
@@ -1436,45 +1440,45 @@ USING
 <li><code>type='TEXT'</code></li>
 <li><code>nullable=True</code></li>
 </ul>
-<p>The existing behavior for column types without a length in combination with <code>PRIMARY KEY</code> must be preserved. The <code>TableColumn</code> node must support a <code>length</code> attribute alongside <code>is_primary_key</code> and <code>nullable</code>.</p>
-<p>Existing importable names: <code>CreateTable</code>, <code>TableColumn</code>, <code>Identifier</code> (from <code>mindsdb_sql_parser.ast</code>).</p>
+<p>The behavior that already exists for column types without a length combined with <code>PRIMARY KEY</code> must be preserved. The <code>TableColumn</code> node must support a <code>length</code> attribute in addition to <code>is_primary_key</code> and <code>nullable</code>.</p>
+<p>Names that are already importable: <code>CreateTable</code>, <code>TableColumn</code>, <code>Identifier</code> (from <code>mindsdb_sql_parser.ast</code>).</p>
 <hr />
-<h4>2. <code>ALTER DATABASE</code> statement</h4>
-<p>Add support for parsing an <code>ALTER DATABASE</code> statement of the form:</p>
+<h4>2. Support for the <code>ALTER DATABASE</code> statement</h4>
+<p>Parsing support must be added for an <code>ALTER DATABASE</code> statement of the following form:</p>
 <pre><code>ALTER DATABASE &lt;name&gt; PARAMETERS = { &lt;key&gt;: &lt;value&gt;, ... }
 </code></pre>
-<p>Create a new AST class <code>AlterDatabase</code>, importable from <code>mindsdb_sql_parser.ast.mindsdb</code> (and re-exported so it is available via the main package's <code>ast.mindsdb</code> namespace). Its constructor accepts:</p>
+<p>Create a new AST class <code>AlterDatabase</code> that is importable from <code>mindsdb_sql_parser.ast.mindsdb</code>; it must also be re-exported so it is available via the main package's <code>ast.mindsdb</code> namespace. The constructor accepts:</p>
 <ul>
 <li><code>name</code>: an <code>Identifier</code></li>
-<li><code>altered_params</code>: a dict of the parsed parameter key/value pairs</li>
+<li><code>altered_params</code>: a dict containing the parsed parameter key/value pairs</li>
 </ul>
-<p>For example, parsing:</p>
+<p>As an example, this input:</p>
 <pre><code class="language-sql">ALTER DATABASE db PARAMETERS = {'A': 1, 'B': 2}
 </code></pre>
 <p>must produce:</p>
 <pre><code class="language-python">AlterDatabase(name=Identifier('db'), altered_params={'A': 1, 'B': 2})
 </code></pre>
-<p>The node must support <code>str(...)</code> and <code>to_tree()</code>, and two nodes with equal <code>name</code> and <code>altered_params</code> must compare equal.</p>
+<p>The node must support <code>str(...)</code> and <code>to_tree()</code>, and two nodes whose <code>name</code> and <code>altered_params</code> are equal must compare equal.</p>
 <hr />
-<h4>3. <code>EVALUATE KNOWLEDGE_BASE</code> statement</h4>
-<p>Add support for parsing an <code>EVALUATE KNOWLEDGE_BASE</code> statement of the form:</p>
+<h4>3. Support for the <code>EVALUATE KNOWLEDGE_BASE</code> statement</h4>
+<p>Add the ability to parse an <code>EVALUATE KNOWLEDGE_BASE</code> statement of the following form:</p>
 <pre><code>EVALUATE KNOWLEDGE_BASE &lt;name&gt;
 USING
     &lt;PARAM&gt; = &lt;value&gt;,
     ...
 </code></pre>
-<p>Create a new AST class <code>EvaluateKnowledgeBase</code>, importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code> (alongside the existing <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code>). Its constructor accepts:</p>
+<p>Create a new AST class <code>EvaluateKnowledgeBase</code> that is importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code> (alongside the existing <code>CreateKnowledgeBase</code> and <code>DropKnowledgeBase</code>). The constructor accepts:</p>
 <ul>
 <li><code>name</code>: an <code>Identifier</code></li>
-<li><code>params</code>: a dict holding the parsed <code>USING</code> parameters</li>
+<li><code>params</code>: a dict that holds the parsed <code>USING</code> parameters</li>
 </ul>
-<h5>Parameter handling</h5>
-<p>Each parameter name in the <code>USING</code> clause becomes a key in the <code>params</code> dict, lowercased. Values are parsed according to their form:</p>
+<h5>Handling of parameters</h5>
+<p>Each parameter name in the <code>USING</code> clause becomes a key in the <code>params</code> dict, lowercased. How a value is parsed depends on its form:</p>
 <ul>
-<li>A dotted qualified name (e.g. <code>my_database.some_table_1</code>) becomes an <code>Identifier</code> with the corresponding <code>parts</code> list (e.g. <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>).</li>
-<li>A JSON-style object literal <code>{ ... }</code> becomes a Python dict. String values become Python strings; integer values become Python ints.</li>
+<li>A dotted qualified name (for example <code>my_database.some_table_1</code>) becomes an <code>Identifier</code> with the matching <code>parts</code> list (for example <code>Identifier(parts=[&quot;my_database&quot;, &quot;some_table_1&quot;])</code>).</li>
+<li>A JSON-style object literal <code>{ ... }</code> becomes a Python dict; string values become Python strings, and integer values become Python ints.</li>
 </ul>
-<p>For example, parsing:</p>
+<p>As an example, this input:</p>
 <pre><code class="language-sql">EVALUATE KNOWLEDGE_BASE my_knowledge_base
 USING
     TEST_TABLE = my_database.some_table_1,
@@ -1507,65 +1511,65 @@ USING
     }
 )
 </code></pre>
-<p>Two <code>EvaluateKnowledgeBase</code> nodes with equal <code>name</code> and <code>params</code> must compare equal.</p>
+<p>Two <code>EvaluateKnowledgeBase</code> nodes whose <code>name</code> and <code>params</code> are equal must compare equal.</p>
 <hr />
-<h4>Notes on scope</h4>
+<h4>Scope notes</h4>
 <ul>
-<li><code>EvaluateKnowledgeBase</code> must be importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code> and re-exported through the main package (<code>from mindsdb_sql_parser import ...</code> for the top-level surface, and via <code>mindsdb_sql_parser.ast.mindsdb</code>).</li>
-<li><code>AlterDatabase</code> must be importable from <code>mindsdb_sql_parser.ast.mindsdb</code>.</li>
-<li>Existing parser behaviors not described here must remain unchanged.</li>
+<li><code>EvaluateKnowledgeBase</code> must be importable from <code>mindsdb_sql_parser.ast.mindsdb.knowledge_base</code> and must be re-exported through the main package (<code>from mindsdb_sql_parser import ...</code> for the top-level surface, and via <code>mindsdb_sql_parser.ast.mindsdb</code>).</li>
+<li>It must be possible to import <code>AlterDatabase</code> from <code>mindsdb_sql_parser.ast.mindsdb</code>.</li>
+<li>Parser behaviors that already exist and are not described in this specification must remain unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working on the mindsdb_sql_parser package, a SQL parser that converts SQL strings into AST (Abstract Syntax Tree) node objects.</span>
-        <span class="spec-meta muted">680 words · source specification
+        <span class="spec-title">Your work takes place in the mindsdb_sql_parser package, a SQL parser that turns SQL strings into AST (Abstract Syntax Tree) node objects.</span>
+        <span class="spec-meta muted">728 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>ALTER VIEW</code> Syntax Support to the SQL Parser</h3>
+      <div class="spec-body"><h3>Task: Adding <code>ALTER VIEW</code> Syntax Support to the SQL Parser</h3>
 <h4>Overview</h4>
-<p>You are working on the <code>mindsdb_sql_parser</code> package, a SQL parser that converts SQL strings into AST (Abstract Syntax Tree) node objects. You must add support for parsing the <code>ALTER VIEW</code> statement, and adjust the behavior of the existing <code>AlterDatabase</code> AST node.</p>
-<p>The parser is invoked via <code>parse_sql(sql_string)</code> (importable from the package's top level, consistent with how existing statements like <code>CREATE VIEW</code> and <code>ALTER DATABASE</code> are parsed).</p>
-<h4>Part 1: New <code>AlterView</code> AST Node</h4>
-<p>Create a new AST node class named <code>AlterView</code>. It must be importable from the same locations as the other MindsDB AST nodes — specifically from <code>mindsdb_sql_parser.ast.mindsdb</code> (via its <code>*</code> export) and must be reachable through the package's main AST exports in the same way <code>CreateView</code> is. It should also be registered in the main package so it is usable alongside the other AST classes.</p>
-<h5>Constructor signature</h5>
+<p>Your work takes place in the <code>mindsdb_sql_parser</code> package, a SQL parser that turns SQL strings into AST (Abstract Syntax Tree) node objects. You must add support for parsing the <code>ALTER VIEW</code> statement, and adjust the behavior of the existing <code>AlterDatabase</code> AST node.</p>
+<p>Invocation happens via <code>parse_sql(sql_string)</code> (importable from the package's top level, in line with how existing statements such as <code>CREATE VIEW</code> and <code>ALTER DATABASE</code> are parsed).</p>
+<h4>Part 1: The New <code>AlterView</code> AST Node</h4>
+<p>Create a new AST node class called <code>AlterView</code>. The class must be importable from the same locations as the other MindsDB AST nodes — specifically from <code>mindsdb_sql_parser.ast.mindsdb</code> (via its <code>*</code> export) — and must be reachable through the package's main AST exports in the same way <code>CreateView</code> is. It should also be registered in the main package so that it is usable alongside the other AST classes.</p>
+<h5>Signature of the constructor</h5>
 <pre><code class="language-python">AlterView(name, query_str, from_table=None, *args, **kwargs)
 </code></pre>
 <ul>
-<li><code>name</code>: an <code>Identifier</code> node giving the view name.</li>
-<li><code>query_str</code>: a string containing the inner query (the SQL text between the parentheses, without the surrounding parentheses), e.g. <code>&quot;SELECT * FROM pred&quot;</code>.</li>
-<li><code>from_table</code>: an optional <code>Identifier</code> node naming the source integration/table. Defaults to <code>None</code> when not provided.</li>
+<li><code>name</code>: an <code>Identifier</code> node that provides the view name.</li>
+<li><code>query_str</code>: a string holding the inner query (the SQL text located between the parentheses, with the surrounding parentheses excluded), e.g. <code>&quot;SELECT * FROM pred&quot;</code>.</li>
+<li><code>from_table</code>: an optional <code>Identifier</code> node that names the source integration/table. When not supplied, it defaults to <code>None</code>.</li>
 </ul>
-<p>The class must follow the standard AST node conventions used by the existing nodes (support for the equality/string representation and <code>to_tree()</code> machinery that all sibling nodes provide). Two <code>AlterView</code> instances built with equal field values must produce identical <code>str(...)</code> output and identical <code>to_tree()</code> output.</p>
-<h5>Field ordering</h5>
-<p>When representing the node, the <code>from_table</code> field must be ordered/positioned <strong>before</strong> the query information.</p>
+<p>The class must adhere to the standard AST node conventions that the existing nodes use (the equality/string representation and <code>to_tree()</code> machinery that all sibling nodes provide). If two <code>AlterView</code> instances are built with equal field values, they must produce identical <code>str(...)</code> output and identical <code>to_tree()</code> output.</p>
+<h5>Ordering of fields</h5>
+<p>When the node is represented, the <code>from_table</code> field must be ordered/placed <strong>before</strong> the query information.</p>
 <h4>Part 2: Parser Support for <code>ALTER VIEW</code></h4>
-<p>Extend the parser so that <code>parse_sql</code> recognizes the <code>ALTER VIEW</code> statement and produces an <code>AlterView</code> node.</p>
-<h5>Grammar / accepted forms</h5>
-<p>The parser must accept both of the following forms:</p>
+<p>Extend the parser so that the <code>ALTER VIEW</code> statement is recognized by <code>parse_sql</code> and an <code>AlterView</code> node is produced.</p>
+<h5>Grammar / forms accepted</h5>
+<p>Both of the following forms must be accepted by the parser:</p>
 <ol>
 <li>
-<p><strong>With a <code>FROM</code> clause:</strong></p>
+<p><strong>A <code>FROM</code> clause is present:</strong></p>
 <pre><code>ALTER VIEW &lt;view_name&gt; FROM &lt;integration_name&gt; AS ( &lt;query&gt; )
 </code></pre>
-<p>This produces:</p>
+<p>It produces:</p>
 <ul>
 <li><code>name</code> = <code>Identifier(&lt;view_name&gt;)</code></li>
 <li><code>from_table</code> = <code>Identifier(&lt;integration_name&gt;)</code></li>
-<li><code>query_str</code> = the query text inside the parentheses, with surrounding whitespace stripped (e.g. <code>&quot;SELECT * FROM pred&quot;</code>)</li>
+<li><code>query_str</code> = the query text found inside the parentheses, with surrounding whitespace stripped (e.g. <code>&quot;SELECT * FROM pred&quot;</code>)</li>
 </ul>
 </li>
 <li>
-<p><strong>Without a <code>FROM</code> clause:</strong></p>
+<p><strong>A <code>FROM</code> clause is absent:</strong></p>
 <pre><code>ALTER VIEW &lt;view_name&gt; AS ( &lt;query&gt; )
 </code></pre>
-<p>This produces:</p>
+<p>It produces:</p>
 <ul>
 <li><code>name</code> = <code>Identifier(&lt;view_name&gt;)</code></li>
 <li><code>from_table</code> = <code>None</code></li>
-<li><code>query_str</code> = the query text inside the parentheses, stripped</li>
+<li><code>query_str</code> = the query text found inside the parentheses, stripped</li>
 </ul>
 </li>
 </ol>
@@ -1580,97 +1584,98 @@ USING
 → <code>AlterView(name=Identifier('my_view'), query_str=&quot;SELECT * FROM pred&quot;)</code> (with <code>from_table</code> defaulting to <code>None</code>)</p>
 </li>
 </ul>
-<p>Note that the inner query is captured as a raw string (<code>query_str</code>), not further parsed into a query AST, and the wrapping parentheses are not included in <code>query_str</code>.</p>
-<h4>Part 3: Change to <code>AlterDatabase</code> <code>altered_params</code></h4>
-<p>The existing <code>AlterDatabase</code> node handles statements of the form:</p>
+<p>Note that the inner query is captured as a raw string (<code>query_str</code>) and is not further parsed into a query AST; additionally, the wrapping parentheses are not included in <code>query_str</code>.</p>
+<h4>Part 3: Change to the <code>altered_params</code> of <code>AlterDatabase</code></h4>
+<p>Statements of the following form are handled by the existing <code>AlterDatabase</code> node:</p>
 <pre><code>ALTER DATABASE &lt;db_name&gt; PARAMETERS = { ... }
 </code></pre>
-<p>Change the parser's behavior so that the parsed parameters dictionary is nested under a <code>'parameters'</code> key inside <code>altered_params</code>, rather than being assigned directly.</p>
+<p>Change the parser's behavior so that, instead of being assigned directly, the parsed parameters dictionary ends up nested under a <code>'parameters'</code> key inside <code>altered_params</code>.</p>
 <h5>Concrete example</h5>
 <ul>
 <li>Input: <code>ALTER DATABASE db PARAMETERS = {'A': 1, 'B': 2}</code>
 → <code>AlterDatabase(name=Identifier('db'), altered_params={'parameters': {'A': 1, 'B': 2}})</code></li>
 </ul>
-<p>That is, the key/value pairs from the <code>PARAMETERS = {...}</code> clause must be stored as the value of the <code>'parameters'</code> key within <code>altered_params</code>. The <code>AlterDatabase</code> constructor and all other aspects of its behavior remain unchanged; only the structure of the value passed as <code>altered_params</code> changes.</p>
+<p>In other words, the key/value pairs coming from the <code>PARAMETERS = {...}</code> clause must be stored as the value of the <code>'parameters'</code> key within <code>altered_params</code>. The <code>AlterDatabase</code> constructor, along with all other aspects of its behavior, remains unchanged; only the structure of the value passed as <code>altered_params</code> changes.</p>
 <h4>Acceptance Criteria</h4>
 <ul>
-<li><code>parse_sql</code> correctly parses both <code>ALTER VIEW</code> forms into <code>AlterView</code> nodes with the fields described above.</li>
-<li><code>AlterView</code> is importable via <code>from mindsdb_sql_parser.ast.mindsdb import *</code> and through the main AST package exports.</li>
-<li>For an <code>AlterView</code> (or <code>AlterDatabase</code>) node, <code>str(node)</code> and <code>node.to_tree()</code> are deterministic and equal for equal field values.</li>
-<li><code>ALTER DATABASE ... PARAMETERS = {...}</code> yields <code>altered_params={'parameters': {...}}</code>.</li>
+<li><code>parse_sql</code> parses both <code>ALTER VIEW</code> forms correctly into <code>AlterView</code> nodes carrying the fields described above.</li>
+<li><code>AlterView</code> is importable via <code>from mindsdb_sql_parser.ast.mindsdb import *</code> as well as through the main AST package exports.</li>
+<li>For an <code>AlterView</code> (or <code>AlterDatabase</code>) node, <code>str(node)</code> and <code>node.to_tree()</code> are deterministic and equal whenever the field values are equal.</li>
+<li>An input of <code>ALTER DATABASE ... PARAMETERS = {...}</code> yields <code>altered_params={'parameters': {...}}</code>.</li>
 </ul>
-<h3>Provided by the tests(the format the tests actually use)</h3>
-<p>The tests import via:</p>
+<h3>Supplied by the tests (the format the tests actually use)</h3>
+<p>The tests import via the following lines:</p>
 <pre><code class="language-python">from mindsdb_sql_parser.ast.mindsdb import *
 from mindsdb_sql_parser.ast import *
 from mindsdb_sql_parser.lexer import MindsDBLexer
 </code></pre>
-<p>and call <code>parse_sql(sql)</code>. Ensure <code>AlterView</code>, <code>AlterDatabase</code>, and <code>Identifier</code> are all reachable through these imports.</p>
+<p>and call <code>parse_sql(sql)</code>. Ensure that <code>AlterView</code>, <code>AlterDatabase</code>, and <code>Identifier</code> are all reachable through these imports.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You are working on mindsdb_sql_parser, a SQL parsing library.</span>
-        <span class="spec-meta muted">521 words · source specification
+        <span class="spec-title">Your work targets mindsdb_sql_parser, a library for parsing SQL.</span>
+        <span class="spec-meta muted">572 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>mindsdb_sql_parser</code>, a SQL parsing library. This task involves two changes:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Your work targets <code>mindsdb_sql_parser</code>, a library for parsing SQL. The task consists of two changes:</p>
 <ol>
-<li>Adding support for an optional <code>DISTINCT</code> keyword after set-operation keywords (<code>UNION</code>, <code>INTERSECT</code>, <code>EXCEPT</code>) in SQL parsing, with a corresponding attribute on the AST nodes.</li>
-<li>Providing a <code>to_single_line</code> utility function.</li>
+<li>Enabling SQL parsing to handle an optional <code>DISTINCT</code> keyword placed after the set-operation keywords (<code>UNION</code>, <code>INTERSECT</code>, <code>EXCEPT</code>), together with a matching attribute on the AST nodes.</li>
+<li>Supplying a <code>to_single_line</code> utility function.</li>
 </ol>
 <hr />
-<h4>Part 1: <code>DISTINCT</code> keyword support for set operations</h4>
-<h5>AST node changes</h5>
-<p>The set-operation AST classes <code>Union</code>, <code>Intersect</code>, and <code>Except</code> (importable from <code>mindsdb_sql_parser.ast</code>) must accept a new keyword argument:</p>
+<h4>Part 1: Support for the <code>DISTINCT</code> keyword in set operations</h4>
+<h5>Changes to the AST nodes</h5>
+<p>The AST classes for set operations, <code>Union</code>, <code>Intersect</code>, and <code>Except</code> (which are importable from <code>mindsdb_sql_parser.ast</code>), must accept a new keyword argument:</p>
 <ul>
-<li><code>distinct_key: bool</code> — defaults to <code>False</code>.</li>
+<li><code>distinct_key: bool</code> — the default value is <code>False</code>.</li>
 </ul>
-<p>These classes already accept:</p>
+<p>These classes already accept the following:</p>
 <ul>
 <li><code>unique: bool</code></li>
-<li><code>left</code> — an AST node (left operand)</li>
-<li><code>right</code> — an AST node (right operand)</li>
+<li><code>left</code> — an AST node (the left operand)</li>
+<li><code>right</code> — an AST node (the right operand)</li>
 </ul>
-<p>The new <code>distinct_key</code> attribute must be:</p>
+<p>The newly added <code>distinct_key</code> attribute must be:</p>
 <ul>
 <li>Stored on the instance.</li>
-<li>Included in the node's structural/tree representation (<code>to_tree()</code>), so two nodes are tree-equal only when their <code>distinct_key</code> values match.</li>
-<li>Reflected in the string representation (<code>str(...)</code>), so that rendering a node with <code>distinct_key=True</code> produces SQL containing the <code>DISTINCT</code> keyword after the set-operation keyword, and rendering with <code>distinct_key=False</code> omits it.</li>
+<li>Included in the node's structural/tree representation (<code>to_tree()</code>), so that two nodes are tree-equal only when their <code>distinct_key</code> values match.</li>
+<li>Reflected in the string representation (<code>str(...)</code>): when a node with <code>distinct_key=True</code> is rendered, the resulting SQL contains the <code>DISTINCT</code> keyword after the set-operation keyword, and when it is rendered with <code>distinct_key=False</code>, the keyword is omitted.</li>
 </ul>
-<h5>Parsing behavior</h5>
-<p>The SQL parser (<code>parse_sql</code> from <code>mindsdb_sql_parser</code>) must recognize an optional <code>DISTINCT</code> keyword placed immediately after the set-operation keyword. That is, both of these forms must parse:</p>
+<h5>Parser behavior</h5>
+<p>The SQL parser (<code>parse_sql</code> from <code>mindsdb_sql_parser</code>) must recognize an optional <code>DISTINCT</code> keyword appearing immediately after the set-operation keyword. In other words, both of these forms must parse:</p>
 <pre><code>SELECT col1 FROM tab1 UNION SELECT col1 FROM tab2
 SELECT col1 FROM tab1 UNION DISTINCT SELECT col1 FROM tab2
 </code></pre>
-<p>The same applies to <code>INTERSECT</code> / <code>INTERSECT DISTINCT</code> and <code>EXCEPT</code> / <code>EXCEPT DISTINCT</code>.</p>
-<p>Resulting behavior of parsing:</p>
+<p>The same holds for <code>INTERSECT</code> / <code>INTERSECT DISTINCT</code> and for <code>EXCEPT</code> / <code>EXCEPT DISTINCT</code>.</p>
+<p>Behavior resulting from parsing:</p>
 <ul>
-<li>The keyword <code>UNION</code> produces a <code>Union</code> node, <code>INTERSECT</code> produces an <code>Intersect</code> node, <code>EXCEPT</code> produces an <code>Except</code> node.</li>
-<li>For all of the above forms, <code>unique=True</code> on the resulting node.</li>
-<li>When the <code>DISTINCT</code> keyword is present, the resulting node has <code>distinct_key=True</code>; when absent, <code>distinct_key=False</code>.</li>
-<li>The <code>left</code> operand is the AST for the query before the keyword; the <code>right</code> operand is the AST for the query after the keyword (and after the optional <code>DISTINCT</code>).</li>
+<li>A <code>Union</code> node is produced by the keyword <code>UNION</code>, an <code>Intersect</code> node by <code>INTERSECT</code>, and an <code>Except</code> node by <code>EXCEPT</code>.</li>
+<li>For all of the forms above, the resulting node has <code>unique=True</code>.</li>
+<li>If the <code>DISTINCT</code> keyword is present, the resulting node has <code>distinct_key=True</code>; if it is absent, the node has <code>distinct_key=False</code>.</li>
+<li>The <code>left</code> operand is the AST for the query that appears before the keyword; the <code>right</code> operand is the AST for the query that appears after the keyword (and after the optional <code>DISTINCT</code>).</li>
 </ul>
-<h5>Round-trip requirement</h5>
-<p>For a parsed set-operation AST, <code>str(ast)</code> must render back to SQL that is semantically equivalent to the input (including the <code>DISTINCT</code> keyword when it was present), and this rendered SQL, when re-parsed or compared as an AST, must be tree-equal and string-equal to an equivalently constructed node.</p>
+<h5>Requirement for the round trip</h5>
+<p>For a parsed set-operation AST, <code>str(ast)</code> must render back to SQL that is semantically equivalent to the input (with the <code>DISTINCT</code> keyword included when it was present), and when this rendered SQL is re-parsed or compared as an AST, it must be tree-equal and string-equal to an equivalently constructed node.</p>
 <hr />
-<h4>Part 2: <code>to_single_line</code> utility</h4>
-<p>Add a function:</p>
+<h4>Part 2: The <code>to_single_line</code> utility function</h4>
+<p>Add the function:</p>
 <pre><code class="language-python">mindsdb_sql_parser.utils.to_single_line(s: str) -&gt; str
 </code></pre>
-<p>It takes a string and returns a normalized single-line version by collapsing all runs of whitespace (including newlines and indentation) into single spaces. In practice, for two strings that differ only in whitespace/newline formatting, applying <code>to_single_line</code> to both must yield equal results.</p>
-<p>This function must produce results such that, given the string representation of a parsed AST node and the original SQL source string, normalizing both with <code>to_single_line</code> yields equal strings whenever the two represent the same SQL differing only by whitespace formatting.</p>
+<p>The function takes a string and returns a normalized single-line version, collapsing all runs of whitespace (including newlines and indentation) into single spaces. In practice: given two strings that differ only in whitespace/newline formatting, applying <code>to_single_line</code> to both must yield equal results.</p>
+<p>The function must produce results such that, when you take the string representation of a parsed AST node together with the original SQL source string, normalizing both with <code>to_single_line</code> yields equal strings whenever the two represent the same SQL differing only by whitespace formatting.</p>
 <hr />
-<h4>Import surface required</h4>
+<h4>Required import surface</h4>
 <p>The following must be importable and callable exactly as named:</p>
 <ul>
 <li><code>from mindsdb_sql_parser import parse_sql</code></li>
 <li><code>from mindsdb_sql_parser.ast import Union, Intersect, Except</code> (each accepting <code>unique</code>, <code>distinct_key</code>, <code>left</code>, <code>right</code>)</li>
 <li><code>from mindsdb_sql_parser.utils import to_single_line</code></li>
 </ul>
-<p>Existing AST classes referenced by the surrounding code (<code>Select</code>, <code>Identifier</code>, etc.) and their behavior must remain unchanged aside from the additions above.</p>
+<p>Aside from the additions above, the existing AST classes referenced by the surrounding code (<code>Select</code>, <code>Identifier</code>, etc.) and their behavior must remain unchanged.</p>
 </div>
     </details>
   </div>

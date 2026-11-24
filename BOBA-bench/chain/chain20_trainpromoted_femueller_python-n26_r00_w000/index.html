@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/femueller/python-n26/compare/55ebb8d705b35c86347b285b5f6e697605f7b044...1ff303d3cb45f5c1804da38cb42dc5c9aa7b83e3" target="_blank" rel="noopener" class="mono">55ebb8d705 … 1ff303d3cb</a> · 211 commits by 5 authors over 2.5 y (2017-03-14 to 2019-09-24)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 20 test-bearing changes · training split</dd></div>
       <div><dt>Size:</dt><dd>170 lines of code in 12 files when the chain starts · over the 20 requests the developers added 2,416 and removed 999 lines of code, plus 2,597 lines of tests (54 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.3k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 10</dd></div>
+      <div><dt>Specifications:</dt><dd>10.5k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 10</dd></div>
     </dl>
   </header>
 </section>
@@ -144,104 +144,104 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Create a configuration module at n26/config.py that loads N26 API credentials from either environment variables or a YAML configuration file, and exposes…</span>
-        <span class="spec-meta muted">321 words · source specification
+        <span class="spec-title">Build a configuration module at n26/config.py that obtains N26 API credentials from either environment variables or a YAML configuration file, and exposes…</span>
+        <span class="spec-meta muted">353 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Configuration Loading Module</h3>
-<h4>Objective</h4>
-<p>Create a configuration module at <code>n26/config.py</code> that loads N26 API credentials from either environment variables or a YAML configuration file, and exposes them through a structured configuration object.</p>
-<h4>Public API</h4>
-<h5><code>Config</code> class</h5>
-<p>A configuration container that holds three fields: <code>username</code>, <code>password</code>, and <code>card_id</code>.</p>
-<p>Requirements:</p>
+      <div class="spec-body"><h3>Task: Module for Loading Configuration</h3>
+<h4>Goal</h4>
+<p>Build a configuration module at <code>n26/config.py</code> that obtains N26 API credentials from either environment variables or a YAML configuration file, and exposes them via a structured configuration object.</p>
+<h4>Public Interface</h4>
+<h5>The <code>Config</code> class</h5>
+<p>A container object for configuration data with three fields: <code>username</code>, <code>password</code>, and <code>card_id</code>.</p>
+<p>The following requirements apply:</p>
 <ul>
-<li>Must be constructible with keyword arguments: <code>Config(username=..., password=..., card_id=...)</code>.</li>
-<li>Two <code>Config</code> instances constructed with the same <code>username</code>, <code>password</code>, and <code>card_id</code> values must compare as equal (<code>==</code>).</li>
+<li>It must be possible to construct it with keyword arguments: <code>Config(username=..., password=..., card_id=...)</code>.</li>
+<li>When two <code>Config</code> instances are constructed with the same <code>username</code>, <code>password</code>, and <code>card_id</code> values, they must compare as equal (<code>==</code>).</li>
 </ul>
-<h5><code>get_config()</code> function</h5>
-<p>Signature: <code>get_config()</code> (no arguments).</p>
-<p>Returns a <code>Config</code> instance populated with credentials, using the following resolution logic:</p>
+<h5>The <code>get_config()</code> function</h5>
+<p>Signature: <code>get_config()</code> (takes no arguments).</p>
+<p>It returns a <code>Config</code> instance populated with credentials according to the following resolution logic:</p>
 <ol>
 <li>
-<p><strong>Environment variables (highest priority):</strong> Read credentials from these environment variables:</p>
+<p><strong>Environment variables (highest priority):</strong> The credentials are read from these environment variables:</p>
 <ul>
 <li><code>N26_USER</code> → <code>username</code></li>
 <li><code>N26_PASSWORD</code> → <code>password</code></li>
 <li><code>N26_CARD_ID</code> → <code>card_id</code></li>
 </ul>
-<p>If these environment variables are present and non-empty, use their values to build and return the <code>Config</code>.</p>
+<p>If these environment variables are present and non-empty, their values are used to build and return the <code>Config</code>.</p>
 </li>
 <li>
-<p><strong>YAML file fallback:</strong> If the environment variables are absent or empty, load credentials from a YAML configuration file located at a path obtained by calling <code>os.path.expanduser(...)</code>. (The path passed to <code>expanduser</code> must be such that its return value determines the file that is opened; the resolved path is the file that gets read.)</p>
+<p><strong>Fallback to a YAML file:</strong> If the environment variables are absent or empty, the credentials are loaded from a YAML configuration file located at a path obtained by calling <code>os.path.expanduser(...)</code>. (The path given to <code>expanduser</code> must be such that its return value determines the file that is opened; the resolved path is the file that gets read.)</p>
 <p>The YAML file has the following structure:</p>
 <pre><code class="language-yaml">n26:
     username: john.doe@example.com
     password: $upersecret
     card_id: &quot;123456789&quot;
 </code></pre>
-<p>Extract <code>username</code>, <code>password</code>, and <code>card_id</code> from under the top-level <code>n26</code> key and build the returned <code>Config</code> from them.</p>
+<p>Pull <code>username</code>, <code>password</code>, and <code>card_id</code> out from beneath the top-level <code>n26</code> key, and construct the returned <code>Config</code> from them.</p>
 </li>
 </ol>
-<h4>Behavior Details</h4>
+<h4>Detailed Behavior</h4>
 <ul>
-<li>When all three environment variables (<code>N26_USER</code>, <code>N26_PASSWORD</code>, <code>N26_CARD_ID</code>) are set to non-empty values, <code>get_config()</code> returns a <code>Config</code> with those values, and the YAML file is not consulted.</li>
-<li>When those environment variables are empty strings, <code>get_config()</code> falls back to reading the YAML file (via the <code>os.path.expanduser</code>-resolved path) and returns a <code>Config</code> built from the file's <code>n26</code> section.</li>
-<li><code>card_id</code> values are treated as strings (e.g. <code>&quot;123456789&quot;</code>).</li>
+<li>If all three environment variables (<code>N26_USER</code>, <code>N26_PASSWORD</code>, <code>N26_CARD_ID</code>) are set to non-empty values, <code>get_config()</code> returns a <code>Config</code> holding those values, and the YAML file is not consulted.</li>
+<li>If those environment variables are empty strings, <code>get_config()</code> falls back to the YAML file (reading it via the <code>os.path.expanduser</code>-resolved path) and returns a <code>Config</code> built from the file's <code>n26</code> section.</li>
+<li><code>card_id</code> values are handled as strings (e.g. <code>&quot;123456789&quot;</code>).</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The module must be importable as <code>from n26 import config</code>.</li>
-<li>Ensure the package supports YAML parsing among its dependencies.</li>
+<li>It must be possible to import the module as <code>from n26 import config</code>.</li>
+<li>Ensure that the package's dependencies include support for YAML parsing.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Implement a Python package named n26 that provides configuration handling and an N26 API client.</span>
-        <span class="spec-meta muted">509 words · source specification
+        <span class="spec-title">Create a Python package named n26 that offers configuration handling and a client for the N26 API.</span>
+        <span class="spec-meta muted">562 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement a Python package named <code>n26</code> that provides configuration handling and an N26 API client. Two modules are required: <code>n26.config</code> and <code>n26.api</code>.</p>
-<h4>Module: <code>n26.config</code></h4>
-<h5><code>Config</code> class</h5>
-<p>Provide a class <code>Config</code> that represents user credentials. It must be constructible with keyword arguments:</p>
+      <div class="spec-body"><p>Create a Python package named <code>n26</code> that offers configuration handling and a client for the N26 API. The two required modules are <code>n26.config</code> and <code>n26.api</code>.</p>
+<h4>The <code>n26.config</code> module</h4>
+<h5>The <code>Config</code> class</h5>
+<p>The package must provide a class <code>Config</code> that stands for user credentials. It must be possible to construct it with the keyword arguments:</p>
 <pre><code class="language-python">Config(username=..., password=...)
 </code></pre>
 <ul>
-<li>The class holds a <code>username</code> and a <code>password</code>.</li>
-<li>Two <code>Config</code> instances constructed with equal <code>username</code> and <code>password</code> values must compare equal (<code>==</code>). Instances with differing values must not compare equal.</li>
-<li>The <code>Config</code> object must NOT require or accept a mandatory <code>card_id</code>; equality is based on <code>username</code> and <code>password</code> only.</li>
+<li>The class carries a <code>username</code> and a <code>password</code>.</li>
+<li>Two <code>Config</code> instances built from <code>username</code> and <code>password</code> values that are equal must compare equal (<code>==</code>). Instances whose values differ must not compare equal.</li>
+<li>A mandatory <code>card_id</code> must NOT be required or accepted by the <code>Config</code> object; equality is based on <code>username</code> and <code>password</code> only.</li>
 </ul>
-<h5><code>get_config()</code> function</h5>
-<p>Provide a function <code>get_config()</code> that returns a <code>Config</code> instance built from one of two sources, in this priority order:</p>
+<h5>The <code>get_config()</code> function</h5>
+<p>A function <code>get_config()</code> must exist that returns a <code>Config</code> instance assembled from one of two sources, in the following priority order:</p>
 <ol>
 <li>
-<p><strong>Environment variables.</strong> If the environment variables <code>N26_USER</code> and <code>N26_PASSWORD</code> are both set to non-empty values, return a <code>Config</code> whose <code>username</code> comes from <code>N26_USER</code> and whose <code>password</code> comes from <code>N26_PASSWORD</code>.</p>
+<p><strong>Environment variables.</strong> If both of the environment variables <code>N26_USER</code> and <code>N26_PASSWORD</code> are set to non-empty values, return a <code>Config</code> whose <code>username</code> is taken from <code>N26_USER</code> and whose <code>password</code> is taken from <code>N26_PASSWORD</code>.</p>
 </li>
 <li>
-<p><strong>Configuration file.</strong> If the environment variables are absent or empty, read credentials from a YAML file. The file path is derived from the user's home directory; resolution goes through <code>os.path.expanduser</code>. The YAML file has this structure:</p>
+<p><strong>Configuration file.</strong> If those environment variables are absent or empty, read the credentials from a YAML file. The file's path is derived from the user's home directory; the resolution goes through <code>os.path.expanduser</code>. The YAML file uses this structure:</p>
 <pre><code class="language-yaml">n26:
   username: john.doe@example.com
   password: $upersecret
 </code></pre>
-<p>Return a <code>Config</code> whose <code>username</code> and <code>password</code> are taken from the <code>username</code> and <code>password</code> keys nested under the top-level <code>n26</code> key.</p>
+<p>Return a <code>Config</code> whose <code>username</code> and <code>password</code> come from the <code>username</code> and <code>password</code> keys nested beneath the top-level <code>n26</code> key.</p>
 </li>
 </ol>
-<p><code>get_config()</code> must not depend on any <code>card_id</code> value from either source.</p>
-<h4>Module: <code>n26.api</code></h4>
-<p>The module must reference <code>requests</code> (used for HTTP calls via <code>requests.post</code> and <code>requests.get</code>) and <code>config</code> (the <code>n26.config</code> module) as accessible module-level names, so that <code>n26.api.requests</code> and <code>n26.api.config</code> resolve.</p>
-<h5><code>Api</code> class</h5>
-<p>Provide a class <code>Api</code> with the following constructor:</p>
+<p><code>get_config()</code> must not rely on any <code>card_id</code> value from either source.</p>
+<h4>The <code>n26.api</code> module</h4>
+<p>This module must have <code>requests</code> (used for the HTTP calls via <code>requests.post</code> and <code>requests.get</code>) and <code>config</code> (the <code>n26.config</code> module) as accessible module-level names, so that <code>n26.api.requests</code> and <code>n26.api.config</code> resolve.</p>
+<h5>The <code>Api</code> class</h5>
+<p>The module must contain a class <code>Api</code> with this constructor:</p>
 <pre><code class="language-python">Api(config=None)
 </code></pre>
 <ul>
-<li>When called with an explicit <code>Config</code> argument, the instance must store it and expose it as the attribute <code>config</code> (i.e. <code>api_instance.config</code> equals the passed-in config).</li>
-<li>When called with no argument (or <code>None</code>), the instance must obtain its configuration by calling <code>n26.config.get_config()</code> and store the result as the <code>config</code> attribute.</li>
+<li>If the call includes an explicit <code>Config</code> argument, the instance must store it and expose it as the <code>config</code> attribute (that is, <code>api_instance.config</code> equals the config passed in).</li>
+<li>If the call happens with no argument (or with <code>None</code>), the instance must obtain its configuration by calling <code>n26.config.get_config()</code> and store that result as the <code>config</code> attribute.</li>
 </ul>
-<h5>Token retrieval: <code>_get_token(self)</code></h5>
-<p>Provide a method <code>_get_token(self)</code> that performs an HTTP POST (via <code>requests.post</code>) to obtain an authentication token. The JSON response body has this shape:</p>
+<h5>Retrieving a token: <code>_get_token(self)</code></h5>
+<p>A method <code>_get_token(self)</code> must exist that carries out an HTTP POST (via <code>requests.post</code>) to obtain an authentication token. The body of the JSON response has this shape:</p>
 <pre><code class="language-json">{
   &quot;access_token&quot;: &quot;&lt;token string&gt;&quot;,
   &quot;token_type&quot;: &quot;bearer&quot;,
@@ -251,37 +251,38 @@
   &quot;host_url&quot;: &quot;https://api.tech26.de&quot;
 }
 </code></pre>
-<p><code>_get_token</code> must return the value of the <code>access_token</code> field from the response.</p>
-<h5>Public token accessor: <code>get_token(self)</code></h5>
-<p>Provide a method <code>get_token(self)</code> that returns a usable access token string (this is the method used by other API calls to obtain the token for authorization). It must be independently patchable/overridable from <code>_get_token</code>.</p>
-<h5>Account info: <code>get_account_info(self)</code></h5>
-<p>Provide a method <code>get_account_info(self)</code> that performs an HTTP GET (via <code>requests.get</code>) to retrieve account information, using a token obtained via <code>get_token()</code> for authorization. It must return the parsed JSON response body directly. For example, when the GET response JSON is <code>{'email': 'john.doe@example.com'}</code>, the method returns that dictionary unchanged.</p>
+<p><code>_get_token</code> must return the <code>access_token</code> field's value from the response.</p>
+<h5>Public accessor for the token: <code>get_token(self)</code></h5>
+<p>A method <code>get_token(self)</code> must exist that returns a usable access token string (other API calls use this method to obtain the token for authorization). It must be possible to patch or override it independently of <code>_get_token</code>.</p>
+<h5>Account information: <code>get_account_info(self)</code></h5>
+<p>A method <code>get_account_info(self)</code> must exist that carries out an HTTP GET (via <code>requests.get</code>) to retrieve the account information, with authorization done using a token obtained via <code>get_token()</code>. It must return the parsed JSON of the response body directly. By way of example, when the JSON of the GET response is <code>{'email': 'john.doe@example.com'}</code>, the method returns that dictionary unchanged.</p>
 <h4>Notes</h4>
 <ul>
-<li>No <code>card_id</code> concept is required anywhere in this task.</li>
-<li>The behavior of <code>get_account_info</code> and <code>_get_token</code> relies on the <code>requests</code> HTTP calls being reachable as <code>n26.api.requests.post</code> / <code>n26.api.requests.get</code>, and <code>get_config</code> being reachable as <code>n26.api.config.get_config</code>.</li>
+<li>This task does not require a <code>card_id</code> concept anywhere.</li>
+<li>How <code>get_account_info</code> and <code>_get_token</code> behave relies on the <code>requests</code> HTTP calls being reachable as <code>n26.api.requests.post</code> / <code>n26.api.requests.get</code>, and on <code>get_config</code> being reachable as <code>n26.api.config.get_config</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Rename a method in the Api class so that its token-retrieval functionality is exposed as a public method.</span>
-        <span class="spec-meta muted">154 words · source specification
+        <span class="spec-title">The aim is to rename a method of the Api class such that its token-retrieval functionality is exposed as a public method.</span>
+        <span class="spec-meta muted">170 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Rename a method in the <code>Api</code> class so that its token-retrieval functionality is exposed as a public method.</p>
-<h4>API Surface</h4>
-<p>In the module <code>api</code>, the class <code>Api</code> must provide a <strong>public</strong> method named <code>get_token</code>.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>The aim is to rename a method of the <code>Api</code> class such that its token-retrieval functionality is exposed as a public method.</p>
+<h4>Public API</h4>
+<p>Within the module <code>api</code>, the class <code>Api</code> must provide a <strong>public</strong> method called <code>get_token</code>.</p>
 <h5>Method: <code>Api.get_token(self)</code></h5>
 <ul>
-<li><strong>Signature:</strong> <code>get_token(self)</code> — takes no arguments other than <code>self</code>.</li>
-<li><strong>Behavior:</strong> Retrieves and returns the authentication token for the API instance.</li>
-<li><strong>Return value:</strong> Returns the token value.</li>
+<li><strong>Signature:</strong> <code>get_token(self)</code> — takes no arguments besides <code>self</code>.</li>
+<li><strong>Behavior:</strong> Obtains the authentication token for the API instance and returns it.</li>
+<li><strong>Return value:</strong> The token value is returned.</li>
 </ul>
-<h4>Context</h4>
-<p>The <code>Api</code> class is constructed with a configuration dictionary, for example:</p>
+<h4>Background</h4>
+<p>The <code>Api</code> class is constructed by passing in a configuration dictionary, for example:</p>
 <pre><code class="language-python">conf = {
     'username': ...,
     'password': ...,
@@ -289,249 +290,250 @@
 }
 new_api = api.Api(conf)
 </code></pre>
-<p>After construction, calling <code>new_api.get_token()</code> must return the token associated with that instance.</p>
+<p>After construction, a call to <code>new_api.get_token()</code> must return the token associated with that instance.</p>
 <h4>Requirement</h4>
-<p>The token-retrieval method must be accessible under the public name <code>get_token</code> (i.e., without a leading underscore). Any existing private/underscore-prefixed name (<code>_get_token</code>) that provided this functionality should now be available under the public name <code>get_token</code>.</p>
-<p>No other behavior changes are required.</p>
+<p>It must be possible to access the token-retrieval method under the public name <code>get_token</code> (i.e., without a leading underscore). Any existing private/underscore-prefixed name (<code>_get_token</code>) that used to provide this functionality should now be available under the public name <code>get_token</code>.</p>
+<p>No changes to any other behavior are required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">N26 API Client &amp; CLI</span>
-        <span class="spec-meta muted">1567 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">In this task, a Python package called n26 is to be implemented</span>
+        <span class="spec-meta muted">1835 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: N26 API Client &amp; CLI</h3>
-<p>You are implementing a Python package named <code>n26</code> that provides a programmatic client and a command-line interface (CLI) for interacting with the N26 bank REST API. The package consists of three modules: <code>n26.api</code>, <code>n26.config</code>, and <code>n26.cli</code>. The public surface described below must exist exactly as named so it can be imported and called.</p>
-<h4>Module: <code>n26.config</code></h4>
-<h5>Module-level constants</h5>
+      <div class="spec-body"><h3>N26 API Client and CLI: Task Specification</h3>
+<p>In this task, a Python package called <code>n26</code> is to be implemented; it provides a programmatic client plus a command-line interface (CLI) for talking to the N26 bank REST API. Its code is organized into three modules: <code>n26.api</code>, <code>n26.config</code>, and <code>n26.cli</code>. Everything described below as public must exist under exactly that name, so it can be imported and called.</p>
+<h4>The <code>n26.config</code> module</h4>
+<h5>Constants defined at module level</h5>
 <ul>
-<li><code>ENV_PARAM_USER</code> — string constant naming the environment variable that holds the username.</li>
-<li><code>ENV_PARAM_PASSWORD</code> — string constant naming the environment variable that holds the password.</li>
-<li><code>CONFIG_FILE_PATH</code> — module-level attribute (a filesystem path string) pointing at the credentials file location. It must be reassignable at runtime, and <code>get_config()</code> must read whatever value it currently holds.</li>
+<li><code>ENV_PARAM_USER</code> — a string constant that names the environment variable holding the username.</li>
+<li><code>ENV_PARAM_PASSWORD</code> — a string constant that names the environment variable holding the password.</li>
+<li><code>CONFIG_FILE_PATH</code> — a module-level attribute (a filesystem path string) that gives the location of the credentials file. The value it holds must be reassignable at runtime, and whatever it currently contains is what <code>get_config()</code> must read.</li>
 </ul>
-<h5>Class <code>Config</code></h5>
-<p>Constructed with keyword arguments <code>username</code> and <code>password</code>:</p>
+<h5>The <code>Config</code> class</h5>
+<p>Its constructor takes the keyword arguments <code>username</code> and <code>password</code>:</p>
 <pre><code class="language-python">config.Config(username='...', password='...')
 </code></pre>
 <ul>
-<li>Exposes read access to <code>.username</code> and <code>.password</code> returning the values passed in.</li>
-<li>Two <code>Config</code> instances must compare equal (<code>==</code>) when and only when their <code>username</code> and <code>password</code> are equal (implement value-based equality).</li>
+<li>It exposes <code>.username</code> and <code>.password</code> for reading, and they return the values passed in.</li>
+<li>Value-based equality must be implemented: two instances of <code>Config</code> must compare equal (<code>==</code>) when and only when their <code>username</code> and <code>password</code> are equal.</li>
 </ul>
-<h5>Function <code>get_config() -&gt; Config</code></h5>
-<p>Resolves credentials and returns a <code>Config</code>:</p>
+<h5>The function <code>get_config() -&gt; Config</code></h5>
+<p>This function resolves the credentials and returns a <code>Config</code>:</p>
 <ol>
-<li>If the environment variables named by <code>ENV_PARAM_USER</code> and <code>ENV_PARAM_PASSWORD</code> are both present <strong>and non-empty</strong>, return a <code>Config</code> built from those environment values.</li>
-<li>Otherwise, read the YAML file located at the current value of <code>config.CONFIG_FILE_PATH</code> and build a <code>Config</code> from its contents. The file contains the username and password credentials.</li>
+<li>If the environment variables named by <code>ENV_PARAM_USER</code> and <code>ENV_PARAM_PASSWORD</code> are both present <strong>and non-empty</strong>, the function must return a <code>Config</code> built from those environment values.</li>
+<li>Otherwise, the YAML file at the current value of <code>config.CONFIG_FILE_PATH</code> is read and its contents are used to build a <code>Config</code>. The username and password credentials are found in that file.</li>
 </ol>
-<p>Empty-string environment variables must be treated as &quot;not set&quot; so that resolution falls through to the file.</p>
-<h4>Module: <code>n26.api</code></h4>
-<h5>Module-level constants</h5>
+<p>An environment variable whose value is the empty string must be treated as &quot;not set&quot;; resolution then falls through to the file.</p>
+<h4>The <code>n26.api</code> module</h4>
+<h5>Constants defined at module level</h5>
 <ul>
-<li><code>BASE_URL</code> — the string <code>&quot;https://api.tech26.de&quot;</code>.</li>
-<li><code>GET</code> — the string <code>&quot;get&quot;</code>.</li>
-<li><code>POST</code> — the string <code>&quot;post&quot;</code>.</li>
+<li><code>BASE_URL</code> — a string whose value is <code>&quot;https://api.tech26.de&quot;</code>.</li>
+<li><code>GET</code> — a string whose value is <code>&quot;get&quot;</code>.</li>
+<li><code>POST</code> — a string whose value is <code>&quot;post&quot;</code>.</li>
 </ul>
-<p>These string values matter: <code>GET</code>/<code>POST</code> are used both to select behavior and to construct the attribute name of the underlying HTTP function (i.e. <code>requests.get</code> / <code>requests.post</code> are referenced via <code>requests.{GET}</code> / <code>requests.{POST}</code>). HTTP calls in this module must be made through <code>n26.api.requests.get(...)</code> and <code>n26.api.requests.post(...)</code> (i.e. the module must <code>import requests</code> and reference it as <code>requests.get</code> / <code>requests.post</code>), and the URL must be passed as the <strong>first positional argument</strong> to those calls.</p>
-<h5>Class <code>Api</code></h5>
-<p>Constructor signature:</p>
+<p>The strings themselves are significant: <code>GET</code>/<code>POST</code> are used both for selecting the behavior and for constructing the attribute name of the underlying HTTP function (i.e. <code>requests.get</code> / <code>requests.post</code> are referenced via <code>requests.{GET}</code> / <code>requests.{POST}</code>). Within this module, HTTP calls must be made through <code>n26.api.requests.get(...)</code> and <code>n26.api.requests.post(...)</code>; that is, the module must <code>import requests</code> and reference it as <code>requests.get</code> / <code>requests.post</code>. The <strong>first positional argument</strong> passed to those calls must be the URL.</p>
+<h5>The <code>Api</code> class</h5>
+<p>The signature of the constructor is:</p>
 <pre><code class="language-python">Api(config=None)
 </code></pre>
 <ul>
-<li>When constructed with an explicit <code>Config</code>, it stores it and exposes it as the <code>.config</code> attribute (equal to the passed object).</li>
-<li>When constructed with no argument (<code>Api()</code>), it obtains its configuration by calling <code>n26.config.get_config()</code> and exposes the result as <code>.config</code> (which must not be <code>None</code>).</li>
+<li>If an explicit <code>Config</code> is passed to the constructor, the instance stores it and exposes it as its <code>.config</code> attribute; that attribute is equal to the object that was passed.</li>
+<li>If the constructor is called with no argument (<code>Api()</code>), the instance obtains its configuration by calling <code>n26.config.get_config()</code> and exposes the result as <code>.config</code> — and this must not be <code>None</code>.</li>
 </ul>
-<h6>Method <code>_create_request_url(base_url, params) -&gt; str</code></h6>
-<p>Builds a URL by appending the given query parameters to <code>base_url</code>. Given:</p>
+<h6>The method <code>_create_request_url(base_url, params) -&gt; str</code></h6>
+<p>A URL is built by this method through appending the given query parameters to <code>base_url</code>. For the input:</p>
 <pre><code class="language-python">_create_request_url(BASE_URL, {&quot;foo&quot;: &quot;bar&quot;, &quot;bar&quot;: &quot;baz&quot;})
 </code></pre>
-<p>it must return exactly:</p>
+<p>the method must return exactly:</p>
 <pre><code>https://api.tech26.de?foo=bar&amp;bar=baz
 </code></pre>
-<p>The parameters are appended in insertion order, separated with <code>&amp;</code>, joined to the base URL with a single <code>?</code>, each as <code>key=value</code>.</p>
-<h6>Authentication / token handling</h6>
+<p>Parameters are appended in insertion order; each one is rendered as <code>key=value</code>, the pairs are separated with <code>&amp;</code>, and everything is joined to the base URL behind a single <code>?</code>.</p>
+<h6>Handling of authentication tokens</h6>
 <ul>
-<li><code>_request_token(...)</code> — performs the raw HTTP request that obtains an authentication token from the API and returns the parsed JSON response (a dict). This is the single low-level method through which token acquisition happens; higher-level token logic must route through it.</li>
-<li><code>get_token()</code> — returns the current access token as a string. It must ultimately obtain its token data via <code>_request_token(...)</code> and return the value of the <code>access_token</code> field from that response.</li>
-<li><code>_refresh_token(refresh_token)</code> — refreshes the access token. It performs a <code>POST</code> request to a URL ending in <code>/token</code> and returns the parsed JSON response dict (from which callers read <code>access_token</code>). It accepts the refresh token value as its argument.</li>
+<li><code>_request_token(...)</code> — issues the raw HTTP request through which an authentication token is obtained from the API, and it returns the parsed JSON response (a dict). Token acquisition happens through this single low-level method; token logic at a higher level must route through it.</li>
+<li><code>get_token()</code> — returns the current access token as a string. The token data must ultimately be obtained via <code>_request_token(...)</code>, and what it returns is the value of the <code>access_token</code> field from that response.</li>
+<li><code>_refresh_token(refresh_token)</code> — its job is refreshing the access token. It sends a <code>POST</code> request to a URL ending in <code>/token</code> and returns the parsed JSON response dict, from which callers read <code>access_token</code>. The refresh token value is what it accepts as its argument.</li>
 </ul>
-<p>Given a token response containing <code>&quot;access_token&quot;: &quot;12345678-1234-1234-1234-123456789012&quot;</code>, <code>get_token()</code> returns that string. Given a refresh response containing <code>&quot;access_token&quot;: &quot;12345678-1234-abcd-abcd-1234567890ab&quot;</code>, <code>_refresh_token(...)[&quot;access_token&quot;]</code> equals that string.</p>
-<h6>HTTP dispatch and error handling</h6>
-<p>Requests are dispatched based on an HTTP method value (<code>GET</code> or <code>POST</code>). If a request is attempted with any method other than the supported ones, raise an error (rather than silently returning <code>None</code>).</p>
-<h6>Data-retrieval methods</h6>
-<p>Each of the following performs an authenticated <code>GET</code> request and returns the parsed JSON response (a <code>dict</code> or <code>list</code> matching the JSON payload). They take no required arguments (calling them with none must work):</p>
+<p>Suppose the token response contains <code>&quot;access_token&quot;: &quot;12345678-1234-1234-1234-123456789012&quot;</code>; then <code>get_token()</code> returns that string. Suppose the refresh response contains <code>&quot;access_token&quot;: &quot;12345678-1234-abcd-abcd-1234567890ab&quot;</code>; then <code>_refresh_token(...)[&quot;access_token&quot;]</code> is equal to that string.</p>
+<h6>Dispatching requests and error behaviour</h6>
+<p>An HTTP method value (<code>GET</code> or <code>POST</code>) decides how a request is dispatched. When a request is attempted with any method other than the supported ones, an error must be raised (rather than <code>None</code> being silently returned).</p>
+<h6>Methods for retrieving data</h6>
+<p>An authenticated <code>GET</code> request is performed by each method listed below, which then returns the parsed JSON response (a <code>dict</code> or <code>list</code> matching the JSON payload). None of them has required arguments (each one must work when called with none):</p>
 <ul>
-<li><code>get_account_info()</code> → dict of account info. For a payload with <code>&quot;email&quot;: &quot;john.doe@example.com&quot;</code>, <code>result[&quot;email&quot;]</code> equals <code>&quot;john.doe@example.com&quot;</code>.</li>
-<li><code>get_account_statuses()</code> → account status dict.</li>
-<li><code>get_account_limits()</code> → list of limit entries; each entry has a <code>limit</code> name (e.g. <code>&quot;POS_DAILY_ACCOUNT&quot;</code>, <code>&quot;ATM_DAILY_ACCOUNT&quot;</code>) and an <code>amount</code>.</li>
-<li><code>get_addresses()</code> → addresses response (dict with <code>paging</code> and <code>data</code>).</li>
-<li><code>get_contacts()</code> → list of contact entries (each with <code>name</code>, <code>subtitle</code>, <code>account</code>).</li>
-<li><code>get_statements()</code> → list of statement entries (each with <code>id</code>, <code>url</code>, <code>visibleTS</code>, <code>month</code>, <code>year</code>).</li>
-<li><code>get_balance()</code> → balance dict (with fields such as <code>availableBalance</code>, <code>currency</code>, etc.).</li>
-<li><code>get_spaces()</code> → spaces dict (with <code>totalBalance</code>, <code>spaces</code> list, etc.).</li>
-<li><code>get_statistics()</code> → statistics dict.</li>
-<li><code>get_cards()</code> → list of card entries (each with <code>id</code>, <code>maskedPan</code>, <code>status</code>, etc.).</li>
-<li><code>get_transactions()</code> → list of transaction entries; must be callable with no arguments.</li>
+<li><code>get_account_info()</code> → a dict holding the account info. If the payload contains <code>&quot;email&quot;: &quot;john.doe@example.com&quot;</code>, then <code>result[&quot;email&quot;]</code> equals <code>&quot;john.doe@example.com&quot;</code>.</li>
+<li><code>get_account_statuses()</code> → the account status dict.</li>
+<li><code>get_account_limits()</code> → a list of limit entries; each entry carries a <code>limit</code> name (e.g. <code>&quot;POS_DAILY_ACCOUNT&quot;</code>, <code>&quot;ATM_DAILY_ACCOUNT&quot;</code>) together with an <code>amount</code>.</li>
+<li><code>get_addresses()</code> → the addresses response (a dict containing <code>paging</code> and <code>data</code>).</li>
+<li><code>get_contacts()</code> → a list of contact entries (each having <code>name</code>, <code>subtitle</code>, <code>account</code>).</li>
+<li><code>get_statements()</code> → a list of statement entries (each having <code>id</code>, <code>url</code>, <code>visibleTS</code>, <code>month</code>, <code>year</code>).</li>
+<li><code>get_balance()</code> → the balance dict (it has fields such as <code>availableBalance</code>, <code>currency</code>, etc.).</li>
+<li><code>get_spaces()</code> → the spaces dict (it contains <code>totalBalance</code>, a <code>spaces</code> list, etc.).</li>
+<li><code>get_statistics()</code> → the statistics dict.</li>
+<li><code>get_cards()</code> → a list of card entries (each having <code>id</code>, <code>maskedPan</code>, <code>status</code>, etc.).</li>
+<li><code>get_transactions()</code> → a list of transaction entries; calling it with no arguments must work.</li>
 </ul>
-<p>All of these must return a non-<code>None</code> value when the API responds with the corresponding JSON.</p>
-<h6>Card block / unblock</h6>
-<p>The client must support blocking and unblocking a card by its card id via <code>POST</code> requests. These operations underlie the CLI card commands described below (blocking/unblocking a single specified card, and enumerating all cards via <code>get_cards()</code> to operate on each).</p>
-<h4>Module: <code>n26.cli</code></h4>
-<p>Implemented with the <code>click</code> framework. Each of the following is a <code>click</code> command object (invocable via <code>click.testing.CliRunner().invoke(command, args=...)</code>). Commands print their output to stdout. Each command builds an <code>Api</code> client whose configuration comes from <code>n26.config.get_config()</code>.</p>
+<p>When the API responds with the corresponding JSON, a non-<code>None</code> value is what all of these must return.</p>
+<h6>Blocking and unblocking cards</h6>
+<p>Blocking and unblocking a card by its card id, via <code>POST</code> requests, must be supported by the client. These operations are what the CLI card commands described below rest on (blocking/unblocking a single specified card, and enumerating all cards via <code>get_cards()</code> to operate on each).</p>
+<h4>The <code>n26.cli</code> module</h4>
+<p>The <code>click</code> framework is used for this module. Each item below is a <code>click</code> command object (it can be invoked via <code>click.testing.CliRunner().invoke(command, args=...)</code>). The commands write their output to stdout. Each command builds an <code>Api</code> client, taking that client's configuration from <code>n26.config.get_config()</code>.</p>
 <ul>
-<li><code>info</code> — prints account information. Produces non-empty output.</li>
-<li><code>limits</code> — prints account limits. Output must contain each limit name (<code>POS_DAILY_ACCOUNT</code>, <code>ATM_DAILY_ACCOUNT</code>) and the amount value (<code>2500</code>).</li>
-<li><code>contacts</code> — prints the list of contacts. Output must contain each contact's identifying name text (e.g. <code>ADAC</code>, <code>Cyberport</code>, <code>DB</code>, <code>ELV</code>, <code>Mindfactory</code>, <code>Seegel</code>).</li>
-<li><code>statements</code> — prints the list of statements. Output must contain statement period identifiers (e.g. <code>2016-11</code>, <code>2017-01</code>, <code>2018-01</code>, <code>2019-01</code>), the statement URL (e.g. <code>/api/statements/statement-2019-04</code>), and the raw <code>visibleTS</code> value (e.g. <code>1554076800000</code>).</li>
-<li><code>balance</code> — prints the balance. Output must match the regular expression <code>\d*\.\d* \w*.*</code> (i.e. a decimal number followed by a space and a word, such as an amount followed by a currency).</li>
-<li><code>spaces</code> — prints spaces. Output must match <code>\d*\.\d* \w*.*</code> (a decimal amount followed by a space and a word).</li>
-<li><code>statistics</code> — prints statistics. Produces non-empty output.</li>
-<li><code>transactions</code> — prints transactions. Must be invocable with no arguments and produce non-empty output. Transaction response entries are heterogeneous: descriptive fields such as <code>merchantName</code> and <code>referenceText</code> are optional, and card/ATM entries may contain neither. The command must render entries that lack one or both fields without raising an error. It must use whichever supported descriptive value is available and, when neither is present, render a fallback detail label (for example, <code>no details available</code>) so that the entry is handled and command execution completes normally. The exact wording of the fallback label is not prescribed.</li>
-<li><code>card_block</code> — blocks card(s). Accepts an optional <code>--card &lt;card_id&gt;</code> option.
+<li><code>info</code> — prints the account information. The output is non-empty.</li>
+<li><code>limits</code> — prints the account limits. Each limit name (<code>POS_DAILY_ACCOUNT</code>, <code>ATM_DAILY_ACCOUNT</code>) must be contained in the output, as must the amount value (<code>2500</code>).</li>
+<li><code>contacts</code> — prints the contact list. Each contact's identifying name text (e.g. <code>ADAC</code>, <code>Cyberport</code>, <code>DB</code>, <code>ELV</code>, <code>Mindfactory</code>, <code>Seegel</code>) must appear in the output.</li>
+<li><code>statements</code> — prints the statement list. The statement period identifiers (e.g. <code>2016-11</code>, <code>2017-01</code>, <code>2018-01</code>, <code>2019-01</code>), the statement URL (e.g. <code>/api/statements/statement-2019-04</code>), and the raw <code>visibleTS</code> value (e.g. <code>1554076800000</code>) must all be contained in the output.</li>
+<li><code>balance</code> — prints the balance. The regular expression <code>\d*\.\d* \w*.*</code> must be matched by the output; that is, a decimal number followed by a space and a word, such as an amount followed by a currency.</li>
+<li><code>spaces</code> — prints the spaces. The output must match <code>\d*\.\d* \w*.*</code>, i.e. a decimal amount followed by a space and a word.</li>
+<li><code>statistics</code> — prints the statistics. The output is non-empty.</li>
+<li><code>transactions</code> — prints the transactions. Invoking it with no arguments must be possible, and its output must be non-empty. Entries of the transaction response are heterogeneous: descriptive fields such as <code>merchantName</code> and <code>referenceText</code> are optional, and card/ATM entries may have neither of them. Entries that lack one or both of these fields must be rendered by the command without an error being raised. Whichever supported descriptive value is available must be used; when neither is present, a fallback detail label (for example, <code>no details available</code>) must be rendered so that the entry is handled and the command's execution completes normally. No exact wording is prescribed for the fallback label.</li>
+<li><code>card_block</code> — blocks one or more cards. An optional <code>--card &lt;card_id&gt;</code> option is accepted.
 <ul>
-<li>With <code>--card &lt;id&gt;</code>: blocks that single card and prints exactly <code>Blocked card: &lt;id&gt;\n</code>.</li>
-<li>With no <code>--card</code>: retrieves all cards (via <code>get_cards()</code>) and blocks each in the order returned, printing one line <code>Blocked card: &lt;id&gt;\n</code> per card. For two cards with ids <code>A</code> then <code>B</code>, the full output is <code>Blocked card: A\nBlocked card: B\n</code>.</li>
-</ul>
-</li>
-<li><code>card_unblock</code> — unblocks card(s), same option and behavior as <code>card_block</code> but with the word <code>Unblocked</code>:
-<ul>
-<li>With <code>--card &lt;id&gt;</code>: prints exactly <code>Unblocked card: &lt;id&gt;\n</code>.</li>
-<li>With no <code>--card</code>: prints <code>Unblocked card: &lt;id&gt;\n</code> per card in enumeration order.</li>
+<li>Given <code>--card &lt;id&gt;</code>: that single card is blocked, and the output is exactly <code>Blocked card: &lt;id&gt;\n</code>.</li>
+<li>Given no <code>--card</code>: all cards are retrieved (via <code>get_cards()</code>) and each is blocked in the order in which they are returned; one line <code>Blocked card: &lt;id&gt;\n</code> is printed per card. For two cards with ids <code>A</code> then <code>B</code>, the complete output is <code>Blocked card: A\nBlocked card: B\n</code>.</li>
 </ul>
 </li>
-</ul>
-<p>A concrete single-card id is <code>12345678-1234-abcd-abcd-1234567890ab</code>; in the two-card enumeration example, the order is <code>12345678-1234-abcd-abcd-1234567890ab</code> followed by <code>22345678-1234-abcd-abcd-1234567890ab</code>.</p>
-<h4>Cross-cutting requirements</h4>
+<li><code>card_unblock</code> — unblocks one or more cards; the option and behavior match <code>card_block</code>, except that the word is <code>Unblocked</code>:
 <ul>
-<li>The package layout must allow <code>from n26 import api, config</code>, <code>from n26.api import BASE_URL, GET, POST</code>, <code>from n26.config import ENV_PARAM_USER, ENV_PARAM_PASSWORD</code>, and <code>from n26.cli import &lt;command&gt;</code>.</li>
-<li>All authenticated data methods obtain their token through <code>Api._request_token(...)</code> (directly or indirectly), so that token acquisition remains centralized through that single method.</li>
-<li>HTTP GET and POST must be performed via <code>n26.api.requests.get</code> / <code>n26.api.requests.post</code>, with the target URL as the first positional argument, and the JSON body of the response obtained via the response object's <code>.json()</code> method.</li>
+<li>Given <code>--card &lt;id&gt;</code>: the output is exactly <code>Unblocked card: &lt;id&gt;\n</code>.</li>
+<li>Given no <code>--card</code>: one line per card is printed, each reading <code>Unblocked card: &lt;id&gt;\n</code>, in enumeration order.</li>
 </ul>
-<h4>Notes on response data shapes</h4>
+</li>
+</ul>
+<p>For the single-card case, a concrete id example is <code>12345678-1234-abcd-abcd-1234567890ab</code>; in the two-card enumeration example, the ordering is <code>12345678-1234-abcd-abcd-1234567890ab</code> followed by <code>22345678-1234-abcd-abcd-1234567890ab</code>.</p>
+<h4>Package-wide requirements</h4>
 <ul>
-<li><strong>Balance</strong> JSON is a single object with numeric balance fields and a string <code>currency</code> (<code>&quot;EUR&quot;</code>). The <code>balance</code> CLI output pairs a decimal amount with the currency word.</li>
-<li><strong>Spaces</strong> JSON has <code>totalBalance</code> (number), a <code>spaces</code> array (each with a <code>name</code>, and a nested <code>balance</code> object holding <code>availableBalance</code> and <code>currency</code>), and <code>userFeatures</code>. The <code>spaces</code> CLI output includes a decimal amount followed by a currency/word.</li>
-<li><strong>Account limits</strong> JSON is an array of objects each with <code>limit</code> (string) and <code>amount</code> (number).</li>
-<li><strong>Contacts</strong> JSON is an array of objects each with <code>name</code>, <code>subtitle</code>, and a nested <code>account</code> object.</li>
-<li><strong>Statements</strong> JSON is an array of objects each with <code>id</code>, <code>url</code>, <code>visibleTS</code> (integer), <code>month</code>, <code>year</code>.</li>
-<li><strong>Cards</strong> JSON is an array of card objects each with an <code>id</code>.</li>
-<li><strong>Account info</strong> JSON is a single object including an <code>email</code> field.</li>
-<li><strong>Transactions</strong> JSON is an array of objects with an <code>amount</code> and other transaction metadata. Descriptive keys are not uniform across transaction types: <code>merchantName</code> and <code>referenceText</code> may each be absent, and some card/ATM transactions omit both. Consumers, especially the <code>transactions</code> CLI formatter, must not treat either descriptive key as mandatory.</li>
+<li>These imports must be possible with the package layout: <code>from n26 import api, config</code>, <code>from n26.api import BASE_URL, GET, POST</code>, <code>from n26.config import ENV_PARAM_USER, ENV_PARAM_PASSWORD</code>, and <code>from n26.cli import &lt;command&gt;</code>.</li>
+<li>All authenticated data methods obtain their token through <code>Api._request_token(...)</code> — directly or indirectly — which keeps token acquisition centralized in that single method.</li>
+<li>Via <code>n26.api.requests.get</code> / <code>n26.api.requests.post</code> is how HTTP GET and POST must be performed; the target URL is passed as the first positional argument, and the JSON body of the response must be obtained through the response object's <code>.json()</code> method.</li>
 </ul>
-<p>Amount <code>2500.00</code> must appear in <code>limits</code> output such that the substring <code>2500</code> is present.</p>
-<p>Return values must be the deserialized JSON structures (Python <code>dict</code>/<code>list</code>), not raw strings.</p>
+<h4>Notes about the response data shapes</h4>
+<ul>
+<li><strong>Balance</strong> — the JSON here is one object that has numeric balance fields and a <code>currency</code> string (<code>&quot;EUR&quot;</code>). In the output of the <code>balance</code> CLI command, a decimal amount is paired with the currency word.</li>
+<li><strong>Spaces</strong> — the JSON contains <code>totalBalance</code> (a number), a <code>spaces</code> array (each entry has a <code>name</code> and a nested <code>balance</code> object that holds <code>availableBalance</code> and <code>currency</code>), and <code>userFeatures</code>. A decimal amount followed by a currency/word appears in the <code>spaces</code> CLI output.</li>
+<li><strong>Account limits</strong> — the JSON is an array whose objects each have a <code>limit</code> (string) and an <code>amount</code> (number).</li>
+<li><strong>Contacts</strong> — the JSON is an array whose objects each carry <code>name</code>, <code>subtitle</code>, and a nested <code>account</code> object.</li>
+<li><strong>Statements</strong> — the JSON is an array whose objects each have <code>id</code>, <code>url</code>, <code>visibleTS</code> (an integer), <code>month</code>, <code>year</code>.</li>
+<li><strong>Cards</strong> — the JSON is an array of card objects, each of which has an <code>id</code>.</li>
+<li><strong>Account info</strong> — the JSON is one object that includes an <code>email</code> field.</li>
+<li><strong>Transactions</strong> — the JSON is an array of objects that carry an <code>amount</code> plus other transaction metadata. The descriptive keys differ between transaction types: <code>merchantName</code> and <code>referenceText</code> may each be absent, and some card/ATM transactions leave out both. Consumers — in particular the <code>transactions</code> CLI formatter — must not treat either descriptive key as mandatory.</li>
+</ul>
+<p>In the <code>limits</code> output, the amount <code>2500.00</code> must appear, such that the substring <code>2500</code> is present.</p>
+<p>What gets returned must be the deserialized JSON structures (Python <code>dict</code>/<code>list</code>), not raw strings.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You are working on an N26 banking API client.</span>
-        <span class="spec-meta muted">1079 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The subject of this task is an N26 banking API client.</span>
+        <span class="spec-meta muted">1216 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on an N26 banking API client. The task has two primary behavioral goals: request URLs must have deterministic alphabetical query-parameter ordering, and the API client must support both automatic and explicit configuration. Existing request dispatch, authentication, data-access, and command-line behavior must remain compatible.</p>
-<h4>Module: <code>n26.api</code></h4>
-<h5>Public constants and class</h5>
-<p>The module must expose the following names:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Task overview</h4>
+<p>The subject of this task is an N26 banking API client. Two primary behavioral goals define the task: the ordering of query parameters in request URLs must be deterministic and alphabetical, and the API client must support both automatic and explicit configuration. The existing behavior for request dispatch, authentication, data access, and the command line must remain compatible.</p>
+<h4>The <code>n26.api</code> module</h4>
+<h5>Publicly exposed constants and class</h5>
+<p>The following names must be exposed by the module:</p>
 <ul>
-<li><code>BASE_URL</code>, whose value is exactly <code>&quot;https://api.tech26.de&quot;</code>.</li>
-<li><code>GET</code>, whose value is exactly the lowercase string <code>&quot;get&quot;</code>.</li>
-<li><code>POST</code>, whose value is exactly the lowercase string <code>&quot;post&quot;</code>.</li>
-<li><code>Api</code>, the API client class.</li>
+<li><code>BASE_URL</code>, with the value exactly <code>&quot;https://api.tech26.de&quot;</code>.</li>
+<li><code>GET</code>, holding exactly the lowercase string <code>&quot;get&quot;</code> as its value.</li>
+<li><code>POST</code>, holding exactly the lowercase string <code>&quot;post&quot;</code> as its value.</li>
+<li><code>Api</code>, the class for the API client.</li>
 </ul>
-<p><code>GET</code> and <code>POST</code> are lowercase dispatch identifiers: they name the supported <code>requests.get</code> and <code>requests.post</code> call points. They must not be changed to uppercase HTTP-method spellings.</p>
+<p><code>GET</code> and <code>POST</code> are lowercase dispatch identifiers: they designate the supported <code>requests.get</code> and <code>requests.post</code> call points. They must not be turned into uppercase HTTP-method spellings.</p>
 <h5><code>Api._create_request_url(self, url, params=None)</code></h5>
-<p>This method builds a request URL from a base URL and optional query parameters.</p>
+<p>This method assembles a request URL from a base URL plus optional query parameters.</p>
 <ul>
-<li><code>url</code> is a URL string, such as <code>BASE_URL</code>.</li>
-<li><code>params</code> is an optional dictionary mapping parameter names to values.</li>
-<li>Included query parameters must be ordered alphabetically by key, independently of dictionary insertion order.</li>
-<li>Parameters are serialized as <code>key=value</code>, with entries joined by <code>&amp;</code> and the query string introduced by <code>?</code>.</li>
-<li>Preserve the established handling of optional parameters: entries with falsy values are omitted. If <code>params</code> is absent, empty, or has no included entries, return <code>url</code> unchanged and do not append <code>?</code>.</li>
+<li><code>url</code> is a string containing a URL, such as <code>BASE_URL</code>.</li>
+<li><code>params</code> is an optional dictionary that maps parameter names to values.</li>
+<li>Query parameters that are included must be ordered alphabetically by key, regardless of the dictionary's insertion order.</li>
+<li>Parameters are serialized as <code>key=value</code>; entries are joined by <code>&amp;</code>, and the query string is introduced by <code>?</code>.</li>
+<li>The established handling of optional parameters must be preserved: entries with falsy values are omitted. If <code>params</code> is absent, empty, or has no included entries, <code>url</code> must be returned unchanged and <code>?</code> must not be appended.</li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">Api._create_request_url(
     &quot;https://api.tech26.de&quot;,
     {&quot;foo&quot;: &quot;bar&quot;, &quot;bar&quot;: &quot;baz&quot;},
 )
 </code></pre>
-<p>must return exactly:</p>
+<p>the method must return exactly:</p>
 <pre><code class="language-text">https://api.tech26.de?bar=baz&amp;foo=bar
 </code></pre>
 <h5><code>Api._do_request(self, method, endpoint, params=None)</code></h5>
-<p>This method performs an authenticated HTTP request and returns the decoded JSON response.</p>
+<p>This method carries out an authenticated HTTP request and returns the JSON response after decoding.</p>
 <ul>
-<li><code>method</code> is one of the exported method identifiers, normally <code>GET</code> or <code>POST</code>.</li>
-<li><code>endpoint</code> identifies the target path; requests for endpoint paths are made against <code>BASE_URL</code>.</li>
-<li>Optional <code>params</code> are appended through <code>_create_request_url</code>.</li>
-<li>Authentication-token retrieval is part of the normal request flow.</li>
-<li><code>GET</code> dispatches through <code>requests.get</code>, and <code>POST</code> dispatches through <code>requests.post</code>.</li>
-<li>The HTTP response must be checked for unsuccessful status codes, and a successful response must be returned as parsed JSON rather than as the raw response object.</li>
-<li>Unsupported method identifiers must be rejected rather than silently dispatched.</li>
+<li><code>method</code> is one of the exported method identifiers, usually <code>GET</code> or <code>POST</code>.</li>
+<li><code>endpoint</code> identifies the target path; requests to endpoint paths are made against <code>BASE_URL</code>.</li>
+<li>Optional <code>params</code> are appended by way of <code>_create_request_url</code>.</li>
+<li>Retrieval of the authentication token is part of the normal request flow.</li>
+<li><code>GET</code> requests are dispatched through <code>requests.get</code>, and <code>POST</code> requests through <code>requests.post</code>.</li>
+<li>The HTTP response must be checked for unsuccessful status codes; a successful response, in turn, must be returned as parsed JSON rather than as the raw response object.</li>
+<li>Method identifiers that are unsupported must be rejected rather than silently dispatched.</li>
 </ul>
-<p>For example, <code>_do_request(GET, &quot;/something&quot;)</code> must perform the request and return a non-<code>None</code> result derived from its response.</p>
+<p>As an example, <code>_do_request(GET, &quot;/something&quot;)</code> must perform the request and return a non-<code>None</code> result derived from its response.</p>
 <h5><code>Api.__init__(self, config=None)</code></h5>
-<p>The constructor accepts an optional configuration object.</p>
+<p>An optional configuration object is accepted by the constructor.</p>
 <ul>
-<li><code>Api()</code> must obtain configuration through the configuration-loading mechanism and expose the resulting non-<code>None</code> object as <code>api_client.config</code>. Runtime changes to <code>n26.config.CONFIG_FILE_PATH</code> must be honored when file-backed configuration is loaded.</li>
-<li><code>Api(conf)</code> must expose the exact object supplied by the caller as <code>api_client.config</code>; it must not replace it with a separately loaded configuration.</li>
-<li>Each new client starts with no cached authentication-token data.</li>
+<li>With <code>Api()</code>, configuration must be obtained through the configuration-loading mechanism, and the resulting non-<code>None</code> object must be exposed as <code>api_client.config</code>. When file-backed configuration is loaded, runtime changes to <code>n26.config.CONFIG_FILE_PATH</code> must be honored.</li>
+<li>With <code>Api(conf)</code>, the exact object supplied by the caller must be exposed as <code>api_client.config</code>; the constructor must not replace it with a separately loaded configuration.</li>
+<li>Each new client begins with no cached authentication-token data.</li>
 </ul>
-<h5>Authentication tokens</h5>
-<p><code>Api.get_token()</code> must provide an access token for authenticated requests. A returned token is a UUID-form string, for example <code>&quot;12345678-1234-1234-1234-123456789012&quot;</code>. The authentication flow must retain these behaviors:</p>
+<h5>Authentication token behavior</h5>
+<p>For authenticated requests, <code>Api.get_token()</code> must provide an access token. The token that is returned is a UUID-form string, for example <code>&quot;12345678-1234-1234-1234-123456789012&quot;</code>. These behaviors must be retained by the authentication flow:</p>
 <ul>
-<li>A valid cached access token is reused.</li>
-<li>If no token has yet been obtained, credentials from <code>self.config</code> are used to request one.</li>
-<li>If cached token data has expired and contains a refresh token, that refresh token is used to obtain replacement token data.</li>
-<li>Token and refresh responses are decoded mappings, and token retrieval returns their <code>access_token</code> value.</li>
-<li>If valid token data still cannot be obtained, authentication fails rather than returning an invalid token.</li>
+<li>A cached access token that is valid is reused.</li>
+<li>If no token has been obtained yet, credentials from <code>self.config</code> are used to request one.</li>
+<li>If cached token data has expired and holds a refresh token, that refresh token is used to obtain replacement token data.</li>
+<li>Token and refresh responses are decoded mappings, and token retrieval returns the <code>access_token</code> value from them.</li>
+<li>If valid token data still cannot be obtained, authentication fails rather than an invalid token being returned.</li>
 </ul>
-<h4>Module: <code>n26.config</code></h4>
-<p>The module must expose:</p>
+<h4>The <code>n26.config</code> module</h4>
+<p>The following must be exposed by the module:</p>
 <ul>
 <li>
-<p><code>Config</code>, constructible with <code>username</code> and <code>password</code>, including keyword construction such as:</p>
+<p><code>Config</code>, which can be constructed with <code>username</code> and <code>password</code>, including keyword construction such as:</p>
 <pre><code class="language-python">config.Config(username=&quot;john.doe@example.com&quot;, password=&quot;$upersecret&quot;)
 </code></pre>
-<p><code>Config</code> objects use value equality: two instances with the same username and password compare equal.</p>
+<p><code>Config</code> objects use value equality: two instances that have the same username and password compare equal.</p>
 </li>
 <li>
-<p><code>CONFIG_FILE_PATH</code>, the configuration-file location. Its default is <code>&quot;~/.config/n26.yml&quot;</code>; user-home expansion is supported. The variable must remain reassignable at runtime, and subsequent configuration loading must use its current value.</p>
+<p><code>CONFIG_FILE_PATH</code>, the location of the configuration file. The default is <code>&quot;~/.config/n26.yml&quot;</code>, and expansion of the user home is supported. The variable must remain reassignable at runtime, and subsequent configuration loading must use its current value.</p>
 </li>
 <li>
-<p><code>ENV_PARAM_USER</code> and <code>ENV_PARAM_PASSWORD</code>, with values <code>&quot;N26_USER&quot;</code> and <code>&quot;N26_PASSWORD&quot;</code>, respectively.</p>
+<p><code>ENV_PARAM_USER</code> and <code>ENV_PARAM_PASSWORD</code>, whose values are <code>&quot;N26_USER&quot;</code> and <code>&quot;N26_PASSWORD&quot;</code> respectively.</p>
 </li>
 <li>
 <p><code>get_config()</code>, which returns a validated <code>Config</code>.</p>
 </li>
 </ul>
-<h5>Configuration loading and precedence</h5>
-<p>Automatic configuration supports environment variables and YAML files:</p>
+<h5>Configuration loading and its precedence</h5>
+<p>For automatic configuration, environment variables and YAML files are supported:</p>
 <ol>
 <li>
-<p>Read the username and password from <code>N26_USER</code> and <code>N26_PASSWORD</code>.</p>
+<p>Take the username and password from <code>N26_USER</code> and <code>N26_PASSWORD</code>.</p>
 </li>
 <li>
-<p>If either value is missing, read the file selected by <code>CONFIG_FILE_PATH</code> and fill only the missing value or values. Environment values therefore take precedence, while partial environment configuration may be merged with file configuration.</p>
+<p>If either value is missing, read the file picked by <code>CONFIG_FILE_PATH</code> and fill in only the value or values that are missing. Environment values therefore take precedence, while partial environment configuration may be merged with configuration from the file.</p>
 </li>
 <li>
-<p>The YAML file contains an <code>n26</code> mapping with <code>username</code> and <code>password</code> fields, for example:</p>
+<p>The YAML file has an <code>n26</code> mapping with <code>username</code> and <code>password</code> fields, for example:</p>
 <pre><code class="language-yaml">n26:
   username: john.doe@example.com
   password: $upersecret
 </code></pre>
 </li>
 <li>
-<p>Return a <code>Config</code> populated from the resolved values. Both username and password are required. Missing credentials, an empty configuration file, or a file without the required <code>n26</code> section must produce a clear configuration error rather than an unusable client configuration.</p>
+<p>Return a <code>Config</code> built from the resolved values. Both username and password are required. Missing credentials, an empty configuration file, or a file lacking the required <code>n26</code> section must produce a clear configuration error rather than an unusable client configuration.</p>
 </li>
 </ol>
-<p>Consequently, constructing <code>Api()</code> without an explicit configuration must produce a non-<code>None</code> <code>Config</code> from these configured sources; when environment credentials are not supplied, the file at the current <code>CONFIG_FILE_PATH</code> supplies the values.</p>
-<h4>Public API data methods</h4>
-<p>The <code>Api</code> class must provide the following instance methods. Each performs its corresponding authenticated API request and returns the non-<code>None</code>, parsed response data:</p>
+<p>As a consequence, constructing <code>Api()</code> without an explicit configuration must produce a non-<code>None</code> <code>Config</code> out of these configured sources; when environment credentials are not supplied, the file at the current <code>CONFIG_FILE_PATH</code> is the source that supplies the values.</p>
+<h5>Data methods of the public API</h5>
+<p>The instance methods listed next must be provided by the <code>Api</code> class. Each one performs its corresponding authenticated API request and returns the parsed response data, which is non-<code>None</code>:</p>
 <ul>
-<li><code>get_account_info(self)</code> — account information; the returned mapping includes an <code>&quot;email&quot;</code> key, for example <code>&quot;john.doe@example.com&quot;</code>.</li>
+<li><code>get_account_info(self)</code> — account information; the mapping that is returned includes an <code>&quot;email&quot;</code> key, for example <code>&quot;john.doe@example.com&quot;</code>.</li>
 <li><code>get_account_statuses(self)</code></li>
 <li><code>get_account_limits(self)</code></li>
 <li><code>get_statements(self)</code></li>
@@ -540,7 +542,7 @@ new_api = api.Api(conf)
 <li><code>get_statistics(self)</code></li>
 <li><code>get_transactions(self)</code></li>
 </ul>
-<p>The established account and card entry points must also remain available and return parsed response data:</p>
+<p>The established entry points for accounts and cards must also remain available and return parsed response data:</p>
 <ul>
 <li><code>get_addresses(self)</code></li>
 <li><code>get_contacts(self)</code></li>
@@ -548,683 +550,688 @@ new_api = api.Api(conf)
 <li><code>block_card(self, card_id)</code></li>
 <li><code>unblock_card(self, card_id)</code></li>
 </ul>
-<h4>Command-line behavior</h4>
-<p>The command-line interface must surface the corresponding API data as non-empty, human-readable output. In particular:</p>
+<h5>Behavior of the command line</h5>
+<p>The corresponding API data must be presented by the command-line interface as non-empty, human-readable output. Specifically:</p>
 <ul>
-<li>Account information is rendered with recognizable account fields.</li>
-<li>Balances and spaces include amounts and currencies.</li>
-<li>Limits, contacts, and statements are rendered as readable listings containing the names, identifiers, dates, amounts, and other text present in the API response.</li>
-<li>Statistics and transactions are rendered as readable summaries or tables derived from their response data.</li>
-<li>Card block and unblock commands accept an optional card identifier. With an identifier, the operation applies to that card; without one, it applies to every card returned by the account. Each completed operation emits a confirmation containing the affected card identifier, in the form <code>Blocked card: &lt;id&gt;</code> or <code>Unblocked card: &lt;id&gt;</code>.</li>
+<li>Account information is rendered with account fields that are recognizable.</li>
+<li>Amounts and currencies are included in balances and spaces.</li>
+<li>Limits, contacts, and statements are rendered as readable listings that contain the names, identifiers, dates, amounts, and other text present in the API response.</li>
+<li>Statistics and transactions are rendered as readable summaries or tables that are derived from their response data.</li>
+<li>The card block and unblock commands accept an optional card identifier. When an identifier is supplied, the operation applies to that card; when none is, it applies to every card returned by the account. Each completed operation emits a confirmation that contains the affected card identifier, in the form <code>Blocked card: &lt;id&gt;</code> or <code>Unblocked card: &lt;id&gt;</code>.</li>
 </ul>
-<p>Exact table spacing is not prescribed, but response content such as merchant, contact, or limit names must not be discarded.</p>
-<h4>Required behavioral changes and compatibility constraints</h4>
+<p>The exact spacing of tables is not prescribed, but response content such as merchant, contact, or limit names must not be discarded.</p>
+<h5>Required changes in behavior and compatibility constraints</h5>
 <ol>
-<li><code>_create_request_url</code> must emit included query parameters in alphabetical key order.</li>
-<li><code>Api</code> must work with no constructor argument by loading and exposing configuration, while an explicitly supplied <code>Config</code> must be retained and exposed unchanged.</li>
-<li>The exported request identifiers must retain their exact lowercase values: <code>GET == &quot;get&quot;</code> and <code>POST == &quot;post&quot;</code>.</li>
+<li>Included query parameters must be emitted by <code>_create_request_url</code> in alphabetical key order.</li>
+<li><code>Api</code> must work with no constructor argument by loading configuration and exposing it, while an explicitly supplied <code>Config</code> must be retained and exposed unchanged.</li>
+<li>The request identifiers that are exported must retain their exact lowercase values: <code>GET == &quot;get&quot;</code> and <code>POST == &quot;post&quot;</code>.</li>
 </ol>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add a new CLI command named status to the n26 package that displays account status information.</span>
-        <span class="spec-meta muted">227 words · source specification
+        <span class="spec-title">Add a new CLI command called status to the n26 package that shows account status information.</span>
+        <span class="spec-meta muted">238 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Add a new CLI command named <code>status</code> to the <code>n26</code> package that displays account status information. The command must be importable as <code>n26.cli.status</code>.</p>
+<p>Add a new CLI command called <code>status</code> to the <code>n26</code> package that shows account status information. It must be possible to import the command as <code>n26.cli.status</code>.</p>
 <h4>Required API Surface</h4>
-<p>Add a command callable <code>status</code> in the module <code>n26.cli</code>:</p>
+<p>Add a command callable named <code>status</code> in the module <code>n26.cli</code>:</p>
 <pre><code class="language-python">from n26.cli import status
 </code></pre>
-<p><code>status</code> must be a CLI command (in the same style as the other existing commands in <code>n26.cli</code>, e.g. <code>info</code>) so that it can be invoked through the package's command-line interface runner.</p>
+<p>The <code>status</code> callable must be a CLI command (in the same style as the other existing commands in <code>n26.cli</code>, e.g. <code>info</code>) so that the package's command-line interface runner can invoke it.</p>
 <h4>Behavior</h4>
-<p>When the <code>status</code> command is invoked:</p>
+<p>Upon invoking the <code>status</code> command:</p>
 <ol>
-<li>It must retrieve account status information from the API (the corresponding account-statuses endpoint).</li>
-<li>It must print/output that status information to the console.</li>
-<li>The output must include the value of the account's pairing state. For the data being processed, when the pairing state value is <code>PAIRED</code>, the literal string <code>PAIRED</code> must appear in the command's output.</li>
+<li>Account status information must be retrieved from the API (the corresponding account-statuses endpoint).</li>
+<li>That status information must be printed/output to the console.</li>
+<li>The value of the account's pairing state must be included in the output. When the pairing state value in the data being processed is <code>PAIRED</code>, the literal string <code>PAIRED</code> must appear in the command's output.</li>
 </ol>
-<p>The command reads its account configuration from the standard configuration source used by the other commands (the same configuration mechanism that the existing <code>info</code> command relies on).</p>
+<p>The command reads its account configuration from the standard configuration source the other commands use (the same configuration mechanism that the existing <code>info</code> command relies on).</p>
 <h4>Configuration Loading</h4>
-<p>When parsing the YAML configuration file, an explicit YAML loader must be specified to <code>yaml.load(...)</code> so that no deprecation warning about a missing/unsafe default loader is emitted.</p>
+<p>When the YAML configuration file is parsed, an explicit YAML loader must be supplied to <code>yaml.load(...)</code> so that no deprecation warning about a missing/unsafe default loader is emitted.</p>
 <h4>Notes</h4>
 <ul>
-<li>The command must produce non-empty output when run against valid account status data.</li>
-<li>No other command signatures or behaviors need to change.</li>
+<li>The output the command produces must be non-empty when it is run against valid account status data.</li>
+<li>None of the other command signatures or behaviors need to change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Add Standing Orders CLI Command</span>
-        <span class="spec-meta muted">378 words · source specification
+        <span class="spec-title">Add a Standing Orders CLI Command</span>
+        <span class="spec-meta muted">436 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Standing Orders CLI Command</h3>
-<h4>Overview</h4>
-<p>Add support for retrieving standing orders (recurring bank transfers) from the N26 API, exposed both through the API client and as a CLI command.</p>
-<h4>Required API Surface</h4>
-<h5>1. API Client Method</h5>
-<p>In the <code>n26.api</code> module, on the existing API client class, add a method that retrieves standing orders. The method must perform an HTTP <code>GET</code> request to the appropriate N26 standing-orders endpoint and return the parsed JSON response as a Python object (a dict).</p>
-<p>The <code>n26.api</code> module must expose a module-level constant named <code>GET</code> representing the HTTP GET method identifier, importable as <code>from n26.api import GET</code>.</p>
-<p>The JSON response returned by the endpoint has the following top-level structure:</p>
+      <div class="spec-body"><h3>Task Specification: Add a Standing Orders CLI Command</h3>
+<h4>Summary</h4>
+<p>Standing orders (recurring bank transfers) are to become retrievable from the N26 API, with this functionality exposed both through the API client and as a CLI command.</p>
+<h4>API Surface Requirements</h4>
+<h5>1. Method on the API Client</h5>
+<p>On the existing API client class in the <code>n26.api</code> module, a method that retrieves standing orders is to be added. This method must send an HTTP <code>GET</code> request to the appropriate N26 standing-orders endpoint; the JSON response it receives must be parsed and returned as a Python object (a dict).</p>
+<p>A module-level constant named <code>GET</code>, which represents the HTTP GET method identifier, must be exposed by the <code>n26.api</code> module, importable as <code>from n26.api import GET</code>.</p>
+<p>The JSON response that comes back from the endpoint has the following structure at the top level:</p>
 <pre><code>{
   &quot;paging&quot;: { &quot;previous&quot;: &lt;null|...&gt;, &quot;next&quot;: &lt;null|...&gt;, &quot;totalResults&quot;: &lt;int&gt; },
   &quot;data&quot;: [ &lt;standing order objects&gt; ]
 }
 </code></pre>
-<p>Each standing order object in <code>data</code> contains fields including (but the code must not assume all are always non-null): <code>id</code>, <code>created</code>, <code>updated</code>, <code>amount</code>, <code>currencyCode</code> (an object with a nested <code>currencyCode</code> string), <code>partnerIban</code>, <code>partnerBic</code>, <code>partnerName</code>, <code>partnerBankName</code>, <code>referenceText</code>, <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>executionFrequency</code>, <code>executionCounter</code>, <code>initialDayOfMonth</code>, and others. Several fields may be <code>null</code> (e.g. <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>userCanceled</code>, <code>linkId</code>).</p>
+<p>Every standing order object inside <code>data</code> contains fields including (however, the code must not assume that all of them are always non-null): <code>id</code>, <code>created</code>, <code>updated</code>, <code>amount</code>, <code>currencyCode</code> (an object with a nested <code>currencyCode</code> string), <code>partnerIban</code>, <code>partnerBic</code>, <code>partnerName</code>, <code>partnerBankName</code>, <code>referenceText</code>, <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>executionFrequency</code>, <code>executionCounter</code>, <code>initialDayOfMonth</code>, and others. It may be the case that several fields are <code>null</code> (e.g. <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>userCanceled</code>, <code>linkId</code>).</p>
 <h5>2. CLI Command</h5>
-<p>In the <code>n26.cli</code> module, add a CLI command object named <code>standing_orders</code>. It must be importable as:</p>
+<p>A CLI command object named <code>standing_orders</code> is to be added to the <code>n26.cli</code> module. It must be possible to import it as:</p>
 <pre><code class="language-python">from n26.cli import standing_orders
 </code></pre>
-<p>When invoked, the command must:</p>
+<p>Once invoked, the command must:</p>
 <ul>
-<li>Obtain the standing orders data via the API client method described above.</li>
-<li>Produce non-empty textual output (write a human-readable representation of the retrieved standing orders to stdout).</li>
+<li>Use the API client method described above to obtain the standing orders data.</li>
+<li>Produce textual output that is not empty (the retrieved standing orders are to be written to stdout in human-readable form).</li>
 </ul>
-<p>The command must complete successfully (without raising) and emit output when given a well-formed response of the structure shown above, including responses where several optional fields are <code>null</code>.</p>
-<h4>Behavioral Requirements</h4>
+<p>When the command is handed a well-formed response with the structure shown above — including responses in which several optional fields are <code>null</code> — it must complete successfully (nothing raised) and emit output.</p>
+<h4>Behavior Requirements</h4>
 <ul>
-<li>The CLI command must read from the API client, which itself issues a GET request to the N26 standing-orders endpoint.</li>
-<li>The output of the CLI command must not be empty when standing orders are returned.</li>
-<li>Optional/nullable fields in the standing order objects must not cause the command to fail.</li>
+<li>The API client is what the CLI command must read from, and this client itself issues a GET request to the N26 standing-orders endpoint.</li>
+<li>Whenever standing orders are returned, the output produced by the CLI command must not be empty.</li>
+<li>Failure of the command must not result from optional/nullable fields in the standing order objects.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The command must integrate with the existing CLI framework and configuration mechanism used by the other CLI commands in <code>n26.cli</code> (i.e., it must be invokable in the same manner as existing commands and use the same client/config setup).</li>
+<li>The command must integrate with the existing CLI framework and configuration mechanism — the same one the other CLI commands in <code>n26.cli</code> rely on (i.e., it must be invokable the same way as existing commands, and it must use the same client/config setup).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Add addresses CLI Command</span>
-        <span class="spec-meta muted">456 words · source specification
+        <span class="spec-title">Introduce an addresses CLI Command</span>
+        <span class="spec-meta muted">479 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>addresses</code> CLI Command</h3>
-<h4>Overview</h4>
-<p>Add a new command-line interface command named <code>addresses</code> to the <code>n26.cli</code> module. This command retrieves the account holder's registered addresses and prints them to standard output as a formatted table.</p>
+      <div class="spec-body"><h3>Task Specification: Introduce an <code>addresses</code> CLI Command</h3>
+<h4>Summary</h4>
+<p>A new command-line interface command called <code>addresses</code> is to be added to the <code>n26.cli</code> module. It fetches the addresses registered for the account holder and prints them to standard output as a formatted table.</p>
 <h4>Public API Surface</h4>
-<p>The <code>n26.cli</code> module must expose a callable named <code>addresses</code>:</p>
+<p>A callable named <code>addresses</code> must be exposed by the <code>n26.cli</code> module:</p>
 <pre><code class="language-python">from n26.cli import addresses
 </code></pre>
-<p>This must be a Click-based command (consistent with the other commands already present in <code>n26.cli</code>) so that it can be invoked through a Click test runner as a standalone command. It takes no required arguments or options beyond those shared by the other commands in the module.</p>
+<p>This must be a Click-based command (in line with the other commands already present in <code>n26.cli</code>) so that it can be invoked as a standalone command through a Click test runner. It has no required arguments or options beyond those shared by the other commands in the module.</p>
 <h4>Behavior</h4>
-<p>When invoked, the <code>addresses</code> command must:</p>
+<p>Once invoked, the <code>addresses</code> command must:</p>
 <ol>
-<li>Retrieve the list of addresses from the account/API layer (using the existing method that fetches address data — the same data source already used to obtain addresses).</li>
-<li>Render the retrieved addresses as a human-readable table written to standard output.</li>
+<li>Retrieve the list of addresses from the account/API layer (making use of the existing method that fetches address data — the same data source already used to obtain addresses).</li>
+<li>Present the retrieved addresses as a human-readable table written to standard output.</li>
 </ol>
-<h5>Address Data</h5>
+<h5>Address Record Fields</h5>
 <p>Each address record contains, among other fields:</p>
 <ul>
-<li>An address <strong>type</strong> (e.g. <code>SHIPPING</code>, <code>PASSPORT</code>, <code>LEGAL</code>)</li>
+<li>An address <strong>type</strong> (for example <code>SHIPPING</code>, <code>PASSPORT</code>, <code>LEGAL</code>)</li>
 <li>A country</li>
 <li>A city</li>
 <li>A zip code</li>
-<li>A street name (e.g. <code>Einbahnstraße</code>)</li>
+<li>A street name (for example <code>Einbahnstraße</code>)</li>
 <li>A house number</li>
 <li>Optional address lines</li>
-<li>Creation and update timestamps</li>
+<li>Timestamps of creation and update</li>
 </ul>
-<h5>Output Requirements</h5>
-<p>The command must print a table where every address record appears as its own row, and the following values from the underlying data must appear verbatim in the output:</p>
+<h5>Requirements for the Output</h5>
+<p>The command must print a table in which every address record is represented by its own row, and the following values from the underlying data must appear verbatim in the output:</p>
 <ul>
-<li>The address type of each record (so that values such as <code>SHIPPING</code>, <code>PASSPORT</code>, and <code>LEGAL</code> are present in the output when the corresponding records exist).</li>
-<li>The street value (so that a value such as <code>Einbahnstraße</code>, including non-ASCII characters, appears in the output).</li>
+<li>The address type of each record (so that values such as <code>SHIPPING</code>, <code>PASSPORT</code>, and <code>LEGAL</code> occur in the output when the corresponding records exist).</li>
+<li>The street value (so that a value such as <code>Einbahnstraße</code>, non-ASCII characters included, appears in the output).</li>
 </ul>
-<p>The output must correctly handle non-ASCII characters (e.g. <code>ß</code>) without corruption or errors.</p>
-<h4>Table Helper Requirement</h4>
-<p>The table-building helper function used to construct tabular CLI output must support extracting each column's cell value in one of two ways for a given data record:</p>
+<p>Non-ASCII characters (for example <code>ß</code>) must be handled correctly by the output, without corruption or errors.</p>
+<h4>Requirement on the Table Helper</h4>
+<p>The helper function used to build tabular CLI output must support extracting each column's cell value in one of two ways for a given data record:</p>
 <ol>
-<li><strong>By key (string):</strong> the column is defined by a string that is used as a key/attribute name to look up the value on each record.</li>
-<li><strong>By value-extraction function (callable):</strong> the column is defined by a callable that receives a record and returns the value to display for that cell.</li>
+<li><strong>By key (string):</strong> the column is defined by a string that serves as a key/attribute name for looking up the value on each record.</li>
+<li><strong>By value-extraction function (callable):</strong> the column is defined by a callable that is handed a record and returns the value to display for that cell.</li>
 </ol>
-<p>Both forms must be accepted for defining columns, allowing a column's displayed value to be either a direct field lookup or a computed value derived from the record.</p>
-<h4>Notes / Removals</h4>
+<p>Both forms must be accepted for defining columns, so that a column's displayed value can be either a direct field lookup or a computed value derived from the record.</p>
+<h4>Notes and Removals</h4>
 <ul>
-<li>There is no longer any standalone standing-orders CLI test flow relevant to this task; do not add or preserve behavior specifically for a <code>standing_orders</code> command as part of this change.</li>
-<li>No direct programmatic <code>get_addresses()</code> accessor behavior is being tested here; only the CLI-facing <code>addresses</code> command behavior described above is required.</li>
+<li>No standalone standing-orders CLI test flow is relevant to this task any longer; as part of this change, do not add or preserve behavior specifically for a <code>standing_orders</code> command.</li>
+<li>Direct programmatic <code>get_addresses()</code> accessor behavior is not being tested here; only the behavior of the CLI-facing <code>addresses</code> command described above is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Add support for retrieving a user&#39;s standing orders from the N26 API and expose it as a CLI command.</span>
-        <span class="spec-meta muted">365 words · source specification
+        <span class="spec-title">Support for fetching a user&#39;s standing orders from the N26 API is to be added, with that capability exposed as a CLI command.</span>
+        <span class="spec-meta muted">394 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add a &quot;standing orders&quot; CLI command</h3>
-<h4>Overview</h4>
-<p>Add support for retrieving a user's standing orders from the N26 API and expose it as a CLI command. This involves an API-layer method and a Click-based CLI command that invokes it.</p>
-<h4>API layer</h4>
-<p>In the module <code>n26.api</code>, add a method to the existing API client class that retrieves standing orders.</p>
+      <div class="spec-body"><h3>Task: Introduce a &quot;standing orders&quot; CLI command</h3>
+<h4>Summary</h4>
+<p>Support for fetching a user's standing orders from the N26 API is to be added, with that capability exposed as a CLI command. Concretely, this means a method in the API layer plus a Click-based CLI command that invokes it.</p>
+<h4>API layer changes</h4>
+<p>Inside the module <code>n26.api</code>, extend the existing API client class with a method that fetches standing orders.</p>
 <ul>
-<li>The method must issue an HTTP <strong>GET</strong> request to the N26 standing-orders endpoint and return the parsed JSON response (a Python object built from the JSON body).</li>
-<li>The response is a JSON object with this general shape:
+<li>The method must send an HTTP <strong>GET</strong> request to the N26 standing-orders endpoint and return the parsed JSON response (i.e., a Python object built from the JSON body).</li>
+<li>The response is a JSON object whose general shape is:
 <ul>
-<li>A top-level <code>&quot;paging&quot;</code> object (containing <code>&quot;previous&quot;</code>, <code>&quot;next&quot;</code>, and <code>&quot;totalResults&quot;</code>).</li>
-<li>A top-level <code>&quot;data&quot;</code> array, where each element is a standing order object with fields such as: <code>id</code>, <code>created</code>, <code>updated</code>, <code>amount</code>, <code>currencyCode</code> (an object with a nested <code>currencyCode</code> string), <code>partnerIban</code>, <code>partnerBic</code>, <code>partnerName</code>, <code>partnerBankName</code>, <code>referenceText</code>, <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>executionFrequency</code> (e.g. <code>&quot;MONTHLY&quot;</code>, <code>&quot;WEEKLY&quot;</code>, <code>&quot;YEARLY&quot;</code>), <code>executionCounter</code>, <code>initialDayOfMonth</code>, and others. Some of these fields may be <code>null</code>.</li>
+<li>A <code>&quot;paging&quot;</code> object at the top level (containing <code>&quot;previous&quot;</code>, <code>&quot;next&quot;</code>, and <code>&quot;totalResults&quot;</code>).</li>
+<li>A <code>&quot;data&quot;</code> array at the top level, in which each element is a standing order object with fields such as: <code>id</code>, <code>created</code>, <code>updated</code>, <code>amount</code>, <code>currencyCode</code> (an object with a nested <code>currencyCode</code> string), <code>partnerIban</code>, <code>partnerBic</code>, <code>partnerName</code>, <code>partnerBankName</code>, <code>referenceText</code>, <code>firstExecutingTS</code>, <code>nextExecutingTS</code>, <code>stopTS</code>, <code>executionFrequency</code> (e.g. <code>&quot;MONTHLY&quot;</code>, <code>&quot;WEEKLY&quot;</code>, <code>&quot;YEARLY&quot;</code>), <code>executionCounter</code>, <code>initialDayOfMonth</code>, and others. Some of these fields may be <code>null</code>.</li>
 </ul>
 </li>
 </ul>
-<p>The method should simply return this parsed structure without further transformation.</p>
-<p>The module <code>n26.api</code> must also export a symbol named <code>GET</code> (the HTTP GET method identifier used by the request layer), importable as <code>from n26.api import GET</code>.</p>
-<h4>CLI layer</h4>
+<p>The method should simply return this parsed structure, applying no further transformation.</p>
+<p>The module <code>n26.api</code> must also export a symbol called <code>GET</code> (the identifier for the HTTP GET method that the request layer uses), importable as <code>from n26.api import GET</code>.</p>
+<h4>CLI layer changes</h4>
 <p>In the module <code>n26.cli</code>, add a Click command named <code>standing_orders</code> (importable as <code>from n26.cli import standing_orders</code>).</p>
-<p>Behavior when invoked:</p>
+<p>When invoked, the following behavior applies:</p>
 <ul>
 <li>It calls the API-layer standing-orders method to obtain the standing orders data.</li>
-<li>It formats and writes a human-readable representation of the standing orders to standard output.</li>
-<li>The command must always produce non-empty output on success (i.e., it prints something derived from the returned standing orders data rather than nothing).</li>
+<li>It formats a human-readable representation of the standing orders and writes it to standard output.</li>
+<li>On success, the command must always produce non-empty output (i.e., it prints something derived from the returned standing orders data rather than printing nothing).</li>
 </ul>
-<p>The command must be a valid Click command object that can be executed via Click's standard invocation mechanism and complete successfully (exit without error) when the API returns a well-formed standing-orders response as described above.</p>
+<p>The command must be a valid Click command object that can be executed through Click's standard invocation mechanism and that completes successfully (exits without error) when the API returns a well-formed standing-orders response as described above.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The CLI command and API method must integrate with the existing configuration and request infrastructure of the package (the same client construction and request-dispatch mechanism used by other API methods/CLI commands).</li>
-<li>No specific formatting layout of the printed output is mandated beyond it being non-empty and derived from the returned data.</li>
+<li>The CLI command and the API method must integrate with the package's existing configuration and request infrastructure (that is, the same client construction and request-dispatch mechanism used by other API methods/CLI commands).</li>
+<li>Beyond the output being non-empty and derived from the returned data, no specific formatting layout of the printed output is mandated.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Modify the standing_orders CLI command in the n26 package to display standing order information in a human-readable format, including converting timestamp…</span>
-        <span class="spec-meta muted">322 words · source specification
+        <span class="spec-title">Change the standing_orders CLI command that lives in the n26 package so that standing order information is displayed in a human-readable format</span>
+        <span class="spec-meta muted">379 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>standing_orders</code> CLI command in the <code>n26</code> package to display standing order information in a human-readable format, including converting timestamp values into readable date strings.</p>
-<h4>Public API Surface</h4>
-<p>The command must be importable as:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Change the <code>standing_orders</code> CLI command that lives in the <code>n26</code> package so that standing order information is displayed in a human-readable format; part of the change is turning timestamp values into readable date strings.</p>
+<h4>Public API</h4>
+<p>It must be possible to import the command as follows:</p>
 <pre><code class="language-python">from n26.cli import standing_orders
 </code></pre>
-<p><code>standing_orders</code> is a CLI command (Click command) that can be invoked without arguments. When invoked, it produces textual output (accessible via the command result's <code>.output</code> attribute).</p>
-<h4>Required Behavior</h4>
-<p>When the <code>standing_orders</code> command runs, it retrieves standing order data and renders it to output. The rendered output must contain the following pieces of information for the standing orders being displayed:</p>
+<p><code>standing_orders</code> is a CLI command (a Click command); no arguments are needed to invoke it. Once it has been invoked, textual output is produced, and this output can be accessed through the <code>.output</code> attribute of the command result.</p>
+<h4>Behavior Requirements</h4>
+<p>During a run of the <code>standing_orders</code> command, standing order data is fetched and rendered to the output. For the standing orders that are being displayed, the rendered output must contain the following details:</p>
 <ol>
 <li>
-<p><strong>Recipient / payee name</strong> — e.g. a value such as <code>Mr. Anderson</code> must appear in the output.</p>
+<p><strong>Name of the recipient / payee</strong> — for example, a value like <code>Mr. Anderson</code> must show up in the output.</p>
 </li>
 <li>
-<p><strong>Reference / description text</strong> — e.g. a value such as <code>INWX</code> must appear in the output.</p>
+<p><strong>Reference / description text</strong> — for instance, something along the lines of <code>INWX</code> must be present in the output.</p>
 </li>
 <li>
-<p><strong>A numeric field</strong> — e.g. a value such as <code>30</code> must appear in the output.</p>
+<p><strong>A numeric field</strong> — for example, a number like <code>30</code> must occur in the output.</p>
 </li>
 <li>
-<p><strong>Recurrence / execution frequency</strong> — the frequency values must be rendered as their textual names, specifically the strings <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code> must appear in the output (multiple standing orders with different frequencies are displayed).</p>
+<p><strong>Recurrence / execution frequency</strong> — when the frequency values are rendered, their textual names must be used; in particular, the output must contain the strings <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code> (multiple standing orders whose frequencies differ are being displayed).</p>
 </li>
 <li>
-<p><strong>A human-readable timestamp</strong> — any timestamp field associated with a standing order (originally provided as an epoch-based value) must be converted and rendered as a human-readable UTC date-time string. For a specific standing order, the output must contain the string:</p>
+<p><strong>A human-readable timestamp</strong> — any timestamp field that belongs to a standing order (supplied originally as an epoch-based value) must be converted and then rendered as a human-readable UTC date-time string. For one particular standing order, the string below must be present in the output:</p>
 <pre><code>2019-04-01 00:29:49.461000+00:00
 </code></pre>
-<p>This corresponds to a millisecond epoch timestamp converted to a timezone-aware (UTC) datetime rendered in its default string form (date, time with microsecond precision, and UTC offset).</p>
+<p>This string is the result of converting a millisecond epoch timestamp into a timezone-aware (UTC) datetime, which is then rendered using its default string form (date, time to microsecond precision, and the UTC offset).</p>
 </li>
 </ol>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The command must always produce non-<code>None</code> output.</li>
-<li>Timestamp conversion: input timestamps are expressed in milliseconds since the Unix epoch and must be converted to a UTC datetime whose string representation matches the format shown above (e.g. <code>2019-04-01 00:29:49.461000+00:00</code>).</li>
-<li>Frequency codes must be mapped to their human-readable uppercase names (<code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>).</li>
+<li>The command's output must always be non-<code>None</code>.</li>
+<li>Timestamp conversion: the input timestamps are given as milliseconds counted from the Unix epoch; they must be converted into a UTC datetime, and the datetime's string representation must match the format shown above (for example, <code>2019-04-01 00:29:49.461000+00:00</code>).</li>
+<li>A mapping from the frequency codes to their human-readable uppercase names (<code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>) must be applied.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Add a cards CLI Command</span>
-        <span class="spec-meta muted">544 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Introducing a cards CLI Command</span>
+        <span class="spec-meta muted">672 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add a <code>cards</code> CLI Command</h3>
-<h4>Overview</h4>
-<p>The project is a Python client for the N26 bank API, organized under the <code>n26</code> package. It provides both a programmatic API client and a command-line interface built with <code>click</code>. Add a CLI command named <code>cards</code> that lists the account's cards and renders selected card information as human-readable text.</p>
-<h4>Required Public API Surface</h4>
-<p>Provide a <code>click</code> command object named <code>cards</code> that is importable as:</p>
+      <div class="spec-body"><h3>Task Specification: Introducing a <code>cards</code> CLI Command</h3>
+<h4>Background</h4>
+<p>The <code>n26</code> package contains a Python client for the N26 bank API; this client comes with both a programmatic API client and a command-line interface implemented on top of <code>click</code>. Introduce a CLI command going by the name <code>cards</code>, one that lists the account's cards and presents selected card details as human-readable text.</p>
+<h4>Public API That Must Be Exposed</h4>
+<p>What is needed is a <code>click</code> command object bearing the name <code>cards</code>, importable in this manner:</p>
 <pre><code class="language-python">from n26.cli import cards
 </code></pre>
-<p>The object must be a callable <code>click</code> command, such as a function decorated as a command, and it must also be registered as the <code>cards</code> command of the package's existing CLI. It must therefore be invocable both directly with a <code>click</code> runner and through the normal command-line entry point, with its rendered text available on the invocation result's <code>output</code> stream.</p>
-<h4>Card Retrieval and Configuration</h4>
-<p>On invocation, <code>cards</code> must obtain the user's card list using the package's existing N26 API-client card-listing behavior (<code>Api.get_cards()</code>). The command must use the same configured-client conventions as the other commands in <code>n26.cli</code>.</p>
-<p>In particular, the command must continue to honor credentials/configuration and HTTP behavior supplied or overridden externally. It must not introduce a separate configuration path or bypass the package's established client behavior.</p>
-<h4>Required Output</h4>
-<p>For every card returned by the card-listing operation, render text containing all of the following values:</p>
+<p>This object must be a <code>click</code> command that is callable — a function decorated as a command is one acceptable form — and, beyond that, the package's existing CLI must have it registered under the command name <code>cards</code>. Both routes to invocation must therefore work: calling it directly with a <code>click</code> runner, and calling it through the normal command-line entry point; the invocation result's <code>output</code> stream must carry the rendered text.</p>
+<h4>Fetching Cards and Configuration</h4>
+<p>At the moment it runs, <code>cards</code> must get the user's card list by way of the card-listing behavior that already exists in the package's N26 API client (<code>Api.get_cards()</code>). The same configured-client conventions that the other commands in <code>n26.cli</code> follow must be observed by this command too.</p>
+<p>Credentials/configuration and HTTP behavior supplied or overridden externally must, in particular, keep being honored by the command. The command must not set up a configuration path of its own that is separate, nor bypass the client behavior the package has already established.</p>
+<h4>Output the Command Must Produce</h4>
+<p>For every card that comes back from the card-listing operation, the rendered text must contain all of the following values:</p>
 <ul>
-<li><strong>Card type:</strong> the product/brand value represented by the card's <code>cardType</code> data, such as <code>MASTERCARD</code> or <code>MAESTRO</code>.</li>
-<li><strong>Status:</strong> a human-readable, lowercase status. Raw API status codes must be normalized for display; specifically, <code>M_ACTIVE</code> must be displayed as <code>active</code>, not only as the raw <code>M_ACTIVE</code> code. An already human-readable lowercase status such as <code>active</code> remains suitable.</li>
-<li><strong>Masked PAN:</strong> a display-safe card number containing the first 6 digits, exactly 6 asterisks, and the last 4 digits, for example <code>123456******1234</code>.</li>
+<li><strong>Card type:</strong> the product/brand value carried in the card's <code>cardType</code> data — for instance <code>MASTERCARD</code> or <code>MAESTRO</code>.</li>
+<li><strong>Status:</strong> a status that is lowercase and human-readable. Raw API status codes must go through normalization for display; <code>M_ACTIVE</code> is the specific case: it must be displayed as <code>active</code>, and showing only the raw <code>M_ACTIVE</code> code does not meet the requirement. A status that is human-readable and lowercase already — <code>active</code>, for instance — remains suitable as is.</li>
+<li><strong>Masked PAN:</strong> a display-safe card number, made up of the first 6 digits, then exactly 6 asterisks, then the last 4 digits; <code>123456******1234</code> serves as an example.</li>
 </ul>
-<h5>Masked-PAN Response Variants</h5>
-<p>The command must support both card-number representations returned by the card API:</p>
+<h5>Variants in the Masked-PAN Response</h5>
+<p>Both card-number representations that come back from the card API must be supported by the command:</p>
 <ol>
-<li>When usable raw PAN data is present in <code>pan</code>, derive the displayed masked PAN in the command's rendering behavior by retaining the first 6 and last 4 digits and replacing the middle with exactly 6 asterisks. Do not assume raw PAN data is already masked.</li>
-<li>A valid card response may omit the raw PAN or set <code>pan</code> to <code>null</code> while providing a display-safe value in <code>maskedPan</code>. In that case, render the supplied <code>maskedPan</code> value. For example, a card with no raw PAN and <code>maskedPan</code> equal to <code>123456******1234</code> must still display <code>123456******1234</code>.</li>
+<li>If <code>pan</code> holds usable raw PAN data, the command's rendering behavior must derive the displayed masked PAN from that data: the first 6 digits and the last 4 are kept, while the middle is replaced with exactly 6 asterisks. Do not start from the assumption that raw PAN data is already masked.</li>
+<li>A valid card response may omit the raw PAN or assign <code>null</code> to <code>pan</code>, while a display-safe value sits in <code>maskedPan</code>. In that situation, it is the supplied <code>maskedPan</code> value that must be rendered. Take, for illustration, a card that has no raw PAN and whose <code>maskedPan</code> is equal to <code>123456******1234</code>; the output must still display <code>123456******1234</code>.</li>
 </ol>
-<p>Thus, rendering must not require a non-null raw PAN, and the PAN shown to the user must remain masked.</p>
-<h4>Multiple Cards and Formatting</h4>
-<p>All returned cards must be represented. If the account has multiple cards, the required type, normalized status, and masked PAN values for each card must appear in the output; for example, <code>MASTERCARD</code> and <code>MAESTRO</code> may both need to appear in one invocation.</p>
-<p>The exact ordering, table layout, labels, whitespace, and surrounding formatting are unconstrained. Each required value must appear as visible text in the command output.</p>
-<h4>Scope and Compatibility</h4>
-<p>Only the new <code>cards</code> command and its card-output rendering are in scope. Reuse the existing card-list API support, and preserve the behavior and public interfaces of the programmatic client and all existing CLI commands.</p>
+<p>Consequently, rendering must not require the raw PAN to be non-null, and the PAN the user is shown must stay masked.</p>
+<h4>Multiple Cards and How the Output Is Formatted</h4>
+<p>The output must represent all of the returned cards. When multiple cards belong to the account, each card's required type, normalized status, and masked PAN values must show up in the output; <code>MASTERCARD</code> and <code>MAESTRO</code>, for example, may both need to appear within a single invocation.</p>
+<p>Nothing constrains the exact ordering, the table layout, the labels, the whitespace, or the formatting surrounding them. The command output must contain each required value as visible text.</p>
+<h4>Scope Boundaries and Compatibility</h4>
+<p>In scope are only the new <code>cards</code> command and the rendering it performs for card output. The existing card-list API support must be reused, and the behavior and public interfaces of the programmatic client and of all existing CLI commands must be preserved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">You will work on the n26 Python package, which provides a client API and a command-line interface (CLI) for interacting with an N26 banking backend.</span>
-        <span class="spec-meta muted">374 words · source specification
+        <span class="spec-title">Your work takes place in the n26 Python package, which offers a client API and a command-line interface (CLI) for communicating with an N26 banking backend.</span>
+        <span class="spec-meta muted">407 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You will work on the <code>n26</code> Python package, which provides a client API and a command-line interface (CLI) for interacting with an N26 banking backend. This task involves two independent changes: exposing a card-retrieval method on the API client, and improving how standing-order execution days are rendered in CLI output.</p>
-<h4>Change 1: Card retrieval on the API client</h4>
-<p>The API client class used throughout the package (the same instance that other client methods live on) must expose a public method for retrieving cards:</p>
+      <div class="spec-body"><h4>Task Overview</h4>
+<p>Your work takes place in the <code>n26</code> Python package, which offers a client API and a command-line interface (CLI) for communicating with an N26 banking backend. The task consists of two independent changes: exposing a card-retrieval method on the API client, and improving the way standing-order execution days are rendered in the CLI output.</p>
+<h4>Change 1: Retrieving cards on the API client</h4>
+<p>The API client class used throughout the package (the same instance on which the other client methods live) must expose a public method for retrieving cards:</p>
 <pre><code class="language-python">def get_cards(self)
 </code></pre>
 <ul>
-<li><strong>Signature:</strong> takes no arguments other than <code>self</code>.</li>
-<li><strong>Behavior:</strong> performs the backend request to fetch the account's cards and returns the resulting data.</li>
-<li><strong>Return value:</strong> must return a non-<code>None</code> value representing the retrieved cards.</li>
+<li><strong>Signature:</strong> it takes no arguments other than <code>self</code>.</li>
+<li><strong>Behavior:</strong> it carries out the backend request that fetches the account's cards and returns the resulting data.</li>
+<li><strong>Return value:</strong> it must return a non-<code>None</code> value representing the retrieved cards.</li>
 </ul>
-<p>The method must be callable directly on an instance of the API client.</p>
-<h4>Change 2: Ordinal formatting of standing-order execution days</h4>
-<p>The CLI command that lists standing orders renders each order's details, including the day of the month on which the order executes.</p>
-<p>Currently, execution days are printed as plain integers. They must instead be printed as <strong>English ordinal strings</strong> for the day-of-month value.</p>
-<p>Specifically, in the rendered CLI output for standing orders:</p>
+<p>The method must be directly callable on an instance of the API client.</p>
+<h4>Change 2: Ordinal formatting for standing-order execution days</h4>
+<p>In the CLI command that lists standing orders, the details of each order are rendered, among them the day of the month on which the order executes.</p>
+<p>At present, execution days are printed as plain integers; instead, they must be printed as <strong>English ordinal strings</strong> for the day-of-month value.</p>
+<p>Concretely, within the rendered CLI output for standing orders:</p>
 <ul>
-<li>A day value of <code>1</code> must appear as <code>1st</code>.</li>
-<li>A day value of <code>30</code> must appear as <code>30th</code>.</li>
+<li>When the day value is <code>1</code>, it must appear as <code>1st</code>.</li>
+<li>When the day value is <code>30</code>, it must appear as <code>30th</code>.</li>
 </ul>
-<p>The ordinal formatting must produce the correct English ordinal suffix for day-of-month values, including values greater than <code>3</code> (e.g., <code>30</code> → <code>30th</code>, not <code>30rd</code> or similar). Standard English ordinal rules apply:</p>
+<p>For day-of-month values, the ordinal formatting must produce the correct English ordinal suffix, including for values greater than <code>3</code> (e.g., <code>30</code> → <code>30th</code>, not <code>30rd</code> or similar). The standard rules for English ordinals apply:</p>
 <ul>
 <li><code>1</code> → <code>1st</code>, <code>2</code> → <code>2nd</code>, <code>3</code> → <code>3rd</code></li>
-<li><code>4</code> through <code>20</code>, and any value ending in <code>4</code>–<code>0</code>, use <code>th</code></li>
-<li>Values ending in <code>1</code>, <code>2</code>, <code>3</code> use <code>st</code>, <code>nd</code>, <code>rd</code> respectively, except the <code>11</code>–<code>13</code> range which uses <code>th</code>.</li>
+<li>Values from <code>4</code> through <code>20</code>, and any value ending in <code>4</code>–<code>0</code>, use <code>th</code></li>
+<li>Values that end in <code>1</code>, <code>2</code>, <code>3</code> use <code>st</code>, <code>nd</code>, <code>rd</code> respectively, except for the <code>11</code>–<code>13</code> range, which uses <code>th</code>.</li>
 </ul>
-<p>The rest of the standing-order output must continue to include the other order details already shown (such as the payee name, reference text, and the recurrence frequency labels <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code>).</p>
+<p>The remainder of the standing-order output must continue to include the other order details already shown (such as the payee name, the reference text, and the recurrence frequency labels <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code>).</p>
 <h4>Constraints</h4>
 <ul>
-<li>The existing CLI command for listing standing orders and its output structure remain in place; only the day-of-month rendering changes to use ordinal strings.</li>
-<li><code>get_cards</code> must be a new public method on the API client with the exact name and signature given above.</li>
+<li>The existing CLI command for listing standing orders, along with its output structure, remains in place; the only modification is that the day-of-month rendering changes to use ordinal strings.</li>
+<li><code>get_cards</code> must be a new public method on the API client, bearing the exact name and signature given above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">You will implement a new CLI command for setting account spending limits, and support a related test helper capability.</span>
-        <span class="spec-meta muted">509 words · source specification
+        <span class="spec-title">You are to implement a new CLI command for configuring account spending limits, and to add a related test helper capability.</span>
+        <span class="spec-meta muted">552 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You will implement a new CLI command for setting account spending limits, and support a related test helper capability. The changes span the public API module, the CLI module, and a test support module.</p>
+<p>You are to implement a new CLI command for configuring account spending limits, and to add a related test helper capability. The changes touch the public API module, the CLI module, and a test support module.</p>
 <h4>1. <code>POST</code> symbol in <code>n26.api</code></h4>
-<p>The module <code>n26.api</code> must expose a <code>POST</code> name (analogous to the existing <code>GET</code>). This represents the HTTP POST method and must be importable via <code>from n26.api import GET, POST</code>.</p>
-<h4>2. <code>set_limits</code> CLI command</h4>
-<p>Add a new command named <code>set_limits</code> to the <code>n26.cli</code> module, importable via <code>from n26.cli import set_limits</code>.</p>
-<h5>Options</h5>
-<p>The command accepts two options:</p>
+<p>The module <code>n26.api</code> must expose a <code>POST</code> name (paralleling the existing <code>GET</code>). This stands for the HTTP POST method and must be importable via <code>from n26.api import GET, POST</code>.</p>
+<h4>2. The <code>set_limits</code> CLI command</h4>
+<p>A new command called <code>set_limits</code> is to be added to the <code>n26.cli</code> module, importable via <code>from n26.cli import set_limits</code>.</p>
+<h5>Command options</h5>
+<p>Two options are accepted by the command:</p>
 <ul>
-<li><code>--withdrawal</code> — a numeric value representing the ATM daily withdrawal limit.</li>
-<li><code>--payment</code> — a numeric value representing the POS (point-of-sale) daily payment limit.</li>
+<li><code>--withdrawal</code> — a numeric value standing for the ATM daily withdrawal limit.</li>
+<li><code>--payment</code> — a numeric value standing for the POS (point-of-sale) daily payment limit.</li>
 </ul>
-<p>Both are passed as separate options, e.g. <code>--withdrawal 2500 --payment 2500</code>.</p>
-<h5>Behavior</h5>
-<p>When invoked, the command must:</p>
+<p>Both are supplied as distinct options, e.g. <code>--withdrawal 2500 --payment 2500</code>.</p>
+<h5>Behavior of the command</h5>
+<p>Once invoked, the command must:</p>
 <ol>
-<li>Set the account limits according to the provided <code>--withdrawal</code> and <code>--payment</code> values. Setting the limits is performed via an HTTP POST request (which may return a response with no JSON body).</li>
-<li>After setting the limits, retrieve the current account limits via an HTTP GET request and render them to standard output.</li>
+<li>Configure the account limits according to the given <code>--withdrawal</code> and <code>--payment</code> values. The limits are set by way of an HTTP POST request (a response with no JSON body may be returned).</li>
+<li>After the limits have been set, fetch the current account limits using an HTTP GET request and render them to standard output.</li>
 </ol>
-<h5>Output</h5>
-<p>The rendered output must include, for the current limits:</p>
+<h5>Rendered output</h5>
+<p>For the current limits, the rendered output must include:</p>
 <ul>
-<li>The literal string <code>ATM_DAILY_ACCOUNT</code> (the withdrawal limit category).</li>
-<li>The literal string <code>POS_DAILY_ACCOUNT</code> (the payment limit category).</li>
-<li>The numeric limit amount(s), e.g. <code>2500</code>, shown as text.</li>
+<li>The literal string <code>ATM_DAILY_ACCOUNT</code> (the category of the withdrawal limit).</li>
+<li>The literal string <code>POS_DAILY_ACCOUNT</code> (the category of the payment limit).</li>
+<li>The numeric limit amount(s), e.g. <code>2500</code>, presented as text.</li>
 </ul>
-<p>The GET response used for rendering is structured the same way as the account limits response used by the existing &quot;limits&quot; listing command (a list of limit entries, each having a category identifier such as <code>ATM_DAILY_ACCOUNT</code> / <code>POS_DAILY_ACCOUNT</code> and an associated amount). Rendering must produce a human-readable representation of these entries containing the category names and amounts.</p>
-<h4>3. Standing orders rendering</h4>
-<p>The rendering of a standing order's day-of-month field must output the raw numeric day value (e.g. <code>30</code>) as plain text, rather than an ordinal-formatted string (e.g. it must not be transformed into <code>30th</code> or <code>1st</code>). All other existing standing-order output (payee name, reference, and recurrence period strings such as <code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>) must remain present.</p>
-<h4>4. Test support: optional response body</h4>
-<p>The test helper module <code>tests/test_api_base.py</code> must support mocking an HTTP response that has no JSON body:</p>
+<p>The GET response that is rendered has the same structure as the account limits response that the existing &quot;limits&quot; listing command relies on (a list of limit entries, where each entry has a category identifier such as <code>ATM_DAILY_ACCOUNT</code> / <code>POS_DAILY_ACCOUNT</code> and an associated amount). The rendering must produce a human-readable representation of these entries that contains the category names and amounts.</p>
+<h4>3. Rendering of standing orders</h4>
+<p>The day-of-month field of a standing order must be output as the raw numeric day value (e.g. <code>30</code>) in plain text, not as an ordinal-formatted string (e.g. it must not be transformed into <code>30th</code> or <code>1st</code>). All of the other existing standing-order output (payee name, reference, and recurrence period strings such as <code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>) must remain present.</p>
+<h4>4. Test support: response body that may be absent</h4>
+<p>The test helper module <code>tests/test_api_base.py</code> must make it possible to mock an HTTP response that comes with no JSON body:</p>
 <ul>
-<li><code>read_response_file(file_name)</code> must accept <code>None</code> as the file name and, in that case, return <code>None</code> (instead of attempting to read a file). For a real file name it continues to return the file's contents.</li>
-<li>The <code>mock_requests(method, response_file, url_regex=None)</code> decorator must accept <code>response_file=None</code>. When <code>response_file</code> is <code>None</code>, the mocked response has an empty content body and its JSON accessor returns <code>None</code>. When a file name is given, the mocked response's content is the string form of the file contents and its JSON accessor returns the parsed contents.</li>
-<li><code>N26TestBase.get_api_response(filename)</code> must return <code>None</code> when the underlying file read yields <code>None</code>, and otherwise return the parsed JSON dict.</li>
+<li><code>read_response_file(file_name)</code> must accept <code>None</code> as the file name and, when that is the case, return <code>None</code> (rather than trying to read a file). For a real file name, it keeps returning the file's contents.</li>
+<li>The <code>mock_requests(method, response_file, url_regex=None)</code> decorator must accept <code>response_file=None</code>. When <code>response_file</code> is <code>None</code>, the content body of the mocked response is empty and its JSON accessor returns <code>None</code>. When a file name is supplied, the mocked response's content is the file contents in string form and its JSON accessor returns the parsed contents.</li>
+<li><code>N26TestBase.get_api_response(filename)</code> must return <code>None</code> when the file read underneath yields <code>None</code>, and otherwise must return the parsed JSON dict.</li>
 </ul>
-<p>These test-support changes must allow a command flow where one mocked request (the POST) has no response body and another (the GET) returns a JSON body.</p>
+<p>These changes to the test support must allow a command flow in which one mocked request (the POST) has no response body and another (the GET) returns a JSON body.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Modify the standing orders output formatting so that day-of-month values are rendered as ordinal strings (e.g., 1st, 30th) instead of plain integers.</span>
-        <span class="spec-meta muted">201 words · source specification
+        <span class="spec-title">Change the formatting of the standing orders output so that day-of-month values are displayed as ordinal strings (for example, 1st, 30th) instead of plain…</span>
+        <span class="spec-meta muted">214 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the standing orders output formatting so that day-of-month values are rendered as ordinal strings (e.g., <code>1st</code>, <code>30th</code>) instead of plain integers.</p>
-<h4>Required Behavior</h4>
-<p>When standing orders are displayed, any day-of-month value associated with a standing order must appear in its ordinal English form rather than as a bare number.</p>
-<p>Specifically:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Change the formatting of the standing orders output so that day-of-month values are displayed as ordinal strings (for example, <code>1st</code>, <code>30th</code>) instead of plain integers.</p>
+<h4>Behavior Requirements</h4>
+<p>Whenever standing orders are displayed, any day-of-month value linked to a standing order must be presented in its ordinal English form rather than as a bare number.</p>
+<p>In particular:</p>
 <ul>
-<li>A day value of <code>1</code> must appear in the output as <code>1st</code>.</li>
-<li>A day value of <code>30</code> must appear in the output as <code>30th</code>.</li>
+<li>A day value of <code>1</code> must be represented in the output as <code>1st</code>.</li>
+<li>A day value of <code>30</code> must be represented in the output as <code>30th</code>.</li>
 </ul>
-<p>This ordinal conversion must correctly handle numbers greater than 3 (which use the <code>th</code> suffix rather than <code>st</code>/<code>nd</code>/<code>rd</code>).</p>
-<h4>Output Content</h4>
-<p>The rendered output for standing orders must continue to include:</p>
+<p>The ordinal conversion must handle numbers greater than 3 correctly (these take the <code>th</code> suffix rather than <code>st</code>/<code>nd</code>/<code>rd</code>).</p>
+<h4>Content of the Output</h4>
+<p>The output rendered for standing orders must continue to include:</p>
 <ul>
-<li>The recipient/name field (e.g., a name like <code>Mr. Anderson</code>).</li>
-<li>The reference/description field (e.g., <code>INWX</code>).</li>
-<li>The execution frequency values, which may include <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code>.</li>
+<li>The recipient/name field (for example, a name such as <code>Mr. Anderson</code>).</li>
+<li>The reference/description field (for example, <code>INWX</code>).</li>
+<li>The execution frequency values; these may include <code>WEEKLY</code>, <code>MONTHLY</code>, and <code>YEARLY</code>.</li>
 </ul>
-<p>The only change to existing behavior is that day-of-month numeric values are now formatted as ordinals as described above; all other content that was previously present must remain present.</p>
-<h4>Scope</h4>
-<p>Do not change the set of fields shown or the frequency labels. The sole functional change is the ordinal formatting of day-of-month values in the standing orders output.</p>
+<p>Existing behavior changes in only one way: day-of-month numeric values are now formatted as ordinals as described above; all other content that existed previously must remain present.</p>
+<h4>Scope of the Change</h4>
+<p>Do not alter the set of fields shown or the frequency labels. The ordinal formatting of day-of-month values in the standing orders output is the sole functional change.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Extend the N26 Python client&#39;s command-line interface with a card-listing command and change the way dates are displayed by the existing standing-orders…</span>
-        <span class="spec-meta muted">499 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The command-line interface of the N26 Python client is to gain a command for listing cards, and the existing standing-orders command is to display its dates…</span>
+        <span class="spec-meta muted">592 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Extend the N26 Python client's command-line interface with a card-listing command and change the way dates are displayed by the existing standing-orders command. The card command is additive; the standing-orders change is a presentation-only change. Existing API, configuration, authentication, and unrelated CLI behavior must remain compatible.</p>
-<h4>Part 1: New <code>cards</code> CLI Command</h4>
-<h5>Public API surface</h5>
-<p>Add a Click command named <code>cards</code>. It must:</p>
+      <div class="spec-body"><h3>Specification for the Task</h3>
+<h4>Overview</h4>
+<p>The command-line interface of the N26 Python client is to gain a command for listing cards, and the existing standing-orders command is to display its dates differently. The card command is additive; on the standing-orders side, the change is presentation-only. Compatibility must be retained for the existing API, configuration, authentication, and unrelated CLI behavior.</p>
+<h4>Part 1: New CLI Command <code>cards</code></h4>
+<h5>The public API surface</h5>
+<p>A Click command called <code>cards</code> is to be added. It must:</p>
 <ul>
 <li>
-<p>Be importable as:</p>
+<p>Be importable in the following way:</p>
 <pre><code class="language-python">from n26.cli import cards
 </code></pre>
 </li>
 <li>
-<p>Be registered with the existing top-level CLI group under the command name <code>cards</code>, so it can be invoked as <code>n26 cards</code>.</p>
+<p>Be registered with the existing top-level CLI group under the command name <code>cards</code>, so that it can be invoked as <code>n26 cards</code>.</p>
 </li>
 <li>
-<p>Require no arguments and be executable as a normal Click command.</p>
+<p>Require no arguments in order to run, and be executable as a normal Click command.</p>
 </li>
 </ul>
-<h5>Card retrieval and output</h5>
-<p>On each invocation, the command must retrieve the user's card list through the client's existing cards-retrieval capability and print a human-readable representation to standard output. Every card returned by the API must be represented.</p>
-<p>For each card, stdout must contain the following values as literal, case-sensitive substrings:</p>
+<h5>Retrieving the cards and printing them</h5>
+<p>Each time the command runs, it must fetch the user's card list by way of the client's existing cards-retrieval capability, and a human-readable representation must be printed to standard output. Every card that the API returns must be represented.</p>
+<p>For each card, the values listed below must be present in stdout as literal, case-sensitive substrings:</p>
 <ol>
 <li>
-<p><strong>Card type</strong> — the card's type value, such as <code>MASTERCARD</code> or <code>MAESTRO</code>.</p>
+<p><strong>Card type</strong> — the value the card has for its type, such as <code>MASTERCARD</code> or <code>MAESTRO</code>.</p>
 </li>
 <li>
-<p><strong>Card status/state</strong> — a human-readable status value. In particular, the API status code <code>M_ACTIVE</code> must be normalized to and displayed as the exact lowercase text <code>active</code>; displaying only <code>M_ACTIVE</code> does not satisfy this requirement.</p>
+<p><strong>Card status/state</strong> — a status value in human-readable form. Specifically, the API status code <code>M_ACTIVE</code> must be normalized to the exact lowercase text <code>active</code> and displayed in that form; displaying only <code>M_ACTIVE</code> does not satisfy this requirement.</p>
 </li>
 <li>
-<p><strong>Masked PAN</strong> — a value derived from the card data in the form <code>&lt;first 6 digits&gt;******&lt;last 4 digits&gt;</code>. The middle must consist of exactly six asterisks, preserving the six leading and four trailing digits. For example:</p>
+<p><strong>Masked PAN</strong> — a value built from the card data, matching the pattern <code>&lt;first 6 digits&gt;******&lt;last 4 digits&gt;</code>. Exactly six asterisks must make up the middle, with the six leading digits and the four trailing digits retained. As an example:</p>
 <pre><code class="language-text">123456******1234
 </code></pre>
 </li>
 </ol>
-<p>The command must not reveal the masked middle digits. The precise table, column headings, spacing, and overall layout are otherwise unconstrained, provided each card's required values appear in stdout.</p>
-<h4>Part 2: Standing-Orders Date Formatting</h4>
-<h5>Public API surface</h5>
-<p>The existing Python command object must remain importable as <code>standing_orders</code> from <code>n26.cli</code> and remain available from the CLI as <code>standing-orders</code>.</p>
-<h5>Required date representation</h5>
-<p>Every non-null date or timestamp displayed in a standing-order row must be rendered as a date-only value in zero-padded US short-date format:</p>
+<p>The masked middle digits must not be revealed by the command. Apart from this, there are no constraints on the precise table, the column headings, the spacing, or the overall layout, provided that each card's required values appear in stdout.</p>
+<h4>Part 2: Date Formatting for the Standing-Orders Command</h4>
+<h5>The public API surface</h5>
+<p>It must still be possible to import the existing Python command object as <code>standing_orders</code> from <code>n26.cli</code>, and the CLI must continue to offer it as <code>standing-orders</code>.</p>
+<h5>The required date representation</h5>
+<p>Every date or timestamp that is non-null and appears in a standing-order row must be rendered as a date-only value in the zero-padded US short-date format:</p>
 <pre><code class="language-text">MM/DD/YY
 </code></pre>
-<p>This applies to the command's displayed date columns, including Until, First execution, Next execution, Created, and Updated whenever those values are present. No time-of-day, fractional seconds, timezone, or full ISO datetime representation may be included for these fields.</p>
-<p>For example, a timestamp whose date is October 30, 2018 must appear as the literal substring:</p>
+<p>The date columns the command displays fall under this rule, including Until, First execution, Next execution, Created, and Updated, whenever those values are present. Time-of-day, fractional seconds, a timezone, or a full ISO datetime representation may not be included for these fields.</p>
+<p>To give an example, a timestamp whose date is October 30, 2018 must appear as the literal substring:</p>
 <pre><code class="language-text">10/30/18
 </code></pre>
-<p>rather than as a full datetime value. Other standing-order content and behavior must remain unchanged.</p>
-<h4>Compatibility and Scope</h4>
+<p>and not as a full datetime value. The rest of the standing-order content and behavior must stay unchanged.</p>
+<h4>Scope and Compatibility</h4>
 <ul>
-<li>Both commands must continue to use the library's existing N26 API client and established request/response handling. No replacement cards or standing-orders API is required.</li>
-<li>The response structures are those already consumed by the client; this task changes CLI presentation rather than the API client's returned data.</li>
-<li>Existing commands, including card blocking and unblocking, must continue to behave as before.</li>
-<li>The date-formatting requirement is specifically for dates displayed by the standing-orders command; unrelated command contracts must not regress.</li>
+<li>Both commands must keep using the library's existing N26 API client together with its established request/response handling. A replacement cards or standing-orders API is not required.</li>
+<li>The response structures involved are ones the client already consumes; what this task changes is CLI presentation, not the data that the API client returns.</li>
+<li>The existing commands — among them card blocking and unblocking — must keep behaving as they did previously.</li>
+<li>The requirement about date formatting applies specifically to the dates shown by the standing-orders command; the contracts of unrelated commands must not regress.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Modify the command-line interface for the n26 banking client so that the transactions command accepts optional --from and --to date-range parameters that…</span>
-        <span class="spec-meta muted">270 words · source specification
+        <span class="spec-title">Update the command-line interface of the n26 banking client so that the transactions command accepts the optional --from and --to parameters defining a date…</span>
+        <span class="spec-meta muted">297 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the command-line interface for the n26 banking client so that the <code>transactions</code> command accepts optional <code>--from</code> and <code>--to</code> date-range parameters that parse date strings supplied in multiple accepted formats.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Update the command-line interface of the n26 banking client so that the <code>transactions</code> command accepts the optional <code>--from</code> and <code>--to</code> parameters defining a date range, which parse date strings supplied in multiple accepted formats.</p>
 <h4>Public API Surface</h4>
-<p>The module <code>n26.cli</code> must expose a Click command named <code>transactions</code> (i.e., importable as <code>from n26.cli import transactions</code>).</p>
-<h4>Required Behavior</h4>
+<p>A Click command called <code>transactions</code> must be exposed by the module <code>n26.cli</code> (that is, importable as <code>from n26.cli import transactions</code>).</p>
+<h4>Behavior Requirements</h4>
 <h5>The <code>transactions</code> command</h5>
-<p>The <code>transactions</code> command must be invocable through the Click testing runner both:</p>
+<p>It must be possible to invoke the <code>transactions</code> command through the Click testing runner in both of the following ways:</p>
 <ol>
-<li>With <strong>no</strong> arguments, and</li>
-<li>With the arguments <code>--from</code> and <code>--to</code>, each followed by a date string.</li>
+<li>Supplying <strong>no</strong> arguments, and</li>
+<li>Supplying the arguments <code>--from</code> and <code>--to</code>, each of them followed by a date string.</li>
 </ol>
-<p>When invoked, the command must produce non-empty output (the command must write something to standard output that can be retrieved from the invocation result).</p>
-<h5>Date parsing for <code>--from</code> and <code>--to</code></h5>
-<p>The <code>--from</code> and <code>--to</code> options must each accept a date provided as a string, and the parsing must succeed for <strong>at least</strong> the following distinct date-string formats:</p>
+<p>Once invoked, the command must produce non-empty output (it must write something to standard output that can be retrieved from the invocation result).</p>
+<h5>Parsing of the <code>--from</code> and <code>--to</code> dates</h5>
+<p>Each of the <code>--from</code> and <code>--to</code> options must accept a date supplied as a string, and parsing must succeed for <strong>at least</strong> these distinct date-string formats:</p>
 <ul>
 <li><code>MM/DD/YYYY</code> — e.g. <code>01/30/2019</code></li>
 <li><code>DD.MM.YYYY</code> — e.g. <code>30.01.2020</code></li>
 </ul>
-<p>Both option values must be parsed into date/time values using a shared parsing routine that recognizes these formats. A single invocation may mix the two formats (one option in one format, the other option in a different format), and both must parse correctly within the same command run.</p>
-<p>Both <code>--from</code> and <code>--to</code> are optional; the command must still run and produce output when neither is provided.</p>
+<p>The values of both options must be parsed into date/time values by a shared parsing routine that recognizes these formats. A single invocation may mix the two formats (one option given in one format, the other option in a different format), and both must parse correctly within the same command run.</p>
+<p><code>--from</code> and <code>--to</code> are both optional; when neither of them is provided, the command must still run and produce output.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The command must not raise or error when supplied with the supported date formats above.</li>
-<li>The command must not raise or error when supplied with no date arguments.</li>
-<li>Output must always be present (non-<code>None</code>) after the command completes.</li>
+<li>The command must not raise or error when it is supplied with the supported date formats above.</li>
+<li>The command must not raise or error when it is supplied with no date arguments.</li>
+<li>After the command completes, output must always be present (non-<code>None</code>).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Modify the existing Python client library for the N26 banking API by exposing its URL-building utility at module level and adjusting authentication-token…</span>
-        <span class="spec-meta muted">636 words · rewritten by Claude Fable 5
+        <span class="spec-title">Update the existing Python client library for the N26 banking API by exposing its URL-building utility at module level and by adjusting how authentication…</span>
+        <span class="spec-meta muted">687 words · rewritten by Claude Fable 5, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the existing Python client library for the N26 banking API by exposing its URL-building utility at module level and adjusting authentication-token retrieval behavior. The existing <code>transactions</code> command must also remain usable without filters or other arguments. These are the only required changes; unrelated API and CLI behavior must remain compatible.</p>
-<h4>Required Changes</h4>
-<h5>1. Provide a module-level <code>create_request_url</code> function</h5>
-<p>Create the following public function in <code>n26.util</code>:</p>
+<p>Update the existing Python client library for the N26 banking API by exposing its URL-building utility at module level and by adjusting how authentication tokens are retrieved. The existing <code>transactions</code> command must likewise remain usable without filters or other arguments. These are the only changes that are required; unrelated API and CLI behavior must stay compatible.</p>
+<h4>Required Modifications</h4>
+<h5>1. Supply <code>create_request_url</code> as a module-level function</h5>
+<p>Add the following public function to <code>n26.util</code>:</p>
 <pre><code class="language-python">def create_request_url(base_url, params):
     ...
 </code></pre>
-<p>The function must:</p>
+<p>This function must:</p>
 <ul>
 <li>
-<p>Accept a base URL string and a dictionary of query parameters.</p>
+<p>Accept a base URL string together with a dictionary of query parameters.</p>
 </li>
 <li>
-<p>Return one URL string consisting of the base URL followed by the query string.</p>
+<p>Return a single URL string made up of the base URL followed by the query string.</p>
 </li>
 <li>
-<p>Separate the base URL from the query string with <code>?</code>.</p>
+<p>Use <code>?</code> to separate the base URL from the query string.</p>
 </li>
 <li>
-<p>Render each parameter as <code>key=value</code> and join parameter pairs with <code>&amp;</code>.</p>
+<p>Each parameter must be rendered as <code>key=value</code>, and the parameter pairs must be joined with <code>&amp;</code>.</p>
 </li>
 <li>
-<p>Order parameters in ascending lexicographic (alphabetical) order by key, regardless of the dictionary's insertion order.</p>
+<p>Order the parameters by key in ascending lexicographic (alphabetical) order, regardless of the dictionary's insertion order.</p>
 </li>
 <li>
-<p>Be directly importable with:</p>
+<p>Be directly importable using:</p>
 <pre><code class="language-python">from n26.util import create_request_url
 </code></pre>
 </li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">create_request_url(
     &quot;https://api.tech26.de&quot;,
     {&quot;foo&quot;: &quot;bar&quot;, &quot;bar&quot;: &quot;baz&quot;},
 )
 </code></pre>
-<p>must return exactly:</p>
+<p>must return exactly the following:</p>
 <pre><code class="language-text">https://api.tech26.de?bar=baz&amp;foo=bar
 </code></pre>
-<p><code>bar</code> precedes <code>foo</code> because ordering is determined by the keys, not by the order in which the dictionary entries were supplied.</p>
-<p>This module-level function is the shared URL-building API. It is not sufficient for the behavior to exist only as a private or class-level helper; client requests that append query parameters must retain the same URL-building behavior through the shared utility.</p>
-<h5>2. Token retrieval on the API client</h5>
-<p>The primary API client, <code>n26.api.Api</code>, must expose the public method:</p>
+<p><code>bar</code> precedes <code>foo</code> because what determines the ordering is the keys, not the order in which the dictionary entries were supplied.</p>
+<p>This module-level function acts as the shared URL-building API. It does not suffice for the behavior to exist only as a private or class-level helper; client requests that append query parameters must retain the same URL-building behavior via the shared utility.</p>
+<h5>2. Retrieval of tokens on the API client</h5>
+<p>The primary API client, <code>n26.api.Api</code>, must expose the following public method:</p>
 <pre><code class="language-python">def get_token(self):
     ...
 </code></pre>
 <p>The method must:</p>
 <ul>
-<li>Return the currently valid access token itself as a plain string (for example, a value such as <code>'12345678-1234-1234-1234-123456789012'</code>). It must <strong>not</strong> return the full token-data dictionary or any other wrapper object.</li>
-<li>Return a value that compares equal to the access-token string, so a caller can use the return value directly (for example, as the bearer token in an <code>Authorization</code> header) and can compare it directly against an expected access-token string.</li>
-<li>Be sufficient by itself to obtain a usable access token. A caller must not need to invoke a separate explicit refresh operation before the returned string can be used.</li>
-<li>Handle token acquisition or refresh internally as needed when no currently valid token is available, and return the resulting access-token string from that same <code>get_token()</code> call. Any token-data bookkeeping (such as tracking expiry or refresh tokens) is internal and must not change the string return value.</li>
+<li>Return the currently valid access token itself, in the form of a plain string (for example, a value such as <code>'12345678-1234-1234-1234-123456789012'</code>). It must <strong>not</strong> return the full token-data dictionary or any other wrapper object.</li>
+<li>Return a value that compares equal to the access-token string, so that a caller can use the return value directly (for example, as the bearer token in an <code>Authorization</code> header) and can compare it directly against an expected access-token string.</li>
+<li>Be sufficient on its own to obtain a usable access token. A caller must not need to invoke a separate explicit refresh operation before the returned string can be used.</li>
+<li>When no currently valid token is available, handle token acquisition or refresh internally as needed, and return the resulting access-token string from that same <code>get_token()</code> call. Any bookkeeping of token data (such as tracking expiry or refresh tokens) is internal and must not change the string return value.</li>
 </ul>
-<h5>3. Allow zero-argument use of the <code>transactions</code> command</h5>
-<p>The <code>transactions</code> command exposed by <code>n26.cli</code> must remain directly importable as follows:</p>
+<h5>3. Permit zero-argument use of the <code>transactions</code> command</h5>
+<p>The <code>transactions</code> command exposed by <code>n26.cli</code> must remain directly importable in this way:</p>
 <pre><code class="language-python">from n26.cli import transactions
 </code></pre>
-<p>It must be invokable as a command with no additional arguments or options. In that form, it must complete successfully and produce non-empty output. Date-range and other filtering inputs may remain available, but all such inputs must be optional; in particular, neither a start date nor an end date may be required to run the command.</p>
-<h4>Compatibility and Scope Constraints</h4>
+<p>It must be invokable as a command, with no additional arguments or options passed in the invocation. Run in that form, it must complete successfully and produce non-empty output. Inputs for date ranges and other filters may stay available, but all such inputs must be optional; in particular, to run the command, neither a start date nor an end date may be required.</p>
+<h4>Constraints on Compatibility and Scope</h4>
 <ul>
-<li>Preserve existing public client, configuration, request, and CLI behavior except where the requirements above explicitly change it.</li>
-<li><code>create_request_url</code> must be a standalone public function in <code>n26.util</code>, not behavior available only through an <code>Api</code> instance or a private helper.</li>
-<li>Query-parameter ordering must be lexicographic by key; dictionary insertion order must not determine the generated URL.</li>
-<li>Do not add any required arguments to the <code>transactions</code> command.</li>
-<li>Preserve <code>get_token()</code>'s direct scalar result: callers that compare the return value of <code>get_token()</code> directly against an access-token string must continue to work unchanged. Do not change the return type to a dictionary or other structure.</li>
-<li>Do not require callers to invoke a private or separate token-refresh method in order to obtain a usable access-token string from <code>get_token()</code>.</li>
-<li>Do not introduce unrelated features or behavior changes.</li>
+<li>Existing public client, configuration, request, and CLI behavior must be preserved, except where the requirements above explicitly change it.</li>
+<li><code>create_request_url</code> must be a standalone public function in <code>n26.util</code> and not behavior that is available only through an <code>Api</code> instance or a private helper.</li>
+<li>The ordering of query parameters must be lexicographic by key; the dictionary's insertion order must not determine the URL that gets generated.</li>
+<li>No required arguments may be added to the <code>transactions</code> command.</li>
+<li>Preserve <code>get_token()</code>'s direct scalar result: callers that compare the return value of <code>get_token()</code> directly against an access-token string must keep working unchanged. The return type must not be changed to a dictionary or other structure.</li>
+<li>Callers must not be required to invoke a private or separate token-refresh method in order to obtain a usable access-token string from <code>get_token()</code>.</li>
+<li>Unrelated features or behavior changes must not be introduced.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on the n26 Python package.</span>
-        <span class="spec-meta muted">218 words · source specification
+        <span class="spec-title">Your work takes place in the n26 Python package.</span>
+        <span class="spec-meta muted">239 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>n26</code> Python package. This task involves renaming a module-level constant in the <code>n26.api</code> module.</p>
+<p>Your work takes place in the <code>n26</code> Python package. The task consists of renaming a module-level constant in the <code>n26.api</code> module.</p>
 <h4>Required Changes</h4>
-<h5>Constant Rename in <code>n26.api</code></h5>
-<p>In the module <code>n26.api</code>, the base URL constant must be named <strong><code>BASE_URL_DE</code></strong> (previously named <code>BASE_URL</code>).</p>
+<h5>Renaming the Constant in <code>n26.api</code></h5>
+<p>Within the <code>n26.api</code> module, the constant that holds the base URL must be named <strong><code>BASE_URL_DE</code></strong> (its previous name was <code>BASE_URL</code>).</p>
 <ul>
-<li><code>n26.api.BASE_URL_DE</code> must be importable from the <code>n26.api</code> module.</li>
-<li>Its value must be the string <code>&quot;https://api.tech26.de&quot;</code>.</li>
+<li>You must be able to import <code>n26.api.BASE_URL_DE</code> from the <code>n26.api</code> module.</li>
+<li>The constant's value must be the string <code>&quot;https://api.tech26.de&quot;</code>.</li>
 </ul>
-<p>The following constants must continue to exist and be importable from <code>n26.api</code>:</p>
+<p>The constants listed below must continue to exist and be importable from <code>n26.api</code>:</p>
 <ul>
 <li><code>POST</code></li>
 <li><code>GET</code></li>
 </ul>
 <h4>Supporting Behavior</h4>
 <h5><code>n26.util.create_request_url</code></h5>
-<p>The function <code>create_request_url</code> in the <code>n26.util</code> module must accept a base URL string and a dictionary of query parameters, and return a URL string that appends the query parameters to the base URL.</p>
+<p>In the <code>n26.util</code> module, the function <code>create_request_url</code> must accept a base URL string and a dictionary of query parameters, and must return a URL string with the query parameters appended to the base URL.</p>
 <p>Signature:</p>
 <pre><code class="language-python">create_request_url(base_url, params)
 </code></pre>
 <p>Behavior:</p>
 <ul>
-<li>Given the base URL <code>&quot;https://api.tech26.de&quot;</code> and the parameter dictionary <code>{&quot;foo&quot;: &quot;bar&quot;, &quot;bar&quot;: &quot;baz&quot;}</code>, the returned string must be:<pre><code>https://api.tech26.de?bar=baz&amp;foo=bar
+<li>With the base URL <code>&quot;https://api.tech26.de&quot;</code> and the parameter dictionary <code>{&quot;foo&quot;: &quot;bar&quot;, &quot;bar&quot;: &quot;baz&quot;}</code>, the string that is returned must be:<pre><code>https://api.tech26.de?bar=baz&amp;foo=bar
 </code></pre>
 </li>
-<li>Query parameters are joined to the base URL with a <code>?</code> separator, individual parameters are joined with <code>&amp;</code>, and each parameter is rendered as <code>key=value</code>. The parameters must appear in sorted order by key.</li>
+<li>The query parameters are joined to the base URL using a <code>?</code> separator, the individual parameters are joined with <code>&amp;</code>, and each parameter is formatted as <code>key=value</code>. The parameters must be placed in sorted order by key.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The rename must be consistent so that any code within the package that referenced the old constant name uses the new name <code>BASE_URL_DE</code>.</li>
-<li>Do not change the string value of the base URL.</li>
+<li>The rename must be carried out consistently, so that any code within the package that referenced the old constant name uses the new name <code>BASE_URL_DE</code>.</li>
+<li>Do not alter the string value of the base URL.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You must modify the n26 package to add a new optional configuration option and expose a token-refresh method on the API client.</span>
-        <span class="spec-meta muted">378 words · source specification
+        <span class="spec-title">Within the n26 package, you must add a new optional configuration option and expose a token-refresh method on the API client.</span>
+        <span class="spec-meta muted">418 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must modify the <code>n26</code> package to add a new optional configuration option and expose a token-refresh method on the API client.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Within the <code>n26</code> package, you must add a new optional configuration option and expose a token-refresh method on the API client.</p>
 <h4>Required Changes</h4>
-<h5>1. <code>Config</code> class — new option <code>login_data_store_path</code></h5>
+<h5>1. <code>Config</code> class — new <code>login_data_store_path</code> option</h5>
 <p>Module: <code>n26.config</code>
 Class: <code>Config</code></p>
-<p>The <code>Config</code> class constructor must accept a keyword argument <code>login_data_store_path</code> in addition to its existing arguments. Based on current usage, the constructor must support at least this signature:</p>
+<p>In addition to the arguments it already takes, the constructor of the <code>Config</code> class must accept the keyword argument <code>login_data_store_path</code>. Given how it is currently used, the constructor must support at least the following signature:</p>
 <pre><code class="language-python">Config(username=..., password=..., login_data_store_path=...)
 </code></pre>
 <p>Requirements:</p>
 <ul>
-<li><code>login_data_store_path</code> must be an accepted keyword argument.</li>
-<li>It must accept a value of <code>None</code>.</li>
-<li>Two <code>Config</code> instances constructed with the same <code>username</code>, <code>password</code>, and <code>login_data_store_path</code> values must compare equal to each other (<code>==</code>).</li>
+<li>The argument <code>login_data_store_path</code> must be accepted as a keyword argument.</li>
+<li>It must accept <code>None</code> as a value.</li>
+<li>If two <code>Config</code> instances are constructed with the same values for <code>username</code>, <code>password</code>, and <code>login_data_store_path</code>, they must compare equal to each other (<code>==</code>).</li>
 </ul>
-<p>The existing <code>username</code> and <code>password</code> arguments must continue to be accepted and behave as before.</p>
-<h5>2. Config loading — <code>login_data_store_path</code> populated as <code>None</code> when unspecified</h5>
+<p>The existing <code>username</code> and <code>password</code> arguments must continue to be accepted, and must behave as they did before.</p>
+<h5>2. Config loading — <code>login_data_store_path</code> set to <code>None</code> when not specified</h5>
 <p>Module: <code>n26.config</code>
 Function: <code>get_config()</code></p>
-<p>When configuration is loaded (from a configuration file or from environment variables) and <code>login_data_store_path</code> is not provided by the source, the resulting <code>Config</code> object must have <code>login_data_store_path</code> set to <code>None</code>. In other words, a <code>Config</code> produced by loading a source that omits this option must equal a <code>Config</code> constructed explicitly with <code>login_data_store_path=None</code> (and the same username/password).</p>
-<h5>3. <code>Api</code> client — accept <code>Config</code> including the new option</h5>
+<p>If <code>login_data_store_path</code> is not provided by the source when the configuration is loaded (from a configuration file or from environment variables), the <code>Config</code> object that results must have <code>login_data_store_path</code> set to <code>None</code>. To put it another way, loading a source that omits this option must produce a <code>Config</code> that equals a <code>Config</code> constructed explicitly with <code>login_data_store_path=None</code> (and the same username/password).</p>
+<h5>3. <code>Api</code> client — accepting <code>Config</code>, including the new option</h5>
 <p>Module: <code>n26.api</code>
 Class: <code>Api</code></p>
-<p><code>Api</code> must accept a <code>Config</code> instance (including one built with <code>login_data_store_path=None</code>) as its constructor argument. The created client must expose the provided config via a <code>config</code> attribute that:</p>
+<p>The constructor of <code>Api</code> must accept a <code>Config</code> instance as its argument — including an instance built with <code>login_data_store_path=None</code>. The client that gets created must expose the supplied config via a <code>config</code> attribute that:</p>
 <ul>
 <li>is not <code>None</code>, and</li>
 <li>is equal (<code>==</code>) to the <code>Config</code> instance that was passed in.</li>
 </ul>
-<h5>4. <code>Api._refresh_token</code> method</h5>
+<h5>4. Method <code>Api._refresh_token</code></h5>
 <p>Module: <code>n26.api</code>
 Class: <code>Api</code>
 Method: <code>_refresh_token(self, refresh_token)</code></p>
-<p>Add a method <code>_refresh_token</code> that takes a single argument — a refresh token string — and returns the token data as a dictionary. The returned dictionary must contain the key <code>access_token</code>, whose value is the access token obtained from the token endpoint (a POST request to the token URL).</p>
-<p>Behavior detail: given a refresh token value, the method performs the token request and returns a dict where <code>result['access_token']</code> holds the returned access token string.</p>
+<p>A method <code>_refresh_token</code> must be added; it takes a single argument — a refresh token string — and returns the token data as a dictionary. The dictionary that comes back must contain the key <code>access_token</code>, whose value is the access token obtained from the token endpoint (a POST request to the token URL).</p>
+<p>Detailed behavior: when the method is given a refresh token value, it performs the token request and returns a dict in which <code>result['access_token']</code> holds the returned access token string.</p>
 <h4>Notes</h4>
 <ul>
-<li>All changes must preserve the ability to import and call the named classes/functions as described above.</li>
-<li>Do not remove existing accepted arguments or existing public behavior beyond what is specified here.</li>
+<li>All changes must preserve the ability to import and call the named classes/functions in the manner described above.</li>
+<li>Existing accepted arguments and existing public behavior must not be removed beyond what is specified here.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Human-Readable Datetime Input for CLI Date Parameters</span>
-        <span class="spec-meta muted">308 words · source specification
+        <span class="spec-title">Human-Readable Datetimes as Input for CLI Date Parameters</span>
+        <span class="spec-meta muted">327 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Human-Readable Datetime Input for CLI Date Parameters</h3>
-<h4>Overview</h4>
-<p>Modify the <code>transactions</code> CLI command in the <code>n26</code> package so that its <code>--from</code> and <code>--to</code> parameters accept human-readable datetime strings instead of numeric (Unix) timestamps.</p>
-<h4>Public API Surface</h4>
-<p>The CLI command is located at:</p>
+      <div class="spec-body"><h3>Task Specification: Human-Readable Datetimes as Input for CLI Date Parameters</h3>
+<h4>Summary</h4>
+<p>Within the <code>n26</code> package, modify the <code>transactions</code> CLI command so that its <code>--from</code> and <code>--to</code> parameters accept human-readable datetime strings instead of numeric (Unix) timestamps.</p>
+<h4>Public API</h4>
+<p>The CLI command resides at:</p>
 <ul>
 <li><strong>Module:</strong> <code>n26.cli</code></li>
 <li><strong>Command object:</strong> <code>transactions</code></li>
 </ul>
-<p>This is a callable CLI command (a Click-style command) that must be importable as:</p>
+<p>It is a callable CLI command (a Click-style command), and it must be importable as:</p>
 <pre><code class="language-python">from n26.cli import transactions
 </code></pre>
-<h4>Required Behavior</h4>
-<h5>Command-line options</h5>
-<p>The <code>transactions</code> command must accept the following optional command-line options, each of which may be supplied independently of the other (either, both, or neither may be present):</p>
+<h4>Behavior Requirements</h4>
+<h5>Options on the command line</h5>
+<p>The <code>transactions</code> command must accept the following optional command-line options; each of them may be supplied independently of the other (either, both, or neither may be present):</p>
 <ul>
-<li><code>--from</code> — a datetime string.</li>
-<li><code>--to</code> — a datetime string.</li>
+<li><code>--from</code> — a string containing a datetime.</li>
+<li><code>--to</code> — a string containing a datetime.</li>
 </ul>
-<h5>Datetime string parsing</h5>
-<p>The values passed to <code>--from</code> and <code>--to</code> must be parsed from human-readable datetime strings. The parsing must support (at minimum) the following formats, attempting each until one succeeds:</p>
+<h5>Parsing of the datetime strings</h5>
+<p>The values passed to <code>--from</code> and <code>--to</code> must be parsed out of human-readable datetime strings. The parsing must support (at minimum) the following formats, attempting each one until one of them succeeds:</p>
 <ul>
 <li><code>%m/%d/%Y %H:%M:%S</code></li>
 <li><code>%m/%d/%Y</code></li>
@@ -1234,16 +1241,16 @@ Method: <code>_refresh_token(self, refresh_token)</code></p>
 <li><code>%d.%m.%Y</code></li>
 <li><code>%d.%m.%Y %H:%M:%S</code></li>
 </ul>
-<p>Concretely, invoking the command with <code>--from</code> given as <code>01/30/2019</code> (matching the <code>%m/%d/%Y</code> format) and <code>--to</code> given as <code>30.01.2020</code> (matching the <code>%d.%m.%Y</code> format) must succeed and produce output.</p>
+<p>As a concrete case, invoking the command with <code>--from</code> set to <code>01/30/2019</code> (which matches the <code>%m/%d/%Y</code> format) and <code>--to</code> set to <code>30.01.2020</code> (which matches the <code>%d.%m.%Y</code> format) must succeed and produce output.</p>
 <h5>Output</h5>
-<p>When the command runs successfully, it must produce non-empty output. The command must complete without error when invoked with the <code>--from</code> and <code>--to</code> options as described above.</p>
-<h4>Notes / Constraints</h4>
+<p>The command must produce non-empty output when it runs successfully. Invoked with the <code>--from</code> and <code>--to</code> options as described above, the command must complete without error.</p>
+<h4>Notes and Constraints</h4>
 <ul>
-<li>The command must run end-to-end (retrieving and rendering transaction data) and produce output when both <code>--from</code> and <code>--to</code> are supplied as human-readable datetime strings in any of the supported formats.</li>
-<li>No behavior beyond parsing these two datetime options and producing non-empty output is required to be verified by this task.</li>
+<li>When both <code>--from</code> and <code>--to</code> are supplied as human-readable datetime strings in any of the supported formats, the command must run end-to-end (retrieving and rendering transaction data) and produce output.</li>
+<li>Beyond parsing these two datetime options and producing non-empty output, no behavior is required to be verified by this task.</li>
 </ul>
 <h4>Logging</h4>
-<p>The package's logging must be organized under a logger named <code>n26</code> (i.e., <code>logging.getLogger(&quot;n26&quot;)</code>), so that log output from the package is emitted through that logger hierarchy.</p>
+<p>Logging in the package must be organized under a logger named <code>n26</code> (i.e., <code>logging.getLogger(&quot;n26&quot;)</code>), so that log output produced by the package is emitted through that logger hierarchy.</p>
 </div>
     </details>
   </div>

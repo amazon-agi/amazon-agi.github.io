@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/scieloorg/kernel/compare/e812e5d2f6529fbf7a3eb076b04f7275e4b5b0f8...209a2c8b76dce725462c34d2174ae00dcaf57dda" target="_blank" rel="noopener" class="mono">e812e5d2f6 … 209a2c8b76</a> · 33 commits by 7 authors over 15 d (2019-01-28 to 2019-02-12)</dd></div>
       <div><dt>Window:</dt><dd>requests 21–40 of a run of 43 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,852 lines of code in 23 files when the chain starts · over the 20 requests the developers added 594 and removed 286 lines of code, plus 1,162 lines of tests (101 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.0k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 14 and symbols introduced by earlier ones to depth 5</dd></div>
+      <div><dt>Specifications:</dt><dd>8.8k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 14 and symbols introduced by earlier ones to depth 5</dd></div>
     </dl>
   </header>
 </section>
@@ -144,248 +144,250 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement update_documents_bundle_metadata Service</span>
-        <span class="spec-meta muted">427 words · source specification
+        <span class="spec-title">Implement the update_documents_bundle_metadata Service</span>
+        <span class="spec-meta muted">465 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>update_documents_bundle_metadata</code> Service</h3>
+      <div class="spec-body"><h3>Task Specification: Implement the <code>update_documents_bundle_metadata</code> Service</h3>
 <h4>Context</h4>
-<p>The codebase exposes a set of services accessible through a services registry. The registry is obtained by calling a <code>make_services()</code> factory (already available in the codebase). The registry supports lookup of individual services both via a <code>.get(name)</code> method and via item access <code>services[name]</code>, each returning a callable service command.</p>
-<p>The following services already exist in the registry and can be relied upon:</p>
+<p>The codebase exposes a set of services that are accessible through a services registry. To obtain the registry, call the <code>make_services()</code> factory (already available in the codebase). Individual services can be looked up in the registry both via a <code>.get(name)</code> method and via item access <code>services[name]</code>; each of these lookups returns a callable service command.</p>
+<p>The services listed below already exist in the registry and can be relied upon:</p>
 <ul>
-<li><code>create_documents_bundle</code> — creates a documents bundle. Callable as <code>create_documents_bundle(id=&lt;str&gt;, metadata=&lt;dict&gt;)</code>.</li>
-<li><code>fetch_documents_bundle</code> — retrieves a documents bundle. Callable as <code>fetch_documents_bundle(id=&lt;str&gt;)</code>, returning a mapping that includes a <code>&quot;metadata&quot;</code> key whose value is a dict of the bundle's current metadata.</li>
+<li><code>create_documents_bundle</code> — creates a documents bundle. It can be called as <code>create_documents_bundle(id=&lt;str&gt;, metadata=&lt;dict&gt;)</code>.</li>
+<li><code>fetch_documents_bundle</code> — retrieves a documents bundle. It can be called as <code>fetch_documents_bundle(id=&lt;str&gt;)</code> and returns a mapping that includes a <code>&quot;metadata&quot;</code> key whose value is a dict of the bundle's current metadata.</li>
 </ul>
-<p>An exceptions module (importable as <code>exceptions</code>) is available and defines <code>exceptions.DoesNotExist</code>.</p>
+<p>An exceptions module (importable as <code>exceptions</code>) is available; it defines <code>exceptions.DoesNotExist</code>.</p>
 <h4>What to Implement</h4>
-<p>Add a new service registered under the name <code>update_documents_bundle_metadata</code> to the services registry produced by <code>make_services()</code>.</p>
-<h5>Service interface</h5>
-<p>The service must be a callable retrievable from the registry via <code>services.get(&quot;update_documents_bundle_metadata&quot;)</code> (and <code>services[&quot;update_documents_bundle_metadata&quot;]</code>). The lookup must return a non-<code>None</code>, callable object.</p>
+<p>Register a new service under the name <code>update_documents_bundle_metadata</code> in the services registry that <code>make_services()</code> produces.</p>
+<h5>Service Interface</h5>
+<p>The service must be a callable that can be retrieved from the registry via <code>services.get(&quot;update_documents_bundle_metadata&quot;)</code> (and <code>services[&quot;update_documents_bundle_metadata&quot;]</code>). Each of these lookups must return a non-<code>None</code>, callable object.</p>
 <p>The callable accepts two keyword arguments:</p>
 <pre><code>update_documents_bundle_metadata(id=&lt;str&gt;, metadata=&lt;dict&gt;)
 </code></pre>
 <h5>Behavior</h5>
 <ol>
 <li>
-<p><strong>Bundle does not exist</strong>: If no documents bundle exists for the given <code>id</code>, the call must raise <code>exceptions.DoesNotExist</code>.</p>
+<p><strong>Bundle absent</strong>: If there is no documents bundle for the given <code>id</code>, the call must raise <code>exceptions.DoesNotExist</code>.</p>
 </li>
 <li>
-<p><strong>Metadata update (merge semantics)</strong>: When the bundle exists, the values provided in the <code>metadata</code> argument are merged into the bundle's existing metadata:</p>
+<p><strong>Metadata update (merge semantics)</strong>: When the bundle exists, the values supplied in the <code>metadata</code> argument are merged into the bundle's existing metadata:</p>
 <ul>
-<li>Keys present in the argument overwrite the corresponding existing values.</li>
-<li>Keys already present in the bundle but not present in the argument are left unchanged.</li>
+<li>A key present in the argument overwrites the corresponding existing value.</li>
+<li>A key that is already present in the bundle but absent from the argument stays unchanged.</li>
 </ul>
-<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> updated with <code>{&quot;publication_year&quot;: &quot;2019&quot;}</code> results in <code>{&quot;publication_year&quot;: &quot;2019&quot;, &quot;volume&quot;: &quot;2&quot;}</code>.</p>
+<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> that is updated with <code>{&quot;publication_year&quot;: &quot;2019&quot;}</code> ends up with <code>{&quot;publication_year&quot;: &quot;2019&quot;, &quot;volume&quot;: &quot;2&quot;}</code>.</p>
 </li>
 <li>
-<p><strong>Unexpected/unknown metadata keys are ignored</strong>: Only a known set of metadata fields is accepted. Any key in the <code>metadata</code> argument that is not among the recognized fields must be silently ignored — it must not be added to the bundle's metadata and must not otherwise alter it.</p>
-<p>Recognized fields exercised here include at least: <code>publication_year</code> and <code>volume</code>.</p>
-<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> updated with <code>{&quot;unknown&quot;: &quot;0&quot;}</code> remains <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code>.</p>
+<p><strong>Unexpected/unknown metadata keys are ignored</strong>: The service accepts only a known set of metadata fields. Any key in the <code>metadata</code> argument that is not among the recognized fields must be silently ignored — it must not be added to the bundle's metadata and must not alter it in any other way.</p>
+<p>Recognized fields exercised here include at least <code>publication_year</code> and <code>volume</code>.</p>
+<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> that is updated with <code>{&quot;unknown&quot;: &quot;0&quot;}</code> keeps its metadata as <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code>.</p>
 </li>
 <li>
-<p><strong>Clearing a metadata value</strong>: A recognized field can be cleared by assigning it an empty string. This overwrites the existing value with <code>&quot;&quot;</code>; the key remains present in the metadata with the empty-string value.</p>
-<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> updated with <code>{&quot;volume&quot;: &quot;&quot;}</code> results in <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;&quot;}</code>.</p>
+<p><strong>Clearing a metadata value</strong>: A recognized field can be cleared by assigning an empty string to it. Doing so overwrites the existing value with <code>&quot;&quot;</code>; the key stays present in the metadata, holding the empty-string value.</p>
+<p>Example: a bundle with metadata <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;2&quot;}</code> that is updated with <code>{&quot;volume&quot;: &quot;&quot;}</code> ends up with <code>{&quot;publication_year&quot;: &quot;2018&quot;, &quot;volume&quot;: &quot;&quot;}</code>.</p>
 </li>
 </ol>
-<p>The results of the update must be observable through a subsequent <code>fetch_documents_bundle(id=&lt;id&gt;)</code> call, whose returned <code>&quot;metadata&quot;</code> reflects the merged state described above.</p>
-<p>The service does not need to return any particular value.</p>
+<p>The results of the update must be observable through a subsequent <code>fetch_documents_bundle(id=&lt;id&gt;)</code> call; the <code>&quot;metadata&quot;</code> returned by that call reflects the merged state described above.</p>
+<p>The service need not return any particular value.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Add a new service command named add_document_to_documents_bundle to the services registry.</span>
-        <span class="spec-meta muted">351 words · source specification
+        <span class="spec-title">Introduce a new service command called add_document_to_documents_bundle into the services registry.</span>
+        <span class="spec-meta muted">390 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Add a new service command named <code>add_document_to_documents_bundle</code> to the services registry. This command appends a document reference to an existing documents bundle.</p>
-<h5>Context</h5>
-<p>There is an existing services registry factory <code>make_services()</code> that returns a mapping (dict-like) of named service commands. This registry already contains the following commands that you may rely on:</p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<h5>Summary</h5>
+<p>Introduce a new service command called <code>add_document_to_documents_bundle</code> into the services registry. Its purpose is to append a document reference to an existing documents bundle.</p>
+<h5>Background</h5>
+<p>A factory for the services registry, <code>make_services()</code>, already exists and returns a dict-like mapping of named service commands. The following commands are already present in this registry, and you may rely on them:</p>
 <ul>
-<li><code>create_documents_bundle(id, docs=None)</code> — creates a new documents bundle identified by <code>id</code>. It optionally accepts a <code>docs</code> keyword argument, a list of document references that pre-populates the bundle's items.</li>
-<li><code>fetch_documents_bundle(id)</code> — returns a bundle object that supports item access by key, in particular the <code>&quot;items&quot;</code> key which yields the ordered list of document references currently in the bundle.</li>
+<li><code>create_documents_bundle(id, docs=None)</code> — creates a new documents bundle whose identifier is <code>id</code>. An optional <code>docs</code> keyword argument is accepted: a list of document references that pre-populates the bundle's items.</li>
+<li><code>fetch_documents_bundle(id)</code> — returns a bundle object that supports item access by key — the <code>&quot;items&quot;</code> key in particular, which yields the ordered list of the document references currently in the bundle.</li>
 </ul>
-<p>There is also an <code>exceptions</code> module containing the exception classes <code>exceptions.DoesNotExist</code> and <code>exceptions.AlreadyExists</code>.</p>
-<h5>Required Behavior</h5>
-<p>Register a new command under the key <code>&quot;add_document_to_documents_bundle&quot;</code> in the mapping returned by <code>make_services()</code>. This command must be a callable retrievable via the registry's <code>.get(...)</code> method and via item access.</p>
-<p>The command must accept two keyword arguments:</p>
+<p>An <code>exceptions</code> module is available as well, containing the exception classes <code>exceptions.DoesNotExist</code> and <code>exceptions.AlreadyExists</code>.</p>
+<h5>Behavior Requirements</h5>
+<p>The mapping returned by <code>make_services()</code> must contain a new command registered under the key <code>&quot;add_document_to_documents_bundle&quot;</code>. The command must be a callable, retrievable via the registry's <code>.get(...)</code> method as well as via item access.</p>
+<p>Two keyword arguments must be accepted by the command:</p>
 <ul>
-<li><code>id</code> — the identifier of the target documents bundle.</li>
-<li><code>doc</code> — the document reference to add to the bundle.</li>
+<li><code>id</code> — the identifier of the documents bundle being targeted.</li>
+<li><code>doc</code> — the document reference that is to be added to the bundle.</li>
 </ul>
-<p>Signature (callable): <code>add_document_to_documents_bundle(id, doc)</code></p>
+<p>Signature (of the callable): <code>add_document_to_documents_bundle(id, doc)</code></p>
 <p>Behavior:</p>
 <ol>
 <li>
-<p><strong>Successful addition.</strong> When a bundle with the given <code>id</code> exists and <code>doc</code> is not already present in that bundle's items, append <code>doc</code> to the end of the bundle's item list. After the call, fetching the bundle and reading its <code>&quot;items&quot;</code> key must return the list of document references in insertion order. Adding multiple documents in sequence must preserve their order of insertion.</p>
+<p><strong>Successful addition.</strong> If a bundle with the given <code>id</code> exists and <code>doc</code> is not already present in that bundle's items, <code>doc</code> is appended to the end of the bundle's item list. Once the call has been made, fetching the bundle and reading its <code>&quot;items&quot;</code> key must return the list of document references in insertion order. When multiple documents are added in sequence, their order of insertion must be preserved.</p>
 </li>
 <li>
-<p><strong>Bundle does not exist.</strong> If no bundle exists for the given <code>id</code>, calling the command must raise <code>exceptions.DoesNotExist</code>.</p>
+<p><strong>Bundle does not exist.</strong> When no bundle exists for the given <code>id</code>, calling the command must raise <code>exceptions.DoesNotExist</code>.</p>
 </li>
 <li>
-<p><strong>Duplicate document.</strong> If the given <code>doc</code> is already present in the target bundle's items, calling the command must raise <code>exceptions.AlreadyExists</code>. The bundle's items must remain unchanged.</p>
+<p><strong>Duplicate document.</strong> When the given <code>doc</code> is already present in the target bundle's items, calling the command must raise <code>exceptions.AlreadyExists</code>. The items of the bundle must remain unchanged.</p>
 </li>
 </ol>
-<h5>Notes</h5>
+<h5>Remarks</h5>
 <ul>
-<li>The <code>&quot;items&quot;</code> value returned by <code>fetch_documents_bundle</code> must be an ordered list of the document references that have been added (whether via <code>create_documents_bundle</code>'s <code>docs</code> argument or via this new command).</li>
-<li>The command returns nothing meaningful; its effect is on the stored bundle state.</li>
+<li>The <code>&quot;items&quot;</code> value that <code>fetch_documents_bundle</code> returns must be an ordered list of the document references that have been added (whether through the <code>docs</code> argument of <code>create_documents_bundle</code> or through this new command).</li>
+<li>Nothing meaningful is returned by the command; the effect of calling it is on the stored bundle state.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Add insert_document_to_documents_bundle Service Command</span>
-        <span class="spec-meta muted">434 words · source specification
+        <span class="spec-title">Adding the insert_document_to_documents_bundle Service Command</span>
+        <span class="spec-meta muted">456 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>insert_document_to_documents_bundle</code> Service Command</h3>
+      <div class="spec-body"><h3>Task Specification: Adding the <code>insert_document_to_documents_bundle</code> Service Command</h3>
 <h4>Overview</h4>
-<p>Add a new service command named <code>insert_document_to_documents_bundle</code> to the services registry. This command inserts a document reference into a documents bundle at a specified position within the bundle's ordered list of items.</p>
+<p>This task introduces a new service command, <code>insert_document_to_documents_bundle</code>, into the services registry. The command's job is to insert a document reference into a documents bundle at a specified position within the bundle's ordered list of items.</p>
 <h4>Service Registration</h4>
-<p>The services registry (the object returned by the existing <code>make_services()</code> factory) must expose a new callable command under the key <code>insert_document_to_documents_bundle</code>. It must be retrievable both via <code>services.get(&quot;insert_document_to_documents_bundle&quot;)</code> and via <code>services[&quot;insert_document_to_documents_bundle&quot;]</code>, and the retrieved value must not be <code>None</code> and must be callable.</p>
+<p>Under the key <code>insert_document_to_documents_bundle</code>, the services registry (the object returned by the existing <code>make_services()</code> factory) must expose a new callable command. Retrieval must work both via <code>services.get(&quot;insert_document_to_documents_bundle&quot;)</code> and via <code>services[&quot;insert_document_to_documents_bundle&quot;]</code>, and the value that is retrieved must not be <code>None</code> and must be callable.</p>
 <h4>Command Signature</h4>
-<p>The command is called exclusively with keyword arguments:</p>
+<p>Calls to the command use keyword arguments exclusively:</p>
 <pre><code>insert_document_to_documents_bundle(id=&lt;bundle_id&gt;, index=&lt;int&gt;, doc=&lt;document_reference&gt;)
 </code></pre>
 <ul>
-<li><code>id</code>: the identifier of an existing documents bundle.</li>
-<li><code>index</code>: an integer position at which to insert the document into the bundle's ordered list of item references.</li>
-<li><code>doc</code>: the document reference string to insert.</li>
+<li><code>id</code>: the identifier of a documents bundle that already exists.</li>
+<li><code>index</code>: an integer position at which the document is to be inserted into the bundle's ordered list of item references.</li>
+<li><code>doc</code>: the document reference string that is inserted.</li>
 </ul>
 <h4>Behavior</h4>
 <h5>Successful insertion</h5>
-<p>When a documents bundle with the given <code>id</code> exists:</p>
+<p>If a documents bundle with the supplied <code>id</code> exists:</p>
 <ul>
-<li>The <code>doc</code> value is inserted into the bundle's ordered list of items at position <code>index</code>.</li>
-<li>Insertion semantics follow standard list positional insertion:
+<li>The <code>doc</code> value is inserted at position <code>index</code> in the bundle's ordered list of items.</li>
+<li>Standard list positional insertion semantics apply:
 <ul>
-<li>Inserting into an empty list places the document as the single element regardless of the numeric <code>index</code> value (e.g. an index larger than the current length appends the document at the end).</li>
-<li>Inserting at index <code>0</code> places the document at the front, shifting existing items toward the end.</li>
-<li>Inserting at an index greater than or equal to the current number of items appends the document at the end.</li>
+<li>When the target list is empty, the document is placed as its single element regardless of the numeric <code>index</code> value (e.g. an index larger than the current length appends the document at the end).</li>
+<li>Inserting at index <code>0</code> puts the document at the front and shifts existing items toward the end.</li>
+<li>When the index is greater than or equal to the current number of items, the document is appended at the end.</li>
 </ul>
 </li>
-<li>The change persists so that a subsequent fetch of the same bundle reflects the updated ordering.</li>
+<li>The change persists, so that fetching the same bundle again reflects the updated ordering.</li>
 </ul>
-<p>The bundle's items can be read back through the existing <code>fetch_documents_bundle</code> service command, called as <code>fetch_documents_bundle(id=&lt;bundle_id&gt;)</code>, which returns a mapping whose <code>&quot;items&quot;</code> key holds the ordered list of document references.</p>
+<p>The bundle's items can be read back using the existing <code>fetch_documents_bundle</code> service command, invoked as <code>fetch_documents_bundle(id=&lt;bundle_id&gt;)</code>, which returns a mapping whose <code>&quot;items&quot;</code> key holds the ordered list of document references.</p>
 <h5>Bundle does not exist</h5>
-<p>If no documents bundle exists for the given <code>id</code>, the command must raise <code>exceptions.DoesNotExist</code> (from the existing <code>exceptions</code> module used by the other bundle commands). This check applies regardless of the <code>index</code> and <code>doc</code> values supplied.</p>
+<p>When there is no documents bundle for the given <code>id</code>, the command must raise <code>exceptions.DoesNotExist</code> (this exception comes from the existing <code>exceptions</code> module that the other bundle commands use). This check applies regardless of the supplied <code>index</code> and <code>doc</code> values.</p>
 <h5>Document already present</h5>
-<p>If the given <code>doc</code> is already among the bundle's items, the command must raise <code>exceptions.AlreadyExists</code>, and must not modify the bundle. This applies for any <code>index</code> value provided.</p>
+<p>If the given <code>doc</code> is already among the bundle's items, the command must raise <code>exceptions.AlreadyExists</code>, and the bundle must not be modified. This holds for any <code>index</code> value provided.</p>
 <h4>Supporting Context (existing behavior relied upon)</h4>
 <ul>
-<li><code>create_documents_bundle(id=&lt;bundle_id&gt;)</code> creates a new empty documents bundle.</li>
-<li><code>create_documents_bundle(id=&lt;bundle_id&gt;, docs=[...])</code> creates a documents bundle pre-populated with the given ordered list of document references.</li>
-<li><code>fetch_documents_bundle(id=&lt;bundle_id&gt;)</code> returns the bundle as a mapping containing an <code>&quot;items&quot;</code> key with the ordered list of document references.</li>
+<li>Calling <code>create_documents_bundle(id=&lt;bundle_id&gt;)</code> creates a new, empty documents bundle.</li>
+<li>Calling <code>create_documents_bundle(id=&lt;bundle_id&gt;, docs=[...])</code> creates a documents bundle that comes pre-populated with the given ordered list of document references.</li>
+<li><code>fetch_documents_bundle(id=&lt;bundle_id&gt;)</code> returns the bundle as a mapping that contains an <code>&quot;items&quot;</code> key holding the ordered list of document references.</li>
 </ul>
-<p>The new command must integrate with the same bundle storage/retrieval mechanism used by these existing commands.</p>
+<p>The new command must integrate with the same bundle storage/retrieval mechanism that these existing commands use.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Implement DocumentsBundleStore</span>
-        <span class="spec-meta muted">696 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">DocumentsBundleStore Implementation</span>
+        <span class="spec-meta muted">768 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>DocumentsBundleStore</code></h3>
-<h4>Overview</h4>
-<p>Implement a storage adapter class <code>DocumentsBundleStore</code> that persists and retrieves <code>DocumentsBundle</code> domain objects using a MongoDB-style collection. The adapter wraps a collection supplied at construction and translates collection operations into store-level behavior, including the required domain exceptions.</p>
-<h4>Modules and Public API</h4>
-<p>The following importable module paths and public names must exist:</p>
+      <div class="spec-body"><h3>Task Specification: <code>DocumentsBundleStore</code> Implementation</h3>
+<h4>Summary</h4>
+<p>Build a storage adapter class <code>DocumentsBundleStore</code> that persists and fetches <code>DocumentsBundle</code> domain objects by way of a MongoDB-style collection. The adapter wraps a collection provided at construction time and maps collection operations onto store-level behavior, including the domain exceptions that are required.</p>
+<h4>Importable Modules and Public API</h4>
+<p>These importable module paths and public names must exist:</p>
 <ul>
 <li><code>documentstore.adapters</code> must expose <code>DocumentsBundleStore</code>.</li>
 <li><code>documentstore.domain</code> must expose <code>DocumentsBundle</code>.</li>
 <li><code>documentstore.exceptions</code> must expose <code>AlreadyExists</code> and <code>DoesNotExist</code>.</li>
 </ul>
-<h4><code>documentstore.domain.DocumentsBundle</code></h4>
-<p><code>DocumentsBundle</code> represents a bundle of documents and provides the domain object consumed and returned by the store.</p>
-<h5>Construction</h5>
-<p>The following forms must be supported:</p>
+<h4>Domain Object: <code>documentstore.domain.DocumentsBundle</code></h4>
+<p><code>DocumentsBundle</code> models a bundle of documents and supplies the domain object that the store consumes and returns.</p>
+<h5>Constructing a Bundle</h5>
+<p>These forms must be supported:</p>
 <ul>
-<li><code>DocumentsBundle(id=&quot;&lt;some-id&gt;&quot;)</code> constructs a bundle from an identifier string.</li>
-<li><code>DocumentsBundle(manifest={...})</code> constructs a bundle from an existing manifest dictionary. The manifest contents are accepted without schema validation and are preserved as supplied.</li>
+<li><code>DocumentsBundle(id=&quot;&lt;some-id&gt;&quot;)</code> builds a bundle from an identifier string.</li>
+<li><code>DocumentsBundle(manifest={...})</code> builds a bundle from a manifest dictionary that already exists. The manifest's contents are accepted with no schema validation and are preserved as supplied.</li>
 </ul>
-<h5>Attributes and methods</h5>
+<h5>Attributes and Methods</h5>
 <ul>
-<li><code>.manifest</code> is the dictionary representation of the bundle.
+<li><code>.manifest</code> is the bundle's dictionary representation.
 <ul>
-<li>For a bundle constructed with <code>id=&quot;X&quot;</code>, the manifest contains an <code>&quot;id&quot;</code> key whose value is <code>&quot;X&quot;</code>; it may also contain additional keys.</li>
-<li>For a bundle constructed with an explicit manifest, all supplied keys and values are preserved, including both <code>&quot;_id&quot;</code> and <code>&quot;id&quot;</code> when both are present and even when their values differ.</li>
+<li>When a bundle is built with <code>id=&quot;X&quot;</code>, its manifest contains an <code>&quot;id&quot;</code> key whose value is <code>&quot;X&quot;</code>, and it may also contain additional keys.</li>
+<li>When a bundle is built with an explicit manifest, all supplied keys and values are retained, including both <code>&quot;_id&quot;</code> and <code>&quot;id&quot;</code> whenever both are present, and even when their values differ.</li>
 </ul>
 </li>
-<li><code>.id()</code> returns the logical bundle identifier from the manifest's <code>&quot;id&quot;</code> field. For example, a bundle constructed with <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> returns <code>&quot;0034-8910-rsp-48-2&quot;</code> from <code>.id()</code>. The storage identifier <code>&quot;_id&quot;</code> does not override this logical identifier.</li>
+<li><code>.id()</code> returns the bundle's logical identifier, which comes from the manifest's <code>&quot;id&quot;</code> field. To illustrate, a bundle built with <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> returns <code>&quot;0034-8910-rsp-48-2&quot;</code> from <code>.id()</code>. The storage identifier <code>&quot;_id&quot;</code> does not take precedence over this logical identifier.</li>
 </ul>
-<h4><code>documentstore.exceptions</code></h4>
+<h4>Exceptions: <code>documentstore.exceptions</code></h4>
 <ul>
-<li><code>AlreadyExists</code> is raised when an attempt is made to add a bundle whose storage identifier is already in use.</li>
-<li><code>DoesNotExist</code> is raised when a requested bundle cannot be found or an update matches no stored bundle.</li>
+<li><code>AlreadyExists</code> is raised when an attempt is made to add a bundle whose storage identifier is already being used.</li>
+<li><code>DoesNotExist</code> is raised when a bundle that was requested cannot be found, or when an update matches no stored bundle.</li>
 </ul>
-<h4><code>documentstore.adapters.DocumentsBundleStore</code></h4>
-<h5>Construction</h5>
-<p><code>DocumentsBundleStore(collection)</code> accepts one MongoDB-style collection object. The store uses that object's <code>insert_one</code>, <code>find_one</code>, and <code>replace_one</code> methods.</p>
-<h5>Storage identifier preparation</h5>
-<p>For both <code>add</code> and <code>update</code>, prepare the document from <code>bundle.manifest</code> according to this rule:</p>
+<h4>The <code>documentstore.adapters.DocumentsBundleStore</code> Adapter</h4>
+<h5>Constructing the Store</h5>
+<p><code>DocumentsBundleStore(collection)</code> accepts a single MongoDB-style collection object, and the store makes use of that object's <code>insert_one</code>, <code>find_one</code>, and <code>replace_one</code> methods.</p>
+<h5>Preparing the Storage Identifier</h5>
+<p>For both <code>add</code> and <code>update</code>, the document is prepared from <code>bundle.manifest</code> following this rule:</p>
 <ol>
-<li>If the manifest has a truthy <code>&quot;_id&quot;</code> value, preserve that value unchanged. This remains true when <code>&quot;_id&quot;</code> differs from the logical <code>&quot;id&quot;</code> returned by <code>bundle.id()</code>.</li>
-<li>If <code>&quot;_id&quot;</code> is absent or its value is falsy, set it to <code>bundle.id()</code>.</li>
+<li>If the manifest's <code>&quot;_id&quot;</code> value is truthy, that value is preserved unchanged. This also holds when <code>&quot;_id&quot;</code> differs from the logical <code>&quot;id&quot;</code> that <code>bundle.id()</code> returns.</li>
+<li>If <code>&quot;_id&quot;</code> is absent, or its value is falsy, it is set to <code>bundle.id()</code>.</li>
 </ol>
-<p>Thus, <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> is persisted with <code>&quot;_id&quot;: &quot;1&quot;</code>, while a bundle constructed only with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> is persisted with <code>&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;</code>. Other manifest keys and values must remain unchanged.</p>
-<h5>Method: <code>add(bundle)</code></h5>
-<p>Persist a new bundle.</p>
+<p>As a result, <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> is persisted with <code>&quot;_id&quot;: &quot;1&quot;</code>, whereas a bundle built with only <code>id=&quot;0034-8910-rsp-48-2&quot;</code> is persisted with <code>&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;</code>. Other manifest keys and values must stay unchanged.</p>
+<h5>The <code>add(bundle)</code> Method</h5>
+<p>Save a new bundle.</p>
 <ul>
-<li>Prepare the document using the storage identifier rule above.</li>
-<li>Call <code>collection.insert_one(document)</code> exactly once with that prepared document.</li>
-<li>If <code>insert_one</code> raises <code>pymongo.errors.DuplicateKeyError</code>, translate it to <code>documentstore.exceptions.AlreadyExists</code>.</li>
+<li>Prepare the document with the storage identifier rule given above.</li>
+<li>Call <code>collection.insert_one(document)</code> exactly once, passing it the prepared document.</li>
+<li>Should <code>insert_one</code> raise <code>pymongo.errors.DuplicateKeyError</code>, convert it into <code>documentstore.exceptions.AlreadyExists</code>.</li>
 </ul>
-<p>Examples of the document passed to <code>insert_one</code>:</p>
+<p>Examples of the document handed to <code>insert_one</code>:</p>
 <ul>
-<li>A bundle constructed with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> has <code>&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;</code> added to its manifest representation.</li>
-<li>A bundle constructed with <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> is inserted with <code>&quot;_id&quot;: &quot;1&quot;</code>; the existing storage identifier must not be replaced by <code>bundle.id()</code>.</li>
+<li>For a bundle built with <code>id=&quot;0034-8910-rsp-48-2&quot;</code>, <code>&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;</code> is added to its manifest representation.</li>
+<li>A bundle built with <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> is inserted with <code>&quot;_id&quot;: &quot;1&quot;</code>; the existing storage identifier must not be overwritten by <code>bundle.id()</code>.</li>
 </ul>
-<h5>Method: <code>fetch(id)</code></h5>
-<p>Retrieve a bundle by its storage identifier.</p>
+<h5>The <code>fetch(id)</code> Method</h5>
+<p>Fetch a bundle via its storage identifier.</p>
 <ul>
-<li>Call <code>collection.find_one({&quot;_id&quot;: id})</code> exactly once with the supplied identifier.</li>
-<li>If <code>find_one</code> returns <code>None</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</li>
-<li>Otherwise, return a <code>DocumentsBundle</code> constructed from the returned manifest dictionary. All returned manifest keys and values, including <code>&quot;_id&quot;</code> and <code>&quot;id&quot;</code>, must be preserved. The returned bundle's <code>.id()</code> follows the domain rule and therefore reflects the manifest's logical <code>&quot;id&quot;</code> value.</li>
+<li>Call <code>collection.find_one({&quot;_id&quot;: id})</code> exactly once, passing the supplied identifier.</li>
+<li>Whenever <code>find_one</code> returns <code>None</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</li>
+<li>Otherwise, return a <code>DocumentsBundle</code> built from the manifest dictionary that was returned. All keys and values in the returned manifest, <code>&quot;_id&quot;</code> and <code>&quot;id&quot;</code> included, must be preserved. The <code>.id()</code> of the returned bundle follows the domain rule, and consequently mirrors the logical <code>&quot;id&quot;</code> value in the manifest.</li>
 </ul>
-<p>For example, if the collection returns <code>{&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, the resulting bundle has an equal manifest and <code>.id()</code> returns <code>&quot;0034-8910-rsp-48-2&quot;</code>.</p>
-<h5>Method: <code>update(bundle)</code></h5>
-<p>Replace an existing stored bundle.</p>
+<p>As an example, when the collection returns <code>{&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, the bundle that results has a manifest equal to the returned dictionary, and <code>.id()</code> returns <code>&quot;0034-8910-rsp-48-2&quot;</code>.</p>
+<h5>The <code>update(bundle)</code> Method</h5>
+<p>Replace a bundle that already exists in storage.</p>
 <ul>
-<li>Prepare the replacement document using the same storage identifier rule as <code>add</code>.</li>
-<li>Call <code>collection.replace_one({&quot;_id&quot;: document[&quot;_id&quot;]}, document)</code> exactly once. The filter and replacement document must use the same prepared storage identifier.</li>
-<li>If the object returned by <code>replace_one</code> has <code>matched_count == 0</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</li>
+<li>Prepare the replacement document with the same storage identifier rule that <code>add</code> follows.</li>
+<li>Call <code>collection.replace_one({&quot;_id&quot;: document[&quot;_id&quot;]}, document)</code> exactly once. The same prepared storage identifier must be used in the filter and in the replacement document.</li>
+<li>When the object that <code>replace_one</code> returns has <code>matched_count == 0</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</li>
 </ul>
-<p>In particular:</p>
+<p>Specifically:</p>
 <ul>
-<li>For a bundle constructed with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> and no existing <code>&quot;_id&quot;</code>, both the filter and replacement document use <code>&quot;0034-8910-rsp-48-2&quot;</code> as <code>&quot;_id&quot;</code>.</li>
-<li>For <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, call <code>replace_one</code> with the filter <code>{&quot;_id&quot;: &quot;1&quot;}</code> and preserve <code>&quot;_id&quot;: &quot;1&quot;</code> in the replacement document.</li>
+<li>For a bundle built with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> and no existing <code>&quot;_id&quot;</code>, <code>&quot;0034-8910-rsp-48-2&quot;</code> is used as <code>&quot;_id&quot;</code> in both the filter and the replacement document.</li>
+<li>For <code>manifest={&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, call <code>replace_one</code> using the filter <code>{&quot;_id&quot;: &quot;1&quot;}</code>, and retain <code>&quot;_id&quot;: &quot;1&quot;</code> in the replacement document.</li>
 </ul>
-<h4>Collection Contract</h4>
-<p>The supplied collection provides:</p>
+<h4>Contract of the Supplied Collection</h4>
+<p>The collection given to the store provides:</p>
 <ul>
 <li><code>insert_one(document)</code>, which may raise <code>pymongo.errors.DuplicateKeyError</code>;</li>
-<li><code>find_one(filter)</code>, which returns a manifest dictionary or <code>None</code>; and</li>
-<li><code>replace_one(filter, document)</code>, which returns an object with a <code>matched_count</code> attribute.</li>
+<li><code>find_one(filter)</code>, which returns either a manifest dictionary or <code>None</code>; and</li>
+<li><code>replace_one(filter, document)</code>, which returns an object that carries a <code>matched_count</code> attribute.</li>
 </ul>
-<p><code>pymongo</code> is available, and <code>pymongo.errors.DuplicateKeyError</code> must be handled as described above.</p>
+<p><code>pymongo</code> is available, and <code>pymongo.errors.DuplicateKeyError</code> must be handled in the way described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Refactor the persistence-layer interfaces and MongoDB adapters around one shared storage abstraction, DataStore.</span>
-        <span class="spec-meta muted">786 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Rework the persistence-layer interfaces and the MongoDB adapters so that they are organized around one shared storage abstraction, DataStore.</span>
+        <span class="spec-meta muted">859 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Refactor the persistence-layer interfaces and MongoDB adapters around one shared storage abstraction, <code>DataStore</code>. Document stores and documents-bundle stores must expose the same operations and persistence behavior; the domain class materialized by <code>fetch</code> is their only behavioral difference.</p>
-<h4>Public Interface (<code>documentstore.interfaces</code>)</h4>
-<p>Provide an importable abstract base class named <code>DataStore</code> with the following public methods:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>Rework the persistence-layer interfaces and the MongoDB adapters so that they are organized around one shared storage abstraction, <code>DataStore</code>. Document stores and documents-bundle stores must expose the same operations and the same persistence behavior; the only behavioral difference between them is the domain class materialized by <code>fetch</code>.</p>
+<h4>Public Interface Provided by <code>documentstore.interfaces</code></h4>
+<p>Supply an importable abstract base class called <code>DataStore</code> that offers the following public methods:</p>
 <pre><code class="language-python">class DataStore(abc.ABC):
     @abc.abstractmethod
     def add(self, data): ...
@@ -396,63 +398,63 @@
     @abc.abstractmethod
     def fetch(self, id): ...
 </code></pre>
-<p>The methods are generic over the stored domain object rather than being specific to documents or bundles. <code>DataStore</code> must be subclassable by concrete in-memory or database-backed stores. A concrete implementation must be able to choose the domain class it materializes from a fetched manifest, for example through a class-level <code>DomainClass</code> attribute.</p>
-<p>The formerly separate <code>DocumentStore</code> and <code>DocumentsBundleStore</code> abstract interfaces are consolidated into this one interface; there must not be separate per-domain abstract contracts. Existing session access points for documents and documents bundles continue to represent stores implementing the <code>DataStore</code> contract.</p>
+<p>The methods are generic over the domain object being stored rather than being specific to documents or bundles. Concrete in-memory or database-backed stores must be able to subclass <code>DataStore</code>. A concrete implementation must be able to choose the domain class it materializes from a fetched manifest, for instance through a class-level <code>DomainClass</code> attribute.</p>
+<p>The abstract interfaces <code>DocumentStore</code> and <code>DocumentsBundleStore</code>, which were formerly separate, are consolidated into this one interface; there must not be separate per-domain abstract contracts. The existing session access points for documents and documents bundles keep representing stores that implement the <code>DataStore</code> contract.</p>
 <h4>Concrete Adapters (<code>documentstore.adapters</code>)</h4>
-<p>Provide these two concrete collection-backed classes:</p>
+<p>Make the following two concrete collection-backed classes available:</p>
 <ul>
 <li><code>documentstore.adapters.DocumentStore</code></li>
 <li><code>documentstore.adapters.DocumentsBundleStore</code></li>
 </ul>
-<p>Each constructor accepts one positional argument, a MongoDB collection-like object:</p>
+<p>The constructor of each class accepts one positional argument, a MongoDB collection-like object:</p>
 <pre><code class="language-python">store = adapters.DocumentStore(collection)
 store = adapters.DocumentsBundleStore(collection)
 </code></pre>
-<p>Both adapters must implement the common <code>documentstore.interfaces.DataStore</code> contract and share the same persistence behavior. They differ only in the domain type returned by <code>fetch</code>:</p>
+<p>Both adapters must implement the common <code>documentstore.interfaces.DataStore</code> contract and share the same persistence behavior. The only difference between them is the domain type returned by <code>fetch</code>:</p>
 <ul>
 <li><code>DocumentStore</code> materializes <code>documentstore.domain.Document</code>.</li>
 <li><code>DocumentsBundleStore</code> materializes <code>documentstore.domain.DocumentsBundle</code>.</li>
 </ul>
-<p>The supplied collection is expected to provide <code>insert_one</code>, <code>replace_one</code>, and <code>find_one</code>.</p>
+<p>The collection that is supplied is expected to provide <code>insert_one</code>, <code>replace_one</code>, and <code>find_one</code>.</p>
 <h4>Common Adapter Behavior</h4>
-<p>The following requirements apply identically to <code>DocumentStore</code> and <code>DocumentsBundleStore</code>.</p>
-<h5>Storage identifier normalization</h5>
-<p>For <code>add</code> and <code>update</code>, obtain the dictionary exposed by <code>data.manifest</code> and determine the persisted storage identifier as follows:</p>
+<p>The requirements in this section apply identically to <code>DocumentStore</code> and <code>DocumentsBundleStore</code>.</p>
+<h5>Normalization of the storage identifier</h5>
+<p>Within <code>add</code> and <code>update</code>, take the dictionary exposed by <code>data.manifest</code> and determine the storage identifier to be persisted as follows:</p>
 <ul>
-<li>If <code>manifest.get(&quot;_id&quot;)</code> is truthy, preserve that value unchanged, even when it differs from <code>data.id()</code>.</li>
-<li>If <code>&quot;_id&quot;</code> is absent or its value is falsy, set <code>manifest[&quot;_id&quot;]</code> to <code>data.id()</code>.</li>
+<li>If <code>manifest.get(&quot;_id&quot;)</code> is truthy, keep that value unchanged, even when it differs from <code>data.id()</code>.</li>
+<li>If <code>&quot;_id&quot;</code> is not present or its value is falsy, assign <code>data.id()</code> to <code>manifest[&quot;_id&quot;]</code>.</li>
 </ul>
-<p>Thus the MongoDB storage identifier (<code>_id</code>) and the domain object's logical identifier (<code>id</code>, as returned by <code>data.id()</code>) are allowed to differ. Other manifest content must be preserved.</p>
-<p>For example, an object created from:</p>
+<p>That means the MongoDB storage identifier (<code>_id</code>) and the domain object's logical identifier (<code>id</code>, as returned by <code>data.id()</code>) are allowed to differ. The remaining manifest content must be preserved.</p>
+<p>For instance, an object created from:</p>
 <pre><code class="language-python">{&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}
 </code></pre>
-<p>must continue to use <code>&quot;1&quot;</code> as its storage identifier. By contrast, an object whose manifest has no usable <code>_id</code> must be persisted with <code>_id</code> equal to <code>data.id()</code>.</p>
-<h5><code>add(data)</code></h5>
+<p>must keep using <code>&quot;1&quot;</code> as its storage identifier. By contrast, when an object's manifest has no usable <code>_id</code>, the object must be persisted with <code>_id</code> equal to <code>data.id()</code>.</p>
+<h6><code>add(data)</code></h6>
 <ol>
-<li>Normalize the manifest's storage identifier according to the rule above.</li>
-<li>Call <code>collection.insert_one(manifest)</code> with that manifest as the sole positional argument.</li>
-<li>If <code>insert_one</code> raises <code>pymongo.errors.DuplicateKeyError</code>, translate it to and raise <code>documentstore.exceptions.AlreadyExists</code>.</li>
+<li>Normalize the manifest's storage identifier as prescribed by the rule above.</li>
+<li>Call <code>collection.insert_one(manifest)</code>, passing that manifest as the sole positional argument.</li>
+<li>If <code>insert_one</code> raises <code>pymongo.errors.DuplicateKeyError</code>, translate it and raise <code>documentstore.exceptions.AlreadyExists</code> in its place.</li>
 </ol>
-<p>In particular, a pre-existing truthy <code>_id</code> must reach <code>insert_one</code> unchanged; it must not be overwritten merely because it differs from <code>data.id()</code>.</p>
-<h5><code>update(data)</code></h5>
+<p>In particular, a truthy <code>_id</code> that is already present must reach <code>insert_one</code> unchanged; it must not be overwritten merely because it differs from <code>data.id()</code>.</p>
+<h6><code>update(data)</code></h6>
 <ol>
 <li>
-<p>Normalize the manifest's storage identifier according to the rule above.</p>
+<p>Normalize the manifest's storage identifier as prescribed by the rule above.</p>
 </li>
 <li>
-<p>Call <code>collection.replace_one</code> with exactly these two positional arguments:</p>
+<p>Call <code>collection.replace_one</code>, passing exactly these two positional arguments:</p>
 <pre><code class="language-python">{&quot;_id&quot;: manifest[&quot;_id&quot;]}, manifest
 </code></pre>
-<p>The filter and replacement must therefore use the same storage identifier.</p>
+<p>The filter and the replacement must therefore be based on the same storage identifier.</p>
 </li>
 <li>
-<p>Inspect the result returned by <code>replace_one</code>. If <code>result.matched_count == 0</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</p>
+<p>Examine the result returned by <code>replace_one</code>. If <code>result.matched_count == 0</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</p>
 </li>
 </ol>
 <p>Examples:</p>
 <ul>
 <li>
-<p>For a manifest <code>{&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, preserve the divergent <code>_id</code> and call:</p>
+<p>Given a manifest <code>{&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code>, keep the divergent <code>_id</code> and call:</p>
 <pre><code class="language-python">collection.replace_one(
     {&quot;_id&quot;: &quot;1&quot;},
     {&quot;_id&quot;: &quot;1&quot;, &quot;id&quot;: &quot;0034-8910-rsp-48-2&quot;},
@@ -460,74 +462,74 @@ store = adapters.DocumentsBundleStore(collection)
 </code></pre>
 </li>
 <li>
-<p>For an object created with only <code>id=&quot;0034-8910-rsp-48-2&quot;</code>, add that value as <code>_id</code> and call <code>replace_one</code> with <code>{&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> as the filter and the normalized manifest as the replacement.</p>
+<p>When an object is created with only <code>id=&quot;0034-8910-rsp-48-2&quot;</code>, that value becomes the <code>_id</code>, and <code>replace_one</code> is called with <code>{&quot;_id&quot;: &quot;0034-8910-rsp-48-2&quot;}</code> as the filter and the normalized manifest as the replacement.</p>
 </li>
 </ul>
-<h5><code>fetch(id)</code></h5>
+<h6><code>fetch(id)</code></h6>
 <ol>
 <li>
 <p>Call <code>collection.find_one({&quot;_id&quot;: id})</code>.</p>
 </li>
 <li>
-<p>If <code>find_one</code> returns a falsy value, including <code>None</code>, raise <code>documentstore.exceptions.DoesNotExist</code>.</p>
+<p>If <code>find_one</code> returns a falsy value, <code>None</code> included, raise <code>documentstore.exceptions.DoesNotExist</code>.</p>
 </li>
 <li>
-<p>Otherwise return an instance of the adapter's domain class, constructed as:</p>
+<p>Otherwise return an instance of the adapter's domain class, constructed in the following way:</p>
 <pre><code class="language-python">DomainClass(manifest=found_manifest)
 </code></pre>
 </li>
 </ol>
-<p><code>DocumentStore.fetch</code> must return a <code>Document</code>; <code>DocumentsBundleStore.fetch</code> must return a <code>DocumentsBundle</code>. The returned object's manifest must have the same content as the found dictionary, and its existing domain API, including <code>.id()</code>, must continue to operate from that manifest.</p>
+<p><code>DocumentStore.fetch</code> must return a <code>Document</code>, and <code>DocumentsBundleStore.fetch</code> must return a <code>DocumentsBundle</code>. The manifest of the returned object must have the same content as the dictionary that was found, and the object's existing domain API, including <code>.id()</code>, must continue to function from that manifest.</p>
 <h4>Exceptions</h4>
-<p>Use the existing exception classes from <code>documentstore.exceptions</code>:</p>
+<p>The exception classes to use are the existing ones from <code>documentstore.exceptions</code>:</p>
 <ul>
-<li><code>AlreadyExists</code> for an <code>add</code> rejected because MongoDB reports a duplicate key.</li>
-<li><code>DoesNotExist</code> when <code>fetch</code> finds no truthy manifest or when <code>update</code> matches no existing record.</li>
+<li><code>AlreadyExists</code> when an <code>add</code> is rejected because MongoDB reports a duplicate key.</li>
+<li><code>DoesNotExist</code> for a <code>fetch</code> that finds no truthy manifest, or for an <code>update</code> that matches no existing record.</li>
 </ul>
-<p>These exception semantics must be uniform across both concrete adapters.</p>
-<h4>Existing Domain Objects and Compatibility</h4>
-<p>The adapters must continue to interoperate with the existing <code>documentstore.domain.Document</code> and <code>documentstore.domain.DocumentsBundle</code> classes. Both are constructible with either <code>id=&quot;...&quot;</code> or <code>manifest={...}</code> and expose <code>.id()</code> and <code>.manifest</code>. Their manifest and versioning behavior is outside this refactor and must remain unchanged.</p>
-<p>All existing non-store APIs remain unaffected. The refactor is limited to consolidating the store interface and making the two collection-backed stores use the uniform behavior specified above.</p>
+<p>These exception semantics must hold uniformly across both concrete adapters.</p>
+<h4>Compatibility with Existing Domain Objects</h4>
+<p>The adapters must remain interoperable with the existing <code>documentstore.domain.Document</code> and <code>documentstore.domain.DocumentsBundle</code> classes. Both classes are constructible with either <code>id=&quot;...&quot;</code> or <code>manifest={...}</code> and expose <code>.id()</code> and <code>.manifest</code>. Their manifest and versioning behavior lies outside this refactor and must remain unchanged.</p>
+<p>All existing non-store APIs stay unaffected. The refactor is limited to consolidating the store interface and to making the two collection-backed stores follow the uniform behavior specified above.</p>
 <h4>Constraints</h4>
 <ul>
-<li>There is one shared abstract datastore interface, not separate document and bundle interfaces.</li>
-<li>Both concrete adapters expose identical <code>add</code>, <code>update</code>, and <code>fetch</code> semantics.</li>
-<li>The concrete adapters share their storage behavior and vary only by the domain class materialized during <code>fetch</code>.</li>
-<li>A truthy storage <code>_id</code> already present in a manifest always takes precedence over <code>data.id()</code> for both <code>add</code> and <code>update</code>.</li>
+<li>There exists one shared abstract datastore interface — not separate document and bundle interfaces.</li>
+<li>The <code>add</code>, <code>update</code>, and <code>fetch</code> semantics of both concrete adapters are identical.</li>
+<li>The concrete adapters have shared storage behavior and vary only in the domain class materialized during <code>fetch</code>.</li>
+<li>For both <code>add</code> and <code>update</code>, a truthy storage <code>_id</code> already present in a manifest always takes precedence over <code>data.id()</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Versioned Metadata for BundleManifest</span>
-        <span class="spec-meta muted">814 words · source specification
+        <span class="spec-title">Versioned BundleManifest Metadata</span>
+        <span class="spec-meta muted">896 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Versioned Metadata for BundleManifest</h3>
-<h4>Overview</h4>
-<p>Modify the metadata storage of bundle manifests in the <code>documentstore.domain</code> module so that metadata values are versioned. Instead of storing a single value per metadata key, store a chronological list of <code>(timestamp, value)</code> pairs, where each entry records a value that was set along with the moment it was set.</p>
-<h4>Module and Time Source</h4>
-<p>Work within the module <code>documentstore.domain</code>. The module must reference timestamps through a module-level <code>datetime</code> (the standard library <code>datetime</code> module), obtaining the current UTC time via <code>datetime.utcnow()</code>. Timestamps must be formatted as ISO-8601 strings that include microseconds and a trailing <code>Z</code>, e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code> (this corresponds to <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>).</p>
+      <div class="spec-body"><h3>Task Specification: Versioned BundleManifest Metadata</h3>
+<h4>Summary</h4>
+<p>Inside the <code>documentstore.domain</code> module, change how bundle manifests store their metadata, so that the metadata values they hold are versioned. A single value per metadata key gives way to a chronological list of <code>(timestamp, value)</code> pairs, in which every entry records a value that was set plus the instant it was set.</p>
+<h4>Module and Source of Time</h4>
+<p>The work happens in the module <code>documentstore.domain</code>. Timestamps must be referenced by this module through a module-level <code>datetime</code> (the standard library <code>datetime</code> module), with the current UTC time obtained via <code>datetime.utcnow()</code>. In terms of format, a timestamp must be an ISO-8601 string that contains microseconds and a trailing <code>Z</code>, e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code> (matching <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>).</p>
 <h4><code>BundleManifest.set_metadata</code></h4>
 <p>Signature:</p>
 <pre><code class="language-python">BundleManifest.set_metadata(bundle_manifest, name, value, now=&lt;callable&gt;)
 </code></pre>
 <ul>
-<li><code>bundle_manifest</code> is a manifest dict (as produced by the existing bundle-creation logic; it contains at least <code>&quot;metadata&quot;</code>, <code>&quot;created&quot;</code>, and <code>&quot;updated&quot;</code> keys).</li>
-<li><code>name</code> is the metadata key (a string).</li>
-<li><code>value</code> is the value to store (a string).</li>
-<li><code>now</code> is an optional keyword-only callable that returns the current timestamp string. When not provided, it must default to producing the current UTC time formatted as described above (i.e. based on <code>datetime.utcnow()</code>).</li>
+<li><code>bundle_manifest</code> is a manifest dict (of the kind produced by the existing bundle-creation logic; it holds at least the keys <code>&quot;metadata&quot;</code>, <code>&quot;created&quot;</code>, and <code>&quot;updated&quot;</code>).</li>
+<li><code>name</code> is the metadata key, a string.</li>
+<li><code>value</code> is the value to be stored, a string.</li>
+<li><code>now</code> is an optional keyword-only callable; calling it returns the current timestamp string. If it is not given, its default must be to produce the current UTC time as specified above (i.e. based on <code>datetime.utcnow()</code>).</li>
 </ul>
 <p>Behavior:</p>
 <ul>
-<li>It appends the pair <code>(now(), value)</code> to the list stored under <code>bundle_manifest[&quot;metadata&quot;][name]</code>. If no entry for <code>name</code> exists yet, the list is created with this pair as its first element.</li>
-<li>Previously stored pairs for the same <code>name</code> are preserved; setting a new value for an existing key does <strong>not</strong> overwrite or remove earlier pairs — it appends. The resulting list is in insertion order, oldest first.</li>
-<li>Setting metadata for a different key adds a new key to the metadata mapping without affecting other keys. The number of keys in <code>metadata</code> reflects the number of distinct names set.</li>
-<li>Each call updates the manifest's <code>&quot;updated&quot;</code> field to a value strictly greater than its previous value (a later timestamp), reflecting the modification.</li>
-<li>The function returns the resulting manifest (the tests use the return value; treat this like the other manifest-mutating operations in this codebase, returning the manifest).</li>
+<li>A <code>(now(), value)</code> pair is appended to the list held under <code>bundle_manifest[&quot;metadata&quot;][name]</code>. When <code>name</code> has no entry yet, a list is created whose first element is this pair.</li>
+<li>Pairs stored earlier for the same <code>name</code> remain in place; setting a new value for an existing key does <strong>not</strong> overwrite or remove those earlier pairs — the new pair is appended. In the resulting list, entries appear in insertion order, oldest first.</li>
+<li>When metadata is set for a different key, a new key is added to the metadata mapping and the other keys are unaffected. How many keys <code>metadata</code> contains reflects how many distinct names have been set.</li>
+<li>With every call, the manifest's <code>&quot;updated&quot;</code> field is set to a value strictly greater than its previous value (a later timestamp), to reflect the modification.</li>
+<li>The resulting manifest is what the function returns (the tests use the return value; handle this the way the other manifest-mutating operations in this codebase are handled, i.e. by returning the manifest).</li>
 </ul>
-<p>Example of the stored structure after two sets of the same key:</p>
+<p>How the stored structure looks once the same key has been set twice:</p>
 <pre><code class="language-python">{
     &quot;publication_year&quot;: [
         (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;2018&quot;),
@@ -541,27 +543,27 @@ store = adapters.DocumentsBundleStore(collection)
 </code></pre>
 <p>Behavior:</p>
 <ul>
-<li>Returns the <strong>value</strong> (not the pair) of the most recently set entry for <code>name</code> — i.e. the value from the last <code>(timestamp, value)</code> pair in that key's list.</li>
-<li>If <code>name</code> is not present in the manifest's metadata, returns <code>default</code>.</li>
-<li><code>default</code> is an optional keyword argument whose default is the empty string <code>&quot;&quot;</code>. When the key is missing and a <code>default</code> is supplied, that supplied value is returned instead.</li>
+<li>The <strong>value</strong> — not the pair — that belongs to the entry most recently set for <code>name</code> is what gets returned; in other words, the value carried by the last <code>(timestamp, value)</code> pair in that key's list.</li>
+<li>Should <code>name</code> be absent from the manifest's metadata, <code>default</code> is returned.</li>
+<li>The keyword argument <code>default</code> is optional, and its default is the empty string <code>&quot;&quot;</code>. If the key is missing and a <code>default</code> has been supplied, the supplied value is what gets returned instead.</li>
 </ul>
-<h4><code>DocumentsBundle</code> metadata properties</h4>
-<p>The <code>DocumentsBundle</code> class exposes metadata as attributes: <code>publication_year</code>, <code>volume</code>, <code>number</code>, and <code>supplement</code>. These must continue to work:</p>
+<h4>Metadata properties of <code>DocumentsBundle</code></h4>
+<p>Metadata is exposed by the <code>DocumentsBundle</code> class as the attributes <code>publication_year</code>, <code>volume</code>, <code>number</code>, and <code>supplement</code>; these must keep working:</p>
 <ul>
 <li>
-<p>Assigning to one of these attributes stores the value in the manifest via the versioned <code>set_metadata</code> mechanism, so that <code>documents_bundle.manifest[&quot;metadata&quot;][&lt;name&gt;]</code> becomes a list of <code>(timestamp, value)</code> pairs. When the current UTC time is <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>, assigning <code>documents_bundle.volume = &quot;25&quot;</code> yields:</p>
+<p>A value assigned to any of these attributes is stored in the manifest through the versioned <code>set_metadata</code> mechanism, so that <code>documents_bundle.manifest[&quot;metadata&quot;][&lt;name&gt;]</code> ends up as a list of <code>(timestamp, value)</code> pairs. Given a current UTC time of <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>, the assignment <code>documents_bundle.volume = &quot;25&quot;</code> yields:</p>
 <pre><code class="language-python">documents_bundle.manifest[&quot;metadata&quot;][&quot;volume&quot;] == [(&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;25&quot;)]
 </code></pre>
 </li>
 <li>
-<p>Reading one of these attributes returns the latest stored value (via <code>get_metadata</code>), as a string. Existing value-normalization behavior (e.g. converting assigned values to strings) must be preserved.</p>
+<p>Reading any of these attributes returns the value stored most recently (via <code>get_metadata</code>), as a string. The value-normalization behavior that already exists (e.g. converting assigned values to strings) must be preserved.</p>
 </li>
 </ul>
-<h4>Impact on services (fetch/update documents bundle)</h4>
-<p>The service-layer commands that fetch and update bundle metadata must reflect the new storage format, since they operate on manifests:</p>
+<h4>Effect on services (fetch/update documents bundle)</h4>
+<p>Because they operate on manifests, the service-layer commands that fetch and update bundle metadata must reflect the new storage format:</p>
 <ul>
 <li>
-<p>Creating a bundle with a metadata mapping and then fetching it yields a <code>&quot;metadata&quot;</code> dict where each recognized key maps to a list of <code>(timestamp, value)</code> pairs. With the current UTC time mocked to <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>:</p>
+<p>A bundle that is created with a metadata mapping and then fetched yields a <code>&quot;metadata&quot;</code> dict in which the entry for each recognized key is a list of <code>(timestamp, value)</code> pairs. If the current UTC time is mocked to <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>:</p>
 <pre><code class="language-python">{
     &quot;publication_year&quot;: [(&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;2018&quot;)],
     &quot;volume&quot;: [(&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;2&quot;)],
@@ -569,10 +571,10 @@ store = adapters.DocumentsBundleStore(collection)
 </code></pre>
 </li>
 <li>
-<p>Unknown/unrecognized metadata keys supplied at creation are ignored and never appear in the stored metadata.</p>
+<p>Metadata keys that are unknown/unrecognized and supplied at creation are ignored; the stored metadata never contains them.</p>
 </li>
 <li>
-<p>Updating a bundle's metadata with a new value for an existing recognized key <strong>appends</strong> a new <code>(timestamp, value)</code> pair to that key's list rather than replacing the prior history. For example, creating with <code>publication_year=&quot;2018&quot;, volume=&quot;2&quot;</code> and then updating with <code>publication_year=&quot;2019&quot;</code> yields:</p>
+<p>When a bundle's metadata is updated with a new value for an existing recognized key, a new <code>(timestamp, value)</code> pair is <strong>appended</strong> to that key's list — the prior history is not replaced. As an example, creating with <code>publication_year=&quot;2018&quot;, volume=&quot;2&quot;</code> and then updating with <code>publication_year=&quot;2019&quot;</code> yields:</p>
 <pre><code class="language-python">{
     &quot;publication_year&quot;: [
         (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;2018&quot;),
@@ -583,10 +585,10 @@ store = adapters.DocumentsBundleStore(collection)
 </code></pre>
 </li>
 <li>
-<p>Updating with an unrecognized key leaves the stored metadata unchanged.</p>
+<p>An update performed with an unrecognized key leaves the stored metadata unchanged.</p>
 </li>
 <li>
-<p>Setting a recognized key to an empty string is a valid update: it appends a <code>(timestamp, &quot;&quot;)</code> pair. For example, after creating with <code>publication_year=&quot;2018&quot;, volume=&quot;2&quot;</code> and updating with <code>volume=&quot;&quot;</code>:</p>
+<p>Assigning an empty string to a recognized key is a valid update: a <code>(timestamp, &quot;&quot;)</code> pair gets appended. For instance, after creating with <code>publication_year=&quot;2018&quot;, volume=&quot;2&quot;</code> and updating with <code>volume=&quot;&quot;</code>:</p>
 <pre><code class="language-python">{
     &quot;publication_year&quot;: [(&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;2018&quot;)],
     &quot;volume&quot;: [
@@ -599,137 +601,138 @@ store = adapters.DocumentsBundleStore(collection)
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>All existing manifest behaviors not mentioned here (manifest generation on init, <code>created</code>/<code>updated</code> fields being equal at creation, item-management operations, string conversion of assigned metadata values) must remain intact.</li>
-<li>Timestamps are produced through the module-level <code>datetime</code> reference so that the current UTC time can be controlled externally; ensure the current-time source flows through <code>datetime.utcnow()</code>.</li>
+<li>Whatever manifest behavior already exists and is not mentioned here (manifest generation on init, <code>created</code>/<code>updated</code> fields holding equal values at creation, item-management operations, and the string conversion applied to assigned metadata values) must stay intact.</li>
+<li>Since the module-level <code>datetime</code> reference is what produces the timestamps, the current UTC time can be controlled externally; ensure the current-time source flows through <code>datetime.utcnow()</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You will make two related changes to the domain module (domain) of an existing codebase</span>
-        <span class="spec-meta muted">506 words · source specification
+        <span class="spec-title">The work consists of two related changes to the domain module (domain) of an existing codebase</span>
+        <span class="spec-meta muted">547 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You will make two related changes to the domain module (<code>domain</code>) of an existing codebase:</p>
+<p>The work consists of two related changes to the domain module (<code>domain</code>) of an existing codebase:</p>
 <ol>
-<li>Update the wording of several error messages raised by bundle item operations.</li>
-<li>Add a new <code>Journal</code> class.</li>
+<li>Change the wording of several error messages raised by bundle item operations.</li>
+<li>Introduce a new <code>Journal</code> class.</li>
 </ol>
-<h4>Part 1: Update bundle item error messages</h4>
-<p>The domain module contains a <code>BundleManifest</code> class and a <code>DocumentsBundle</code> class that manage a collection of &quot;items&quot; (documents). When certain operations fail, they raise exceptions with descriptive messages. The message format must be updated as follows.</p>
-<p>For all cases below, <code>{uri}</code> is the item identifier string that was passed to the operation.</p>
-<h5>Adding an item that already exists</h5>
-<p>When an attempt is made to add an item that is already present in the bundle, an <code>exceptions.AlreadyExists</code> error must be raised with the message:</p>
+<h4>Part 1: Changes to the bundle item error messages</h4>
+<p>Inside the domain module, a <code>BundleManifest</code> class and a <code>DocumentsBundle</code> class manage a collection of &quot;items&quot; (documents). Certain operations raise exceptions carrying descriptive messages when they fail. The message format must be updated as set out below.</p>
+<p>In all cases below, <code>{uri}</code> stands for the item identifier string that was passed to the operation.</p>
+<h5>Adding an item that is already present</h5>
+<p>Whenever there is an attempt to add an item that is already present in the bundle, an <code>exceptions.AlreadyExists</code> error must be raised with the message:</p>
 <pre><code>cannot add item &quot;{uri}&quot; in bundle: the item already exists
 </code></pre>
-<p>This applies to both:</p>
+<p>This applies to both of the following:</p>
 <ul>
 <li><code>domain.BundleManifest.add_item(bundle, uri)</code></li>
 <li><code>DocumentsBundle.add_document(uri)</code></li>
 </ul>
-<h5>Inserting an item that already exists</h5>
-<p>When an attempt is made to insert an item (at a given index) that is already present in the bundle, an <code>exceptions.AlreadyExists</code> error must be raised with the message:</p>
+<h5>Inserting an item that is already present</h5>
+<p>Whenever there is an attempt to insert an item (at a given index) that is already present in the bundle, an <code>exceptions.AlreadyExists</code> error must be raised with the message:</p>
 <pre><code>cannot insert item &quot;{uri}&quot; in bundle: the item already exists
 </code></pre>
-<p>This applies to both:</p>
+<p>This applies to both of the following:</p>
 <ul>
 <li><code>domain.BundleManifest.insert_item(bundle, index, uri)</code></li>
 <li><code>DocumentsBundle.insert_document(index, uri)</code></li>
 </ul>
-<h5>Removing an item that does not exist</h5>
-<p>When an attempt is made to remove an item that is not present in the bundle, an <code>exceptions.DoesNotExist</code> error must be raised with the message:</p>
+<h5>Removing an item that is not present</h5>
+<p>Whenever there is an attempt to remove an item that is not present in the bundle, an <code>exceptions.DoesNotExist</code> error must be raised with the message:</p>
 <pre><code>cannot remove item &quot;{uri}&quot; from bundle: the item does not exist
 </code></pre>
-<p>This applies to both:</p>
+<p>This applies to both of the following:</p>
 <ul>
 <li><code>domain.BundleManifest.remove_item(bundle, uri)</code></li>
 <li><code>DocumentsBundle.remove_document(uri)</code></li>
 </ul>
-<p>Only the message text changes; the exception types, the operations' success behavior, and the conditions under which each error is raised remain the same.</p>
-<h4>Part 2: Add the <code>Journal</code> class</h4>
-<p>Add a new class <code>Journal</code> to the domain module, importable as <code>domain.Journal</code>.</p>
+<p>The message text is the only aspect that changes; the exception types, the success behavior of the operations, and the conditions under which each error is raised remain unchanged.</p>
+<h4>Part 2: Adding the <code>Journal</code> class</h4>
+<p>Create a new class <code>Journal</code> in the domain module, importable as <code>domain.Journal</code>.</p>
 <h5>Constructor</h5>
-<p>The constructor must accept the following keyword arguments:</p>
+<p>The constructor must accept the keyword arguments listed below:</p>
 <ul>
-<li><code>id</code> (optional): a string identifier for the journal.</li>
-<li><code>manifest</code> (optional): a pre-existing manifest dictionary.</li>
+<li><code>id</code> (optional): an identifier string for the journal.</li>
+<li><code>manifest</code> (optional): a manifest dictionary that already exists.</li>
 </ul>
 <p>Behavior:</p>
 <ul>
 <li>
-<p>When constructed with only an <code>id</code> (e.g. <code>domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)</code>), the instance must automatically generate and hold a manifest, exposed as the attribute <code>manifest</code>, which must be a <code>dict</code>.</p>
+<p>If the instance is created with only an <code>id</code> (e.g. <code>domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)</code>), it must automatically generate and hold a manifest, exposing it as the attribute <code>manifest</code>; that attribute must be a <code>dict</code>.</p>
 </li>
 <li>
-<p>When constructed with a <code>manifest</code> argument (e.g. <code>domain.Journal(manifest=existing_manifest)</code>), the instance's <code>manifest</code> attribute must be exactly the dictionary that was passed in (equal to the supplied manifest).</p>
+<p>If the instance is created with a <code>manifest</code> argument (e.g. <code>domain.Journal(manifest=existing_manifest)</code>), the instance's <code>manifest</code> attribute must be exactly the dictionary that was passed in (equal to the manifest that was supplied).</p>
 </li>
 <li>
-<p>The supplied <code>manifest</code> must NOT be validated against any schema on construction. A manifest such as <code>{&quot;versions&quot;: []}</code> must be accepted as-is and stored unchanged in the <code>manifest</code> attribute.</p>
+<p>The supplied <code>manifest</code> must NOT be validated against any schema at construction time. A manifest like <code>{&quot;versions&quot;: []}</code> must be accepted as-is and stored unchanged in the <code>manifest</code> attribute.</p>
 </li>
 </ul>
 <h5>Methods</h5>
 <ul>
-<li><code>id()</code>: returns the journal's identifier string as passed to the constructor via the <code>id</code> argument. For example, a journal constructed with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> must return <code>&quot;0034-8910-rsp-48-2&quot;</code> from <code>id()</code>.</li>
+<li><code>id()</code>: returns the identifier string for the journal, as passed to the constructor via the <code>id</code> argument. For instance, a journal constructed with <code>id=&quot;0034-8910-rsp-48-2&quot;</code> must return <code>&quot;0034-8910-rsp-48-2&quot;</code> from <code>id()</code>.</li>
 </ul>
 <h5>Attributes</h5>
 <ul>
-<li><code>manifest</code>: the journal's manifest dictionary (as described above).</li>
+<li><code>manifest</code>: the manifest dictionary belonging to the journal (see above).</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The <code>Journal</code> class should follow the same manifest-generation conventions already used by comparable bundle-style classes in the domain module: constructing with an <code>id</code> produces a valid manifest dictionary, while constructing with an explicit <code>manifest</code> uses it directly without modification or validation.</li>
+<li>The <code>Journal</code> class should follow the same manifest-generation conventions already used by comparable bundle-style classes in the domain module: when construction uses an <code>id</code>, a valid manifest dictionary is produced; when construction is given an explicit <code>manifest</code>, it is used directly, without modification or validation.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Add a mission property to the Journal class in the domain module.</span>
-        <span class="spec-meta muted">375 words · source specification
+        <span class="spec-title">Add a property called mission to the Journal class of the domain module.</span>
+        <span class="spec-meta muted">405 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add a <code>mission</code> property to the <code>Journal</code> class in the <code>domain</code> module. This property stores a multilingual mission statement as part of the journal's metadata.</p>
-<h4>Location</h4>
-<p>The <code>Journal</code> class already exists in the <code>domain</code> module (importable as <code>domain.Journal</code>). You will extend it with a new property.</p>
-<h4>Required Behavior</h4>
-<h5>The <code>mission</code> property</h5>
-<p>Add a property named <code>mission</code> to the <code>Journal</code> class with both a getter and a setter.</p>
-<h6>Setter</h6>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Add a property called <code>mission</code> to the <code>Journal</code> class of the <code>domain</code> module. Its purpose is to store a multilingual mission statement as part of the journal's metadata.</p>
+<h4>Location in the Code</h4>
+<p>A <code>Journal</code> class is already present in the <code>domain</code> module and is importable as <code>domain.Journal</code>; your task is to extend it with a new property.</p>
+<h4>Behavior Requirements</h4>
+<h5>The new <code>mission</code> property</h5>
+<p>Add to the <code>Journal</code> class a property named <code>mission</code> that provides both a getter and a setter.</p>
+<h6>Setter behavior</h6>
 <p><code>journal.mission = value</code></p>
 <ul>
-<li>The value must be a <strong>dictionary</strong> (mapping). When a dictionary is assigned, it is stored in the journal's metadata under the key <code>&quot;mission&quot;</code>.</li>
-<li>After assignment, the stored value must be accessible via:
+<li>The value being assigned must be a <strong>dictionary</strong> (mapping). Once a dictionary has been assigned, the setter stores it in the journal's metadata under the key <code>&quot;mission&quot;</code>.</li>
+<li>After the assignment takes place, the stored value must be accessible through:
 <ul>
-<li>The <code>mission</code> getter (see below).</li>
-<li><code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code>, which must return exactly the dictionary that was assigned.</li>
+<li>The <code>mission</code> getter (described below).</li>
+<li>The expression <code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code>, which must return exactly the dictionary that was assigned.</li>
 </ul>
 </li>
 </ul>
-<h6>Getter</h6>
+<h6>Getter behavior</h6>
 <p><code>journal.mission</code></p>
 <ul>
-<li>Returns the dictionary currently stored as the journal's mission (the exact dictionary previously assigned).</li>
+<li>The getter returns the dictionary currently stored as the journal's mission (the exact dictionary assigned previously).</li>
 </ul>
-<h5>Validation / Error Handling</h5>
+<h5>Validation and Error Handling</h5>
 <ul>
 <li>
-<p>If the value assigned to <code>mission</code> is <strong>not a dictionary</strong> (for example, a plain string), the setter must raise a <code>ValueError</code>.</p>
+<p>Whenever the value assigned to <code>mission</code> is <strong>not a dictionary</strong> (for instance, a plain string), the setter must raise a <code>ValueError</code>.</p>
 </li>
 <li>
-<p>The <code>ValueError</code> message must be exactly:</p>
+<p>The message carried by the <code>ValueError</code> must be exactly:</p>
 <pre><code>cannot set mission with value &quot;&lt;value&gt;&quot;: the value is not valid
 </code></pre>
-<p>where <code>&lt;value&gt;</code> is the rejected value rendered as-is (i.e. its string form). For example, assigning the string <code>mission-invalid</code> must produce the message:</p>
+<p>where <code>&lt;value&gt;</code> denotes the rejected value rendered as-is (i.e. its string form). One example: assigning the string <code>mission-invalid</code> must produce the message:</p>
 <pre><code>cannot set mission with value &quot;mission-invalid&quot;: the value is not valid
 </code></pre>
 </li>
 <li>
-<p>The <strong>content</strong> of a valid dictionary is not validated — any dictionary of language-code keys to string values is accepted and stored without further checks.</p>
+<p>A valid dictionary's <strong>content</strong> is not validated — any dictionary of language-code keys to string values is accepted and stored, without additional checks.</p>
 </li>
 </ul>
-<h4>Example</h4>
+<h4>Worked Example</h4>
 <pre><code class="language-python">import domain
 
 journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
@@ -749,48 +752,48 @@ journal.mission = &quot;mission-invalid&quot;
 # raises ValueError:
 # 'cannot set mission with value &quot;mission-invalid&quot;: the value is not valid'
 </code></pre>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The existing behavior of <code>Journal</code> (e.g. its construction with an <code>id</code> keyword argument, its <code>id()</code> method, and its <code>manifest</code> structure containing a <code>&quot;metadata&quot;</code> dict) must remain intact.</li>
-<li>The mission data is stored within the existing metadata mechanism so it appears under <code>manifest[&quot;metadata&quot;][&quot;mission&quot;]</code>.</li>
+<li>Existing behavior of <code>Journal</code> (for example: its construction with an <code>id</code> keyword argument, its <code>id()</code> method, and its <code>manifest</code> structure containing a <code>&quot;metadata&quot;</code> dict) must stay intact.</li>
+<li>The mission data is kept within the existing metadata mechanism, so that it appears under <code>manifest[&quot;metadata&quot;][&quot;mission&quot;]</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">In the project’s domain module, support the following public API</span>
-        <span class="spec-meta muted">204 words · source specification
+        <span class="spec-title">Support the following public API in the project’s domain module</span>
+        <span class="spec-meta muted">224 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>In the project’s <code>domain</code> module, support the following public API:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Support the following public API in the project’s <code>domain</code> module:</p>
 <ul>
 <li><code>domain.Journal(id=...)</code></li>
 <li><code>Journal.manifest</code></li>
-<li>Read/write property <code>Journal.mission</code></li>
-<li>A replaceable module attribute <code>domain.datetime</code> exposing <code>utcnow()</code>, used as the clock for mission metadata timestamps.</li>
+<li>A read/write property <code>Journal.mission</code></li>
+<li>A module attribute <code>domain.datetime</code> that is replaceable, exposes <code>utcnow()</code>, and is used as the clock for mission metadata timestamps.</li>
 </ul>
-<h5>Journal behavior</h5>
-<p>Creating a journal with a keyword ID, for example:</p>
+<h5>Behavior of the journal</h5>
+<p>When a journal is created with a keyword ID, for example:</p>
 <pre><code class="language-python">journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
-<p>must produce a <code>journal.manifest</code> that is a dictionary.</p>
-<p>Assigning a multilingual dictionary to <code>journal.mission</code> must:</p>
+<p>this must produce a <code>journal.manifest</code> that is a dictionary.</p>
+<p>Assigning a multilingual dictionary to <code>journal.mission</code> must have the following effects:</p>
 <ol>
-<li>Make the same dictionary content available from <code>journal.mission</code>, without swapping or altering language values.</li>
-<li>Store a timestamped entry as the last element of:</li>
+<li>The same dictionary content is made available from <code>journal.mission</code>, without the language values being swapped or altered.</li>
+<li>A timestamped entry is stored as the last element of:</li>
 </ol>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]
 </code></pre>
-<p>The entry must be a tuple containing:</p>
+<p>That entry must be a tuple containing:</p>
 <pre><code class="language-python">(&lt;UTC timestamp string&gt;, &lt;mission dictionary&gt;)
 </code></pre>
-<p>The timestamp must come from <code>domain.datetime.utcnow()</code> and use ISO-8601 formatting with a trailing <code>Z</code>.</p>
-<p>For example, if <code>domain.datetime.utcnow()</code> returns:</p>
+<p>The timestamp must originate from <code>domain.datetime.utcnow()</code> and follow ISO-8601 formatting with a trailing <code>Z</code>.</p>
+<p>For instance, if <code>domain.datetime.utcnow()</code> returns:</p>
 <pre><code class="language-python">datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)
 </code></pre>
-<p>then:</p>
+<p>then this assignment:</p>
 <pre><code class="language-python">journal.mission = {
     &quot;pt&quot;: &quot;Publicar trabalhos científicos originais sobre a Amazonia.&quot;,
     &quot;es&quot;: &quot;Publicar trabajos científicos originales sobre Amazonia.&quot;,
@@ -812,55 +815,56 @@ journal.mission = &quot;mission-invalid&quot;
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Expose the following classes from documentstore.domain</span>
-        <span class="spec-meta muted">609 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The following classes must be exposed from documentstore.domain</span>
+        <span class="spec-meta muted">681 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>Expose the following classes from <code>documentstore.domain</code>:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Public API that must be exposed</h4>
+<p>The following classes must be exposed from <code>documentstore.domain</code>:</p>
 <ul>
 <li><code>domain.Journal(id: str)</code></li>
 <li><code>domain.DocumentsBundle(id: str)</code></li>
 </ul>
-<p>They must also be usable through this import style:</p>
+<p>It must also be possible to use them via this import style:</p>
 <pre><code class="language-python">from documentstore import domain
 </code></pre>
-<p>Each class must expose a dictionary-valued <code>manifest</code>. For an instance newly created from an identifier, <code>manifest</code> must contain a dictionary at <code>manifest[&quot;metadata&quot;]</code>.</p>
-<h4>Timestamped metadata convention</h4>
-<p>Except for <code>Journal.mission</code>, every property introduced below uses the bundle metadata-history convention:</p>
+<p>Each class must expose a <code>manifest</code> whose value is a dictionary. For an instance that has just been created from an identifier, <code>manifest</code> must contain a dictionary at <code>manifest[&quot;metadata&quot;]</code>.</p>
+<h4>Convention for timestamped metadata</h4>
+<p>Apart from <code>Journal.mission</code>, the bundle metadata-history convention applies to every property introduced below:</p>
 <ul>
-<li>If the property's metadata has not been set, reading the property returns the empty string <code>&quot;&quot;</code>.</li>
-<li>Assigning a value stores it under the property's exact name in <code>manifest[&quot;metadata&quot;]</code> without transforming the value.</li>
-<li>A metadata history is a list of <code>(timestamp, value)</code> tuples in assignment order. The first assignment therefore creates a one-element list, and later assignments append rather than replacing earlier values.</li>
-<li>Reading a property with a nonempty history returns its latest assigned value.</li>
-<li>The timestamp is the current UTC time in ISO 8601 form with a trailing <code>Z</code>. For example, a current UTC time of <code>2018-08-05 22:33:49.795151</code> is represented as <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>.</li>
+<li>When the property's metadata has not been set, reading the property returns the empty string <code>&quot;&quot;</code>.</li>
+<li>Assigning a value stores it in <code>manifest[&quot;metadata&quot;]</code> under the property's exact name, without transforming the value.</li>
+<li>A metadata history is a list of <code>(timestamp, value)</code> tuples in the order the assignments were made. The first assignment therefore produces a one-element list, and later assignments append to it rather than replacing earlier values.</li>
+<li>Reading a property that has a nonempty history returns its latest assigned value.</li>
+<li>The timestamp is the current UTC time expressed in ISO 8601 form with a trailing <code>Z</code>. To illustrate, a current UTC time of <code>2018-08-05 22:33:49.795151</code> is represented as <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>.</li>
 </ul>
-<p>Thus, after a first assignment, an entry has this shape:</p>
+<p>So, after a first assignment has been made, an entry has the following shape:</p>
 <pre><code class="language-python">instance.manifest[&quot;metadata&quot;][property_name] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, assigned_value)
 ]
 </code></pre>
-<h4><code>Journal</code> behavior</h4>
-<p>A newly constructed <code>Journal</code> must have a dictionary-valued <code>manifest</code>.</p>
-<h5>Mission</h5>
-<p><code>Journal.mission</code> accepts dictionaries. The contents of an accepted dictionary are not validated: language keys, values, and other dictionary contents are preserved as assigned.</p>
-<p>For example, assigning:</p>
+<h4>Behavior of <code>Journal</code></h4>
+<p>A newly constructed <code>Journal</code> must have a <code>manifest</code> that is a dictionary.</p>
+<h5>The mission property</h5>
+<p><code>Journal.mission</code> accepts dictionaries. No validation is performed on the contents of an accepted dictionary: language keys, values, and other dictionary contents are preserved as assigned.</p>
+<p>As an example, after assigning:</p>
 <pre><code class="language-python">journal.mission = {
     &quot;pt&quot;: &quot;Publicar trabajos científicos originales sobre Amazonia.&quot;,
     &quot;es&quot;: &quot;Publicar trabalhos científicos originais sobre a Amazonia.&quot;,
     &quot;en&quot;: &quot;To publish original scientific papers about Amazonia.&quot;,
 }
 </code></pre>
-<p>must make both <code>journal.mission</code> and <code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> equal that dictionary.</p>
-<p>Mission is an explicit exception to the timestamped metadata convention: <code>manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> is the dictionary itself, not a list of timestamp/value tuples.</p>
-<p>The outer value must nevertheless be a dictionary. Assigning any non-dictionary value must raise <code>ValueError</code> and must not accept or store that value. The exception message is exactly:</p>
+<p>both <code>journal.mission</code> and <code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> must equal that dictionary.</p>
+<p>Mission is an explicit exception to the timestamped metadata convention: the value of <code>manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> is the dictionary itself, not a list of timestamp/value tuples.</p>
+<p>Even so, the outer value must be a dictionary. Assigning any value that is not a dictionary must raise <code>ValueError</code> and must not accept or store that value. The message of the exception is exactly:</p>
 <pre><code class="language-text">cannot set mission with value &quot;&lt;value&gt;&quot;: the value is not valid
 </code></pre>
-<p>For example, assigning the string <code>&quot;mission-invalid&quot;</code> raises <code>ValueError</code> with:</p>
+<p>As an example, assigning the string <code>&quot;mission-invalid&quot;</code> raises <code>ValueError</code> with:</p>
 <pre><code class="language-text">cannot set mission with value &quot;mission-invalid&quot;: the value is not valid
 </code></pre>
-<h5>Text properties</h5>
-<p><code>Journal</code> must expose these assignable properties:</p>
+<h5>Textual properties</h5>
+<p>The assignable properties that <code>Journal</code> must expose are:</p>
 <ul>
 <li><code>title</code></li>
 <li><code>title_iso</code></li>
@@ -868,7 +872,7 @@ journal.mission = &quot;mission-invalid&quot;
 <li><code>title_slug</code></li>
 <li><code>acronym</code></li>
 </ul>
-<p>Each follows the timestamped metadata convention above, including initially returning <code>&quot;&quot;</code>. Required example assignments are:</p>
+<p>Each of them follows the timestamped metadata convention above, including that it initially returns <code>&quot;&quot;</code>. The required example assignments are:</p>
 <table>
 <thead>
 <tr>
@@ -899,15 +903,15 @@ journal.mission = &quot;mission-invalid&quot;
 </tr>
 </tbody>
 </table>
-<p>At the example UTC time, setting <code>title</code> for the first time must produce:</p>
+<p>Setting <code>title</code> for the first time at the example UTC time must produce:</p>
 <pre><code class="language-python">journal.title == &quot;Rev. Saúde Pública&quot;
 journal.manifest[&quot;metadata&quot;][&quot;title&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;Rev. Saúde Pública&quot;)
 ]
 </code></pre>
-<p>The same storage shape and exact metadata key apply to each of the other listed properties.</p>
-<h4><code>DocumentsBundle</code> behavior</h4>
-<p><code>DocumentsBundle</code> must expose these assignable properties:</p>
+<p>For each of the other listed properties, the same storage shape and the exact metadata key apply.</p>
+<h4>Behavior of <code>DocumentsBundle</code></h4>
+<p>The following assignable properties must be exposed by <code>DocumentsBundle</code>:</p>
 <ul>
 <li><code>scielo_issn</code></li>
 <li><code>print_issn</code></li>
@@ -916,9 +920,9 @@ journal.manifest[&quot;metadata&quot;][&quot;title&quot;] == [
 <li><code>unpublish_reason</code></li>
 <li><code>is_public</code></li>
 </ul>
-<p>The spelling <code>eletronic_issn</code> is intentional and must be preserved exactly.</p>
-<p>Every listed property follows the timestamped metadata convention. In particular, each initially returns <code>&quot;&quot;</code>; this includes <code>is_public</code>, despite that property accepting a boolean value. Assignment preserves the value and its type.</p>
-<p>Required assignments include:</p>
+<p>The spelling <code>eletronic_issn</code> is deliberate and must be preserved exactly.</p>
+<p>Every property in the list follows the timestamped metadata convention. In particular, each one initially returns <code>&quot;&quot;</code>; this includes <code>is_public</code>, even though that property accepts a boolean value. An assignment preserves the value and its type.</p>
+<p>The required assignments include:</p>
 <pre><code class="language-python">bundle.scielo_issn = &quot;1809-4392&quot;
 bundle.print_issn = &quot;1809-4392&quot;
 bundle.eletronic_issn = &quot;1809-4392&quot;
@@ -926,7 +930,7 @@ bundle.current_status = &quot;current&quot;
 bundle.unpublish_reason = &quot;not-open-access&quot;
 bundle.is_public = True
 </code></pre>
-<p>After these first assignments at the example UTC time, representative entries are:</p>
+<p>After these first assignments have been made at the example UTC time, representative entries are:</p>
 <pre><code class="language-python">bundle.scielo_issn == &quot;1809-4392&quot;
 bundle.manifest[&quot;metadata&quot;][&quot;scielo_issn&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;1809-4392&quot;)
@@ -937,21 +941,21 @@ bundle.manifest[&quot;metadata&quot;][&quot;is_public&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, True)
 ]
 </code></pre>
-<p>The other properties use the same one-entry history after their first assignment, under their exact property names.</p>
+<p>After their first assignment, the other properties use the same one-entry history, under their exact property names.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Implement Journal in the domain module</span>
-        <span class="spec-meta muted">451 words · source specification
+        <span class="spec-title">Build a Journal class inside the domain module</span>
+        <span class="spec-meta muted">487 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>Journal</code> in the domain module</h3>
+      <div class="spec-body"><h3>Task Specification: Build a <code>Journal</code> class inside the domain module</h3>
 <h4>Overview</h4>
-<p>Implement a <code>Journal</code> class in the <code>domain</code> module (importable as <code>domain.Journal</code>). The class manages a manifest structure and exposes a <code>mission</code> property with versioned, timestamped storage of its metadata.</p>
+<p>A <code>Journal</code> class is to be created within the <code>domain</code> module (accessible as <code>domain.Journal</code>). It is responsible for maintaining a manifest structure and provides a <code>mission</code> property whose metadata is stored with versioning and timestamps.</p>
 <h4>Timestamp Requirement</h4>
-<p>The module must reference <code>datetime</code> (as <code>domain.datetime</code>) such that timestamps are produced via <code>datetime.utcnow()</code>. Timestamps stored in the manifest must be formatted as ISO-8601 strings with microsecond precision and a trailing <code>Z</code>, e.g. for <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code> the resulting string is:</p>
+<p>The module must reference <code>datetime</code> (accessible as <code>domain.datetime</code>) so that timestamps are generated by calling <code>datetime.utcnow()</code>. Timestamps written into the manifest must be rendered as ISO-8601 strings carrying microsecond precision with a trailing <code>Z</code>; for instance, given <code>datetime.datetime(2018, 8, 5, 22, 33, 49, 795151)</code>, the produced string is:</p>
 <pre><code>2018-08-05T22:33:49.795151Z
 </code></pre>
 <h4>Class: <code>Journal</code></h4>
@@ -959,19 +963,19 @@ bundle.manifest[&quot;metadata&quot;][&quot;is_public&quot;] == [
 <pre><code class="language-python">Journal(id=&quot;&lt;some-id&gt;&quot;)
 </code></pre>
 <ul>
-<li>Accepts a keyword argument <code>id</code>.</li>
-<li>On initialization, a manifest must be generated. After construction, the instance attribute <code>manifest</code> must be a <code>dict</code>.</li>
-<li>The manifest must contain a <code>&quot;metadata&quot;</code> key whose value is a <code>dict</code>.</li>
+<li>Takes a keyword argument <code>id</code>.</li>
+<li>At initialization time, a manifest must be produced. Once construction finishes, the instance attribute <code>manifest</code> must be a <code>dict</code>.</li>
+<li>The manifest must include a <code>&quot;metadata&quot;</code> key mapped to a value that is a <code>dict</code>.</li>
 </ul>
 <h5>Property: <code>mission</code></h5>
-<p><code>mission</code> is a read/write property.</p>
+<p><code>mission</code> is a property that supports both reading and writing.</p>
 <p><strong>Getter behavior:</strong></p>
 <ul>
-<li>Returns the most recently assigned mission value (a <code>dict</code>).</li>
-<li>Before any mission has been set, the exact return value is unspecified by this task; only the behavior after a successful assignment is required (see below).</li>
+<li>Returns the mission value that was assigned most recently (a <code>dict</code>).</li>
+<li>Prior to any mission being set, the precise return value is left unspecified by this task; only the behavior that follows a successful assignment is required (see below).</li>
 </ul>
 <p><strong>Setter behavior:</strong></p>
-<p>Given an assignment such as:</p>
+<p>For an assignment such as:</p>
 <pre><code class="language-python">journal.mission = {
     &quot;pt&quot;: &quot;...&quot;,
     &quot;es&quot;: &quot;...&quot;,
@@ -980,54 +984,54 @@ bundle.manifest[&quot;metadata&quot;][&quot;is_public&quot;] == [
 </code></pre>
 <ul>
 <li>
-<p>After assignment, the getter (<code>journal.mission</code>) must return a <code>dict</code> equal to the assigned mapping.</p>
+<p>Once assigned, the getter (<code>journal.mission</code>) must return a <code>dict</code> equal to the mapping that was assigned.</p>
 </li>
 <li>
-<p>The assignment must also append a versioned entry into the manifest. Specifically, <code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> must be a sequence (list) where the <strong>last element</strong> is a 2-tuple:</p>
+<p>The assignment must additionally append a versioned entry into the manifest. In particular, <code>journal.manifest[&quot;metadata&quot;][&quot;mission&quot;]</code> must be a sequence (list) whose <strong>last element</strong> is a 2-tuple of the form:</p>
 <pre><code class="language-python">(&quot;&lt;utc-timestamp&gt;&quot;, &lt;the-assigned-mapping-as-dict&gt;)
 </code></pre>
-<p>where <code>&lt;utc-timestamp&gt;</code> is the formatted timestamp string (see Timestamp Requirement) captured at assignment time, and the second element is a <code>dict</code> equal to the assigned mapping.</p>
+<p>in which <code>&lt;utc-timestamp&gt;</code> is the formatted timestamp string (see Timestamp Requirement) taken at the moment of assignment, and the second element is a <code>dict</code> equal to the assigned mapping.</p>
 </li>
 <li>
-<p>The setter must accept any value that behaves as a mapping via <code>__getitem__</code> — i.e., the assigned value should be converted/consumed as a mapping and stored as a <code>dict</code>. This includes plain <code>dict</code> objects and objects/structures that can be interpreted as an associative mapping (for example, an iterable of key/value pairs). The stored and returned value must be a <code>dict</code> equal to the mapping form of the input.</p>
+<p>The setter must take any value that acts as a mapping via <code>__getitem__</code> — that is, the assigned value is to be converted/consumed as a mapping and kept as a <code>dict</code>. This covers plain <code>dict</code> objects as well as objects/structures readable as an associative mapping (for example, an iterable of key/value pairs). The value stored and returned must be a <code>dict</code> equal to the mapping form of the input.</p>
 </li>
 </ul>
 <p><strong>Error condition:</strong></p>
 <ul>
 <li>
-<p>If the assigned value is not a valid mapping (for example, a plain string such as <code>&quot;mission-invalid&quot;</code>), the setter must raise <code>TypeError</code>.</p>
+<p>When the assigned value is not a valid mapping (for instance, a plain string like <code>&quot;mission-invalid&quot;</code>), the setter must raise <code>TypeError</code>.</p>
 </li>
 <li>
-<p>The exception message must be exactly:</p>
+<p>The exception message has to be exactly:</p>
 <pre><code>cannot set mission with value &quot;mission-invalid&quot;: value must be dict
 </code></pre>
-<p>In general, the message follows the pattern:</p>
+<p>More generally, the message follows this pattern:</p>
 <pre><code>cannot set mission with value &quot;&lt;value&gt;&quot;: value must be dict
 </code></pre>
-<p>where <code>&lt;value&gt;</code> is the offending value as rendered in the message.</p>
+<p>where <code>&lt;value&gt;</code> is the offending value as it appears in the message.</p>
 </li>
 </ul>
 <h4>Scope</h4>
-<p>Only the constructor, the <code>manifest</code> attribute, and the <code>mission</code> property (getter, setter, timestamped manifest storage, and the <code>TypeError</code> on invalid input) are required. No other properties or attributes are part of this task.</p>
+<p>This task covers only the constructor, the <code>manifest</code> attribute, and the <code>mission</code> property (getter, setter, timestamped manifest storage, and the <code>TypeError</code> raised on invalid input). No further properties or attributes fall within this task.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Extend documentstore.domain.Journal, importable as</span>
-        <span class="spec-meta muted">405 words · source specification
+        <span class="spec-title">documentstore.domain.Journal must be extended.</span>
+        <span class="spec-meta muted">462 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Journal domain changes</h3>
-<h4>Public API</h4>
-<p>Extend <code>documentstore.domain.Journal</code>, importable as:</p>
+      <div class="spec-body"><h3>Changes to the Journal domain</h3>
+<h4>Public interface</h4>
+<p><code>documentstore.domain.Journal</code> must be extended. It is importable as:</p>
 <pre><code class="language-python">from documentstore import domain
 
 journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
-<p><code>Journal</code> must expose the public <code>manifest</code> mapping and the properties and methods described below.</p>
-<h4>Text metadata properties</h4>
-<p>Add these read/write properties:</p>
+<p>The public <code>manifest</code> mapping, together with the properties and methods described below, must be exposed by <code>Journal</code>.</p>
+<h4>Properties for text metadata</h4>
+<p>The following read/write properties must be added:</p>
 <ul>
 <li><code>title</code></li>
 <li><code>title_iso</code></li>
@@ -1036,23 +1040,23 @@ journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 <li><code>acronym</code></li>
 <li><code>scielo_issn</code></li>
 <li><code>print_issn</code></li>
-<li><code>eletronic_issn</code> — retain this exact spelling</li>
+<li><code>eletronic_issn</code> — this exact spelling must be retained</li>
 <li><code>current_status</code></li>
 <li><code>unpublish_reason</code></li>
 </ul>
-<p>Each property must return <code>&quot;&quot;</code> on a newly created journal.</p>
-<p>Assigning a string must make that string available through the property and record it in:</p>
+<p>On a newly created journal, each of these properties must return <code>&quot;&quot;</code>.</p>
+<p>Assigning a string is required to make that string available through the property and to record it in:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][property_name]
 </code></pre>
-<p>After one assignment on a fresh journal, the metadata value must be a one-element list containing a <code>(timestamp, value)</code> tuple:</p>
+<p>After a single assignment on a fresh journal, the metadata value must be a one-element list containing a <code>(timestamp, value)</code> tuple:</p>
 <pre><code class="language-python">[(assignment_timestamp, assigned_value)]
 </code></pre>
-<p>Values, including non-ASCII text, must be preserved exactly. Required examples include:</p>
+<p>Values must be preserved exactly, including non-ASCII text. Required examples include the following:</p>
 <table>
 <thead>
 <tr>
 <th>Property</th>
-<th>Assigned value</th>
+<th>Value assigned</th>
 </tr>
 </thead>
 <tbody>
@@ -1098,46 +1102,46 @@ journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </tr>
 </tbody>
 </table>
-<p>For example, if the assignment occurs at <code>2018-08-05 22:33:49.795151</code> UTC:</p>
+<p>As an example, when the assignment occurs at <code>2018-08-05 22:33:49.795151</code> UTC:</p>
 <pre><code class="language-python">journal.title = &quot;Rev. Saúde Pública&quot;
 
 journal.manifest[&quot;metadata&quot;][&quot;title&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;Rev. Saúde Pública&quot;)
 ]
 </code></pre>
-<h4>Public-status property</h4>
-<p>Add the read/write property <code>is_public</code>.</p>
+<h4>Property for public status</h4>
+<p>The read/write property <code>is_public</code> must be added.</p>
 <ul>
-<li>Its value on a newly created journal must be <code>True</code>.</li>
-<li>Assigning either <code>True</code> or <code>False</code> must preserve that Boolean value.</li>
-<li>An explicit assignment must be recorded in <code>manifest[&quot;metadata&quot;][&quot;is_public&quot;]</code>, even when assigning the default value <code>True</code>.</li>
+<li>On a newly created journal, its value must be <code>True</code>.</li>
+<li>When either <code>True</code> or <code>False</code> is assigned, that Boolean value must be preserved.</li>
+<li>An explicit assignment must be recorded in <code>manifest[&quot;metadata&quot;][&quot;is_public&quot;]</code>, even when the value assigned is the default value <code>True</code>.</li>
 </ul>
-<p>At <code>2018-08-05 22:33:49.795151</code> UTC, the required results after one assignment on a fresh journal are:</p>
+<p>When the assignment takes place at <code>2018-08-05 22:33:49.795151</code> UTC, the results required after a single assignment on a fresh journal are:</p>
 <pre><code class="language-python">journal.is_public = True
 journal.manifest[&quot;metadata&quot;][&quot;is_public&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, True)
 ]
 </code></pre>
-<p>and, for a separate instance:</p>
+<p>and, for a distinct instance:</p>
 <pre><code class="language-python">journal.is_public = False
 journal.manifest[&quot;metadata&quot;][&quot;is_public&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, False)
 ]
 </code></pre>
-<h4>Creation and update timestamps</h4>
-<p>Expose these no-argument methods:</p>
+<h4>Timestamps for creation and update</h4>
+<p>These no-argument methods must be exposed:</p>
 <pre><code class="language-python">journal.created()
 journal.updated()
 </code></pre>
-<p>They must return UTC timestamp strings with a trailing <code>Z</code>.</p>
-<p>For a journal created at <code>2018-08-05 22:33:49.795151</code> UTC, both methods initially return:</p>
+<p>Both methods must return UTC timestamp strings that carry a trailing <code>Z</code>.</p>
+<p>When a journal is created at <code>2018-08-05 22:33:49.795151</code> UTC, both methods initially return:</p>
 <pre><code class="language-text">2018-08-05T22:33:49.795151Z
 </code></pre>
-<p>Assigning <code>title</code> must advance <code>updated()</code> to the assignment time. For example, assigning the title at <code>2018-08-05 22:34:49.795151</code> UTC must make:</p>
+<p>Assigning <code>title</code> must advance <code>updated()</code> to the time of the assignment. As an example, when the title is assigned at <code>2018-08-05 22:34:49.795151</code> UTC, the following must hold:</p>
 <pre><code class="language-python">journal.updated() == &quot;2018-08-05T22:34:49.795151Z&quot;
 </code></pre>
-<h4>Invalid mission assignment</h4>
-<p>Assigning a non-valid mission value such as:</p>
+<h4>Assigning an invalid mission</h4>
+<p>Assigning a mission value that is not valid, such as:</p>
 <pre><code class="language-python">journal.mission = &quot;mission-invalid&quot;
 </code></pre>
 <p>must raise <code>ValueError</code> with exactly this message:</p>
@@ -1148,68 +1152,68 @@ journal.updated()
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">In the public domain module, update class Journal to expose a readable and writable property named</span>
-        <span class="spec-meta muted">126 words · source specification
+        <span class="spec-title">Within the public domain module, modify class Journal so that it exposes a readable and writable property named</span>
+        <span class="spec-meta muted">147 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>In the public <code>domain</code> module, update class <code>Journal</code> to expose a readable and writable property named:</p>
+      <div class="spec-body"><h4>Change required</h4>
+<p>Within the public <code>domain</code> module, modify class <code>Journal</code> so that it exposes a readable and writable property named:</p>
 <pre><code class="language-python">Journal.electronic_issn
 </code></pre>
-<h5>Construction</h5>
-<p>The class must remain constructible with an <code>id</code> keyword argument:</p>
+<h5>Constructing the class</h5>
+<p>It must remain possible to construct the class by supplying an <code>id</code> keyword argument:</p>
 <pre><code class="language-python">journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
-<h5>Default value</h5>
-<p>For a newly constructed journal with no electronic ISSN assigned:</p>
+<h5>Value by default</h5>
+<p>For a journal that has just been constructed and has no electronic ISSN assigned:</p>
 <pre><code class="language-python">journal.electronic_issn == &quot;&quot;
 </code></pre>
-<h5>Assignment and metadata history</h5>
-<p>Assigning the property must make the assigned value readable:</p>
+<h5>Assigning values and the metadata history</h5>
+<p>After the property has been assigned, the assigned value must be readable:</p>
 <pre><code class="language-python">journal.electronic_issn = &quot;1809-4392&quot;
 journal.electronic_issn == &quot;1809-4392&quot;
 </code></pre>
-<p>The assignment must also be recorded under the correctly spelled metadata key, <code>electronic_issn</code>. For an assignment recorded at <code>2018-08-05T22:33:49.795151Z</code>, the journal manifest must contain:</p>
+<p>The assignment must additionally be recorded under the metadata key with the correct spelling, <code>electronic_issn</code>. When an assignment is recorded at <code>2018-08-05T22:33:49.795151Z</code>, the journal manifest must contain:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;electronic_issn&quot;] == [
     (&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;1809-4392&quot;)
 ]
 </code></pre>
-<p>The required spelling is <code>electronic_issn</code> for both the public property and the manifest metadata key.</p>
+<p>The spelling <code>electronic_issn</code> is required for both the public property and the manifest metadata key.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Module: documentstore.domain</span>
-        <span class="spec-meta muted">135 words · source specification
+        <span class="spec-title">The module is documentstore.domain.</span>
+        <span class="spec-meta muted">156 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>Module: <code>documentstore.domain</code></p>
-<p>Class: <code>Journal</code></p>
-<p>The class must be constructible with an <code>id</code> keyword argument:</p>
+      <div class="spec-body"><h4>Mandatory API</h4>
+<p>The module is <code>documentstore.domain</code>.</p>
+<p>The class is <code>Journal</code>.</p>
+<p>It must be possible to construct the class by passing an <code>id</code> keyword argument:</p>
 <pre><code class="language-python">from documentstore import domain
 
 journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
 <h4><code>Journal.mission</code></h4>
-<p>Assigning the string <code>&quot;mission-invalid&quot;</code> to <code>mission</code> must raise <code>TypeError</code> with exactly this message:</p>
+<p>Setting <code>mission</code> to the string <code>&quot;mission-invalid&quot;</code> must raise <code>TypeError</code> with exactly the following message:</p>
 <pre><code class="language-text">cannot set mission with value &quot;mission-invalid&quot;: value must be dict
 </code></pre>
-<p>Example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">journal.mission = &quot;mission-invalid&quot;
 </code></pre>
 <h4><code>Journal.eletronic_issn</code></h4>
-<p>Expose a readable and writable property named exactly <code>eletronic_issn</code> (note the spelling).</p>
-<p>For a newly created journal, its value must be an empty string:</p>
+<p>A readable and writable property must be exposed, named exactly <code>eletronic_issn</code> (pay attention to the spelling).</p>
+<p>When a journal is newly created, the property's value must be an empty string:</p>
 <pre><code class="language-python">journal.eletronic_issn == &quot;&quot;
 </code></pre>
-<p>Assigning a value must:</p>
+<p>When a value is assigned, it must:</p>
 <ol>
-<li>Make that value available through the property.</li>
-<li>Record it under the identically spelled manifest metadata key, <code>eletronic_issn</code>.</li>
+<li>be made available through the property.</li>
+<li>be recorded under the manifest metadata key that is spelled identically, <code>eletronic_issn</code>.</li>
 </ol>
-<p>For example, when the active timestamp is <code>2018-08-05T22:33:49.795151Z</code>:</p>
+<p>For instance, when the active timestamp is <code>2018-08-05T22:33:49.795151Z</code>:</p>
 <pre><code class="language-python">journal.eletronic_issn = &quot;1809-4392&quot;
 
 journal.eletronic_issn == &quot;1809-4392&quot;
@@ -1222,33 +1226,33 @@ journal.manifest[&quot;metadata&quot;][&quot;eletronic_issn&quot;] == [
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add Subject Areas Field to Journal</span>
-        <span class="spec-meta muted">773 words · source specification
+        <span class="spec-title">Add a Subject Areas Field to the Journal</span>
+        <span class="spec-meta muted">830 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Subject Areas Field to Journal</h3>
-<h4>Overview</h4>
-<p>Add a <code>subject_areas</code> property to the <code>Journal</code> class located in the <code>domain</code> module. The property must support reading and writing a collection of knowledge/subject areas, with validation against a fixed set of allowed values, and must persist changes into the journal's manifest metadata with a timestamp.</p>
+      <div class="spec-body"><h3>Task Specification: Add a Subject Areas Field to the Journal</h3>
+<h4>Summary</h4>
+<p>The <code>Journal</code> class, located in the <code>domain</code> module, must be extended with a <code>subject_areas</code> property. The property must support reading and writing a collection of knowledge/subject areas, validating them against a fixed set of allowed values, and persisting the changes, with a timestamp, into the journal's manifest metadata.</p>
 <h4>API Surface</h4>
-<p>The <code>Journal</code> class already exists in the <code>domain</code> module and is constructed as <code>domain.Journal(id=&quot;...&quot;)</code>. It exposes a <code>manifest</code> attribute which is a dict containing a <code>&quot;metadata&quot;</code> key mapping to a dict.</p>
-<p>You must add a property named <code>subject_areas</code> (getter and setter) to <code>Journal</code>.</p>
+<p>The <code>Journal</code> class already exists in the <code>domain</code> module; it is constructed as <code>domain.Journal(id=&quot;...&quot;)</code>. It exposes a <code>manifest</code> attribute, which is a dict containing a <code>&quot;metadata&quot;</code> key that maps to a dict.</p>
+<p>A property named <code>subject_areas</code> (getter and setter) must be added to <code>Journal</code>.</p>
 <h4>Behavior</h4>
 <h5>Getter: <code>journal.subject_areas</code></h5>
-<p>Returns the currently stored subject areas as a <strong>tuple</strong> of strings. When set, subsequent reads return the values in the same order they were assigned, as a tuple.</p>
+<p>The getter returns the subject areas currently stored as a <strong>tuple</strong> of strings. Once a value has been set, subsequent reads return the values, as a tuple, in the same order they were assigned.</p>
 <h5>Setter: <code>journal.subject_areas = value</code></h5>
-<p>Validates and stores the provided value.</p>
+<p>The setter validates the value provided and stores it.</p>
 <p><strong>Type validation:</strong></p>
 <ul>
 <li>
-<p>The value must be a <code>tuple</code>. If the value is not a tuple, raise <code>TypeError</code> with the message:</p>
+<p>The value must be a <code>tuple</code>. Whenever the value is not a tuple, the setter must raise <code>TypeError</code> with the message:</p>
 <pre><code>cannot set subject_areas with value &quot;&lt;value&gt;&quot;: value must be tuple
 </code></pre>
-<p>where <code>&lt;value&gt;</code> is the value inserted via <code>%s</code> formatting (e.g. for the integer <code>1</code>, the message is <code>cannot set subject_areas with value &quot;1&quot;: value must be tuple</code>).</p>
-<p>Note: any non-tuple value — including a plain string — must trigger validation as described below. A string is not a valid tuple input in the sense of passing directly; see the content-validation rules for how strings are handled.</p>
+<p>in which <code>&lt;value&gt;</code> is the value inserted via <code>%s</code> formatting (e.g. for the integer <code>1</code>, the message is <code>cannot set subject_areas with value &quot;1&quot;: value must be tuple</code>).</p>
+<p>Note: any non-tuple value — a plain string included — must trigger validation as described below. A string is not a valid tuple input in the sense of being passable directly; see the content-validation rules for how strings are handled.</p>
 </li>
 </ul>
-<p><strong>Content validation:</strong></p>
-<p>The only allowed subject-area values are exactly (case-sensitive, exact strings):</p>
+<p><strong>Validation of the content:</strong></p>
+<p>Exactly the following (case-sensitive, exact strings) are the only allowed subject-area values:</p>
 <ul>
 <li><code>&quot;AGRICULTURAL SCIENCES&quot;</code></li>
 <li><code>&quot;APPLIED SOCIAL SCIENCES&quot;</code></li>
@@ -1259,104 +1263,105 @@ journal.manifest[&quot;metadata&quot;][&quot;eletronic_issn&quot;] == [
 <li><code>&quot;HUMAN SCIENCES&quot;</code></li>
 <li><code>&quot;LINGUISTIC, LITERATURE AND ARTS&quot;</code></li>
 </ul>
-<p>When the provided value contains one or more entries that are not in the allowed set, raise <code>ValueError</code> with the message:</p>
+<p>Whenever the provided value contains one or more entries that are not in the allowed set, the setter must raise <code>ValueError</code> with the message:</p>
 <pre><code>cannot set subject_areas with value &lt;normalized_value&gt;: &lt;invalid_list&gt; are not valid
 </code></pre>
 <p>where:</p>
 <ul>
-<li><code>&lt;normalized_value&gt;</code> is <code>repr()</code> of the value <strong>as a tuple</strong> (see string-handling note below).</li>
+<li><code>&lt;normalized_value&gt;</code> is <code>repr()</code> of the value <strong>as a tuple</strong> (see the string-handling note below).</li>
 <li><code>&lt;invalid_list&gt;</code> is <code>repr()</code> of a <strong>list</strong> of the entries that are not in the allowed set, in the order they appear in the input.</li>
 </ul>
-<p>Example: setting the tuple</p>
+<p>Example: assigning the tuple</p>
 <pre><code>(&quot;AGRICULTURAL&quot;, &quot;APPLIED SOCIAL&quot;, &quot;BIOLOGICAL&quot;, &quot;ENGINEERING&quot;,
  &quot;EXACT AND EARTH&quot;, &quot;HEALTH&quot;, &quot;HUMAN&quot;, &quot;LINGUISTIC, LITERATURE AND ARTS&quot;)
 </code></pre>
-<p>produces:</p>
+<p>results in:</p>
 <pre><code>cannot set subject_areas with value ('AGRICULTURAL', 'APPLIED SOCIAL', 'BIOLOGICAL', 'ENGINEERING', 'EXACT AND EARTH', 'HEALTH', 'HUMAN', 'LINGUISTIC, LITERATURE AND ARTS'): ['AGRICULTURAL', 'APPLIED SOCIAL', 'BIOLOGICAL', 'EXACT AND EARTH', 'HEALTH', 'HUMAN'] are not valid
 </code></pre>
-<p>Here <code>&quot;ENGINEERING&quot;</code> and <code>&quot;LINGUISTIC, LITERATURE AND ARTS&quot;</code> are valid and thus omitted from the invalid list; the rest, in input order, are reported.</p>
-<p><strong>String-handling note:</strong> When the provided value is a plain string (not a tuple), it must be treated as an iterable of its characters and converted to a tuple for content validation. That is, the value is normalized via <code>tuple(value)</code>, which for a string yields a tuple of its individual characters. Since these characters are not in the allowed set, this results in a <code>ValueError</code>. The <code>&lt;normalized_value&gt;</code> in the error message is <code>repr(tuple(value))</code> and the <code>&lt;invalid_list&gt;</code> is <code>repr(list(value))</code> (the list of characters).</p>
-<p>For example, setting the string <code>&quot;LINGUISTIC, LITERATURE AND ARTS&quot;</code> produces a <code>ValueError</code> whose message uses the <code>repr</code> of the tuple of that string's characters and the <code>repr</code> of the list of those characters.</p>
+<p>Here, <code>&quot;ENGINEERING&quot;</code> and <code>&quot;LINGUISTIC, LITERATURE AND ARTS&quot;</code> are valid and are therefore left out of the invalid list; the remaining entries, in input order, are the ones reported.</p>
+<p><strong>Note on string handling:</strong> When the value provided is a plain string (not a tuple), it must be regarded as an iterable of its characters and converted into a tuple for content validation. That is, the value is normalized via <code>tuple(value)</code>, which for a string gives a tuple of its individual characters. Because these characters are not in the allowed set, the result is a <code>ValueError</code>. In the error message, <code>&lt;normalized_value&gt;</code> is <code>repr(tuple(value))</code> and <code>&lt;invalid_list&gt;</code> is <code>repr(list(value))</code> (the list of characters).</p>
+<p>As an example, setting the string <code>&quot;LINGUISTIC, LITERATURE AND ARTS&quot;</code> produces a <code>ValueError</code> whose message uses the <code>repr</code> of the tuple of that string's characters together with the <code>repr</code> of the list of those characters.</p>
 <h5>Successful assignment and persistence</h5>
-<p>When all provided entries are valid, store the values so that:</p>
+<p>When all the provided entries are valid, store the values such that:</p>
 <ol>
-<li>The getter returns them as a tuple in the given order.</li>
-<li>The manifest metadata is updated: <code>journal.manifest[&quot;metadata&quot;][&quot;subject_areas&quot;]</code> is a list of recorded entries, where each entry is a 2-tuple of <code>(timestamp, value)</code>. The most recent entry (last in the list) must be <code>(&lt;timestamp&gt;, &lt;tuple_of_areas&gt;)</code>, where <code>&lt;tuple_of_areas&gt;</code> is the assigned values as a tuple in order, and <code>&lt;timestamp&gt;</code> is an ISO-8601 UTC timestamp string (e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>).</li>
+<li>The getter returns them as a tuple, in the given order.</li>
+<li>The manifest metadata is updated: <code>journal.manifest[&quot;metadata&quot;][&quot;subject_areas&quot;]</code> is a list of recorded entries, each of which is a 2-tuple of <code>(timestamp, value)</code>. The most recent entry (last in the list) must be <code>(&lt;timestamp&gt;, &lt;tuple_of_areas&gt;)</code>, where <code>&lt;tuple_of_areas&gt;</code> is the assigned values as a tuple, in order, and <code>&lt;timestamp&gt;</code> is an ISO-8601 UTC timestamp string (e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>).</li>
 </ol>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>Ordering of subject areas must be preserved exactly as provided.</li>
-<li>Validation ordering: the type check applies to reject non-tuple values with <code>TypeError</code>, except that a plain string bypasses to content validation (yielding <code>ValueError</code> as described). Ensure the string case produces a <code>ValueError</code>, not a <code>TypeError</code>.</li>
+<li>The ordering of the subject areas must be preserved exactly as provided.</li>
+<li>Order of validation: the type check is what applies to reject non-tuple values with <code>TypeError</code>, except that a plain string bypasses it and proceeds to content validation (yielding <code>ValueError</code> as described). Ensure that the string case produces a <code>ValueError</code>, not a <code>TypeError</code>.</li>
 </ul>
-<h4>Additional Requirements</h4>
+<h4>Further Requirements</h4>
 <ul>
-<li>The setter must accept both <code>list</code> and <code>tuple</code> values. A valid list must not raise <code>TypeError</code>.</li>
-<li>List input must be normalized to a tuple before storage. The getter must return that tuple, preserving the list’s original order.</li>
-<li>For successful list assignment, the value recorded in <code>journal.manifest[&quot;metadata&quot;][&quot;subject_areas&quot;]</code> must also be the normalized tuple, so its latest entry is <code>(&lt;ISO-8601 UTC timestamp&gt;, &lt;tuple_of_areas&gt;)</code>.</li>
-<li>Non-list, non-tuple values still raise the specified <code>TypeError</code>, except plain strings, which continue to follow the specified character-by-character content validation and raise <code>ValueError</code>.</li>
+<li>The setter must accept both <code>list</code> and <code>tuple</code> values. A list that is valid must not raise <code>TypeError</code>.</li>
+<li>List input must be normalized to a tuple before it is stored. The getter must return that tuple, preserving the order the list originally had.</li>
+<li>For a successful list assignment, the value recorded in <code>journal.manifest[&quot;metadata&quot;][&quot;subject_areas&quot;]</code> must also be the normalized tuple, so that its latest entry is <code>(&lt;ISO-8601 UTC timestamp&gt;, &lt;tuple_of_areas&gt;)</code>.</li>
+<li>Values that are neither lists nor tuples still raise the specified <code>TypeError</code>, except plain strings, which continue to follow the specified character-by-character content validation and raise <code>ValueError</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Update the public domain.Journal API to expose the correctly spelled electronic ISSN property.</span>
-        <span class="spec-meta muted">127 words · source specification
+        <span class="spec-title">Revise the public domain.Journal API so that the electronic ISSN property is exposed with its spelling corrected.</span>
+        <span class="spec-meta muted">159 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public <code>domain.Journal</code> API to expose the correctly spelled electronic ISSN property.</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Revise the public <code>domain.Journal</code> API so that the electronic ISSN property is exposed with its spelling corrected.</p>
 <h5>Public API</h5>
 <ul>
 <li>Module: <code>domain</code></li>
 <li>Class: <code>Journal</code></li>
-<li>Constructor usage: <code>Journal(id=&lt;string&gt;)</code></li>
-<li>Read/write property: <code>Journal.electronic_issn</code></li>
+<li>How the constructor is used: <code>Journal(id=&lt;string&gt;)</code></li>
+<li>Readable and writable property: <code>Journal.electronic_issn</code></li>
 </ul>
-<h5>Required behavior</h5>
+<h5>Behavior that is required</h5>
 <ol>
 <li>
-<p>For a newly created journal:</p>
+<p>For a journal that has just been created:</p>
 <pre><code class="language-python">journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
-<p><code>journal.electronic_issn</code> must return the empty string <code>&quot;&quot;</code>.</p>
+<p>The value that <code>journal.electronic_issn</code> returns must be the empty string <code>&quot;&quot;</code>.</p>
 </li>
 <li>
-<p>The property must be assignable:</p>
+<p>It must be possible to assign to the property:</p>
 <pre><code class="language-python">journal.electronic_issn = &quot;1809-4392&quot;
 </code></pre>
-<p>After assignment, <code>journal.electronic_issn</code> must return <code>&quot;1809-4392&quot;</code>.</p>
+<p>After the value has been assigned, <code>journal.electronic_issn</code> must return <code>&quot;1809-4392&quot;</code>.</p>
 </li>
 <li>
-<p>Assignment must record the value in the journal manifest under the correctly spelled metadata key:</p>
+<p>The assignment must record the value in the journal manifest under the metadata key that is spelled correctly:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;electronic_issn&quot;]
 </code></pre>
-<p>The value must use the existing timestamped metadata-history structure. With the domain clock producing <code>2018-08-05T22:33:49.795151Z</code>, the resulting entry must be:</p>
+<p>The value must use the timestamped metadata-history structure that already exists. When the domain clock produces <code>2018-08-05T22:33:49.795151Z</code>, the entry that results must be:</p>
 <pre><code class="language-python">[(&quot;2018-08-05T22:33:49.795151Z&quot;, &quot;1809-4392&quot;)]
 </code></pre>
 </li>
 </ol>
-<p>No behavior concerning the previously misspelled <code>eletronic_issn</code> API is required by this change.</p>
+<p>This change requires no behavior concerning the previously misspelled <code>eletronic_issn</code> API.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Extend the public documentstore.domain.Journal class with a read/write property named sponsors.</span>
-        <span class="spec-meta muted">214 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add a read/write property called sponsors to the public documentstore.domain.Journal class.</span>
+        <span class="spec-meta muted">233 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Extend the public <code>documentstore.domain.Journal</code> class with a read/write property named <code>sponsors</code>. The class and property must be accessible through the repository's established package API:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Change required</h4>
+<p>Add a read/write property called <code>sponsors</code> to the public <code>documentstore.domain.Journal</code> class. Both the class and the property must be accessible via the repository's established package API:</p>
 <pre><code class="language-python">from documentstore import domain
 
 journal = domain.Journal(id=...)
 journal.sponsors = value
 value = journal.sponsors
 </code></pre>
-<p>All existing <code>Journal</code> and domain behavior outside this addition must remain compatible.</p>
+<p>Outside of this addition, all existing <code>Journal</code> and domain behavior must remain compatible.</p>
 <h4>Supported value</h4>
-<p>The property must accept a tuple of sponsor dictionaries. For example:</p>
+<p>The property must accept a tuple consisting of sponsor dictionaries. For instance:</p>
 <pre><code class="language-python">journal.sponsors = (
     {
         &quot;name&quot;: &quot;FAPESP&quot;,
@@ -1365,17 +1370,17 @@ value = journal.sponsors
     },
 )
 </code></pre>
-<p>After a successful assignment, reading <code>journal.sponsors</code> must return a tuple equal to the assigned value.</p>
-<h4>Manifest history</h4>
+<p>Reading <code>journal.sponsors</code> after a successful assignment must return a tuple equal to the assigned value.</p>
+<h4>History in the manifest</h4>
 <p>Each successful assignment must be recorded under:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;sponsors&quot;]
 </code></pre>
-<p>The latest history entry, accessible at <code>journal.manifest[&quot;metadata&quot;][&quot;sponsors&quot;][-1]</code>, must be a two-item tuple containing, in order:</p>
+<p>The latest entry of the history, accessible at <code>journal.manifest[&quot;metadata&quot;][&quot;sponsors&quot;][-1]</code>, must be a two-item tuple that contains, in order:</p>
 <ol>
-<li>The assignment timestamp in the domain's existing UTC timestamp format.</li>
-<li>The assigned sponsors value.</li>
+<li>The timestamp of the assignment, in the domain's existing UTC timestamp format.</li>
+<li>The sponsors value that was assigned.</li>
 </ol>
-<p>For an assignment made at <code>2018-08-05 22:33:49.795151</code> UTC, the latest entry must be:</p>
+<p>When an assignment is made at <code>2018-08-05 22:33:49.795151</code> UTC, the latest entry must be:</p>
 <pre><code class="language-python">(
     &quot;2018-08-05T22:33:49.795151Z&quot;,
     (
@@ -1388,11 +1393,11 @@ value = journal.sponsors
 )
 </code></pre>
 <h4>Invalid values</h4>
-<p>Assigning either of the following values must raise <code>TypeError</code>:</p>
+<p>Either of the following values, when assigned, must raise <code>TypeError</code>:</p>
 <pre><code class="language-python">((True,),)
 ((1, 1.1),)
 </code></pre>
-<p>The exception messages must be exactly, respectively:</p>
+<p>The exception messages must be exactly the following, respectively:</p>
 <pre><code class="language-text">cannot set sponsors this type ((True,),)
 </code></pre>
 <p>and:</p>
@@ -1403,25 +1408,25 @@ value = journal.sponsors
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Extend the existing domain.Journal class, instantiated as</span>
-        <span class="spec-meta muted">196 words · source specification
+        <span class="spec-title">The existing domain.Journal class, instantiated as</span>
+        <span class="spec-meta muted">218 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add metrics support to <code>domain.Journal</code></h4>
-<h5>Public API</h5>
-<p>Extend the existing <code>domain.Journal</code> class, instantiated as:</p>
+      <div class="spec-body"><h4>Extend <code>domain.Journal</code> with metrics support</h4>
+<h5>Public interface</h5>
+<p>The existing <code>domain.Journal</code> class, instantiated as:</p>
 <pre><code class="language-python">journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 </code></pre>
-<p>with a readable and writable <code>metrics</code> property.</p>
-<h5>Required behavior</h5>
+<p>must be extended with a readable and writable <code>metrics</code> property.</p>
+<h5>Behavior requirements</h5>
 <ol>
 <li>
-<p>A newly created journal must expose an empty metrics dictionary:</p>
+<p>A journal that has just been created must expose an empty metrics dictionary:</p>
 <pre><code class="language-python">journal.metrics == {}
 </code></pre>
 </li>
 <li>
-<p><code>journal.metrics</code> must accept a dictionary containing heterogeneous metric data, including nested dictionaries and string values. For example:</p>
+<p>A dictionary containing heterogeneous metric data, including nested dictionaries and string values, must be accepted by <code>journal.metrics</code>. For instance:</p>
 <pre><code class="language-python">journal.metrics = {
     &quot;scimago&quot;: {
         &quot;url&quot;: &quot;http://scimago.org&quot;,
@@ -1435,13 +1440,13 @@ value = journal.sponsors
     &quot;scielo&quot;: &quot;valor medio&quot;,
 }
 </code></pre>
-<p>Reading <code>journal.metrics</code> afterward must return an equal dictionary.</p>
+<p>Afterward, reading <code>journal.metrics</code> must return a dictionary that is equal.</p>
 </li>
 <li>
-<p>Assigning metrics must record the value in the journal manifest under:</p>
+<p>When metrics are assigned, the value must be recorded in the journal manifest under:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;metrics&quot;]
 </code></pre>
-<p>This must be a metadata history list containing a <code>(timestamp, value)</code> tuple. When the assignment time is <code>2018-08-05T22:33:49.795151Z</code>, the resulting entry must be:</p>
+<p>At that location there must be a metadata history list containing a <code>(timestamp, value)</code> tuple. If the assignment time is <code>2018-08-05T22:33:49.795151Z</code>, the entry that results must be:</p>
 <pre><code class="language-python">[
     (
         &quot;2018-08-05T22:33:49.795151Z&quot;,
@@ -1462,7 +1467,7 @@ value = journal.sponsors
 </code></pre>
 </li>
 <li>
-<p>The top-level assigned value must be a dictionary. Assigning the string <code>&quot;metrics-invalid&quot;</code> must raise <code>TypeError</code> with exactly this message:</p>
+<p>The value assigned at the top level must be a dictionary. If the string <code>&quot;metrics-invalid&quot;</code> is assigned, <code>TypeError</code> must be raised with exactly this message:</p>
 <pre><code class="language-text">cannot set metrics with value &quot;metrics-invalid&quot;: value must be dict
 </code></pre>
 </li>
@@ -1472,46 +1477,46 @@ value = journal.sponsors
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Extend the public domain.Journal API with a readable and writable property named institution_responsible_for.</span>
-        <span class="spec-meta muted">167 words · source specification
+        <span class="spec-title">Extend the public domain.Journal API with a property named institution_responsible_for that supports both reading and writing.</span>
+        <span class="spec-meta muted">182 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Journal institution responsibility metadata</h4>
-<p>Extend the public <code>domain.Journal</code> API with a readable and writable property named <code>institution_responsible_for</code>.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Journal metadata for institution responsibility</h4>
+<p>Extend the public <code>domain.Journal</code> API with a property named <code>institution_responsible_for</code> that supports both reading and writing.</p>
+<h5>Public interface</h5>
 <pre><code class="language-python">journal = domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)
 journal.institution_responsible_for
 journal.institution_responsible_for = value
 </code></pre>
-<h5>Required behavior</h5>
+<h5>Behavior that is required</h5>
 <ul>
 <li>
-<p>A newly created <code>Journal</code> returns an empty tuple for <code>institution_responsible_for</code>:</p>
+<p>A <code>Journal</code> that has just been created returns an empty tuple for <code>institution_responsible_for</code>:</p>
 <pre><code class="language-python">journal.institution_responsible_for == ()
 </code></pre>
 </li>
 <li>
-<p>Assigning a tuple of institution names preserves its order, spelling, and casing:</p>
+<p>When a tuple of institution names is assigned, its order, spelling, and casing are preserved:</p>
 <pre><code class="language-python">journal.institution_responsible_for = (&quot;Usp&quot;, &quot;Scielo&quot;)
 journal.institution_responsible_for == (&quot;Usp&quot;, &quot;Scielo&quot;)
 </code></pre>
 </li>
 <li>
-<p>This tuple assignment must add the value to the journal’s metadata history at:</p>
+<p>The tuple assignment above must add the value to the journal’s metadata history at:</p>
 <pre><code class="language-python">journal.manifest[&quot;metadata&quot;][&quot;institution_responsible_for&quot;]
 </code></pre>
-<p>The latest history entry must contain the assignment timestamp and the tuple value. For an assignment timestamp of <code>2018-08-05T22:33:49.795151Z</code>, the entry is:</p>
+<p>The most recent history entry must contain the assignment timestamp and the tuple value. When the assignment timestamp is <code>2018-08-05T22:33:49.795151Z</code>, the entry is:</p>
 <pre><code class="language-python">(&quot;2018-08-05T22:33:49.795151Z&quot;, (&quot;Usp&quot;, &quot;Scielo&quot;))
 </code></pre>
 </li>
 <li>
-<p>A list of institution names is also accepted and exposed through the property as a tuple:</p>
+<p>The property also accepts a list of institution names and exposes it as a tuple:</p>
 <pre><code class="language-python">journal.institution_responsible_for = [&quot;USP&quot;, &quot;SCIELO&quot;]
 journal.institution_responsible_for == (&quot;USP&quot;, &quot;SCIELO&quot;)
 </code></pre>
 </li>
 <li>
-<p>Assigning the integer <code>1</code> must raise <code>TypeError</code> with this exact message:</p>
+<p>An assignment of the integer <code>1</code> must raise <code>TypeError</code> with this exact message:</p>
 <pre><code class="language-text">cannot set institution_responsible_for with value &quot;1&quot;: value must be tuple
 </code></pre>
 </li>
@@ -1521,38 +1526,39 @@ journal.institution_responsible_for == (&quot;USP&quot;, &quot;SCIELO&quot;)
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add support for an &#34;online submission URL&#34; field to the Journal class located in the domain module.</span>
-        <span class="spec-meta muted">244 words · source specification
+        <span class="spec-title">Introduce support for an &#34;online submission URL&#34; field on the Journal class, which resides in the domain module.</span>
+        <span class="spec-meta muted">256 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add support for an &quot;online submission URL&quot; field to the <code>Journal</code> class located in the <code>domain</code> module.</p>
-<h4>API Surface</h4>
-<p>The <code>domain.Journal</code> class must expose a new property named <code>online_submission_url</code>:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Introduce support for an &quot;online submission URL&quot; field on the <code>Journal</code> class, which resides in the <code>domain</code> module.</p>
+<h4>Public API</h4>
+<p>A new property named <code>online_submission_url</code> must be exposed by the <code>domain.Journal</code> class:</p>
 <ul>
-<li><strong>Getter</strong> (<code>journal.online_submission_url</code>): returns the current value of the online submission URL as a string.</li>
+<li><strong>Getter</strong> (<code>journal.online_submission_url</code>): returns the online submission URL's current value as a string.</li>
 <li><strong>Setter</strong> (<code>journal.online_submission_url = value</code>): assigns a new online submission URL string to the journal.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Default value</h5>
-<p>When a <code>Journal</code> is created and no online submission URL has been set, accessing <code>online_submission_url</code> must return an empty string (<code>&quot;&quot;</code>).</p>
-<h5>Setting the value</h5>
-<p>When a URL string is assigned via the setter:</p>
+<h4>Behavior Requirements</h4>
+<h5>Value by default</h5>
+<p>If a <code>Journal</code> has been created and no online submission URL has been set, accessing <code>online_submission_url</code> must return an empty string (<code>&quot;&quot;</code>).</p>
+<h5>Assigning a value</h5>
+<p>Once a URL string has been assigned through the setter:</p>
 <ul>
-<li>Subsequently reading <code>online_submission_url</code> must return exactly the string that was assigned.</li>
-<li>The assignment must be recorded in the journal's <code>manifest</code> structure under <code>manifest[&quot;metadata&quot;][&quot;online_submission_url&quot;]</code> as a list of entries. Each entry is a 2-tuple of <code>(timestamp, value)</code>, where:
+<li>Afterwards, reading <code>online_submission_url</code> must return exactly the string that was assigned.</li>
+<li>The assignment must be recorded in the journal's <code>manifest</code> structure, under <code>manifest[&quot;metadata&quot;][&quot;online_submission_url&quot;]</code>, as a list of entries. Every entry is a 2-tuple of <code>(timestamp, value)</code>, where:
 <ul>
-<li><code>timestamp</code> is an ISO-8601 formatted UTC timestamp string (e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>) representing when the assignment was made.</li>
-<li><code>value</code> is the assigned URL string.</li>
+<li><code>timestamp</code> is an ISO-8601 formatted UTC timestamp string (e.g. <code>&quot;2018-08-05T22:33:49.795151Z&quot;</code>) that marks when the assignment took place.</li>
+<li><code>value</code> is the URL string that was assigned.</li>
 </ul>
 </li>
-<li>After a single assignment, this list must contain exactly one entry corresponding to that assignment.</li>
+<li>After a single assignment, this list must contain exactly one entry that corresponds to that assignment.</li>
 </ul>
-<p>This field follows the same versioned-metadata pattern already used by other <code>Journal</code> metadata fields (a list of timestamped values in the manifest, with the getter returning the most current value).</p>
+<p>This field follows the same versioned-metadata pattern that other <code>Journal</code> metadata fields already use (a list of timestamped values in the manifest, with the getter returning the most current value).</p>
 <h4>Notes</h4>
 <ul>
-<li>The <code>Journal</code> class is constructed with an <code>id</code> keyword argument (e.g. <code>domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)</code>).</li>
-<li>This new field must not interfere with existing <code>Journal</code> behavior or other metadata fields.</li>
+<li>The <code>Journal</code> class receives an <code>id</code> keyword argument at construction time (e.g. <code>domain.Journal(id=&quot;0034-8910-rsp-48-2&quot;)</code>).</li>
+<li>This new field must not interfere with the existing behavior of <code>Journal</code> or with other metadata fields.</li>
 </ul>
 </div>
     </details>

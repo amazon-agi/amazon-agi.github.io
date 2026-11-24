@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/EmilStenstrom/conllu/compare/532624b1b897d6167e0da99b4944c345ae04609c...f1d6704524706d1084e9aa632a321ffca3e216ff" target="_blank" rel="noopener" class="mono">532624b1b8 … f1d6704524</a> · 99 commits by 5 authors over 16 mo (2019-09-30 to 2021-02-13)</dd></div>
       <div><dt>Window:</dt><dd>requests 22–41 of a run of 41 test-bearing changes (overlaps the previous window by 19) · eval split</dd></div>
       <div><dt>Size:</dt><dd>1,619 lines of code in 21 files when the chain starts · over the 20 requests the developers added 768 and removed 498 lines of code, plus 592 lines of tests (204 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>7.8k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 2</dd></div>
+      <div><dt>Specifications:</dt><dd>8.4k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 2</dd></div>
     </dl>
   </header>
 </section>
@@ -144,12 +144,12 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">223 words · source specification
+        <span class="spec-title">Change the public function</span>
+        <span class="spec-meta muted">245 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Change the public function:</p>
 <pre><code class="language-python">conllu.parser.parse_token_and_metadata(
     data,
     fields=DEFAULT_FIELDS,
@@ -157,12 +157,12 @@
     metadata_parsers=None,
 )
 </code></pre>
-<p>to accept an optional <code>metadata_parsers</code> mapping.</p>
-<h5>Metadata parsing behavior</h5>
+<p>so that it accepts an optional <code>metadata_parsers</code> mapping.</p>
+<h5>Behavior of metadata parsing</h5>
 <ul>
-<li>Metadata comment lines of the form <code># key = value</code> must continue to produce ordered metadata entries with surrounding whitespace removed from both the key and value.</li>
-<li>Without <code>metadata_parsers</code>, metadata values remain strings and entries retain input order.</li>
-<li>Keys containing periods, underscores, or spaces must be preserved exactly after trimming, including:
+<li>Metadata comment lines written as <code># key = value</code> must still produce ordered metadata entries, with surrounding whitespace stripped from both the key and the value.</li>
+<li>If no <code>metadata_parsers</code> is given, metadata values stay strings and entries preserve their input order.</li>
+<li>After trimming, keys that contain periods, underscores, or spaces must be preserved exactly, including:
 <ul>
 <li><code>global.columns</code></li>
 <li><code>newdoc id</code></li>
@@ -173,28 +173,28 @@
 </ul>
 </li>
 </ul>
-<h5>Custom metadata parsers</h5>
-<p>When <code>metadata_parsers</code> contains an entry matching a metadata key:</p>
+<h5>Custom parsers for metadata</h5>
+<p>If <code>metadata_parsers</code> has an entry that matches a metadata key:</p>
 <ul>
 <li>
-<p>Call that parser with the parsed textual key and value:</p>
+<p>Invoke that parser with the parsed textual key and value:</p>
 <pre><code class="language-python">parser(key, value)
 </code></pre>
 </li>
 <li>
-<p>The parser returns a two-item <code>(key, value)</code> result.</p>
+<p>The value the parser returns is a two-item <code>(key, value)</code> result.</p>
 </li>
 <li>
-<p>Store the returned parsed value for that metadata entry.</p>
+<p>For that metadata entry, store the parsed value that was returned.</p>
 </li>
 <li>
-<p>Metadata keys without a matching parser must retain their normal string values.</p>
+<p>Metadata keys with no matching parser must keep their usual string values.</p>
 </li>
 <li>
-<p>Entry ordering must remain unchanged.</p>
+<p>The ordering of entries must stay unchanged.</p>
 </li>
 </ul>
-<p>For example:</p>
+<p>As an example:</p>
 <pre><code class="language-python">_, metadata = parse_token_and_metadata(
     data,
     metadata_parsers={
@@ -202,177 +202,177 @@
     },
 )
 </code></pre>
-<p>Given:</p>
+<p>With the following input:</p>
 <pre><code class="language-text"># global.columns = ID FORM LEMMA UPOS XPOS FEATS HEAD DEPREL DEPS MISC
 </code></pre>
-<p>the <code>global.columns</code> metadata value must be:</p>
+<p>the metadata value for <code>global.columns</code> must be:</p>
 <pre><code class="language-python">[&quot;ID&quot;, &quot;FORM&quot;, &quot;LEMMA&quot;, &quot;UPOS&quot;, &quot;XPOS&quot;, &quot;FEATS&quot;, &quot;HEAD&quot;, &quot;DEPREL&quot;, &quot;DEPS&quot;, &quot;MISC&quot;]
 </code></pre>
-<p>All other metadata entries must remain unchanged strings in their original order.</p>
+<p>Every other metadata entry must stay an unchanged string, in its original order.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Support Multiple Metadata Pairs Per Comment Line</span>
-        <span class="spec-meta muted">522 words · source specification
+        <span class="spec-title">Support Multiple Metadata Pairs on a Single Comment Line</span>
+        <span class="spec-meta muted">545 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Support Multiple Metadata Pairs Per Comment Line</h3>
+      <div class="spec-body"><h3>Task Specification: Support Multiple Metadata Pairs on a Single Comment Line</h3>
 <h4>Overview</h4>
-<p>Modify the metadata parsing behavior so that a single comment line can yield <strong>multiple</strong> metadata key/value pairs. This affects two public functions in the parser module: <code>parse_comment_line</code> and <code>parse_token_and_metadata</code>.</p>
+<p>Update the metadata parsing behavior so that one comment line can yield <strong>multiple</strong> metadata key/value pairs. Two public functions in the parser module are affected: <code>parse_comment_line</code> and <code>parse_token_and_metadata</code>.</p>
 <h4>Public API</h4>
-<p>Both functions are importable from the same module as before (the module that currently exposes <code>parse_token_and_metadata</code> and <code>parse_comment_line</code>).</p>
+<p>As before, both functions are importable from the same module (the one that currently exposes <code>parse_token_and_metadata</code> and <code>parse_comment_line</code>).</p>
 <h5><code>parse_comment_line(line)</code></h5>
 <ul>
-<li><strong>Input:</strong> a single string representing one comment line.</li>
-<li><strong>Output:</strong> a <strong>list</strong> of <code>(key, value)</code> tuples (previously returned a single tuple; it must now always return a list).</li>
+<li><strong>Input:</strong> one string that represents a single comment line.</li>
+<li><strong>Output:</strong> a <strong>list</strong> of <code>(key, value)</code> tuples (a single tuple was returned previously; it must now always return a list).</li>
 </ul>
-<p>Required behavior:</p>
+<p>The following behavior is required:</p>
 <ol>
 <li>
-<p>A valid comment line begins with <code>#</code> (optionally preceded by whitespace such as spaces or tabs; whitespace between <code>#</code> and the content is also tolerated).</p>
+<p>A valid comment line starts with <code>#</code> (the <code>#</code> may optionally be preceded by whitespace such as spaces or tabs; whitespace between <code>#</code> and the content is also tolerated).</p>
 </li>
 <li>
-<p><strong>Key/value form</strong> — a line of the form <code># key = value</code>:</p>
+<p><strong>Key/value form</strong> — a line shaped like <code># key = value</code>:</p>
 <ul>
-<li>Returns <code>[(key, value)]</code>.</li>
-<li>Both key and value are stripped of surrounding whitespace.</li>
-<li>Only the <strong>first</strong> <code>=</code> separates key from value; any subsequent <code>=</code> characters belong to the value. For example, <code># text = five plus three = eight</code> yields <code>[(&quot;text&quot;, &quot;five plus three = eight&quot;)]</code>.</li>
-<li>The leading <code>#</code> may be immediately followed by the content with no space, e.g. <code>#sent_id = 1</code> yields <code>[(&quot;sent_id&quot;, &quot;1&quot;)]</code>.</li>
+<li>It returns <code>[(key, value)]</code>.</li>
+<li>Surrounding whitespace is stripped from both the key and the value.</li>
+<li>Only the <strong>first</strong> <code>=</code> separates the key from the value; any <code>=</code> characters after that one are part of the value. For example, <code># text = five plus three = eight</code> yields <code>[(&quot;text&quot;, &quot;five plus three = eight&quot;)]</code>.</li>
+<li>The content may immediately follow the leading <code>#</code> with no space, e.g. <code>#sent_id = 1</code> yields <code>[(&quot;sent_id&quot;, &quot;1&quot;)]</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Optional-value (flag) form</strong> — a comment line whose content is a single recognized keyword with no value:</p>
+<p><strong>Optional-value (flag) form</strong> — a comment line whose content is one recognized keyword with no value:</p>
 <ul>
 <li>The recognized keywords are <code>newdoc</code> and <code>newpar</code>.</li>
-<li><code># newdoc</code>, <code># newpar</code>, <code>#newdoc</code>, <code>#newpar</code> (with or without the space after <code>#</code>) each yield <code>[(keyword, None)]</code>, e.g. <code>[(&quot;newdoc&quot;, None)]</code>.</li>
+<li>Each of <code># newdoc</code>, <code># newpar</code>, <code>#newdoc</code>, <code>#newpar</code> (with or without the space after <code>#</code>) yields <code>[(keyword, None)]</code>, e.g. <code>[(&quot;newdoc&quot;, None)]</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Invalid / unrecognized lines</strong> — return an empty list <code>[]</code>. This applies to:</p>
+<p><strong>Invalid / unrecognized lines</strong> — an empty list <code>[]</code> is returned. This applies to:</p>
 <ul>
-<li>A comment line with content that is neither a key/value pair nor a recognized keyword, e.g. <code># invalid</code> or <code># sent_id: 1</code> (no <code>=</code> present and not a recognized keyword).</li>
+<li>A comment line whose content is neither a key/value pair nor a recognized keyword, e.g. <code># invalid</code> or <code># sent_id: 1</code> (no <code>=</code> present and not a recognized keyword).</li>
 </ul>
 </li>
 <li>
-<p><strong>Not a comment line</strong> — a string that does not begin with <code>#</code> (after leading whitespace), e.g. <code>sent_id = 1</code>. The existing (pre-change) behavior for this case is unchanged; do not alter it.</p>
+<p><strong>Not a comment line</strong> — a string that does not begin with <code>#</code> (after leading whitespace), e.g. <code>sent_id = 1</code>. The behavior that existed for this case before the change is unchanged; do not modify it.</p>
 </li>
 </ol>
 <h5><code>parse_token_and_metadata(data, ..., metadata_parsers=...)</code></h5>
-<p>The function retains its existing signature and returns its existing pair of results (a tokens structure and a metadata <code>OrderedDict</code>). The change concerns how custom <code>metadata_parsers</code> results are incorporated.</p>
+<p>The function keeps its existing signature and returns its existing pair of results (a tokens structure and a metadata <code>OrderedDict</code>). What changes is how results from custom <code>metadata_parsers</code> are incorporated.</p>
 <ul>
-<li><code>metadata_parsers</code> is a mapping from a metadata key name to a callable <code>parser(key, value)</code>.</li>
+<li><code>metadata_parsers</code> maps a metadata key name to a callable <code>parser(key, value)</code>.</li>
 <li>A custom parser callable may now return <strong>either</strong>:
 <ul>
-<li>a single <code>(key, value)</code> pair, <strong>or</strong></li>
+<li>one <code>(key, value)</code> pair, <strong>or</strong></li>
 <li>a <strong>list</strong> of <code>(key, value)</code> pairs.</li>
 </ul>
 </li>
-<li>When a parser returns a list of multiple pairs, <strong>all</strong> of those pairs must be inserted into the resulting metadata <code>OrderedDict</code>, preserving their order.</li>
+<li>If a parser returns a list containing multiple pairs, <strong>all</strong> of those pairs must be inserted into the resulting metadata <code>OrderedDict</code>, with their order preserved.</li>
 </ul>
-<p>Example of the multi-pair case: given a comment line</p>
+<p>Example of the multi-pair case: for a comment line</p>
 <pre><code>#	id='1'-document_id='36:1047'-span='1'
 </code></pre>
-<p>with a custom parser registered under key <code>&quot;id&quot;</code> that returns</p>
+<p>together with a custom parser registered under the key <code>&quot;id&quot;</code> that returns</p>
 <pre><code>[(&quot;id&quot;, &quot;1&quot;), (&quot;document_id&quot;, &quot;36:1047&quot;), (&quot;span&quot;, &quot;1&quot;)]
 </code></pre>
-<p>the resulting metadata <code>OrderedDict</code> must contain, in order:</p>
+<p>the metadata <code>OrderedDict</code> that is produced must contain, in order:</p>
 <pre><code>OrderedDict([(&quot;id&quot;, &quot;1&quot;), (&quot;document_id&quot;, &quot;36:1047&quot;), (&quot;span&quot;, &quot;1&quot;)])
 </code></pre>
 <h4>Constraints</h4>
 <ul>
-<li>Existing single-pair parsing behavior and existing metadata handling (e.g. producing an <code>OrderedDict</code> of metadata) must continue to work for standard key/value comment lines.</li>
-<li><code>parse_comment_line</code> must now uniformly return a list in every case (including empty list for invalid lines and single-element lists for valid single pairs).</li>
+<li>For standard key/value comment lines, the existing single-pair parsing behavior and the existing metadata handling (e.g. producing an <code>OrderedDict</code> of metadata) must continue to work.</li>
+<li><code>parse_comment_line</code> must now return a list uniformly, in every case (including an empty list for invalid lines and single-element lists for valid single pairs).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Custom Metadata Parser Fallback</span>
-        <span class="spec-meta muted">336 words · source specification
+        <span class="spec-title">Custom Metadata Fallback Parser</span>
+        <span class="spec-meta muted">375 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Custom Metadata Parser Fallback</h3>
-<h4>Overview</h4>
-<p>Extend the <code>parse_token_and_metadata</code> function to support a fallback metadata parser that handles metadata lines which do not match any explicitly-registered metadata key.</p>
-<h4>API Surface</h4>
-<p>The function is importable as:</p>
+      <div class="spec-body"><h3>Task Specification: Custom Metadata Fallback Parser</h3>
+<h4>Summary</h4>
+<p>The <code>parse_token_and_metadata</code> function is to be extended so that it supports a fallback metadata parser which deals with metadata lines that do not match any explicitly-registered metadata key.</p>
+<h4>API</h4>
+<p>The function can be imported as:</p>
 <pre><code class="language-python">parse_token_and_metadata(data, metadata_parsers=None)
 </code></pre>
-<p>It returns a 2-tuple <code>(tokens, metadata)</code>, where <code>metadata</code> is an <code>collections.OrderedDict</code> mapping metadata field names to their parsed values.</p>
-<h4>Input Format</h4>
-<p>Input <code>data</code> is a string containing lines. Metadata is conveyed on comment lines beginning with <code>#</code>. A metadata line has the general form:</p>
+<p>Its return value is a 2-tuple <code>(tokens, metadata)</code>, in which <code>metadata</code> is an <code>collections.OrderedDict</code> that maps metadata field names to their parsed values.</p>
+<h4>Format of the Input</h4>
+<p>Input <code>data</code> is a string that contains lines. Metadata is carried on comment lines that begin with <code>#</code>. A metadata line generally has the form:</p>
 <pre><code># key = value
 </code></pre>
-<p>but may also appear without a key/value separator, in which case the entire remaining content of the line (after the <code>#</code> and stripped of surrounding whitespace) is treated as a single unstructured token — e.g. a line like <code>#20191005</code> yields the raw string <code>20191005</code>.</p>
-<h4>Required Behavior: Fallback Metadata Parser</h4>
-<p>The <code>metadata_parsers</code> argument is a mapping from metadata key names to parser callables. This task introduces a special key, the string <code>&quot;__fallback__&quot;</code>, whose associated callable acts as a catch-all parser.</p>
-<p>When a metadata line does not correspond to any specifically-registered parser key, the fallback parser (if present under <code>&quot;__fallback__&quot;</code>) is invoked to interpret it.</p>
-<p>The fallback parser callable has the signature:</p>
+<p>but it may also appear with no key/value separator, in which case the whole remaining content of the line (the part after the <code>#</code>, with surrounding whitespace stripped) is treated as a single unstructured token — e.g. a line such as <code>#20191005</code> yields the raw string <code>20191005</code>.</p>
+<h4>Required Behavior: Fallback Metadata Parsing</h4>
+<p>The <code>metadata_parsers</code> argument is a mapping of metadata key names to parser callables. This task introduces a special key — the string <code>&quot;__fallback__&quot;</code> — whose associated callable serves as a catch-all parser.</p>
+<p>When a metadata line corresponds to none of the specifically-registered parser keys, the fallback parser (if it is present under <code>&quot;__fallback__&quot;</code>) is invoked to interpret it.</p>
+<p>The callable acting as the fallback parser has the signature:</p>
 <pre><code class="language-python">fallback(key, value) -&gt; (result_key, result_value)
 </code></pre>
 <ul>
-<li>It receives the parsed components of the metadata line as its arguments.</li>
-<li>It returns a 2-tuple: the field name to store in the resulting metadata dictionary, and the value to store under that name.</li>
+<li>The parsed components of the metadata line are given to it as its arguments.</li>
+<li>Its return value is a 2-tuple: the field name to store in the resulting metadata dictionary, and the value to store under that name.</li>
 </ul>
-<h5>Specific Case</h5>
-<p>For an input line consisting solely of <code>#20191005</code> (with no <code>=</code> separator), when a fallback parser is supplied:</p>
+<h5>Concrete Case</h5>
+<p>When a fallback parser is supplied and the input line consists solely of <code>#20191005</code> (with no <code>=</code> separator):</p>
 <ul>
-<li>The fallback parser is called with the line's content (<code>&quot;20191005&quot;</code>) as its first argument.</li>
-<li>Given a fallback parser defined as <code>lambda key, value: (&quot;sentence-id&quot;, key)</code>, the resulting metadata must be:</li>
+<li>The fallback parser is called with the content of the line (<code>&quot;20191005&quot;</code>) as its first argument.</li>
+<li>If a fallback parser is defined as <code>lambda key, value: (&quot;sentence-id&quot;, key)</code>, the resulting metadata must be:</li>
 </ul>
 <pre><code class="language-python">OrderedDict([(&quot;sentence-id&quot;, &quot;20191005&quot;)])
 </code></pre>
-<p>That is, the field name <code>&quot;sentence-id&quot;</code> maps to the string <code>&quot;20191005&quot;</code>.</p>
-<h4>Constraints</h4>
+<p>In other words, the field name <code>&quot;sentence-id&quot;</code> maps to the string <code>&quot;20191005&quot;</code>.</p>
+<h4>Restrictions</h4>
 <ul>
-<li>The <code>metadata_parsers</code> argument is optional and keyword-passable.</li>
-<li>Existing behavior for standard metadata parsing must remain unchanged.</li>
+<li>The <code>metadata_parsers</code> argument is optional and may be passed as a keyword.</li>
+<li>Behavior that already exists for standard metadata parsing must remain unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Add support for the CoNLL-U Plus format, where the columns (field names) of the data are declared inside the input via a special # global.columns = ...</span>
-        <span class="spec-meta muted">550 words · source specification
+        <span class="spec-title">Support must be added for the CoNLL-U Plus format, in which the columns (field names) of the data are declared inside the input by way of a special #…</span>
+        <span class="spec-meta muted">586 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add CoNLL-U Plus Column Auto-Detection</h3>
-<h4>Overview</h4>
-<p>Add support for the CoNLL-U Plus format, where the columns (field names) of the data are declared inside the input via a special <code># global.columns = ...</code> comment line, rather than assumed to be the default CoNLL-U column set. When such a declaration is present, parsing must use the declared columns for interpreting each token's fields.</p>
+      <div class="spec-body"><h3>Task: Add Auto-Detection of CoNLL-U Plus Columns</h3>
+<h4>Summary</h4>
+<p>Support must be added for the CoNLL-U Plus format, in which the columns (field names) of the data are declared inside the input by way of a special <code># global.columns = ...</code> comment line, instead of being assumed to be the default CoNLL-U column set. Whenever such a declaration is present, parsing must use the declared columns when interpreting each token's fields.</p>
 <h4>Public API to Implement</h4>
 <h5><code>conllu.parser.parse_conllu_plus_fields</code></h5>
-<p>Add a new function in the <code>conllu.parser</code> module:</p>
+<p>Add this new function to the <code>conllu.parser</code> module:</p>
 <pre><code class="language-python">def parse_conllu_plus_fields(in_file):
     ...
 </code></pre>
-<p><strong>Input:</strong> <code>in_file</code> is a file-like object (something with the interface produced by <code>conllu.compat.string_to_file</code>). It may wrap an empty string or <code>None</code>.</p>
-<p><strong>Behavior:</strong> Scan the input for a comment line declaring the global columns. The declaration line has the form:</p>
+<p><strong>Input:</strong> <code>in_file</code> is a file-like object (an object with the interface produced by <code>conllu.compat.string_to_file</code>). It may wrap an empty string or <code>None</code>.</p>
+<p><strong>Behavior:</strong> Look through the input for a comment line that declares the global columns. A declaration line has this form:</p>
 <pre><code># global.columns = ID FORM UPOS HEAD DEPREL MISC PARSEME:MWE
 </code></pre>
 <ul>
-<li>If a <code>global.columns</code> declaration is found with one or more whitespace-separated column names, return a Python <code>list</code> of those column names, each <strong>lowercased</strong>, in the order they appear. For example, the line above yields:<pre><code class="language-python">[&quot;id&quot;, &quot;form&quot;, &quot;upos&quot;, &quot;head&quot;, &quot;deprel&quot;, &quot;misc&quot;, &quot;parseme:mwe&quot;]
+<li>If a <code>global.columns</code> declaration is found that has one or more whitespace-separated column names, return a Python <code>list</code> of those column names, each one <strong>lowercased</strong>, in the order in which they appear. For example, the line above yields:<pre><code class="language-python">[&quot;id&quot;, &quot;form&quot;, &quot;upos&quot;, &quot;head&quot;, &quot;deprel&quot;, &quot;misc&quot;, &quot;parseme:mwe&quot;]
 </code></pre>
 </li>
-<li>If the input is empty (empty string or <code>None</code> wrapped by the file-like object), return <code>None</code>.</li>
-<li>If a <code>global.columns</code> declaration is present but lists <strong>no</strong> column names (i.e. <code># global.columns =</code> with nothing after the <code>=</code>), return <code>None</code>.</li>
+<li>If the input is empty (an empty string or <code>None</code> wrapped by the file-like object), return <code>None</code>.</li>
+<li>If a <code>global.columns</code> declaration is present but contains <strong>no</strong> column names (i.e. <code># global.columns =</code> with nothing after the <code>=</code>), return <code>None</code>.</li>
 </ul>
-<p>The function must not consume/exhaust the caller's ability to still parse the same data (the returned value is only the field list, or <code>None</code>).</p>
+<p>The function must not consume/exhaust the caller's ability to still parse the same data — what it returns is only the field list, or <code>None</code>.</p>
 <h4>Integration with Parsing</h4>
-<p>The existing top-level <code>conllu.parse</code> function must automatically detect and honor a <code>global.columns</code> declaration in the input data.</p>
-<p>When the input contains a valid <code># global.columns = ...</code> declaration, the columns declared there (lowercased, as above) are used as the field names for each token. Each token becomes an <code>OrderedDict</code> whose keys are exactly those declared field names, in declared order, mapped to the corresponding value parsed from that token's tab-separated columns.</p>
-<h5>Value parsing rules (as applied under the declared columns)</h5>
-<p>For a token line under the declared columns, values are parsed consistently with the existing CoNLL-U field handling:</p>
+<p>The existing top-level <code>conllu.parse</code> function must detect and honor a <code>global.columns</code> declaration in the input data automatically.</p>
+<p>Whenever the input contains a valid <code># global.columns = ...</code> declaration, the field names used for each token are the columns declared there (lowercased, as above). Each token becomes an <code>OrderedDict</code> whose keys are exactly those declared field names, in the declared order, each key mapped to the corresponding value parsed from that token's tab-separated columns.</p>
+<h5>Rules for parsing values (as applied under the declared columns)</h5>
+<p>On a token line under the declared columns, values are parsed in a way consistent with the existing CoNLL-U field handling:</p>
 <ul>
-<li>An <code>id</code> field holding a plain integer becomes that integer (e.g. <code>5</code> → <code>5</code>).</li>
-<li>A <code>head</code> field holding an integer becomes that integer (e.g. <code>0</code> → <code>0</code>).</li>
-<li>A field whose raw value is <code>_</code> becomes <code>None</code> (e.g. a <code>misc</code> value of <code>_</code>).</li>
-<li>Other textual fields (e.g. <code>form</code>, <code>upos</code>, <code>deprel</code>, <code>parseme:mwe</code>) retain their string value.</li>
+<li>When an <code>id</code> field holds a plain integer, it becomes that integer (e.g. <code>5</code> → <code>5</code>).</li>
+<li>When a <code>head</code> field holds an integer, it becomes that integer (e.g. <code>0</code> → <code>0</code>).</li>
+<li>A field with a raw value of <code>_</code> becomes <code>None</code> (e.g. a <code>misc</code> value of <code>_</code>).</li>
+<li>Other textual fields (e.g. <code>form</code>, <code>upos</code>, <code>deprel</code>, <code>parseme:mwe</code>) keep their string value.</li>
 </ul>
-<p><strong>Example.</strong> Given input containing:</p>
+<p><strong>Example.</strong> For input containing the following:</p>
 <pre><code># global.columns = ID FORM UPOS HEAD DEPREL MISC PARSEME:MWE
 # source_sent_id = conllu http://hdl.handle.net/11234/1-2837 UD_German-GSD/de_gsd-ud-train.conllu train-s16
 # sent_id = train-s16
@@ -383,7 +383,7 @@
 4	Politiker	NOUN	5	nsubj	_	*
 5	strebt	VERB	0	root	_	2:VPC.full
 </code></pre>
-<p>parsing yields sentences whose fifth token (the <code>strebt</code> line) is:</p>
+<p>parsing yields sentences in which the fifth token (the <code>strebt</code> line) is:</p>
 <pre><code class="language-python">OrderedDict([
     ('id', 5),
     ('form', 'strebt'),
@@ -394,41 +394,41 @@
     ('parseme:mwe', '2:VPC.full'),
 ])
 </code></pre>
-<p>When no valid <code>global.columns</code> declaration is present, existing default parsing behavior is unchanged.</p>
+<p>When there is no valid <code>global.columns</code> declaration, the existing default parsing behavior is left unchanged.</p>
 <h4>Notes</h4>
 <ul>
-<li><code>parse_conllu_plus_fields</code> must be importable from <code>conllu.parser</code>.</li>
-<li>Existing exports of <code>conllu.parser</code> (including <code>DEFAULT_FIELDS</code>, <code>ParseException</code>, <code>head_to_token</code>, <code>parse_comment_line</code>, <code>parse_dict_value</code>, <code>parse_id_value</code>, <code>parse_int_value</code>, <code>parse_line</code>, <code>parse_nullable_value</code>, <code>parse_paired_list_value</code>, <code>parse_sentences</code>, <code>parse_token_and_metadata</code>, <code>serialize</code>, <code>serialize_field</code>) must remain available and unchanged in behavior.</li>
+<li>It must be possible to import <code>parse_conllu_plus_fields</code> from <code>conllu.parser</code>.</li>
+<li>The existing exports of <code>conllu.parser</code> (including <code>DEFAULT_FIELDS</code>, <code>ParseException</code>, <code>head_to_token</code>, <code>parse_comment_line</code>, <code>parse_dict_value</code>, <code>parse_id_value</code>, <code>parse_int_value</code>, <code>parse_line</code>, <code>parse_nullable_value</code>, <code>parse_paired_list_value</code>, <code>parse_sentences</code>, <code>parse_token_and_metadata</code>, <code>serialize</code>, <code>serialize_field</code>) must remain available, with behavior unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Update the public parsing functions in conllu.parser to accept zero as an integer ID.</span>
-        <span class="spec-meta muted">96 words · source specification
+        <span class="spec-title">Modify the public parsing functions in conllu.parser so that they accept zero as an integer ID.</span>
+        <span class="spec-meta muted">115 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public parsing functions in <code>conllu.parser</code> to accept zero as an integer ID.</p>
-<h5>Public APIs</h5>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify the public parsing functions in <code>conllu.parser</code> so that they accept zero as an integer ID.</p>
+<h5>Public API</h5>
 <ul>
 <li>
 <p><code>conllu.parser.parse_id_value(value)</code></p>
 <ul>
-<li><code>parse_id_value(&quot;0&quot;)</code> must return the integer <code>0</code>.</li>
-<li>Positive decimal IDs continue to parse normally, such as <code>&quot;4&quot;</code> → <code>4</code> and <code>&quot;10&quot;</code> → <code>10</code>.</li>
-<li>Negative and nonnumeric IDs such as <code>&quot;-10&quot;</code> and <code>&quot;a&quot;</code> remain invalid, using the function’s existing invalid-input behavior.</li>
+<li>When <code>parse_id_value(&quot;0&quot;)</code> is called, it must return the integer <code>0</code>.</li>
+<li>Positive decimal IDs keep parsing normally, for instance <code>&quot;4&quot;</code> → <code>4</code> and <code>&quot;10&quot;</code> → <code>10</code>.</li>
+<li>Negative and nonnumeric IDs such as <code>&quot;-10&quot;</code> and <code>&quot;a&quot;</code> remain invalid and are handled with the existing invalid-input behavior of the function.</li>
 </ul>
 </li>
 <li>
 <p><code>conllu.parser.parse_paired_list_value(value)</code></p>
 <ul>
-<li>A paired-list entry may use zero as its numeric ID.</li>
-<li><code>parse_paired_list_value(&quot;0:root&quot;)</code> must return:<pre><code class="language-python">[('root', 0)]
+<li>Zero may be used as the numeric ID of a paired-list entry.</li>
+<li>When <code>parse_paired_list_value(&quot;0:root&quot;)</code> is called, it must return:<pre><code class="language-python">[('root', 0)]
 </code></pre>
 </li>
-<li>The returned item remains a tuple ordered as <code>(label, integer_id)</code>.</li>
+<li>The returned item is still a tuple ordered as <code>(label, integer_id)</code>.</li>
 </ul>
 </li>
 </ul>
@@ -437,187 +437,188 @@
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Valueless CoNLL-U metadata must survive parsing and serialization without being dropped or converted into valued metadata.</span>
-        <span class="spec-meta muted">332 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">CoNLL-U metadata that has no value must survive parsing and serialization without being dropped and without being turned into valued metadata.</span>
+        <span class="spec-meta muted">362 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Preserve valueless metadata when serializing CoNLL-U</h4>
-<h5>Objective</h5>
-<p>Valueless CoNLL-U metadata must survive parsing and serialization without being dropped or converted into valued metadata.</p>
+      <div class="spec-body"><h4>Preserve valueless CoNLL-U metadata during serialization</h4>
+<h5>Goal</h5>
+<p>CoNLL-U metadata that has no value must survive parsing and serialization without being dropped and without being turned into valued metadata.</p>
 <h5>Public API</h5>
-<p>The required behavior applies to these existing entry points:</p>
+<p>These existing entry points are covered by the required behavior:</p>
 <ul>
 <li><code>conllu.parse(data: str, fields=...)</code></li>
 <li><code>conllu.models.TokenList.serialize() -&gt; str</code></li>
 <li><code>conllu.parser.serialize(tokenlist) -&gt; str</code></li>
 </ul>
-<p><code>TokenList.serialize()</code> may be called on a sentence returned by <code>parse</code>, for example <code>parse(data, fields=[&quot;id&quot;, &quot;form&quot;])[0].serialize()</code>. The module-level <code>conllu.parser.serialize(tokenlist)</code> function must provide the same metadata serialization behavior when called directly on that token list.</p>
-<h5>Required behavior</h5>
+<p>You may call <code>TokenList.serialize()</code> on a sentence returned by <code>parse</code>, for example <code>parse(data, fields=[&quot;id&quot;, &quot;form&quot;])[0].serialize()</code>. The module-level function <code>conllu.parser.serialize(tokenlist)</code> must provide the same metadata serialization behavior when it is called directly on that token list.</p>
+<h5>Behavior requirements</h5>
 <ul>
-<li>Parsing a metadata line containing only <code># newdoc</code> must retain it as valueless sentence metadata so that it can be serialized again.</li>
-<li>Any metadata entry whose value is <code>None</code> must be serialized as a bare metadata line in the form <code># key</code>. This applies both to metadata produced by parsing and to a token list passed directly to <code>conllu.parser.serialize</code>.</li>
-<li>A valueless line must not be omitted, gain an equals sign, or gain a textual value such as <code>None</code>. In particular, valueless <code>newdoc</code> metadata must be emitted exactly as <code># newdoc</code>.</li>
-<li>Metadata lines must retain their metadata ordering. A bare line that precedes valued metadata must remain before that metadata in the serialized output.</li>
-<li>Metadata must continue to be emitted before the sentence's token lines.</li>
-<li>Valued metadata must retain the existing <code># key = value</code> format and ordering.</li>
-<li><code>TokenList.serialize()</code> and <code>conllu.parser.serialize(tokenlist)</code> must produce the same output for the same token list, including the handling of <code>None</code> metadata values.</li>
-<li>Existing token serialization and sentence termination behavior must remain unchanged.</li>
+<li>When a metadata line contains only <code># newdoc</code>, parsing must retain it as valueless sentence metadata so that it can be serialized again.</li>
+<li>Any metadata entry whose value is <code>None</code> must be serialized as a bare metadata line of the form <code># key</code>. This holds both for metadata produced by parsing and for a token list that is passed directly to <code>conllu.parser.serialize</code>.</li>
+<li>A valueless line must not be omitted, must not gain an equals sign, and must not gain a textual value such as <code>None</code>. In particular, <code>newdoc</code> metadata that has no value must be emitted exactly as <code># newdoc</code>.</li>
+<li>Metadata lines must keep their metadata ordering. A bare line that precedes valued metadata must still appear before that metadata in the serialized output.</li>
+<li>Metadata must still be emitted before the token lines of the sentence.</li>
+<li>Valued metadata must keep the existing <code># key = value</code> format and its ordering.</li>
+<li>For the same token list, <code>TokenList.serialize()</code> and <code>conllu.parser.serialize(tokenlist)</code> must produce the same output, including the handling of <code>None</code> metadata values.</li>
+<li>The behavior of existing token serialization and of sentence termination must remain unchanged.</li>
 </ul>
 <h5>Example</h5>
-<p>Given this input:</p>
+<p>Take this input:</p>
 <pre><code class="language-text"># newdoc
 # data = meta
 # meta = data
 1	dog
 </code></pre>
-<p>parse it with <code>fields=[&quot;id&quot;, &quot;form&quot;]</code>. Serializing the resulting <code>TokenList</code>, either by calling its <code>serialize()</code> method or by passing it to <code>conllu.parser.serialize</code>, must produce exactly:</p>
+<p>Parse it with <code>fields=[&quot;id&quot;, &quot;form&quot;]</code>. When you serialize the resulting <code>TokenList</code>, either by calling its <code>serialize()</code> method or by passing it to <code>conllu.parser.serialize</code>, the result must be exactly:</p>
 <pre><code class="language-text"># newdoc
 # data = meta
 # meta = data
 1	dog
 
 </code></pre>
-<p>The final blank line is part of the existing serialized sentence format.</p>
+<p>The blank line at the end is part of the existing serialized sentence format.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">322 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Modify the public function</span>
+        <span class="spec-meta muted">352 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Change that is required</h4>
+<p>Modify the public function:</p>
 <pre><code class="language-python">conllu.parser.parse_paired_list_value(value)
 </code></pre>
-<p>It must parse paired CoNLL-U dependency values when a relation contains any number of colon-separated components. Relation components must support Unicode alphabetic characters wherever alphabetic relation characters are accepted.</p>
-<h4>Parsing and return value</h4>
+<p>When a relation contains any number of colon-separated components, the function must parse paired CoNLL-U dependency values. Wherever alphabetic relation characters are accepted, relation components must support Unicode alphabetic characters.</p>
+<h4>Parsing and the returned value</h4>
 <ul>
-<li>A dependency item has an ID prefix followed by a colon and its relation. Multiple dependency items may continue to be separated by <code>|</code>.</li>
-<li>For each valid item, only the first colon separates the ID from the relation. Every character after that first colon, up to the end of that item, belongs to the relation. Internal colons and Unicode characters must be retained exactly; the parser must not truncate, split, normalize, or otherwise alter the relation string.</li>
-<li>Return valid items in input order as a list of <code>(relation, id)</code> tuples.</li>
-<li>Convert an ordinary numeric ID prefix to an integer. Preserve the function's existing ID handling for other already-supported valid CoNLL-U IDs, including decimal IDs.</li>
+<li>A dependency item consists of an ID prefix, which is followed by a colon and the item's relation. Multiple dependency items may still be separated by <code>|</code>.</li>
+<li>Within each valid item, only the first colon separates the ID from the relation. Every character after that first colon, up to the end of that item, is part of the relation. Internal colons and Unicode characters must be retained exactly; the relation string must not be truncated, split, normalized, or otherwise altered by the parser.</li>
+<li>Valid items must be returned in input order as a list of <code>(relation, id)</code> tuples.</li>
+<li>An ordinary numeric ID prefix must be converted to an integer. The function's existing ID handling for other already-supported valid CoNLL-U IDs, including decimal IDs, must be preserved.</li>
 </ul>
-<p>Required examples:</p>
+<p>The required examples:</p>
 <pre><code class="language-python">parse_paired_list_value(&quot;1:obl:arg:gen&quot;)
 # [(&quot;obl:arg:gen&quot;, 1)]
 </code></pre>
 <pre><code class="language-python">parse_paired_list_value(&quot;25:obl:arg:į&quot;)
 # [(&quot;obl:arg:į&quot;, 25)]
 </code></pre>
-<p>Existing forms must remain compatible, including single-component relations, two-component relations, uppercase letters, trailing digits, underscores, hyphens, zero IDs, decimal IDs, and pipe-separated lists. For example:</p>
+<p>Existing forms must remain compatible, including single-component relations, two-component relations, uppercase letters, trailing digits, underscores, hyphens, zero IDs, decimal IDs, and pipe-separated lists. For instance:</p>
 <pre><code class="language-python">parse_paired_list_value(&quot;5:conj:and|8.1:nsubj:pass|9:nsubj:xsubj&quot;)
 # [(&quot;conj:and&quot;, 5), (&quot;nsubj:pass&quot;, (8, &quot;.&quot;, 1)), (&quot;nsubj:xsubj&quot;, 9)]
 </code></pre>
-<h4>Nullable and invalid values</h4>
-<p>Preserve the function's established fallback behavior:</p>
+<h4>Handling of nullable and invalid values</h4>
+<p>Keep the function's established fallback behavior:</p>
 <ul>
-<li>An empty string or <code>_</code> returns <code>None</code>.</li>
-<li>A non-null value that is not a valid paired dependency value is returned unchanged rather than partially parsed. This includes malformed IDs, a missing or invalid relation, empty pipe-separated items, and relations whose components begin with a digit.</li>
-<li>Supporting additional colons and Unicode letters must not make malformed values valid.</li>
+<li><code>None</code> is returned for an empty string or for <code>_</code>.</li>
+<li>A non-null value that is not a valid paired dependency value is returned unchanged instead of being partially parsed. This includes IDs that are malformed, a relation that is missing or invalid, empty pipe-separated items, and relations whose components begin with a digit.</li>
+<li>The support for additional colons and Unicode letters must not make malformed values valid.</li>
 </ul>
-<p>The same behavior must apply when the function is used as the default parser for a CoNLL-U <code>deps</code> field, so valid multi-component Unicode relations are represented as dependency tuples rather than left as raw strings.</p>
+<p>When the function is used as the default parser for a CoNLL-U <code>deps</code> field, the same behavior must apply, so that valid multi-component Unicode relations are represented as dependency tuples rather than left as raw strings.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Update conllu.parser.parse_paired_list_value(value) to accept Arabic characters, including Arabic diacritics, within dependency relation labels.</span>
-        <span class="spec-meta muted">54 words · source specification
+        <span class="spec-title">Modify conllu.parser.parse_paired_list_value(value) so that it accepts Arabic characters, including Arabic diacritics, within dependency relation labels.</span>
+        <span class="spec-meta muted">58 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update <code>conllu.parser.parse_paired_list_value(value)</code> to accept Arabic characters, including Arabic diacritics, within dependency relation labels.</p>
-<p>For the input:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Modify <code>conllu.parser.parse_paired_list_value(value)</code> so that it accepts Arabic characters, including Arabic diacritics, within dependency relation labels.</p>
+<p>Given the input:</p>
 <pre><code class="language-python">&quot;3:obl:arg:عَلَى:gen&quot;
 </code></pre>
 <p>the function must return:</p>
 <pre><code class="language-python">[(&quot;obl:arg:عَلَى:gen&quot;, 3)]
 </code></pre>
-<p>The leading numeric component is converted to an integer, while the entire remaining colon-delimited relation label is preserved exactly, including Arabic characters and diacritics.</p>
+<p>The numeric component at the start is converted to an integer, while the entire remaining colon-delimited relation label is preserved exactly, including Arabic characters and diacritics.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Maintain the public callable</span>
-        <span class="spec-meta muted">116 words · source specification
+        <span class="spec-title">The public callable below must be maintained</span>
+        <span class="spec-meta muted">128 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API and behavior</h4>
+      <div class="spec-body"><h4>API and behavior requirements</h4>
 <h5><code>conllu.parse_incr</code></h5>
-<p>Maintain the public callable:</p>
+<p>The public callable below must be maintained:</p>
 <pre><code class="language-python">parse_incr(in_file, fields=None, field_parsers=None)
 </code></pre>
 <ul>
-<li><code>in_file</code> is expected to be an opened file or file-like object.</li>
-<li>If <code>in_file</code> is a text string instead, such as <code>&quot;SOME STRING DATA&quot;</code>, consuming the result of <code>parse_incr</code> must raise <code>conllu.compat.FileNotFoundError</code>.</li>
-<li>The string must not be parsed as CoNLL-U content or silently produce an empty result.</li>
-<li>Existing parsing behavior for valid file-like inputs must remain unchanged.</li>
+<li>It is expected that <code>in_file</code> is an opened file or a file-like object.</li>
+<li>If <code>in_file</code> is a text string instead, such as <code>&quot;SOME STRING DATA&quot;</code>, then the result of <code>parse_incr</code> must raise <code>conllu.compat.FileNotFoundError</code> when it is consumed.</li>
+<li>The string must neither be parsed as CoNLL-U content nor silently produce an empty result.</li>
+<li>For valid file-like inputs, existing parsing behavior must remain unchanged.</li>
 </ul>
 <h5><code>conllu.compat.FileNotFoundError</code></h5>
-<p><code>FileNotFoundError</code> must be publicly importable as:</p>
+<p><code>FileNotFoundError</code> must be publicly importable in the following way:</p>
 <pre><code class="language-python">from conllu.compat import FileNotFoundError
 </code></pre>
-<p>The exception raised for the invalid string input to <code>parse_incr</code> must be this exception type or a subclass of it. No particular error message is required.</p>
+<p>For the invalid string input to <code>parse_incr</code>, the exception raised must be this exception type or a subclass of it. No specific error message is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Add these public classes to conllu.models</span>
-        <span class="spec-meta muted">398 words · source specification
+        <span class="spec-title">Add the following public classes to conllu.models</span>
+        <span class="spec-meta muted">464 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Introduce public token and metadata mapping types</h3>
-<h4>Public API</h4>
-<p>Add these public classes to <code>conllu.models</code>:</p>
+      <div class="spec-body"><h3>Task: Add public token and metadata mapping types</h3>
+<h4>The public API</h4>
+<p>Add the following public classes to <code>conllu.models</code>:</p>
 <ul>
 <li><code>Token()</code></li>
 <li><code>Token(iterable_of_key_value_pairs)</code></li>
 <li><code>Metadata()</code></li>
 <li><code>Metadata(iterable_of_key_value_pairs)</code></li>
 </ul>
-<p>Both classes must behave as insertion-ordered mappings. They must support normal mapping access and content-based equality. In particular, a <code>Metadata</code> and a <code>Token</code> containing the same ordered key/value pairs must compare equal.</p>
-<p>Their representations must identify the concrete class, for example:</p>
+<p>Both classes must act as insertion-ordered mappings. They must support normal mapping access as well as content-based equality. In particular, when a <code>Metadata</code> and a <code>Token</code> hold the same ordered key/value pairs, they must compare equal.</p>
+<p>Their representations must make the concrete class identifiable, for example:</p>
 <pre><code class="language-python">repr(Token([(&quot;id&quot;, 1)]))
 # &quot;Token([('id', 1)])&quot;
 
 repr(Metadata([(&quot;meta&quot;, &quot;data&quot;)]))
 # &quot;Metadata([('meta', 'data')])&quot;
 </code></pre>
-<p>Repeated keys have normal mapping behavior: the last value is retained.</p>
-<h4>Parser return values</h4>
-<p>The following existing APIs must return the new mapping types while preserving their current signatures and parsing semantics:</p>
+<p>For repeated keys, normal mapping behavior applies: the last value is retained.</p>
+<h4>Return values from the parser</h4>
+<p>The existing APIs listed below must return the new mapping types, while their current signatures and parsing semantics are preserved:</p>
 <ul>
 <li>
 <p><code>conllu.parser.parse_line(line, fields=..., ...)</code></p>
 <ul>
-<li>Return a <code>Token</code>.</li>
-<li>This applies with default fields, custom fields, fewer input columns, and custom field parsers.</li>
+<li>A <code>Token</code> must be returned.</li>
+<li>This holds for default fields, custom fields, fewer input columns, and custom field parsers.</li>
 </ul>
 </li>
 <li>
 <p><code>conllu.parser.parse_token_and_metadata(data, fields=..., field_parsers=..., metadata_parsers=...)</code></p>
 <ul>
-<li>Return <code>(tokens, metadata)</code>.</li>
-<li><code>tokens</code> is a list of <code>Token</code> objects.</li>
-<li><code>metadata</code> is a <code>Metadata</code> object.</li>
-<li>Metadata entry order and transformed keys/values from metadata parsers must be preserved.</li>
+<li><code>(tokens, metadata)</code> must be returned.</li>
+<li><code>tokens</code> is a list whose elements are <code>Token</code> objects.</li>
+<li>The <code>metadata</code> is a <code>Metadata</code> object.</li>
+<li>The order of metadata entries, as well as keys/values transformed by metadata parsers, must be preserved.</li>
 </ul>
 </li>
 <li>
 <p><code>conllu.parser.parse_dict_value(value)</code></p>
 <ul>
 <li>
-<p>Return a <code>Token</code> for non-null dictionary values.</p>
+<p>A <code>Token</code> must be returned for dictionary values that are non-null.</p>
 </li>
 <li>
-<p>Continue returning <code>None</code> for <code>&quot;&quot;</code> and <code>&quot;_&quot;</code>.</p>
+<p><code>None</code> must continue to be returned for <code>&quot;&quot;</code> and <code>&quot;_&quot;</code>.</p>
 </li>
 <li>
-<p>Required examples include:</p>
+<p>The required examples include:</p>
 <pre><code class="language-python">parse_dict_value(&quot;key1&quot;)
 # Token([(&quot;key1&quot;, &quot;&quot;)])
 
@@ -637,217 +638,220 @@ parse_dict_value(&quot;key1=_|_|_=val1&quot;)
 </ul>
 </li>
 </ul>
-<p>The top-level parsing APIs must expose these types in their results:</p>
+<p>These types must be exposed in the results of the top-level parsing APIs:</p>
 <ul>
 <li><code>conllu.parse(...)</code></li>
 <li><code>conllu.parse_incr(...)</code></li>
 <li><code>conllu.parse_tree(...)</code></li>
 <li><code>conllu.parse_tree_incr(...)</code></li>
 </ul>
-<p>Specifically:</p>
+<p>More precisely:</p>
 <ul>
-<li>Each parsed row in a <code>TokenList</code> is a <code>Token</code>.</li>
-<li>Parsed dictionary-valued fields such as <code>feats</code>, <code>pfeats</code>, and <code>misc</code> are <code>Token</code> objects when non-null.</li>
-<li>Parsed sentence metadata is a <code>Metadata</code>.</li>
-<li>Each parsed <code>TokenTree.token</code> is a <code>Token</code>.</li>
-<li>These requirements also apply when custom field layouts are used, including CoNLL-U Plus and CoNLL-2009-style layouts.</li>
+<li>Each row that is parsed into a <code>TokenList</code> is a <code>Token</code>.</li>
+<li>Dictionary-valued fields that are parsed, such as <code>feats</code>, <code>pfeats</code>, and <code>misc</code>, are <code>Token</code> objects when non-null.</li>
+<li>The metadata parsed for a sentence is a <code>Metadata</code>.</li>
+<li>Each <code>TokenTree.token</code> that is parsed is a <code>Token</code>.</li>
+<li>The same requirements also hold when custom field layouts are used, including CoNLL-U Plus and CoNLL-2009-style layouts.</li>
 </ul>
-<h4>Model compatibility</h4>
-<p><code>Token</code> objects must work anywhere the model APIs currently accept mapping-like token data:</p>
+<h4>Compatibility with the models</h4>
+<p><code>Token</code> objects must work in any place where the model APIs currently accept mapping-like token data:</p>
 <ul>
 <li><code>conllu.models.TokenList(tokens=None, metadata=None)</code></li>
-<li><code>TokenList.filter(**criteria)</code>, including nested criteria such as <code>feats__Degree=&quot;Pos&quot;</code></li>
+<li><code>TokenList.filter(**criteria)</code>, with nested criteria such as <code>feats__Degree=&quot;Pos&quot;</code> included</li>
 <li><code>TokenList.to_tree()</code></li>
 <li><code>conllu.models.TokenTree(token=..., children=...)</code></li>
-<li>Tree flattening and serialization</li>
+<li>Flattening of trees and their serialization</li>
 </ul>
-<p>Using <code>Token</code> inputs must preserve existing tree behavior, including omission of negative-head nodes and <code>conllu.parser.ParseException</code> for token lists with multiple roots or no root.</p>
-<h4>Serialization compatibility</h4>
-<p><code>conllu.parser.serialize_field(value)</code> must serialize <code>Token</code> mappings as dictionary-valued fields:</p>
+<p>When <code>Token</code> inputs are used, the existing tree behavior must be preserved, including that negative-head nodes are omitted and <code>conllu.parser.ParseException</code> is raised for token lists with multiple roots or no root.</p>
+<h4>Compatibility for serialization</h4>
+<p><code>Token</code> mappings must be serialized by <code>conllu.parser.serialize_field(value)</code> as dictionary-valued fields:</p>
 <pre><code class="language-python">serialize_field(Token())                         # &quot;&quot;
 serialize_field(Token([(&quot;SpaceAfter&quot;, &quot;No&quot;)]))  # &quot;SpaceAfter=No&quot;
 serialize_field(Token([(&quot;Translit&quot;, None)]))     # &quot;Translit=_&quot;
 </code></pre>
-<p>Token and metadata ordering must remain visible in equality, serialization, and their <code>Token([...])</code> / <code>Metadata([...])</code> representations.</p>
+<p>The ordering of tokens and metadata must remain visible in equality, in serialization, and in the <code>Token([...])</code> / <code>Metadata([...])</code> representations.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">You are working on a CoNLL-U parsing library (Python package conllu).</span>
-        <span class="spec-meta muted">832 words · source specification
+        <span class="spec-title">You are working on a CoNLL-U parsing library (the Python package conllu).</span>
+        <span class="spec-meta muted">888 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a CoNLL-U parsing library (Python package <code>conllu</code>). This task changes the default column naming convention and introduces a bidirectional aliasing mechanism between two pairs of field names.</p>
-<h4>Field Name Change</h4>
-<p>The library's default set of column fields must use the names <code>upos</code> and <code>xpos</code> (instead of the older <code>upostag</code> and <code>xpostag</code>). Concretely, the default fields — exposed as <code>DEFAULT_FIELDS</code> in <code>conllu.parser</code> — must be, in order:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You are working on a CoNLL-U parsing library (the Python package <code>conllu</code>). This task modifies the default column naming convention and adds a bidirectional aliasing mechanism between two pairs of field names.</p>
+<h4>Field Name Rename</h4>
+<p>The default set of column fields in the library must use the names <code>upos</code> and <code>xpos</code> (rather than the older <code>upostag</code> and <code>xpostag</code>). Concretely, the default fields — exposed as <code>DEFAULT_FIELDS</code> in <code>conllu.parser</code> — must be, in order:</p>
 <pre><code>id, form, lemma, upos, xpos, feats, head, deprel, deps, misc
 </code></pre>
-<p>The value parsing behavior of each default field is unchanged (e.g. <code>id</code> parses to an integer or <code>None</code>, <code>feats</code> parses to a <code>Token</code> of key/value pairs, blank/<code>_</code> fields for nullable columns become <code>None</code>, etc.). Only the two field names are renamed from <code>upostag</code>/<code>xpostag</code> to <code>upos</code>/<code>xpos</code>.</p>
-<h4>Aliasing Requirement</h4>
-<p>Two pairs of field names are treated as aliases of each other:</p>
+<p>Each default field's value-parsing behavior is unchanged (e.g. <code>id</code> parses to an integer or <code>None</code>, <code>feats</code> parses to a <code>Token</code> of key/value pairs, blank/<code>_</code> fields for nullable columns become <code>None</code>, etc.). The only change is the renaming of the two field names from <code>upostag</code>/<code>xpostag</code> to <code>upos</code>/<code>xpos</code>.</p>
+<h4>Requirement for Aliasing</h4>
+<p>The following two pairs of field names are treated as aliases of each other:</p>
 <ul>
 <li><code>upos</code> ↔ <code>upostag</code></li>
 <li><code>xpos</code> ↔ <code>xpostag</code></li>
 </ul>
-<p>The aliasing must work in <strong>both directions</strong> and applies in two places: <code>Token</code> key access, and field-parser lookup during line parsing.</p>
-<h5>1. <code>Token</code> key access aliasing</h5>
-<p><code>Token</code> (in <code>conllu.models</code>) is a dict-like mapping. When a <code>Token</code> contains one member of an alias pair, accessing it via the other name must return the same value.</p>
+<p>The aliasing must work in <strong>both directions</strong> and is applied in two places: <code>Token</code> key access, and field-parser lookup during line parsing.</p>
+<h5>1. Alias-aware key access on <code>Token</code></h5>
+<p><code>Token</code> (in <code>conllu.models</code>) is a dict-like mapping. If a <code>Token</code> contains one member of an alias pair, accessing it via the other name must return the same value.</p>
 <ul>
-<li>A <code>Token</code> built with a <code>xpos</code> key must return its value both for <code>token[&quot;xpos&quot;]</code> and <code>token[&quot;xpostag&quot;]</code>.</li>
-<li>A <code>Token</code> built with a <code>upos</code> key must return its value both for <code>token[&quot;upos&quot;]</code> and <code>token[&quot;upostag&quot;]</code>.</li>
-<li>The same holds in reverse: a <code>Token</code> built with <code>xpostag</code>/<code>upostag</code> keys must be accessible via <code>xpos</code>/<code>upos</code> respectively.</li>
+<li>If a <code>Token</code> is built with a <code>xpos</code> key, its value must be returned both by <code>token[&quot;xpos&quot;]</code> and <code>token[&quot;xpostag&quot;]</code>.</li>
+<li>If a <code>Token</code> is built with a <code>upos</code> key, its value must be returned both by <code>token[&quot;upos&quot;]</code> and <code>token[&quot;upostag&quot;]</code>.</li>
+<li>The reverse holds as well: a <code>Token</code> built with <code>xpostag</code>/<code>upostag</code> keys must be accessible via <code>xpos</code>/<code>upos</code> respectively.</li>
 </ul>
-<p>Accessing a key that is neither present nor an alias of a present key must raise <code>KeyError</code>.</p>
-<p>Note: the alias lookup only supplies a value when the requested key is absent but its alias is present. If the requested key itself is present, its own stored value is returned.</p>
-<h5>2. Field-parser lookup aliasing during <code>parse_line</code></h5>
-<p><code>parse_line(line, fields, field_parsers=...)</code> (in <code>conllu.parser</code>) parses a single tab-separated CoNLL-U line into a <code>Token</code>, applying a per-field parser function to produce each field's value.</p>
+<p>A key that is neither present nor an alias of a present key must raise <code>KeyError</code> when accessed.</p>
+<p>Note: the alias lookup only supplies a value when the requested key is absent but its alias is present. If the requested key itself is present, the value stored under it is returned.</p>
+<h5>2. Alias handling for field-parser lookup during <code>parse_line</code></h5>
+<p><code>parse_line(line, fields, field_parsers=...)</code> (in <code>conllu.parser</code>) turns a single tab-separated CoNLL-U line into a <code>Token</code>, applying a per-field parser function to produce the value of each field.</p>
 <ul>
-<li><code>line</code>: a tab-separated string.</li>
-<li><code>fields</code>: an ordered iterable of field names; each names one column and determines the output key for that column.</li>
-<li><code>field_parsers</code>: a mapping from field name to a callable <code>parser(line_parts, index)</code> where <code>line_parts</code> is the list of tab-split tokens of the line and <code>index</code> is the position of the current field. The callable returns the parsed value.</li>
+<li><code>line</code>: a string that is tab-separated.</li>
+<li><code>fields</code>: an ordered iterable of field names; each one names a column and determines the output key for that column.</li>
+<li><code>field_parsers</code>: a mapping from field name to a callable <code>parser(line_parts, index)</code>, where <code>line_parts</code> is the list of tab-split tokens of the line and <code>index</code> is the position of the current field. The parsed value is what the callable returns.</li>
 </ul>
-<p><code>parse_line</code> returns a <code>Token</code> whose keys are exactly the given <code>fields</code> (in order), each mapped to the value produced by the appropriate parser.</p>
-<p>The parser-selection rule for a field named <code>F</code>:</p>
+<p><code>parse_line</code> returns a <code>Token</code> whose keys are exactly the given <code>fields</code> (in order), with each key mapped to the value produced by the appropriate parser.</p>
+<p>For a field named <code>F</code>, the parser is selected by the following rule:</p>
 <ol>
-<li>If <code>field_parsers</code> contains a parser under key <code>F</code>, use it.</li>
-<li>Otherwise, if <code>F</code> is one of <code>upos</code>/<code>xpos</code>/<code>upostag</code>/<code>xpostag</code> and <code>field_parsers</code> contains a parser under the alias name of <code>F</code>, use that aliased parser.</li>
-<li>Otherwise fall back to the library's default parser for <code>F</code> (as used for <code>DEFAULT_FIELDS</code>).</li>
+<li>If <code>field_parsers</code> contains a parser under key <code>F</code>, that parser is used.</li>
+<li>Otherwise, if <code>F</code> is one of <code>upos</code>/<code>xpos</code>/<code>upostag</code>/<code>xpostag</code> and <code>field_parsers</code> contains a parser under the alias name of <code>F</code>, that aliased parser is used.</li>
+<li>Otherwise, fall back to the library's default parser for <code>F</code> (the parser used for <code>DEFAULT_FIELDS</code>).</li>
 </ol>
-<p>The alias resolution is symmetric: a field named <code>xpos</code> can be served by a <code>xpostag</code> parser and vice versa; a field named <code>upos</code> can be served by a <code>upostag</code> parser and vice versa. When a parser exists directly under the field's own name, that direct parser is always preferred over the aliased one.</p>
-<p>The output <code>Token</code> uses the field name from <code>fields</code> as the key (not the alias name of the parser that was used).</p>
-<h4>Behavioral Examples</h4>
+<p>Alias resolution works symmetrically: a field named <code>xpos</code> can be served by a <code>xpostag</code> parser and vice versa; a field named <code>upos</code> can be served by a <code>upostag</code> parser and vice versa. When a parser exists directly under the field's own name, the direct parser is always preferred over the aliased one.</p>
+<p>For the output <code>Token</code>, the key is the field name from <code>fields</code> (not the alias name of the parser that was used).</p>
+<h4>Examples of Behavior</h4>
 <ul>
-<li><code>parse_line(&quot;1\t2&quot;, fields=[&quot;id&quot;], field_parsers={&quot;id&quot;: lambda parts, i: parts[i] * 5})</code> produces a <code>Token</code> equal to <code>Token([('id', &quot;11111&quot;)])</code>.</li>
-<li>With <code>fields=[&quot;xpos&quot;, &quot;upos&quot;]</code> and parsers provided only under <code>&quot;xpostag&quot;</code> and <code>&quot;upostag&quot;</code>, those aliased parsers are used, yielding keys <code>xpos</code> and <code>upos</code>.</li>
-<li>With <code>fields=[&quot;xpostag&quot;, &quot;upostag&quot;]</code> and parsers provided only under <code>&quot;xpos&quot;</code> and <code>&quot;upos&quot;</code>, those aliased parsers are used, yielding keys <code>xpostag</code> and <code>upostag</code>.</li>
-<li>With <code>fields=[&quot;xpostag&quot;, &quot;upostag&quot;]</code> and parsers provided under both <code>&quot;xpos&quot;</code>/<code>&quot;xpostag&quot;</code> and <code>&quot;upos&quot;</code>/<code>&quot;upostag&quot;</code>, the direct (<code>xpostag</code>/<code>upostag</code>) parsers win.</li>
-<li>Mixed: <code>fields=[&quot;xpostag&quot;, &quot;upos&quot;]</code> with parsers under <code>&quot;xpos&quot;</code> and <code>&quot;upostag&quot;</code> resolves each field to its aliased parser, yielding keys <code>xpostag</code> and <code>upos</code>.</li>
+<li>The call <code>parse_line(&quot;1\t2&quot;, fields=[&quot;id&quot;], field_parsers={&quot;id&quot;: lambda parts, i: parts[i] * 5})</code> produces a <code>Token</code> equal to <code>Token([('id', &quot;11111&quot;)])</code>.</li>
+<li>Given <code>fields=[&quot;xpos&quot;, &quot;upos&quot;]</code> with parsers provided only under <code>&quot;xpostag&quot;</code> and <code>&quot;upostag&quot;</code>, those aliased parsers are the ones used, yielding keys <code>xpos</code> and <code>upos</code>.</li>
+<li>Given <code>fields=[&quot;xpostag&quot;, &quot;upostag&quot;]</code> with parsers provided only under <code>&quot;xpos&quot;</code> and <code>&quot;upos&quot;</code>, those aliased parsers are the ones used, yielding keys <code>xpostag</code> and <code>upostag</code>.</li>
+<li>Given <code>fields=[&quot;xpostag&quot;, &quot;upostag&quot;]</code> with parsers provided under both <code>&quot;xpos&quot;</code>/<code>&quot;xpostag&quot;</code> and <code>&quot;upos&quot;</code>/<code>&quot;upostag&quot;</code>, the direct (<code>xpostag</code>/<code>upostag</code>) parsers win.</li>
+<li>Mixed: with <code>fields=[&quot;xpostag&quot;, &quot;upos&quot;]</code> and parsers under <code>&quot;xpos&quot;</code> and <code>&quot;upostag&quot;</code>, each field resolves to its aliased parser, yielding keys <code>xpostag</code> and <code>upos</code>.</li>
 </ul>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as named:</p>
+<h4>Public API</h4>
+<p>Everything listed here must be importable and callable exactly as named:</p>
 <ul>
 <li><code>from conllu.models import Token, TokenList, TokenTree</code>
 <ul>
-<li><code>Token</code> is a dict-like mapping supporting construction from a dict or a list of <code>(key, value)</code> pairs, item access via <code>token[key]</code>, and the alias-aware key access described above. Two <code>Token</code>s constructed with the same ordered key/value pairs compare equal; a <code>Token</code> compares equal to an equivalent list-of-pairs-based <code>Token</code>.</li>
+<li><code>Token</code> is a dict-like mapping that supports construction from a dict or from a list of <code>(key, value)</code> pairs, item access via <code>token[key]</code>, and the alias-aware key access described above. Two <code>Token</code>s built with the same ordered key/value pairs compare equal; a <code>Token</code> compares equal to an equivalent <code>Token</code> built from a list of pairs.</li>
 </ul>
 </li>
 <li><code>from conllu.parser import ParseException, serialize, parse_line, DEFAULT_FIELDS</code>
 <ul>
 <li><code>DEFAULT_FIELDS</code> as specified above.</li>
-<li><code>parse_line(line, fields, field_parsers=...)</code> returning a <code>Token</code>, with alias-aware parser selection.</li>
+<li><code>parse_line(line, fields, field_parsers=...)</code>, which returns a <code>Token</code>, with alias-aware parser selection.</li>
 </ul>
 </li>
 </ul>
-<h4>Notes / Constraints</h4>
+<h4>Notes and Constraints</h4>
 <ul>
-<li>Equality of a <code>parse_line</code> result against a <code>Token</code> built from an ordered list of pairs must hold — i.e. <code>parse_line</code> returns a genuine <code>Token</code> with the expected keys and values.</li>
-<li>Tree/printing output that previously displayed <code>upostag:</code> now displays <code>upos:</code> (a consequence of the default field rename; the print format <code>(deprel:X) form:Y lemma:Z upos:W [id]</code> is otherwise unchanged).</li>
-<li>Do not change any behavior beyond what is described here.</li>
+<li>Equality between a <code>parse_line</code> result and a <code>Token</code> built from an ordered list of pairs must hold — i.e. <code>parse_line</code> returns a genuine <code>Token</code> with the expected keys and values.</li>
+<li>Tree/printing output that used to display <code>upostag:</code> now displays <code>upos:</code> (this is a consequence of the default field rename; the print format <code>(deprel:X) form:Y lemma:Z upos:W [id]</code> is otherwise unchanged).</li>
+<li>You must not change any behavior beyond what is described here.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">You must implement a Token class that behaves like a dictionary but provides backward-compatible aliasing between certain pairs of keys.</span>
-        <span class="spec-meta muted">344 words · source specification
+        <span class="spec-title">What you must implement is a Token class that acts like a dictionary but offers backward-compatible aliasing between particular pairs of keys.</span>
+        <span class="spec-meta muted">366 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement a <code>Token</code> class that behaves like a dictionary but provides backward-compatible aliasing between certain pairs of keys. Specifically, the keys used for part-of-speech tags come in two naming conventions that must be treated as equivalent.</p>
-<h4>Public API</h4>
-<p>Provide a class named <code>Token</code> importable as:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>What you must implement is a <code>Token</code> class that acts like a dictionary but offers backward-compatible aliasing between particular pairs of keys. In particular, the keys used for part-of-speech tags occur in two naming conventions that must be treated as equivalent.</p>
+<h4>Public Interface</h4>
+<p>Supply a class named <code>Token</code> that is importable as:</p>
 <pre><code class="language-python">from &lt;package&gt;.models import Token
 </code></pre>
-<p>(Place it in the existing <code>models</code> module of the codebase.)</p>
-<h5>Constructor</h5>
+<p>(The class must be defined in the existing <code>models</code> module of the codebase.)</p>
+<h5>The Constructor</h5>
 <pre><code class="language-python">Token(data: dict)
 </code></pre>
-<p>The <code>Token</code> is initialized from a dictionary. Example inputs include mappings such as <code>{&quot;id&quot;: 1, &quot;xpos&quot;: &quot;DT&quot;, &quot;upos&quot;: &quot;DET&quot;}</code> or <code>{&quot;id&quot;: 1, &quot;xpostag&quot;: &quot;DT&quot;, &quot;upostag&quot;: &quot;DET&quot;}</code>.</p>
-<h4>Key Aliasing Behavior</h4>
-<p>Two pairs of keys must be treated as aliases of each other:</p>
+<p>A <code>Token</code> is initialized from a dictionary. Example inputs include mappings like <code>{&quot;id&quot;: 1, &quot;xpos&quot;: &quot;DT&quot;, &quot;upos&quot;: &quot;DET&quot;}</code> or <code>{&quot;id&quot;: 1, &quot;xpostag&quot;: &quot;DT&quot;, &quot;upostag&quot;: &quot;DET&quot;}</code>.</p>
+<h4>Key Alias Behavior</h4>
+<p>Two pairs of keys must be treated as aliases of one another:</p>
 <ul>
-<li><code>&quot;xpos&quot;</code> and <code>&quot;xpostag&quot;</code> refer to the same underlying value.</li>
-<li><code>&quot;upos&quot;</code> and <code>&quot;upostag&quot;</code> refer to the same underlying value.</li>
+<li><code>&quot;xpos&quot;</code> and <code>&quot;xpostag&quot;</code> point to the same underlying value.</li>
+<li><code>&quot;upos&quot;</code> and <code>&quot;upostag&quot;</code> point to the same underlying value.</li>
 </ul>
-<p>When a <code>Token</code> is constructed with a value stored under one member of an alias pair, that value must be retrievable under <strong>both</strong> names of the pair.</p>
-<p>For example, given a <code>Token</code> constructed from <code>{&quot;id&quot;: 1, &quot;xpos&quot;: &quot;DT&quot;, &quot;upos&quot;: &quot;DET&quot;}</code>:</p>
+<p>When a value is stored under one member of an alias pair at <code>Token</code> construction time, that value must be retrievable under <strong>both</strong> names of the pair.</p>
+<p>As an illustration, take a <code>Token</code> built from <code>{&quot;id&quot;: 1, &quot;xpos&quot;: &quot;DT&quot;, &quot;upos&quot;: &quot;DET&quot;}</code>:</p>
 <ul>
-<li>accessing <code>&quot;xpos&quot;</code> yields <code>&quot;DT&quot;</code></li>
-<li>accessing <code>&quot;xpostag&quot;</code> yields <code>&quot;DT&quot;</code></li>
-<li>accessing <code>&quot;upos&quot;</code> yields <code>&quot;DET&quot;</code></li>
-<li>accessing <code>&quot;upostag&quot;</code> yields <code>&quot;DET&quot;</code></li>
+<li>reading <code>&quot;xpos&quot;</code> yields <code>&quot;DT&quot;</code></li>
+<li>reading <code>&quot;xpostag&quot;</code> yields <code>&quot;DT&quot;</code></li>
+<li>reading <code>&quot;upos&quot;</code> yields <code>&quot;DET&quot;</code></li>
+<li>reading <code>&quot;upostag&quot;</code> yields <code>&quot;DET&quot;</code></li>
 </ul>
-<p>The same equivalence must hold when the <code>Token</code> is constructed from the alternate naming, e.g. <code>{&quot;id&quot;: 1, &quot;xpostag&quot;: &quot;DT&quot;, &quot;upostag&quot;: &quot;DET&quot;}</code> — both <code>&quot;xpos&quot;</code>/<code>&quot;xpostag&quot;</code> return <code>&quot;DT&quot;</code> and both <code>&quot;upos&quot;</code>/<code>&quot;upostag&quot;</code> return <code>&quot;DET&quot;</code>.</p>
-<h4>Required Access Methods</h4>
-<p>The alias behavior must be consistent across <strong>both</strong> of the following access mechanisms:</p>
+<p>This equivalence must likewise hold when the <code>Token</code> is built from the alternate naming, e.g. <code>{&quot;id&quot;: 1, &quot;xpostag&quot;: &quot;DT&quot;, &quot;upostag&quot;: &quot;DET&quot;}</code> — in that case both <code>&quot;xpos&quot;</code>/<code>&quot;xpostag&quot;</code> return <code>&quot;DT&quot;</code> and both <code>&quot;upos&quot;</code>/<code>&quot;upostag&quot;</code> return <code>&quot;DET&quot;</code>.</p>
+<h4>Mandatory Access Methods</h4>
+<p>Across <strong>both</strong> of the following access mechanisms, the alias behavior must be consistent:</p>
 <ol>
 <li>
-<p><strong>Subscript access</strong> — <code>token[&quot;xpos&quot;]</code>, <code>token[&quot;xpostag&quot;]</code>, <code>token[&quot;upos&quot;]</code>, <code>token[&quot;upostag&quot;]</code> must all return the correct aliased value as described above.</p>
+<p><strong>Subscript access</strong> — <code>token[&quot;xpos&quot;]</code>, <code>token[&quot;xpostag&quot;]</code>, <code>token[&quot;upos&quot;]</code>, <code>token[&quot;upostag&quot;]</code> must all return the correct aliased value, as described above.</p>
 </li>
 <li>
-<p><strong><code>.get()</code> access</strong> — <code>token.get(&quot;xpos&quot;)</code>, <code>token.get(&quot;xpostag&quot;)</code>, <code>token.get(&quot;upos&quot;)</code>, <code>token.get(&quot;upostag&quot;)</code> must return the same values that the corresponding subscript access returns.</p>
+<p><strong><code>.get()</code> access</strong> — <code>token.get(&quot;xpos&quot;)</code>, <code>token.get(&quot;xpostag&quot;)</code>, <code>token.get(&quot;upos&quot;)</code>, <code>token.get(&quot;upostag&quot;)</code> must return the same values that the matching subscript access returns.</p>
 </li>
 </ol>
-<p>Both mechanisms must apply the aliasing so that requesting a value under either name of a pair returns the stored value, regardless of which name was used when the <code>Token</code> was created.</p>
-<h4>Error Conditions</h4>
-<p>Subscript access with a key that is not present (and is not resolvable through aliasing) must raise the standard missing-key error (<code>KeyError</code>), consistent with normal dictionary behavior.</p>
+<p>The aliasing must be applied by both mechanisms so that asking for a value under either name of a pair returns the stored value, regardless of which name was used when the <code>Token</code> was created.</p>
+<h4>Error Cases</h4>
+<p>When subscript access is performed with a key that is not present (and is not resolvable through aliasing), the standard missing-key error (<code>KeyError</code>) must be raised, in line with normal dictionary behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">You are working on the conllu library, a Python package for parsing CoNLL-U formatted data.</span>
-        <span class="spec-meta muted">804 words · source specification
+        <span class="spec-title">The codebase for this task is the conllu library, a Python package that parses CoNLL-U formatted data.</span>
+        <span class="spec-meta muted">897 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>conllu</code> library, a Python package for parsing CoNLL-U formatted data. This task involves several changes to the data models and cleanup of a compatibility layer. Your implementation must satisfy the exact behaviors described below.</p>
-<h4>Required Changes</h4>
-<h5>1. Remove the <code>conllu.compat</code> module</h5>
-<p>The module <code>conllu.compat</code> must no longer be needed for any of the behavior described below. All functionality that tests rely on must be available through standard Python or through the modules named below. Specifically:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The codebase for this task is the <code>conllu</code> library, a Python package that parses CoNLL-U formatted data. Several changes to the data models, plus cleanup work on a compatibility layer, make up the task. The exact behaviors laid out below must be satisfied by your implementation.</p>
+<h4>Mandatory Changes</h4>
+<h5>1. Elimination of the <code>conllu.compat</code> module</h5>
+<p>Dependence on the module <code>conllu.compat</code> must be gone from all of the behavior described below. All the functionality the tests rely on must be obtainable through standard Python or else through the modules named below. Concretely:</p>
 <ul>
-<li>File-like input must be constructed directly from <code>io.StringIO</code>. Parsing functions that accept file-like objects must work when given a <code>StringIO</code> instance.</li>
-<li>String representation of model objects must be obtainable via the built-in <code>str()</code>.</li>
-<li>Doctest parsing in downstream test tooling must rely on the standard library <code>doctest.DocTestParser</code> (no custom subclass or wrapper is required from your code).</li>
+<li>File-like input must be put together directly from <code>io.StringIO</code>. When the object handed over is a <code>StringIO</code> instance, parsing functions that accept file-like objects must work.</li>
+<li>Getting the string representation of model objects via the built-in <code>str()</code> must be possible.</li>
+<li>For doctest parsing, downstream test tooling must rely on the standard library <code>doctest.DocTestParser</code> (supplying a custom subclass or wrapper is not required from your code).</li>
 </ul>
-<h5>2. <code>Metadata</code> class in <code>conllu.models</code></h5>
-<p>Introduce a public class named <code>Metadata</code> in the module <code>conllu.models</code>. It must be importable as:</p>
+<h5>2. A <code>Metadata</code> class inside <code>conllu.models</code></h5>
+<p>A public class carrying the name <code>Metadata</code> is to be created in the module <code>conllu.models</code>. The following import must work:</p>
 <pre><code class="language-python">from conllu.models import Metadata
 </code></pre>
-<p>Requirements for <code>Metadata</code>:</p>
+<p>The requirements that apply to <code>Metadata</code>:</p>
 <ul>
-<li>It behaves like a dictionary (i.e., it is a dict-like mapping of metadata key/value pairs).</li>
-<li>Two <code>Metadata</code> instances constructed with equivalent contents compare equal.</li>
-<li>An empty <code>Metadata()</code> compares equal to another empty <code>Metadata()</code>.</li>
-<li>A <code>Metadata</code> holding <code>{&quot;key&quot;: &quot;value&quot;}</code> pairs compares equal to another <code>Metadata</code> holding the same pairs, and equal to the equivalent plain <code>dict</code> where dict-comparison semantics apply.</li>
+<li>Its behavior is dictionary-like (that is, it is a dict-like mapping whose entries are metadata key/value pairs).</li>
+<li>Two <code>Metadata</code> instances that are constructed with equivalent contents compare equal.</li>
+<li>An empty <code>Metadata()</code> and another empty <code>Metadata()</code> compare equal.</li>
+<li>A <code>Metadata</code> holding the pairs <code>{&quot;key&quot;: &quot;value&quot;}</code> compares equal both to another <code>Metadata</code> holding those same pairs and, where dict-comparison semantics apply, to the equivalent plain <code>dict</code>.</li>
 </ul>
-<h5>3. <code>TokenList.metadata</code> is always a <code>Metadata</code></h5>
-<p>The <code>TokenList</code> class (<code>conllu.models.TokenList</code>) has a <code>metadata</code> attribute. This attribute must always be a <code>Metadata</code> instance rather than <code>None</code>.</p>
+<h5>3. <code>TokenList.metadata</code> is always a <code>Metadata</code> instance</h5>
+<p>The <code>TokenList</code> class (<code>conllu.models.TokenList</code>) comes with a <code>metadata</code> attribute. This attribute must always be a <code>Metadata</code> instance and never <code>None</code>.</p>
 <ul>
-<li>After constructing a <code>TokenList</code> and then calling its <code>clear()</code> method, <code>metadata</code> must equal an empty <code>Metadata()</code> (i.e., <code>Metadata()</code>), and the token contents must be emptied (length 0).</li>
-<li><code>TokenList</code> is constructed as <code>TokenList(tokens, metadata=None)</code> where <code>tokens</code> is a list of dict-like tokens and the optional second positional argument is metadata. When metadata is provided as a plain <code>dict</code>, it must be stored as <code>Metadata</code> containing those key/value pairs.</li>
+<li>Construct a <code>TokenList</code> and follow it with a call to its <code>clear()</code> method: <code>metadata</code> must then equal an empty <code>Metadata()</code> (that is, <code>Metadata()</code>), and the token contents must have been emptied (length 0).</li>
+<li>The constructor is written <code>TokenList(tokens, metadata=None)</code>: <code>tokens</code> is a list of dict-like tokens, and metadata is carried by the optional second positional argument. When the metadata arrives as a plain <code>dict</code>, it must be stored as <code>Metadata</code> containing those key/value pairs.</li>
 </ul>
-<h5>4. <code>TokenList.extend</code> behavior</h5>
-<p>The <code>extend</code> method of <code>TokenList</code> accepts either another <code>TokenList</code> or a plain <code>list</code> of tokens. Required behaviors:</p>
+<h5>4. How <code>TokenList.extend</code> behaves</h5>
+<p>Either another <code>TokenList</code> or a plain <code>list</code> of tokens is accepted by the <code>extend</code> method of <code>TokenList</code>. What is required:</p>
 <ul>
 <li>
-<p><strong>Extending with a plain list</strong>: Given a <code>TokenList</code> with no metadata and a plain list of token dicts, calling <code>extend(list)</code> appends those tokens. The result must equal a <code>TokenList</code> constructed directly from the concatenated token sequence.</p>
+<p><strong>Extension via a plain list</strong>: Start from a <code>TokenList</code> that has no metadata, plus a plain list made up of token dicts: calling <code>extend(list)</code> appends those tokens. What the result must equal is a <code>TokenList</code> constructed directly out of the concatenated token sequence.</p>
 </li>
 <li>
-<p><strong>Extending with another <code>TokenList</code> and merging metadata</strong>: Given a <code>TokenList</code> with metadata <code>{&quot;meta1&quot;: &quot;data1&quot;}</code> and another <code>TokenList</code> with metadata <code>{&quot;meta2&quot;: &quot;data2&quot;}</code>, calling <code>extend(other)</code> appends the other's tokens and merges the metadata dictionaries. The result must equal a <code>TokenList</code> constructed with the concatenated tokens and the combined metadata <code>{&quot;meta1&quot;: &quot;data1&quot;, &quot;meta2&quot;: &quot;data2&quot;}</code>.</p>
+<p><strong>Extension via another <code>TokenList</code>, with metadata merging</strong>: Start from a <code>TokenList</code> whose metadata is <code>{&quot;meta1&quot;: &quot;data1&quot;}</code>, plus another <code>TokenList</code> whose metadata is <code>{&quot;meta2&quot;: &quot;data2&quot;}</code>: calling <code>extend(other)</code> appends the other's tokens and merges the metadata dictionaries. What the result must equal is a <code>TokenList</code> constructed from the concatenated tokens and the combined metadata <code>{&quot;meta1&quot;: &quot;data1&quot;, &quot;meta2&quot;: &quot;data2&quot;}</code>.</p>
 </li>
 </ul>
-<p>Metadata is always a dict-like mapping; extending merges metadata as dictionaries. There is no support for string-valued or list-valued metadata merging.</p>
-<h5>5. <code>TokenTree</code> equality with non-<code>TokenTree</code> objects</h5>
-<p>The <code>TokenTree</code> class (<code>conllu.models.TokenTree</code>) must define equality such that a <code>TokenTree</code> instance is <strong>not equal</strong> to a plain <code>dict</code>. For example, a <code>TokenTree(token={&quot;id&quot;: 1}, children=[])</code> must not compare equal to <code>{&quot;id&quot;: 1}</code>.</p>
+<p>Metadata is always a dict-like mapping, and extending merges it as dictionaries. String-valued or list-valued metadata merging is not supported.</p>
+<h5>5. <code>TokenTree</code> compared against objects that are not <code>TokenTree</code></h5>
+<p>Equality must be defined on the <code>TokenTree</code> class (<code>conllu.models.TokenTree</code>) so that an instance of <code>TokenTree</code> is <strong>not equal</strong> to a plain <code>dict</code>. As an example, a <code>TokenTree(token={&quot;id&quot;: 1}, children=[])</code> must not compare equal to <code>{&quot;id&quot;: 1}</code>.</p>
 <ul>
-<li>Existing equality semantics between two <code>TokenTree</code> instances remain: two trees are unequal if their token contents differ, and unequal if their metadata differs.</li>
+<li>The equality semantics already in place between two <code>TokenTree</code> instances are untouched: trees whose token contents differ are unequal, and trees whose metadata differs are unequal too.</li>
 </ul>
-<h4>Public API Surface</h4>
-<p>The following imports must succeed and the named callables/classes must behave as described:</p>
+<h4>Public API</h4>
+<p>The imports that follow must succeed, and the callables/classes named in them must behave in the ways described:</p>
 <pre><code class="language-python">from conllu import parse, parse_incr, parse_tree, parse_tree_incr
 from conllu.models import Metadata, Token, TokenList, TokenTree
 from conllu.parser import (
@@ -857,68 +861,68 @@ from conllu.parser import (
     parse_conllu_plus_fields, parse_sentences,
 )
 </code></pre>
-<h5>Behavior of parsing functions with file-like objects</h5>
+<h5>Parsing-function behavior when the input is file-like</h5>
 <ul>
 <li>
-<p><code>parse_incr(file)</code> and <code>parse_tree_incr(file)</code> accept a file-like object (e.g., <code>StringIO</code>). Iterating over the result of <code>parse_incr(StringIO(data))</code> must yield the same list of <code>TokenList</code> objects as <code>parse(data)</code>. Likewise <code>parse_tree_incr(StringIO(data))</code> must match <code>parse_tree(data)</code>.</p>
+<p>Both <code>parse_incr(file)</code> and <code>parse_tree_incr(file)</code> accept a file-like object (e.g., <code>StringIO</code>). Iterating over what <code>parse_incr(StringIO(data))</code> returns must yield the same list of <code>TokenList</code> objects as <code>parse(data)</code> does. <code>parse_tree_incr(StringIO(data))</code> must, in the same way, match <code>parse_tree(data)</code>.</p>
 </li>
 <li>
-<p><code>parse_incr</code> (and related incremental functions) given a non-file argument such as a plain string must raise <code>FileNotFoundError</code>.</p>
+<p>Handed a non-file argument such as a plain string, <code>parse_incr</code> (and the related incremental functions) must raise <code>FileNotFoundError</code>.</p>
 </li>
 <li>
-<p><code>parse_conllu_plus_fields(file)</code> accepts a file-like object. Given <code>StringIO(&quot;&quot;)</code> or <code>StringIO(None)</code> (empty/no content) it returns <code>None</code>. Given content whose first line declares columns via <code># global.columns = ...</code> it returns the list of field names. Given a <code># global.columns =</code> line with no field names it returns <code>None</code>.</p>
+<p><code>parse_conllu_plus_fields(file)</code> accepts a file-like object. Handed <code>StringIO(&quot;&quot;)</code> or <code>StringIO(None)</code> (empty content or no content), it returns <code>None</code>. When the first line of the content declares columns via <code># global.columns = ...</code>, it returns the list of field names. Handed a <code># global.columns =</code> line with no field names, it returns <code>None</code>.</p>
 </li>
 <li>
-<p><code>parse_sentences(file)</code> is a generator accepting a file-like object. Given empty content (<code>StringIO(&quot;&quot;)</code> or <code>StringIO(None)</code>) it yields nothing. Given content it yields the sentence text blocks (as strings) split on blank lines, including a final sentence that does not end with a trailing newline.</p>
+<p><code>parse_sentences(file)</code> is a generator that accepts a file-like object. When the content is empty (<code>StringIO(&quot;&quot;)</code> or <code>StringIO(None)</code>), it yields nothing. When content is present, it yields the sentence text blocks (as strings) split on blank lines, including a final sentence that does not end with a trailing newline.</p>
 </li>
 </ul>
 <h5>String representations</h5>
 <ul>
 <li>
-<p><code>str(tokenlist)</code> for a parsed sentence produces a form like:
+<p>For a parsed sentence, <code>str(tokenlist)</code> produces a form like:
 <code>TokenList&lt;The, quick, brown, fox, jumps, over, the, lazy, dog, .&gt;</code>
-(comma-separated word forms of the tokens).</p>
+(the word forms of the tokens, separated by commas).</p>
 </li>
 <li>
-<p><code>str(tokentree)</code> for a token tree produces a form like:
+<p>For a token tree, <code>str(tokentree)</code> produces a form like:
 <code>TokenTree&lt;token={id=5, form=jumps}, children=[...]&gt;</code>
-(the root token's <code>id</code> and <code>form</code>, with children abbreviated as <code>[...]</code>).</p>
+(the <code>id</code> and <code>form</code> of the root token, with the children abbreviated as <code>[...]</code>).</p>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
 <li>Do not introduce dependencies on any removed compatibility module.</li>
-<li>The named classes and functions must be importable at the exact module paths listed above.</li>
+<li>The named classes and functions must be importable at exactly the module paths listed above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">You are working on a library for parsing dependency-annotated sentences.</span>
-        <span class="spec-meta muted">453 words · source specification
+        <span class="spec-title">You are working in a library that parses dependency-annotated sentences.</span>
+        <span class="spec-meta muted">479 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Support Multiple Root Nodes When Building a Token Tree</h3>
+      <div class="spec-body"><h3>Task: Support Multiple Root Nodes When Constructing a Token Tree</h3>
 <h4>Context</h4>
-<p>You are working on a library for parsing dependency-annotated sentences. The relevant data structures are:</p>
+<p>You are working in a library that parses dependency-annotated sentences. The relevant data structures are the following:</p>
 <ul>
-<li><code>Token</code> — a dict-like object constructed from a list of <code>(key, value)</code> pairs, e.g. <code>Token([('id', 1), ('form', 'To'), ('head', 0)])</code>. A token's <code>head</code> field identifies the <code>id</code> of its parent token; a <code>head</code> of <code>0</code> means the token is attached to the (virtual) root.</li>
-<li><code>TokenList</code> — a list-like collection of <code>Token</code> objects. It exposes a method <code>to_tree()</code> that converts the flat list into a tree of <code>TokenTree</code> nodes.</li>
-<li><code>TokenTree</code> — a tree node constructed as <code>TokenTree(token=&lt;Token&gt;, children=[&lt;TokenTree&gt;, ...])</code>.</li>
+<li><code>Token</code> — a dict-like object built from a list of <code>(key, value)</code> pairs, for example <code>Token([('id', 1), ('form', 'To'), ('head', 0)])</code>. The <code>head</code> field of a token specifies the <code>id</code> of its parent token; a <code>head</code> of <code>0</code> indicates that the token is attached to the (virtual) root.</li>
+<li><code>TokenList</code> — a list-like collection of <code>Token</code> objects. It exposes a method <code>to_tree()</code> that turns the flat list into a tree made up of <code>TokenTree</code> nodes.</li>
+<li><code>TokenTree</code> — a tree node built as <code>TokenTree(token=&lt;Token&gt;, children=[&lt;TokenTree&gt;, ...])</code>.</li>
 </ul>
 <h4>Required Change</h4>
-<p>Currently, <code>TokenList.to_tree()</code> only supports a single root token (exactly one token whose <code>head</code> is <code>0</code>), and raises an error when more than one token points at the root.</p>
-<p>Modify <code>TokenList.to_tree()</code> so that it supports <strong>multiple</strong> tokens whose <code>head</code> is <code>0</code>.</p>
-<h5>Behavior of <code>to_tree()</code> with multiple root-level tokens</h5>
-<p>When more than one token in the list has <code>head == 0</code>, <code>to_tree()</code> must return a single synthetic root <code>TokenTree</code> whose:</p>
+<p>At present, <code>TokenList.to_tree()</code> only supports a single root token (that is, exactly one token whose <code>head</code> is <code>0</code>) and raises an error when more than one token points at the root.</p>
+<p>Update <code>TokenList.to_tree()</code> so that it supports <strong>multiple</strong> tokens whose <code>head</code> is <code>0</code>.</p>
+<h5>Behavior of <code>to_tree()</code> when there are multiple root-level tokens</h5>
+<p>If the list contains more than one token with <code>head == 0</code>, <code>to_tree()</code> must return a single synthetic root <code>TokenTree</code> whose:</p>
 <ul>
 <li><strong><code>token</code></strong> is <code>Token([(&quot;id&quot;, 0), (&quot;form&quot;, &quot;_&quot;), (&quot;deprel&quot;, &quot;root&quot;)])</code>.</li>
-<li><strong><code>children</code></strong> is the list of <code>TokenTree</code> nodes built from each token whose <code>head</code> is <code>0</code>, in the order those tokens appear in the input list.</li>
+<li><strong><code>children</code></strong> is the list of <code>TokenTree</code> nodes built from each token whose <code>head</code> is <code>0</code>, in the order in which those tokens appear in the input list.</li>
 </ul>
-<p>Each child subtree is constructed recursively in the usual way: a token's children are the tokens whose <code>head</code> equals that token's <code>id</code>, ordered by their appearance in the input list.</p>
+<p>Each child subtree is built recursively in the usual manner: the children of a token are the tokens whose <code>head</code> equals that token's <code>id</code>, ordered by their appearance in the input list.</p>
 <h5>Example</h5>
-<p>Given a <code>TokenList</code> containing tokens (id / form / head):</p>
+<p>Suppose a <code>TokenList</code> contains the following tokens (id / form / head):</p>
 <ul>
 <li>1 / &quot;To&quot; / 0</li>
 <li>2 / &quot;appear&quot; / 1</li>
@@ -951,48 +955,48 @@ from conllu.parser import (
 </code></pre>
 <h5>Notes</h5>
 <ul>
-<li>The prior behavior for the case of exactly one root token is unchanged.</li>
-<li>Two <code>TokenTree</code> values are considered equal when their tokens are equal and their children lists are equal (recursively, element-wise and in order).</li>
+<li>The earlier behavior in the case of exactly one root token stays the same.</li>
+<li>Two <code>TokenTree</code> values are treated as equal when their tokens are equal and their children lists are equal (recursively, element-wise and in order).</li>
 </ul>
 <h4>Public API Surface (must be importable/callable)</h4>
 <ul>
-<li><code>TokenList([...])</code> — constructor accepting a list of <code>Token</code> objects; provides <code>.to_tree()</code>.</li>
-<li><code>Token([...])</code> — constructor accepting a list of <code>(key, value)</code> pairs.</li>
-<li><code>TokenTree(token=..., children=[...])</code> — constructor with keyword arguments <code>token</code> (a <code>Token</code>) and <code>children</code> (a list of <code>TokenTree</code>).</li>
+<li><code>TokenList([...])</code> — a constructor that accepts a list of <code>Token</code> objects and provides <code>.to_tree()</code>.</li>
+<li><code>Token([...])</code> — a constructor that accepts a list of <code>(key, value)</code> pairs.</li>
+<li><code>TokenTree(token=..., children=[...])</code> — a constructor with the keyword arguments <code>token</code> (a <code>Token</code>) and <code>children</code> (a list of <code>TokenTree</code>).</li>
 </ul>
-<p>These must be importable from the same module location as they currently are for the existing <code>Token</code>, <code>TokenList</code>, and <code>TokenTree</code> classes.</p>
+<p>These must be importable from the same module location where the existing <code>Token</code>, <code>TokenList</code>, and <code>TokenTree</code> classes currently live.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Modify the head_to_token function so that it ignores tokens whose head reference is None.</span>
-        <span class="spec-meta muted">256 words · source specification
+        <span class="spec-title">Change the head_to_token function so that tokens whose head reference is None are ignored by it.</span>
+        <span class="spec-meta muted">278 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>head_to_token</code> function so that it ignores tokens whose head reference is <code>None</code>.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Change the <code>head_to_token</code> function so that tokens whose head reference is <code>None</code> are ignored by it.</p>
 <h4>API Surface</h4>
-<p>The function <code>head_to_token</code> must be importable (it is already present in the codebase and imported by callers as <code>head_to_token</code>).</p>
-<h5>Signature</h5>
+<p>The function <code>head_to_token</code> must remain importable (it is already present in the codebase, and callers import it as <code>head_to_token</code>).</p>
+<h5>Function Signature</h5>
 <pre><code class="language-python">head_to_token(nodes)
 </code></pre>
 <ul>
-<li><code>nodes</code>: an iterable of dictionaries. Each dictionary represents a token and contains at least a <code>&quot;head&quot;</code> key whose value is either an integer or <code>None</code> (it may also contain other keys such as <code>&quot;data&quot;</code>).</li>
+<li><code>nodes</code>: an iterable of dictionaries. Each dictionary stands for a token and contains at least a <code>&quot;head&quot;</code> key whose value is either an integer or <code>None</code> (other keys such as <code>&quot;data&quot;</code> may also be present).</li>
 </ul>
-<h5>Return Value</h5>
-<p>A mapping (dictionary) that groups the input token dictionaries by their <code>&quot;head&quot;</code> value:</p>
+<h5>Returned Value</h5>
+<p>A mapping (dictionary) in which the input token dictionaries are grouped by their <code>&quot;head&quot;</code> value:</p>
 <ul>
-<li>Each key is a <code>&quot;head&quot;</code> value.</li>
+<li>Each key corresponds to a <code>&quot;head&quot;</code> value.</li>
 <li>Each value is a list of the token dictionaries that have that <code>&quot;head&quot;</code> value.</li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <ul>
-<li>A token whose <code>&quot;head&quot;</code> value is <code>None</code> must be excluded entirely from the result — it must not appear under any key, and its <code>None</code> head must not become a key in the returned mapping.</li>
-<li>Tokens with a non-<code>None</code> (integer) <code>&quot;head&quot;</code> value are grouped under that head value as described above, preserving the original token dictionaries in list form.</li>
+<li>A token with a <code>&quot;head&quot;</code> value of <code>None</code> must be excluded from the result entirely — it must not show up under any key, and its <code>None</code> head must not become a key in the mapping that is returned.</li>
+<li>Tokens whose <code>&quot;head&quot;</code> value is a non-<code>None</code> (integer) value are grouped under that head value as described above, with the original token dictionaries preserved in list form.</li>
 </ul>
 <h5>Example</h5>
-<p>Given the input:</p>
+<p>With the following input:</p>
 <pre><code class="language-python">[
     {&quot;data&quot;: &quot;a&quot;, &quot;head&quot;: 0},
     {&quot;data&quot;: &quot;dog&quot;, &quot;head&quot;: 1},
@@ -1000,63 +1004,64 @@ from conllu.parser import (
     {&quot;data&quot;: &quot;tail&quot;, &quot;head&quot;: None},
 ]
 </code></pre>
-<p>the result is:</p>
+<p>the result is the following:</p>
 <pre><code class="language-python">{
     0: [{&quot;data&quot;: &quot;a&quot;, &quot;head&quot;: 0}],
     1: [{&quot;data&quot;: &quot;dog&quot;, &quot;head&quot;: 1}],
 }
 </code></pre>
-<p>The two tokens with <code>&quot;head&quot;: None</code> are omitted from the output.</p>
+<p>The two tokens with <code>&quot;head&quot;: None</code> are left out of the output.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not change any other existing grouping behavior of <code>head_to_token</code>; only add the exclusion of <code>None</code>-head tokens.</li>
+<li>Do not alter any other existing grouping behavior of <code>head_to_token</code>; the only thing to add is the exclusion of <code>None</code>-head tokens.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">You must implement behavior for a Token class.</span>
-        <span class="spec-meta muted">345 words · source specification
+        <span class="spec-title">You must implement the behavior of a Token class.</span>
+        <span class="spec-meta muted">383 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement behavior for a <code>Token</code> class. This class represents a token as a dictionary-like object initialized from a mapping of field names to values.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>You must implement the behavior of a <code>Token</code> class. The class models a token as a dictionary-like object, one that is initialized from a mapping of field names to values.</p>
 <h4>Public API</h4>
-<p>The <code>Token</code> class must be importable and constructible as follows:</p>
+<p>Importing and constructing the <code>Token</code> class must work as follows:</p>
 <pre><code class="language-python">Token({&quot;id&quot;: 1})
 </code></pre>
-<p>The constructor accepts a single dictionary argument mapping field names to values.</p>
-<h4>Required Behavior</h4>
-<h5>Item access with <code>[]</code> (indexing)</h5>
+<p>A single dictionary argument, mapping field names to values, is what the constructor accepts.</p>
+<h4>Behavior Requirements</h4>
+<h5>Item access via <code>[]</code> (indexing)</h5>
 <ul>
-<li>Accessing a key that exists in the token returns its value.</li>
-<li>Accessing a key that does not exist in the token raises <code>KeyError</code>, <strong>except</strong> for the special-cased <code>upos</code>/<code>upostag</code> behavior described below.</li>
+<li>When a key exists in the token, accessing it returns its value.</li>
+<li>When a key does not exist in the token, accessing it raises <code>KeyError</code> — <strong>except</strong> for the special-cased <code>upos</code>/<code>upostag</code> behavior described below.</li>
 </ul>
-<h5><code>get</code> method</h5>
-<p>The <code>Token</code> class must provide a <code>get</code> method with the following signature:</p>
+<h5>The <code>get</code> method</h5>
+<p>A <code>get</code> method must be provided by the <code>Token</code> class, with the following signature:</p>
 <pre><code class="language-python">def get(self, key, default=None)
 </code></pre>
-<p>Behavior:</p>
+<p>Its behavior:</p>
 <ul>
-<li>If <code>key</code> exists in the token, return its value.</li>
-<li>If <code>key</code> does not exist, return <code>default</code>.</li>
-<li>When no <code>default</code> argument is supplied, the default value is <code>None</code>.</li>
+<li>If <code>key</code> exists in the token, its value is returned.</li>
+<li>If <code>key</code> does not exist, <code>default</code> is returned.</li>
+<li>If no <code>default</code> argument is supplied, the default value is <code>None</code>.</li>
 </ul>
-<p>Concretely:</p>
+<p>In concrete terms:</p>
 <ul>
-<li><code>token.get(&quot;inexistent_value&quot;)</code> returns <code>None</code>.</li>
-<li><code>token.get(&quot;inexistent_value&quot;, &quot;HEJ&quot;)</code> returns <code>&quot;HEJ&quot;</code>.</li>
+<li>Calling <code>token.get(&quot;inexistent_value&quot;)</code> returns <code>None</code>.</li>
+<li>Calling <code>token.get(&quot;inexistent_value&quot;, &quot;HEJ&quot;)</code> returns <code>&quot;HEJ&quot;</code>.</li>
 </ul>
-<h5>Special handling of <code>upos</code> and <code>upostag</code></h5>
-<p>The fields <code>upos</code> and <code>upostag</code> are treated as aliases/fallbacks for one another. When one is missing, an attempt is made to resolve it via the other. This resolution must <strong>not</strong> cause infinite recursion when neither field is present.</p>
-<p>For a token constructed with only <code>{&quot;id&quot;: 1}</code> (i.e., neither <code>upos</code> nor <code>upostag</code> present):</p>
+<h5>Special treatment of <code>upos</code> and <code>upostag</code></h5>
+<p>The fields <code>upos</code> and <code>upostag</code> serve as aliases/fallbacks for each other. Whenever one of them is missing, an attempt is made to resolve it via the other. Such resolution must <strong>not</strong> cause infinite recursion when neither field is present.</p>
+<p>For a token constructed with only <code>{&quot;id&quot;: 1}</code> (that is, with neither <code>upos</code> nor <code>upostag</code> present):</p>
 <ul>
-<li><code>token[&quot;upos&quot;]</code> returns <code>None</code> (it does <strong>not</strong> raise <code>KeyError</code>).</li>
-<li><code>token.get(&quot;upos&quot;)</code> returns <code>None</code>.</li>
+<li><code>token[&quot;upos&quot;]</code> returns <code>None</code> (<code>KeyError</code> is <strong>not</strong> raised).</li>
+<li>Calling <code>token.get(&quot;upos&quot;)</code> returns <code>None</code>.</li>
 </ul>
-<p>In other words, when accessing <code>upos</code> (or <code>upostag</code>) and it is not present, the resolution falls back to the alternate key, and if that is also absent, the result is <code>None</code> rather than an error or an unbounded recursion.</p>
-<h4>Summary of Edge Cases</h4>
+<p>Stated differently: if <code>upos</code> (or <code>upostag</code>) is accessed while it is not present, the resolution falls back to the alternate key, and if that alternate key is also absent, the result is <code>None</code> rather than an error or an unbounded recursion.</p>
+<h4>Edge Case Summary</h4>
 <table>
 <thead>
 <tr>
@@ -1068,27 +1073,27 @@ from conllu.parser import (
 <tbody>
 <tr>
 <td><code>token[&quot;missing&quot;]</code></td>
-<td>ordinary missing key</td>
+<td>a key that is simply missing</td>
 <td>raises <code>KeyError</code></td>
 </tr>
 <tr>
 <td><code>token.get(&quot;missing&quot;)</code></td>
-<td>ordinary missing key</td>
+<td>a key that is simply missing</td>
 <td>returns <code>None</code></td>
 </tr>
 <tr>
 <td><code>token.get(&quot;missing&quot;, &quot;X&quot;)</code></td>
-<td>ordinary missing key with default</td>
+<td>a key that is simply missing, with a default supplied</td>
 <td>returns <code>&quot;X&quot;</code></td>
 </tr>
 <tr>
 <td><code>token[&quot;upos&quot;]</code></td>
-<td>neither <code>upos</code> nor <code>upostag</code> present</td>
+<td>with neither <code>upos</code> nor <code>upostag</code> present</td>
 <td>returns <code>None</code></td>
 </tr>
 <tr>
 <td><code>token.get(&quot;upos&quot;)</code></td>
-<td>neither <code>upos</code> nor <code>upostag</code> present</td>
+<td>with neither <code>upos</code> nor <code>upostag</code> present</td>
 <td>returns <code>None</code></td>
 </tr>
 </tbody>
@@ -1098,193 +1103,194 @@ from conllu.parser import (
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">The conllu package provides a TokenList class (importable as from conllu import TokenList / from the models module) and a Token class.</span>
-        <span class="spec-meta muted">491 words · source specification
+        <span class="spec-title">The conllu package offers a TokenList class (importable as from conllu import TokenList or from the models module) plus a Token class.</span>
+        <span class="spec-meta muted">516 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add callable (lambda) support to <code>TokenList.filter</code></h3>
-<h4>Context</h4>
-<p>The <code>conllu</code> package provides a <code>TokenList</code> class (importable as <code>from conllu import TokenList</code> / from the models module) and a <code>Token</code> class. A <code>TokenList</code> wraps a list of <code>Token</code> objects (each <code>Token</code> is a dict-like mapping of field names to values).</p>
-<p><code>TokenList</code> already has a <code>filter</code> method that accepts keyword arguments used to select tokens. This task extends the existing <code>filter</code> method to additionally accept <strong>callables</strong> (e.g., lambda functions) as the value for a filter criterion.</p>
-<h4>Required Behavior</h4>
+      <div class="spec-body"><h3>Task: Add support for callables (lambdas) in <code>TokenList.filter</code></h3>
+<h4>Background</h4>
+<p>The <code>conllu</code> package offers a <code>TokenList</code> class (importable as <code>from conllu import TokenList</code> or from the models module) plus a <code>Token</code> class. A <code>TokenList</code> is a wrapper around a list of <code>Token</code> objects (each <code>Token</code> is a dict-like mapping from field names to values).</p>
+<p><code>TokenList</code> already provides a <code>filter</code> method that accepts keyword arguments used to select tokens. This task extends the existing <code>filter</code> method so that it additionally accepts <strong>callables</strong> (e.g., lambda functions) as the value of a filter criterion.</p>
+<h4>Required behavior</h4>
 <h5><code>TokenList.filter(**kwargs) -&gt; TokenList</code></h5>
-<p>The method returns a new <code>TokenList</code> containing only the tokens that match <strong>all</strong> of the provided keyword criteria.</p>
+<p>The method returns a new <code>TokenList</code> that contains only the tokens matching <strong>all</strong> of the supplied keyword criteria.</p>
 <p>Each keyword argument is either:</p>
 <ul>
 <li>A field name (e.g., <code>id</code>, <code>lemma</code>), or</li>
-<li>A nested field path using double-underscore (<code>__</code>) separators to descend into nested dict values (e.g., <code>feats__Mood</code> refers to the value at <code>token[&quot;feats&quot;][&quot;Mood&quot;]</code>).</li>
+<li>A nested field path that uses double-underscore (<code>__</code>) separators to descend into nested dict values (e.g., <code>feats__Mood</code> refers to the value at <code>token[&quot;feats&quot;][&quot;Mood&quot;]</code>).</li>
 </ul>
 <p>The value of each keyword argument may be:</p>
 <ul>
 <li>A plain value (existing behavior — matched by equality), <strong>or</strong></li>
-<li>A <strong>callable</strong>. When the value is callable, the criterion matches a token if calling the callable with the token's resolved field value returns a truthy result.</li>
+<li>A <strong>callable</strong>. If the value is callable, the criterion matches a token whenever calling the callable with the token's resolved field value returns a truthy result.</li>
 </ul>
-<h5>Callable matching semantics</h5>
-<p>For a keyword whose value is a callable <code>fn</code>:</p>
+<h5>Matching semantics for callables</h5>
+<p>Given a keyword whose value is a callable <code>fn</code>:</p>
 <ul>
-<li>Resolve the token's value at the given (possibly nested) field path.</li>
-<li>The token matches that criterion if <code>fn(resolved_value)</code> is truthy.</li>
-<li>A token is included in the result only if it matches every provided criterion.</li>
+<li>Resolve the value of the token at the given (possibly nested) field path.</li>
+<li>The token matches that criterion when <code>fn(resolved_value)</code> is truthy.</li>
+<li>A token is included in the result only if it matches every criterion that was provided.</li>
 </ul>
-<h5>Field resolution and edge cases</h5>
+<h5>Resolving fields and edge cases</h5>
 <ul>
-<li>For a simple field name, the resolved value is the token's value for that field.</li>
-<li>For a nested path like <code>feats__Number</code>, resolve by descending: <code>token[&quot;feats&quot;][&quot;Number&quot;]</code>.</li>
-<li>Tokens for which the requested (possibly nested) field cannot be resolved to a value (for example, the field is absent or an intermediate value is <code>None</code> rather than a dict) do <strong>not</strong> match that criterion and are excluded.</li>
+<li>If the field name is simple, the resolved value is the token's value for that field.</li>
+<li>For a nested path such as <code>feats__Number</code>, resolve it by descending: <code>token[&quot;feats&quot;][&quot;Number&quot;]</code>.</li>
+<li>Tokens whose requested (possibly nested) field cannot be resolved to a value (for instance, the field is absent, or an intermediate value is <code>None</code> instead of a dict) do <strong>not</strong> match that criterion and are excluded.</li>
 </ul>
-<p>The returned object is a new <code>TokenList</code> (equal by value to a <code>TokenList</code> constructed from the matching tokens in their original order). Two <code>TokenList</code> instances compare equal when they contain equal tokens in the same order.</p>
+<p>The object that comes back is a new <code>TokenList</code> (equal by value to a <code>TokenList</code> built from the matching tokens in their original order). Two <code>TokenList</code> instances compare equal if they contain equal tokens in the same order.</p>
 <h4>Examples</h4>
-<p>Given a <code>TokenList</code> of tokens with fields <code>id</code>, <code>form</code>, <code>lemma</code>:</p>
+<p>For a <code>TokenList</code> whose tokens have the fields <code>id</code>, <code>form</code>, <code>lemma</code>:</p>
 <ul>
-<li><code>tokenlist.filter(id=lambda x: type(x) is int)</code> returns the tokens whose <code>id</code> value is an <code>int</code> (excluding, e.g., a token whose <code>id</code> is a tuple such as <code>(1, '-', 2)</code>).</li>
-<li><code>tokenlist.filter(lemma=lambda x: x.startswith('b'))</code> returns the tokens whose <code>lemma</code> begins with <code>&quot;b&quot;</code>.</li>
+<li><code>tokenlist.filter(id=lambda x: type(x) is int)</code> returns the tokens whose <code>id</code> value is an <code>int</code> (this excludes, e.g., a token whose <code>id</code> is a tuple such as <code>(1, '-', 2)</code>).</li>
+<li><code>tokenlist.filter(lemma=lambda x: x.startswith('b'))</code> returns the tokens whose <code>lemma</code> starts with <code>&quot;b&quot;</code>.</li>
 </ul>
-<p>Given a <code>TokenList</code> where each token has a <code>feats</code> field that is either <code>None</code> or a dict:</p>
+<p>For a <code>TokenList</code> in which each token has a <code>feats</code> field that is either <code>None</code> or a dict:</p>
 <ul>
-<li><code>tokenlist.filter(feats__Mood=lambda x: x == 'Ind')</code> returns only tokens whose <code>feats</code> dict contains <code>Mood</code> equal to <code>&quot;Ind&quot;</code>; tokens with <code>feats</code> of <code>None</code> or without a <code>Mood</code> key are excluded.</li>
-<li><code>tokenlist.filter(feats__Number=lambda x: x == 'Sing')</code> returns all tokens whose <code>feats</code> dict has <code>Number</code> equal to <code>&quot;Sing&quot;</code>.</li>
+<li><code>tokenlist.filter(feats__Mood=lambda x: x == 'Ind')</code> returns only tokens whose <code>feats</code> dict has <code>Mood</code> equal to <code>&quot;Ind&quot;</code>; tokens whose <code>feats</code> is <code>None</code>, or which lack a <code>Mood</code> key, are excluded.</li>
+<li><code>tokenlist.filter(feats__Number=lambda x: x == 'Sing')</code> returns all tokens whose <code>feats</code> dict contains <code>Number</code> equal to <code>&quot;Sing&quot;</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Existing (non-callable) filter behavior must continue to work unchanged.</li>
-<li><code>Token</code> and <code>TokenList</code> remain importable from the package's public model surface.</li>
+<li>The existing filter behavior for non-callable values must continue to work unchanged.</li>
+<li>It remains possible to import <code>Token</code> and <code>TokenList</code> from the package's public model surface.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Modify the TokenList class so that it can be instantiated with no arguments, producing an empty token list.</span>
-        <span class="spec-meta muted">124 words · source specification
+        <span class="spec-title">Alter the TokenList class so that it can be instantiated without arguments, resulting in an empty token list.</span>
+        <span class="spec-meta muted">132 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>TokenList</code> class so that it can be instantiated with no arguments, producing an empty token list.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Alter the <code>TokenList</code> class so that it can be instantiated without arguments, resulting in an empty token list.</p>
 <h4>Public API</h4>
-<p>The <code>TokenList</code> class must be importable from the models module (it is already present there; the tests import it directly by the name <code>TokenList</code>).</p>
+<p>It must be possible to import the <code>TokenList</code> class from the models module (it already exists there; the tests import it directly by the name <code>TokenList</code>).</p>
 <h4>Required Behavior</h4>
-<p><code>TokenList</code> must support construction with no arguments:</p>
+<p>Construction of <code>TokenList</code> with no arguments must be supported:</p>
 <pre><code class="language-python">tokenlist = TokenList()
 </code></pre>
-<p>When constructed with no arguments, the instance's <code>tokens</code> attribute must be an empty list (<code>[]</code>).</p>
+<p>If no arguments are given at construction, the instance's <code>tokens</code> attribute must be an empty list (<code>[]</code>).</p>
 <h4>Constraints</h4>
 <ul>
-<li>Existing behavior of <code>TokenList</code> must be preserved. In particular, the <code>tokens</code> attribute must remain assignable after construction (e.g., assigning a list of dictionaries to <code>tokenlist.tokens</code> and reading it back must return that same list).</li>
-<li>No other behavior changes are required.</li>
+<li>The existing behavior of <code>TokenList</code> must be preserved. Specifically, the <code>tokens</code> attribute must remain assignable after construction (for example, assigning a list of dictionaries to <code>tokenlist.tokens</code> and reading it back must return that same list).</li>
+<li>No other changes of behavior are required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You must modify the TokenList class so that it automatically converts plain dictionaries into Token objects when items are added, and so that its equality…</span>
-        <span class="spec-meta muted">546 words · source specification
+        <span class="spec-title">You must modify the TokenList class so that plain dictionaries are automatically converted into Token objects when items are added, and so that equality…</span>
+        <span class="spec-meta muted">579 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must modify the <code>TokenList</code> class so that it automatically converts plain dictionaries into <code>Token</code> objects when items are added, and so that its equality behavior works correctly for these conversions. The relevant classes are <code>TokenList</code> and <code>Token</code>, importable from the models module of the project.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>You must modify the <code>TokenList</code> class so that plain dictionaries are automatically converted into <code>Token</code> objects when items are added, and so that equality behaves correctly for these conversions. The relevant classes are <code>TokenList</code> and <code>Token</code>, importable from the project's models module.</p>
 <h4>Required Classes and API</h4>
 <h5><code>Token</code></h5>
-<p>A <code>Token</code> is constructed from a single dictionary, e.g. <code>Token({&quot;id&quot;: 1})</code>. It represents an individual token whose fields come from that dictionary.</p>
+<p>A <code>Token</code> is built from a single dictionary, e.g. <code>Token({&quot;id&quot;: 1})</code>. It models an individual token whose fields are drawn from that dictionary.</p>
 <h5><code>TokenList</code></h5>
-<p>A <code>TokenList</code> represents an ordered collection of <code>Token</code> objects, plus optional metadata.</p>
+<p>A <code>TokenList</code> represents an ordered collection of <code>Token</code> objects together with optional metadata.</p>
 <h6>Construction</h6>
 <ul>
-<li><code>TokenList()</code> — creates an empty token list.</li>
-<li><code>TokenList([...])</code> — creates a token list from a list. The list items may be plain dictionaries (e.g. <code>{&quot;id&quot;: 1}</code>) and/or <code>Token</code> objects. Any plain dictionary passed in the list must be stored internally as a <code>Token</code>.</li>
-<li><code>TokenList([...], metadata={...})</code> — additionally accepts a <code>metadata</code> keyword argument holding arbitrary key/value data associated with the list.</li>
+<li><code>TokenList()</code> — creates a token list that is empty.</li>
+<li><code>TokenList([...])</code> — creates a token list from a list. The items of that list may be plain dictionaries (e.g. <code>{&quot;id&quot;: 1}</code>) and/or <code>Token</code> objects. Any plain dictionary that is passed in the list must be stored internally as a <code>Token</code>.</li>
+<li><code>TokenList([...], metadata={...})</code> — additionally accepts a <code>metadata</code> keyword argument that holds arbitrary key/value data associated with the list.</li>
 </ul>
 <h6>The <code>.tokens</code> attribute</h6>
-<p><code>TokenList</code> exposes a <code>.tokens</code> attribute. When compared for equality against a plain list of dictionaries, it must compare equal. For example, after constructing <code>TokenList([{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}])</code>, the value of <code>.tokens</code> compares equal to <code>[{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}]</code>.</p>
+<p><code>TokenList</code> exposes an attribute named <code>.tokens</code>. When it is compared for equality against a plain list of dictionaries, it must compare equal. For example, after <code>TokenList([{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}])</code> has been constructed, the value of <code>.tokens</code> compares equal to <code>[{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}]</code>.</p>
 <h6>Indexing</h6>
-<p><code>TokenList</code> supports index access (<code>tokenlist[i]</code>). The item returned at any index that was populated (whether originally supplied as a dict or a <code>Token</code>) must be a <code>Token</code> instance.</p>
+<p><code>TokenList</code> supports access by index (<code>tokenlist[i]</code>). The item returned at any populated index (whether it was originally supplied as a dict or a <code>Token</code>) must be a <code>Token</code> instance.</p>
 <h6><code>append(item)</code></h6>
-<p>Appends a single item to the end of the list.</p>
+<p>Appends a single item to the list's end.</p>
 <ul>
-<li>If <code>item</code> is a <code>Token</code>, it is appended as-is.</li>
-<li>If <code>item</code> is a plain dictionary, it must be converted to a <code>Token</code> before being stored. After appending a dictionary, the element retrieved from that position must be of type <code>Token</code>.</li>
+<li>If <code>item</code> is a <code>Token</code>, it gets appended as-is.</li>
+<li>If <code>item</code> is a plain dictionary, it must be converted to a <code>Token</code> before it is stored. After a dictionary is appended, the element retrieved from that position must be of type <code>Token</code>.</li>
 </ul>
 <h6><code>extend(items)</code></h6>
-<p>Appends every element of the iterable <code>items</code> to the end of the list, applying the same dict-to-<code>Token</code> conversion rule as <code>append</code> to each element. For example, starting from <code>TokenList([{&quot;id&quot;: 1}])</code> and extending with <code>[{&quot;id&quot;: 2}, {&quot;id&quot;: 3}]</code> yields a list equivalent to <code>TokenList([{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}])</code>.</p>
+<p>Appends every element of the iterable <code>items</code> to the list's end, applying to each element the same dict-to-<code>Token</code> conversion rule as <code>append</code>. For example, beginning with <code>TokenList([{&quot;id&quot;: 1}])</code> and extending with <code>[{&quot;id&quot;: 2}, {&quot;id&quot;: 3}]</code> yields a list equivalent to <code>TokenList([{&quot;id&quot;: 1}, {&quot;id&quot;: 2}, {&quot;id&quot;: 3}])</code>.</p>
 <h6>Equality</h6>
-<p>Two <code>TokenList</code> instances compare equal when they contain equivalent token sequences. Equality must hold regardless of whether the tokens were originally supplied as dictionaries or as <code>Token</code> objects — i.e. a <code>TokenList</code> built from a list of dicts must equal a <code>TokenList</code> built from the equivalent <code>Token</code> objects, and vice versa. Two empty <code>TokenList</code> objects must compare equal.</p>
+<p>Two <code>TokenList</code> instances compare equal when the token sequences they contain are equivalent. Equality must hold regardless of whether the tokens were originally supplied as dictionaries or as <code>Token</code> objects — i.e. a <code>TokenList</code> built from a list of dicts must equal a <code>TokenList</code> built from the equivalent <code>Token</code> objects, and the reverse holds as well. Two <code>TokenList</code> objects that are empty must compare equal.</p>
 <h6><code>serialize()</code></h6>
-<p><code>TokenList</code> provides a <code>serialize()</code> method that produces a serialized representation of the list (including its metadata where applicable). Two <code>TokenList</code> instances that represent the same data must produce equal results from <code>serialize()</code>.</p>
-<h4>Behavioral Requirements Summary</h4>
+<p><code>TokenList</code> provides a <code>serialize()</code> method that generates a serialized representation of the list (its metadata included where applicable). When two <code>TokenList</code> instances represent the same data, they must produce equal results from <code>serialize()</code>.</p>
+<h4>Summary of Behavioral Requirements</h4>
 <ol>
-<li>Constructing a <code>TokenList</code> from a mix of dicts and <code>Token</code> objects stores all elements as <code>Token</code> objects.</li>
-<li><code>append</code> and <code>extend</code> convert incoming dicts to <code>Token</code> objects.</li>
-<li>Indexing returns <code>Token</code> instances.</li>
-<li>Equality between <code>TokenList</code> instances is based on their contents (dict-sourced and Token-sourced contents being equivalent) and works for empty lists.</li>
-<li><code>.tokens</code> compares equal to the corresponding plain list of dicts.</li>
-<li><code>serialize()</code> returns equal output for <code>TokenList</code> instances holding equivalent data and metadata.</li>
+<li>When a <code>TokenList</code> is constructed from a mix of dicts and <code>Token</code> objects, all elements are stored as <code>Token</code> objects.</li>
+<li>Incoming dicts are converted to <code>Token</code> objects by <code>append</code> and <code>extend</code>.</li>
+<li>Index access returns <code>Token</code> instances.</li>
+<li>Equality between <code>TokenList</code> instances is determined by their contents (with dict-sourced and Token-sourced contents being equivalent) and works for empty lists as well.</li>
+<li><code>.tokens</code> compares equal to the plain list of dicts that corresponds to it.</li>
+<li><code>serialize()</code> returns equal output for <code>TokenList</code> instances that hold equivalent data and metadata.</li>
 </ol>
-<h4>Compatibility Note</h4>
-<p>All affected source files must run correctly under Python 3 without relying on Python-2-only compatibility declarations (no <code># coding: utf-8</code> header or <code>from __future__ import unicode_literals</code> is needed).</p>
+<h4>Note on Compatibility</h4>
+<p>All affected source files must run correctly under Python 3 without depending on Python-2-only compatibility declarations (neither a <code># coding: utf-8</code> header nor <code>from __future__ import unicode_literals</code> is needed).</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You will modify the conllu library to change how TokenList objects store metadata and to track a set of default fields on each TokenList.</span>
-        <span class="spec-meta muted">655 words · source specification
+        <span class="spec-title">Your task is to modify the conllu library so that TokenList objects store metadata in a new way and so that each TokenList tracks a set of default fields.</span>
+        <span class="spec-meta muted">696 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You will modify the <code>conllu</code> library to change how <code>TokenList</code> objects store metadata and to track a set of default fields on each <code>TokenList</code>. This affects two areas: the <code>TokenList</code> model in <code>conllu/models.py</code> and the <code>parse_token_and_metadata</code> function in <code>conllu/parser.py</code>.</p>
+<p>Your task is to modify the <code>conllu</code> library so that <code>TokenList</code> objects store metadata in a new way and so that each <code>TokenList</code> tracks a set of default fields. Two areas are affected: the <code>TokenList</code> model in <code>conllu/models.py</code> and the <code>parse_token_and_metadata</code> function in <code>conllu/parser.py</code>.</p>
 <h4>Part 1: <code>TokenList</code> (in <code>conllu/models.py</code>)</h4>
 <h5>Constructor</h5>
 <p><code>TokenList</code> must accept:</p>
 <ul>
-<li>A first positional argument that is the list of tokens (an iterable of dict-like token objects). Passing a non-list (e.g. a plain <code>dict</code>) must raise an appropriate error.</li>
-<li>An optional <code>metadata</code> keyword argument, allowing metadata to be supplied at construction time: <code>TokenList([...], metadata={...})</code>.</li>
-<li>The ability to also supply the set of default field names for the list (see Part 3 below), which is used when appending tokens that are missing fields.</li>
+<li>As its first positional argument, the list of tokens (an iterable of dict-like token objects). Supplying something that is not a list (for example a plain <code>dict</code>) must raise an appropriate error.</li>
+<li>An optional <code>metadata</code> keyword argument, so that metadata can be supplied at construction time: <code>TokenList([...], metadata={...})</code>.</li>
+<li>The ability to also supply the set of default field names for the list (see Part 3 below); this set is used when appending tokens that are missing fields.</li>
 </ul>
 <h5>Attributes</h5>
 <ul>
-<li><code>tokens</code>: the list of token objects the <code>TokenList</code> was constructed with, accessible as a public attribute.</li>
-<li><code>metadata</code>: the metadata associated with the list, accessible as a public attribute. When not provided at construction, it defaults to a value that reflects &quot;no metadata.&quot;</li>
+<li><code>tokens</code>: the list of token objects with which the <code>TokenList</code> was constructed, accessible as a public attribute.</li>
+<li><code>metadata</code>: the metadata associated with the list, accessible as a public attribute. When it is not provided at construction, it defaults to a value that reflects &quot;no metadata.&quot;</li>
 </ul>
 <h5>Equality</h5>
-<p>Equality comparisons must behave as follows:</p>
+<p>Equality comparisons must work in the following way:</p>
 <ul>
-<li>Two <code>TokenList</code> instances are equal when both their token lists and their metadata are equal.</li>
-<li>Two <code>TokenList</code> instances with equal token lists but different metadata are <strong>not</strong> equal.</li>
-<li>A <code>TokenList</code> compares equal to a plain <code>list</code> when that list equals the <code>TokenList</code>'s tokens. (Metadata is not considered when comparing against a plain list; a <code>TokenList</code> with no metadata and tokens <code>[{&quot;id&quot;: 1}]</code> equals the list <code>[{&quot;id&quot;: 1}]</code>.)</li>
+<li>Two <code>TokenList</code> instances are equal if both their token lists and their metadata are equal.</li>
+<li>Two <code>TokenList</code> instances whose token lists are equal but whose metadata differs are <strong>not</strong> equal.</li>
+<li>A <code>TokenList</code> compares equal to a plain <code>list</code> when that list is equal to the <code>TokenList</code>'s tokens. (When the comparison is against a plain list, metadata is not considered; a <code>TokenList</code> with no metadata and tokens <code>[{&quot;id&quot;: 1}]</code> equals the list <code>[{&quot;id&quot;: 1}]</code>.)</li>
 </ul>
 <h5><code>len</code></h5>
-<p><code>len(tokenlist)</code> returns the number of tokens.</p>
+<p><code>len(tokenlist)</code> returns the count of tokens.</p>
 <h4>Part 2: Appending with default fields</h4>
-<p><code>TokenList</code> must support an <code>append</code> method that adds a token (a dict-like object) to the list.</p>
-<p>When a token is appended that is missing one or more of the <code>TokenList</code>'s tracked default fields, each missing field must be added to the appended token with the default value <code>&quot;_&quot;</code>. Fields already present on the appended token are left unchanged.</p>
-<p>Example: given a <code>TokenList</code> whose tracked default fields are <code>[&quot;id&quot;, &quot;form&quot;]</code>, appending <code>{&quot;id&quot;: 3}</code> results in a stored token equivalent to <code>Token({&quot;id&quot;: 3, &quot;form&quot;: &quot;_&quot;})</code>.</p>
+<p><code>TokenList</code> must support an <code>append</code> method which adds a token (a dict-like object) to the list.</p>
+<p>If a token that is missing one or more of the <code>TokenList</code>'s tracked default fields is appended, each missing field must be added to the appended token with the default value <code>&quot;_&quot;</code>. Fields the appended token already has are left unchanged.</p>
+<p>Example: for a <code>TokenList</code> whose tracked default fields are <code>[&quot;id&quot;, &quot;form&quot;]</code>, appending <code>{&quot;id&quot;: 3}</code> produces a stored token equivalent to <code>Token({&quot;id&quot;: 3, &quot;form&quot;: &quot;_&quot;})</code>.</p>
 <h4>Part 3: <code>parse_token_and_metadata</code> (in <code>conllu/parser.py</code>)</h4>
 <h5>Return value change</h5>
-<p><code>parse_token_and_metadata</code> must now return a single <code>TokenList</code> object rather than a <code>(tokens, metadata)</code> tuple.</p>
+<p>Rather than a <code>(tokens, metadata)</code> tuple, <code>parse_token_and_metadata</code> must now return a single <code>TokenList</code> object.</p>
 <p>The returned <code>TokenList</code> must have:</p>
 <ul>
 <li><code>tokens</code>: the parsed list of <code>Token</code> objects.</li>
 <li><code>metadata</code>: the parsed metadata (as before).</li>
-<li>Its tracked default fields set to the <code>fields</code> used during parsing, so that subsequently appending a token missing any of those fields fills them with the default value <code>&quot;_&quot;</code>.</li>
+<li>Its tracked default fields set to the <code>fields</code> used during parsing, so that if a token is subsequently appended and it is missing any of those fields, those fields are filled with the default value <code>&quot;_&quot;</code>.</li>
 </ul>
-<h5>Signature and existing behavior (unchanged except return type)</h5>
-<p>The function signature remains:</p>
+<h5>Signature and existing behavior (unchanged apart from the return type)</h5>
+<p>The function signature stays:</p>
 <pre><code>parse_token_and_metadata(data, fields=None, field_parsers=None, metadata_parsers=None)
 </code></pre>
-<p>All existing parsing behavior is preserved; only the shape of the return value changes:</p>
+<p>All existing parsing behavior is preserved; the only thing that changes is the shape of the return value:</p>
 <ul>
-<li>Tokens are parsed from the input lines into <code>Token</code> objects using the given (or default) fields.</li>
-<li>When <code>fields</code> is explicitly provided (e.g. <code>(&quot;id&quot;, &quot;id&quot;, &quot;id&quot;)</code> or <code>[&quot;id&quot;, &quot;form&quot;]</code>), tokens are parsed accordingly, and those <code>fields</code> become the tracked defaults on the resulting <code>TokenList</code>.</li>
-<li><code>field_parsers</code> customize how individual field values are parsed; fields not covered by a custom parser fall back to the default parser behavior.</li>
-<li><code>metadata_parsers</code> customize metadata parsing, including support for a <code>&quot;__fallback__&quot;</code> parser key and parsers that expand one comment into multiple metadata entries.</li>
+<li>Tokens from the input lines are parsed into <code>Token</code> objects using the fields given (or the default fields).</li>
+<li>If <code>fields</code> is provided explicitly (e.g. <code>(&quot;id&quot;, &quot;id&quot;, &quot;id&quot;)</code> or <code>[&quot;id&quot;, &quot;form&quot;]</code>), tokens are parsed accordingly, and those <code>fields</code> become the tracked defaults on the resulting <code>TokenList</code>.</li>
+<li><code>field_parsers</code> customize the way individual field values are parsed; fields that a custom parser does not cover fall back to the default parser behavior.</li>
+<li><code>metadata_parsers</code> customize metadata parsing, including support for a <code>&quot;__fallback__&quot;</code> parser key and for parsers that expand one comment into multiple metadata entries.</li>
 <li>The metadata is produced as a <code>Token</code> object.</li>
 </ul>
 <h5>Downstream compatibility</h5>
-<p>Because the return value is now a single <code>TokenList</code>, callers that previously did <code>TokenList(*parse_token_and_metadata(data))</code> will now pass the returned <code>TokenList</code> directly. The result of <code>parse_token_and_metadata</code> must therefore be directly usable anywhere a <code>TokenList</code> is expected (e.g. serialization).</p>
-<h4>Summary of Public API</h4>
+<p>Because what comes back is now a single <code>TokenList</code>, callers that previously did <code>TokenList(*parse_token_and_metadata(data))</code> will now pass the returned <code>TokenList</code> directly. The result of <code>parse_token_and_metadata</code> must therefore be directly usable anywhere a <code>TokenList</code> is expected (e.g. serialization).</p>
+<h4>Public API Summary</h4>
 <ul>
-<li><code>conllu.models.TokenList(tokens, metadata=&lt;no metadata&gt;, ...)</code> — with public <code>tokens</code> and <code>metadata</code> attributes, <code>metadata</code> keyword argument, tracked default fields, <code>append</code>, <code>len</code>, and equality against both <code>TokenList</code> and plain <code>list</code>.</li>
-<li><code>conllu.models.Token</code> — unchanged, constructible from a list of <code>(key, value)</code> pairs or from a dict.</li>
+<li><code>conllu.models.TokenList(tokens, metadata=&lt;no metadata&gt;, ...)</code> — has public <code>tokens</code> and <code>metadata</code> attributes, a <code>metadata</code> keyword argument, tracked default fields, <code>append</code>, <code>len</code>, and equality against both <code>TokenList</code> and plain <code>list</code>.</li>
+<li><code>conllu.models.Token</code> — unchanged; it can be constructed from a list of <code>(key, value)</code> pairs or from a dict.</li>
 <li><code>conllu.parser.parse_token_and_metadata(data, fields=None, field_parsers=None, metadata_parsers=None)</code> — returns a <code>TokenList</code>.</li>
 </ul>
 </div>

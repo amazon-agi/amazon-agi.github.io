@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/adamchainz/blacken-docs/compare/0040739948dacde6191053d5da9b4bd51afdc7f6...adc7e695391be07e6a50140fd073e3a84957a0a0" target="_blank" rel="noopener" class="mono">0040739948 … adc7e69539</a> · 324 commits by 16 authors over 3.5 y (2020-12-20 to 2024-06-30)</dd></div>
       <div><dt>Window:</dt><dd>requests 9–28 of a run of 28 test-bearing changes (overlaps the previous window by 12) · training split</dd></div>
       <div><dt>Size:</dt><dd>788 lines of code in 14 files when the chain starts · over the 20 requests the developers added 3,602 and removed 2,298 lines of code, plus 1,798 lines of tests (95 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.7k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
+      <div><dt>Specifications:</dt><dd>9.6k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
     </dl>
   </header>
 </section>
@@ -144,26 +144,27 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">You are working on blacken_docs, a tool that formats Python code embedded within documentation (reStructuredText, Markdown, etc.) using black.</span>
-        <span class="spec-meta muted">351 words · source specification
+        <span class="spec-title">You are contributing to blacken_docs, a tool that uses black to format Python code embedded inside documentation (reStructuredText, Markdown, etc.).</span>
+        <span class="spec-meta muted">379 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>You are working on <code>blacken_docs</code>, a tool that formats Python code embedded within documentation (reStructuredText, Markdown, etc.) using <code>black</code>. Your task is to fix a bug in the handling of interactive Python console (<code>pycon</code>) sessions embedded in reStructuredText <code>code-block:: pycon</code> directives.</p>
-<h5>Public API</h5>
-<p>The module <code>blacken_docs</code> must expose a function with the following signature:</p>
+      <div class="spec-body"><h4>Specification of the Task</h4>
+<h5>Summary</h5>
+<p>You are contributing to <code>blacken_docs</code>, a tool that uses <code>black</code> to format Python code embedded inside documentation (reStructuredText, Markdown, etc.). Your job is to repair a bug in the handling of interactive Python console (<code>pycon</code>) sessions that are embedded in reStructuredText <code>code-block:: pycon</code> directives.</p>
+<h5>Public Interface</h5>
+<p>A function with the following signature must be exposed by the module <code>blacken_docs</code>:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the full source text of a documentation file as a string.</li>
-<li><code>black_mode</code>: a <code>black</code> mode/configuration object (an instance of <code>black.Mode</code> / <code>black.FileMode</code>).</li>
-<li>Returns a tuple whose first element is the reformatted source text as a string.</li>
+<li><code>src</code>: the entire source text of a documentation file, provided as a string.</li>
+<li><code>black_mode</code>: a mode/configuration object from <code>black</code> (an instance of <code>black.Mode</code> / <code>black.FileMode</code>).</li>
+<li>Returns a tuple, the first element of which is the reformatted source text as a string.</li>
 </ul>
-<h5>Required Behavior</h5>
-<p>When processing a reStructuredText <code>pycon</code> code block, i.e. a block introduced by:</p>
+<h5>Behavior Requirements</h5>
+<p>When the tool processes a reStructuredText <code>pycon</code> code block, i.e. a block introduced by:</p>
 <pre><code>.. code-block:: pycon
 </code></pre>
-<p>the tool parses the interactive session inside it. Such a session may contain a traceback in which the stack frames are elided using an ellipsis line. Specifically, a block like:</p>
+<p>it parses the interactive session within. A session of this kind may contain a traceback in which the stack frames are elided by means of an ellipsis line. As a specific case, a block like:</p>
 <pre><code>.. code-block:: pycon
 
     &gt;&gt;&gt; 1 / 0
@@ -171,124 +172,124 @@
       ...
     ZeroDivisionError: division by zero
 </code></pre>
-<p>must be processed without raising any error. The ellipsis line (<code>...</code>) here appears as part of console <em>output</em> (a traceback), not as a Python continuation prompt.</p>
-<p>The tool must correctly distinguish an ellipsis appearing in console output from a <code>...</code> continuation prompt inside a <code>&gt;&gt;&gt;</code> statement. An ellipsis line that is not part of an active continuation prompt must be treated as ordinary output and left unchanged.</p>
-<p>For the block above, since the input statement (<code>1 / 0</code>) requires no reformatting, the entire block — including the traceback output and its elided <code>...</code> line — must be returned exactly as given, with no changes to indentation, content, or surrounding structure.</p>
-<h5>Edge Case / Error Condition Being Fixed</h5>
-<p>Previously, encountering a <code>...</code> line that was not preceded by an open continuation prompt caused an internal failure. The corrected behavior is that such a line is handled gracefully as output and the surrounding document is preserved verbatim (subject only to normal <code>black</code> formatting of actual code statements, which in this case makes no changes).</p>
+<p>must be processed without any error being raised. Here, the ellipsis line (<code>...</code>) appears as part of the console <em>output</em> (a traceback), not as a Python continuation prompt.</p>
+<p>The tool must correctly distinguish between an ellipsis that appears in console output and a <code>...</code> continuation prompt inside a <code>&gt;&gt;&gt;</code> statement. An ellipsis line that does not form part of an active continuation prompt must be treated as ordinary output and left unchanged.</p>
+<p>For the block shown above, because the input statement (<code>1 / 0</code>) requires no reformatting, the entire block — the traceback output and its elided <code>...</code> line included — must be returned exactly as given, with no changes to indentation, content, or surrounding structure.</p>
+<h5>Edge Case / Error Condition Being Addressed</h5>
+<p>Previously, encountering a <code>...</code> line that was not preceded by an open continuation prompt resulted in an internal failure. The corrected behavior is that a line of this kind is handled gracefully as output and the document surrounding it is preserved verbatim (subject only to normal <code>black</code> formatting of actual code statements, which in this case makes no changes).</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Update the public function</span>
-        <span class="spec-meta muted">72 words · source specification
+        <span class="spec-title">Modify the public function</span>
+        <span class="spec-meta muted">78 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Modify the public function:</p>
 <pre><code class="language-python">blacken_docs.format_str(src, black_mode)
 </code></pre>
-<p>When formatting reStructuredText containing a <code>pycon</code> code block with no Python console prompt, the function must not raise an exception.</p>
-<p>For this input:</p>
+<p>When the function formats reStructuredText that contains a <code>pycon</code> code block with no Python console prompt, the function must not raise an exception.</p>
+<p>Given this input:</p>
 <pre><code class="language-rst">.. code-block:: pycon
 
     pass
 </code></pre>
-<p>including the trailing newline, <code>format_str</code> must return a two-item result whose first item is exactly the original source text, unchanged. No specific value is required for the second item in this case.</p>
+<p>with the trailing newline included, <code>format_str</code> must return a two-item result in which the first item is exactly the original source text, unchanged. In this case, no specific value is required for the second item.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Update the public function blacken_docs.format_str(source, mode).</span>
-        <span class="spec-meta muted">133 words · source specification
+        <span class="spec-title">Modify the public function blacken_docs.format_str(source, mode).</span>
+        <span class="spec-meta muted">147 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the public function <code>blacken_docs.format_str(source, mode)</code>.</p>
-<p>When <code>source</code> is a reStructuredText <code>pycon</code> code block containing a single prompt line and ending immediately after that line, with no trailing newline, formatting must:</p>
+      <div class="spec-body"><h4>Change required</h4>
+<p>Modify the public function <code>blacken_docs.format_str(source, mode)</code>.</p>
+<p>If <code>source</code> is a reStructuredText <code>pycon</code> code block that contains a single prompt line and ends immediately after that line, with no trailing newline, formatting must:</p>
 <ul>
-<li>Complete without error.</li>
-<li>Return a two-value result as usual.</li>
-<li>Set the first returned value to the same document with exactly one trailing newline added.</li>
+<li>Finish with no error.</li>
+<li>Return a result made up of two values, in the usual way.</li>
+<li>Set the first returned value to the same document, adding exactly one trailing newline.</li>
 </ul>
-<p>For example, given:</p>
+<p>As an example, start from:</p>
 <pre><code class="language-text">.. code-block:: pycon
 
     &gt;&gt;&gt; pass
 </code></pre>
-<p>where the final <code>s</code> is the last character in the input, the formatted text must be:</p>
+<p>where the final <code>s</code> is the last character of the input, the formatted text must be:</p>
 <pre><code class="language-text">.. code-block:: pycon
 
     &gt;&gt;&gt; pass
 </code></pre>
-<p>with a newline immediately after <code>pass</code>.</p>
-<p>Concretely:</p>
+<p>with a newline placed immediately after <code>pass</code>.</p>
+<p>In concrete terms:</p>
 <pre><code class="language-python">source = &quot;.. code-block:: pycon\n\n    &gt;&gt;&gt; pass&quot;
 formatted, metadata = blacken_docs.format_str(source, mode)
 </code></pre>
-<p>must produce:</p>
+<p>must result in:</p>
 <pre><code class="language-python">formatted == &quot;.. code-block:: pycon\n\n    &gt;&gt;&gt; pass\n&quot;
 </code></pre>
-<p>No other content or indentation may change.</p>
+<p>No other content or indentation may be altered.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Add support for formatting pycon (Python console session) code blocks embedded in Markdown documents.</span>
-        <span class="spec-meta muted">1019 words · source specification
+        <span class="spec-title">Support is added for formatting pycon (Python console session) code blocks embedded in Markdown documents.</span>
+        <span class="spec-meta muted">1091 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Add support for formatting <code>pycon</code> (Python console session) code blocks embedded in Markdown documents. The functionality lives in the <code>blacken_docs</code> module and is exercised through its public <code>format_str</code> function.</p>
+      <div class="spec-body"><h5>Summary</h5>
+<p>Support is added for formatting <code>pycon</code> (Python console session) code blocks embedded in Markdown documents. The capability sits in the <code>blacken_docs</code> module and is exercised via its public <code>format_str</code> function.</p>
 <h5>Public API</h5>
 <pre><code class="language-python">blacken_docs.format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the full text of a document (Markdown / reStructuredText style content) as a string.</li>
-<li><code>black_mode</code>: a Black <code>Mode</code> object controlling formatting.</li>
-<li>Returns a tuple whose <strong>first element</strong> is the reformatted document string. (Tests only inspect the first element; the remainder is unpacked but not otherwise checked.)</li>
+<li><code>src</code>: a string holding the complete text of a document (content in the Markdown / reStructuredText style).</li>
+<li><code>black_mode</code>: a Black <code>Mode</code> object that governs the formatting.</li>
+<li>The function returns a tuple whose <strong>first element</strong> is the document string after reformatting. (The tests look at the first element only; the rest is unpacked but is not checked in any other way.)</li>
 </ul>
 <h5>Required Behavior</h5>
-<p>The existing behavior of <code>format_str</code> must be preserved. The new requirement is that Markdown fenced code blocks tagged as <code>pycon</code> must be recognized and their interactive Python console sessions reformatted with Black.</p>
-<h6>Markdown <code>pycon</code> fenced blocks</h6>
-<p>A Markdown fenced <code>pycon</code> block opens with a line consisting of optional leading indentation followed by <code>```pycon</code> and closes with a line consisting of the same indentation followed by <code>```</code>. The content between these fences is an interactive Python console session and must be reformatted as described below.</p>
-<p>A console session inside such a block consists of:</p>
+<p><code>format_str</code> must retain its existing behavior. What is newly required is that fenced code blocks in Markdown carrying the <code>pycon</code> tag must be recognized, and the interactive Python console sessions inside them must be reformatted with Black.</p>
+<h6>Fenced <code>pycon</code> blocks in Markdown</h6>
+<p>A fenced <code>pycon</code> block in Markdown opens with a line consisting of optional leading indentation followed by <code>```pycon</code> and closes with a line consisting of the same indentation followed by <code>```</code>. Whatever sits between these fences is an interactive Python console session and must be reformatted as set out below.</p>
+<p>Inside such a block, a console session is made up of:</p>
 <ul>
-<li><strong>Prompt lines</strong> beginning with <code>&gt;&gt;&gt; </code> (primary prompt) and continuation lines beginning with <code>... </code>.</li>
-<li><strong>Output lines</strong> — any lines that are not prompt/continuation lines and that follow a statement; these represent the program's printed output or tracebacks.</li>
+<li><strong>Prompt lines</strong> starting with <code>&gt;&gt;&gt; </code> (the primary prompt) and continuation lines starting with <code>... </code>.</li>
+<li><strong>Output lines</strong> — any line that is not a prompt/continuation line and that comes after a statement; such lines stand for the program's printed output or its tracebacks.</li>
 </ul>
-<h6>Reformatting rules</h6>
+<h6>Rules for reformatting</h6>
 <ol>
 <li>
-<p><strong>Extract, format, re-emit.</strong> For each console statement (a <code>&gt;&gt;&gt;</code> line plus any following <code>...</code> continuation lines), the Python source is extracted, formatted with Black under the given mode, and re-emitted with <code>&gt;&gt;&gt; </code> on the first line and <code>... </code> on each subsequent line of the formatted result.</p>
+<p><strong>Pull out, format, write back.</strong> For each console statement (a <code>&gt;&gt;&gt;</code> line together with any <code>...</code> continuation lines that follow it), the Python source is pulled out, formatted with Black under the given mode, and written back with <code>&gt;&gt;&gt; </code> on the first line and <code>... </code> on each of the remaining lines of the formatted result.</p>
 </li>
 <li>
-<p><strong>Normalize indentation of the session.</strong> The console session's prompts and output are emitted relative to the code block's fence indentation. Any extra leading indentation present on the prompt/output lines beyond the fence indentation is stripped. Concretely:</p>
+<p><strong>Normalize the session's indentation.</strong> The prompts and output of the console session are emitted relative to the code block's fence indentation. Any extra leading indentation that the prompt/output lines carry beyond the fence indentation is stripped. Concretely:</p>
 <ul>
-<li>For a non-indented <code>```pycon</code> block, <code>&gt;&gt;&gt;</code>/<code>...</code>/output lines are emitted flush-left (no leading spaces before <code>&gt;&gt;&gt;</code>).</li>
-<li>Input prompt lines that appeared with extra indentation (e.g. four spaces before <code>&gt;&gt;&gt;</code>) have that extra indentation removed.</li>
+<li>In a non-indented <code>```pycon</code> block, <code>&gt;&gt;&gt;</code>/<code>...</code>/output lines are emitted flush-left (no leading spaces before <code>&gt;&gt;&gt;</code>).</li>
+<li>Prompt lines in the input that carried extra indentation (e.g. four spaces before <code>&gt;&gt;&gt;</code>) have that extra indentation removed.</li>
 </ul>
 </li>
 <li>
-<p><strong>Continuation reflowing.</strong> Because Black may add or remove lines, the number of <code>...</code> continuation lines is determined by the formatted output, not the input. A single-line input statement may expand into multiple output lines (first line <code>&gt;&gt;&gt; </code>, remaining lines <code>... </code>), and vice versa.</p>
+<p><strong>Reflowing of continuations.</strong> Since Black may add or remove lines, how many <code>...</code> continuation lines appear is decided by the formatted output rather than by the input. A statement occupying a single input line may spread over several output lines (the first line <code>&gt;&gt;&gt; </code>, the remaining lines <code>... </code>), and the reverse can happen too.</p>
 </li>
 <li>
-<p><strong>Nested/compound statements get a trailing blank continuation.</strong> When a formatted statement spans multiple logical lines forming a compound statement (e.g. an <code>if</code> block, or a nested <code>def</code>), the emitted session ends that statement with a final <code>...</code> line (a continuation prompt with no trailing content). This trailing <code>... </code> line must be present even when the block was the final content before the closing fence and the input omitted it.</p>
+<p><strong>Nested/compound statements receive a trailing blank continuation.</strong> When a formatted statement stretches across multiple logical lines that together form a compound statement (e.g. an <code>if</code> block, or a nested <code>def</code>), the emitted session ends that statement with a final <code>...</code> line (a continuation prompt with no trailing content). This trailing <code>... </code> line must be present even when the block was the final content before the closing fence and the input left it out.</p>
 </li>
 <li>
-<p><strong>Output lines are preserved verbatim.</strong> Lines that are program output (including multi-line tracebacks, indented traceback frames such as <code>  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</code>, and elided <code>  ...</code> frames) are passed through unchanged, retaining their original indentation.</p>
+<p><strong>Output lines are kept verbatim.</strong> Lines that are program output (including multi-line tracebacks, indented traceback frames such as <code>  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</code>, and elided <code>  ...</code> frames) pass through unchanged, with their original indentation retained.</p>
 </li>
 <li>
-<p><strong>Trailing whitespace / surrounding text preserved.</strong> Text before and after the fenced block, blank lines, and trailing blank lines around the block are preserved exactly.</p>
+<p><strong>Trailing whitespace / surrounding text is preserved.</strong> Text that comes before and after the fenced block, blank lines, and the trailing blank lines around the block are preserved exactly.</p>
 </li>
 <li>
-<p><strong>Blocks with no prompt are left unchanged.</strong> If a <code>pycon</code> block's content contains no <code>&gt;&gt;&gt;</code> prompt (e.g. only plain text or code without a prompt), the block is emitted unchanged.</p>
+<p><strong>A block with no prompt comes out unchanged.</strong> If the content of a <code>pycon</code> block holds no <code>&gt;&gt;&gt;</code> prompt (e.g. only plain text or code that has no prompt), the block is emitted unchanged.</p>
 </li>
 <li>
-<p><strong>Leading comment lines before a prompt are left unchanged.</strong> If a comment line (e.g. <code># Comment about next line</code>) appears before the <code>&gt;&gt;&gt;</code> prompt inside the block, the block content is preserved unchanged (the comment is not consumed into a statement, and no reformatting of that block occurs).</p>
+<p><strong>Leading comment lines before a prompt are left unchanged.</strong> If a comment line (e.g. <code># Comment about next line</code>) shows up before the <code>&gt;&gt;&gt;</code> prompt inside the block, the block's content is left unchanged (the comment is not absorbed into a statement, and no reformatting of that block happens).</p>
 </li>
 </ol>
 <h6>Concrete examples</h6>
@@ -439,70 +440,70 @@ Input/Output (unchanged):
 &gt;&gt;&gt; pass
 </code></pre>
 <pre><code>
-(Note: the leading `# comment before prompt → no change` behavior applies to both the RST and Markdown pycon cases.)
+(Note: the leading `# comment before prompt → no change` behavior applies in both the RST and the Markdown pycon cases.)
 
 ### Notes
 
-- Formatting is performed by Black using the supplied mode object; the emitted Python matches Black's output for the extracted source.
-- All non-`pycon` content and all existing document-formatting behavior is unaffected.</code></pre>
+- Black carries out the formatting using the supplied mode object; the Python that is emitted matches Black's output for the extracted source.
+- All content that is not `pycon` and all existing document-formatting behavior is unaffected.</code></pre>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Add Sphinx Doctest Directive Support to blacken-docs</span>
-        <span class="spec-meta muted">636 words · source specification
+        <span class="spec-title">Add Support for Sphinx Doctest Directives in blacken-docs</span>
+        <span class="spec-meta muted">685 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Sphinx Doctest Directive Support to <code>blacken-docs</code></h3>
-<h4>Public API</h4>
-<p>Module: <code>blacken_docs</code></p>
-<p>Function to be provided:</p>
+      <div class="spec-body"><h3>Task Specification: Add Support for Sphinx Doctest Directives in <code>blacken-docs</code></h3>
+<h4>Public interface</h4>
+<p>The relevant module is <code>blacken_docs</code>.</p>
+<p>The following function must be provided:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the full source text of a documentation file (as a string).</li>
-<li><code>black_mode</code>: a Black <code>Mode</code> instance describing the formatting configuration.</li>
-<li>Returns a tuple whose <strong>first element</strong> is the reformatted source text (string). Only the first element is consumed by callers; the remaining elements are unconstrained by this task.</li>
+<li><code>src</code>: the full source text of a documentation file, given as a string.</li>
+<li><code>black_mode</code>: an instance of Black's <code>Mode</code> that describes the formatting configuration.</li>
+<li>It returns a tuple whose <strong>first element</strong> is the reformatted source text (a string). Only the first element is consumed by callers; this task places no constraints on the remaining elements.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p><code>format_str</code> reformats Python code embedded in reStructuredText (RST) documents by running Black over the recognized code regions, while leaving surrounding prose and non-code content unchanged.</p>
-<h5>New requirement: Sphinx doctest directives</h5>
-<p>In addition to the RST code blocks already supported, <code>format_str</code> must recognize and reformat the Python code contained in the following Sphinx directives:</p>
+<h4>Behavior requirements</h4>
+<p><code>format_str</code> reformats Python code that is embedded in reStructuredText (RST) documents: it runs Black over the recognized code regions while leaving the surrounding prose and non-code content unchanged.</p>
+<h5>New requirement: support for Sphinx doctest directives</h5>
+<p>Besides the RST code blocks that are already supported, <code>format_str</code> must recognize the Python code contained in the following Sphinx directives and reformat it:</p>
 <ul>
 <li><code>.. testsetup::</code></li>
 <li><code>.. testcleanup::</code></li>
 <li><code>.. doctest::</code></li>
 <li><code>.. testcode::</code></li>
 </ul>
-<p>Each of these may optionally be followed by arguments on the directive line (e.g. a group name such as <code>group1</code>). The directive line, any arguments, and the blank line separating the directive from its body must be preserved exactly.</p>
-<h5>Directive body handling</h5>
-<p>The indented body following one of these directives is Python source that must be reformatted with Black using the provided <code>black_mode</code>, then re-emitted with the same indentation as the original body.</p>
-<p>Two body styles must be supported:</p>
+<p>For each of these, the directive line may optionally carry arguments (e.g. a group name such as <code>group1</code>). The directive line itself, any arguments on it, and the blank line that separates the directive from its body must be preserved exactly.</p>
+<h5>Handling of directive bodies</h5>
+<p>The indented body that follows one of these directives is Python source; it must be reformatted with Black using the supplied <code>black_mode</code> and then re-emitted with the same indentation as the original body.</p>
+<p>Two styles of body must be supported:</p>
 <ol>
 <li>
 <p><strong>Plain Python source</strong> (as in <code>testsetup</code>, <code>testcleanup</code>, and <code>testcode</code>):
-The entire indented block is a Python snippet. It must be formatted as a unit with Black and the result re-indented to match the block's original indentation.</p>
+The entire indented block is a single Python snippet. It must be formatted as a unit with Black, and the result must be re-indented to match the block's original indentation.</p>
 <ul>
-<li>When Black splits statements or normalizes the code such that multiple statements existed, the reformatted output must reflect Black's output verbatim (re-indented), including blank lines Black inserts between top-level statements.</li>
+<li>If Black splits statements or normalizes the code such that multiple statements existed, the reformatted output must reflect Black's output verbatim (re-indented), including the blank lines Black inserts between top-level statements.</li>
 </ul>
 </li>
 <li>
 <p><strong>Interactive (doctest) source</strong> (as in <code>doctest</code>):
-The block contains interactive-prompt lines (<code>&gt;&gt;&gt; </code> for primary prompts, <code>... </code> for continuation prompts) intermixed with expected-output lines. Only the code following the prompts is reformatted with Black; the prompt markers must be preserved on the reformatted code, and any non-prompt lines (expected output) must be passed through unchanged.</p>
+The block mixes interactive-prompt lines (<code>&gt;&gt;&gt; </code> for primary prompts, <code>... </code> for continuation prompts) together with expected-output lines. Only the code that follows the prompts is reformatted with Black; the prompt markers must be preserved on the reformatted code, and any lines that are not prompt lines (the expected output) must be passed through unchanged.</p>
 </li>
 </ol>
-<h5>Formatting details</h5>
+<h5>Details of the formatting</h5>
 <ul>
-<li>Superfluous internal whitespace in the Python code (e.g. spaces inside call parentheses like <code>SomeMock( )</code> or <code>parrot.voom( 3000 )</code>) is normalized by Black to its canonical form (<code>SomeMock()</code>, <code>parrot.voom(3000)</code>).</li>
-<li>Trailing whitespace on code lines is removed as part of Black formatting.</li>
-<li>The blank line that separates the directive line from its indented body is retained.</li>
-<li>For a plain-source block that Black expands into multiple top-level statements, the statements must be separated in the output as Black produces them (i.e. with an intervening blank line at the block's indentation level).</li>
-<li>Expected-output lines in a doctest block (including any prose text that is not a prompt line) are emitted unchanged.</li>
-<li>Overall document structure, blank lines between directives, and any content outside these directives must be preserved.</li>
+<li>Internal whitespace that is superfluous in the Python code (e.g. spaces inside call parentheses like <code>SomeMock( )</code> or <code>parrot.voom( 3000 )</code>) is normalized by Black to its canonical form (<code>SomeMock()</code>, <code>parrot.voom(3000)</code>).</li>
+<li>Trailing whitespace on code lines is removed as part of Black's formatting.</li>
+<li>The blank line between the directive line and its indented body is retained.</li>
+<li>If a plain-source block is expanded by Black into multiple top-level statements, those statements must be separated in the output as Black produces them (i.e. with an intervening blank line at the block's indentation level).</li>
+<li>In a doctest block, expected-output lines (including any prose text that is not a prompt line) are emitted unchanged.</li>
+<li>The overall structure of the document, the blank lines between directives, and any content outside these directives must be preserved.</li>
 </ul>
 <h5>Example</h5>
-<p>Input:</p>
+<p>The input:</p>
 <pre><code>.. testsetup:: group1
 
    import parrot  
@@ -522,7 +523,7 @@ The block contains interactive-prompt lines (<code>&gt;&gt;&gt; </code> for prim
    parrot.voom( 3000 )
 
 </code></pre>
-<p>Output:</p>
+<p>The output:</p>
 <pre><code>.. testsetup:: group1
 
    import parrot
@@ -543,36 +544,37 @@ The block contains interactive-prompt lines (<code>&gt;&gt;&gt; </code> for prim
    parrot.voom(3000)
 
 </code></pre>
-<p>Note in this example:</p>
+<p>Points to note in this example:</p>
 <ul>
-<li>The <code>testsetup</code> body has two statements (<code>import parrot</code> and <code>mock = SomeMock()</code>); after formatting they are separated by a blank line at the same indentation.</li>
-<li>The <code>doctest</code> prompt line is reformatted but the following expected-output line is left exactly as-is.</li>
+<li>The body of <code>testsetup</code> contains two statements (<code>import parrot</code> and <code>mock = SomeMock()</code>); after formatting, they are separated by a blank line at the same indentation.</li>
+<li>In <code>doctest</code>, the prompt line is reformatted, but the expected-output line that follows is left exactly as-is.</li>
 </ul>
 <h4>Scope</h4>
-<p>The behavior described above is the complete scope. Existing RST code-block handling continues to apply. No Markdown or <code>pycon</code>-block behavior is required by this task.</p>
+<p>The behavior described above constitutes the complete scope. The existing handling of RST code blocks still applies. This task requires no Markdown or <code>pycon</code>-block behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add support for formatting Python interactive-session (pycon) code blocks inside LaTeX minted environments to the blacken_docs module.</span>
-        <span class="spec-meta muted">402 words · source specification
+        <span class="spec-title">Extend the blacken_docs module so that it supports formatting Python interactive-session (pycon) code blocks located inside LaTeX minted environments.</span>
+        <span class="spec-meta muted">427 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>Add support for formatting Python interactive-session (<code>pycon</code>) code blocks inside LaTeX <code>minted</code> environments to the <code>blacken_docs</code> module.</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>Extend the <code>blacken_docs</code> module so that it supports formatting Python interactive-session (<code>pycon</code>) code blocks located inside LaTeX <code>minted</code> environments.</p>
 <h5>Public API</h5>
-<p>The module <code>blacken_docs</code> must expose a function:</p>
+<p>The <code>blacken_docs</code> module must expose a function:</p>
 <pre><code class="language-python">def format_str(src: str, mode: black.Mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code> is the full source text (string).</li>
-<li><code>mode</code> is a <code>black</code> mode object controlling formatting.</li>
-<li>The function returns a tuple whose <strong>first element</strong> is the reformatted source string. (Callers unpack it as <code>after, _ = blacken_docs.format_str(src, mode)</code>, so at least a two-element tuple is returned; only the first element's content is specified here.)</li>
+<li><code>src</code> is the entire source text (a string).</li>
+<li><code>mode</code> is a <code>black</code> mode object that controls the formatting.</li>
+<li>The function returns a tuple in which the <strong>first element</strong> is the reformatted source string. (Callers unpack it as <code>after, _ = blacken_docs.format_str(src, mode)</code>, so the returned tuple has at least two elements; only the content of the first element is specified here.)</li>
 </ul>
 <h5>Required Behavior</h5>
-<p><code>format_str</code> must recognize LaTeX <code>minted</code> environments that declare the <code>pycon</code> language and reformat the Python interactive-console content within them using <code>black</code>, while leaving surrounding text unchanged.</p>
-<p>A <code>pycon</code> <code>minted</code> block has the form:</p>
+<p><code>format_str</code> must recognize LaTeX <code>minted</code> environments that declare the <code>pycon</code> language and reformat the Python interactive-console content inside them with <code>black</code>, while leaving the surrounding text unchanged.</p>
+<p>A <code>pycon</code> <code>minted</code> block has this form:</p>
 <pre><code>\begin{minted}{pycon}
 ... console session content ...
 \end{minted}
@@ -580,16 +582,16 @@ The block contains interactive-prompt lines (<code>&gt;&gt;&gt; </code> for prim
 <p>For such blocks:</p>
 <ol>
 <li>
-<p><strong>Detection.</strong> The block begins on a line whose (optionally indented) content is <code>\begin{minted}{pycon}</code> and ends on a line whose content is <code>\end{minted}</code>.</p>
+<p><strong>Block detection.</strong> The block opens on a line whose (optionally indented) content is <code>\begin{minted}{pycon}</code> and closes on a line whose content is <code>\end{minted}</code>.</p>
 </li>
 <li>
-<p><strong>Console content reformatting.</strong> The block body consists of an interactive Python session: lines beginning with the <code>&gt;&gt;&gt; </code> prompt (after any common indentation) are Python input statements; other lines are output and must be preserved verbatim (aside from indentation handling described below). The Python input statements must be reformatted with <code>black</code> according to <code>mode</code>. For example, <code>&gt;&gt;&gt; print( 'Hello World' )</code> becomes <code>&gt;&gt;&gt; print(&quot;Hello World&quot;)</code>.</p>
+<p><strong>Reformatting the console content.</strong> The block body is an interactive Python session: lines that start with the <code>&gt;&gt;&gt; </code> prompt (after any common indentation) are Python input statements; the remaining lines are output and must be preserved verbatim (aside from the indentation handling described below). The Python input statements must be reformatted with <code>black</code> in accordance with <code>mode</code>. As an example, <code>&gt;&gt;&gt; print( 'Hello World' )</code> turns into <code>&gt;&gt;&gt; print(&quot;Hello World&quot;)</code>.</p>
 </li>
 <li>
-<p><strong>Indentation handling.</strong> The <code>\begin{minted}{pycon}</code> line may be preceded by leading whitespace (indentation). When the block is indented:</p>
+<p><strong>Handling of indentation.</strong> The <code>\begin{minted}{pycon}</code> line may have leading whitespace (indentation) in front of it. When the block is indented:</p>
 <ul>
-<li>The indentation of the <code>\begin</code> and <code>\end</code> lines is preserved as-is.</li>
-<li>The reformatted body lines are emitted with the <strong>same indentation as the <code>\begin</code> line</strong> (i.e., the block's base indentation). Any extra indentation that the body had beyond the <code>\begin</code> line's indentation is normalized away — the prompt/output lines are re-indented to the base indentation level.</li>
+<li>The indentation of the <code>\begin</code> and <code>\end</code> lines is kept as-is.</li>
+<li>The reformatted body lines are emitted with the <strong>same indentation as the <code>\begin</code> line</strong> (that is, the block's base indentation). Any extra indentation the body had beyond the <code>\begin</code> line's indentation is removed — the prompt/output lines are re-indented to the base indentation level.</li>
 </ul>
 <p>Example (input → output):</p>
 <pre><code>Preceeding text
@@ -610,357 +612,359 @@ Following text.
 </code></pre>
 </li>
 <li>
-<p><strong>Non-block text.</strong> All text outside the <code>minted</code> <code>pycon</code> environment (both before and after) must be preserved unchanged.</p>
+<p><strong>Text outside the block.</strong> All text outside the <code>minted</code> <code>pycon</code> environment (both before and after it) must be preserved unchanged.</p>
 </li>
 </ol>
 <h5>Notes</h5>
 <ul>
-<li>Existing behavior for other <code>minted</code> blocks (e.g. <code>\begin{minted}{python}</code>) must continue to work; this change adds <code>pycon</code> handling alongside it.</li>
-<li>The <code>\begin{minted}{pycon}</code> and <code>\end{minted}</code> marker lines themselves are passed through unchanged (with their original indentation).</li>
+<li>Behavior that already exists for other <code>minted</code> blocks (e.g. <code>\begin{minted}{python}</code>) must keep working; this change introduces <code>pycon</code> handling alongside it.</li>
+<li>The <code>\begin{minted}{pycon}</code> and <code>\end{minted}</code> marker lines themselves are passed through unchanged (with their original indentation kept).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You are working on blacken-docs, a tool that reformats Python code blocks embedded inside documentation files using Black.</span>
-        <span class="spec-meta muted">423 words · source specification
+        <span class="spec-title">You are working on blacken-docs, a tool that uses Black to reformat Python code blocks embedded inside documentation files.</span>
+        <span class="spec-meta muted">448 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>blacken-docs</code>, a tool that reformats Python code blocks embedded inside documentation files using Black. This task concerns the handling of reStructuredText (RST) <code>code-block</code> directives, specifically fixing incorrect behavior when a Python code block appears <em>inside</em> a non-Python code block (e.g., as literal text within a <code>diff</code> code block).</p>
+<p>You are working on <code>blacken-docs</code>, a tool that uses Black to reformat Python code blocks embedded inside documentation files. This task is about the handling of reStructuredText (RST) <code>code-block</code> directives, and specifically about fixing incorrect behavior in the situation where a Python code block appears <em>inside</em> a non-Python code block (e.g., as literal text within a <code>diff</code> code block).</p>
 <h4>Public API</h4>
 <p>The module <code>blacken_docs</code> must expose a function:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the full source text of a documentation file.</li>
-<li><code>black_mode</code>: a Black <code>Mode</code> object controlling formatting.</li>
-<li>Returns a tuple whose first element is the (possibly reformatted) source text. Only the first element of the returned tuple is relevant to this task.</li>
+<li><code>src</code>: the complete source text of a documentation file.</li>
+<li><code>black_mode</code>: a Black <code>Mode</code> object that controls formatting.</li>
+<li>The function returns a tuple whose first element is the (possibly reformatted) source text. For this task, only the first element of the returned tuple is relevant.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p>The tool recognizes RST <code>code-block</code> directives of the form:</p>
+<p>The tool identifies RST <code>code-block</code> directives of the following form:</p>
 <pre><code>.. code-block:: &lt;language&gt;
 
     &lt;indented code contents&gt;
 </code></pre>
-<p>Only code blocks whose language is <code>python</code> (or a Python-flavored variant already handled by the tool) should have their contents reformatted by Black. Code blocks declared with any other language (for example <code>diff</code>) must have their contents left completely unaltered.</p>
-<p>The specific case that must work correctly: when a non-Python code block (such as a <code>diff</code> block) contains, as part of its literal indented content, text that itself looks like the beginning of a Python <code>code-block</code> directive and Python-like source lines, none of that inner content may be reformatted. The nested-looking Python directive is merely literal text inside the outer non-Python block and must be treated as opaque data.</p>
-<p>Concretely, given input where a <code>.. code-block:: diff</code> directive is followed by indented lines that include text resembling a <code>.. code-block:: python</code> directive and Python string literals (e.g. lines showing a diff that changes <code>'Hello World'</code> to <code>&quot;Hello World&quot;</code>), the returned source text must be <strong>identical</strong> to the input — no quote normalization, no reindentation, no changes of any kind.</p>
-<p>In other words: the language declared on the <em>outer, top-level</em> directive governs whether reformatting occurs. Contents of a non-Python code block are returned verbatim regardless of what those contents resemble.</p>
+<p>Black should reformat the contents of only those code blocks whose language is <code>python</code> (or a Python-flavored variant the tool already handles). If a code block is declared with any other language (for example <code>diff</code>), its contents must be left completely unaltered.</p>
+<p>Here is the specific case that must work correctly: when the literal indented content of a non-Python code block (such as a <code>diff</code> block) contains text that itself looks like the beginning of a Python <code>code-block</code> directive along with Python-like source lines, none of that inner content may be reformatted. The nested-looking Python directive is nothing more than literal text inside the outer non-Python block and must be treated as opaque data.</p>
+<p>Concretely, for input in which a <code>.. code-block:: diff</code> directive is followed by indented lines containing text that resembles a <code>.. code-block:: python</code> directive together with Python string literals (e.g. lines showing a diff that changes <code>'Hello World'</code> to <code>&quot;Hello World&quot;</code>), the source text that is returned must be <strong>identical</strong> to the input — no quote normalization, no reindentation, no changes of any kind.</p>
+<p>Put differently: whether reformatting occurs is governed by the language declared on the <em>outer, top-level</em> directive. The contents of a non-Python code block are returned verbatim, regardless of what those contents resemble.</p>
 <h4>Constraint on the matching approach</h4>
-<p>Matching of code blocks must be non-overlapping and must span the full extent of each code block (including blocks whose declared language is not Python). For any matched block whose language is not Python, the original matched text must be returned unchanged so that no inner region is separately re-examined or reformatted.</p>
+<p>The matching of code blocks must be non-overlapping, and each match must span the full extent of the corresponding code block (including blocks whose declared language is not Python). For any matched block whose language is not Python, the original matched text must be returned unchanged so that no region inside it is separately re-examined or reformatted.</p>
 <h4>Entry Point</h4>
-<p>The command-line entry point of the package must terminate by raising <code>SystemExit</code> with the return value of the main routine (i.e., <code>raise SystemExit(main())</code>).</p>
+<p>The package's command-line entry point must terminate by raising <code>SystemExit</code> with the return value of the main routine (i.e., <code>raise SystemExit(main())</code>).</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">You are working on blacken_docs, a command-line tool that formats Python code blocks embedded in documentation files using the black code formatter.</span>
-        <span class="spec-meta muted">339 words · source specification
+        <span class="spec-title">blacken_docs is the tool you are working on</span>
+        <span class="spec-meta muted">388 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>blacken_docs</code>, a command-line tool that formats Python code blocks embedded in documentation files using the <code>black</code> code formatter. This task concerns the <code>main</code> entry point's handling of the <code>--target-version</code> command-line option and its interaction with modern versions of the <code>black</code> library.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p><code>blacken_docs</code> is the tool you are working on: a command-line tool that applies the <code>black</code> code formatter to Python code blocks embedded in documentation files. This task is about the way the <code>main</code> entry point handles the <code>--target-version</code> command-line option, and about the interaction between that handling and modern versions of the <code>black</code> library.</p>
 <h4>Public API</h4>
-<p>The module <code>blacken_docs</code> must expose a callable:</p>
+<p>A callable must be exposed by the <code>blacken_docs</code> module:</p>
 <pre><code class="language-python">def main(argv: Sequence[str] | None = None) -&gt; int:
     ...
 </code></pre>
-<p><code>main</code> accepts a sequence of command-line argument strings and returns an integer exit code (<code>0</code> on success, i.e. a falsy value when no formatting changes are required and no errors occur).</p>
-<h4>Required Behavior</h4>
-<h5><code>--target-version</code> option</h5>
-<p><code>main</code> must accept the <code>--target-version</code> command-line option. This option:</p>
+<p>As its input, <code>main</code> accepts a sequence of command-line argument strings, and the integer it returns is an exit code (<code>0</code> on success — i.e. a falsy value for the case where no formatting changes are required and no errors occur).</p>
+<h4>Behavior Requirements</h4>
+<h5>The <code>--target-version</code> option</h5>
+<p>The <code>--target-version</code> command-line option must be accepted by <code>main</code>. For this option:</p>
 <ul>
-<li>May be supplied <strong>multiple times</strong> in a single invocation, accumulating multiple target versions (e.g. <code>--target-version py35 --target-version py36</code>).</li>
-<li>Accepts version identifier strings such as <code>py35</code>, <code>py36</code>, etc. Each supplied value corresponds to a <code>black</code> target-version enumeration member.</li>
+<li>it may be given <strong>multiple times</strong> within a single invocation, with multiple target versions accumulated as a result (e.g. <code>--target-version py35 --target-version py36</code>);</li>
+<li>the values it accepts are version identifier strings, such as <code>py35</code>, <code>py36</code>, etc.; each supplied value corresponds to a member of <code>black</code>'s target-version enumeration.</li>
 </ul>
-<h5>Correct construction of <code>black</code>'s file mode</h5>
-<p>When invoking <code>black</code> to format code, <code>main</code> must construct <code>black</code>'s file-mode configuration such that the collection of target versions supplied via <code>--target-version</code> is passed in the form <code>black</code> expects for its target-versions parameter.</p>
-<p>Specifically, the accumulated target versions must be passed to <code>black</code>'s file-mode object as a <strong><code>set</code></strong> of the corresponding <code>black</code> target-version enumeration members — not as a list or other sequence type. Passing them in an incorrect container type causes <code>black</code> (in current versions) to raise a <code>TypeError</code> and the tool to fail; the correct container type must be used so the tool runs successfully.</p>
-<h5>End-to-end success</h5>
-<p>Given a documentation file containing Python code blocks that are already correctly formatted, invoking <code>main</code> with:</p>
+<h5>Constructing <code>black</code>'s file mode correctly</h5>
+<p>When <code>main</code> invokes <code>black</code> to format code, it must construct <code>black</code>'s file-mode configuration such that the collection of target versions supplied via <code>--target-version</code> is passed in the shape that the target-versions parameter of <code>black</code> expects.</p>
+<p>To be precise, <code>black</code>'s file-mode object must be handed the accumulated target versions as a <strong><code>set</code></strong> composed of the corresponding <code>black</code> target-version enumeration members — passing them as a list or as any other sequence type is not acceptable. With an incorrect container type, <code>black</code> (in current versions) raises a <code>TypeError</code>, and the tool fails; the correct container type must be used, so that the tool runs successfully.</p>
+<h5>Success from end to end</h5>
+<p>Take a documentation file in which the Python code blocks are already formatted correctly. Invoking <code>main</code> — whether with:</p>
 <ul>
 <li>no <code>--target-version</code> options, or</li>
-<li>one or more <code>--target-version</code> options (including two distinct versions such as <code>py35</code> and <code>py36</code>),</li>
+<li>one or more <code>--target-version</code> options (including two distinct versions, for instance <code>py35</code> and <code>py36</code>),</li>
 </ul>
-<p>must complete successfully and return a falsy exit code (no error, no changes needed).</p>
+<p>— must complete successfully and return a falsy exit code (no error, no changes needed).</p>
 <h4>Constraints</h4>
 <ul>
-<li>The change must be compatible with current <code>black</code> releases whose file-mode object requires the target versions to be provided as a <code>set</code>.</li>
+<li>The change must be compatible with current <code>black</code> releases for which the file-mode object requires the target versions to be provided as a <code>set</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Restructure the blacken_docs package so that it is importable as a package with a __main__ submodule, and ensure the primary formatting functionality…</span>
-        <span class="spec-meta muted">305 words · source specification
+        <span class="spec-title">Restructure the blacken_docs package so that it can be imported as a package that has a __main__ submodule, and ensure the primary formatting functionality…</span>
+        <span class="spec-meta muted">332 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Restructure the <code>blacken_docs</code> package so that it is importable as a package with a <code>__main__</code> submodule, and ensure the primary formatting functionality remains accessible from the top-level package.</p>
-<h4>Required Public API Surface</h4>
-<p>The following must be importable and usable:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Restructure the <code>blacken_docs</code> package so that it can be imported as a package that has a <code>__main__</code> submodule, and ensure the primary formatting functionality stays accessible from the top-level package.</p>
+<h4>Public API That Must Be Available</h4>
+<p>The items below must be importable and usable:</p>
 <ol>
 <li>
-<p><strong><code>blacken_docs</code></strong> — a top-level importable package (or module) that exposes the source-formatting functionality (see below).</p>
+<p><strong><code>blacken_docs</code></strong> — an importable top-level package (or module) that exposes the source-formatting functionality (see below).</p>
 </li>
 <li>
-<p><strong><code>blacken_docs.__main__</code></strong> — an importable submodule of the <code>blacken_docs</code> package. Importing it must not raise, produce no side effects that interfere with import, and it must be reachable via <code>from blacken_docs import __main__</code>.</p>
-<p>This implies <code>blacken_docs</code> must be structured as a package (a directory with an <code>__init__.py</code>) rather than a single-file module, so that a <code>__main__</code> submodule can exist alongside it.</p>
+<p><strong><code>blacken_docs.__main__</code></strong> — a submodule of the <code>blacken_docs</code> package that can be imported. Importing it must not raise, must cause no side effects that interfere with import, and it must be reachable via <code>from blacken_docs import __main__</code>.</p>
+<p>This implies <code>blacken_docs</code> must be laid out as a package (a directory containing an <code>__init__.py</code>) instead of a single-file module, so that a <code>__main__</code> submodule can exist alongside it.</p>
 </li>
 </ol>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <ul>
-<li>The <code>blacken_docs</code> package must continue to provide a function that formats source containing embedded code blocks. It must accept a source string and a Black file-mode configuration object and return the reformatted source string.
+<li>The <code>blacken_docs</code> package must keep providing a function that formats source containing embedded code blocks. That function must accept a source string and a configuration object for Black's file mode, and it must return the reformatted source string.
 <ul>
-<li>The relevant callable is <code>blacken_docs.format_str(src: str, black_mode) -&gt; tuple[str, ...]</code> / <code>-&gt; str</code> as currently provided by the existing implementation; preserve its existing signature and behavior exactly.</li>
-<li>Formatting behavior itself is unchanged from the existing implementation. No new formatting rules are introduced.</li>
+<li>The callable in question is <code>blacken_docs.format_str(src: str, black_mode) -&gt; tuple[str, ...]</code> / <code>-&gt; str</code>, in the form the existing implementation currently provides; its existing signature and behavior must be preserved exactly.</li>
+<li>Formatting behavior itself stays the same as in the existing implementation. No new formatting rules are being introduced.</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>No changes to the formatting logic or output are required. The only structural requirement is that <code>blacken_docs</code> be a package exposing its existing public functions, with an additionally importable <code>blacken_docs.__main__</code> submodule.</li>
-<li>All existing public functions of <code>blacken_docs</code> that were previously importable must remain importable at the same top-level names.</li>
+<li>No changes to the formatting logic or output are required. There is only one structural requirement: that <code>blacken_docs</code> be a package exposing its existing public functions, with an additionally importable <code>blacken_docs.__main__</code> submodule.</li>
+<li>All existing public functions of <code>blacken_docs</code> that could previously be imported must remain importable under the same top-level names.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>The line-length default used for configuring Black's file mode is available in the installed Black distribution (<code>black.const.DEFAULT_LINE_LENGTH</code>). No work is required on your part regarding this value; it is only mentioned because it is used to construct the file-mode object passed into the formatting function.</li>
+<li>The default line length used to configure Black's file mode is available in the installed Black distribution (<code>black.const.DEFAULT_LINE_LENGTH</code>). You are not required to do any work concerning this value; it is mentioned only because it is used to build the file-mode object that is passed into the formatting function.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">The blacken_docs module provides a format_str function that reformats Python code embedded within documentation source (Markdown, reStructuredText, LaTeX,…</span>
-        <span class="spec-meta muted">456 words · source specification
+        <span class="spec-title">The blacken_docs module offers a format_str function that uses Black to reformat Python code embedded in documentation source (Markdown, reStructuredText,…</span>
+        <span class="spec-meta muted">504 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add reStructuredText Literal Block Support to <code>blacken_docs.format_str</code></h3>
-<h4>Context</h4>
-<p>The <code>blacken_docs</code> module provides a <code>format_str</code> function that reformats Python code embedded within documentation source (Markdown, reStructuredText, LaTeX, etc.) using Black.</p>
-<h4>Function Signature Change</h4>
-<p>The public function <code>blacken_docs.format_str</code> must accept a new keyword-only argument:</p>
+      <div class="spec-body"><h3>Task: Add Support for reStructuredText Literal Blocks in <code>blacken_docs.format_str</code></h3>
+<h4>Background</h4>
+<p>The <code>blacken_docs</code> module offers a <code>format_str</code> function that uses Black to reformat Python code embedded in documentation source (Markdown, reStructuredText, LaTeX, etc.).</p>
+<h4>Change to the Function Signature</h4>
+<p>A new keyword-only argument must be accepted by the public function <code>blacken_docs.format_str</code>:</p>
 <pre><code class="language-python">def format_str(src, black_mode, *, rst_literal_blocks=False):
     ...
 </code></pre>
 <ul>
-<li><code>src</code> (str): the documentation source text.</li>
-<li><code>black_mode</code>: the Black <code>Mode</code> object controlling formatting.</li>
-<li><code>rst_literal_blocks</code> (bool, keyword argument, default <code>False</code>): when <code>True</code>, enables formatting of reStructuredText literal blocks (described below).</li>
+<li><code>src</code> (str): the text of the documentation source.</li>
+<li><code>black_mode</code>: the Black <code>Mode</code> object that controls formatting.</li>
+<li><code>rst_literal_blocks</code> (bool, keyword argument, default <code>False</code>): setting it to <code>True</code> enables formatting of reStructuredText literal blocks (described below).</li>
 </ul>
-<p>The function returns a 2-tuple <code>(new_contents, errors)</code>, where <code>new_contents</code> is the reformatted source (str) and <code>errors</code> is a list of errors (empty list when there are none).</p>
-<p>All existing behavior and existing keyword arguments must be preserved. The new argument must not disturb any current functionality when left at its default.</p>
-<h4>New Behavior: reStructuredText Literal Blocks</h4>
-<p>When <code>rst_literal_blocks=True</code>, the function must additionally detect and reformat Python code contained in reStructuredText literal blocks.</p>
-<p>A literal block is introduced by a paragraph line ending with the double-colon marker <code>::</code>, followed by a blank line, followed by an indented block of content. The indented content is the literal block body. For example, given input:</p>
+<p>The return value is a 2-tuple <code>(new_contents, errors)</code>: <code>new_contents</code> holds the reformatted source (str), and <code>errors</code> is a list of errors (an empty list when there are none).</p>
+<p>All behavior and all keyword arguments that already exist must be preserved. When the new argument is left at its default, it must not disturb any current functionality.</p>
+<h4>New Behavior: Literal Blocks in reStructuredText</h4>
+<p>If <code>rst_literal_blocks=True</code> is passed, the function must, in addition, detect Python code contained in reStructuredText literal blocks and reformat it.</p>
+<p>A paragraph line ending with the double-colon marker <code>::</code> introduces a literal block; after it come a blank line and then an indented block of content. That indented content is the literal block body. For example, take this input:</p>
 <pre><code>hello::
 
     f(1,2,3)
 
 world
 </code></pre>
-<p>with <code>rst_literal_blocks=True</code>, the indented body (<code>f(1,2,3)</code>) is treated as Python code and reformatted with Black, while the surrounding text and indentation are preserved. The result is:</p>
+<p>Passing <code>rst_literal_blocks=True</code> causes the indented body (<code>f(1,2,3)</code>) to be treated as Python code and reformatted with Black, while the surrounding text and indentation are preserved. The output is:</p>
 <pre><code>hello::
 
     f(1, 2, 3)
 
 world
 </code></pre>
-<h5>Edge Cases (must produce no changes and no errors)</h5>
+<h5>Edge Cases (must result in no changes and no errors)</h5>
 <ol>
 <li>
-<p><strong>Nested content that is not a literal block.</strong> When the <code>::</code> marker does not introduce a literal block of Python code — for example a bulleted list item that contains an indented reStructuredText directive rather than a <code>::</code>-introduced literal block:</p>
+<p><strong>Nested content that does not form a literal block.</strong> This case applies when the <code>::</code> marker does not introduce a literal block of Python code — for example, a bulleted list item that contains an indented reStructuredText directive rather than a literal block introduced by <code>::</code>:</p>
 <pre><code>* hello
 
   .. warning::
 
     don't hello too much
 </code></pre>
-<p>The source must be returned unchanged, with an empty list of errors. (Here <code>warning::</code> is a directive line, not a paragraph ending in the literal-block marker followed by an indented Python body.)</p>
+<p>The function must return the source unchanged, together with an empty list of errors. (In this example, <code>warning::</code> is a directive line, not a paragraph that ends in the literal-block marker and is followed by an indented Python body.)</p>
 </li>
 <li>
-<p><strong>Empty literal block.</strong> When a line ends with <code>::</code> but no indented literal body follows it (the next non-blank content is at the same or lower indentation, e.g. a directive):</p>
+<p><strong>Literal block that is empty.</strong> A line ends with <code>::</code>, but no indented literal body follows it (the next non-blank content sits at the same or lower indentation, e.g. a directive):</p>
 <pre><code>Example::
 
 .. warning::
 
     There was no example.
 </code></pre>
-<p>The source must be returned unchanged, with an empty list of errors.</p>
+<p>The function must return the source unchanged, together with an empty list of errors.</p>
 </li>
 </ol>
-<p>In both edge cases the reformatting must correctly recognize that there is no Python literal block body to format, and leave the input untouched.</p>
-<h4>Scope Note</h4>
-<p>This new detection applies only when <code>rst_literal_blocks=True</code>. It is a separate capability from the existing reStructuredText <code>.. code-block::</code> / doctest handling, which continues to work unchanged regardless of this flag.</p>
-<p>Existing string-normalization, line-length, target-version, error-reporting, and skip-errors behavior of the module and its <code>main</code> entry point remain unchanged.</p>
+<p>In both edge cases, the reformatting must correctly recognize that no Python literal block body is present to format, and leave the input untouched.</p>
+<h4>Note on Scope</h4>
+<p>This new detection takes effect only when <code>rst_literal_blocks=True</code>. It is a capability separate from the existing reStructuredText <code>.. code-block::</code> / doctest handling, which continues to work unchanged no matter how this flag is set.</p>
+<p>Existing behavior for string-normalization, line-length, target-version, error-reporting, and skip-errors remains unchanged, both in the module and in its <code>main</code> entry point.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">blacken-docs Code Block Formatter</span>
-        <span class="spec-meta muted">1414 words · source specification
+        <span class="spec-title">blacken-docs Formatter for Code Blocks</span>
+        <span class="spec-meta muted">1585 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>blacken-docs</code> Code Block Formatter</h3>
+      <div class="spec-body"><h3>Task Specification: <code>blacken-docs</code> Formatter for Code Blocks</h3>
 <h4>Overview</h4>
-<p>Implement a Python package named <code>blacken_docs</code> that reformats Python code embedded inside documentation files (Markdown, reStructuredText, and LaTeX) by running the <a href="https://pypi.org/project/black/">Black</a> code formatter on the extracted code blocks while leaving surrounding prose untouched.</p>
-<h4>Package Structure &amp; Public API</h4>
-<p>The package must be importable as <code>blacken_docs</code> and must also expose a <code>blacken_docs.__main__</code> submodule (importing it must succeed).</p>
+<p>A Python package called <code>blacken_docs</code> is to be implemented. It reformats Python code that appears in documentation files (Markdown, reStructuredText, and LaTeX): the tool extracts the code blocks, runs the <a href="https://pypi.org/project/black/">Black</a> formatter over them, and leaves the prose around them untouched.</p>
+<h4>Package structure and public API</h4>
+<p>It must be possible to import the package as <code>blacken_docs</code>, and a <code>blacken_docs.__main__</code> submodule must be exposed too (importing it must succeed).</p>
 <h5><code>blacken_docs.format_str</code></h5>
 <pre><code class="language-python">def format_str(src: str, black_mode: black.Mode) -&gt; tuple[str, list]:
     ...
 </code></pre>
 <ul>
-<li><code>src</code>: the full text of a documentation source string.</li>
-<li><code>black_mode</code>: a <code>black.FileMode</code>/<code>black.Mode</code> instance controlling formatting (e.g. line length, string normalization, target versions).</li>
-<li>Returns a 2-tuple <code>(new_contents, errors)</code>:
+<li><code>src</code>: the whole text of a documentation source string.</li>
+<li><code>black_mode</code>: an instance of <code>black.FileMode</code>/<code>black.Mode</code> that governs the formatting (e.g. line length, string normalization, target versions).</li>
+<li>The return value is a 2-tuple <code>(new_contents, errors)</code>:
 <ul>
-<li><code>new_contents</code>: the input text with every recognized Python code block reformatted.</li>
-<li><code>errors</code>: a list of encountered errors (empty list when there are none).</li>
+<li><code>new_contents</code>: the incoming text once every recognized Python code block has been reformatted.</li>
+<li><code>errors</code>: a list that collects the errors encountered (an empty list when there are none).</li>
 </ul>
 </li>
 </ul>
-<p>An optional keyword-only argument is required:</p>
+<p>One further keyword-only argument is required, though passing it is optional:</p>
 <pre><code class="language-python">def format_str(src, black_mode, *, rst_literal_blocks: bool = False) -&gt; tuple[str, list]:
 </code></pre>
 <ul>
-<li>When <code>rst_literal_blocks=True</code>, reStructuredText literal blocks (introduced by a paragraph ending in <code>::</code>) are also treated as Python code blocks and reformatted.</li>
+<li>Passing <code>rst_literal_blocks=True</code> makes literal blocks of reStructuredText — the kind introduced by a paragraph ending in <code>::</code> — count as Python code blocks too, so they are reformatted.</li>
 </ul>
 <h5><code>blacken_docs.main</code></h5>
 <pre><code class="language-python">def main(argv: Sequence[str] | None = None) -&gt; int:
     ...
 </code></pre>
 <ul>
-<li>Accepts a sequence of command-line arguments (filenames and options).</li>
-<li>Reads each named file, reformats it in place, and writes the result back only when changes are made.</li>
-<li>Returns a falsy value (<code>0</code>) when no file was modified and there were no reported errors; returns a truthy value (nonzero) when any file was rewritten or an error was reported.</li>
-<li>Supported options:
+<li>The function accepts a sequence of command-line arguments, made up of filenames and options.</li>
+<li>Each file that is named gets read and reformatted in place; the result is written back only when changes are made.</li>
+<li>The return value is falsy (<code>0</code>) if no file was modified and no errors were reported; it is truthy (nonzero) if an error was reported or any file was rewritten.</li>
+<li>These options are supported:
 <ul>
-<li><code>--line-length N</code> — passed through to Black's line length.</li>
-<li><code>--target-version VER</code> — may be given multiple times; each accumulates a Black target version (e.g. <code>py35</code>, <code>py36</code>).</li>
-<li><code>--skip-string-normalization</code> — disables Black's string quote normalization.</li>
-<li><code>--skip-errors</code> — do not fail on code blocks that cannot be parsed; continue processing other blocks.</li>
-<li>A filename may appear before or after option flags.</li>
+<li><code>--line-length N</code> — handed through to Black's line length.</li>
+<li><code>--target-version VER</code> — it may be supplied multiple times; each occurrence adds one Black target version (e.g. <code>py35</code>, <code>py36</code>).</li>
+<li><code>--skip-string-normalization</code> — Black's string quote normalization is switched off by it.</li>
+<li><code>--skip-errors</code> — the tool does not fail on code blocks that cannot be parsed; the other blocks continue to be processed.</li>
+<li>A filename may be placed before or after the option flags.</li>
 </ul>
 </li>
 </ul>
-<h4>Behavior of <code>format_str</code></h4>
-<p>The empty string returns the empty string unchanged.</p>
-<h5>Markdown fenced code blocks</h5>
-<p>Recognize fenced blocks opened by a line consisting of three backticks followed by a language tag:</p>
+<h4><code>format_str</code> behavior</h4>
+<p>Given the empty string as input, the function returns the empty string, unchanged.</p>
+<h5>Fenced code blocks in Markdown</h5>
+<p>A fenced block is recognized when its opening line consists of three backticks followed by a language tag:</p>
 <ul>
-<li>The language tag <code>python</code> marks a Python block; its body is reformatted with Black.</li>
-<li>The language tag <code>pycon</code> marks an interactive-console block (see pycon rules below).</li>
-<li>Content between the opening fence and the closing <code> </code> `` fence is the block body.</li>
+<li>A block tagged <code>python</code> is a Python block, and Black reformats its body.</li>
+<li>A block tagged <code>pycon</code> is an interactive-console block (the pycon rules below apply).</li>
+<li>Everything lying between the opening fence and the closing <code> </code> `` fence makes up the block body.</li>
 </ul>
-<p>Rules that must hold:</p>
+<p>All of the following rules must hold:</p>
 <ul>
-<li>Whitespace between the backticks and the language tag (e.g. <code>```   python</code>) is permitted and preserved in the output opening fence.</li>
-<li>Trailing whitespace after the closing fence (e.g. <code>```   </code>) is preserved.</li>
-<li><strong>Fence options</strong>: any additional text after the language tag on the opening fence line must be allowed and preserved verbatim. For example, an opening line of <code>```python title='example.py'</code> is a valid Python block; the block body is reformatted and the opening line (including <code>title='example.py'</code>) is emitted unchanged. The same applies to <code>```pycon title='Session 1'</code>.</li>
-<li>Indented fenced blocks are supported: when the opening fence is indented (e.g. by two spaces inside a list item), that indentation is applied to the reformatted body and preserved on the fence lines.</li>
+<li>Whitespace between the backticks and the language tag (e.g. <code>```   python</code>) is permitted, and the output opening fence preserves it.</li>
+<li>After the closing fence, trailing whitespace (e.g. <code>```   </code>) is preserved.</li>
+<li><strong>Fence options</strong>: whatever extra text follows the language tag on the opening fence line must be allowed and preserved verbatim. For example, an opening line of <code>```python title='example.py'</code> is a valid Python block; the block body is reformatted and the opening line (including <code>title='example.py'</code>) is emitted unchanged. The same applies to <code>```pycon title='Session 1'</code>.</li>
+<li>Support covers indented fenced blocks: if the opening fence carries indentation (e.g. by two spaces inside a list item), the reformatted body gets that indentation applied, and the fence lines preserve it.</li>
 </ul>
 <h5>LaTeX blocks</h5>
 <ul>
-<li><code>\begin{minted}{python}</code> … <code>\end{minted}</code> blocks are reformatted as Python.</li>
-<li><code>\begin{minted}{pycon}</code> … <code>\end{minted}</code> blocks are reformatted as pycon (interactive console).</li>
-<li><code>\begin{pyblock}</code> … <code>\end{pyblock}</code> (PythonTeX) blocks are reformatted as Python.</li>
-<li>Indentation of the <code>\begin</code>/<code>\end</code> lines is preserved; the reformatted body is re-indented to match the <code>\begin</code> line's indentation. For <code>minted</code> blocks, extra body indentation beyond that is stripped so the code's own indentation is preserved relative to the block.</li>
+<li>A <code>\begin{minted}{python}</code> … <code>\end{minted}</code> block gets reformatted as Python.</li>
+<li>A <code>\begin{minted}{pycon}</code> … <code>\end{minted}</code> block gets reformatted as pycon (interactive console).</li>
+<li>A <code>\begin{pyblock}</code> … <code>\end{pyblock}</code> (PythonTeX) block gets reformatted as Python.</li>
+<li>The indentation found on the <code>\begin</code>/<code>\end</code> lines is preserved; the reformatted body is re-indented so that it matches the indentation of the <code>\begin</code> line. For <code>minted</code> blocks, extra body indentation beyond that is stripped away, which keeps the code's own indentation intact relative to the block.</li>
 </ul>
 <h5>reStructuredText blocks</h5>
 <ul>
-<li><code>.. code-block:: python</code> directives: the indented body is reformatted as Python. Directive option lines (e.g. <code>:lineno-start: 10</code>, <code>:emphasize-lines: 11</code>) appearing between the directive and the code must be preserved unchanged.</li>
-<li><code>.. code-block:: pycon</code> directives: reformatted as pycon.</li>
-<li><code>.. jupyter-execute::</code> directives: the indented body is reformatted as Python. Directive options (e.g. <code>:hide-code:</code>) are preserved.</li>
-<li>Sphinx doctest directives — <code>.. testsetup::</code>, <code>.. testcleanup::</code>, <code>.. testcode::</code>, and <code>.. doctest::</code> — have their indented bodies reformatted as Python (doctest bodies follow pycon rules). The reformatting may insert blank lines where Black separates statements (e.g. an <code>import</code> followed by an assignment becomes separated by a blank line). Indentation of the directive body is preserved.</li>
-<li>Nested/indented directives are supported: a directive indented within another block has its body reformatted with the correct indentation preserved.</li>
-<li>A <code>.. code-block:: python</code> that appears only as <em>text inside a non-Python code block</em> (e.g. inside a <code>.. code-block:: diff</code>) must NOT be reformatted — the outer block is left unchanged.</li>
-<li>With <code>rst_literal_blocks=True</code>:
+<li>For <code>.. code-block:: python</code> directives, the indented body is reformatted as Python. Option lines of the directive (e.g. <code>:lineno-start: 10</code>, <code>:emphasize-lines: 11</code>) that sit between the directive and the code must be preserved unchanged.</li>
+<li><code>.. code-block:: pycon</code> directives: these are reformatted as pycon.</li>
+<li>For <code>.. jupyter-execute::</code> directives, the indented body is reformatted as Python; the directive's options (e.g. <code>:hide-code:</code>) are preserved.</li>
+<li>The Sphinx doctest directives — <code>.. testsetup::</code>, <code>.. testcleanup::</code>, <code>.. testcode::</code>, and <code>.. doctest::</code> — get their indented bodies reformatted as Python (doctest bodies follow the pycon rules). Blank lines may be inserted by the reformatting where Black separates statements (e.g. an <code>import</code> followed by an assignment becomes separated by a blank line). The directive body's indentation is preserved.</li>
+<li>Directives that are nested or indented work as well: when a directive sits indented inside another block, its body is reformatted and the correct indentation is preserved.</li>
+<li>When a <code>.. code-block:: python</code> occurs only as <em>text inside a non-Python code block</em> (e.g. inside a <code>.. code-block:: diff</code>), it must NOT be reformatted — the outer block is left unchanged.</li>
+<li>If <code>rst_literal_blocks=True</code> is in effect:
 <ul>
-<li>A literal block introduced by a paragraph ending in <code>::</code> followed by a blank line and an indented block is reformatted as Python.</li>
-<li>A <code>::</code> paragraph with no following indented literal content (e.g. immediately followed by another directive at lesser indentation) is left unchanged and produces no errors.</li>
-<li>Nested constructs that are not actually literal Python blocks (e.g. a <code>.. warning::</code> admonition) are left unchanged and produce no errors.</li>
+<li>When a paragraph ending in <code>::</code> is followed by a blank line and an indented block, the literal block it introduces is reformatted as Python.</li>
+<li>A <code>::</code> paragraph with no following indented literal content (e.g. another directive at lesser indentation coming immediately next) is left unchanged and produces no errors.</li>
+<li>Nested constructs that are not actually literal Python blocks (e.g. a <code>.. warning::</code> admonition) remain unchanged and produce no errors.</li>
 </ul>
 </li>
 </ul>
 <h5>Python docstrings</h5>
-<p>Python source files are also processed: reStructuredType <code>.. code-block:: python</code> blocks and Markdown <code>```python</code> blocks embedded <em>within docstrings</em> are reformatted in place, preserving the docstring's indentation.</p>
-<h4>pycon (interactive console) handling</h4>
-<p>For pycon blocks (Markdown <code>```pycon</code>, RST <code>.. code-block:: pycon</code>, doctest bodies, LaTeX <code>minted</code>/<code>pycon</code>):</p>
+<p>Python source files go through the processing too: <code>.. code-block:: python</code> blocks of the reStructuredType kind and Markdown <code>```python</code> blocks located <em>within docstrings</em> are reformatted in place, with the docstring's indentation preserved.</p>
+<h4>Handling of pycon (interactive console)</h4>
+<p>These rules cover pycon blocks (Markdown <code>```pycon</code>, RST <code>.. code-block:: pycon</code>, doctest bodies, LaTeX <code>minted</code>/<code>pycon</code>):</p>
 <ul>
-<li>Lines beginning with the <code>&gt;&gt;&gt; </code> prompt (and <code>... </code> continuation) contain Python statements that are reformatted with Black; the reformatted code is re-emitted with <code>&gt;&gt;&gt; </code> / <code>... </code> prompts.</li>
-<li>Multi-line statements using <code>...</code> continuations are reformatted as a unit and re-wrapped with <code>... </code> continuation prompts. Black may add or restructure continuation lines (e.g. splitting a dict literal across multiple <code>... </code> lines, adding a closing <code>... }</code> line).</li>
-<li>When a compound statement (e.g. <code>if True:</code> / <code>def f(): pass</code>) forms the final code in the block, a trailing <code>...</code> line is emitted after it if not already present.</li>
-<li>Nested one-line definitions such as <code>def f(): pass</code> are expanded by Black onto multiple prompted lines.</li>
-<li>Empty continuation lines (a bare <code>...</code> with no code) within a statement are handled: they are collapsed appropriately when the statement is reformatted.</li>
-<li>Output lines (non-prompt lines following a statement, e.g. <code>output</code>, tracebacks) are treated as console output and preserved verbatim, including their indentation. A <code>Traceback (most recent call last):</code> block, including elided <code>...</code> frames and file-location lines, is preserved unchanged.</li>
-<li>Trailing whitespace / blank lines surrounding the block are preserved.</li>
-<li>A block whose body has no <code>&gt;&gt;&gt; </code> prompt at all (just plain indented text like <code>pass</code>) is left unchanged.</li>
-<li>A statement not terminated by a newline (block ends immediately after <code>&gt;&gt;&gt; pass</code>) is reformatted and emitted with a trailing newline.</li>
-<li>A comment line preceding a <code>&gt;&gt;&gt; </code> prompt is preserved as-is.</li>
-<li>In Markdown pycon blocks, the block body may be over-indented (e.g. four leading spaces before <code>&gt;&gt;&gt; </code>); the reformatted prompts are emitted flush to the fence indentation (leading over-indentation removed).</li>
+<li>Lines that begin with the <code>&gt;&gt;&gt; </code> prompt (and <code>... </code> continuation) carry Python statements; Black reformats them, and the reformatted code is emitted again with <code>&gt;&gt;&gt; </code> / <code>... </code> prompts.</li>
+<li>When <code>...</code> continuations are in play, a multi-line statement is reformatted as a unit and then re-wrapped with <code>... </code> continuation prompts. Continuation lines are something Black may add or restructure (e.g. splitting a dict literal across multiple <code>... </code> lines, adding a closing <code>... }</code> line).</li>
+<li>Should the final code in the block be a compound statement (e.g. <code>if True:</code> / <code>def f(): pass</code>), a trailing <code>...</code> line is emitted after it when one is not already present.</li>
+<li>Black expands nested one-line definitions such as <code>def f(): pass</code> onto multiple prompted lines.</li>
+<li>Within a statement, empty continuation lines (a bare <code>...</code> with no code) are handled: when the statement gets reformatted, they are collapsed appropriately.</li>
+<li>Output lines — the non-prompt lines that follow a statement, e.g. <code>output</code>, tracebacks — are treated as console output and preserved verbatim, their indentation included. A <code>Traceback (most recent call last):</code> block is preserved unchanged, elided <code>...</code> frames and file-location lines included.</li>
+<li>Around the block, trailing whitespace and blank lines are preserved.</li>
+<li>If the body of a block has no <code>&gt;&gt;&gt; </code> prompt at all (nothing but plain indented text like <code>pass</code>), that block is left unchanged.</li>
+<li>When a statement is not terminated by a newline (block ends immediately after <code>&gt;&gt;&gt; pass</code>), it is reformatted and emitted with a trailing newline.</li>
+<li>When a comment line precedes a <code>&gt;&gt;&gt; </code> prompt, the comment line is preserved as-is.</li>
+<li>In a Markdown pycon block, the body may be over-indented (e.g. four leading spaces before <code>&gt;&gt;&gt; </code>); after reformatting, the prompts are emitted flush to the fence indentation (leading over-indentation removed).</li>
 </ul>
-<h4><code>main</code> behavior details</h4>
+<h4>Details of <code>main</code> behavior</h4>
 <ul>
-<li><strong>No changes needed</strong>: for a file already correctly formatted, <code>main</code> writes nothing to stderr, leaves the file unchanged, and returns <code>0</code>.</li>
-<li><strong>Changes made</strong>: when a file is reformatted, <code>main</code> prints <code>&quot;&lt;path&gt;: Rewriting...\n&quot;</code> to stdout, writes the reformatted content to the file, and returns a truthy value.</li>
-<li><strong>Line length</strong>: with <code>--line-length=80</code> a call may leave a long function call unchanged (return <code>0</code>); with <code>--line-length=50</code> the same call is wrapped across multiple lines and the file is rewritten (return truthy).</li>
-<li><strong>Target version</strong>: reformatting a trailing-comma-sensitive construct with <code>--target-version=py36</code> may add a magic trailing comma and rewrite the file; multiple <code>--target-version</code> flags accumulate.</li>
-<li><strong>String normalization</strong>: with <code>--skip-string-normalization</code>, single-quoted strings (e.g. <code>f('hi')</code>) are left unchanged.</li>
-<li><strong>Syntax error (default)</strong>: when a Python code block cannot be parsed, <code>main</code> returns truthy, leaves the file unchanged, and prints a message to stdout starting with <code>&quot;&lt;path&gt;:&lt;lineno&gt;: code block parse error&quot;</code> (the line number is the line of the code block's opening).</li>
-<li><strong>Syntax error with <code>--skip-errors</code></strong>: unparseable blocks are skipped (left unchanged) while other, valid blocks in the same file are still reformatted; the file is written with the valid blocks fixed.</li>
+<li><strong>No changes needed</strong>: when a file is already formatted correctly, <code>main</code> leaves the file unchanged, writes nothing to stderr, and returns <code>0</code>.</li>
+<li><strong>Changes made</strong>: once a file has been reformatted, <code>&quot;&lt;path&gt;: Rewriting...\n&quot;</code> is printed by <code>main</code> to stdout, the reformatted content is written to the file, and a truthy value is returned.</li>
+<li><strong>Line length</strong>: under <code>--line-length=80</code>, a long function call may be left unchanged (return <code>0</code>); under <code>--line-length=50</code>, the same call gets wrapped across multiple lines and the file is rewritten (return truthy).</li>
+<li><strong>Target version</strong>: with <code>--target-version=py36</code>, reformatting a construct that is sensitive to trailing commas may add a magic trailing comma and rewrite the file; multiple <code>--target-version</code> flags accumulate.</li>
+<li><strong>String normalization</strong>: when <code>--skip-string-normalization</code> is given, strings quoted with single quotes (e.g. <code>f('hi')</code>) are left unchanged.</li>
+<li><strong>Syntax error (default)</strong>: if a Python code block cannot be parsed, <code>main</code> returns truthy, leaves the file unchanged, and prints a message to stdout that starts with <code>&quot;&lt;path&gt;:&lt;lineno&gt;: code block parse error&quot;</code> (the line number is the line on which the code block opens).</li>
+<li><strong>Syntax error with <code>--skip-errors</code></strong>: blocks that cannot be parsed get skipped (left unchanged), but the other, valid blocks in the same file are still reformatted; what gets written is the file with those valid blocks fixed.</li>
 </ul>
 <h4>Dependencies</h4>
-<p>The implementation must use the <code>black</code> library for the actual code formatting, respecting the passed <code>black.Mode</code> (line length, target versions, and string-normalization settings).</p>
-<h4>Test-imported symbols (must exist)</h4>
+<p>For the actual code formatting, the <code>black</code> library must be used, and the passed <code>black.Mode</code> must be respected (line length, target versions, and string-normalization settings).</p>
+<h4>Symbols imported by tests (must exist)</h4>
 <ul>
-<li>Module <code>blacken_docs</code> with <code>format_str(src, black_mode, *, rst_literal_blocks=False)</code> and <code>main(argv)</code>.</li>
-<li>Module <code>blacken_docs.__main__</code> (importable).</li>
+<li>The module <code>blacken_docs</code>, which provides <code>format_str(src, black_mode, *, rst_literal_blocks=False)</code> and <code>main(argv)</code>.</li>
+<li>The module <code>blacken_docs.__main__</code> (one that can be imported).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Implement (or modify) the module blacken_docs so that it exposes the following function</span>
-        <span class="spec-meta muted">382 words · source specification
+        <span class="spec-title">The module blacken_docs is to be implemented (or modified) so that it exposes this function</span>
+        <span class="spec-meta muted">426 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Module and Public API</h5>
-<p>Implement (or modify) the module <code>blacken_docs</code> so that it exposes the following function:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Module and Exposed Function</h5>
+<p>The module <code>blacken_docs</code> is to be implemented (or modified) so that it exposes this function:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the full source text to process (a string).</li>
-<li><code>black_mode</code>: a Black formatting mode/configuration object, passed through to Black when reformatting code.</li>
-<li>Returns a tuple whose <strong>first element</strong> is the reformatted source text (a string). Only the first element is relied upon by callers.</li>
+<li><code>src</code>: the complete source text that is to be processed (a string).</li>
+<li><code>black_mode</code>: an object carrying Black's formatting mode/configuration, which gets passed along to Black whenever code is reformatted.</li>
+<li>The function returns a tuple whose <strong>first element</strong> holds the reformatted source text (a string). Callers rely on this first element alone.</li>
 </ul>
-<h5>Required Behavior</h5>
-<p>The function scans the input text for fenced Markdown code blocks and reformats the Python code inside them using Black, leaving the surrounding text and the fence lines themselves unchanged.</p>
-<h6>Markdown code block detection</h6>
-<p>A fenced code block begins with a line consisting of:</p>
+<h5>Behavior Requirements</h5>
+<p>The function goes through the input text looking for fenced Markdown code blocks and runs Black on the Python code inside them; the text around those blocks, as well as the fence lines themselves, remains unchanged.</p>
+<h6>Finding Markdown code blocks</h6>
+<p>A fenced code block starts with an opening line composed of:</p>
 <ul>
-<li>Optional leading indentation/whitespace before the opening triple-backtick fence is not required, but arbitrary whitespace <strong>between</strong> the opening triple-backtick fence and the language name must be tolerated.</li>
-<li>Triple backticks (<code>```</code>), optionally followed by whitespace, followed by a Python language name, optionally followed by additional attributes/options after the language name.</li>
+<li>Leading indentation/whitespace before the opening triple-backtick fence is not required, yet arbitrary whitespace <strong>between</strong> the opening triple-backtick fence and the language name must be tolerated.</li>
+<li>Triple backticks (<code>```</code>), then optionally some whitespace, then a Python language name, and after the language name optionally additional attributes/options.</li>
 </ul>
-<p>The following language names must be recognized as Python code blocks:</p>
+<p>The language names listed next must be recognized as Python code blocks:</p>
 <ul>
-<li>The full name <code>python</code>.</li>
-<li>The short name <code>py</code>.</li>
+<li>The long form, <code>python</code>.</li>
+<li>The abbreviated form, <code>py</code>.</li>
 </ul>
-<p>When such a block is detected, the code lines between the opening fence line and the closing fence line are collected, reformatted with Black, and re-emitted in place. The opening fence line (including its original whitespace and language token exactly as written) and the closing fence line are preserved verbatim.</p>
-<h6>Reformatting</h6>
-<p>The extracted code is formatted with Black. For example, a call such as <code>f(1,2,3)</code> becomes <code>f(1, 2, 3)</code>, with a trailing newline as produced by Black. The reformatted code replaces the original code lines within the fence.</p>
-<h6>Preservation details</h6>
+<p>Once a block of this kind is found, the lines of code lying between the opening fence line and the closing fence line are gathered, formatted by Black, and emitted again right where they were. Both the opening fence line (its original whitespace and language token included, exactly as written) and the closing fence line are carried over verbatim.</p>
+<h6>The reformatting step</h6>
+<p>Formatting of the extracted code is done by Black. To illustrate, a call like <code>f(1,2,3)</code> turns into <code>f(1, 2, 3)</code>, and the result carries the trailing newline that Black produces. Within the fence, this reformatted code takes the place of the original code lines.</p>
+<h6>What gets preserved</h6>
 <ul>
-<li>Whitespace appearing between the opening triple-backtick fence and the language name is preserved exactly in the output (e.g., an opening line of <code> ```   python</code> or <code> ```   py</code> is emitted unchanged).</li>
-<li>Any options/attributes following the language name on the opening fence line are preserved.</li>
-<li>The closing fence line is preserved.</li>
+<li>In the output, any whitespace sitting between the opening triple-backtick fence and the language name is reproduced exactly (e.g., an opening line such as <code> ```   python</code> or <code> ```   py</code> is emitted unchanged).</li>
+<li>Any options/attributes that appear after the language name on the opening fence line are preserved.</li>
+<li>The closing fence line is likewise preserved.</li>
 </ul>
 <h5>Examples</h5>
 <p>Input:</p>
@@ -972,111 +976,112 @@ f(1,2,3)
 <pre><code class="language-py">f(1, 2, 3)
 </code></pre>
 <pre><code>
-(The opening fence with its extra whitespace and the `py` language token is preserved; only the code line is reformatted.)</code></pre>
+(The opening fence — its extra whitespace and the `py` language token included — is preserved; the code line is the only thing that gets reformatted.)</code></pre>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Implement a Python module named blacken_docs that formats Python code embedded within documentation files (Markdown and reStructuredText) by running the…</span>
-        <span class="spec-meta muted">606 words · source specification
+        <span class="spec-title">The aim is a Python module named blacken_docs.</span>
+        <span class="spec-meta muted">697 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement a Python module named <code>blacken_docs</code> that formats Python code embedded within documentation files (Markdown and reStructuredText) by running the <a href="https://github.com/psf/black">Black</a> code formatter on the embedded code blocks, while leaving all surrounding non-code text untouched.</p>
-<h4>Public API</h4>
-<p>The module must expose the following function:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>The aim is a Python module named <code>blacken_docs</code>. Its job is to reformat the Python code embedded in documentation files (Markdown and reStructuredText): the embedded code blocks are run through the <a href="https://github.com/psf/black">Black</a> code formatter, and all surrounding non-code text is left untouched.</p>
+<h4>Public Interface</h4>
+<p>One function must be exposed by the module:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: a string containing the full source of a documentation file.</li>
-<li><code>black_mode</code>: a Black <code>Mode</code> object (e.g. an instance of <code>black.Mode</code>) used to control formatting.</li>
-<li>Returns a tuple whose <strong>first element</strong> is the reformatted source string. (Additional tuple elements may exist; callers rely only on the first element via unpacking such as <code>result, _ = format_str(...)</code>.)</li>
+<li><code>src</code>: a string holding the full source of a documentation file.</li>
+<li><code>black_mode</code>: a Black <code>Mode</code> object (e.g. an instance of <code>black.Mode</code>) through which the formatting is controlled.</li>
+<li>The function's return value is a tuple; the <strong>first element</strong> of that tuple is the source string after reformatting. (More tuple elements may be present; callers rely only on the first element, reached through unpacking such as <code>result, _ = format_str(...)</code>.)</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>Markdown fenced code blocks</h5>
-<p>Recognize Python code blocks fenced with triple backticks. A code block begins with a line consisting of an optional indentation, followed by <code>```</code>, then an optional info string, and ends with a line that (at the same indentation) is <code>```</code> optionally followed by trailing whitespace.</p>
-<p>The Python code contained between the opening and closing fence must be reformatted with Black. Everything else must be preserved exactly, including:</p>
+<h4>Behavior Requirements</h4>
+<h5>Fenced code blocks in Markdown</h5>
+<p>Python code blocks fenced with triple backticks must be recognized. Such a block starts with an optional indentation, then <code>```</code>, then an optional info string — these pieces together make up the opening line — and it ends with a line that has the same indentation, is <code>```</code>, and may carry trailing whitespace.</p>
+<p>Black must reformat the Python code sitting between the opening and closing fence. Everything besides that code must be preserved exactly, including:</p>
 <ul>
-<li>The opening fence line's original content, byte for byte. This includes:
+<li>The original content of the opening fence line, byte for byte. That means:
 <ul>
-<li>Whitespace between the backticks and the language token (e.g. <code>```   python</code> must be preserved as-is).</li>
-<li>Short language names such as <code>py</code> (e.g. <code>```   py</code>).</li>
-<li>Any additional info-string options following the language (e.g. <code>```python title='example.py'</code>).</li>
+<li>Whitespace sitting between the backticks and the language token (e.g. <code>```   python</code> must stay as-is).</li>
+<li>Language names in short form such as <code>py</code> (e.g. <code>```   py</code>).</li>
+<li>Any extra info-string options that come after the language (e.g. <code>```python title='example.py'</code>).</li>
 </ul>
 </li>
-<li>Trailing whitespace on the closing fence line (e.g. <code>```</code> followed by spaces must be preserved).</li>
-<li>Indentation of the code block. When the code block (and its fences) is indented — for example nested under a Markdown list item — the indentation must be preserved on every line, the embedded Python code must be reformatted, and the reformatted code must be re-indented to match the original indentation. Surrounding lines (list items, other text) must be left unchanged.</li>
+<li>Trailing whitespace on the closing fence line (e.g. spaces that follow <code>```</code> must be kept).</li>
+<li>The code block's indentation. If the block is indented — fences included — for instance because it is nested under a Markdown list item, then the indentation must be kept on every line, the Python code embedded in it must be reformatted, and the reformatted code must be re-indented so as to match the original indentation. Lines surrounding the block (list items, other text) must be left unchanged.</li>
 </ul>
-<p>Only blocks whose info string identifies Python (<code>python</code> or <code>py</code>, possibly with extra options and surrounding whitespace) are reformatted.</p>
-<h5>reStructuredText code blocks</h5>
-<p>Recognize Python code introduced by an rST directive of the form:</p>
+<p>Reformatting applies only to blocks whose info string identifies Python (<code>python</code> or <code>py</code>, possibly with extra options and surrounding whitespace).</p>
+<h5>Code blocks in reStructuredText</h5>
+<p>Python code that an rST directive introduces must be recognized as well. The directive looks like this:</p>
 <pre><code>.. code-block:: python
 </code></pre>
-<p>The Python code that follows (an indented block) must be reformatted with Black, and re-indented to match the directive's code indentation. The directive line itself and surrounding text must be preserved.</p>
-<p><strong>Leading whitespace-only lines within the code block must be preserved.</strong> Specifically, when the line immediately following the directive line is a line containing only whitespace (for example three spaces), that line must be left intact in the output rather than stripped or removed. The actual code lines following it are reformatted normally, keeping their indentation.</p>
-<p>Concretely, given input:</p>
+<p>Black must reformat the Python code that follows the directive (an indented block), and the code must be re-indented to match the directive's code indentation. The directive line itself, together with the surrounding text, must be preserved.</p>
+<p><strong>Leading whitespace-only lines inside the code block must be preserved.</strong> To spell this out: when the line immediately after the directive line is one that contains only whitespace (for example three spaces), that line must be left intact in the output rather than being stripped or removed. The genuine code lines that come after it are reformatted normally, and their indentation is kept.</p>
+<p>A concrete case: given this input</p>
 <pre><code>.. code-block:: python
    
    f(1,2,3)
 </code></pre>
-<p>(where the second line contains three spaces and the third line is indented by three spaces), the output must be:</p>
+<p>(the second line there consists of three spaces, and the third line is indented by three spaces), what must come out is:</p>
 <pre><code>.. code-block:: python
    
    f(1, 2, 3)
 </code></pre>
-<p>The whitespace-only line is preserved verbatim; the code line is reformatted by Black and keeps its three-space indentation.</p>
-<h4>Formatting Details</h4>
+<p>The whitespace-only line survives verbatim; the code line, meanwhile, is reformatted by Black and retains its three-space indentation.</p>
+<h4>Formatting Specifics</h4>
 <ul>
-<li>Reformatting of extracted Python code is performed by Black using the supplied <code>black_mode</code>.</li>
-<li>Indented code blocks: strip the common indentation before handing code to Black, then reapply the original indentation to each formatted line.</li>
-<li>Non-Python content and all structural markers (fences, directives, list markers, blank/whitespace lines outside the reformatted code) must be preserved exactly.</li>
+<li>Black does the reformatting of the extracted Python code, working with the <code>black_mode</code> that was supplied.</li>
+<li>Indented code blocks: the common indentation comes off before the code is handed to Black, and once formatting is done the original indentation is reapplied to each formatted line.</li>
+<li>All structural markers (fences, directives, list markers, blank/whitespace lines outside the reformatted code), together with non-Python content, must be preserved exactly.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>Trailing newline behavior of the overall document must be preserved as in the input.</li>
-<li>The function must not alter code that is already correctly formatted (idempotent output for already-formatted input).</li>
+<li>As for the document as a whole, its trailing newline behavior must be preserved as in the input.</li>
+<li>Code that is already correctly formatted must not be altered by the function (idempotent output for input that is already formatted).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">The top-level blacken_docs module must expose</span>
-        <span class="spec-meta muted">314 words · source specification
+        <span class="spec-title">The blacken_docs module at the top level must expose</span>
+        <span class="spec-meta muted">342 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Return distinct status codes from <code>blacken_docs.main</code></h3>
-<h4>Public API</h4>
-<p>The top-level <code>blacken_docs</code> module must expose:</p>
+      <div class="spec-body"><h3>Task: Make <code>blacken_docs.main</code> return distinct status codes</h3>
+<h4>Public interface</h4>
+<p>The <code>blacken_docs</code> module at the top level must expose:</p>
 <pre><code class="language-python">def main(argv: tuple[str, ...]) -&gt; int:
     ...
 </code></pre>
-<p><code>argv</code> is a tuple of command-line-style arguments containing file paths and supported options.</p>
-<h4>Required return values</h4>
-<p><code>main()</code> must return an integer status describing the processing result:</p>
+<p><code>argv</code> is a tuple of arguments in command-line style, containing file paths and supported options.</p>
+<h4>Mandatory return values</h4>
+<p><code>main()</code> must return an integer status that describes the outcome of the processing:</p>
 <ul>
-<li><code>0</code>: Processing completed successfully and the document was not rewritten.</li>
-<li><code>1</code>: Processing completed and the document was rewritten.</li>
-<li><code>2</code>: Processing failed because of a code-block parse error that was not skipped.</li>
+<li><code>0</code>: The document was not rewritten, and processing completed successfully.</li>
+<li><code>1</code>: The document was rewritten, and processing completed.</li>
+<li><code>2</code>: Processing failed due to a code-block parse error that was not skipped.</li>
 </ul>
-<p>Examples of the distinction:</p>
+<p>Examples that illustrate the distinction:</p>
 <ul>
-<li>A document containing an already formatted block such as <code>f(1, 2, 3)</code> returns <code>0</code> and remains unchanged.</li>
-<li>A document containing <code>f(1,2,3)</code> is rewritten to <code>f(1, 2, 3)</code> and returns <code>1</code>.</li>
-<li>A document containing malformed Python such as <code>f(</code> returns <code>2</code> when errors are not skipped.</li>
+<li>A document with an already formatted block such as <code>f(1, 2, 3)</code> returns <code>0</code> and stays unchanged.</li>
+<li>A document that contains <code>f(1,2,3)</code> is rewritten to <code>f(1, 2, 3)</code> and returns <code>1</code>.</li>
+<li>A document that contains malformed Python such as <code>f(</code> returns <code>2</code> when errors are not skipped.</li>
 </ul>
-<p>The status must continue to reflect whether a rewrite occurred when options affect formatting, including:</p>
+<p>The status must continue to reflect whether a rewrite occurred when options have an effect on formatting, including:</p>
 <ul>
 <li><code>--line-length=80</code> and <code>--line-length=50</code></li>
 <li><code>--target-version=py36</code></li>
-<li><code>--target-version py36</code>, including when options precede the filename</li>
-<li>Repeated target versions such as <code>--target-version py35 --target-version py36</code></li>
+<li><code>--target-version py36</code>, including when the options precede the filename</li>
+<li>Target versions given repeatedly, such as <code>--target-version py35 --target-version py36</code></li>
 <li><code>--skip-string-normalization</code></li>
 </ul>
-<p>If these options result in no rewrite, return <code>0</code>; if they result in a rewrite, return <code>1</code>.</p>
-<h4>Parse-error behavior</h4>
-<p>For a file containing:</p>
+<p>If no rewrite results from these options, return <code>0</code>; if a rewrite results from them, return <code>1</code>.</p>
+<h4>Behavior on parse errors</h4>
+<p>Given a file that contains:</p>
 <pre><code class="language-markdown">```python
 f(
 </code></pre>
@@ -1090,134 +1095,135 @@ calling `main((path,))` must:
 ```text
 &lt;path&gt;:1: code block parse error
 </code></pre>
-<p>When <code>--skip-errors</code> is supplied, malformed blocks must remain unchanged without producing status <code>2</code>. If another valid block in the same document is rewritten, return <code>1</code>. For example, a valid block containing <code>f( )</code> must become <code>f()</code>, while a later malformed <code>f(</code> block remains unchanged.</p>
-<h4>Existing output behavior</h4>
-<p>When a file is rewritten, standard output must contain:</p>
+<p>When <code>--skip-errors</code> is provided, malformed blocks must remain unchanged, without status <code>2</code> being produced. Return <code>1</code> if another valid block in the same document is rewritten. As an example, a valid block that contains <code>f( )</code> must become <code>f()</code>, while a malformed <code>f(</code> block that appears later remains unchanged.</p>
+<h4>Output behavior that already exists</h4>
+<p>Whenever a file is rewritten, standard output must contain:</p>
 <pre><code class="language-text">&lt;path&gt;: Rewriting...
 </code></pre>
-<p>followed by a newline.</p>
-<p>For an already formatted file processed successfully, standard error must remain empty.</p>
+<p>with a newline following it.</p>
+<p>If an already formatted file is processed successfully, standard error must remain empty.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Update the public blacken_docs module.</span>
-        <span class="spec-meta muted">179 words · source specification
+        <span class="spec-title">Apply updates to the public blacken_docs module.</span>
+        <span class="spec-meta muted">205 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Update the public <code>blacken_docs</code> module.</p>
-<h4>Public API</h4>
-<p>Provide:</p>
+      <div class="spec-body"><h3>Specification of the task</h3>
+<p>Apply updates to the public <code>blacken_docs</code> module.</p>
+<h4>Public interface</h4>
+<p>Supply:</p>
 <pre><code class="language-python">blacken_docs.main(argv: Sequence[str]) -&gt; int
 </code></pre>
-<p><code>argv</code> must accept a tuple of command-line argument strings. A Markdown file path may appear before the options.</p>
-<h4>Required behavior</h4>
-<h5>Exit status for line-length formatting</h5>
-<p>For a single Markdown file containing a fenced Python block:</p>
+<p>What <code>argv</code> must accept is a tuple of command-line argument strings. A path to a Markdown file may appear before the options.</p>
+<h4>Behavior that is required</h4>
+<h5>Exit status of line-length formatting</h5>
+<p>Consider a single Markdown file that contains a fenced Python block:</p>
 <ul>
-<li>Calling <code>main((path, &quot;--line-length=80&quot;))</code> when the embedded code already satisfies that line length must return <code>0</code>.</li>
-<li>Calling <code>main((path, &quot;--line-length=50&quot;))</code> when the embedded code must be reformatted at that width must:
+<li>If the embedded code already satisfies that line length, calling <code>main((path, &quot;--line-length=80&quot;))</code> must return <code>0</code>.</li>
+<li>If the embedded code must be reformatted at that width, calling <code>main((path, &quot;--line-length=50&quot;))</code> must:
 <ul>
-<li>rewrite the file with the Python call wrapped over multiple lines,</li>
-<li>preserve the Markdown Python fence, and</li>
+<li>rewrite the file so that the Python call is wrapped over multiple lines,</li>
+<li>keep the Markdown Python fence intact, and</li>
 <li>return <code>1</code>.</li>
 </ul>
 </li>
 </ul>
-<p>The changed-file result must be exactly <code>1</code>, not merely another truthy status.</p>
-<h5><code>--preview</code> option</h5>
-<p><code>main</code> must accept <code>--preview</code> and format fenced Python code accordingly.</p>
-<p>Given a Markdown file containing exactly:</p>
+<p>When a file is changed, the result must be exactly <code>1</code>, not merely another truthy status.</p>
+<h5>The <code>--preview</code> option</h5>
+<p><code>main</code> must accept <code>--preview</code>, and fenced Python code must be formatted accordingly.</p>
+<p>Suppose a Markdown file contains exactly:</p>
 <pre><code class="language-markdown">```python
 x = 'a' 'b'
 ```
 </code></pre>
-<p>with a trailing newline, this call:</p>
+<p>plus a trailing newline. The following call:</p>
 <pre><code class="language-python">blacken_docs.main((path, &quot;--preview&quot;))
 </code></pre>
-<p>must return <code>1</code> and rewrite the file to exactly:</p>
+<p>must return <code>1</code> and rewrite the file so that its content is exactly:</p>
 <pre><code class="language-markdown">```python
 x = &quot;a&quot; &quot;b&quot;
 ```
 </code></pre>
-<p>also with a trailing newline.</p>
+<p>again with a trailing newline.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add check-only support to the blacken_docs command interface.</span>
-        <span class="spec-meta muted">95 words · source specification
+        <span class="spec-title">Extend the blacken_docs command interface with check-only support.</span>
+        <span class="spec-meta muted">108 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add check-only support to the <code>blacken_docs</code> command interface.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Change required</h4>
+<p>Extend the <code>blacken_docs</code> command interface with check-only support.</p>
+<h5>Public interface</h5>
 <ul>
-<li>Module: <code>blacken_docs</code></li>
-<li>Function: <code>main(argv: Sequence[str]) -&gt; int</code></li>
+<li>The module is <code>blacken_docs</code>.</li>
+<li>The function is <code>main(argv: Sequence[str]) -&gt; int</code>.</li>
 </ul>
-<h5>Required behavior</h5>
-<p>When <code>main</code> is called with a Markdown file path and the <code>--check</code> option, for example:</p>
+<h5>Behavior requirements</h5>
+<p>When a call to <code>main</code> passes a Markdown file path and the <code>--check</code> option, as in this example:</p>
 <pre><code class="language-python">blacken_docs.main((str(path), &quot;--check&quot;))
 </code></pre>
-<p>and the file contains Python code that would be reformatted:</p>
+<p>and that file contains Python code that would be reformatted:</p>
 <pre><code class="language-markdown">```python
 x = 'a' 'b'
 ```
 </code></pre>
-<p>then:</p>
+<p>In that case:</p>
 <ul>
-<li>Return integer status code <code>1</code>.</li>
-<li>Do not modify the file; its contents must remain exactly unchanged.</li>
-<li>The <code>--check</code> option must be accepted when placed after the file path.</li>
+<li>Return the integer status code <code>1</code>.</li>
+<li>The file must not be modified; its contents must remain exactly unchanged.</li>
+<li>When the <code>--check</code> option is placed after the file path, it must be accepted.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Modify the blacken_docs module to correctly recognize and format Python code contained in LaTeX minted environments that include optional arguments.</span>
-        <span class="spec-meta muted">379 words · source specification
+        <span class="spec-title">Update the blacken_docs module so that it properly detects and formats Python code found inside LaTeX minted environments when those environments carry…</span>
+        <span class="spec-meta muted">419 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Modify the <code>blacken_docs</code> module to correctly recognize and format Python code contained in LaTeX <code>minted</code> environments that include optional arguments.</p>
+<p>Update the <code>blacken_docs</code> module so that it properly detects and formats Python code found inside LaTeX <code>minted</code> environments when those environments carry optional arguments.</p>
 <h4>Public API</h4>
-<p>The module <code>blacken_docs</code> must expose a function:</p>
+<p>The <code>blacken_docs</code> module is required to expose this function:</p>
 <pre><code class="language-python">format_str(src: str, mode) -&gt; tuple[str, ...]
 </code></pre>
 <ul>
-<li><code>src</code>: the source text to process.</li>
-<li><code>mode</code>: a Black mode configuration object controlling formatting.</li>
-<li>Returns a tuple whose first element is the reformatted source text.</li>
+<li><code>src</code>: the source text that is to be processed.</li>
+<li><code>mode</code>: a Black mode configuration object that governs formatting.</li>
+<li>The function must return a tuple, and the first element of that tuple is the reformatted source text.</li>
 </ul>
 <h4>Required Behavior</h4>
-<p><code>format_str</code> already detects and reformats Python code blocks embedded in LaTeX <code>minted</code> environments of the form:</p>
+<p>The existing implementation of <code>format_str</code> already detects and reformats Python code blocks embedded within LaTeX <code>minted</code> environments having this form:</p>
 <pre><code>\begin{minted}{python}
 &lt;python code&gt;
 \end{minted}
 </code></pre>
-<p>You must extend detection so that a <code>minted</code> environment may include an <strong>optional bracketed argument</strong> immediately after <code>\begin{minted}</code> and before the language specifier in braces. That is, the opening line may take the form:</p>
+<p>You must extend the detection logic so that a <code>minted</code> environment is also recognized when it includes an <strong>optional bracketed argument</strong> placed immediately after <code>\begin{minted}</code> and preceding the language specifier in braces. In other words, the opening line may take this form:</p>
 <pre><code>\begin{minted}[&lt;options&gt;]{&lt;language&gt;}
 </code></pre>
-<p>where <code>&lt;options&gt;</code> is arbitrary text appearing inside square brackets (for example <code>mathescape</code>, or <code>gobble=2,showspaces</code>). The optional bracketed argument may be present or absent; both forms must be recognized.</p>
-<p>When such a block is recognized:</p>
+<p>Here, <code>&lt;options&gt;</code> stands for arbitrary text appearing inside square brackets (for instance <code>mathescape</code>, or <code>gobble=2,showspaces</code>). The optional bracketed argument can be either present or absent; both forms have to be recognized.</p>
+<p>Once such a block is recognized:</p>
 <ul>
-<li>The Python code between the <code>\begin{minted}...</code> line and the corresponding <code>\end{minted}</code> line must be reformatted using Black according to the supplied <code>mode</code>.</li>
-<li>The <code>\begin{minted}...</code> line (including its optional bracketed argument exactly as written) and the <code>\end{minted}</code> line must be preserved unchanged in the output.</li>
-<li>Blocks whose language specifier is <code>pycon</code> must be treated as interactive Python console sessions and reformatted accordingly (reformatting the code following the <code>&gt;&gt;&gt; </code> prompts), whether or not an optional bracketed argument is present.</li>
+<li>The Python code located between the <code>\begin{minted}...</code> line and the matching <code>\end{minted}</code> line has to be reformatted with Black according to the given <code>mode</code>.</li>
+<li>The <code>\begin{minted}...</code> line (with its optional bracketed argument kept exactly as written) as well as the <code>\end{minted}</code> line must appear unchanged in the output.</li>
+<li>Blocks whose language specifier is <code>pycon</code> must be handled as interactive Python console sessions and reformatted accordingly (reformatting the code that follows the <code>&gt;&gt;&gt; </code> prompts), regardless of whether an optional bracketed argument is present.</li>
 </ul>
 <h5>Formatting details (as applied by Black)</h5>
 <ul>
 <li>Statements are re-indented to Black's standard four-space indentation.</li>
-<li>Binary operators receive surrounding spaces (e.g. <code>n+1</code> becomes <code>n + 1</code>).</li>
+<li>Binary operators get spaces around them (e.g. <code>n+1</code> becomes <code>n + 1</code>).</li>
 <li>String quoting is normalized to double quotes (e.g. <code>'Hello World'</code> becomes <code>&quot;Hello World&quot;</code>).</li>
-<li>For <code>pycon</code> blocks, the code following each <code>&gt;&gt;&gt; </code> prompt is reformatted (e.g. <code>print( 'Hello World' )</code> becomes <code>print(&quot;Hello World&quot;)</code>), while non-prompt output lines are left unchanged.</li>
+<li>For <code>pycon</code> blocks, the code after each <code>&gt;&gt;&gt; </code> prompt is reformatted (e.g. <code>print( 'Hello World' )</code> becomes <code>print(&quot;Hello World&quot;)</code>), whereas non-prompt output lines are left unchanged.</li>
 </ul>
 <h5>Surrounding content</h5>
-<p>Text before and after the <code>minted</code> environment must be left untouched, and the environment delimiters must remain intact.</p>
+<p>Any text preceding or following the <code>minted</code> environment must be left untouched, and the environment delimiters have to stay intact.</p>
 <h4>Example</h4>
 <p>Input:</p>
 <pre><code>maths!
@@ -1244,49 +1250,49 @@ done
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on a tool that reformats Python code blocks embedded within Markdown documents.</span>
-        <span class="spec-meta muted">398 words · source specification
+        <span class="spec-title">The subject here is a tool that reformats Python code blocks embedded inside Markdown documents.</span>
+        <span class="spec-meta muted">424 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>You are working on a tool that reformats Python code blocks embedded within Markdown documents. The tool identifies fenced code blocks and applies formatting to their contents. This task addresses how language specifiers on code fences are recognized.</p>
+      <div class="spec-body"><h5>Summary</h5>
+<p>The subject here is a tool that reformats Python code blocks embedded inside Markdown documents. The tool detects fenced code blocks and applies formatting to what those blocks contain. What this task addresses is how language specifiers on code fences are recognized.</p>
 <h5>Public API</h5>
-<p>The module <code>blacken_docs</code> must expose a function with the following signature:</p>
+<p>The module <code>blacken_docs</code> must expose a function that has the following signature:</p>
 <pre><code class="language-python">def format_str(src: str, black_mode) -&gt; tuple[str, list]:
 </code></pre>
 <ul>
-<li><code>src</code>: a string containing the full Markdown source text.</li>
-<li><code>black_mode</code>: a Black formatting mode configuration object (passed through to the underlying formatter).</li>
-<li>Returns a 2-tuple <code>(new_src, errors)</code> where:
+<li><code>src</code>: a string holding the full Markdown source text.</li>
+<li><code>black_mode</code>: a configuration object for the Black formatting mode (it is passed through to the underlying formatter).</li>
+<li>The function returns a 2-tuple <code>(new_src, errors)</code> where:
 <ul>
-<li><code>new_src</code> is the (possibly reformatted) Markdown source string.</li>
-<li><code>errors</code> is a list of encountered errors (empty when no errors occur).</li>
+<li><code>new_src</code> is the Markdown source string, possibly reformatted.</li>
+<li><code>errors</code> is a list of the errors encountered (empty when no errors occur).</li>
 </ul>
 </li>
 </ul>
-<h5>Behavior to Implement</h5>
-<p>A Markdown fenced code block opens with a line beginning with <code>```</code> (three backticks), optionally followed on that same line by a language specifier (e.g., <code>```python</code> or <code>```pycon</code>), and closes with a line consisting of <code>```</code>.</p>
-<p>The language specifier — which determines whether a block is treated as Python source (<code>python</code>) or an interactive Python console session (<code>pycon</code>) — must be recognized <strong>only</strong> when it appears on the same line as the opening backticks. Text that appears on subsequent lines within the block body must <strong>not</strong> be interpreted as a language specifier, even if that text contains or begins with a word like <code>python</code>, or contains interactive console prompt markers such as <code>&gt;&gt;&gt;</code>.</p>
-<p>In other words, a code block that opens with a bare <code>```</code> fence (no language specifier on the fence line) must be left completely unchanged by <code>format_str</code>, regardless of its contents. Specifically:</p>
+<h5>Behavior to Be Implemented</h5>
+<p>A Markdown fenced code block opens with a line beginning with <code>```</code> (three backticks), optionally carries a language specifier on that same line (e.g., <code>```python</code> or <code>```pycon</code>), and closes with a line consisting of <code>```</code>.</p>
+<p>A language specifier determines whether a block is treated as Python source (<code>python</code>) or as an interactive Python console session (<code>pycon</code>). It must be recognized <strong>only</strong> when it is present on the same line as the opening backticks. Text appearing on subsequent lines inside the block body must <strong>not</strong> be interpreted as a language specifier, even if that text contains or begins with a word like <code>python</code>, or contains interactive console prompt markers such as <code>&gt;&gt;&gt;</code>.</p>
+<p>Put differently, when a code block opens with a bare <code>```</code> fence (no language specifier on the fence line), <code>format_str</code> must leave it completely unchanged, no matter what its contents are. In particular:</p>
 <ul>
-<li>A block opened with a bare <code>```</code> whose body contains lines such as <code>python --version</code> or <code>echo &quot;python&quot;</code> must be returned unchanged, with an empty error list.</li>
-<li>A block opened with a bare <code>```</code> whose body contains lines such as <code>pycon is great</code> or <code>&gt;&gt;&gt; yes it is</code> must be returned unchanged, with an empty error list.</li>
+<li>A block that is opened with a bare <code>```</code> and whose body contains lines such as <code>python --version</code> or <code>echo &quot;python&quot;</code> must be returned unchanged, together with an empty error list.</li>
+<li>A block that is opened with a bare <code>```</code> and whose body contains lines such as <code>pycon is great</code> or <code>&gt;&gt;&gt; yes it is</code> must be returned unchanged, together with an empty error list.</li>
 </ul>
-<p>In both cases the returned source string must be byte-for-byte identical to the input, and the returned error list must be empty.</p>
-<h5>Notes</h5>
-<p>The block content in these scenarios is not Python code and not an interactive session; because the fence line carried no language specifier, no formatting is attempted and the input passes through verbatim.</p>
+<p>In both cases the source string that is returned must be byte-for-byte identical to the input, and the error list that is returned must be empty.</p>
+<h5>Remarks</h5>
+<p>In these scenarios the block content is not Python code and not an interactive session; since the fence line carried no language specifier, there is no attempt at formatting and the input passes through verbatim.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Update blacken_docs.format_str(source</span>
-        <span class="spec-meta muted">129 words · source specification
+        <span class="spec-title">Modify blacken_docs.format_str(source</span>
+        <span class="spec-meta muted">148 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update <code>blacken_docs.format_str(source: str, mode: black.FileMode)</code> so that it formats <strong>every</strong> Markdown fenced <code>pycon</code> block in a document, including multiple separate blocks.</p>
-<p>For example, given:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify <code>blacken_docs.format_str(source: str, mode: black.FileMode)</code> so that it formats <strong>every</strong> Markdown fenced <code>pycon</code> block in a document, including when the document contains multiple separate blocks.</p>
+<p>As an example, given:</p>
 <pre><code class="language-text">```pycon
 &gt;&gt;&gt; f(1,2,3)
 output
@@ -1308,69 +1314,69 @@ output
 output
 </code></pre>
 <pre><code>
-Both Python prompt lines must be Black-formatted. The `&gt;&gt;&gt; ` prompts, transcript output, fence markers, intervening prose, and line breaks must remain unchanged.
+Both Python prompt lines must be formatted with Black. The `&gt;&gt;&gt; ` prompts, transcript output, fence markers, intervening prose, and line breaks must be left unchanged.
 
 ## Public API
 
-- Package: `blacken_docs`
-- Function: `blacken_docs.format_str(source, mode)`
-  - Accepts the document string and a `black.FileMode`.
-  - Returns a tuple whose first item is the formatted document string.
-- Module `blacken_docs.__main__` must remain importable.</code></pre>
+- The package is `blacken_docs`.
+- The function `blacken_docs.format_str(source, mode)`:
+  - Accepts the document string together with a `black.FileMode`.
+  - Returns a tuple, with the formatted document string as its first item.
+- It must remain possible to import the module `blacken_docs.__main__`.</code></pre>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">blacken_docs is a module that reformats Python code embedded in documentation files (Markdown, LaTeX, reStructuredText) by running Black over the embedded…</span>
-        <span class="spec-meta muted">674 words · source specification
+        <span class="spec-title">blacken_docs is a module that reformats Python code embedded in documentation files (Markdown, LaTeX, reStructuredText) by running Black on the code blocks…</span>
+        <span class="spec-meta muted">723 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add &quot;on/off&quot; comment support to skip formatting in blacken-docs</h3>
+      <div class="spec-body"><h3>Task: Add &quot;on/off&quot; comment support for skipping formatting in blacken-docs</h3>
 <h4>Background</h4>
-<p><code>blacken_docs</code> is a module that reformats Python code embedded in documentation files (Markdown, LaTeX, reStructuredText) by running Black over the embedded code blocks. The public entry point exercised here is:</p>
+<p><code>blacken_docs</code> is a module that reformats Python code embedded in documentation files (Markdown, LaTeX, reStructuredText) by running Black on the code blocks embedded in them. The public entry point exercised in this task is:</p>
 <pre><code class="language-python">blacken_docs.format_str(src: str, black_mode, *, rst_literal_blocks: bool = False) -&gt; tuple[str, list]
 </code></pre>
-<p>It takes the full document source string and returns a 2-tuple of <code>(formatted_source, errors)</code>.</p>
-<p>You must add the ability to disable and re-enable formatting for regions of a document via special marker comments written in the host markup language's comment syntax.</p>
-<h4>Required behavior</h4>
-<p>Introduce recognized marker comments that toggle formatting on and off. Any code block whose opening delimiter falls within a &quot;disabled&quot; region must be left <strong>completely unchanged</strong> (byte-for-byte identical in the output). Code blocks outside disabled regions must continue to be formatted by Black exactly as before.</p>
-<h5>Marker syntax per markup language</h5>
-<p>The markers use the text <code>blacken-docs:off</code> (to disable formatting) and <code>blacken-docs:on</code> (to re-enable it), embedded in a comment appropriate to the surrounding markup:</p>
+<p>It is given the full document source string and returns a 2-tuple of <code>(formatted_source, errors)</code>.</p>
+<p>You must add the ability to disable and re-enable formatting for regions of a document by means of special marker comments written in the host markup language's comment syntax.</p>
+<h4>Behavior that is required</h4>
+<p>Recognized marker comments that toggle formatting on and off must be introduced. Any code block whose opening delimiter lies inside a &quot;disabled&quot; region must be left <strong>completely unchanged</strong> (byte-for-byte identical in the output). Code blocks that sit outside disabled regions must continue to be formatted by Black exactly as before.</p>
+<h5>Marker syntax for each markup language</h5>
+<p>The markers consist of the text <code>blacken-docs:off</code> (which disables formatting) and <code>blacken-docs:on</code> (which re-enables it), embedded in a comment suited to the surrounding markup:</p>
 <ul>
-<li><strong>Markdown</strong>: HTML comments, i.e. <code>&lt;!-- blacken-docs:off --&gt;</code> and <code>&lt;!-- blacken-docs:on --&gt;</code>, each on its own line.</li>
-<li><strong>LaTeX</strong> (both <code>minted</code> and <code>pythontex</code>/<code>pyblock</code> blocks): line comments, i.e. <code>% blacken-docs:off</code> and <code>% blacken-docs:on</code>, each on its own line.</li>
-<li><strong>reStructuredText</strong>: comment directives, i.e. <code>.. blacken-docs:off</code> and <code>.. blacken-docs:on</code>, each on its own line.</li>
+<li><strong>Markdown</strong>: HTML comments, i.e. <code>&lt;!-- blacken-docs:off --&gt;</code> and <code>&lt;!-- blacken-docs:on --&gt;</code>, each on a line of its own.</li>
+<li><strong>LaTeX</strong> (both <code>minted</code> and <code>pythontex</code>/<code>pyblock</code> blocks): line comments, i.e. <code>% blacken-docs:off</code> and <code>% blacken-docs:on</code>, each on a line of its own.</li>
+<li><strong>reStructuredText</strong>: comment directives, i.e. <code>.. blacken-docs:off</code> and <code>.. blacken-docs:on</code>, each on a line of its own.</li>
 </ul>
-<h5>Toggling semantics</h5>
+<h5>Semantics of toggling</h5>
 <ul>
-<li>Encountering an &quot;off&quot; marker disables formatting from that point forward.</li>
-<li>Encountering an &quot;on&quot; marker re-enables formatting from that point forward.</li>
-<li>The state is toggled purely by these markers as they are encountered in document order:
+<li>When an &quot;off&quot; marker is encountered, formatting is disabled from that point onward.</li>
+<li>When an &quot;on&quot; marker is encountered, formatting is re-enabled from that point onward.</li>
+<li>The state is toggled solely by these markers as they occur in document order:
 <ul>
-<li>An &quot;on&quot; marker while formatting is already enabled has no effect (it is effectively ignored).</li>
-<li>An &quot;off&quot; marker while formatting is already disabled has no effect.</li>
-<li>An &quot;on&quot; marker appearing before any &quot;off&quot; marker has no effect (formatting starts enabled).</li>
-<li>If an &quot;off&quot; marker is never followed by an &quot;on&quot; marker, formatting stays disabled until the end of the document.</li>
+<li>An &quot;on&quot; marker encountered while formatting is already enabled has no effect (it is effectively ignored).</li>
+<li>An &quot;off&quot; marker encountered while formatting is already disabled has no effect.</li>
+<li>An &quot;on&quot; marker that appears before any &quot;off&quot; marker has no effect (formatting starts enabled).</li>
+<li>If an &quot;on&quot; marker never follows an &quot;off&quot; marker, formatting remains disabled until the end of the document.</li>
 </ul>
 </li>
-<li>The default state at the start of a document is &quot;enabled&quot; (formatting active).</li>
+<li>At the start of a document the default state is &quot;enabled&quot; (formatting active).</li>
 </ul>
-<p>A code block is formatted only if formatting is enabled at the point where that block begins. When disabled, the block's contents are emitted verbatim.</p>
-<p>The marker comment lines themselves are always preserved verbatim in the output, whether or not they had any effect.</p>
-<h5>Applicability across block types</h5>
-<p>The on/off behavior must apply to all code-block kinds currently handled, including:</p>
+<p>A code block is formatted only when formatting is enabled at the point where that block begins. When formatting is disabled, the block's contents are emitted verbatim.</p>
+<p>The marker comment lines themselves are always preserved verbatim in the output, regardless of whether they had any effect.</p>
+<h5>Applicability to block types</h5>
+<p>The on/off behavior must apply to all code-block kinds that are currently handled, including:</p>
 <ul>
 <li>Markdown Python code fences (<code>```python</code>) and Markdown pycon fences (<code>```pycon</code>).</li>
-<li>LaTeX <code>minted</code> environments for <code>python</code> and for <code>pycon</code>.</li>
-<li>LaTeX <code>pythontex</code> <code>pyblock</code> environments.</li>
-<li>reStructuredText <code>code-block:: python</code> and <code>code-block:: pycon</code> directives.</li>
-<li>reStructuredText literal blocks (relevant when <code>format_str</code> is called with <code>rst_literal_blocks=True</code>).</li>
+<li><code>minted</code> environments in LaTeX, for <code>python</code> and for <code>pycon</code>.</li>
+<li><code>pyblock</code> environments from LaTeX <code>pythontex</code>.</li>
+<li>reStructuredText directives <code>code-block:: python</code> and <code>code-block:: pycon</code>.</li>
+<li>reStructuredText literal blocks (relevant for calls to <code>format_str</code> with <code>rst_literal_blocks=True</code>).</li>
 </ul>
-<h5>Nested / embedded fences</h5>
-<p>Marker comments and code fences that appear <em>inside</em> an outer, non-Python code fence (for example, a Python fence written inside an outer <code> </code>md ```` fenced block used to show Markdown source) must not trigger formatting of the inner content. Such nested content is already treated as inert; the presence of on/off markers inside it must not change that — the whole outer block is left unchanged.</p>
+<h5>Nested or embedded fences</h5>
+<p>Marker comments and code fences appearing <em>inside</em> an outer, non-Python code fence (for example, a Python fence written inside an outer <code> </code>md ```` fenced block used for showing Markdown source) must not trigger formatting of the inner content. Nested content of this kind is already treated as inert; the presence of on/off markers inside it must not change that — the outer block as a whole is left unchanged.</p>
 <h4>Examples</h4>
-<p>Disabled region leaves the block untouched (Markdown):</p>
+<p>A disabled region leaves the block untouched (Markdown):</p>
 <pre><code>&lt;!-- blacken-docs:off --&gt;
 ```python
 'single quotes rock'
@@ -1388,18 +1394,18 @@ Input:
 <p>&lt;!-- blacken-docs:on --&gt;</p>
 <pre><code class="language-python">'double quotes rock'
 </code></pre>
-<pre><code>Output: the first block's `'single quotes rock'` is unchanged; the second block's `'double quotes rock'` becomes `&quot;double quotes rock&quot;`.
+<pre><code>Output: the first block's `'single quotes rock'` stays unchanged; the second block's `'double quotes rock'` comes out as `&quot;double quotes rock&quot;`.
 
-Off marker with no matching on marker keeps everything after it unformatted through end of document.
+An off marker with no matching on marker leaves everything after it unformatted through the end of the document.
 
-Redundant/duplicate markers are ignored per the toggling semantics above (e.g. a leading `on` before any `off` does nothing; a second consecutive `off` does nothing).
+Redundant/duplicate markers are ignored, as described in the toggling semantics above (e.g. a leading `on` before any `off` does nothing; a second consecutive `off` does nothing).
 
-LaTeX and reStructuredText behave analogously with their respective comment syntaxes.
+LaTeX and reStructuredText behave in an analogous way with their respective comment syntaxes.
 
 ## Constraints
 
-- The public API signature of `blacken_docs.format_str` is unchanged.
-- Documents with no marker comments must behave exactly as before.</code></pre>
+- The public API signature of `blacken_docs.format_str` stays unchanged.
+- Documents that contain no marker comments must behave exactly as before.</code></pre>
 </div>
     </details>
   </div>

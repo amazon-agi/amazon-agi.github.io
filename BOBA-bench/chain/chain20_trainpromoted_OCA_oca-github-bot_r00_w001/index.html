@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/OCA/oca-github-bot/compare/e0a0a9e574d6b94311ca3766978f521b2fec1155...6cade66b05f793b192824c0607762250a2606b8a" target="_blank" rel="noopener" class="mono">e0a0a9e574 … 6cade66b05</a> · 108 commits by 9 authors over 4 mo (2019-05-29 to 2019-10-10)</dd></div>
       <div><dt>Window:</dt><dd>requests 9–28 of a run of 28 test-bearing changes (overlaps the previous window by 12) · training split</dd></div>
       <div><dt>Size:</dt><dd>1,201 lines of code in 54 files when the chain starts · over the 20 requests the developers added 1,402 and removed 579 lines of code, plus 6,395 lines of tests (71 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.2k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 5</dd></div>
+      <div><dt>Specifications:</dt><dd>10.3k words · 6 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 5</dd></div>
     </dl>
   </header>
 </section>
@@ -144,128 +144,129 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Correct Detection of Changed Odoo Addons in a Git Diff</span>
-        <span class="spec-meta muted">808 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Detecting Odoo Addons Changed by a Git Diff</span>
+        <span class="spec-meta muted">966 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Correct Detection of Changed Odoo Addons in a Git Diff</h3>
-<h4>Objective</h4>
-<p>Implement or adjust addon-change detection so that the bot reports the Odoo addons affected by the Git difference between a supplied reference and the repository's current Git-visible state. The detection must distinguish real addons at the repository root from ordinary Python packaging content under <code>setup/</code>, while recognizing the canonical addon symlink used by Odoo packaging layouts.</p>
-<h4>Public API</h4>
-<p>The existing symbol must remain importable from the manifest helper module:</p>
+      <div class="spec-body"><h3>Task Specification: Detecting Odoo Addons Changed by a Git Diff</h3>
+<h4>Goal</h4>
+<p>Addon-change detection is to be implemented or adjusted so that the bot reports which Odoo addons are affected by the Git difference between a reference supplied to it and the repository's current state as visible to Git. The detection must tell real addons at the repository root apart from ordinary Python packaging content under <code>setup/</code>, and the canonical addon symlink used by Odoo packaging layouts must be recognized as well.</p>
+<h4>Public Interface</h4>
+<p>It must remain possible to import the existing symbol from the manifest helper module:</p>
 <pre><code class="language-python">from oca_github_bot.manifest import git_modified_addons
 
 def git_modified_addons(addons_dir, ref):
     ...
 </code></pre>
 <ul>
-<li><code>addons_dir</code> is a string or path-like value identifying the root of a Git repository or working tree.</li>
-<li><code>ref</code> is the Git reference against which the current state is compared, such as <code>&quot;origin/master&quot;</code>.</li>
-<li>The return value is a <code>set</code> of addon directory names as strings. Names must be unique.</li>
-<li>If no qualifying addon is affected, return an empty set.</li>
+<li><code>addons_dir</code> — a string or a path-like value — identifies the root of a Git repository or working tree.</li>
+<li><code>ref</code> is the Git reference the current state gets compared against; <code>&quot;origin/master&quot;</code> serves as one example.</li>
+<li>What the function returns is a <code>set</code> holding addon directory names as strings. The names must be unique.</li>
+<li>An empty set must be returned if no qualifying addon is affected.</li>
 </ul>
-<h4>Addon and Change Definitions</h4>
-<p>A real addon is a directory located directly below <code>addons_dir</code> and containing an Odoo manifest. Supported manifest conventions remain <code>__manifest__.py</code>, <code>__openerp__.py</code>, and <code>__terp__.py</code>.</p>
-<p>The relevant changes are those visible in the Git comparison from <code>ref</code> to the current state. This includes revisions recorded after <code>ref</code> and tracked index or working-tree differences represented by that comparison.</p>
-<h4>Required Detection Behavior</h4>
-<h5>Changes in real root-level addons</h5>
-<p>For each changed file or entry below a real addon directory at the repository root, include that directory's name in the result. This applies at any depth within the addon and includes newly added root-level addons once they contain a recognized manifest.</p>
-<p>Multiple changed entries for one addon must still produce only one set member. Changes in several addons must produce the union of their names.</p>
-<p>Once <code>ref</code> represents the same state as the current tree, those previously observed changes must no longer produce a result.</p>
-<h5>Ordinary <code>setup/</code> content is excluded</h5>
-<p>The repository-root <code>setup/</code> directory is a Python packaging area, not an addon named <code>setup</code>. Its ordinary files and directories must not be interpreted as addon changes merely because their paths contain an addon-like package name.</p>
-<p>In particular, a difference confined to a path such as:</p>
+<h4>What Counts as an Addon and as a Change</h4>
+<p>A directory counts as a real addon when it sits directly below <code>addons_dir</code> and contains an Odoo manifest. The manifest conventions that are supported stay <code>__manifest__.py</code>, <code>__openerp__.py</code>, and <code>__terp__.py</code>.</p>
+<p>A change is relevant when it is visible in the Git comparison from <code>ref</code> to the current state. Revisions recorded after <code>ref</code> fall under this, as do tracked index or working-tree differences that the comparison represents.</p>
+<h4>What the Detection Is Required to Do</h4>
+<h5>Changes inside real root-level addons</h5>
+<p>Each changed file or entry that is located below a real addon directory at the repository root must contribute that directory's name to the result. This holds at any depth inside the addon, and newly added root-level addons are covered too, as soon as a recognized manifest is present in them.</p>
+<p>If one and the same addon has multiple changed entries, the result must still end up containing only one member for it. When several addons see changes, the result must be the union of those names.</p>
+<p>As soon as <code>ref</code> and the current tree represent the same state, the changes observed earlier must no longer produce a result.</p>
+<h5>Ordinary content under <code>setup/</code> does not count</h5>
+<p>At the repository root sits a <code>setup/</code> directory; it is a Python packaging area, not an addon that is named <code>setup</code>. Its ordinary files and directories must not be interpreted as addon changes merely because an addon-like package name appears somewhere in their paths.</p>
+<p>To be concrete: when a difference covers nothing except a path of this form:</p>
 <pre><code class="language-text">setup/&lt;packaging-name&gt;/setup.py
 </code></pre>
-<p>must return an empty set, including when <code>&lt;packaging-name&gt;</code> is also the name of a real root-level addon. Other ordinary packaging files or non-addon subdirectories under <code>setup/</code> are excluded in the same way.</p>
-<h5>Canonical packaging symlink exception</h5>
-<p>There is one explicit exception to the ordinary <code>setup/</code> exclusion. A changed symlink in this canonical layout:</p>
+<p>the function must return an empty set, and this holds even when <code>&lt;packaging-name&gt;</code> is also the name of a real root-level addon. The same kind of exclusion covers other ordinary packaging files as well as subdirectories under <code>setup/</code> that are not addons.</p>
+<h5>Exception for the canonical packaging symlink</h5>
+<p>The exclusion of ordinary <code>setup/</code> content has one explicit exception. When a symlink has changed and sits in this canonical layout:</p>
 <pre><code class="language-text">setup/&lt;packaging-name&gt;/odoo/addons/&lt;addon&gt;
 </code></pre>
-<p>must add <code>&lt;addon&gt;</code> to the result when the symlink points to the real addon directory at <code>&lt;addons_dir&gt;/&lt;addon&gt;</code>. This is an addon-bearing packaging link, and it must be recognized even when no file inside the real root-level addon differs from <code>ref</code>.</p>
-<p>For example, with a real root addon named <code>addon</code>, adding and recording this link:</p>
+<p><code>&lt;addon&gt;</code> must be added to the result if the symlink points to the real addon directory at <code>&lt;addons_dir&gt;/&lt;addon&gt;</code>. Being an addon-bearing packaging link, it must be recognized even when there is no file inside the real root-level addon that differs from <code>ref</code>.</p>
+<p>As an illustration: take a real root addon named <code>addon</code>. Adding this link and recording it:</p>
 <pre><code class="language-text">setup/addon/odoo/addons/addon -&gt; ../../../../addon
 </code></pre>
-<p>must make the function return <code>{&quot;addon&quot;}</code> relative to a reference that does not contain the link.</p>
-<p>This exception is triggered by the changed addon-link entry itself. The mere presence of an unchanged canonical symlink must not cause an ordinary sibling file such as <code>setup.py</code> to count as an addon change. The returned name is the linked root addon name, not <code>setup</code> and not an unrelated packaging-directory name.</p>
-<h5>Unrelated changes</h5>
-<p>Do not report names for repository-root files, directories that are not recognized root-level addons, or ordinary packaging scaffolding. For example, changing only a root <code>README</code> and ordinary <code>setup/</code> files yields an empty set.</p>
-<h4>Expected Outcomes</h4>
+<p>must lead the function to return <code>{&quot;addon&quot;}</code> when measured against a reference that does not contain the link.</p>
+<p>The changed addon-link entry itself is what sets off this exception. An unchanged canonical symlink must not, merely by being present, cause an ordinary sibling file such as <code>setup.py</code> to count as an addon change. The name that gets returned is the linked root addon's name — it is not <code>setup</code>, and it is not the name of an unrelated packaging directory either.</p>
+<h5>Changes that are unrelated</h5>
+<p>Names must not be reported for repository-root files, for directories that do not count as recognized root-level addons, or for ordinary packaging scaffolding. By way of example: if the only changes are a root <code>README</code> and ordinary <code>setup/</code> files, an empty set is the result.</p>
+<h4>Results to Expect</h4>
 <table>
 <thead>
 <tr>
-<th>Difference relative to <code>ref</code></th>
+<th>Difference as measured against <code>ref</code></th>
 <th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>No qualifying difference</td>
+<td>There is no difference that qualifies</td>
 <td><code>set()</code></td>
 </tr>
 <tr>
-<td>A file changes below root addon <code>addon</code></td>
+<td>A file below the root addon <code>addon</code> is changed</td>
 <td><code>{&quot;addon&quot;}</code></td>
 </tr>
 <tr>
-<td>A new root addon <code>addon2</code> with a recognized manifest is added</td>
+<td>A new root addon <code>addon2</code> that has a recognized manifest is added</td>
 <td><code>{&quot;addon2&quot;}</code></td>
 </tr>
 <tr>
-<td>Only <code>setup/addon/setup.py</code> is added</td>
+<td>The only thing added is <code>setup/addon/setup.py</code></td>
 <td><code>set()</code></td>
 </tr>
 <tr>
-<td>The canonical link <code>setup/addon/odoo/addons/addon -&gt; ../../../../addon</code> is added, and it points to the unchanged root addon</td>
+<td>The canonical link <code>setup/addon/odoo/addons/addon -&gt; ../../../../addon</code> is added and points to the root addon, which is unchanged</td>
 <td><code>{&quot;addon&quot;}</code></td>
 </tr>
 <tr>
-<td>Root addons <code>addon</code> and <code>addon2</code> both have qualifying changes, along with unrelated root files</td>
+<td>The root addons <code>addon</code> and <code>addon2</code> both have qualifying changes, along with changes to unrelated root files</td>
 <td><code>{&quot;addon&quot;, &quot;addon2&quot;}</code></td>
 </tr>
 </tbody>
 </table>
-<p>A cumulative packaging sequence follows the same rules: after the root addon and <code>ref</code> are synchronized, recording only <code>setup/addon/setup.py</code> yields <code>set()</code>; subsequently recording the canonical symlink above yields <code>{&quot;addon&quot;}</code> against that same unchanged reference, even though the ordinary <code>setup.py</code> path also remains in the overall difference.</p>
-<h4>Compatibility and Scope</h4>
+<p>The same rules also govern a cumulative packaging sequence: after the root addon and <code>ref</code> have been synchronized, recording only <code>setup/addon/setup.py</code> yields <code>set()</code>; recording the canonical symlink above afterwards yields <code>{&quot;addon&quot;}</code> against that same unchanged reference, even though the ordinary <code>setup.py</code> path likewise remains part of the overall difference.</p>
+<h4>Scope and Compatibility</h4>
 <ul>
-<li>Preserve the function name, import location, parameters, and set return type.</li>
-<li>Preserve existing manifest recognition and manifest/version helper behavior; this change is limited to classifying paths reported by the Git comparison.</li>
-<li>Do not treat every child directory of <code>setup/</code> as an addon. Only the canonical changed symlink described above overrides the packaging-directory exclusion.</li>
-<li>The behavior must not depend on a specific path-handling or Git-invocation implementation, provided all observable requirements above are met.</li>
+<li>The function's name, import location, parameters, and set return type have to be preserved.</li>
+<li>Existing manifest recognition and manifest/version helper behavior are to be preserved; the change is confined to classifying the paths that the Git comparison reports.</li>
+<li>The implementation must not treat every child directory of <code>setup/</code> as an addon. The packaging-directory exclusion is overridden only by the canonical changed symlink described above.</li>
+<li>Provided that all observable requirements above are met, the behavior must not depend on which specific path-handling or Git-invocation implementation is used.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You must implement two webhook handler modules within the oca_github_bot.webhooks package.</span>
-        <span class="spec-meta muted">657 words · source specification
+        <span class="spec-title">Two webhook handler modules must be implemented by you inside the oca_github_bot.webhooks package.</span>
+        <span class="spec-meta muted">760 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement two webhook handler modules within the <code>oca_github_bot.webhooks</code> package. Both handlers are asynchronous functions that process GitHub webhook events and dispatch background tasks under specific conditions. Additionally, a helper function for constructing merge-bot branch names must be available.</p>
-<h4>Test Support Requirement</h4>
-<p>A helper <code>EventMock</code> class must be importable from the test-support module <code>tests/common.py</code> (i.e. <code>from .common import EventMock</code>). An <code>EventMock</code> is constructed from a single dictionary argument, and it must expose that dictionary as an attribute named <code>data</code>. That is, given <code>event = EventMock(some_dict)</code>, then <code>event.data</code> returns <code>some_dict</code>.</p>
-<h4>Required API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Two webhook handler modules must be implemented by you inside the <code>oca_github_bot.webhooks</code> package. Both are asynchronous functions: they take GitHub webhook events as input and, when specific conditions are satisfied, dispatch background tasks. Beyond the two handlers, a helper function for constructing merge-bot branch names must be available.</p>
+<h4>Test-Support Requirement</h4>
+<p>From <code>tests/common.py</code>, the test-support module, a helper class named <code>EventMock</code> must be importable (i.e. <code>from .common import EventMock</code>). Constructing an <code>EventMock</code> takes a single dictionary argument, and the resulting object must expose that dictionary through an attribute named <code>data</code>. Concretely: with <code>event = EventMock(some_dict)</code>, <code>event.data</code> returns <code>some_dict</code>.</p>
+<h4>API Surface Required</h4>
 <h5>1. <code>oca_github_bot.version_branch.make_merge_bot_branch</code></h5>
-<p>A function with the signature:</p>
+<p>The required signature:</p>
 <pre><code class="language-python">make_merge_bot_branch(pr_number, target_branch)
 </code></pre>
-<p>It returns a string branch name derived from a pull request number and a target branch name. The exact format is not directly asserted, but the returned value is used as a check-suite <code>head_branch</code> that must be recognized as a valid merge-bot branch by the check-suite handler (see below). The function must be deterministic for given inputs.</p>
+<p>What the function returns is a string branch name derived from a pull request number and a target branch name. No direct assertion is made about the exact format; however, the returned value serves as a check-suite <code>head_branch</code>, and the check-suite handler (see below) must recognize it as a valid merge-bot branch. For the inputs it receives, the function must be deterministic.</p>
 <h5>2. <code>oca_github_bot.webhooks.on_check_suite</code></h5>
-<p>This module must define:</p>
+<p>The module must contain the following:</p>
 <ul>
-<li>An async function <code>on_check_suite(event, *args)</code> that accepts a webhook event object (whose <code>data</code> attribute holds the payload described below) plus at least one additional positional argument.</li>
-<li>Two importable, module-level task objects named <code>merge_bot_status_success</code> and <code>merge_bot_status_failure</code>, each exposing a <code>.delay(...)</code> callable (Celery-style task interface). These must be referenceable as <code>on_check_suite.merge_bot_status_success</code> and <code>on_check_suite.merge_bot_status_failure</code> and must be patchable at those attribute paths.</li>
+<li>An async function <code>on_check_suite(event, *args)</code>: it accepts a webhook event object — the payload described below sits in its <code>data</code> attribute — together with at least one extra positional argument.</li>
+<li>Two task objects named <code>merge_bot_status_success</code> and <code>merge_bot_status_failure</code>: both live at module level and are importable, and each exposes a <code>.delay(...)</code> callable (Celery-style task interface). Referencing them as <code>on_check_suite.merge_bot_status_success</code> and <code>on_check_suite.merge_bot_status_failure</code> must work, and so must patching them at those attribute paths.</li>
 </ul>
 <h5>3. <code>oca_github_bot.webhooks.on_command</code></h5>
-<p>This module must define:</p>
+<p>This module must provide:</p>
 <ul>
-<li>An async function <code>on_command(event, *args)</code> that accepts a webhook event object (whose <code>data</code> attribute holds the payload described below) plus at least one additional positional argument.</li>
-<li>An importable, module-level callable named <code>parse_commands</code>, referenceable and patchable as <code>on_command.parse_commands</code>.</li>
+<li>An async function <code>on_command(event, *args)</code>: it accepts a webhook event object — the payload described below sits in its <code>data</code> attribute — together with at least one extra positional argument.</li>
+<li>A callable named <code>parse_commands</code>: it lives at module level and is importable, and it can be referenced and patched as <code>on_command.parse_commands</code>.</li>
 </ul>
-<h4>Behavior: <code>on_check_suite</code></h4>
-<p>The event payload (<code>event.data</code>) has this shape:</p>
+<h4><code>on_check_suite</code> Behavior</h4>
+<p>The event payload (<code>event.data</code>) looks as follows:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {&quot;full_name&quot;: &quot;&lt;org&gt;/&lt;repo&gt;&quot;},
     &quot;check_suite&quot;: {
@@ -276,118 +277,119 @@ def git_modified_addons(addons_dir, ref):
     },
 }
 </code></pre>
-<p>Processing rules:</p>
+<p>Rules that govern the processing:</p>
 <ol>
 <li>
-<p><strong>Branch check.</strong> The handler must determine whether <code>head_branch</code> is a merge-bot branch — i.e. a branch name of the same form produced by <code>make_merge_bot_branch</code>. If it is <strong>not</strong> a merge-bot branch, the handler must do nothing: neither <code>merge_bot_status_success.delay</code> nor <code>merge_bot_status_failure.delay</code> may be called. (Example non-merge-bot branch: <code>&quot;changes&quot;</code>.)</p>
+<p><strong>Branch check.</strong> The handler must work out whether <code>head_branch</code> is a merge-bot branch — that is, a branch name with the same shape as what <code>make_merge_bot_branch</code> produces. If the branch turns out <strong>not</strong> to be a merge-bot branch, the handler must do nothing: no call may be made to <code>merge_bot_status_success.delay</code>, and none to <code>merge_bot_status_failure.delay</code>. (One example of a non-merge-bot branch is <code>&quot;changes&quot;</code>.)</p>
 </li>
 <li>
-<p><strong>Status check.</strong> Even for a valid merge-bot branch, if <code>status</code> is not <code>&quot;completed&quot;</code> (for example <code>&quot;in_progress&quot;</code>), the handler must do nothing — neither delay call is made.</p>
+<p><strong>Status check.</strong> Even on a valid merge-bot branch, the handler must do nothing when <code>status</code> is not <code>&quot;completed&quot;</code> (<code>&quot;in_progress&quot;</code> being one example) — neither of the two delay calls is made.</p>
 </li>
 <li>
-<p><strong>Completed on a merge-bot branch.</strong> When the branch is a merge-bot branch <strong>and</strong> <code>status == &quot;completed&quot;</code>, the handler dispatches based on <code>conclusion</code>:</p>
+<p><strong>Completed on a merge-bot branch.</strong> Whenever the branch is a merge-bot branch <strong>and</strong> <code>status == &quot;completed&quot;</code>, the handler dispatches according to the value of <code>conclusion</code>:</p>
 <ul>
-<li>If <code>conclusion == &quot;success&quot;</code>: call <code>merge_bot_status_success.delay(org, repo, branch, sha)</code> exactly once, and do not call <code>merge_bot_status_failure.delay</code>.</li>
-<li>If <code>conclusion == &quot;failure&quot;</code>: call <code>merge_bot_status_failure.delay(org, repo, branch, sha)</code> exactly once, and do not call <code>merge_bot_status_success.delay</code>.</li>
+<li>With <code>conclusion == &quot;success&quot;</code>: <code>merge_bot_status_success.delay(org, repo, branch, sha)</code> must be called exactly once, and <code>merge_bot_status_failure.delay</code> must not be called.</li>
+<li>With <code>conclusion == &quot;failure&quot;</code>: <code>merge_bot_status_failure.delay(org, repo, branch, sha)</code> must be called exactly once, and <code>merge_bot_status_success.delay</code> must not be called.</li>
 </ul>
-<p>Here <code>org</code> and <code>repo</code> come from splitting <code>repository.full_name</code> on <code>/</code> (e.g. <code>&quot;OCA/some-repo&quot;</code> → <code>&quot;OCA&quot;</code>, <code>&quot;some-repo&quot;</code>), <code>branch</code> is <code>head_branch</code>, and <code>sha</code> is <code>head_sha</code>.</p>
+<p>As for the arguments: splitting <code>repository.full_name</code> on <code>/</code> supplies <code>org</code> and <code>repo</code> (e.g. <code>&quot;OCA/some-repo&quot;</code> → <code>&quot;OCA&quot;</code>, <code>&quot;some-repo&quot;</code>); <code>branch</code> is <code>head_branch</code>; <code>sha</code> is <code>head_sha</code>.</p>
 </li>
 </ol>
-<h4>Behavior: <code>on_command</code></h4>
-<p>The event payload (<code>event.data</code>) has this shape:</p>
+<h4><code>on_command</code> Behavior</h4>
+<p>The payload found in <code>event.data</code> takes this shape:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {&quot;full_name&quot;: &quot;&lt;org&gt;/&lt;repo&gt;&quot;},
     &quot;issue&quot;: {&quot;number&quot;: &lt;pr number or None&gt;, &quot;pull_request&quot;: &lt;bool&gt;},
     &quot;comment&quot;: {&quot;body&quot;: &quot;&lt;comment text&gt;&quot;, &quot;user&quot;: {&quot;login&quot;: &quot;&lt;username&gt;&quot;}},
 }
 </code></pre>
-<p>Processing rules:</p>
+<p>Processing follows these rules:</p>
 <ol>
 <li>
-<p><strong>Not a pull request.</strong> If the issue is not a pull request (<code>issue.pull_request</code> is falsy), the handler must do nothing — in particular, <code>parse_commands</code> must not be called.</p>
+<p><strong>Not a pull request.</strong> In case <code>issue.pull_request</code> is falsy — meaning the issue is not a pull request — the handler must do nothing, and, as a particular consequence, <code>parse_commands</code> must not be called.</p>
 </li>
 <li>
-<p><strong>Pull request comment.</strong> If the issue is a pull request, the handler must call <code>parse_commands(body)</code> exactly once, where <code>body</code> is <code>comment.body</code>. <code>parse_commands</code> returns an iterable of command objects, each exposing a <code>.delay(...)</code> method. For each returned command object, the handler must call <code>command.delay(org, repo, pr_number, username)</code> exactly once, where:</p>
+<p><strong>Pull request comment.</strong> When the issue is a pull request, the handler must call <code>parse_commands(body)</code> exactly once, <code>body</code> being <code>comment.body</code>. An iterable of command objects is what <code>parse_commands</code> returns, and each of those objects exposes a <code>.delay(...)</code> method. For each command object that comes back, the handler must call <code>command.delay(org, repo, pr_number, username)</code> exactly once; the arguments break down as:</p>
 <ul>
-<li><code>org</code>, <code>repo</code> come from splitting <code>repository.full_name</code> on <code>/</code>,</li>
-<li><code>pr_number</code> is <code>issue.number</code>,</li>
-<li><code>username</code> is <code>comment.user.login</code>.</li>
+<li><code>org</code> and <code>repo</code> are the two parts obtained by splitting <code>repository.full_name</code> on <code>/</code>,</li>
+<li><code>pr_number</code> comes from <code>issue.number</code>,</li>
+<li><code>username</code> comes from <code>comment.user.login</code>.</li>
 </ul>
 </li>
 </ol>
-<h4>General Notes</h4>
+<h4>General Remarks</h4>
 <ul>
-<li>Both handler functions are <code>async</code> and are awaited by callers.</li>
-<li>Splitting <code>repository.full_name</code> on <code>/</code> yields the organization and repository name as two separate string arguments.</li>
-<li>The task objects (<code>merge_bot_status_success</code>, <code>merge_bot_status_failure</code>) and <code>parse_commands</code> must be module-level names imported/referenced within their respective handler modules so they can be monkeypatched at those attribute paths.</li>
+<li>Callers await the two handler functions, both of which are <code>async</code>.</li>
+<li>When <code>repository.full_name</code> is split on <code>/</code>, the organization and repository name come out as two separate string arguments.</li>
+<li>The task objects (<code>merge_bot_status_success</code>, <code>merge_bot_status_failure</code>), together with <code>parse_commands</code>, must be module-level names imported/referenced inside their respective handler modules, so that they can be monkeypatched at those attribute paths.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Modify the merge-bot branch naming utilities so that branch names include the pull request number, the target version, and the username of the person who…</span>
-        <span class="spec-meta muted">307 words · source specification
+        <span class="spec-title">Update the merge-bot branch naming utilities such that branch names contain the pull request number, the target version, and the username of the person who…</span>
+        <span class="spec-meta muted">334 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the merge-bot branch naming utilities so that branch names include the pull request number, the target version, and the username of the person who triggered the merge. This requires changing the branch name format and updating the associated helper functions accordingly.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>Update the merge-bot branch naming utilities such that branch names contain the pull request number, the target version, and the username of the person who triggered the merge. To achieve this, the branch name format has to be changed and the associated helper functions updated accordingly.</p>
 <h4>Module &amp; Public API</h4>
-<p>All functions live in a module importable as <code>test_version_branch</code>'s subject (the version/branch utilities module used elsewhere in the codebase). The following functions must be updated:</p>
+<p>All of the functions reside in a module that can be imported as <code>test_version_branch</code>'s subject (that is, the version/branch utilities module used elsewhere in the codebase). The functions listed below must be updated:</p>
 <h5><code>is_merge_bot_branch(branch_name: str) -&gt; bool</code></h5>
-<p>Returns <code>True</code> if the given branch name matches the merge-bot branch naming format, and <code>False</code> otherwise.</p>
-<p>The merge-bot branch format is:</p>
+<p>Returns <code>True</code> when the supplied branch name matches the merge-bot branch naming format, and <code>False</code> otherwise.</p>
+<p>A merge-bot branch has the format:</p>
 <pre><code>ocabot-merge-pr-&lt;PR&gt;-to-&lt;VERSION&gt;-by-&lt;USER&gt;
 </code></pre>
 <p>where:</p>
 <ul>
-<li><code>&lt;PR&gt;</code> is a numeric pull request identifier (digits only).</li>
-<li><code>&lt;VERSION&gt;</code> is a version string of the form <code>&lt;major&gt;.&lt;minor&gt;</code> (e.g. <code>12.0</code>).</li>
-<li><code>&lt;USER&gt;</code> is a username string.</li>
+<li><code>&lt;PR&gt;</code> stands for a numeric pull request identifier (digits only).</li>
+<li><code>&lt;VERSION&gt;</code> stands for a version string of the form <code>&lt;major&gt;.&lt;minor&gt;</code> (e.g. <code>12.0</code>).</li>
+<li><code>&lt;USER&gt;</code> stands for a username string.</li>
 </ul>
 <p>Behavior:</p>
 <ul>
-<li>A name like <code>ocabot-merge-pr-100-to-12.0-by-toto</code> is a valid merge-bot branch → returns <code>True</code>.</li>
-<li>The PR portion must be numeric; a non-numeric PR portion (e.g. <code>a100</code>) is not valid → returns <code>False</code>.</li>
-<li>The version portion must be a valid <code>&lt;major&gt;.&lt;minor&gt;</code> version; a non-version value there (e.g. the literal <code>something</code>) is not valid → returns <code>False</code>.</li>
-<li>A name that does not begin with the exact literal prefix <code>ocabot-merge-pr-</code> (e.g. one beginning with <code>cabot-merge-pr-</code>) is not valid → returns <code>False</code>.</li>
+<li>A name such as <code>ocabot-merge-pr-100-to-12.0-by-toto</code> is a valid merge-bot branch → returns <code>True</code>.</li>
+<li>The PR portion must be numeric; a PR portion that is not numeric (e.g. <code>a100</code>) is not valid → returns <code>False</code>.</li>
+<li>The version portion must be a valid <code>&lt;major&gt;.&lt;minor&gt;</code> version; a non-version value placed there (e.g. the literal <code>something</code>) is not valid → returns <code>False</code>.</li>
+<li>A name that does not start with the exact literal prefix <code>ocabot-merge-pr-</code> (e.g. one starting with <code>cabot-merge-pr-</code>) is not valid → returns <code>False</code>.</li>
 </ul>
 <h5><code>make_merge_bot_branch(pr: str, version: str, username: str) -&gt; str</code></h5>
-<p>Constructs and returns a merge-bot branch name from the given PR number, version, and username, producing exactly:</p>
+<p>Builds a merge-bot branch name from the supplied PR number, version, and username, and returns it; the output is exactly:</p>
 <pre><code>ocabot-merge-pr-&lt;pr&gt;-to-&lt;version&gt;-by-&lt;username&gt;
 </code></pre>
-<p>For example, <code>make_merge_bot_branch(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;)</code> returns <code>&quot;ocabot-merge-pr-100-to-12.0-by-toto&quot;</code>.</p>
+<p>For instance, <code>make_merge_bot_branch(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;)</code> returns <code>&quot;ocabot-merge-pr-100-to-12.0-by-toto&quot;</code>.</p>
 <h5><code>parse_merge_bot_branch(branch_name: str) -&gt; tuple</code></h5>
-<p>Given a valid merge-bot branch name, returns a 3-tuple <code>(pr, version, username)</code> of strings extracted from the name.</p>
-<p>For example, <code>parse_merge_bot_branch(&quot;ocabot-merge-pr-100-to-12.0-by-toto&quot;)</code> returns <code>(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;)</code>.</p>
+<p>When handed a valid merge-bot branch name, returns a 3-tuple <code>(pr, version, username)</code> consisting of the strings extracted from the name.</p>
+<p>For instance, <code>parse_merge_bot_branch(&quot;ocabot-merge-pr-100-to-12.0-by-toto&quot;)</code> returns <code>(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;)</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>The three functions must remain mutually consistent: a name produced by <code>make_merge_bot_branch</code> must be recognized by <code>is_merge_bot_branch</code> and correctly decomposed by <code>parse_merge_bot_branch</code>.</li>
+<li>The three functions must stay mutually consistent: a name generated by <code>make_merge_bot_branch</code> must be recognized by <code>is_merge_bot_branch</code> and correctly decomposed by <code>parse_merge_bot_branch</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Consolidate Check Suite Status Handling</span>
-        <span class="spec-meta muted">720 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Consolidating Check Suite Status Handling</span>
+        <span class="spec-meta muted">771 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Consolidate Check Suite Status Handling</h3>
+      <div class="spec-body"><h3>Task Specification: Consolidating Check Suite Status Handling</h3>
 <h4>Overview</h4>
-<p>Modify the GitHub <code>check_suite</code> webhook handler so that completed check suites for merge-bot branches dispatch one unified Celery task rather than selecting between separate success and failure tasks. This change concerns webhook dispatch; downstream status interpretation belongs to the unified task.</p>
+<p>Change the GitHub <code>check_suite</code> webhook handler so that a completed check suite on a merge-bot branch results in the dispatch of one unified Celery task instead of a choice between separate success and failure tasks. The scope of this change is webhook dispatch; interpreting the status downstream is left to the unified task.</p>
 <h4>Module and Public API</h4>
 <h5><code>oca_github_bot/webhooks/on_check_suite.py</code></h5>
-<p>The module must continue to provide the asynchronous webhook handler:</p>
+<p>The module must keep providing the asynchronous webhook handler:</p>
 <pre><code class="language-python">async def on_check_suite(event, gh)
 </code></pre>
-<p>It must also expose a Celery task object named <code>merge_bot_status</code>. The object must be importable from this module's namespace and provide this dispatch API:</p>
+<p>It must additionally expose a Celery task object named <code>merge_bot_status</code>. This object must be importable from the module's namespace and must provide this dispatch API:</p>
 <pre><code class="language-python">merge_bot_status.delay(org, repo, branch, sha)
 </code></pre>
-<p><code>merge_bot_status</code> is the sole task used by this handler. The handler must no longer expose, reference, select, or dispatch separate tasks named <code>merge_bot_status_success</code> and <code>merge_bot_status_failure</code>.</p>
-<p>The handler remains associated with <code>check_suite</code> webhook handling. Its dispatch decision must be based on the event payload and must not depend on the supplied <code>gh</code> argument.</p>
+<p><code>merge_bot_status</code> is the sole task this handler uses. The separate tasks <code>merge_bot_status_success</code> and <code>merge_bot_status_failure</code> must no longer be exposed, referenced, selected, or dispatched by the handler.</p>
+<p>The handler remains tied to <code>check_suite</code> webhook handling. Its dispatch decision must be based on the event payload and must not depend on the <code>gh</code> argument supplied to it.</p>
 <h4>Event Payload Contract</h4>
-<p>The handler receives an event object whose <code>data</code> attribute is a dictionary with this shape:</p>
+<p>The event object the handler receives has a <code>data</code> attribute that is a dictionary with this shape:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {
         &quot;full_name&quot;: &quot;&lt;org&gt;/&lt;repo&gt;&quot;,
@@ -400,30 +402,30 @@ def git_modified_addons(addons_dir, ref):
     },
 }
 </code></pre>
-<p>Repository identity is supplied through <code>repository.full_name</code>, in the form <code>&quot;&lt;org&gt;/&lt;repo&gt;&quot;</code>. The handler must split this value on <code>/</code> to derive the two task arguments:</p>
+<p>Repository identity comes through <code>repository.full_name</code>, in the form <code>&quot;&lt;org&gt;/&lt;repo&gt;&quot;</code>. To derive the two task arguments, the handler must split this value on <code>/</code>:</p>
 <ul>
 <li><code>org</code>: the component before <code>/</code>;</li>
 <li><code>repo</code>: the component after <code>/</code>.</li>
 </ul>
-<p>For example, <code>&quot;OCA/some-repo&quot;</code> produces <code>org == &quot;OCA&quot;</code> and <code>repo == &quot;some-repo&quot;</code>. The payload is not required to contain <code>repository.owner.login</code> or <code>repository.name</code>, so the handler must not rely on those nested fields.</p>
-<p>The branch and SHA task arguments come directly from <code>check_suite.head_branch</code> and <code>check_suite.head_sha</code>, respectively. They must be forwarded unchanged; in particular, the branch must not be reconstructed from its parsed components.</p>
-<h4>Merge-Bot Branch Qualification</h4>
-<p>Only a branch matching the repository's established merge-bot branch naming convention qualifies. <code>make_merge_bot_branch(pr_number, target_branch, ...)</code> is the source of truth for creating such names, and <code>is_merge_bot_branch</code> defines whether a supplied name matches the convention. A representative qualifying value is produced by:</p>
+<p>As an example, <code>&quot;OCA/some-repo&quot;</code> produces <code>org == &quot;OCA&quot;</code> and <code>repo == &quot;some-repo&quot;</code>. The payload is not required to contain <code>repository.owner.login</code> or <code>repository.name</code>, so the handler must not rely on those nested fields.</p>
+<p>The task arguments for the branch and the SHA come directly from <code>check_suite.head_branch</code> and <code>check_suite.head_sha</code> respectively. They must be forwarded unchanged; in particular, the branch must not be reconstructed out of its parsed components.</p>
+<h4>Qualification of a Merge-Bot Branch</h4>
+<p>A branch qualifies only if it matches the repository's established merge-bot branch naming convention. For creating such names, <code>make_merge_bot_branch(pr_number, target_branch, ...)</code> is the source of truth, and <code>is_merge_bot_branch</code> defines whether a supplied name matches the convention. The call below produces a representative qualifying value:</p>
 <pre><code class="language-python">make_merge_bot_branch(42, &quot;12.0&quot;, &quot;toto&quot;)
 </code></pre>
-<p>The helper accepts a PR number, a target branch, and any additional positional arguments supported by its existing API. This task must not change the branch-helper API or naming convention. Ordinary names such as <code>&quot;changes&quot;</code> do not qualify.</p>
-<h4>Required Dispatch Behavior</h4>
-<p>The handler must enqueue exactly one unified task if and only if both of these conditions hold:</p>
+<p>The helper accepts a PR number, a target branch, and any additional positional arguments that its existing API supports. The branch-helper API and the naming convention must not be changed by this task. Everyday names such as <code>&quot;changes&quot;</code> do not qualify.</p>
+<h4>Dispatch Behavior Requirements</h4>
+<p>Exactly one unified task must be enqueued by the handler if and only if both of the following conditions hold:</p>
 <ol>
 <li><code>check_suite.head_branch</code> is a valid merge-bot branch.</li>
 <li><code>check_suite.status</code> is exactly <code>&quot;completed&quot;</code>.</li>
 </ol>
-<p>When both conditions hold, invoke:</p>
+<p>Once both conditions hold, invoke:</p>
 <pre><code class="language-python">merge_bot_status.delay(org, repo, branch, sha)
 </code></pre>
-<p>where <code>org</code> and <code>repo</code> are obtained by splitting <code>repository.full_name</code>, and <code>branch</code> and <code>sha</code> are the check suite's values.</p>
-<p>The value of <code>check_suite.conclusion</code> must not affect this decision. A completed qualifying check suite is dispatched once whether its conclusion is <code>&quot;success&quot;</code>, <code>&quot;failure&quot;</code>, <code>None</code>, or another conclusion. The unified task is responsible for any distinction between successful and unsuccessful results.</p>
-<p>Do not enqueue the task when the branch is not a merge-bot branch, even if the status is completed. Do not enqueue it when the status is anything other than exactly <code>&quot;completed&quot;</code>, even if the branch is valid and the conclusion is successful.</p>
+<p>in which <code>org</code> and <code>repo</code> are obtained by splitting <code>repository.full_name</code>, and <code>branch</code> and <code>sha</code> are the check suite's values.</p>
+<p>The decision must not be influenced by the value of <code>check_suite.conclusion</code>. A qualifying check suite that has completed is dispatched once, regardless of whether its conclusion is <code>&quot;success&quot;</code>, <code>&quot;failure&quot;</code>, <code>None</code>, or another conclusion. Any distinction between successful and unsuccessful results is the responsibility of the unified task.</p>
+<p>When the branch is not a merge-bot branch, the task must not be enqueued, even if the status is completed. When the status is anything other than exactly <code>&quot;completed&quot;</code>, the task must not be enqueued either, even if the branch is valid and the conclusion is successful.</p>
 <table>
 <thead>
 <tr>
@@ -456,64 +458,64 @@ def git_modified_addons(addons_dir, ref):
 </tbody>
 </table>
 <h5>Example</h5>
-<p>Given repository <code>&quot;OCA/some-repo&quot;</code>, a qualifying branch stored in <code>branch</code>, status <code>&quot;completed&quot;</code>, conclusion <code>&quot;failure&quot;</code>, and SHA stored in <code>sha</code>, the observable dispatch must be exactly:</p>
+<p>Take repository <code>&quot;OCA/some-repo&quot;</code>, a qualifying branch held in <code>branch</code>, status <code>&quot;completed&quot;</code>, conclusion <code>&quot;failure&quot;</code>, and SHA held in <code>sha</code>; the observable dispatch must be exactly:</p>
 <pre><code class="language-python">merge_bot_status.delay(&quot;OCA&quot;, &quot;some-repo&quot;, branch, sha)
 </code></pre>
-<p>The same call is required for conclusion <code>&quot;success&quot;</code>. Changing only the status to <code>&quot;in_progress&quot;</code>, or changing only the branch to <code>&quot;changes&quot;</code>, must result in no call.</p>
+<p>Conclusion <code>&quot;success&quot;</code> requires the same call. Modifying only the status so that it becomes <code>&quot;in_progress&quot;</code>, or modifying only the branch so that it becomes <code>&quot;changes&quot;</code>, must result in no call.</p>
 <h4>Compatibility and Non-Goals</h4>
 <ul>
-<li>Preserve the existing asynchronous webhook API and merge-bot branch helpers.</li>
-<li>Do not retain conclusion-based success/failure routing in the webhook handler.</li>
-<li>Do not alter unrelated command parsing, Git/GitHub utilities, manifest handling, other webhook handlers, or branch-classification behavior.</li>
-<li>No separate success or failure task dispatch is part of this handler's public behavior after consolidation.</li>
+<li>The existing asynchronous webhook API and merge-bot branch helpers must be preserved.</li>
+<li>Conclusion-based success/failure routing must not be retained in the webhook handler.</li>
+<li>Leave unrelated command parsing, Git/GitHub utilities, manifest handling, other webhook handlers, and branch-classification behavior untouched.</li>
+<li>After consolidation, no separate success or failure task dispatch forms any part of this handler's public behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Add a mechanism to the oca_github_bot.config module that allows individual functions (&#34;tasks&#34;) to be conditionally enabled or disabled based on a…</span>
-        <span class="spec-meta muted">386 words · source specification
+        <span class="spec-title">Extend the oca_github_bot.config module with a mechanism that lets individual functions (&#34;tasks&#34;) be conditionally enabled or disabled according to a…</span>
+        <span class="spec-meta muted">417 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Add a mechanism to the <code>oca_github_bot.config</code> module that allows individual functions (&quot;tasks&quot;) to be conditionally enabled or disabled based on a configurable list of active task names.</p>
-<h4>Required API Surface</h4>
+<p>Extend the <code>oca_github_bot.config</code> module with a mechanism that lets individual functions (&quot;tasks&quot;) be conditionally enabled or disabled according to a configurable list of active task names.</p>
+<h4>Required API</h4>
 <h5><code>oca_github_bot.config.BOT_TASKS</code></h5>
-<p>A module-level list variable in <code>oca_github_bot.config</code>.</p>
+<p>A list variable at module level in <code>oca_github_bot.config</code>.</p>
 <ul>
-<li>Its default value must be <code>[&quot;all&quot;]</code>.</li>
-<li>It is mutable at runtime; callers may reassign it to any list of strings (including an empty list).</li>
+<li>It must have <code>[&quot;all&quot;]</code> as its default value.</li>
+<li>It is mutable at runtime; callers may reassign it to any list of strings (an empty list included).</li>
 </ul>
 <h5><code>oca_github_bot.config.switchable(name=None)</code></h5>
-<p>A decorator factory in <code>oca_github_bot.config</code>. Calling <code>switchable(...)</code> returns a decorator that wraps a target function and controls whether the wrapped function actually executes based on the current value of <code>BOT_TASKS</code>.</p>
+<p>A decorator factory inside <code>oca_github_bot.config</code>. Calling <code>switchable(...)</code> returns a decorator that wraps a target function and governs whether the wrapped function actually executes, depending on the current value of <code>BOT_TASKS</code>.</p>
 <h6>Signature</h6>
 <pre><code class="language-python">def switchable(name=None):
     ...
 </code></pre>
 <ul>
-<li>It must be usable both as <code>@config.switchable()</code> (no argument) and as <code>@config.switchable(&quot;some_name&quot;)</code> (explicit name argument).</li>
+<li>It must work both as <code>@config.switchable()</code> (with no argument) and as <code>@config.switchable(&quot;some_name&quot;)</code> (with an explicit name argument).</li>
 </ul>
-<h6>Determining the task name</h6>
-<p>Each decorated function is associated with a task name:</p>
+<h6>How the task name is determined</h6>
+<p>Each decorated function is tied to a task name:</p>
 <ul>
-<li>If <code>name</code> is provided (a non-<code>None</code> string), that string is the task's name.</li>
-<li>If <code>name</code> is omitted or <code>None</code>, the task's name defaults to the wrapped function's own name (i.e., the function's <code>__name__</code>).</li>
+<li>If <code>name</code> is supplied (a non-<code>None</code> string), that string is the task's name.</li>
+<li>If <code>name</code> is omitted or is <code>None</code>, the task's name defaults to the wrapped function's own name (that is, the function's <code>__name__</code>).</li>
 </ul>
-<h6>Enabled / disabled behavior</h6>
-<p>When the wrapped function is called, its behavior is evaluated against the <strong>current</strong> value of <code>config.BOT_TASKS</code> at call time (not at decoration time):</p>
+<h6>Behavior when enabled or disabled</h6>
+<p>When the wrapped function is called, its behavior is evaluated against the <strong>current</strong> value of <code>config.BOT_TASKS</code> at the moment of the call (not at decoration time):</p>
 <ul>
-<li>The wrapped function is considered <strong>enabled</strong> if either:
+<li>The wrapped function counts as <strong>enabled</strong> if either:
 <ul>
-<li><code>BOT_TASKS</code> contains the string <code>&quot;all&quot;</code>, <strong>or</strong></li>
-<li><code>BOT_TASKS</code> contains the task's name (as determined above).</li>
+<li>the string <code>&quot;all&quot;</code> occurs in <code>BOT_TASKS</code>, <strong>or</strong></li>
+<li>the task's name (as determined above) is contained in <code>BOT_TASKS</code>.</li>
 </ul>
 </li>
-<li>If enabled, the wrapped function is invoked normally with all the arguments passed to it, and its return value is returned unchanged.</li>
-<li>If <strong>not</strong> enabled, the wrapped function is <strong>not</strong> invoked, and the call returns <code>None</code>.</li>
+<li>If it is enabled, the wrapped function is invoked normally with all the arguments that were passed to it, and its return value is returned unchanged.</li>
+<li>When <strong>not</strong> enabled, the wrapped function is <strong>not</strong> invoked, and the call returns <code>None</code>.</li>
 </ul>
-<h4>Behavioral Examples</h4>
-<p>Given two decorated functions where each simply returns its single argument:</p>
+<h4>Examples of Behavior</h4>
+<p>Take two decorated functions, each of which simply returns its single argument:</p>
 <pre><code class="language-python">@config.switchable()
 def ping_method(msg):
     return msg
@@ -523,33 +525,33 @@ def ping_method_2(msg):
     return msg
 </code></pre>
 <ul>
-<li>With <code>BOT_TASKS == [&quot;all&quot;]</code> (the default): both functions execute and return their argument.</li>
-<li>With <code>BOT_TASKS == []</code>: both functions return <code>None</code>.</li>
-<li>With <code>BOT_TASKS == [&quot;ping_method&quot;]</code>: <code>ping_method(&quot;test&quot;)</code> returns <code>&quot;test&quot;</code>; <code>ping_method_2(&quot;test&quot;)</code> returns <code>None</code> (its associated name is <code>&quot;ping_method_switch&quot;</code>, which is not present).</li>
-<li>With <code>BOT_TASKS == [&quot;ping_method&quot;, &quot;ping_method_switch&quot;]</code>: both functions execute and return their argument.</li>
+<li>With <code>BOT_TASKS == [&quot;all&quot;]</code> (the default): both functions execute and return the argument they were given.</li>
+<li>When <code>BOT_TASKS == []</code>: both functions return <code>None</code>.</li>
+<li>With <code>BOT_TASKS == [&quot;ping_method&quot;]</code>: <code>ping_method(&quot;test&quot;)</code> returns <code>&quot;test&quot;</code>; <code>ping_method_2(&quot;test&quot;)</code> returns <code>None</code> (the name associated with it is <code>&quot;ping_method_switch&quot;</code>, which is not present).</li>
+<li>With <code>BOT_TASKS == [&quot;ping_method&quot;, &quot;ping_method_switch&quot;]</code>: both functions execute and return the argument passed to them.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The task-name matching for an unnamed decoration uses the decorated function's actual <code>__name__</code>.</li>
-<li>Evaluation must reflect the value of <code>config.BOT_TASKS</code> at the moment of each call, so reassigning <code>config.BOT_TASKS</code> between calls changes subsequent behavior accordingly.</li>
+<li>For an unnamed decoration, task-name matching uses the decorated function's actual <code>__name__</code>.</li>
+<li>The evaluation must reflect the value of <code>config.BOT_TASKS</code> at the moment of each call; as a result, reassigning <code>config.BOT_TASKS</code> between calls changes subsequent behavior accordingly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Provide the module</span>
-        <span class="spec-meta muted">202 words · source specification
+        <span class="spec-title">The module to be provided is</span>
+        <span class="spec-meta muted">231 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Merge-bot check-suite webhook handling</h3>
-<p>Provide the module:</p>
+      <div class="spec-body"><h3>Handling the merge-bot check-suite webhook</h3>
+<p>The module to be provided is:</p>
 <p><code>oca_github_bot.webhooks.on_status_merge_bot</code></p>
-<p>It must expose:</p>
+<p>The following must be exposed by it:</p>
 <pre><code class="language-python">async def on_check_suite_merge_bot(event, context)
 </code></pre>
-<p>The coroutine must accept <code>None</code> as <code>context</code>.</p>
-<p>The event supplies a payload with this relevant structure:</p>
+<p>Passing <code>None</code> as <code>context</code> must be accepted by the coroutine.</p>
+<p>The payload supplied by the event has this relevant structure:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {
         &quot;full_name&quot;: &quot;OCA/some-repo&quot;,
@@ -565,37 +567,38 @@ def ping_method_2(msg):
     },
 }
 </code></pre>
-<p>The module must also expose <code>merge_bot_status</code>, whose asynchronous task entry point is invoked through:</p>
+<p><code>merge_bot_status</code> must also be exposed by the module; the entry point of its asynchronous task is invoked through:</p>
 <pre><code class="language-python">merge_bot_status.delay(owner, repository, branch, sha)
 </code></pre>
-<p>Required behavior:</p>
+<p>Behavior that is required:</p>
 <ul>
-<li>A completed Travis CI check suite on a merge-bot branch produced by <code>oca_github_bot.version_branch.make_merge_bot_branch(...)</code> must enqueue:<pre><code class="language-python">merge_bot_status.delay(&quot;OCA&quot;, &quot;some-repo&quot;, branch, sha)
+<li>If a Travis CI check suite on a merge-bot branch that <code>oca_github_bot.version_branch.make_merge_bot_branch(...)</code> produces is completed, it must enqueue:<pre><code class="language-python">merge_bot_status.delay(&quot;OCA&quot;, &quot;some-repo&quot;, branch, sha)
 </code></pre>
-This applies to the exercised completed check suite whose conclusion is <code>&quot;failure&quot;</code>.</li>
-<li>Repository owner and name must be derived separately from <code>repository.full_name</code>.</li>
-<li>The exact <code>head_branch</code> and <code>head_sha</code> values from the payload must be forwarded.</li>
-<li>Do not enqueue the task when <code>head_branch</code> is an ordinary branch such as <code>&quot;changes&quot;</code>, whether the suite is completed or in progress.</li>
-<li>Do not enqueue the task for a valid merge-bot branch while the check-suite status is <code>&quot;in_progress&quot;</code>, even if its conclusion is <code>&quot;success&quot;</code>.</li>
+This requirement covers the exercised completed check suite whose conclusion is <code>&quot;failure&quot;</code>.</li>
+<li>The owner and the name of the repository must be derived separately from <code>repository.full_name</code>.</li>
+<li>What must be forwarded are the exact <code>head_branch</code> and <code>head_sha</code> values from the payload.</li>
+<li>Do not enqueue the task if <code>head_branch</code> is an ordinary branch such as <code>&quot;changes&quot;</code>, regardless of whether the suite is completed or in progress.</li>
+<li>While the check-suite status is <code>&quot;in_progress&quot;</code>, do not enqueue the task for a valid merge-bot branch, even if its conclusion is <code>&quot;success&quot;</code>.</li>
 </ul>
-<p>The handler must be directly awaitable with an event object and <code>None</code> as its second argument.</p>
+<p>The handler must be directly awaitable given an event object and <code>None</code> as its second argument.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Update the merge-bot branch utilities in oca_github_bot.version_branch so merge-bot branch names carry a version-bump value, and integrate that bump-bearing…</span>
-        <span class="spec-meta muted">464 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Rework the merge-bot branch utilities in oca_github_bot.version_branch so that merge-bot branch names embed a version-bump value, and connect this…</span>
+        <span class="spec-meta muted">507 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update the merge-bot branch utilities in <code>oca_github_bot.version_branch</code> so merge-bot branch names carry a version-bump value, and integrate that bump-bearing format with the existing check-suite webhook flow.</p>
-<p>The required branch form is:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Change required</h4>
+<p>Rework the merge-bot branch utilities in <code>oca_github_bot.version_branch</code> so that merge-bot branch names embed a version-bump value, and connect this bump-carrying format with the existing check-suite webhook flow.</p>
+<p>The branch form that is required is:</p>
 <pre><code class="language-text">ocabot-merge-pr-{pr}-to-{target_branch}-by-{login}-bump-{bump}
 </code></pre>
-<h4>Public branch API</h4>
+<h4>Public API for branches</h4>
 <h5><code>make_merge_bot_branch(pr, target_branch, login, bump) -&gt; str</code></h5>
-<p>The function must accept four positional arguments. The pull-request identifier may be a string or an integer and must be rendered textually. The bump value must be included after the <code>-bump-</code> marker.</p>
+<p>Four positional arguments must be accepted by the function. The pull-request identifier may be supplied as a string or an integer and must be rendered in textual form. The bump value must be placed after the <code>-bump-</code> marker.</p>
 <p>Examples:</p>
 <pre><code class="language-python">make_merge_bot_branch(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;, &quot;patch&quot;)
 # &quot;ocabot-merge-pr-100-to-12.0-by-toto-bump-patch&quot;
@@ -604,14 +607,14 @@ make_merge_bot_branch(42, &quot;12.0&quot;, &quot;toto&quot;, &quot;patch&quot;)
 # &quot;ocabot-merge-pr-42-to-12.0-by-toto-bump-patch&quot;
 </code></pre>
 <h5><code>parse_merge_bot_branch(branch) -&gt; tuple</code></h5>
-<p>For a valid merge-bot branch, parsing must return exactly four values in this order:</p>
+<p>When the branch is a valid merge-bot branch, parsing must return exactly four values, in the following order:</p>
 <ol>
-<li>the pull-request identifier as a string;</li>
+<li>the identifier of the pull request as a string;</li>
 <li>the target branch;</li>
 <li>the login;</li>
 <li>the bump value.</li>
 </ol>
-<p>The textual bump marker <code>&quot;no&quot;</code> represents the absence of a bump and must be exposed as <code>None</code>. The textual value <code>&quot;patch&quot;</code> must remain <code>&quot;patch&quot;</code>.</p>
+<p>The textual bump marker <code>&quot;no&quot;</code> stands for the absence of a bump and must be exposed as <code>None</code>. The textual value <code>&quot;patch&quot;</code> must stay <code>&quot;patch&quot;</code>.</p>
 <p>Examples:</p>
 <pre><code class="language-python">parse_merge_bot_branch(
     &quot;ocabot-merge-pr-100-to-12.0-by-toto-bump-patch&quot;
@@ -623,15 +626,15 @@ parse_merge_bot_branch(
 )
 # (&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;, None)
 </code></pre>
-<p>Every consumer that unpacks this result must accommodate the new fourth value while retaining its existing behavior.</p>
+<p>Every consumer that unpacks this result must accommodate the additional fourth value while keeping its existing behavior.</p>
 <h5><code>is_merge_bot_branch(branch) -&gt; bool</code></h5>
-<p>The bump-bearing branch form must be recognized:</p>
+<p>The branch form that bears a bump must be recognized:</p>
 <pre><code class="language-python">is_merge_bot_branch(
     &quot;ocabot-merge-pr-100-to-12.0-by-toto-bump-patch&quot;
 )
 # True
 </code></pre>
-<p>Names with an incorrect prefix or a non-version target branch must not be recognized:</p>
+<p>Names that have an incorrect prefix or a non-version target branch must not be recognized:</p>
 <pre><code class="language-python">is_merge_bot_branch(
     &quot;cabot-merge-pr-a100-to-12.0-by-titi-bump-no&quot;
 )
@@ -642,118 +645,119 @@ is_merge_bot_branch(
 )
 # False
 </code></pre>
-<p>No behavior is specified for parsing malformed names or for bump values other than <code>&quot;patch&quot;</code> and <code>&quot;no&quot;</code>.</p>
-<h4>Check-suite webhook integration</h4>
-<p>The asynchronous public handler is:</p>
+<p>No behavior is defined for parsing malformed names or for bump values other than <code>&quot;patch&quot;</code> and <code>&quot;no&quot;</code>.</p>
+<h4>Integration with the check-suite webhook</h4>
+<p>The public asynchronous handler is:</p>
 <pre><code class="language-python">oca_github_bot.webhooks.on_status_merge_bot.on_check_suite_merge_bot(
     event, context
 )
 </code></pre>
-<p>The handler must support calls with <code>context=None</code>. A check-suite head branch generated by:</p>
+<p>Calls with <code>context=None</code> must be supported by the handler. A check-suite head branch produced by:</p>
 <pre><code class="language-python">branch = make_merge_bot_branch(42, &quot;12.0&quot;, &quot;toto&quot;, &quot;patch&quot;)
 </code></pre>
 <p>must be treated as a valid merge-bot branch.</p>
-<p>For a check suite that is eligible under the handler's existing filtering rules:</p>
+<p>For a check suite that is eligible according to the handler's existing filtering rules:</p>
 <ul>
-<li>If its status is <code>&quot;completed&quot;</code> and its conclusion is <code>&quot;failure&quot;</code>, the handler must enqueue the existing merge-bot status task once. Its positional arguments must be the organization and repository obtained from the event's repository full name, followed by the check suite's head branch and head SHA.</li>
-<li>If its status is <code>&quot;in_progress&quot;</code> and its conclusion is <code>&quot;success&quot;</code>, the handler must not enqueue the merge-bot status task or initiate completed-suite handling.</li>
-<li>A head branch that is not a valid merge-bot branch must not cause the merge-bot status task to be enqueued.</li>
+<li>If its status is <code>&quot;completed&quot;</code> and its conclusion is <code>&quot;failure&quot;</code>, the existing merge-bot status task must be enqueued by the handler once. The positional arguments of that task must be the organization and repository derived from the event's repository full name, followed by the check suite's head branch and head SHA.</li>
+<li>If its status is <code>&quot;in_progress&quot;</code> and its conclusion is <code>&quot;success&quot;</code>, the handler must not enqueue the merge-bot status task and must not initiate completed-suite handling.</li>
+<li>A head branch that is not a valid merge-bot branch must not lead to the merge-bot status task being enqueued.</li>
 </ul>
-<h4>Compatibility and scope</h4>
-<p>Calls that create merge-bot branch names must supply the bump component, and consumers of parsed merge-bot branches must handle the four-value tuple. Existing merge-bot failure handling and existing in-progress behavior must otherwise remain compatible.</p>
-<p>This change specifies branch-format generation, parsing, recognition, and check-suite dispatch only. It does not require additional version-bumping, merging, or CI side effects.</p>
+<h4>Compatibility and scope of the change</h4>
+<p>Calls that create merge-bot branch names must supply the bump component, and consumers of parsed merge-bot branches must handle the tuple of four values. Otherwise, existing merge-bot failure handling and existing in-progress behavior must remain compatible.</p>
+<p>Only branch-format generation, parsing, recognition, and check-suite dispatch are specified by this change. It does not require additional version-bumping, merging, or CI side effects.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">You are working in the oca_github_bot package.</span>
-        <span class="spec-meta muted">339 words · source specification
+        <span class="spec-title">Your work takes place in the oca_github_bot package.</span>
+        <span class="spec-meta muted">372 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working in the <code>oca_github_bot</code> package. Specifically, you must extend the <code>oca_github_bot.version_branch</code> module to support locating merge-bot branch names embedded within arbitrary text, and ensure the merge-bot branch naming scheme uses a stable, well-known prefix.</p>
-<h4>Required Public API</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Your work takes place in the <code>oca_github_bot</code> package. More precisely, you must extend the <code>oca_github_bot.version_branch</code> module so that it supports finding merge-bot branch names embedded within arbitrary text, and you must ensure the merge-bot branch naming scheme uses a prefix that is stable and well known.</p>
+<h4>Public API That Must Be Exposed</h4>
 <h5>Module: <code>oca_github_bot.version_branch</code></h5>
-<p>The module must expose the following callables (some already exist and must retain compatible behavior; one is new):</p>
+<p>The module must expose the callables listed below (some of them already exist and must retain compatible behavior; one is new):</p>
 <ul>
-<li><code>make_merge_bot_branch(pr, target_branch, username, bump)</code> — existing function that constructs a merge-bot branch name.</li>
-<li><code>search_merge_bot_branch(text)</code> — <strong>new</strong> function to be implemented.</li>
+<li><code>make_merge_bot_branch(pr, target_branch, username, bump)</code> — an existing function that builds a merge-bot branch name.</li>
+<li><code>search_merge_bot_branch(text)</code> — <strong>new</strong> function that has to be implemented.</li>
 </ul>
-<p>Other existing names in this module (<code>is_protected_branch</code>, <code>parse_merge_bot_branch</code>) remain importable and unchanged.</p>
-<h4>Behavior Requirements</h4>
+<p>The other names that already exist in this module (<code>is_protected_branch</code>, <code>parse_merge_bot_branch</code>) stay importable and unchanged.</p>
+<h4>Required Behavior</h4>
 <h5><code>make_merge_bot_branch(pr, target_branch, username, bump)</code></h5>
-<p>Constructs and returns a merge-bot branch name as a string.</p>
+<p>Builds and returns a merge-bot branch name as a string.</p>
 <ul>
-<li>The returned branch name <strong>must</strong> begin with the exact prefix <code>ocabot-merge-</code>. This prefix is a stable contract and must not change, since external tools may depend on it.</li>
-<li>Arguments are provided positionally, e.g. a PR identifier (<code>&quot;100&quot;</code>), a target branch (<code>&quot;12.0&quot;</code>), a username (<code>&quot;toto&quot;</code>), and a bump type (<code>&quot;patch&quot;</code>).</li>
-<li>The portion of the branch name after the prefix is otherwise opaque for the purposes of this task; only the leading <code>ocabot-merge-</code> prefix is guaranteed.</li>
+<li>The branch name that comes back <strong>must</strong> begin with the exact prefix <code>ocabot-merge-</code>. This prefix is a stable contract and must not change, because external tools may depend on it.</li>
+<li>The arguments are supplied positionally, e.g. a PR identifier (<code>&quot;100&quot;</code>), a target branch (<code>&quot;12.0&quot;</code>), a username (<code>&quot;toto&quot;</code>), and a bump type (<code>&quot;patch&quot;</code>).</li>
+<li>The part of the branch name after the prefix is otherwise opaque for the purposes of this task; only the leading <code>ocabot-merge-</code> prefix is guaranteed.</li>
 </ul>
 <h5><code>search_merge_bot_branch(text)</code></h5>
-<p>Searches the given <code>text</code> string for the first occurrence of a merge-bot branch name and returns it.</p>
+<p>Scans the given <code>text</code> string for the first occurrence of a merge-bot branch name and returns it.</p>
 <ul>
-<li>A merge-bot branch name is a token that:
+<li>A merge-bot branch name is a token which:
 <ul>
-<li>begins with the prefix <code>ocabot-merge-</code>, and</li>
-<li>consists of characters drawn from the set: ASCII letters, digits, hyphens (<code>-</code>), and periods (<code>.</code>).</li>
+<li>starts with the prefix <code>ocabot-merge-</code>, and</li>
+<li>is composed of characters taken from the set: ASCII letters, digits, hyphens (<code>-</code>), and periods (<code>.</code>).</li>
 </ul>
 </li>
-<li>The returned value is the matched branch name substring, with no surrounding text.</li>
-<li>Matching stops at any character not in the allowed set (such as a space). The branch name does not include trailing characters beyond the allowed set.</li>
+<li>The value that is returned is the matched branch name substring, with no surrounding text.</li>
+<li>Matching stops at any character that is not in the allowed set (such as a space). Trailing characters beyond the allowed set are not included in the branch name.</li>
 </ul>
-<p>Examples of required behavior:</p>
+<p>Examples of the required behavior:</p>
 <ul>
-<li>Given the text <code>&quot;blah blah ocabot-merge-pr-100-to-12.0-by-toto-bump-no more stuff&quot;</code>, the function returns <code>&quot;ocabot-merge-pr-100-to-12.0-by-toto-bump-no&quot;</code>. (Matching begins at the prefix and continues through allowed characters, stopping at the space before <code>more</code>.)</li>
-<li>Given text that contains no substring beginning with <code>ocabot-merge-</code> (e.g. <code>&quot;blah blah more stuff&quot;</code>), the function returns <code>None</code>.</li>
+<li>For the text <code>&quot;blah blah ocabot-merge-pr-100-to-12.0-by-toto-bump-no more stuff&quot;</code>, the function returns <code>&quot;ocabot-merge-pr-100-to-12.0-by-toto-bump-no&quot;</code>. (Matching begins at the prefix, then continues through allowed characters and stops at the space before <code>more</code>.)</li>
+<li>When the text contains no substring beginning with <code>ocabot-merge-</code> (e.g. <code>&quot;blah blah more stuff&quot;</code>), the function returns <code>None</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Merge Bot Branch Name Format</span>
-        <span class="spec-meta muted">591 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Branch Name Format for the Merge Bot</span>
+        <span class="spec-meta muted">624 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Merge Bot Branch Name Format</h3>
+      <div class="spec-body"><h3>Task Specification: Branch Name Format for the Merge Bot</h3>
 <h4>Overview</h4>
-<p>Update the merge bot branch naming scheme so that the target branch appears at the <strong>beginning</strong> of the branch name rather than being embedded in the middle. The new scheme must be used consistently for branch construction, parsing, validation, and discovery within text.</p>
+<p>The merge bot branch naming scheme is to be updated so that the target branch appears at the <strong>beginning</strong> of the branch name instead of being embedded in the middle. Branch construction, parsing, validation, and discovery within text must all consistently use the new scheme.</p>
 <h4>Public API</h4>
-<p>The following functions must remain directly importable from the existing <code>oca_github_bot.version_branch</code> utility module:</p>
+<p>The functions listed here must remain directly importable from the existing <code>oca_github_bot.version_branch</code> utility module:</p>
 <ul>
 <li><code>is_merge_bot_branch(branch_name: str) -&gt; bool</code></li>
 <li><code>make_merge_bot_branch(pr: str, target_branch: str, username: str, bump: str) -&gt; str</code></li>
 <li><code>parse_merge_bot_branch(branch_name: str) -&gt; tuple[str, str, str, str | None]</code></li>
 <li><code>search_merge_bot_branch(text: str) -&gt; str | None</code></li>
 </ul>
-<p>Keep these functions at their existing import location and preserve their names.</p>
-<h4>Required Branch Name Format</h4>
-<p>A merge bot branch name has this structure:</p>
+<p>Keep these functions at their existing import location, and keep their names unchanged.</p>
+<h4>Required Format for the Branch Name</h4>
+<p>A merge bot branch name follows this structure:</p>
 <pre><code class="language-text">{target_branch}-ocabot-merge-pr-{pr}-by-{username}-bump-{bump}
 </code></pre>
-<p>Where:</p>
+<p>where:</p>
 <ul>
-<li><code>{target_branch}</code> is the target branch, for example <code>12.0</code> or <code>master</code>.</li>
-<li><code>{pr}</code> is the pull request number.</li>
-<li><code>{username}</code> is the requesting user's name.</li>
-<li><code>{bump}</code> is the textual version-bump marker, for example <code>patch</code> or <code>no</code>. The marker <code>no</code> encodes the absence of a requested version bump.</li>
+<li><code>{target_branch}</code> stands for the target branch, for example <code>12.0</code> or <code>master</code>.</li>
+<li><code>{pr}</code> stands for the pull request number.</li>
+<li><code>{username}</code> stands for the name of the requesting user.</li>
+<li><code>{bump}</code> stands for the textual version-bump marker, for example <code>patch</code> or <code>no</code>. The marker <code>no</code> encodes that no version bump was requested.</li>
 </ul>
-<p>For PR <code>100</code>, target branch <code>12.0</code>, username <code>toto</code>, and bump marker <code>patch</code>, the exact branch name is:</p>
+<p>Given PR <code>100</code>, target branch <code>12.0</code>, username <code>toto</code>, and bump marker <code>patch</code>, the exact branch name is:</p>
 <pre><code class="language-text">12.0-ocabot-merge-pr-100-by-toto-bump-patch
 </code></pre>
-<p>The literal substring <code>ocabot-merge</code> must be present unchanged in every generated branch name because external tools depend on this token. The former placement with the target branch after a <code>to-</code> segment is not the required format.</p>
-<h4>Function Behavior</h4>
+<p>Every generated branch name must contain the literal substring <code>ocabot-merge</code> unchanged, since external tools depend on this token. The old placement, in which the target branch comes after a <code>to-</code> segment, is not the required format.</p>
+<h4>Behavior of the Functions</h4>
 <h5><code>make_merge_bot_branch(pr, target_branch, username, bump)</code></h5>
-<p>Return the branch name assembled exactly in the required format, with <code>target_branch</code> as its leading field.</p>
+<p>Return the branch name put together exactly in the required format, with <code>target_branch</code> as its leading field.</p>
 <p>Example:</p>
 <pre><code class="language-python">make_merge_bot_branch(&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;, &quot;patch&quot;)
 # &quot;12.0-ocabot-merge-pr-100-by-toto-bump-patch&quot;
 </code></pre>
 <h5><code>parse_merge_bot_branch(branch_name)</code></h5>
-<p>Given a valid merge bot branch name, return a four-element tuple in this order:</p>
+<p>When given a valid merge bot branch name, return a four-element tuple whose elements appear in this order:</p>
 <pre><code class="language-text">(pr, target_branch, username, bump)
 </code></pre>
-<p>The PR, target branch, and username are returned as strings. A real bump marker such as <code>patch</code> is also returned as a string. The textual no-bump marker <code>no</code> is a sentinel and <strong>must be normalized to Python <code>None</code></strong>, rather than returned as the string <code>&quot;no&quot;</code>.</p>
+<p>The PR, the target branch, and the username are returned as strings. A real bump marker such as <code>patch</code> is likewise returned as a string. The textual no-bump marker <code>no</code> acts as a sentinel and <strong>must be normalized to Python <code>None</code></strong>, rather than being returned as the string <code>&quot;no&quot;</code>.</p>
 <p>Examples:</p>
 <pre><code class="language-python">parse_merge_bot_branch(&quot;12.0-ocabot-merge-pr-100-by-toto-bump-patch&quot;)
 # (&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;, &quot;patch&quot;)
@@ -761,18 +765,18 @@ is_merge_bot_branch(
 parse_merge_bot_branch(&quot;12.0-ocabot-merge-pr-100-by-toto-bump-no&quot;)
 # (&quot;100&quot;, &quot;12.0&quot;, &quot;toto&quot;, None)
 </code></pre>
-<p>Thus, parsing reverses the branch encoding semantically: an actual bump remains its textual value, while the encoded absence of a bump becomes <code>None</code>.</p>
+<p>Parsing therefore reverses the branch encoding semantically: an actual bump keeps its textual value, while the encoded absence of a bump becomes <code>None</code>.</p>
 <h5><code>is_merge_bot_branch(branch_name)</code></h5>
-<p>Return a truthy value when the supplied string matches the required merge bot branch format and a falsy value otherwise. Validation must recognize the target branch in its new leading position and must require the literal <code>ocabot-merge</code> token.</p>
+<p>When the supplied string matches the required merge bot branch format, return a truthy value; return a falsy value otherwise. Validation must recognize the target branch in its new leading position and must require the literal <code>ocabot-merge</code> token.</p>
 <p>Examples:</p>
 <ul>
 <li><code>&quot;12.0-ocabot-merge-pr-100-by-toto-bump-patch&quot;</code> → truthy</li>
 <li><code>&quot;master-ocabot-merge-pr-100-by-toto-bump-no&quot;</code> → truthy</li>
 <li><code>&quot;12.0-cabot-merge-pr-a100-by-titi-bump-no&quot;</code> → falsy</li>
 </ul>
-<p>The target branch is not restricted to numeric version formats; non-version target names such as <code>master</code> are valid.</p>
+<p>The target branch is not limited to numeric version formats; non-version target names such as <code>master</code> are valid.</p>
 <h5><code>search_merge_bot_branch(text)</code></h5>
-<p>Search the supplied text for an embedded branch name in the required format. Return only the matched branch-name substring, or <code>None</code> when no merge bot branch name is present.</p>
+<p>Scan the supplied text for a branch name embedded in the required format. The function returns only the matched branch-name substring, or <code>None</code> when no merge bot branch name is present.</p>
 <p>Examples:</p>
 <pre><code class="language-python">search_merge_bot_branch(
     &quot;blah blah 12.0-ocabot-merge-pr-100-by-toto-bump-no more stuff&quot;
@@ -782,46 +786,46 @@ parse_merge_bot_branch(&quot;12.0-ocabot-merge-pr-100-by-toto-bump-no&quot;)
 search_merge_bot_branch(&quot;blah blah more stuff&quot;)
 # None
 </code></pre>
-<h4>Compatibility and Scope Constraints</h4>
+<h4>Constraints on Compatibility and Scope</h4>
 <ul>
-<li>Keep the <code>ocabot-merge</code> token unchanged. Its position follows the leading target branch, but the token itself must remain intact.</li>
-<li>Construction, parsing, validation, and text searching must all agree on the same new field ordering.</li>
-<li>Preserve the no-bump compatibility convention: <code>no</code> is the branch-name representation, while parsed data uses <code>None</code>.</li>
-<li>Beyond the required token and field layout described above, the merge bot branch name is opaque and only needs to satisfy these behaviors.</li>
-<li>Do not relocate or rename the public functions, and do not change unrelated branch utility behavior.</li>
+<li>The <code>ocabot-merge</code> token is to be kept unchanged. Its position is after the leading target branch, but the token itself must remain intact.</li>
+<li>Construction, parsing, validation, and text searching must all follow the same new field ordering.</li>
+<li>Keep the no-bump compatibility convention: <code>no</code> serves as the branch-name representation, while parsed data uses <code>None</code>.</li>
+<li>Apart from the required token and field layout described above, the merge bot branch name is opaque and only has to satisfy these behaviors.</li>
+<li>Do not move the public functions or rename them, and do not modify unrelated branch utility behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Implement a new webhook handler module that responds to GitHub check suite events and dispatches a task to tag pull requests that have passing checks.</span>
-        <span class="spec-meta muted">318 words · source specification
+        <span class="spec-title">Create a new webhook handler module that reacts to GitHub check suite events and dispatches a task whose job is to tag pull requests that have passing checks.</span>
+        <span class="spec-meta muted">334 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add &quot;needs review&quot; labeling webhook for green pull requests</h3>
+      <div class="spec-body"><h3>Task: Add a webhook that labels green pull requests with &quot;needs review&quot;</h3>
 <h4>Overview</h4>
-<p>Implement a new webhook handler module that responds to GitHub check suite events and dispatches a task to tag pull requests that have passing checks.</p>
-<h4>Module to Create</h4>
-<p>Create a new module at:</p>
+<p>Create a new webhook handler module that reacts to GitHub check suite events and dispatches a task whose job is to tag pull requests that have passing checks.</p>
+<h4>New module to create</h4>
+<p>Add a module at this path:</p>
 <pre><code>oca_github_bot/webhooks/on_pr_green_label_needs_review.py
 </code></pre>
-<h4>Required Public API</h4>
+<h4>Public API to provide</h4>
 <h5><code>tag_needs_review</code></h5>
-<p>Within the new module, there must be a reference named <code>tag_needs_review</code> that is a task object exposing a <code>.delay(...)</code> method (i.e., a Celery-style task that can be invoked asynchronously via <code>tag_needs_review.delay(...)</code>). It must be importable/patchable at:</p>
+<p>The new module must contain a reference named <code>tag_needs_review</code> that is a task object exposing a <code>.delay(...)</code> method (that is, a Celery-style task that can be invoked asynchronously via <code>tag_needs_review.delay(...)</code>). It must be possible to import and patch it at:</p>
 <pre><code>oca_github_bot.webhooks.on_pr_green_label_needs_review.tag_needs_review.delay
 </code></pre>
 <h5><code>on_pr_green_label_needs_review(event, gh)</code></h5>
-<p>An asynchronous coroutine function with the following signature:</p>
+<p>An asynchronous coroutine whose signature is:</p>
 <pre><code class="language-python">async def on_pr_green_label_needs_review(event, gh):
     ...
 </code></pre>
 <ul>
-<li><code>event</code> — an event object with a <code>.data</code> attribute (a dict) containing the GitHub webhook payload.</li>
-<li><code>gh</code> — an additional argument that is accepted but not used for the behavior described here (may be passed as <code>None</code>).</li>
+<li><code>event</code> — an event object carrying a <code>.data</code> attribute (a dict) that contains the GitHub webhook payload.</li>
+<li><code>gh</code> — another argument that is accepted but not used by the behavior described here (it may be passed as <code>None</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When <code>on_pr_green_label_needs_review(event, gh)</code> is awaited, it must inspect <code>event.data</code>, which has this structure:</p>
+<h4>Behavior to implement</h4>
+<p>When <code>on_pr_green_label_needs_review(event, gh)</code> is awaited, it must inspect <code>event.data</code>, whose structure is:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {&quot;full_name&quot;: &quot;&lt;org&gt;/&lt;repo&gt;&quot;},
     &quot;check_suite&quot;: {
@@ -830,67 +834,68 @@ search_merge_bot_branch(&quot;blah blah more stuff&quot;)
     },
 }
 </code></pre>
-<p>From this payload the handler must:</p>
+<p>Based on this payload, the handler must:</p>
 <ol>
 <li>
-<p>Extract the repository's <code>full_name</code> and split it on <code>/</code> into an organization part and a repository part. For example, <code>&quot;OCA/some-repo&quot;</code> yields org <code>&quot;OCA&quot;</code> and repo <code>&quot;some-repo&quot;</code>.</p>
+<p>Pull out the repository's <code>full_name</code> and split it on <code>/</code> into an organization part and a repository part. As an example, <code>&quot;OCA/some-repo&quot;</code> yields org <code>&quot;OCA&quot;</code> and repo <code>&quot;some-repo&quot;</code>.</p>
 </li>
 <li>
-<p>Read the <code>conclusion</code> value from the <code>check_suite</code>.</p>
+<p>Read the <code>conclusion</code> value out of the <code>check_suite</code>.</p>
 </li>
 <li>
-<p>For the pull request number found in <code>check_suite.pull_requests</code>, dispatch the task by calling:</p>
+<p>Using the pull request number from <code>check_suite.pull_requests</code>, dispatch the task by calling:</p>
 <pre><code class="language-python">tag_needs_review.delay(org, pr_number, repo, conclusion)
 </code></pre>
-<p>with the arguments in exactly this order: organization string, pull request number (int), repository string, conclusion string.</p>
+<p>passing the arguments in exactly this order: organization string, pull request number (int), repository string, conclusion string.</p>
 </li>
 </ol>
-<h5>Concrete example</h5>
-<p>Given <code>event.data</code>:</p>
+<h5>Worked example</h5>
+<p>When <code>event.data</code> is:</p>
 <pre><code class="language-python">{
     &quot;repository&quot;: {&quot;full_name&quot;: &quot;OCA/some-repo&quot;},
     &quot;check_suite&quot;: {&quot;pull_requests&quot;: [{&quot;number&quot;: 1}], &quot;conclusion&quot;: &quot;success&quot;},
 }
 </code></pre>
-<p>the handler must result in a single call:</p>
+<p>the handler must produce a single call:</p>
 <pre><code class="language-python">tag_needs_review.delay(&quot;OCA&quot;, 1, &quot;some-repo&quot;, &quot;success&quot;)
 </code></pre>
-<p>That is, for a payload containing a single pull request, <code>tag_needs_review.delay</code> must be called exactly once with the arguments <code>(&quot;OCA&quot;, 1, &quot;some-repo&quot;, &quot;success&quot;)</code>.</p>
+<p>In other words, for a payload that contains a single pull request, <code>tag_needs_review.delay</code> must be called exactly once with the arguments <code>(&quot;OCA&quot;, 1, &quot;some-repo&quot;, &quot;success&quot;)</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Add a new function to the manifest module that detects the Odoo series (major and minor version) from an Odoo module version string, along with a…</span>
-        <span class="spec-meta muted">253 words · source specification
+        <span class="spec-title">The goal is to add a new function to the manifest module that detects the Odoo series (major and minor version) from an Odoo module version string, together…</span>
+        <span class="spec-meta muted">277 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Add a new function to the manifest module that detects the Odoo series (major and minor version) from an Odoo module version string, along with a corresponding exception class.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>The goal is to add a new function to the manifest module that detects the Odoo series (major and minor version) from an Odoo module version string, together with a corresponding exception class.</p>
 <h4>Module</h4>
-<p>All changes are made to the module <code>oca_github_bot.manifest</code>.</p>
+<p>All changes take place in the module <code>oca_github_bot.manifest</code>.</p>
 <h4>Required Public API</h4>
 <h5>Exception: <code>OdooSeriesNotDetected</code></h5>
-<p>Define a new exception class named <code>OdooSeriesNotDetected</code> in <code>oca_github_bot.manifest</code>. It must be importable from that module. This exception is raised when the Odoo series cannot be determined from a given version string (see below).</p>
+<p>In <code>oca_github_bot.manifest</code>, define a new exception class named <code>OdooSeriesNotDetected</code>. It must be possible to import it from that module. This exception is raised when the Odoo series cannot be determined from the provided version string (see below).</p>
 <h5>Function: <code>get_odoo_series_from_version</code></h5>
 <p>Signature:</p>
 <pre><code class="language-python">def get_odoo_series_from_version(version):
     ...
 </code></pre>
-<p>Location: <code>oca_github_bot.manifest</code>, importable from that module.</p>
+<p>Location: <code>oca_github_bot.manifest</code>; the function must be importable from that module.</p>
 <p><strong>Behavior:</strong></p>
-<p>The function takes a version string in the standard Odoo manifest version format and returns the Odoo series as a 2-tuple of integers <code>(major, minor)</code>.</p>
-<p>An Odoo module version string is expected to consist of exactly <strong>five</strong> dot-separated numeric components: <code>&lt;odoo_major&gt;.&lt;odoo_minor&gt;.&lt;module_major&gt;.&lt;module_minor&gt;.&lt;module_patch&gt;</code>. The Odoo series is the first two components.</p>
+<p>The function accepts a version string in the standard Odoo manifest version format and returns the Odoo series as a 2-tuple of integers <code>(major, minor)</code>.</p>
+<p>An Odoo module version string is expected to be made up of exactly <strong>five</strong> dot-separated numeric components: <code>&lt;odoo_major&gt;.&lt;odoo_minor&gt;.&lt;module_major&gt;.&lt;module_minor&gt;.&lt;module_patch&gt;</code>. The first two components make up the Odoo series.</p>
 <ul>
 <li>
-<p>For a valid version string with exactly five dot-separated numeric components, return a tuple <code>(major, minor)</code> where <code>major</code> and <code>minor</code> are the first two components as integers.</p>
+<p>When the version string is valid and has exactly five dot-separated numeric components, return a tuple <code>(major, minor)</code> where <code>major</code> and <code>minor</code> are the first two components as integers.</p>
 <ul>
 <li><code>&quot;12.0.1.0.0&quot;</code> → <code>(12, 0)</code></li>
 <li><code>&quot;6.1.1.0.0&quot;</code> → <code>(6, 1)</code></li>
 </ul>
 </li>
 <li>
-<p>If the version string does not have exactly five dot-separated numeric components, raise <code>OdooSeriesNotDetected</code>. This includes cases where the string has fewer than five components:</p>
+<p>If the version string as a whole is not made up of exactly five dot-separated numeric components, raise <code>OdooSeriesNotDetected</code>. This includes the cases where the string has fewer than five components:</p>
 <ul>
 <li><code>&quot;1.0.0&quot;</code> → raises <code>OdooSeriesNotDetected</code></li>
 <li><code>&quot;1.0&quot;</code> → raises <code>OdooSeriesNotDetected</code></li>
@@ -900,170 +905,172 @@ search_merge_bot_branch(&quot;blah blah more stuff&quot;)
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The existing importable names in <code>oca_github_bot.manifest</code> (<code>NoManifestFound</code>, <code>bump_manifest_version</code>, <code>bump_version</code>, <code>get_manifest</code>, <code>get_manifest_path</code>, <code>git_modified_addons</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, and others) must remain available and unchanged.</li>
+<li>The names that are already importable from <code>oca_github_bot.manifest</code> (<code>NoManifestFound</code>, <code>bump_manifest_version</code>, <code>bump_version</code>, <code>get_manifest</code>, <code>get_manifest_path</code>, <code>git_modified_addons</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, and others) must remain available and unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Implement functionality to build Python wheels for Odoo addons found in a git repository and publish them into a simple package index directory structure.</span>
-        <span class="spec-meta muted">744 words · source specification
+        <span class="spec-title">Functionality must be implemented to build Python wheels for the Odoo addons found in a git repository and to publish those wheels into a simple package…</span>
+        <span class="spec-meta muted">824 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement functionality to build Python wheels for Odoo addons found in a git repository and publish them into a simple package index directory structure. Additionally, extend an existing module with a helper that returns the directory paths of git-modified addons.</p>
-<h4>Part 1: New module <code>oca_github_bot/build_wheels.py</code></h4>
-<p>Create a new module exposing the following public function:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Functionality must be implemented to build Python wheels for the Odoo addons found in a git repository and to publish those wheels into a simple package index laid out as a directory structure. In addition, an existing module is to be extended with a helper that returns the directory paths of git-modified addons.</p>
+<h4>Part 1: The new module <code>oca_github_bot/build_wheels.py</code></h4>
+<p>A new module is to be created that exposes the following public function:</p>
 <pre><code class="language-python">def build_and_publish_wheels(addons_dir, simple_index_root):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>addons_dir</code>: a path to a git repository directory that contains Odoo addons. It may be given as a <code>str</code> or as a path-like object (e.g. <code>pathlib.Path</code>). Both forms must work.</li>
-<li><code>simple_index_root</code>: a path to the root directory of a simple package index. It may be given as a <code>str</code> or as a path-like object. Both forms must work.</li>
+<li><code>addons_dir</code>: a path to a git repository directory that contains Odoo addons. It may be supplied either as a <code>str</code> or as a path-like object (e.g. <code>pathlib.Path</code>); both forms must work.</li>
+<li><code>simple_index_root</code>: a path to the root directory of a simple package index. It may be supplied as a <code>str</code> or as a path-like object, and both forms must work.</li>
 </ul>
 <h5>Behavior</h5>
-<p>For each addon in <code>addons_dir</code> that is packaged (i.e. each addon has an installable Python package definition under a <code>setup/&lt;addon_name&gt;/</code> layout as produced by the standard Odoo setuptools packaging convention), build a wheel and publish it into the simple index.</p>
-<p>Publishing into the simple index means: for each built wheel, place it inside a per-package subdirectory of <code>simple_index_root</code>. The subdirectory is named after the wheel's normalized distribution name using PEP 503 normalization (lowercased, runs of <code>.</code>, <code>_</code>, or <code>-</code> collapsed to a single <code>-</code>). For example, a wheel for the distribution <code>odoo12-addon-addon1</code> is placed in <code>simple_index_root/odoo12-addon-addon1/</code>, and the wheel file itself keeps its original wheel filename (e.g. one beginning with <code>odoo12_addon_addon1</code> and ending with <code>.whl</code>).</p>
-<p>Concretely, after a run:</p>
+<p>For every addon in <code>addons_dir</code> that is packaged (that is, every addon has an installable Python package definition under a <code>setup/&lt;addon_name&gt;/</code> layout as produced by the standard Odoo setuptools packaging convention), build a wheel and publish it into the simple index.</p>
+<p>Publishing into the simple index works as follows: each built wheel is placed inside a per-package subdirectory of <code>simple_index_root</code>. The name of the subdirectory comes from the wheel's normalized distribution name, using PEP 503 normalization (lowercased, runs of <code>.</code>, <code>_</code>, or <code>-</code> collapsed to a single <code>-</code>). As an example, a wheel for the distribution <code>odoo12-addon-addon1</code> is placed in <code>simple_index_root/odoo12-addon-addon1/</code>, and the wheel file itself keeps its original wheel filename (e.g. one beginning with <code>odoo12_addon_addon1</code> and ending with <code>.whl</code>).</p>
+<p>To make this concrete, after a run:</p>
 <ul>
-<li><code>simple_index_root</code> contains exactly one subdirectory per published addon package.</li>
-<li>Each such subdirectory contains exactly the wheel file(s) for that package.</li>
+<li><code>simple_index_root</code> ends up containing exactly one subdirectory per published addon package.</li>
+<li>Every such subdirectory contains exactly the wheel file(s) for that package.</li>
 </ul>
-<h5>Distribution naming and Python tags</h5>
-<p>The distribution name and the wheel's Python compatibility tag are determined by the addon's Odoo series (the major series taken from its manifest <code>version</code>):</p>
+<h5>Distribution names and Python tags</h5>
+<p>The addon's Odoo series (the major series taken from its manifest <code>version</code>) determines the distribution name and the wheel's Python compatibility tag:</p>
 <ul>
-<li>Series <code>10.0</code>: distribution name prefix <code>odoo10-addon-</code>, wheel filename contains the Python tag <code>-py2-</code>.</li>
-<li>Series <code>11.0</code>: distribution name prefix <code>odoo11-addon-</code>, wheel filename contains the Python tag <code>-py2.py3-</code>.</li>
-<li>Series <code>12.0</code>: distribution name prefix <code>odoo12-addon-</code>, wheel filename contains the Python tag <code>-py3-</code>.</li>
+<li>Series <code>10.0</code>: the distribution name has the prefix <code>odoo10-addon-</code>, and the wheel filename contains the Python tag <code>-py2-</code>.</li>
+<li>Series <code>11.0</code>: the distribution name has the prefix <code>odoo11-addon-</code>, and the wheel filename contains the Python tag <code>-py2.py3-</code>.</li>
+<li>Series <code>12.0</code>: the distribution name has the prefix <code>odoo12-addon-</code>, and the wheel filename contains the Python tag <code>-py3-</code>.</li>
 </ul>
-<p>For an addon named <code>addonX</code> of series <code>N.0</code>, the published package directory is <code>odooN-addon-addonX</code> and the wheel filename begins with <code>odooN_addon_addonX</code> and ends with <code>.whl</code>.</p>
-<p>(The above naming/tagging follows from the standard Odoo setuptools packaging conventions; the function must produce wheels consistent with them.)</p>
+<p>When an addon is named <code>addonX</code> and is of series <code>N.0</code>, its published package directory is <code>odooN-addon-addonX</code>, and its wheel filename starts with <code>odooN_addon_addonX</code> and ends with <code>.whl</code>.</p>
+<p>(The naming/tagging above follows from the standard Odoo setuptools packaging conventions; the function must produce wheels consistent with them.)</p>
 <h5>Edge case: no addons</h5>
-<p>If <code>addons_dir</code> contains no packaged addons, the function must complete successfully and leave <code>simple_index_root</code> empty (no subdirectories or files created).</p>
+<p>If there are no packaged addons inside <code>addons_dir</code>, the function must complete successfully and leave <code>simple_index_root</code> empty (no subdirectories or files created).</p>
 <h5>Incremental / repeated invocation</h5>
-<p>The function may be called multiple times against the same <code>addons_dir</code> and <code>simple_index_root</code> as addons are added over time. Each call must ensure that every packaged addon currently present in <code>addons_dir</code> is published into <code>simple_index_root</code>. Previously published packages from earlier calls must remain present. After all addons have been added and the function invoked, <code>simple_index_root</code> contains one subdirectory per addon.</p>
-<h4>Part 2: New function in <code>oca_github_bot/manifest.py</code></h4>
-<p>Add a new public function to the existing <code>oca_github_bot.manifest</code> module:</p>
+<p>As addons get added over time, the function may be invoked several times against the same <code>addons_dir</code> and <code>simple_index_root</code>. Every call must ensure that each packaged addon present in <code>addons_dir</code> at the time of the call is published into <code>simple_index_root</code>. Packages published by earlier calls must remain present. Once all addons have been added and the function has been invoked, <code>simple_index_root</code> contains one subdirectory per addon.</p>
+<h4>Part 2: A new function in <code>oca_github_bot/manifest.py</code></h4>
+<p>A new public function is to be added to the existing <code>oca_github_bot.manifest</code> module:</p>
 <pre><code class="language-python">def git_modified_addon_dirs(repo_dir, ref):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>repo_dir</code>: a path to a git repository (path-like or <code>str</code>).</li>
-<li><code>ref</code>: a git ref/tag/branch name to compare the current working tree against (e.g. <code>&quot;origin/master&quot;</code>).</li>
+<li><code>repo_dir</code>: a path to a git repository (either a path-like object or a <code>str</code>).</li>
+<li><code>ref</code>: a git ref/tag/branch name that the current working tree is compared against (e.g. <code>&quot;origin/master&quot;</code>).</li>
 </ul>
 <h5>Behavior</h5>
-<p>This is the directory-path counterpart to the existing <code>git_modified_addons(repo_dir, ref)</code> function, which returns a set of the names of addons modified since <code>ref</code>.</p>
-<p><code>git_modified_addon_dirs</code> must return a <strong>list of absolute directory path strings</strong>, one per modified addon, where each path is the addon's directory joined onto <code>repo_dir</code> (i.e. <code>str(repo_dir / addon_name)</code> form). For example, if the only modified addon is <code>addon</code> in repository <code>repo_dir</code>, the return value is <code>[str(repo_dir / &quot;addon&quot;)]</code>.</p>
-<h5>Relationship to existing <code>git_modified_addons</code></h5>
-<p>The set of modified addons considered is the same as that produced by <code>git_modified_addons</code>. In particular:</p>
+<p>The existing <code>git_modified_addons(repo_dir, ref)</code> function returns a set of the names of addons modified since <code>ref</code>; the new function is its directory-path counterpart.</p>
+<p><code>git_modified_addon_dirs</code> must return a <strong>list of absolute directory path strings</strong>, one per modified addon, where each path is the addon's directory joined onto <code>repo_dir</code> (i.e. of the <code>str(repo_dir / addon_name)</code> form). To illustrate, if the only modified addon is <code>addon</code> in the repository <code>repo_dir</code>, the return value is <code>[str(repo_dir / &quot;addon&quot;)]</code>.</p>
+<h5>Relation to the existing <code>git_modified_addons</code></h5>
+<p>The set of modified addons taken into account is the same as the one produced by <code>git_modified_addons</code>. In particular:</p>
 <ul>
-<li>An addon counts as modified if changes to its files exist between <code>ref</code> and the current state.</li>
-<li>If an addon directory has been removed relative to <code>ref</code>, that addon must <strong>not</strong> appear in the result. In the scenario where the only difference since <code>ref</code> is the removal of an addon (and no other addon changes remain relative to <code>ref</code>), the result of <code>git_modified_addons</code> is empty (and correspondingly <code>git_modified_addon_dirs</code> yields no entries).</li>
+<li>An addon counts as modified when changes to that addon's files exist between <code>ref</code> and the current state.</li>
+<li>When an addon directory has been removed relative to <code>ref</code>, that addon must <strong>not</strong> appear in the result. In the situation where the removal of an addon is the only difference since <code>ref</code> (and no other addon changes remain relative to <code>ref</code>), the result of <code>git_modified_addons</code> is empty (and <code>git_modified_addon_dirs</code> correspondingly yields no entries).</li>
 </ul>
-<p><code>git_modified_addons</code> retains its existing behavior of returning a set of addon name strings.</p>
+<p><code>git_modified_addons</code> keeps its existing behavior of returning a set of addon name strings.</p>
 <h4>Imports</h4>
-<p>The following must be importable:</p>
+<p>It must be possible to import the following:</p>
 <pre><code class="language-python">from oca_github_bot.build_wheels import build_and_publish_wheels
 from oca_github_bot.manifest import git_modified_addon_dirs
 </code></pre>
-<p>Existing importable names in <code>oca_github_bot.manifest</code> (including <code>git_modified_addons</code>, <code>get_manifest</code>, <code>get_manifest_path</code>, <code>get_odoo_series_from_version</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, and others already present) must remain available.</p>
+<p>The names that can already be imported from <code>oca_github_bot.manifest</code> (including <code>git_modified_addons</code>, <code>get_manifest</code>, <code>get_manifest_path</code>, <code>get_odoo_series_from_version</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, and others already present) must remain available.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Modify the push-to-main-branch event handler so that when it dispatches the main branch bot task, it explicitly signals that wheels should not be built for…</span>
-        <span class="spec-meta muted">194 words · source specification
+        <span class="spec-title">Change the event handler for pushes to the main branch so that, at the time it dispatches the main branch bot task, it explicitly signals that wheels should…</span>
+        <span class="spec-meta muted">213 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the push-to-main-branch event handler so that when it dispatches the main branch bot task, it explicitly signals that wheels should <strong>not</strong> be built for ordinary pushes to a main branch.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Change the event handler for pushes to the main branch so that, at the time it dispatches the main branch bot task, it explicitly signals that wheels should <strong>not</strong> be built for ordinary pushes to a main branch.</p>
+<h4>Public API</h4>
 <ul>
 <li><strong>Module:</strong> <code>on_push_to_main_branch</code></li>
-<li><strong>Function:</strong> <code>on_push_to_main_branch(event, &lt;second positional argument&gt;)</code> — an async function accepting an event object as its first argument and a second positional argument (which may be <code>None</code>).</li>
-<li><strong>Dispatched task:</strong> <code>on_push_to_main_branch.main_branch_bot</code>, invoked asynchronously via its <code>.delay(...)</code> method.</li>
+<li><strong>Function:</strong> <code>on_push_to_main_branch(event, &lt;second positional argument&gt;)</code> — an async function that accepts an event object as its first argument together with a second positional argument (which may be <code>None</code>).</li>
+<li><strong>Dispatched task:</strong> <code>on_push_to_main_branch.main_branch_bot</code>, which is invoked asynchronously through its <code>.delay(...)</code> method.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>When <code>on_push_to_main_branch(event, ...)</code> is awaited with an event describing a push to a main branch, it must dispatch the main branch bot task exactly once.</p>
-<p>The dispatch call must be made as:</p>
+<h4>Behavior Requirements</h4>
+<p>When <code>on_push_to_main_branch(event, ...)</code> is awaited with an event that describes a push to a main branch, it must dispatch the main branch bot task exactly once.</p>
+<p>The dispatch call must be issued as:</p>
 <pre><code>main_branch_bot.delay(org, repo, branch, build_wheels=False)
 </code></pre>
 <p>where:</p>
 <ul>
-<li><code>org</code>, <code>repo</code>, and <code>branch</code> are the three positional arguments derived from the incoming event (organization name, repository name, and target branch name, in that order).</li>
-<li><code>build_wheels=False</code> is passed as a keyword argument.</li>
+<li><code>org</code>, <code>repo</code>, and <code>branch</code> are the three positional arguments obtained from the incoming event (the organization name, the repository name, and the target branch name, in that order).</li>
+<li><code>build_wheels=False</code> is provided as a keyword argument.</li>
 </ul>
-<p>For an event identifying organization <code>&quot;OCA&quot;</code>, repository <code>&quot;some-repo&quot;</code>, and branch <code>&quot;11.0&quot;</code>, the dispatch must therefore be:</p>
+<p>For an event that identifies the organization <code>&quot;OCA&quot;</code>, the repository <code>&quot;some-repo&quot;</code>, and the branch <code>&quot;11.0&quot;</code>, the dispatch must therefore be:</p>
 <pre><code>main_branch_bot.delay(&quot;OCA&quot;, &quot;some-repo&quot;, &quot;11.0&quot;, build_wheels=False)
 </code></pre>
-<p>The task must be dispatched precisely once per handled push event; no additional dispatches are permitted.</p>
+<p>The task must be dispatched precisely once for each handled push event; no additional dispatches are permitted.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Addon Directory Detection with Installability Filtering</span>
-        <span class="spec-meta muted">528 words · source specification
+        <span class="spec-title">Detecting Addon Directories with Installability Filtering</span>
+        <span class="spec-meta muted">578 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Addon Directory Detection with Installability Filtering</h3>
-<h4>Overview</h4>
-<p>You must implement two functions in the module <code>manifest</code> (importable as <code>from manifest import is_addon_dir, is_addons_dir</code>) that detect whether a given directory is an Odoo-style addon directory or a directory containing addons, with optional filtering by installability.</p>
-<h4>Background</h4>
-<p>An Odoo addon directory is identified by the presence of a manifest file named <code>__manifest__.py</code> directly inside it. The manifest file contains a Python dictionary literal (as text) describing the addon. This dictionary may contain an <code>installable</code> key whose value is a boolean. When the <code>installable</code> key is absent, the addon is considered installable by default (i.e., treated as <code>installable: True</code>).</p>
-<h4>Required Functions</h4>
+      <div class="spec-body"><h3>Task Specification: Detecting Addon Directories with Installability Filtering</h3>
+<h4>Summary</h4>
+<p>You must implement two functions in the module <code>manifest</code> (importable as <code>from manifest import is_addon_dir, is_addons_dir</code>). These functions detect whether a supplied directory is an Odoo-style addon directory or a directory that contains addons, and they support optional filtering by installability.</p>
+<h4>Context</h4>
+<p>What identifies a directory as an Odoo addon directory is a manifest file named <code>__manifest__.py</code> located directly inside it. The manifest file holds a Python dictionary literal (in text form) that describes the addon. This dictionary can contain an <code>installable</code> key whose value is a boolean. If the <code>installable</code> key is not present, the addon is regarded as installable by default (that is, treated as <code>installable: True</code>).</p>
+<h4>Functions to Implement</h4>
 <h5><code>is_addon_dir(addon_dir, installable_only=False)</code></h5>
-<p>Determines whether the given directory is an addon directory.</p>
+<p>Reports whether the given directory is an addon directory.</p>
 <p><strong>Parameters:</strong></p>
 <ul>
-<li><code>addon_dir</code>: a path (e.g., a <code>pathlib.Path</code>) pointing to a directory.</li>
-<li><code>installable_only</code> (keyword argument, default <code>False</code>): controls whether uninstallable addons should be excluded.</li>
+<li><code>addon_dir</code>: a path (for example, a <code>pathlib.Path</code>) that points to a directory.</li>
+<li><code>installable_only</code> (a keyword argument whose default is <code>False</code>): governs whether uninstallable addons should be excluded.</li>
 </ul>
 <p><strong>Behavior:</strong></p>
 <ul>
-<li>A directory is an addon directory if it directly contains a <code>__manifest__.py</code> file.</li>
-<li>When <code>installable_only=False</code>, return <code>True</code> for any directory containing a <code>__manifest__.py</code> file, regardless of the <code>installable</code> value in the manifest (including when <code>installable</code> is <code>False</code>, <code>True</code>, or absent).</li>
-<li>When <code>installable_only=True</code>, return <code>True</code> only if the manifest exists AND the addon is installable. An addon is installable when its manifest dictionary either omits the <code>installable</code> key or has <code>installable</code> set to <code>True</code>. Return <code>False</code> when the manifest has <code>installable</code> set to <code>False</code>.</li>
+<li>A directory counts as an addon directory when it directly contains a <code>__manifest__.py</code> file.</li>
+<li>If <code>installable_only=False</code>, return <code>True</code> for any directory that contains a <code>__manifest__.py</code> file, no matter what <code>installable</code> value the manifest holds (this includes the cases where <code>installable</code> is <code>False</code>, <code>True</code>, or absent).</li>
+<li>If <code>installable_only=True</code>, return <code>True</code> only when the manifest exists AND the addon is installable. An addon is installable when its manifest dictionary either leaves the <code>installable</code> key out or has <code>installable</code> set to <code>True</code>. Return <code>False</code> if the manifest sets <code>installable</code> to <code>False</code>.</li>
 </ul>
 <h5><code>is_addons_dir(addons_dir, installable_only=False)</code></h5>
-<p>Determines whether the given directory is a container of one or more addon directories.</p>
+<p>Reports whether the given directory serves as a container for one or more addon directories.</p>
 <p><strong>Parameters:</strong></p>
 <ul>
-<li><code>addons_dir</code>: a path (e.g., a <code>pathlib.Path</code>) pointing to a directory.</li>
-<li><code>installable_only</code> (keyword argument, default <code>False</code>): controls whether uninstallable addons should be excluded from consideration.</li>
+<li><code>addons_dir</code>: a path (for example, a <code>pathlib.Path</code>) that points to a directory.</li>
+<li><code>installable_only</code> (a keyword argument whose default is <code>False</code>): governs whether uninstallable addons should be excluded from consideration.</li>
 </ul>
 <p><strong>Behavior:</strong></p>
 <ul>
-<li>A directory is an &quot;addons directory&quot; if it contains at least one immediate subdirectory that qualifies as an addon directory (per <code>is_addon_dir</code> with the same <code>installable_only</code> setting).</li>
-<li>Return <code>False</code> when no such qualifying subdirectory exists (including when the directory contains subdirectories that have no manifest file at all).</li>
-<li>When <code>installable_only=False</code>, a subdirectory containing a <code>__manifest__.py</code> counts regardless of its <code>installable</code> value.</li>
-<li>When <code>installable_only=True</code>, only subdirectories whose addon is installable (manifest omits <code>installable</code> or has <code>installable: True</code>) count; subdirectories whose manifest has <code>installable: False</code> do not count.</li>
+<li>A directory qualifies as an &quot;addons directory&quot; when at least one of its immediate subdirectories qualifies as an addon directory (as judged by <code>is_addon_dir</code> using the same <code>installable_only</code> setting).</li>
+<li>Return <code>False</code> when no such qualifying subdirectory exists (this also applies when the directory contains subdirectories that have no manifest file at all).</li>
+<li>If <code>installable_only=False</code>, a subdirectory that contains a <code>__manifest__.py</code> counts no matter what its <code>installable</code> value is.</li>
+<li>If <code>installable_only=True</code>, a subdirectory counts only when its addon is installable (its manifest omits <code>installable</code> or has <code>installable: True</code>); subdirectories whose manifest has <code>installable: False</code> do not count.</li>
 </ul>
-<h4>Manifest Parsing Notes</h4>
+<h4>Notes on Manifest Parsing</h4>
 <ul>
-<li>The manifest file content is a Python dictionary literal in text form, for example:
+<li>The content of the manifest file is a Python dictionary literal written as text; for example:
 <ul>
 <li><code>{'name': 'addon'}</code></li>
 <li><code>{'name': 'addon', 'installable': False}</code></li>
 <li><code>{'name': 'addon', 'installable': True}</code></li>
 </ul>
 </li>
-<li>You must read and evaluate this content to extract the <code>installable</code> value when needed.</li>
+<li>When the <code>installable</code> value is needed, you must read and evaluate this content in order to extract it.</li>
 </ul>
 <h4>Examples of Expected Results</h4>
-<p>Given a directory <code>D</code> containing a <code>__manifest__.py</code>:</p>
+<p>For a directory <code>D</code> that contains a <code>__manifest__.py</code> file:</p>
 <ul>
 <li><code>{'name': 'addon'}</code> → <code>is_addon_dir(D)</code> is <code>True</code>; <code>is_addon_dir(D, installable_only=True)</code> is <code>True</code>.</li>
 <li><code>{'name': 'addon', 'installable': False}</code> → <code>is_addon_dir(D)</code> is <code>True</code>; <code>is_addon_dir(D, installable_only=True)</code> is <code>False</code>.</li>
 <li><code>{'name': 'addon', 'installable': True}</code> → <code>is_addon_dir(D)</code> is <code>True</code>; <code>is_addon_dir(D, installable_only=True)</code> is <code>True</code>.</li>
 </ul>
-<p>Given a directory <code>P</code> containing subdirectory <code>addon1</code>:</p>
+<p>For a directory <code>P</code> that contains the subdirectory <code>addon1</code>:</p>
 <ul>
-<li><code>addon1</code> has no manifest → <code>is_addons_dir(P)</code> is <code>False</code>.</li>
+<li>There is no manifest in <code>addon1</code> → <code>is_addons_dir(P)</code> is <code>False</code>.</li>
 <li><code>addon1/__manifest__.py</code> = <code>{'name': 'addon'}</code> → <code>is_addons_dir(P)</code> is <code>True</code>; <code>is_addons_dir(P, installable_only=True)</code> is <code>True</code>.</li>
 <li><code>addon1/__manifest__.py</code> = <code>{'name': 'addon', 'installable': False}</code> → <code>is_addons_dir(P)</code> is <code>True</code>; <code>is_addons_dir(P, installable_only=True)</code> is <code>False</code>.</li>
 <li><code>addon1/__manifest__.py</code> = <code>{'name': 'addon', 'installable': True}</code> → <code>is_addons_dir(P)</code> is <code>True</code>; <code>is_addons_dir(P, installable_only=True)</code> is <code>True</code>.</li>
@@ -1073,22 +1080,22 @@ from oca_github_bot.manifest import git_modified_addon_dirs
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Provide</span>
-        <span class="spec-meta muted">242 words · source specification
+        <span class="spec-title">Supply</span>
+        <span class="spec-meta muted">280 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required API</h4>
-<p>Provide:</p>
+      <div class="spec-body"><h4>API that must be provided</h4>
+<p>Supply:</p>
 <pre><code class="language-python">oca_github_bot.commands.parse_commands(body: str)
 </code></pre>
-<p><code>parse_commands</code> must return an iterable of command objects. Each emitted object must expose:</p>
+<p>The value returned by <code>parse_commands</code> must be an iterable of command objects. Each object that it emits must expose:</p>
 <ul>
-<li><code>name</code>: the parsed command name as a string</li>
-<li><code>options</code>: a list of parsed option strings</li>
+<li><code>name</code>: the command name once parsed, as a string</li>
+<li><code>options</code>: a list of the option strings that were parsed</li>
 </ul>
-<h4>Required behavior</h4>
-<p>Parse <code>/ocabot</code> commands from multiline comment text, preserving their order of appearance.</p>
-<p>The following input:</p>
+<h4>Behavior that is required</h4>
+<p>Parse <code>/ocabot</code> commands out of multiline comment text while keeping their order of appearance.</p>
+<p>Given this input:</p>
 <pre><code class="language-text">/ocabot merge major
 /ocabot   merge   patch
 /ocabot merge patch
@@ -1100,7 +1107,7 @@ from oca_github_bot.manifest import git_modified_addon_dirs
 /ocabot merge minor # ignored
 ...
 </code></pre>
-<p>must produce command objects equivalent to:</p>
+<p>the command objects produced must be equivalent to:</p>
 <pre><code class="language-python">[
     (&quot;merge&quot;, [&quot;major&quot;]),
     (&quot;merge&quot;, [&quot;patch&quot;]),
@@ -1113,16 +1120,16 @@ from oca_github_bot.manifest import git_modified_addon_dirs
     (&quot;merge&quot;, [&quot;minor&quot;]),
 ]
 </code></pre>
-<p>where each tuple represents <code>(command.name, command.options)</code>.</p>
-<p>Specifically:</p>
+<p>where every tuple stands for <code>(command.name, command.options)</code>.</p>
+<p>In particular:</p>
 <ul>
 <li>Multiple spaces between <code>/ocabot</code>, the command name, and an option are accepted.</li>
-<li>A comma or period immediately following the command name terminates the command name and results in no option.</li>
-<li>A comma or period immediately following an option terminates that option; subsequent text is ignored.</li>
-<li>Text beginning with <code>#</code> after an option is ignored.</li>
-<li>Non-command lines are ignored.</li>
-<li>Commands must still be found when surrounded by ordinary prose and blank lines.</li>
-<li>Windows-style <code>\r\n</code> line endings must be supported. For example:</li>
+<li>If a comma or period comes immediately after the command name, it terminates the command name and results in no option.</li>
+<li>If a comma or period comes immediately after an option, that option is terminated; the text that follows it is ignored.</li>
+<li>Text starting with <code>#</code> after an option is ignored.</li>
+<li>Lines that are not commands are ignored.</li>
+<li>Commands must still be found when they are surrounded by ordinary prose and blank lines.</li>
+<li>Windows-style <code>\r\n</code> line endings must be supported. For instance:</li>
 </ul>
 <pre><code class="language-text">Great contribution, thanks!
 
@@ -1130,7 +1137,7 @@ from oca_github_bot.manifest import git_modified_addon_dirs
 
 Please forward port it to 12.0.
 </code></pre>
-<p>with <code>\r\n</code> separators must produce exactly one command with:</p>
+<p>which, when the separators are <code>\r\n</code>, must produce exactly one command with:</p>
 <pre><code class="language-python">name == &quot;merge&quot;
 options == []
 </code></pre>
@@ -1139,97 +1146,99 @@ options == []
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Work in the oca_github_bot package to provide the required behavior for the addon-detection utility in oca_github_bot.manifest and the Git HEAD helper in…</span>
-        <span class="spec-meta muted">640 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">This work happens inside the oca_github_bot package</span>
+        <span class="spec-meta muted">744 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Work in the <code>oca_github_bot</code> package to provide the required behavior for the addon-detection utility in <code>oca_github_bot.manifest</code> and the Git HEAD helper in <code>oca_github_bot.github</code>. The public APIs, comparison semantics, filtering rules, and path compatibility described below must be preserved.</p>
-<h4>Required Public API</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Scope</h4>
+<p>This work happens inside the <code>oca_github_bot</code> package: the required behavior is to be provided by the addon-detection utility in <code>oca_github_bot.manifest</code> and by the Git HEAD helper in <code>oca_github_bot.github</code>. Whatever the sections below describe — the public APIs, the comparison semantics, the filtering rules, and the path compatibility — must survive unchanged.</p>
+<h4>Public API to Be Provided</h4>
 <h5><code>oca_github_bot.github.git_get_head_sha</code></h5>
 <pre><code class="language-python">def git_get_head_sha(cwd=&quot;.&quot;) -&gt; str
 </code></pre>
 <ul>
-<li>Resolve and return the commit SHA of the current <code>HEAD</code> in the Git repository selected by <code>cwd</code>.</li>
-<li><code>cwd</code> is optional. If omitted, <code>HEAD</code> is resolved in the process's current directory.</li>
-<li>An explicit <code>cwd</code> may be supplied either positionally or as a keyword argument, including <code>git_get_head_sha(cwd=path)</code>.</li>
-<li><code>cwd</code> accepts both string paths and path-like objects such as <code>pathlib.Path</code>.</li>
-<li>The result must be a Unicode <code>str</code>, with command-output whitespace such as the trailing newline removed, and must be directly usable as a commit reference in later Git operations such as <code>git cherry-pick</code>.</li>
+<li>The commit SHA of the current <code>HEAD</code> in the Git repository that <code>cwd</code> selects is what the function resolves and returns.</li>
+<li>The <code>cwd</code> parameter is optional: whenever no value is given, <code>HEAD</code> gets resolved in the directory the process is currently in.</li>
+<li>Callers may pass an explicit <code>cwd</code> either positionally or as a keyword argument, as in <code>git_get_head_sha(cwd=path)</code>.</li>
+<li>Both string paths and path-like objects (one example being <code>pathlib.Path</code>) are accepted for <code>cwd</code>.</li>
+<li>What the result must be is a Unicode <code>str</code> with command-output whitespace (the trailing newline, for instance) removed, and it must be directly usable as a commit reference in later Git operations, for example <code>git cherry-pick</code>.</li>
 </ul>
 <h5><code>oca_github_bot.manifest.git_modified_addons</code></h5>
 <pre><code class="language-python">def git_modified_addons(addons_dir, ref) -&gt; set
 </code></pre>
 <ul>
-<li><code>addons_dir</code> is a string or path-like path to a Git working tree containing addon subdirectories.</li>
-<li><code>ref</code> is any Git reference accepted for the comparison, including a local branch such as <code>master</code>, a remote-tracking reference such as <code>origin/master</code>, or a relative reference such as <code>HEAD^</code>.</li>
-<li>An addon is a subdirectory containing a <code>__manifest__.py</code> file.</li>
-<li>Return a <code>set</code> containing addon directory names only, not full paths.</li>
+<li>For <code>addons_dir</code>, the value is a string or path-like path pointing at a Git working tree with addon subdirectories inside.</li>
+<li>The <code>ref</code> parameter takes any Git reference accepted for the comparison, be it a local branch such as <code>master</code>, a remote-tracking reference such as <code>origin/master</code>, or a relative reference such as <code>HEAD^</code>.</li>
+<li>A subdirectory that contains a <code>__manifest__.py</code> file counts as an addon.</li>
+<li>The function returns a <code>set</code> whose members are addon directory names only; full paths do not appear.</li>
 </ul>
-<h4>Branch-Relative Comparison Semantics</h4>
-<p>The result represents addons changed specifically by the current <code>HEAD</code> side relative to <code>ref</code>:</p>
+<h4>Semantics of the Branch-Relative Comparison</h4>
+<p>The addons the result captures are those changed specifically on the current <code>HEAD</code> side, relative to <code>ref</code>:</p>
 <ol>
-<li>Determine the merge base of <code>HEAD</code> and <code>ref</code>, and consider changes introduced on the <code>HEAD</code> side since that divergence point. The comparison is not a direct comparison with the current tree at the tip of <code>ref</code>.</li>
-<li>Commits made only on the <code>ref</code> side after divergence must not contribute addons to the result. Thus, if each side advances independently, only addons changed on the current branch are returned.</li>
-<li>Relative references retain their normal Git meaning. For example, comparison with <code>HEAD^</code> reports addons changed by the current commit relative to its parent.</li>
-<li>Patch equivalence takes precedence over a plain merge-base tree comparison. A commit on the <code>HEAD</code> side that is patch-equivalent to a commit reachable from <code>ref</code> is not a genuinely branch-specific change and must be excluded, even if it has a different commit SHA and its resulting files differ from the merge-base tree. This includes a commit introduced by cherry-picking a commit that already exists on <code>ref</code>.</li>
-<li>The patch-equivalence exclusion applies only to changes attributable solely to such duplicated commits. If an addon also has an independent, genuinely branch-specific change, that addon remains reportable.</li>
+<li>The merge base of <code>HEAD</code> and <code>ref</code> is determined, and the changes introduced on the <code>HEAD</code> side since that divergence point are considered. No direct comparison with the current tree at the tip of <code>ref</code> takes place.</li>
+<li>Addons must not be contributed to the result by commits that were made only on the <code>ref</code> side after divergence. So, with each side advancing independently, the addons returned are only those changed on the current branch.</li>
+<li>The normal Git meaning of relative references stays intact. To illustrate, comparing against <code>HEAD^</code> reports the addons that the current commit changed relative to its parent.</li>
+<li>Patch equivalence outranks a plain merge-base tree comparison. If a commit on the <code>HEAD</code> side is patch-equivalent to a commit reachable from <code>ref</code>, it is not a genuinely branch-specific change and must be excluded — even if it has a different commit SHA and its resulting files differ from the merge-base tree. A commit introduced by cherry-picking a commit that already exists on <code>ref</code> is one case this covers.</li>
+<li>Only changes attributable solely to such duplicated commits fall within the patch-equivalence exclusion. When an addon additionally has an independent, genuinely branch-specific change, that addon remains reportable.</li>
 </ol>
-<p>Consequently:</p>
+<p>What follows from this:</p>
 <ul>
-<li>Committing a new or modified addon on the current branch makes that addon appear when compared with a reference that does not contain an equivalent change.</li>
-<li>Advancing the other branch with unrelated addon changes does not cause those other-branch addons to appear.</li>
-<li>Cherry-picking onto the current branch a change already reachable from <code>ref</code> does not make the affected addon appear merely because the cherry-pick has a new commit identity.</li>
+<li>Once a new or modified addon has been committed on the current branch, that addon appears whenever the reference used in the comparison does not contain an equivalent change.</li>
+<li>Advancing the other branch with unrelated addon changes does not result in those other-branch addons appearing.</li>
+<li>When a change already reachable from <code>ref</code> is cherry-picked onto the current branch, the affected addon does not appear merely because the cherry-pick carries a new commit identity.</li>
 </ul>
-<h4>Addon Detection and Filtering</h4>
+<h4>Detecting and Filtering Addons</h4>
 <ul>
-<li>Include only names that correspond to addons still present under <code>addons_dir</code> and containing <code>__manifest__.py</code>. A deleted addon is not returned.</li>
-<li>Changes to repository-level files or other paths that do not correspond to an addon do not create result entries.</li>
-<li>Existing setup-tree packaging conventions remain recognized: a change beneath <code>setup/&lt;addon_name&gt;/...</code> maps to <code>&lt;addon_name&gt;</code> only when that package exposes the corresponding valid addon through <code>setup/&lt;addon_name&gt;/odoo_addons/&lt;addon_name&gt;</code> or <code>setup/&lt;addon_name&gt;/odoo/addons/&lt;addon_name&gt;</code>. Setup metadata alone is not sufficient.</li>
-<li>Duplicate changed paths for one addon still produce one set member.</li>
-<li>When no qualifying addon has a branch-specific change, return an empty set.</li>
+<li>The only names permitted in the result are ones corresponding to addons still present under <code>addons_dir</code> and containing <code>__manifest__.py</code>; an addon that was deleted is not returned.</li>
+<li>Result entries are not created by changes to repository-level files or to other paths that do not correspond to an addon.</li>
+<li>Recognition of the existing setup-tree packaging conventions remains in place: a change beneath <code>setup/&lt;addon_name&gt;/...</code> maps to <code>&lt;addon_name&gt;</code> only when that package exposes the corresponding valid addon through <code>setup/&lt;addon_name&gt;/odoo_addons/&lt;addon_name&gt;</code> or <code>setup/&lt;addon_name&gt;/odoo/addons/&lt;addon_name&gt;</code>. On its own, setup metadata is not sufficient.</li>
+<li>Where the changed paths for one addon are duplicated, they still produce one set member.</li>
+<li>If no qualifying addon has a branch-specific change, the function returns an empty set.</li>
 </ul>
-<h4>Subprocess Output</h4>
-<p>All external command-line invocations made by these functions, including Git commands, must capture output in text mode. Publicly consumed output must therefore be Unicode text rather than <code>bytes</code>.</p>
+<h4>Output from Subprocesses</h4>
+<p>Text mode is the mode in which output must be captured by all external command-line invocations these functions make, Git commands included. Unicode text rather than <code>bytes</code> is therefore what publicly consumed output must be.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add a new public function is_maintainer to the module oca_github_bot.manifest.</span>
-        <span class="spec-meta muted">340 words · source specification
+        <span class="spec-title">Introduce a new public function is_maintainer into the module oca_github_bot.manifest.</span>
+        <span class="spec-meta muted">361 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Add a new public function <code>is_maintainer</code> to the module <code>oca_github_bot.manifest</code>. This function determines whether a given user is a declared maintainer of <strong>all</strong> addons in a provided list.</p>
-<h5>API Surface</h5>
-<p>The function must be importable as:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Goal</h5>
+<p>Introduce a new public function <code>is_maintainer</code> into the module <code>oca_github_bot.manifest</code>. The purpose of the function is to determine whether a given user is a declared maintainer of <strong>all</strong> addons in a provided list.</p>
+<h5>Public API</h5>
+<p>The function must be importable as follows:</p>
 <pre><code class="language-python">from oca_github_bot.manifest import is_maintainer
 </code></pre>
-<h5>Signature</h5>
+<h5>Function Signature</h5>
 <pre><code class="language-python">def is_maintainer(username: str, addon_dirs) -&gt; bool:
 </code></pre>
 <ul>
-<li><code>username</code>: a string identifying the user to check.</li>
-<li><code>addon_dirs</code>: an iterable of addon directory paths. Each element is a path to a directory that contains an addon manifest file named <code>__manifest__.py</code>. The paths may be <code>pathlib.Path</code> objects.</li>
+<li><code>username</code>: a string that identifies the user to check.</li>
+<li><code>addon_dirs</code>: an iterable of paths to addon directories. Each element is a path pointing to a directory that contains an addon manifest file named <code>__manifest__.py</code>. These paths may be <code>pathlib.Path</code> objects.</li>
 </ul>
-<h5>Manifest Format</h5>
-<p>Each addon directory contains a file <code>__manifest__.py</code> whose contents are a Python literal dictionary. The dictionary may contain a <code>&quot;maintainers&quot;</code> key whose value is a list of usernames (strings). If the <code>&quot;maintainers&quot;</code> key is absent, the addon has no declared maintainers.</p>
-<h5>Required Behavior</h5>
-<p><code>is_maintainer</code> returns <code>True</code> if and only if the given <code>username</code> is listed in the <code>&quot;maintainers&quot;</code> list of <strong>every</strong> addon in <code>addon_dirs</code>. It returns <code>False</code> otherwise.</p>
-<p>Specifically:</p>
+<h5>Format of the Manifest</h5>
+<p>Every addon directory holds a file <code>__manifest__.py</code> whose contents form a Python literal dictionary. The dictionary may contain a <code>&quot;maintainers&quot;</code> key whose value is a list of usernames (strings). When the <code>&quot;maintainers&quot;</code> key is absent, the addon has no declared maintainers.</p>
+<h5>Behavior Requirements</h5>
+<p><code>is_maintainer</code> returns <code>True</code> if and only if the supplied <code>username</code> is listed in the <code>&quot;maintainers&quot;</code> list of <strong>every</strong> addon in <code>addon_dirs</code>. In every other case, it returns <code>False</code>.</p>
+<p>More precisely:</p>
 <ul>
-<li>If the list of addon directories is such that the user appears in the <code>maintainers</code> list of each and every addon, return <code>True</code>.</li>
-<li>If the user is missing from the <code>maintainers</code> list of at least one addon, return <code>False</code>.</li>
-<li>An addon whose manifest has no <code>&quot;maintainers&quot;</code> key is treated as having no declared maintainers; if such an addon is present, the user cannot be a maintainer of it, so the result is <code>False</code> (unless there are no addons to satisfy, which is not exercised here).</li>
+<li>Whenever the list of addon directories is such that the user appears in the <code>maintainers</code> list of each and every addon, return <code>True</code>.</li>
+<li>If the <code>maintainers</code> list of at least one addon does not include the user, return <code>False</code>.</li>
+<li>An addon whose manifest has no <code>&quot;maintainers&quot;</code> key is treated as having no declared maintainers; when such an addon is present, the user cannot be a maintainer of it, so the result is <code>False</code> (except in the case where there are no addons to satisfy, which is not exercised here).</li>
 </ul>
-<h5>Examples of Expected Results</h5>
-<p>Given addons with the following manifests:</p>
+<h5>Expected Result Examples</h5>
+<p>Consider addons with the following manifests:</p>
 <ul>
 <li><code>addon1</code>: <code>maintainers = ['u1', 'u2']</code></li>
 <li><code>addon2</code>: <code>maintainers = ['u2']</code></li>
 <li><code>addon3</code>: no <code>maintainers</code> key</li>
 </ul>
-<p>Then:</p>
+<p>In that case:</p>
 <ul>
 <li><code>is_maintainer(&quot;u1&quot;, [addon1])</code> → <code>True</code></li>
 <li><code>is_maintainer(&quot;u1&quot;, [addon2])</code> → <code>False</code></li>
@@ -1237,56 +1246,56 @@ options == []
 <li><code>is_maintainer(&quot;u2&quot;, [addon1, addon2])</code> → <code>True</code></li>
 <li><code>is_maintainer(&quot;u2&quot;, [addon1, addon2, addon3])</code> → <code>False</code></li>
 </ul>
-<h5>Notes</h5>
+<h5>Additional Notes</h5>
 <ul>
-<li>The existing public exports of <code>oca_github_bot.manifest</code> (including <code>git_modified_addons</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, <code>set_manifest_version</code>, <code>get_odoo_series_from_version</code>, etc.) must remain available. <code>is_maintainer</code> is an addition alongside them.</li>
+<li>The existing public exports of <code>oca_github_bot.manifest</code> (including <code>git_modified_addons</code>, <code>is_addon_dir</code>, <code>is_addons_dir</code>, <code>set_manifest_version</code>, <code>get_odoo_series_from_version</code>, etc.) must remain available; <code>is_maintainer</code> is added alongside them.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Update the public helpers in oca_github_bot.manifest</span>
-        <span class="spec-meta muted">369 words · source specification
+        <span class="spec-title">The public helpers in oca_github_bot.manifest are to be updated</span>
+        <span class="spec-meta muted">434 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Git-modified add-on reporting</h3>
-<p>Update the public helpers in <code>oca_github_bot.manifest</code>:</p>
+      <div class="spec-body"><h3>Reporting add-ons modified in Git</h3>
+<p>The public helpers in <code>oca_github_bot.manifest</code> are to be updated:</p>
 <pre><code class="language-python">git_modified_addons(cwd, target_ref)
 git_modified_addon_dirs(cwd, target_ref)
 </code></pre>
-<p><code>cwd</code> may be a <code>pathlib.Path</code> identifying a Git checkout. <code>target_ref</code> is a Git reference such as a local branch, remote branch, tag, or relative reference like <code>HEAD^</code>.</p>
+<p>The <code>cwd</code> argument may be a <code>pathlib.Path</code> that identifies a Git checkout. <code>target_ref</code> is a Git reference — for instance a local branch, a remote branch, a tag, or a relative reference like <code>HEAD^</code>.</p>
 <h4><code>git_modified_addons</code></h4>
-<p>Return a two-item tuple:</p>
+<p>The return value is a two-item tuple:</p>
 <pre><code class="language-python">(set_of_addon_names, has_non_addon_changes)
 </code></pre>
 <ul>
-<li>The first item is the set of currently existing add-ons changed relative to <code>target_ref</code>.</li>
-<li>The second item is <code>True</code> when the compared changes include paths that cannot be attributed to a currently existing add-on; otherwise it is <code>False</code>.</li>
-<li>Always return the tuple, including when the set is empty.</li>
+<li>The first item is the set of add-ons that currently exist and have been changed relative to <code>target_ref</code>.</li>
+<li>The second item is <code>True</code> in case the compared changes include paths that cannot be attributed to a currently existing add-on, and <code>False</code> otherwise.</li>
+<li>Return the tuple at all times, including when the set is empty.</li>
 </ul>
-<p>Required classifications:</p>
+<p>The classifications that are required:</p>
 <ul>
-<li>Adding or modifying a root-level add-on containing <code>__manifest__.py</code> returns that directory name and <code>False</code> when there are no unrelated changes.</li>
-<li>No changes relative to the reference returns <code>(set(), False)</code>.</li>
-<li>A change such as <code>setup/&lt;addon&gt;/setup.py</code>, without the corresponding add-on packaging link, is not an add-on change and produces <code>(set(), True)</code>.</li>
-<li>When <code>setup/&lt;addon&gt;/odoo/addons/&lt;addon&gt;</code> is a symlink to the root <code>&lt;addon&gt;</code> directory, the associated setup-package changes are treated as belonging to that add-on. With no other changes, the result is <code>({&lt;addon&gt;}, False)</code>.</li>
-<li>A changed repository-root file such as <code>README</code> sets the boolean to <code>True</code> while preserving any changed add-on names.</li>
-<li>Deleting an add-on does not include its name in the returned set because it no longer exists in the current checkout. That deletion is reported through the boolean, yielding <code>(set(), True)</code> when it is the only change.</li>
+<li>Adding or modifying a root-level add-on that contains <code>__manifest__.py</code> returns that directory name together with <code>False</code> when no unrelated changes are present.</li>
+<li>When nothing is changed relative to the reference, the result is <code>(set(), False)</code>.</li>
+<li>A change such as <code>setup/&lt;addon&gt;/setup.py</code> that appears without the corresponding add-on packaging link is not an add-on change and produces <code>(set(), True)</code>.</li>
+<li>In the case where <code>setup/&lt;addon&gt;/odoo/addons/&lt;addon&gt;</code> is a symlink to the root <code>&lt;addon&gt;</code> directory, the changes touching the associated setup package are treated as belonging to that add-on. If no other changes exist, the result is <code>({&lt;addon&gt;}, False)</code>.</li>
+<li>A repository-root file that has been changed, such as <code>README</code>, sets the boolean to <code>True</code> while any changed add-on names are preserved.</li>
+<li>When an add-on is deleted, its name does not appear in the returned set, since it no longer exists in the current checkout. That deletion is reported through the boolean, giving <code>(set(), True)</code> when it is the only change.</li>
 </ul>
-<p>The comparison must report changes belonging to the current checkout rather than changes made only on a divergent target branch:</p>
+<p>The comparison must report changes that belong to the current checkout, rather than changes that were made only on a divergent target branch:</p>
 <ul>
-<li>Add-ons changed only on <code>target_ref</code> are excluded.</li>
-<li>Add-ons changed only on the current branch are included.</li>
-<li>If the same add-on-adding change exists on the target branch and is cherry-picked onto the current branch, that add-on is not considered uniquely modified.</li>
-<li>Other current-branch add-on changes remain included.</li>
+<li>Add-ons with changes only on <code>target_ref</code> are excluded.</li>
+<li>Add-ons with changes only on the current branch are included.</li>
+<li>When the same add-on-adding change is present on the target branch and is cherry-picked onto the current branch, that add-on is not considered uniquely modified.</li>
+<li>Other add-on changes on the current branch remain included.</li>
 </ul>
 <h4><code>git_modified_addon_dirs</code></h4>
-<p>Return a two-item tuple:</p>
+<p>Return a tuple with two items:</p>
 <pre><code class="language-python">(list_of_addon_directory_strings, has_non_addon_changes)
 </code></pre>
-<p>The first item contains the changed add-ons from <code>git_modified_addons</code> converted to their full directory paths under <code>cwd</code>, represented as strings. The second item must be the same non-add-on-change boolean.</p>
-<p>For example, if only add-on <code>addon</code> is modified:</p>
+<p>The first item contains the add-ons that <code>git_modified_addons</code> reports as changed, converted to their full directory paths under <code>cwd</code> and represented as strings. As for the second item, it must be the same non-add-on-change boolean.</p>
+<p>As an example, when only the add-on <code>addon</code> has been modified:</p>
 <pre><code class="language-python">([str(cwd / &quot;addon&quot;)], False)
 </code></pre>
 </div>
@@ -1294,106 +1303,107 @@ git_modified_addon_dirs(cwd, target_ref)
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">The oca_github_bot.github module must publicly expose the following functions.</span>
-        <span class="spec-meta muted">296 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The following functions must be publicly exposed by the oca_github_bot.github module.</span>
+        <span class="spec-meta muted">336 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required changes</h4>
-<h4>Git repository helpers</h4>
-<p>The <code>oca_github_bot.github</code> module must publicly expose the following functions.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Required modifications</h4>
+<h4>Helpers for Git repositories</h4>
+<p>The following functions must be publicly exposed by the <code>oca_github_bot.github</code> module.</p>
 <h5><code>git_get_head_sha(repository_path)</code></h5>
 <ul>
-<li>Accept a filesystem path to a Git working tree. The path may be supplied positionally or as the <code>repository_path</code> argument.</li>
-<li>Preserve the existing no-argument behavior: when no repository path is supplied, use the current working directory.</li>
-<li>For backward compatibility, continue to accept <code>cwd</code> as a keyword argument selecting the repository working tree. For example, <code>git_get_head_sha(cwd=path)</code> must be equivalent to selecting <code>path</code> through <code>repository_path</code>.</li>
-<li>Return the repository's current HEAD commit SHA as a string.</li>
-<li>The returned value must contain exactly 40 lowercase hexadecimal characters (<code>a-f</code> and <code>0-9</code>), with no surrounding whitespace or trailing newline.</li>
+<li>Accept a filesystem path that points to a Git working tree. That path may be supplied positionally or as the <code>repository_path</code> argument.</li>
+<li>Keep the behavior that already exists for calls made without arguments: when no repository path is given, the current working directory is used.</li>
+<li>For backward compatibility, <code>cwd</code> must continue to be accepted as a keyword argument that selects the repository working tree. For instance, <code>git_get_head_sha(cwd=path)</code> must be equivalent to selecting <code>path</code> via <code>repository_path</code>.</li>
+<li>The function must return the current HEAD commit SHA of the repository as a string.</li>
+<li>The value that is returned must consist of exactly 40 lowercase hexadecimal characters (<code>a-f</code> and <code>0-9</code>) and must have no surrounding whitespace or trailing newline.</li>
 </ul>
 <h5><code>git_get_current_branch(repository_path)</code></h5>
 <ul>
-<li>Accept a filesystem path to a Git working tree.</li>
-<li>Return the short name of the branch currently checked out in that working tree as a string.</li>
-<li>For a repository on <code>master</code>, return <code>&quot;master&quot;</code>.</li>
-<li>If that repository is switched to a newly created branch named <code>abranch</code>, a subsequent call for the same working tree must return <code>&quot;abranch&quot;</code>. The result must reflect the repository's current state rather than a previously cached branch name.</li>
+<li>Accept the filesystem path of a Git working tree.</li>
+<li>Return, as a string, the short name of the branch that is currently checked out in that working tree.</li>
+<li>When a repository is on <code>master</code>, return <code>&quot;master&quot;</code>.</li>
+<li>If that repository is switched to a newly created branch named <code>abranch</code>, a later call for the same working tree must return <code>&quot;abranch&quot;</code>. The result must reflect the repository's current state rather than a branch name that was cached previously.</li>
 </ul>
-<h4>Maintainer lookup edge case</h4>
-<p>The public <code>oca_github_bot.manifest.is_maintainer(username, addon_paths)</code> function determines whether <code>username</code> is listed as a maintainer for every supplied add-on. For valid add-ons, a missing <code>maintainers</code> entry is treated as not listing the user.</p>
+<h4>Edge case in the maintainer lookup</h4>
+<p>The public <code>oca_github_bot.manifest.is_maintainer(username, addon_paths)</code> function decides whether <code>username</code> is listed as a maintainer for every add-on that is supplied. For valid add-ons, an absent <code>maintainers</code> entry is treated as the user not being listed.</p>
 <ul>
-<li>If <code>addon_paths</code> contains any path that is not a valid add-on directory, return <code>False</code>.</li>
-<li>This includes nonexistent paths and existing directories that are not add-ons.</li>
-<li>Invalid add-on paths must not grant maintainer status and must not cause an exception solely because no add-on manifest can be found. In particular, a collection containing only one nonexistent or non-add-on path must return <code>False</code>.</li>
+<li>Should <code>addon_paths</code> contain any path that is not a valid add-on directory, return <code>False</code>.</li>
+<li>This includes paths that do not exist and existing directories that are not add-ons.</li>
+<li>Invalid add-on paths must not grant maintainer status, and they must not cause an exception solely because no add-on manifest can be found. In particular, a collection that contains only one nonexistent or non-add-on path must return <code>False</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You must implement authorization logic for a merge bot that determines whether a given GitHub user is allowed to merge changes into a repository.</span>
-        <span class="spec-meta muted">847 words · source specification
+        <span class="spec-title">You must write the authorization logic for a merge bot that decides whether a given GitHub user is allowed to merge changes into a repository.</span>
+        <span class="spec-meta muted">904 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h5>Overview</h5>
-<p>You must implement authorization logic for a merge bot that determines whether a given GitHub user is allowed to merge changes into a repository. You must also fix the command parser so it ignores commands appearing inside quoted comment text.</p>
-<h5>Part 1: <code>_user_can_merge</code> function</h5>
-<p>Create a function <code>_user_can_merge</code> in the module <code>oca_github_bot.tasks.merge_bot</code> with the following signature:</p>
+<p>You must write the authorization logic for a merge bot that decides whether a given GitHub user is allowed to merge changes into a repository. You must also repair the command parser so that commands appearing inside quoted comment text are ignored.</p>
+<h5>Part 1: the <code>_user_can_merge</code> function</h5>
+<p>Define a function <code>_user_can_merge</code> in the module <code>oca_github_bot.tasks.merge_bot</code> with this signature:</p>
 <pre><code class="language-python">def _user_can_merge(gh, org, repo, username, git_clone_dir, target_branch):
     ...
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>gh</code>: a logged-in <code>github3</code> client object (as produced by <code>github3.login(token=...)</code>).</li>
-<li><code>org</code> (str): the GitHub organization/owner name (e.g. <code>&quot;OCA&quot;</code>).</li>
-<li><code>repo</code> (str): the repository name (e.g. <code>&quot;mis-builder&quot;</code>).</li>
-<li><code>username</code> (str): the GitHub login of the user requesting the merge.</li>
-<li><code>git_clone_dir</code>: a path-like object (supports <code>/</code> joining, as with <code>pathlib.Path</code>) pointing to a local git working tree containing the changes to be merged. The current checked-out branch of this clone contains the proposed changes; there is another branch (the target branch) that represents the base.</li>
-<li><code>target_branch</code> (str): the name of the base branch to diff against within <code>git_clone_dir</code> (e.g. <code>&quot;master&quot;</code>).</li>
+<li><code>gh</code>: a <code>github3</code> client object that is logged in (the result of <code>github3.login(token=...)</code>).</li>
+<li><code>org</code> (str): the GitHub organization/owner name (for instance <code>&quot;OCA&quot;</code>).</li>
+<li><code>repo</code> (str): the repository name (for instance <code>&quot;mis-builder&quot;</code>).</li>
+<li><code>username</code> (str): the GitHub login of the user asking for the merge.</li>
+<li><code>git_clone_dir</code>: a path-like object (it supports joining with <code>/</code>, like <code>pathlib.Path</code>) pointing at a local git working tree that holds the changes to be merged. The proposed changes live on the clone's current checked-out branch; the base is represented by another branch (the target branch).</li>
+<li><code>target_branch</code> (str): the name of the base branch, within <code>git_clone_dir</code>, to diff against (for instance <code>&quot;master&quot;</code>).</li>
 </ul>
-<p>Return value: a boolean.</p>
+<p>The return value is a boolean.</p>
 <ul>
-<li>Return <code>True</code> if the user is authorized to merge.</li>
-<li>Return <code>False</code> otherwise.</li>
+<li>Return <code>True</code> when the user is authorized to merge.</li>
+<li>Return <code>False</code> in every other case.</li>
 </ul>
-<h5>Authorization rules</h5>
-<p>A user is authorized to merge if <strong>either</strong> of the following holds:</p>
+<h5>Rules for authorization</h5>
+<p>A user is authorized to merge when <strong>either</strong> of the following holds:</p>
 <ol>
 <li>
-<p><strong>Repository collaborator.</strong> The user is among the collaborators of the repository <code>org/repo</code> (as returned by GitHub, querying collaborators with affiliation &quot;all&quot;). If the user is a collaborator, authorization succeeds immediately without needing to inspect the local git changes.</p>
+<p><strong>Repository collaborator.</strong> The user is one of the collaborators of the repository <code>org/repo</code> (as returned by GitHub, querying collaborators with affiliation &quot;all&quot;). When the user is a collaborator, authorization succeeds immediately and there is no need to inspect the local git changes.</p>
 </li>
 <li>
-<p><strong>Maintainer of every modified addon.</strong> If the user is <em>not</em> a collaborator, then determine the set of addons modified between the target branch and the currently checked-out state of <code>git_clone_dir</code>. The user is authorized only if, for <strong>every</strong> modified addon, the user is listed as a maintainer of that addon.</p>
+<p><strong>Maintainer of every modified addon.</strong> When the user is <em>not</em> a collaborator, determine the set of addons modified between the target branch and the currently checked-out state of <code>git_clone_dir</code>. Authorization is granted only if, for <strong>every</strong> modified addon, the user is listed as a maintainer of that addon.</p>
 <ul>
-<li>An &quot;addon&quot; is a top-level directory in the git clone containing an Odoo manifest file named <code>__manifest__.py</code>. The manifest file contains a Python dictionary literal (evaluable with <code>ast.literal_eval</code>). An addon's maintainers are taken from the <code>maintainers</code> key of that dictionary (a list of GitHub logins); if the key is absent, the addon has no maintainers.</li>
-<li>&quot;Modified addons&quot; are those addons that have at least one file changed between <code>target_branch</code> and the current working tree/checked-out branch within <code>git_clone_dir</code>.</li>
-<li><strong>The maintainers must be read from the manifest as it exists on the target branch, not from the modified (checked-out) version.</strong> This prevents a user from granting themselves maintainer status by editing the manifest in their proposed changes. Concretely: if a user adds themselves to the <code>maintainers</code> list only in their branch's version of the manifest, but is not listed as a maintainer in the target-branch version, they must not be authorized.</li>
-<li>If there are no modified addons, or an addon does not exist / has no maintainers on the target branch, the user is not a maintainer of it and authorization fails (unless rule 1 already granted access).</li>
+<li>An &quot;addon&quot; is a directory at the top level of the git clone that contains an Odoo manifest file named <code>__manifest__.py</code>. The manifest file holds a Python dictionary literal (which <code>ast.literal_eval</code> can evaluate). An addon's maintainers are taken from that dictionary's <code>maintainers</code> key (a list of GitHub logins); when the key is absent, the addon has no maintainers.</li>
+<li>&quot;Modified addons&quot; are the addons having at least one file changed between <code>target_branch</code> and the current working tree/checked-out branch inside <code>git_clone_dir</code>.</li>
+<li><strong>The maintainers must be read from the manifest as it exists on the target branch, not from the modified (checked-out) version.</strong> This stops a user from granting themselves maintainer status by editing the manifest within their proposed changes. Concretely: if a user adds themselves to the <code>maintainers</code> list only in their branch's version of the manifest, while not being listed as a maintainer in the target-branch version, they must not be authorized.</li>
+<li>When there are no modified addons, or an addon does not exist / has no maintainers on the target branch, the user is not a maintainer of it and authorization fails (unless rule 1 already granted access).</li>
 </ul>
 </li>
 </ol>
-<h5>Expected behavior summary</h5>
+<h5>Summary of expected behavior</h5>
 <ul>
-<li>A repository collaborator (e.g. login <code>&quot;sbidoul&quot;</code> for <code>OCA/mis-builder</code>) is always allowed to merge.</li>
-<li>A non-collaborator who is listed in the <code>maintainers</code> of an addon (on the target branch), and who only modifies that addon, is allowed to merge.</li>
-<li>A non-collaborator who modifies an addon whose target-branch manifest does not list them as a maintainer is not allowed to merge.</li>
-<li>A non-collaborator who modifies an addon and, in the same changes, adds themselves to the addon's <code>maintainers</code> list (while the target-branch manifest does not list them) is not allowed to merge.</li>
+<li>A repository collaborator (e.g. login <code>&quot;sbidoul&quot;</code> for <code>OCA/mis-builder</code>) is always permitted to merge.</li>
+<li>A user who is not a collaborator, who is listed in the <code>maintainers</code> of an addon (on the target branch), and whose changes touch only that addon, is allowed to merge.</li>
+<li>A user who is not a collaborator and who modifies an addon whose target-branch manifest does not list them as a maintainer is not allowed to merge.</li>
+<li>A user who is not a collaborator, who modifies an addon and within those same changes adds themselves to the addon's <code>maintainers</code> list (while the target-branch manifest does not list them), is not allowed to merge.</li>
 </ul>
-<h5>GitHub API interaction</h5>
-<p>Collaborator lookup for a repository must be performed against the GitHub REST API v3, using the repository resource for <code>org/repo</code> and its collaborators listing with the query parameters <code>affiliation=all</code> and <code>per_page=100</code>, following pagination as needed. Use the provided <code>gh</code> client to perform these lookups.</p>
-<h5>Part 2: Command parser must ignore quoted comments</h5>
-<p>In the existing command-parsing functionality (the <code>parse_commands</code> function importable as it currently is), lines that are quoted replies must be ignored when scanning for bot commands. A quoted line is one that begins with the <code>&gt;</code> character (after optional leading whitespace), including multiply-quoted lines (e.g. <code>&gt;&gt;</code>).</p>
-<p>Given an input body such as:</p>
+<h5>Interacting with the GitHub API</h5>
+<p>The collaborator lookup for a repository must be done against the GitHub REST API v3, going through the repository resource for <code>org/repo</code> and its collaborators listing with the query parameters <code>affiliation=all</code> and <code>per_page=100</code>, following pagination as needed. Perform these lookups with the provided <code>gh</code> client.</p>
+<h5>Part 2: the command parser must ignore quoted comments</h5>
+<p>In the existing command-parsing functionality (the <code>parse_commands</code> function, importable as it currently is), quoted reply lines must be ignored while scanning for bot commands. A line counts as quoted when it begins with the <code>&gt;</code> character (with optional leading whitespace before it), including lines quoted multiple times (e.g. <code>&gt;&gt;</code>).</p>
+<p>For an input body such as:</p>
 <pre><code>&gt; /ocabot merge
 &gt; Some comment /ocabot merge
 &gt;&gt; Double comment! /ocabot merge
 This is the one /ocabot merge patch
 </code></pre>
-<p><code>parse_commands</code> must yield exactly one command: the one from the single non-quoted line. That command has name <code>&quot;merge&quot;</code> and its <code>bumpversion</code> attribute equal to <code>&quot;patch&quot;</code>. Commands appearing anywhere on quoted (<code>&gt;</code>-prefixed) lines must not be parsed.</p>
-<h5>Test support helpers</h5>
-<p>The test suite uses two helper functions (already provided in the test support module) that construct addons in a git clone; your <code>_user_can_merge</code> implementation must be compatible with the addon layout they produce:</p>
+<p><code>parse_commands</code> must yield exactly one command: the one coming from the single line that is not quoted. That command has name <code>&quot;merge&quot;</code> and its <code>bumpversion</code> attribute is equal to <code>&quot;patch&quot;</code>. Commands appearing anywhere on quoted (<code>&gt;</code>-prefixed) lines must not be parsed.</p>
+<h5>Helper functions for the tests</h5>
+<p>Two helper functions (already provided in the test support module) are used by the test suite to construct addons in a git clone; your <code>_user_can_merge</code> implementation must be compatible with the addon layout they produce:</p>
 <ul>
-<li><code>make_addon(git_clone, addon_name, **manifest_keys)</code> creates a directory <code>addon_name</code> under <code>git_clone</code>, writes <code>__manifest__.py</code> containing <code>repr(dict(name=addon_name, **manifest_keys))</code>, and writes an empty <code>__init__.py</code>.</li>
-<li><code>commit_addon(git_clone, addon_name)</code> runs <code>git add</code> on the addon directory and <code>git commit</code> in <code>git_clone</code>.</li>
+<li><code>make_addon(git_clone, addon_name, **manifest_keys)</code> creates a directory <code>addon_name</code> under <code>git_clone</code>, writes <code>__manifest__.py</code> with the content <code>repr(dict(name=addon_name, **manifest_keys))</code>, and also writes an empty <code>__init__.py</code>.</li>
+<li><code>commit_addon(git_clone, addon_name)</code> runs <code>git add</code> on the addon directory and runs <code>git commit</code> in <code>git_clone</code>.</li>
 </ul>
-<p>Thus a manifest is a Python dict literal on disk, and the <code>maintainers</code> key (when present) is a list of login strings.</p>
+<p>So a manifest on disk is a Python dict literal, and the <code>maintainers</code> key (when present) is a list of login strings.</p>
 </div>
     </details>
   </div>

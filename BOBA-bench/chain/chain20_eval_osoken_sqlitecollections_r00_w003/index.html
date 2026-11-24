@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/osoken/sqlitecollections/compare/0130d8bb71d52e26c08d5325b036aa12b8c7acb6...5a7af3cf84a2f67b72ce9fdbd35c8e9a3d9b513a" target="_blank" rel="noopener" class="mono">0130d8bb71 … 5a7af3cf84</a> · 47 commits by 2 authors over 24 d (2022-01-24 to 2022-02-17)</dd></div>
       <div><dt>Window:</dt><dd>requests 54–73 of a run of 73 test-bearing changes (overlaps the previous window by 7) · eval split</dd></div>
       <div><dt>Size:</dt><dd>6,771 lines of code in 114 files when the chain starts · over the 20 requests the developers added 549 and removed 84 lines of code, plus 1,282 lines of tests (41 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.9k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 4</dd></div>
+      <div><dt>Specifications:</dt><dd>10.9k words · 4 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 4</dd></div>
     </dl>
   </header>
 </section>
@@ -144,14 +144,14 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Factory Module</span>
-        <span class="spec-meta muted">1246 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The task is to implement the factory framework in sqlitecollections.factory.</span>
+        <span class="spec-meta muted">1363 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Factory Module</h3>
+      <div class="spec-body"><h3>Factory Module Task Specification</h3>
 <h4>Overview</h4>
-<p>Implement the factory framework in <code>sqlitecollections.factory</code>. The module provides reusable factory base classes and concrete factories that construct sqlitecollections <code>List</code>, <code>Set</code>, and <code>Dict</code> containers while retaining a normalized connection and the appropriate serialization callables.</p>
-<p>The public framework consists of:</p>
+<p>The task is to implement the factory framework in <code>sqlitecollections.factory</code>. This module supplies reusable factory base classes together with concrete factories that construct sqlitecollections <code>List</code>, <code>Set</code>, and <code>Dict</code> containers, retaining a normalized connection and the appropriate serialization callables.</p>
+<p>The public framework consists of the following:</p>
 <ul>
 <li><code>FactoryBase[T]</code></li>
 <li><code>SequenceFactoryBase[T]</code></li>
@@ -159,15 +159,15 @@
 <li><code>SetFactory[T]</code></li>
 <li><code>DictFactory[KT, VT]</code></li>
 </ul>
-<h4>Module-scope dependencies</h4>
+<h4>Dependencies at module scope</h4>
 <h5><code>tidy_connection</code></h5>
-<p>The module must expose <code>sqlitecollections.factory.tidy_connection</code>. It is a callable used to normalize or prepare the connection supplied when a factory is constructed. Each factory construction must invoke this module-scope callable exactly once with the constructor's <code>connection</code> value, including <code>None</code> when the argument is omitted.</p>
+<p><code>sqlitecollections.factory.tidy_connection</code> must be exposed by the module. It is a callable whose job is to normalize or prepare the connection supplied when a factory is constructed. Every factory construction must invoke this module-scope callable exactly once, passing the constructor's <code>connection</code> value — <code>None</code> included when the argument is omitted.</p>
 <h5><code>chain</code></h5>
-<p>The module must expose <code>sqlitecollections.factory.chain</code>, corresponding to <code>itertools.chain</code>. <code>DictFactory</code> uses this module-scope callable when combining a positional mapping or item iterable with keyword entries.</p>
-<h4>Class: <code>FactoryBase</code></h4>
-<p><code>FactoryBase</code> is generic in one element type and must be usable as <code>FactoryBase[T]</code>. It provides common connection and serializer state for concrete factories.</p>
+<p><code>sqlitecollections.factory.chain</code>, which corresponds to <code>itertools.chain</code>, must be exposed by the module as well. <code>DictFactory</code> uses this module-scope callable whenever it combines a positional mapping or item iterable with keyword entries.</p>
+<h4>The <code>FactoryBase</code> class</h4>
+<p><code>FactoryBase</code> is generic over one element type and must be usable as <code>FactoryBase[T]</code>. It provides the connection and serializer state shared by concrete factories.</p>
 <h5>Construction</h5>
-<p>Its constructor supports the following arguments, all of which are optional:</p>
+<p>Its constructor supports the arguments below, all of which are optional:</p>
 <pre><code class="language-python">def __init__(
     self,
     connection=None,
@@ -176,59 +176,59 @@
 ):
     ...
 </code></pre>
-<p>The arguments have these contracts:</p>
+<p>The arguments carry these contracts:</p>
 <ul>
-<li><code>connection</code> may be a database connection or connection specifier accepted by <code>tidy_connection</code>; it defaults to <code>None</code>. The exact supplied value is passed to <code>tidy_connection</code> once, and that call's result is exposed as <code>self.connection</code>. Thus default construction calls <code>tidy_connection(None)</code>.</li>
-<li><code>serializer</code> is a callable from an element to <code>bytes</code>. If it is omitted or explicitly <code>None</code>, <code>self.serializer</code> must resolve to <code>SqliteCollectionBase._default_serializer</code>; otherwise the supplied callable is exposed unchanged.</li>
-<li><code>deserializer</code> is a callable from <code>bytes</code> to an element. If it is omitted or explicitly <code>None</code>, <code>self.deserializer</code> must resolve to <code>SqliteCollectionBase._default_deserializer</code>; otherwise the supplied callable is exposed unchanged.</li>
+<li><code>connection</code> may be a database connection or a connection specifier that <code>tidy_connection</code> accepts; its default is <code>None</code>. The value supplied is passed to <code>tidy_connection</code> once, exactly as given, and the result of that call is exposed as <code>self.connection</code>. Default construction therefore calls <code>tidy_connection(None)</code>.</li>
+<li><code>serializer</code> is a callable from an element to <code>bytes</code>. When it is omitted or explicitly <code>None</code>, <code>self.serializer</code> must resolve to <code>SqliteCollectionBase._default_serializer</code>; otherwise the callable that was supplied is exposed unchanged.</li>
+<li><code>deserializer</code> is a callable from <code>bytes</code> to an element. When it is omitted or explicitly <code>None</code>, <code>self.deserializer</code> must resolve to <code>SqliteCollectionBase._default_deserializer</code>; otherwise the callable that was supplied is exposed unchanged.</li>
 </ul>
-<p>A concrete subclass that implements the container hook must therefore be constructible with no arguments. The public <code>connection</code>, <code>serializer</code>, and <code>deserializer</code> attributes expose the values described above.</p>
-<h5>Container class hook</h5>
+<p>It follows that a concrete subclass implementing the container hook must be constructible with no arguments. The public <code>connection</code>, <code>serializer</code>, and <code>deserializer</code> attributes expose the values described above.</p>
+<h5>Hook for the container class</h5>
 <p><code>FactoryBase</code> defines an overridable classmethod:</p>
 <pre><code class="language-python">@classmethod
 def _get_container_class(cls) -&gt; Callable[..., &lt;container&gt;]:
     ...
 </code></pre>
-<p>It returns the container class or other callable that the factory instantiates. Concrete subclasses override this hook to designate their target container type.</p>
-<h4>Class: <code>SequenceFactoryBase</code></h4>
-<p><code>SequenceFactoryBase</code> is generic in one element type and must be usable as <code>SequenceFactoryBase[T]</code>. It builds on <code>FactoryBase[T]</code> and inherits all of its construction, normalization, default-codec, and public-attribute behavior.</p>
+<p>It returns the container class, or other callable, that the factory instantiates. Concrete subclasses override this hook in order to designate the container type they target.</p>
+<h4>The <code>SequenceFactoryBase</code> class</h4>
+<p><code>SequenceFactoryBase</code> is generic over one element type and must be usable as <code>SequenceFactoryBase[T]</code>. It extends <code>FactoryBase[T]</code>, inheriting all of its construction, normalization, default-codec, and public-attribute behavior.</p>
 <h5><code>create</code></h5>
 <pre><code class="language-python">def create(self, data=None) -&gt; &lt;container instance&gt;:
     ...
 </code></pre>
-<p><code>data</code> is an optional iterable. The method obtains its target by calling the class's <code>_get_container_class()</code> hook and invokes the resulting container callable once. It returns that invocation's result unchanged.</p>
-<p>Invocation depends on <code>data</code>:</p>
+<p><code>data</code> is an optional iterable. The method obtains its target by calling the class's <code>_get_container_class()</code> hook, then invokes the resulting container callable once. That invocation's result is returned unchanged.</p>
+<p>How the target is invoked depends on <code>data</code>:</p>
 <ul>
 <li>
-<p>If <code>data</code> is not <code>None</code>, including when it is an empty iterable, invoke the target with exactly these keyword arguments:</p>
+<p>When <code>data</code> is not <code>None</code> — including when it is an empty iterable — invoke the target with exactly these keyword arguments:</p>
 <pre><code class="language-python">data=data,
 connection=self.connection,
 serializer=self.serializer,
 deserializer=self.deserializer
 </code></pre>
-<p>The same data object is forwarded without conversion.</p>
+<p>That same data object is forwarded, without conversion.</p>
 </li>
 <li>
-<p>If <code>data</code> is omitted or explicitly <code>None</code>, invoke the target with exactly:</p>
+<p>When <code>data</code> is omitted or explicitly <code>None</code>, invoke the target with exactly:</p>
 <pre><code class="language-python">connection=self.connection,
 serializer=self.serializer,
 deserializer=self.deserializer
 </code></pre>
-<p>In this no-data case, the <code>data</code> keyword must be omitted entirely; it must not be passed as <code>data=None</code>.</p>
+<p>In this no-data case, the <code>data</code> keyword must be left out entirely; passing it as <code>data=None</code> must not happen.</p>
 </li>
 </ul>
-<h5>Callable behavior</h5>
-<p>Instances of <code>SequenceFactoryBase</code> and its subclasses are callable. <code>__call__</code> accepts the same optional data argument, delegates to <code>create</code>, forwards a supplied argument, and returns the result of <code>create</code>. Calling the factory with no argument or with <code>None</code> selects the no-data behavior above.</p>
+<h5>Behavior when called</h5>
+<p>Instances of <code>SequenceFactoryBase</code> and its subclasses are callable. <code>__call__</code> accepts the same optional data argument, delegates to <code>create</code>, forwards whatever argument is supplied, and returns the result of <code>create</code>. Calling the factory with no argument or with <code>None</code> selects the no-data behavior described above.</p>
 <h4>Concrete sequence factories</h4>
 <h5><code>ListFactory</code></h5>
 <p><code>ListFactory</code> is a generic subclass of <code>SequenceFactoryBase</code>, usable as <code>ListFactory[T]</code>. Its <code>_get_container_class()</code> hook designates the indexed/parameterized sqlitecollections <code>List[T]</code> container.</p>
-<p>Calling a list factory with non-<code>None</code> data constructs the target with <code>data</code>, <code>connection</code>, <code>serializer</code>, and <code>deserializer</code> as specified by <code>SequenceFactoryBase</code>. Calling it with no argument or with <code>None</code> constructs the target with only <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, omitting <code>data</code>. The produced <code>List</code> object is returned.</p>
+<p>When a list factory is called with data that is not <code>None</code>, the target is constructed with <code>data</code>, <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, as <code>SequenceFactoryBase</code> specifies. When it is called with no argument or with <code>None</code>, the target is constructed with only <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, and <code>data</code> is omitted. The <code>List</code> object that is produced is returned.</p>
 <h5><code>SetFactory</code></h5>
 <p><code>SetFactory</code> is a generic subclass of <code>SequenceFactoryBase</code>, usable as <code>SetFactory[T]</code>. Its <code>_get_container_class()</code> hook designates the indexed/parameterized sqlitecollections <code>Set[T]</code> container.</p>
-<p>Calling a set factory with non-<code>None</code> data constructs the target with <code>data</code>, <code>connection</code>, <code>serializer</code>, and <code>deserializer</code> as specified by <code>SequenceFactoryBase</code>. Calling it with no argument or with <code>None</code> constructs the target with only <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, omitting <code>data</code>. The produced <code>Set</code> object is returned.</p>
-<h4>Class: <code>DictFactory</code></h4>
-<p><code>DictFactory</code> is generic in key and value types and must be usable as <code>DictFactory[KT, VT]</code>. It builds on the common factory connection behavior and targets the indexed/parameterized sqlitecollections <code>Dict[KT, VT]</code> container. Its <code>_get_container_class()</code> classmethod returns that target.</p>
-<h5>Construction and codec attributes</h5>
+<p>When a set factory is called with data that is not <code>None</code>, the target is constructed with <code>data</code>, <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, as <code>SequenceFactoryBase</code> specifies. When it is called with no argument or with <code>None</code>, the target is constructed with only <code>connection</code>, <code>serializer</code>, and <code>deserializer</code>, and <code>data</code> is omitted. The <code>Set</code> object that is produced is returned.</p>
+<h4>The <code>DictFactory</code> class</h4>
+<p><code>DictFactory</code> is generic over key and value types and must be usable as <code>DictFactory[KT, VT]</code>. It builds on the common factory connection behavior and takes the indexed/parameterized sqlitecollections <code>Dict[KT, VT]</code> container as its target; that target is what its <code>_get_container_class()</code> classmethod returns.</p>
+<h5>Constructor and codec attributes</h5>
 <p>The constructor accepts these optional arguments:</p>
 <pre><code class="language-python">def __init__(
     self,
@@ -240,191 +240,191 @@ deserializer=self.deserializer
 ):
     ...
 </code></pre>
-<p>Behavior is as follows:</p>
+<p>The behavior is as follows:</p>
 <ul>
-<li><code>connection</code> defaults to <code>None</code>, is passed through the module-scope <code>tidy_connection</code> exactly once, and the normalized result is exposed as <code>connection</code>.</li>
-<li><code>key_serializer</code> and <code>key_deserializer</code> become the public <code>key_serializer</code> and <code>key_deserializer</code> attributes. If either is <code>None</code>, it independently falls back to <code>SqliteCollectionBase._default_serializer</code> or <code>SqliteCollectionBase._default_deserializer</code>, respectively.</li>
+<li><code>connection</code> takes <code>None</code> as its default, goes through the module-scope <code>tidy_connection</code> exactly once, and the normalized result is exposed as <code>connection</code>.</li>
+<li>The public attributes <code>key_serializer</code> and <code>key_deserializer</code> are given by the <code>key_serializer</code> and <code>key_deserializer</code> arguments. If either one is <code>None</code>, it independently falls back to <code>SqliteCollectionBase._default_serializer</code> or <code>SqliteCollectionBase._default_deserializer</code>, respectively.</li>
 <li>The inherited <code>serializer</code> and <code>deserializer</code> attributes expose the same callables as <code>key_serializer</code> and <code>key_deserializer</code>, respectively.</li>
-<li>A non-<code>None</code> <code>value_serializer</code> is exposed unchanged as <code>value_serializer</code>. If it is <code>None</code>, <code>value_serializer</code> defaults to the resolved <code>key_serializer</code>, including any custom key serializer.</li>
-<li>A non-<code>None</code> <code>value_deserializer</code> is exposed unchanged as <code>value_deserializer</code>. If it is <code>None</code>, <code>value_deserializer</code> defaults to the resolved <code>key_deserializer</code>, including any custom key deserializer.</li>
+<li>A <code>value_serializer</code> that is not <code>None</code> is exposed unchanged as <code>value_serializer</code>. If it is <code>None</code>, <code>value_serializer</code> defaults to the resolved <code>key_serializer</code>, including any custom key serializer.</li>
+<li>A <code>value_deserializer</code> that is not <code>None</code> is exposed unchanged as <code>value_deserializer</code>. If it is <code>None</code>, <code>value_deserializer</code> defaults to the resolved <code>key_deserializer</code>, including any custom key deserializer.</li>
 </ul>
-<p>Consequently, <code>DictFactory</code> may be constructed with no arguments, and all four codec attributes then resolve through the default sqlitecollection codecs.</p>
+<p>As a result, <code>DictFactory</code> may be constructed with no arguments, and all four codec attributes then resolve through the default sqlitecollection codecs.</p>
 <h5><code>create</code></h5>
-<p><code>create</code> accepts at most one optional positional data source followed by arbitrary keyword entries:</p>
+<p><code>create</code> accepts at most one optional positional data source, followed by arbitrary keyword entries:</p>
 <pre><code class="language-python">def create(self, data=None, **entries) -&gt; Dict[KT, VT]:
     ...
 </code></pre>
-<p>The positional source may be either a mapping or an iterable of <code>(key, value)</code> pairs. The method obtains the indexed/parameterized <code>Dict[KT, VT]</code> target through <code>_get_container_class()</code>, invokes it once, and returns its result unchanged. Every target invocation includes exactly these common keyword arguments:</p>
+<p>The positional source may be either a mapping or an iterable of <code>(key, value)</code> pairs. Through <code>_get_container_class()</code> the method obtains the indexed/parameterized <code>Dict[KT, VT]</code> target, invokes it once, and returns its result unchanged. Every target invocation includes exactly these common keyword arguments:</p>
 <pre><code class="language-python">connection=self.connection,
 key_serializer=self.key_serializer,
 key_deserializer=self.key_deserializer,
 value_serializer=self.value_serializer,
 value_deserializer=self.value_deserializer
 </code></pre>
-<p>The <code>data</code> keyword is determined as follows:</p>
+<p>The <code>data</code> keyword is decided as follows:</p>
 <ol>
 <li>
-<p><strong>No positional source and no keyword entries:</strong> If the positional source is omitted or <code>None</code> and there are no entries, do not pass a <code>data</code> keyword at all.</p>
+<p><strong>No positional source and no keyword entries:</strong> When the positional source is omitted or <code>None</code> and there are no entries, do not pass a <code>data</code> keyword at all.</p>
 </li>
 <li>
-<p><strong>Keyword entries only:</strong> If the positional source is omitted or <code>None</code> and entries are present, pass <code>data=entries</code>, where <code>entries</code> is the dictionary formed from those keyword arguments. For example, <code>factory(a=1, b=2)</code> supplies <code>data={&quot;a&quot;: 1, &quot;b&quot;: 2}</code>.</p>
+<p><strong>Keyword entries only:</strong> When the positional source is omitted or <code>None</code> and entries are present, pass <code>data=entries</code>, where <code>entries</code> is the dictionary formed from those keyword arguments. As an example, <code>factory(a=1, b=2)</code> supplies <code>data={&quot;a&quot;: 1, &quot;b&quot;: 2}</code>.</p>
 </li>
 <li>
-<p><strong>A positional source is present:</strong> Combine the source with the keyword entries using the module-scope <code>chain</code> callable. For a mapping source, the first iterable is <code>data.items()</code>; for an iterable of pairs, the first iterable is <code>data</code> itself. The second iterable is always <code>entries.items()</code>. Pass the resulting chained iterable as <code>data</code>. In equivalent terms:</p>
+<p><strong>A positional source is present:</strong> The source is combined with the keyword entries by means of the module-scope <code>chain</code> callable. When the source is a mapping, the first iterable is <code>data.items()</code>; when it is an iterable of pairs, the first iterable is <code>data</code> itself. The second iterable is always <code>entries.items()</code>. Pass the chained iterable that results as <code>data</code>. In equivalent terms:</p>
 <pre><code class="language-python">first = data.items() if isinstance(data, Mapping) else data
 combined = chain(first, entries.items())
 </code></pre>
-<p>The positional entries precede keyword entries. This chaining behavior also applies when the positional source is empty or when there are no keyword entries; in the latter case it is combined with an empty dictionary's items view rather than forwarded directly.</p>
+<p>The positional entries precede the keyword entries. This chaining behavior also applies when the positional source is empty or when there are no keyword entries; in the latter case, the source is combined with an empty dictionary's items view rather than being forwarded directly.</p>
 </li>
 </ol>
-<p>No case may pass <code>data=None</code>.</p>
-<h5>Callable behavior</h5>
-<p><code>DictFactory</code> instances are callable. <code>__call__</code> accepts the same optional positional source and keyword entries as <code>create</code>, delegates them to <code>create</code>, and returns its result. It therefore supports all of these public forms:</p>
+<p>There is no case in which <code>data=None</code> may be passed.</p>
+<h5>Behavior when called</h5>
+<p>Instances of <code>DictFactory</code> are callable. <code>__call__</code> accepts the same optional positional source and keyword entries as <code>create</code>, delegates them to <code>create</code>, and returns the result of <code>create</code>. Accordingly, all of these public forms are supported:</p>
 <pre><code class="language-python">factory()
 factory(iterable_of_pairs)
 factory(mapping)
 factory(a=1, b=2)
 factory(iterable_or_mapping, a=1, b=2)
 </code></pre>
-<h4>Typing and compatibility notes</h4>
+<h4>Notes on typing and compatibility</h4>
 <ul>
-<li>Generic type parameters are for typing only; runtime behavior does not depend on a concrete type argument.</li>
-<li>Concrete factories select their container through the overridable <code>_get_container_class</code> hook. <code>ListFactory</code>, <code>SetFactory</code>, and <code>DictFactory</code> use the indexed/parameterized form of their corresponding sqlitecollections container.</li>
-<li>Factories return the object produced by their target container callable and do not add unrelated container-construction options.</li>
+<li>Generic type parameters exist for typing only; runtime behavior does not depend on a concrete type argument.</li>
+<li>Concrete factories select their container by way of the overridable <code>_get_container_class</code> hook. <code>ListFactory</code>, <code>SetFactory</code>, and <code>DictFactory</code> each use the indexed/parameterized form of their corresponding sqlitecollections container.</li>
+<li>Factories return the object that their target container callable produces and do not add container-construction options that are unrelated.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Implement keys() for the SQL-backed Dict</span>
-        <span class="spec-meta muted">682 words · source specification
+        <span class="spec-title">Adding a keys() Method to the SQL-Backed Dict</span>
+        <span class="spec-meta muted">758 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>keys()</code> for the SQL-backed <code>Dict</code></h3>
-<h4>Context</h4>
-<p>The codebase provides a dictionary-like class, <code>Dict</code>, that stores its key/value data in a SQLite table rather than in memory. It is importable as <code>sc.Dict</code> (i.e., from the package that is imported under the alias <code>sc</code>) and is a generic type parameterized as <code>Dict[KeyType, ValueType]</code>.</p>
-<p>An instance is constructed with keyword arguments:</p>
+      <div class="spec-body"><h3>Task Specification: Adding a <code>keys()</code> Method to the SQL-Backed <code>Dict</code></h3>
+<h4>Background</h4>
+<p>The codebase contains <code>Dict</code>, a dictionary-like class; instead of living in memory, its key/value data is stored inside a SQLite table. It can be imported as <code>sc.Dict</code> (<code>sc</code> being the alias under which its package is imported), and the class is generic, parameterized as <code>Dict[KeyType, ValueType]</code>.</p>
+<p>Instances are built by passing keyword arguments:</p>
 <pre><code class="language-python">sc.Dict[Hashable, Any](connection=&lt;sqlite3.Connection&gt;, table_name=&quot;items&quot;)
 </code></pre>
-<p>The instance already supports item deletion via <code>del parent[key]</code>, which removes the corresponding row from the backing table.</p>
-<p>Your task is to add a <code>keys()</code> method to <code>Dict</code> that returns a live, dict-like keys view object, and to implement that view object with the behavior described below.</p>
-<h4>Required API</h4>
+<p>The instance already supports deleting items: performing <code>del parent[key]</code> removes from the backing table the corresponding row.</p>
+<p>What you are asked to do is add a <code>keys()</code> method to <code>Dict</code> that returns a keys view object which is live and dict-like, and then implement that view object so that it behaves as specified below.</p>
+<h4>API to Implement</h4>
 <h5><code>Dict.keys(self) -&gt; KeysView</code></h5>
 <ul>
-<li>Returns a keys-view object bound to the same backing table as the <code>Dict</code> that created it.</li>
-<li>The returned object must be an instance compatible with <code>collections.abc.KeysView</code>.</li>
-<li>The view is <strong>live</strong>: it always reflects the current contents of the backing table at the moment it is queried, not a snapshot taken at creation time. If rows are added or removed from the underlying table after the view is created, every subsequent operation on the view must observe the current state.</li>
+<li>The method returns a keys-view object whose backing table is the same one that backs the <code>Dict</code> which created it.</li>
+<li>Whatever object is returned must be an instance compatible with <code>collections.abc.KeysView</code>.</li>
+<li>This view is <strong>live</strong>: at query time it always reflects the backing table's current contents, never a snapshot captured when the view was created. Should rows be added to or removed from the underlying table after the view has been created, every subsequent operation performed on the view must observe the current state.</li>
 </ul>
-<h4>Required behavior of the keys view object</h4>
-<p>Let <code>view = parent.keys()</code>.</p>
+<h4>Behavior Required of the Keys View Object</h4>
+<p>Take <code>view = parent.keys()</code>.</p>
 <h5>Length: <code>len(view)</code></h5>
 <ul>
-<li>Returns the current number of key/value entries stored in the backing table.</li>
-<li>Must reflect table changes made after the view was created (e.g., if the table grows from empty to 4 rows, <code>len(view)</code> must return 0 then 4 accordingly).</li>
+<li><code>len(view)</code> returns however many key/value entries are stored in the backing table at that moment.</li>
+<li>Changes to the table that occur after the view was created must be reflected (e.g., when a table grows from empty to 4 rows, <code>len(view)</code> must return 0 then 4 accordingly).</li>
 </ul>
 <h5>Iteration: <code>iter(view)</code></h5>
 <ul>
-<li>Returns a fresh <code>Iterator</code> (an instance compatible with <code>collections.abc.Iterator</code>) each time it is called.</li>
-<li>Iterating yields the stored keys in the order the rows appear in the backing table (insertion/stored order).</li>
-<li>Because the view is live, calling <code>iter(view)</code> again after the table has changed must produce an iterator reflecting the new contents. For example, if the table currently holds keys <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]</code>, iteration yields those in order; after a key is deleted, a newly obtained iterator yields the remaining keys in order (e.g., <code>[&quot;a&quot;, &quot;c&quot;, &quot;d&quot;]</code>).</li>
-<li>Each call to <code>iter(view)</code> starts from the beginning of the current table contents.</li>
+<li>A fresh <code>Iterator</code> (an instance compatible with <code>collections.abc.Iterator</code>) is what each call to <code>iter(view)</code> returns.</li>
+<li>Iteration yields the stored keys following the backing table's row order (insertion/stored order).</li>
+<li>Liveness matters here as well: once the table has changed, a repeat call to <code>iter(view)</code> must produce an iterator that reflects the new contents. As an example: if the keys currently in the table are <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]</code>, iteration yields them in order; once a key is deleted, an iterator obtained afterwards yields the keys that remain, in order (e.g., <code>[&quot;a&quot;, &quot;c&quot;, &quot;d&quot;]</code>).</li>
+<li>Each call to <code>iter(view)</code> begins at the start of the table's current contents.</li>
 </ul>
 <h5>Membership: <code>key in view</code> / <code>key not in view</code></h5>
 <ul>
-<li><code>key in view</code> returns <code>True</code> if a key equal to <code>key</code> currently exists in the backing table, otherwise <code>False</code>. <code>key not in view</code> returns the logical negation.</li>
-<li>Membership must consider keys of varied hashable types, including but not limited to: <code>str</code>, <code>bytes</code>, <code>None</code>, <code>int</code>, and nested tuples (e.g., <code>((0, 1), &quot;a&quot;)</code>). A key present in the table must test as a member; a key absent from the table (e.g., <code>100</code>) must test as a non-member.</li>
-<li>Membership is live: after a key is deleted from the backing table, that key must test as absent.</li>
-<li>If the supplied <code>key</code> is not hashable (e.g., a <code>list</code>), the membership test must raise <code>TypeError</code> with a message that includes the text <code>unhashable type:</code>.</li>
+<li><code>key in view</code> returns <code>True</code> when the backing table currently contains a key equal to <code>key</code>, and <code>False</code> otherwise. As for <code>key not in view</code>, the logical negation is returned.</li>
+<li>Membership must account for keys of varied hashable types, including but not limited to: <code>str</code>, <code>bytes</code>, <code>None</code>, <code>int</code>, and nested tuples (e.g., <code>((0, 1), &quot;a&quot;)</code>). When a key is present in the table, it must test as a member; when a key is absent from the table (e.g., <code>100</code>), it must test as a non-member.</li>
+<li>Membership is live as well: once a key has been removed from the backing table, that key must test as absent.</li>
+<li>If the <code>key</code> that gets supplied is not hashable (e.g., a <code>list</code>), <code>TypeError</code> must be raised by the membership test — an error whose message includes the text <code>unhashable type:</code>.</li>
 </ul>
 <h5>Reversal: <code>reversed(view)</code></h5>
 <ul>
-<li>On Python 3.8 and later: returns a fresh <code>Iterator</code> (compatible with <code>collections.abc.Iterator</code>) that yields the stored keys in the reverse of their stored order. For example, if the table holds keys in stored order <code>[&quot;a&quot;, &quot;b&quot;]</code>, <code>reversed(view)</code> yields <code>[&quot;b&quot;, &quot;a&quot;]</code>.</li>
-<li>On Python versions older than 3.8: <code>reversed(view)</code> must raise <code>TypeError</code> with the message <code>'KeysView' object is not reversible</code>.</li>
+<li>For Python 3.8 and later: a fresh <code>Iterator</code> (compatible with <code>collections.abc.Iterator</code>) is returned, and the keys it yields appear in the reverse of their stored order. For instance, take a table whose keys, in stored order, are <code>[&quot;a&quot;, &quot;b&quot;]</code>; <code>reversed(view)</code> then yields <code>[&quot;b&quot;, &quot;a&quot;]</code>.</li>
+<li>For Python versions older than 3.8: <code>reversed(view)</code> must raise <code>TypeError</code> whose message is <code>'KeysView' object is not reversible</code>.</li>
 </ul>
-<h4>Notes / Constraints</h4>
+<h4>Notes and Constraints</h4>
 <ul>
-<li>Empty table: <code>len</code> returns 0, iteration yields an empty sequence, and membership tests return <code>False</code>.</li>
-<li>Do not cache or snapshot table contents in the view; every operation must query the current backing-table state.</li>
+<li>For an empty table, <code>len</code> returns 0, iteration yields an empty sequence, and membership tests return <code>False</code>.</li>
+<li>The view must not cache or snapshot table contents; every operation must query the state of the backing table as it currently stands.</li>
 </ul>
-<h3>Task Specification: Version-guard normalization</h3>
-<p>Across the test/support modules, the Python-version branch that selects typing sources must treat version <strong>3.9</strong> as belonging to the &quot;modern&quot; branch (using <code>collections.abc</code>), i.e., the condition is &quot;version is greater than or equal to (3, 9)&quot;. This is a boundary correction only: on exactly Python 3.9 the <code>collections.abc</code> sources must be used. This affects only which import source is chosen and introduces no new runtime behavior beyond making the correct symbols available on Python 3.9.</p>
+<h3>Task Specification: Normalizing the Version Guard</h3>
+<p>In the test/support modules, wherever a branch keyed on the Python version chooses the typing sources, version <strong>3.9</strong> must be treated as falling under the &quot;modern&quot; branch (which uses <code>collections.abc</code>) — that is, the condition is &quot;version is greater than or equal to (3, 9)&quot;. Only a boundary correction is involved: when the version is exactly Python 3.9, the <code>collections.abc</code> sources must be the ones used. The only thing this affects is which import source gets chosen, and beyond the correct symbols becoming available on Python 3.9, it introduces no new runtime behavior.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Extend the keys-view object returned by sqlitecollections.Dict.keys() so that it supports set intersection with the binary &amp; operator in either operand…</span>
-        <span class="spec-meta muted">794 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The keys-view object returned by sqlitecollections.Dict.keys() is to be extended so that it supports set intersection with the binary &amp; operator in either…</span>
+        <span class="spec-meta muted">847 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Goal</h4>
-<p>Extend the keys-view object returned by <code>sqlitecollections.Dict.keys()</code> so that it supports set intersection with the binary <code>&amp;</code> operator in either operand position. Every such operation must produce a SQLite-backed, temporary <code>sqlitecollections.Set</code>.</p>
-<h4>Package context</h4>
-<p>The package is imported as:</p>
+      <div class="spec-body"><h4>Objective</h4>
+<p>The keys-view object returned by <code>sqlitecollections.Dict.keys()</code> is to be extended so that it supports set intersection with the binary <code>&amp;</code> operator in either operand position. Every such operation must produce a temporary, SQLite-backed <code>sqlitecollections.Set</code>.</p>
+<h4>Package background</h4>
+<p>This is how the package is imported:</p>
 <pre><code class="language-python">import sqlitecollections as sc
 </code></pre>
-<p><code>sc.Dict</code> is a dict-like SQLite-backed collection, and <code>sc.Set</code> is a set-like SQLite-backed collection. Every SQLite-backed collection exposes the name of its backing table through <code>table_name</code>.</p>
-<p>For example, an existing dictionary may be opened with:</p>
+<p><code>sc.Dict</code> is a SQLite-backed, dict-like collection, while <code>sc.Set</code> is a SQLite-backed, set-like collection. Every SQLite-backed collection exposes its backing table's name through <code>table_name</code>.</p>
+<p>For example, an existing dictionary may be opened this way:</p>
 <pre><code class="language-python">parent = sc.Dict(connection=connection, table_name=&quot;items&quot;)
 keys_view = parent.keys()
 </code></pre>
-<p>The keys view remains a live view of its parent dictionary. Its existing behavior for <code>len()</code>, iteration, membership testing, and <code>reversed()</code> must remain unchanged. Intersections use the keys present in the parent at the time the operation is performed.</p>
-<h4>Public API</h4>
-<p>The object returned by <code>sc.Dict.keys()</code> must provide both of these methods:</p>
+<p>The keys view stays a live view of its parent dictionary. Its existing behavior for <code>len()</code>, iteration, membership testing, and <code>reversed()</code> must stay unchanged. The keys that intersections use are the keys present in the parent at the time the operation is performed.</p>
+<h4>Public interface</h4>
+<p>The object returned by <code>sc.Dict.keys()</code> must provide both of the methods below:</p>
 <pre><code class="language-python">keys_view.__and__(other)   # keys_view &amp; other
 keys_view.__rand__(other)  # other &amp; keys_view
 </code></pre>
-<p>Both methods return a new <code>sc.Set</code>.</p>
-<h4>Intersection behavior</h4>
-<h5>Keys view on the left: <code>keys_view &amp; other</code></h5>
+<p>A new <code>sc.Set</code> is returned by both methods.</p>
+<h4>Intersection semantics</h4>
+<h5>Keys view as the left operand: <code>keys_view &amp; other</code></h5>
 <ul>
-<li><code>other</code> may be any iterable of hashable Python values, including a built-in set, sequence, generator, or iterator.</li>
-<li>The operation computes the set intersection between the parent dictionary's current keys and the values yielded by <code>other</code>.</li>
-<li>The result contains exactly the values present in both inputs. Values not present as dictionary keys are omitted.</li>
-<li>An empty intersection returns an empty <code>sc.Set</code>, not a built-in <code>set</code>.</li>
+<li><code>other</code> may be any iterable whose elements are hashable Python values, including a built-in set, sequence, generator, or iterator.</li>
+<li>The set intersection is computed between the parent dictionary's current keys and the values yielded by <code>other</code>.</li>
+<li>The result contains exactly those values that are present in both inputs. Values that are not present as dictionary keys are omitted.</li>
+<li>When the intersection is empty, an empty <code>sc.Set</code> is returned — not a built-in <code>set</code>.</li>
 </ul>
-<h5>Keys view on the right: <code>other &amp; keys_view</code></h5>
+<h5>Keys view as the right operand: <code>other &amp; keys_view</code></h5>
 <ul>
-<li>This form must have the same intersection semantics as <code>keys_view &amp; other</code>.</li>
-<li>It must work even when <code>other</code> is an arbitrary one-shot iterator, such as <code>iter((&quot;a&quot;, &quot;b&quot;))</code>, rather than an object that natively implements <code>&amp;</code>.</li>
-<li>It returns a new <code>sc.Set</code>, including when the result is empty.</li>
+<li>The intersection semantics of this form must be the same as those of <code>keys_view &amp; other</code>.</li>
+<li>Even when <code>other</code> is an arbitrary one-shot iterator, such as <code>iter((&quot;a&quot;, &quot;b&quot;))</code>, rather than an object that natively implements <code>&amp;</code>, this form must work.</li>
+<li>A new <code>sc.Set</code> is returned, including when the result is empty.</li>
 </ul>
-<h5>New and chainable results</h5>
+<h5>New, chainable results</h5>
 <ul>
-<li>Every intersection operation creates a distinct result collection and does not mutate the parent dictionary.</li>
-<li>The returned object must support the existing <code>sc.Set</code> intersection operator, so chained expressions work:</li>
+<li>Every intersection operation creates a distinct result collection, and the parent dictionary is not mutated.</li>
+<li>The object that is returned must support the existing <code>sc.Set</code> intersection operator, so chained expressions work:</li>
 </ul>
 <pre><code class="language-python">result = keys_view &amp; {&quot;a&quot;, &quot;b&quot;} &amp; {&quot;b&quot;}
 </code></pre>
 <ul>
-<li>Each stage of a chain produces a new <code>sc.Set</code>; the final result above contains only <code>&quot;b&quot;</code>.</li>
-<li>Set semantics apply to the result, so each intersecting value is represented at most once.</li>
+<li>Each stage of a chain creates a new <code>sc.Set</code>; the final result above contains only <code>&quot;b&quot;</code>.</li>
+<li>The result is subject to set semantics, so each intersecting value is represented at most once.</li>
 </ul>
-<h4>Backing database and serialization</h4>
+<h4>Database backing and serialization</h4>
 <ul>
-<li>A result is backed by a newly created Set table in the same SQLite database as the parent dictionary.</li>
-<li>The result exposes that table's name through <code>result.table_name</code>.</li>
-<li>With the default serializers, every result value is stored in <code>serialized_value</code> using <code>sc.base.SqliteCollectionBase._default_serializer</code>. Therefore, querying</li>
+<li>Backing every result is a newly created Set table in the same SQLite database as the parent dictionary.</li>
+<li>The name of that table is exposed by the result through <code>result.table_name</code>.</li>
+<li>When the default serializers are in effect, every result value is stored in <code>serialized_value</code> using <code>sc.base.SqliteCollectionBase._default_serializer</code>. Consequently, running the query</li>
 </ul>
 <pre><code class="language-sql">SELECT serialized_value FROM &lt;result.table_name&gt;
 </code></pre>
 <p>returns no rows for an empty intersection and otherwise returns exactly the serialized forms of the intersecting dictionary keys.</p>
 <h4>Deterministic encounter order</h4>
-<p>Although the result has set semantics, the insertion and observable backing-row order of matching values must not be produced by re-enumerating an unordered or hash-dependent intermediate set. Matching values must be stored in deterministic encounter order, preserving the parent dictionary's stored key order when its keys determine the result encounter sequence (and preserving an ordered iterable operand's encounter sequence when that operand is the sequence being consumed). The result's enumeration must retain that same encounter order.</p>
-<p>In particular, if the parent dictionary stores keys in the order <code>&quot;a&quot;</code>, <code>&quot;c&quot;</code>, <code>&quot;b&quot;</code> and the other operand yields <code>&quot;a&quot;</code> followed by <code>&quot;b&quot;</code>, selecting <code>serialized_value</code> from the result table without an <code>ORDER BY</code> clause must yield, in order:</p>
+<p>The result has set semantics; nevertheless, the insertion and observable backing-row order of matching values must not be produced by re-enumerating an unordered or hash-dependent intermediate set. Matching values must be stored in deterministic encounter order; when the parent dictionary's keys determine the result encounter sequence, its stored key order is preserved (and when an ordered iterable operand is the sequence being consumed, that operand's encounter sequence is preserved). When the result is enumerated, that same encounter order must be retained.</p>
+<p>Specifically, if the parent dictionary stores keys in the order <code>&quot;a&quot;</code>, <code>&quot;c&quot;</code>, <code>&quot;b&quot;</code> and the other operand yields <code>&quot;a&quot;</code> followed by <code>&quot;b&quot;</code>, selecting <code>serialized_value</code> from the result table without an <code>ORDER BY</code> clause must yield, in order:</p>
 <ol>
 <li>the serialized form of <code>&quot;a&quot;</code>;</li>
 <li>the serialized form of <code>&quot;b&quot;</code>.</li>
 </ol>
-<p>The values must not be reordered according to Python hash iteration. No separate sorting requirement is imposed; this is an encounter-order guarantee.</p>
-<h4>Lifetime and cleanup</h4>
-<p>Intersection results are volatile collections:</p>
+<p>The values must not be reordered on the basis of Python hash iteration. No separate sorting requirement is imposed — this is an encounter-order guarantee.</p>
+<h4>Lifespan and cleanup</h4>
+<p>Results of intersections are volatile collections:</p>
 <ul>
-<li>Their backing Set tables must not become persistent additions to the parent's database.</li>
-<li>Once a result has no remaining references and is disposed of, its backing table and its collection metadata must be removed.</li>
-<li>Temporary intermediate Sets created by a chained expression are subject to the same cleanup behavior.</li>
-<li>The parent dictionary's table and metadata must remain intact. For a parent created as <code>sc.Dict(connection=connection, table_name=&quot;items&quot;)</code>, after all intersection results are disposed of, the database's tracked collection tables must again consist solely of the single <code>Dict</code> collection named <code>items</code>.</li>
+<li>The backing Set tables of such results must not become persistent additions to the parent's database.</li>
+<li>Once no remaining references to a result exist and it is disposed of, its backing table and its collection metadata must be removed.</li>
+<li>The same cleanup behavior applies to temporary intermediate Sets created by a chained expression.</li>
+<li>The table and metadata of the parent dictionary must remain intact. For a parent created as <code>sc.Dict(connection=connection, table_name=&quot;items&quot;)</code>, after all intersection results are disposed of, the tracked collection tables of the database must again consist solely of the single <code>Dict</code> collection named <code>items</code>.</li>
 </ul>
 <h4>Examples</h4>
 <pre><code class="language-python">import sqlite3
@@ -459,162 +459,162 @@ assert set(chained_result) == {&quot;b&quot;}
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">This codebase provides SQLite-backed collection types under a package importable as sc (with a submodule sc.base).</span>
-        <span class="spec-meta muted">420 words · source specification
+        <span class="spec-title">Collection types backed by SQLite are provided by this codebase under a package that can be imported as sc (with a submodule sc.base).</span>
+        <span class="spec-meta muted">464 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>__or__</code> (union) operator to the Dict <code>KeysView</code></h3>
-<h4>Context</h4>
-<p>This codebase provides SQLite-backed collection types under a package importable as <code>sc</code> (with a submodule <code>sc.base</code>). The <code>Dict</code> type (<code>sc.Dict[KT, VT]</code>) is a SQLite-backed mapping constructed with keyword arguments <code>connection</code> (a <code>sqlite3.Connection</code>) and <code>table_name</code> (a <code>str</code>). Calling <code>.keys()</code> on a <code>Dict</code> returns a keys-view object.</p>
-<p>You must add support for the <code>|</code> (bitwise-or / union) operator to this keys-view object.</p>
-<h4>Required behavior</h4>
-<p>Implement <code>__or__</code> on the Dict keys-view class so that:</p>
+      <div class="spec-body"><h3>Task: Implement the <code>__or__</code> (union) operator for the Dict <code>KeysView</code></h3>
+<h4>Background</h4>
+<p>Collection types backed by SQLite are provided by this codebase under a package that can be imported as <code>sc</code> (with a submodule <code>sc.base</code>). The <code>Dict</code> type (<code>sc.Dict[KT, VT]</code>) is a mapping backed by SQLite, constructed using the keyword arguments <code>connection</code> (a <code>sqlite3.Connection</code>) and <code>table_name</code> (a <code>str</code>). A call to <code>.keys()</code> on a <code>Dict</code> returns a keys-view object.</p>
+<p>Support for the <code>|</code> (bitwise-or / union) operator must be added to this keys-view object.</p>
+<h4>Behavior requirements</h4>
+<p>The Dict keys-view class must be given an implementation of <code>__or__</code> such that the expression</p>
 <pre><code>keys_view | other
 </code></pre>
 <p>returns a <strong>new</strong> <code>sc.Set</code> instance whose contents are the set-union of:</p>
 <ul>
-<li>all keys currently present in the originating <code>Dict</code>, and</li>
-<li>all elements produced by iterating <code>other</code>.</li>
+<li>all keys that are currently present in the originating <code>Dict</code>, and</li>
+<li>all elements obtained by iterating <code>other</code>.</li>
 </ul>
-<h5>Details and constraints</h5>
+<h5>Constraints and details</h5>
 <ul>
 <li>
-<p><code>other</code> may be any iterable (the tests pass one-shot iterators, e.g. <code>iter((1, 2, 3))</code>). Iterating <code>other</code> exactly once to collect its elements is sufficient.</p>
+<p><code>other</code> may be any iterable (the tests pass in one-shot iterators, e.g. <code>iter((1, 2, 3))</code>). Iterating <code>other</code> exactly once in order to collect its elements is sufficient.</p>
 </li>
 <li>
-<p>The return value must be an instance of <code>sc.Set</code>.</p>
+<p>The value that is returned must be an instance of <code>sc.Set</code>.</p>
 </li>
 <li>
-<p>The resulting <code>sc.Set</code> must contain, with no duplicates, the union of the Dict's keys and the elements of <code>other</code>. Elements may be of heterogeneous types (e.g. strings and integers).</p>
+<p>The resulting <code>sc.Set</code> must contain the union of the Dict's keys and the elements of <code>other</code>, with no duplicates. The elements' types may be heterogeneous (e.g. strings and integers).</p>
 </li>
 <li>
-<p>Serialization of stored elements must use the same serialization mechanism as the rest of the library, i.e. the values stored in the resulting Set's backing table are exactly those produced by <code>sc.base.SqliteCollectionBase._default_serializer(element)</code>.</p>
+<p>The serialization applied to the stored elements must use the same serialization mechanism as the rest of the library, meaning that the values stored in the resulting Set's backing table are exactly the ones produced by <code>sc.base.SqliteCollectionBase._default_serializer(element)</code>.</p>
 </li>
 <li>
-<p>The returned <code>sc.Set</code> must be backed by its <strong>own</strong> table (accessible via its <code>table_name</code> attribute) within the same underlying database connection as the originating <code>Dict</code>.</p>
+<p>The <code>sc.Set</code> that is returned must be backed by its <strong>own</strong> table (accessible through its <code>table_name</code> attribute) within the same underlying database connection as the originating <code>Dict</code>.</p>
 </li>
 <li>
-<p>The operation must not create any persistent extra tables in the shared database beyond the originating Dict's <code>items</code> table once the resulting Set is discarded. In other words, the resulting Set must own a temporary/managed table that is cleaned up when the Set object is deleted (garbage-collected), leaving only the original Dict's backing table behind.</p>
+<p>The operation must not create any extra persistent tables in the shared database beyond the originating Dict's <code>items</code> table once the resulting Set is discarded. Put differently, the resulting Set must own a temporary/managed table, and that table is cleaned up when the Set object is deleted (garbage-collected), leaving only the original Dict's backing table behind.</p>
 </li>
 <li>
-<p>The originating Dict and its keys are unaffected by the operation; the same keys-view may be used in multiple <code>|</code> operations independently, each producing an independent Set.</p>
+<p>The operation leaves the originating Dict and its keys unaffected; the same keys-view may be used in multiple <code>|</code> operations independently, with each one producing an independent Set.</p>
 </li>
 </ul>
-<h5>Example semantics</h5>
-<p>Given a Dict whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, <code>&quot;c&quot;</code>:</p>
+<h5>Semantics by example</h5>
+<p>Suppose a Dict has the keys <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, <code>&quot;c&quot;</code>:</p>
 <ul>
-<li><code>keys_view | iter((1, 2, 3))</code> yields a <code>sc.Set</code> containing <code>&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3</code>.</li>
-<li><code>keys_view | iter((&quot;a&quot;, &quot;b&quot;))</code> yields a <code>sc.Set</code> containing <code>&quot;a&quot;, &quot;b&quot;, &quot;c&quot;</code> (duplicates collapsed).</li>
+<li><code>keys_view | iter((1, 2, 3))</code> yields a <code>sc.Set</code> that contains <code>&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3</code>.</li>
+<li><code>keys_view | iter((&quot;a&quot;, &quot;b&quot;))</code> yields a <code>sc.Set</code> that contains <code>&quot;a&quot;, &quot;b&quot;, &quot;c&quot;</code> (with duplicates collapsed).</li>
 </ul>
-<h4>Public API surface</h4>
+<h4>Public API</h4>
 <ul>
-<li><code>sc.Dict[KT, VT](connection=..., table_name=...)</code> — existing constructor (already present).</li>
-<li><code>sc.Dict.keys()</code> — returns the keys-view (already present).</li>
-<li>The keys-view class must implement <code>__or__(self, other)</code> returning an <code>sc.Set</code>.</li>
-<li><code>sc.Set</code> — the returned type, exposing a <code>table_name</code> attribute.</li>
-<li><code>sc.base.SqliteCollectionBase._default_serializer(value)</code> — existing serializer (already present).</li>
+<li><code>sc.Dict[KT, VT](connection=..., table_name=...)</code> — the existing constructor (already available).</li>
+<li><code>sc.Dict.keys()</code> — returns the keys-view (already available).</li>
+<li>The keys-view class must implement <code>__or__(self, other)</code>, which returns an <code>sc.Set</code>.</li>
+<li><code>sc.Set</code> — the type of the returned value, exposing a <code>table_name</code> attribute.</li>
+<li><code>sc.base.SqliteCollectionBase._default_serializer(value)</code> — the existing serializer (already available).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">This project (sqlitecollections, imported as sc) provides collection types backed by an SQLite database.</span>
-        <span class="spec-meta muted">466 words · source specification
+        <span class="spec-title">This project, sqlitecollections (imported as sc), offers collection types backed by an SQLite database.</span>
+        <span class="spec-meta muted">508 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add reflected union (<code>__ror__</code>) support to the <code>KeysView</code> type</h3>
-<h4>Context</h4>
-<p>This project (<code>sqlitecollections</code>, imported as <code>sc</code>) provides collection types backed by an SQLite database. One such type is a keys-view object returned by calling <code>.keys()</code> on a <code>sc.Dict</code> instance. This view participates in set-like operations.</p>
-<p>You must add reflected-union operator support (<code>__ror__</code>) to the keys-view class so that expressions of the form <code>other | keys_view</code> work when <code>other</code> is an arbitrary iterable (specifically, when <code>other</code> does not itself implement <code>__or__</code> against the view).</p>
-<h4>Public API involved</h4>
+      <div class="spec-body"><h3>Task: Implement reflected union (<code>__ror__</code>) support in the <code>KeysView</code> type</h3>
+<h4>Background</h4>
+<p>This project, <code>sqlitecollections</code> (imported as <code>sc</code>), offers collection types backed by an SQLite database. One such type is the keys-view object that calling <code>.keys()</code> on a <code>sc.Dict</code> instance returns. This view takes part in set-like operations.</p>
+<p>You must add support for the reflected-union operator (<code>__ror__</code>) to the keys-view class, so that expressions of the form <code>other | keys_view</code> work when <code>other</code> is an arbitrary iterable (specifically, when <code>other</code> does not itself implement <code>__or__</code> against the view).</p>
+<h4>The public API involved</h4>
 <ul>
-<li><code>sc.Dict[KeyType, ValueType](connection=..., table_name=...)</code> — an existing dict-like collection. Constructed with an SQLite connection and a table name. Calling <code>.keys()</code> on it returns the keys-view object.</li>
-<li>The keys-view object must implement a <code>__ror__</code> method so that <code>other | keys_view</code> is evaluated as <code>keys_view.__ror__(other)</code> when <code>other</code> is a plain iterable (e.g. the result of <code>iter(...)</code>).</li>
-<li><code>sc.Set</code> — the result type of the operation described below (an existing set-like collection type). The returned object exposes a <code>.table_name</code> attribute naming its backing SQLite table.</li>
+<li><code>sc.Dict[KeyType, ValueType](connection=..., table_name=...)</code> — an existing collection that behaves like a dict. It is constructed with an SQLite connection and a table name. Calling <code>.keys()</code> on the instance returns the keys-view object.</li>
+<li>The keys-view object must implement a <code>__ror__</code> method such that <code>other | keys_view</code> is evaluated as <code>keys_view.__ror__(other)</code> when <code>other</code> is a plain iterable (e.g. the result of <code>iter(...)</code>).</li>
+<li><code>sc.Set</code> — the type of the result of the operation described below (an existing collection type that is set-like). The returned object exposes a <code>.table_name</code> attribute that names its backing SQLite table.</li>
 </ul>
-<h4>Required behavior of <code>__ror__</code></h4>
-<p>Given a keys-view <code>sut</code> over a dict whose keys are, in some order, <code>&quot;a&quot;</code>, <code>&quot;c&quot;</code>, <code>&quot;b&quot;</code>, and given an iterable <code>other</code>, the expression:</p>
+<h4>Behavior required of <code>__ror__</code></h4>
+<p>Assume a keys-view <code>sut</code> over a dict whose keys are, in some order, <code>&quot;a&quot;</code>, <code>&quot;c&quot;</code>, <code>&quot;b&quot;</code>, and an iterable <code>other</code>. The expression:</p>
 <pre><code class="language-python">other | sut
 </code></pre>
 <p>must:</p>
 <ol>
-<li>Return a new <code>sc.Set</code> instance.</li>
-<li>The returned set must contain the union of:
+<li>Return a new instance of <code>sc.Set</code>.</li>
+<li>The set that is returned must contain the union of:
 <ul>
-<li>all keys currently present in the underlying dict (the keys viewed by <code>sut</code>), and</li>
+<li>all keys that are currently present in the underlying dict (the keys viewed by <code>sut</code>), and</li>
 <li>all elements yielded by iterating <code>other</code>.</li>
 </ul>
 </li>
-<li>Duplicate elements (an element appearing both in <code>other</code> and among the keys) must appear only once in the result.</li>
-<li>The values stored in the resulting set are serialized using the project's default serialization (the same serialization used for elements elsewhere in the library). Concretely, for each distinct element <code>e</code> in the union, the backing table of the returned set contains one row whose serialized value equals <code>sc.base.SqliteCollectionBase._default_serializer(e)</code>.</li>
+<li>Duplicate elements (an element that appears both in <code>other</code> and among the keys) must appear only once in the result.</li>
+<li>The values that are stored in the resulting set are serialized with the project's default serialization (the same serialization that is used for elements elsewhere in the library). To be concrete, for each distinct element <code>e</code> in the union, the backing table of the returned set contains one row whose serialized value is equal to <code>sc.base.SqliteCollectionBase._default_serializer(e)</code>.</li>
 </ol>
-<h5>Examples of the union semantics</h5>
-<p>If <code>sut</code> views keys <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, <code>&quot;c&quot;</code>:</p>
+<h5>Examples showing the union semantics</h5>
+<p>If <code>sut</code> views the keys <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, <code>&quot;c&quot;</code>:</p>
 <ul>
-<li><code>iter((1, 2, 3)) | sut</code> yields a <code>sc.Set</code> whose elements are <code>{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3}</code>.</li>
-<li><code>iter((&quot;a&quot;, &quot;b&quot;)) | sut</code> yields a <code>sc.Set</code> whose elements are <code>{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;}</code> (overlapping elements are not duplicated).</li>
+<li>The expression <code>iter((1, 2, 3)) | sut</code> yields a <code>sc.Set</code> whose elements are <code>{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3}</code>.</li>
+<li>The expression <code>iter((&quot;a&quot;, &quot;b&quot;)) | sut</code> yields a <code>sc.Set</code> whose elements are <code>{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;}</code> (overlapping elements do not get duplicated).</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The operation must not leave behind any auxiliary/persistent tables in the database beyond the original <code>items</code> table once the resulting set object is discarded (deleted). Creating the result set may allocate its own backing table while the result object is alive, but after the result is deleted, only the original dict's table must remain.</li>
-<li>Iterating <code>other</code> a single time to gather its elements is sufficient; <code>other</code> may be a one-shot iterator.</li>
+<li>Once the resulting set object is discarded (deleted), the operation must not leave behind any auxiliary/persistent tables in the database beyond the original <code>items</code> table. While the result object is alive, creating the result set may allocate its own backing table, but after the result is deleted, only the original dict's table must remain.</li>
+<li>It is sufficient to iterate <code>other</code> a single time in order to gather its elements; <code>other</code> may be a one-shot iterator.</li>
 </ul>
-<h4>Element type</h4>
-<p>Keys may be arbitrary hashable values, and <code>other</code> may yield arbitrary hashable values (integers, strings, etc.); the union combines them without type restriction beyond hashability/serializability.</p>
+<h4>Element types</h4>
+<p>The keys may be arbitrary hashable values, and <code>other</code> may likewise yield arbitrary hashable values (integers, strings, etc.); the union combines them with no type restriction beyond hashability/serializability.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add subtraction support to the keys view returned by a SQLite-backed dictionary.</span>
-        <span class="spec-meta muted">225 words · source specification
+        <span class="spec-title">Add subtraction support to the keys view that a SQLite-backed dictionary returns.</span>
+        <span class="spec-meta muted">248 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add subtraction support to the keys view returned by a SQLite-backed dictionary.</p>
-<h5>Public API</h5>
-<p>The package is imported as:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Add subtraction support to the keys view that a SQLite-backed dictionary returns.</p>
+<h5>Public interface</h5>
+<p>The package is imported as follows:</p>
 <pre><code class="language-python">import sqlitecollections as sc
 </code></pre>
-<p>The relevant APIs are:</p>
+<p>The relevant APIs are the following:</p>
 <pre><code class="language-python">sc.Dict(connection: sqlite3.Connection, table_name: str)
 sc.Dict.keys()
 </code></pre>
-<p>The object returned by <code>Dict.keys()</code> must support:</p>
+<p>The object that <code>Dict.keys()</code> returns must support:</p>
 <pre><code class="language-python">keys_view.__sub__(other: Iterable[Any]) -&gt; sc.Set
 </code></pre>
-<p>Equivalently, callers must be able to use:</p>
+<p>An equivalent form that callers must be able to use is:</p>
 <pre><code class="language-python">result = keys_view - other
 </code></pre>
-<p>The returned object must expose its existing <code>table_name</code> attribute.</p>
-<h5>Required behavior</h5>
-<p>Given a dictionary whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
+<p>The object that is returned must expose its existing <code>table_name</code> attribute.</p>
+<h5>Behavior that is required</h5>
+<p>Starting from a dictionary whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
 <ul>
-<li>Subtracting an iterator containing no equal keys, such as <code>iter((1, 2, 3))</code>, returns an <code>sc.Set</code> containing <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>.</li>
-<li>Subtracting <code>iter((&quot;a&quot;, &quot;b&quot;))</code> returns an <code>sc.Set</code> containing only <code>&quot;c&quot;</code>.</li>
+<li>Subtracting an iterator that contains no equal keys, such as <code>iter((1, 2, 3))</code>, returns an <code>sc.Set</code> that contains <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>.</li>
+<li>Subtracting <code>iter((&quot;a&quot;, &quot;b&quot;))</code> returns an <code>sc.Set</code> that contains only <code>&quot;c&quot;</code>.</li>
 </ul>
-<p>The right-hand operand must therefore accept a one-pass iterator, not only a set or other reusable collection.</p>
+<p>Accordingly, the right-hand operand must accept a one-pass iterator, not only a set or other reusable collection.</p>
 <p>The result must:</p>
 <ul>
-<li>Be an instance of <code>sc.Set</code>.</li>
-<li>Be backed by the same SQLite connection as the dictionary.</li>
-<li>Store each resulting key as a set value using the collection’s normal/default serialization. Its backing table, identified by <code>result.table_name</code>, must expose these values through the <code>serialized_value</code> column.</li>
-<li>Use its own temporary backing table. Deleting the returned set must remove that table, leaving the original dictionary table intact. This cleanup must not invalidate the dictionary or its keys view, which must remain usable for subsequent subtraction operations.</li>
+<li>Be an <code>sc.Set</code> instance.</li>
+<li>Be backed by the same SQLite connection that the dictionary uses.</li>
+<li>Store each of the resulting keys as a set value, using the collection’s normal/default serialization. Its backing table, which is identified by <code>result.table_name</code>, must expose these values through the <code>serialized_value</code> column.</li>
+<li>Use a temporary backing table of its own. Deleting the returned set must remove that table while leaving the original dictionary table intact. Such a cleanup must not invalidate the dictionary or its keys view, which must remain usable for subsequent subtraction operations.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Add reflected subtraction support to dictionary key views.</span>
-        <span class="spec-meta muted">272 words · source specification
+        <span class="spec-title">Add support for reflected subtraction to dictionary key views.</span>
+        <span class="spec-meta muted">295 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add reflected subtraction support to dictionary key views.</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Add support for reflected subtraction to dictionary key views.</p>
 <h5>Public API</h5>
-<p>The relevant package APIs are:</p>
+<p>The relevant APIs of the package are:</p>
 <ul>
 <li>
 <p><code>sqlitecollections.Dict</code></p>
@@ -624,7 +624,7 @@ sc.Dict.keys()
 </li>
 <li>Method:<pre><code class="language-python">Dict.keys()
 </code></pre>
-returning the dictionary’s keys-view object.</li>
+which returns the dictionary’s keys-view object.</li>
 </ul>
 </li>
 <li>
@@ -635,213 +635,214 @@ returning the dictionary’s keys-view object.</li>
 <li>
 <p><code>sqlitecollections.Set</code></p>
 <ul>
-<li>The returned object must expose its backing SQLite table name through:<pre><code class="language-python">result.table_name
+<li>The object that is returned must expose the name of its backing SQLite table via:<pre><code class="language-python">result.table_name
 </code></pre>
 </li>
 </ul>
 </li>
 <li>
-<p><code>sqlitecollections.base.SqliteCollectionBase._default_serializer(value)</code> remains the serializer used for values stored in the result set.</p>
+<p><code>sqlitecollections.base.SqliteCollectionBase._default_serializer(value)</code> remains the serializer that is used for values stored in the result set.</p>
 </li>
 </ul>
 <h5>Behavior</h5>
-<p>For an expression of the form:</p>
+<p>When an expression has the form:</p>
 <pre><code class="language-python">left_iterator - dictionary.keys()
 </code></pre>
-<p>the keys view’s reflected subtraction must return a <code>sqlitecollections.Set</code> containing the elements from the left iterator that are not keys in the dictionary.</p>
-<p>Given a dictionary backed by an existing SQLite table containing the keys <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
+<p>the keys view’s reflected subtraction must return a <code>sqlitecollections.Set</code> containing the elements of the left iterator that are not keys in the dictionary.</p>
+<p>Suppose a dictionary is backed by an existing SQLite table that contains the keys <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
 <pre><code class="language-python">result = iter((1, 2, 3)) - dictionary.keys()
 </code></pre>
 <p>must:</p>
 <ul>
-<li>return an instance of <code>sqlitecollections.Set</code>;</li>
+<li>return a <code>sqlitecollections.Set</code> instance;</li>
 <li>contain <code>1</code>, <code>2</code>, and <code>3</code>;</li>
-<li>store those values in the result’s backing table as <code>serialized_value</code> values produced by <code>SqliteCollectionBase._default_serializer</code>;</li>
-<li>create the result’s backing table in the same SQLite connection as the dictionary.</li>
+<li>store those values in the result’s backing table as <code>serialized_value</code> values that <code>SqliteCollectionBase._default_serializer</code> produces;</li>
+<li>create the result’s backing table within the same SQLite connection as the dictionary.</li>
 </ul>
-<p>Similarly:</p>
+<p>Likewise:</p>
 <pre><code class="language-python">result = iter((&quot;a&quot;, &quot;b&quot;)) - dictionary.keys()
 </code></pre>
-<p>must return an empty <code>sqlitecollections.Set</code>, because both left-side values are dictionary keys. The empty result must still have a queryable backing table identified by <code>result.table_name</code>.</p>
-<p>Creating either result must not modify the original dictionary table.</p>
-<h5>Result lifecycle</h5>
-<p>The returned set’s backing table is temporary to that result object. Once the result object is deleted, its backing table must be removed from the shared SQLite connection, leaving the original dictionary table intact and no result table behind.</p>
+<p>must return an empty <code>sqlitecollections.Set</code>, since both of the left-side values are dictionary keys. The empty result must still have a queryable backing table that <code>result.table_name</code> identifies.</p>
+<p>The creation of either result must not modify the original dictionary table.</p>
+<h5>Lifecycle of the result</h5>
+<p>The backing table of the returned set is temporary to that result object. Once the result object is deleted, its backing table must be removed from the shared SQLite connection, with the original dictionary table left intact and no result table left behind.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">In the sqlitecollections package</span>
-        <span class="spec-meta muted">210 words · source specification
+        <span class="spec-title">Within the sqlitecollections package</span>
+        <span class="spec-meta muted">225 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add symmetric difference support to dictionary key views</h4>
-<h5>Public API</h5>
-<p>In the <code>sqlitecollections</code> package:</p>
+      <div class="spec-body"><h4>Add support for symmetric difference on dictionary key views</h4>
+<h5>Public interface</h5>
+<p>Within the <code>sqlitecollections</code> package:</p>
 <ul>
-<li><code>sqlitecollections.Dict.keys()</code> returns the existing dictionary keys-view object.</li>
-<li>That keys-view object must implement:</li>
+<li>Calling <code>sqlitecollections.Dict.keys()</code> returns the dictionary's existing keys-view object.</li>
+<li>The keys-view object must implement:</li>
 </ul>
 <pre><code class="language-python">def __xor__(self, other: Iterable[Hashable]) -&gt; sqlitecollections.Set
 </code></pre>
-<p>This method is invoked through the <code>^</code> operator.</p>
-<p>The returned object must:</p>
+<p>The <code>^</code> operator invokes this method.</p>
+<p>The object that is returned must:</p>
 <ul>
 <li>Be an instance of <code>sqlitecollections.Set</code>.</li>
-<li>Expose its backing SQLite table name through <code>table_name</code>.</li>
-<li>Store its elements in that table’s <code>serialized_value</code> column using <code>sqlitecollections.base.SqliteCollectionBase._default_serializer</code>.</li>
+<li>Expose the name of its backing SQLite table through <code>table_name</code>.</li>
+<li>Store its elements in the <code>serialized_value</code> column of that table using <code>sqlitecollections.base.SqliteCollectionBase._default_serializer</code>.</li>
 </ul>
-<h5>Required behavior</h5>
-<p>The operation returns the symmetric difference between the dictionary’s keys and the values yielded by <code>other</code>. It must accept one-shot iterators, not only concrete set-like collections.</p>
-<p>For a dictionary whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
+<h5>Behavior requirements</h5>
+<p>The operation returns the symmetric difference between the dictionary's keys and the values that <code>other</code> yields. It must accept one-shot iterators, not only concrete set-like collections.</p>
+<p>Given a dictionary whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
 <ul>
-<li>XOR with <code>iter((1, 2, 3))</code> returns a <code>sqlitecollections.Set</code> containing exactly:</li>
+<li>XOR with <code>iter((1, 2, 3))</code> returns a <code>sqlitecollections.Set</code> that contains exactly:</li>
 </ul>
 <pre><code class="language-python">{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3}
 </code></pre>
 <ul>
-<li>XOR with <code>iter((&quot;a&quot;, &quot;b&quot;, &quot;d&quot;))</code> returns a <code>sqlitecollections.Set</code> containing exactly:</li>
+<li>XOR with <code>iter((&quot;a&quot;, &quot;b&quot;, &quot;d&quot;))</code> returns a <code>sqlitecollections.Set</code> that contains exactly:</li>
 </ul>
 <pre><code class="language-python">{&quot;c&quot;, &quot;d&quot;}
 </code></pre>
-<p>The result must be backed by a table accessible through the same SQLite connection as the source dictionary. The source dictionary and its keys must remain available for subsequent operations.</p>
-<p>When the returned <code>sqlitecollections.Set</code> is deleted, its backing table must be removed. The source dictionary’s backing table must remain intact; in the described setup, only the original <code>items</code> table remains afterward.</p>
+<p>The result must be backed by a table that is accessible through the same SQLite connection as the source dictionary. The source dictionary and its keys must remain available for subsequent operations.</p>
+<p>When the returned <code>sqlitecollections.Set</code> is deleted, the table backing it must be removed. The source dictionary's backing table must remain intact; in the described setup, the only table that remains afterward is the original <code>items</code> table.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">In the sqlitecollections package, extend the keys-view object returned by sqlitecollections.Dict.keys() to support reverse XOR with an iterator.</span>
-        <span class="spec-meta muted">223 words · source specification
+        <span class="spec-title">Within the sqlitecollections package, extend the keys-view object that sqlitecollections.Dict.keys() returns so that it supports reverse XOR with an iterator.</span>
+        <span class="spec-meta muted">252 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Support reverse symmetric difference on <code>Dict.keys()</code> views</h4>
-<p>In the <code>sqlitecollections</code> package, extend the keys-view object returned by <code>sqlitecollections.Dict.keys()</code> to support reverse XOR with an iterator.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Task: Add reverse symmetric difference support to <code>Dict.keys()</code> views</h4>
+<p>Within the <code>sqlitecollections</code> package, extend the keys-view object that <code>sqlitecollections.Dict.keys()</code> returns so that it supports reverse XOR with an iterator.</p>
+<h5>Public interface</h5>
 <ul>
 <li><code>sqlitecollections.Dict(connection=..., table_name=...)</code></li>
 <li><code>sqlitecollections.Dict.keys()</code></li>
-<li>Keys-view reverse XOR:<pre><code class="language-python">keys_view.__rxor__(other)
+<li>Reverse XOR on the keys view:<pre><code class="language-python">keys_view.__rxor__(other)
 </code></pre>
-This must enable:<pre><code class="language-python">other ^ keys_view
+It must enable:<pre><code class="language-python">other ^ keys_view
 </code></pre>
 </li>
-<li>The result must be an instance of <code>sqlitecollections.Set</code>.</li>
-<li>The result must expose its SQLite backing-table name through <code>result.table_name</code>.</li>
-<li>Serialized set values must use:<pre><code class="language-python">sqlitecollections.base.SqliteCollectionBase._default_serializer(value)
+<li>The result must be a <code>sqlitecollections.Set</code> instance.</li>
+<li>The result must expose the name of its SQLite backing table via <code>result.table_name</code>.</li>
+<li>Set values must be serialized using:<pre><code class="language-python">sqlitecollections.base.SqliteCollectionBase._default_serializer(value)
 </code></pre>
 </li>
 </ul>
-<h5>Required behavior</h5>
-<p>Given a SQLite-backed <code>Dict</code> whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
+<h5>Behavior requirements</h5>
+<p>Consider a SQLite-backed <code>Dict</code> whose keys are <code>&quot;a&quot;</code>, <code>&quot;b&quot;</code>, and <code>&quot;c&quot;</code>:</p>
 <pre><code class="language-python">parent = sqlitecollections.Dict(connection=connection, table_name=&quot;items&quot;)
 keys_view = parent.keys()
 </code></pre>
-<p>Applying reverse XOR with a one-shot iterator must return the symmetric difference between the iterator’s values and the dictionary’s keys.</p>
-<p>For example:</p>
+<p>When reverse XOR is applied with a one-shot iterator, the operation must return the symmetric difference between the iterator’s values and the dictionary’s keys.</p>
+<p>As an example:</p>
 <pre><code class="language-python">result = iter((1, 2, 3)) ^ keys_view
 </code></pre>
-<p>must return a <code>sqlitecollections.Set</code> containing exactly:</p>
+<p>must return a <code>sqlitecollections.Set</code> that contains exactly:</p>
 <pre><code class="language-python">{&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, 1, 2, 3}
 </code></pre>
-<p>Likewise:</p>
+<p>Similarly:</p>
 <pre><code class="language-python">result = iter((&quot;a&quot;, &quot;b&quot;, &quot;d&quot;)) ^ keys_view
 </code></pre>
-<p>must return a <code>sqlitecollections.Set</code> containing exactly:</p>
+<p>must return a <code>sqlitecollections.Set</code> that contains exactly:</p>
 <pre><code class="language-python">{&quot;c&quot;, &quot;d&quot;}
 </code></pre>
-<p>The returned set must be backed by the same SQLite connection. Its table, named by <code>result.table_name</code>, must have a <code>serialized_value</code> column containing exactly one row per result member, serialized with <code>SqliteCollectionBase._default_serializer</code>.</p>
-<p>Deleting the returned set object must remove its auxiliary backing table. The original dictionary table (<code>items</code>) must remain intact, with no result tables left behind.</p>
+<p>The set that is returned must be backed by the same SQLite connection. The table it uses, whose name comes from <code>result.table_name</code>, must have a <code>serialized_value</code> column that contains exactly one row per result member, serialized using <code>SqliteCollectionBase._default_serializer</code>.</p>
+<p>When the returned set object is deleted, its auxiliary backing table must be removed. The dictionary’s original table (<code>items</code>) must remain intact, and there must be no result tables left behind.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">You are working on the sqlitecollections package (imported as sc), which provides Python collection types backed by an SQLite database.</span>
-        <span class="spec-meta muted">654 words · source specification
+        <span class="spec-title">This task centers on the sqlitecollections package (imported as sc), which supplies Python collection types that are backed by an SQLite database.</span>
+        <span class="spec-meta muted">749 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>sqlitecollections</code> package (imported as <code>sc</code>), which provides Python collection types backed by an SQLite database. The package already contains a <code>Dict</code> class that stores key/value pairs in a database table. This task requires implementing a fully functional values-view object for that <code>Dict</code>, and ensuring the keys-view object satisfies a standard type check.</p>
-<h4>Data Model Context</h4>
-<p>A <code>sc.Dict</code> is constructed as:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Task Overview</h4>
+<p>This task centers on the <code>sqlitecollections</code> package (imported as <code>sc</code>), which supplies Python collection types that are backed by an SQLite database. A <code>Dict</code> class that stores key/value pairs inside a database table is already part of the package. The work to be done is twofold: a fully functional values-view object must be implemented for that <code>Dict</code>, and the implementation must ensure that the keys-view object satisfies a standard type check.</p>
+<h4>Data Model Background</h4>
+<p>A <code>sc.Dict</code> is created in the following way:</p>
 <pre><code class="language-python">sc.Dict[KeyType, ValueType](connection=&lt;sqlite3.Connection&gt;, table_name=&quot;items&quot;)
 </code></pre>
-<p>The backing table (named <code>items</code> in these scenarios) holds one row per dictionary entry. Each row stores a serialized key, a serialized value, and an integer ordering column (<code>item_order</code>) that establishes iteration order. Keys and values are Python objects serialized via the standard pickle protocol; iteration and membership operations must deserialize these stored blobs back into the original Python objects.</p>
-<p>Entries are yielded in ascending <code>item_order</code> order.</p>
-<h4>Required Behavior</h4>
-<h5>1. <code>Dict.values()</code> returns a values-view object</h5>
-<p>Calling <code>.values()</code> on a <code>sc.Dict</code> instance must return a values-view object. This object must be an instance of <code>collections.abc.ValuesView</code> (i.e., <code>isinstance(view, ValuesView)</code> is <code>True</code>; on Python ≥ 3.9 this corresponds to <code>ValuesView</code> from <code>collections.abc</code>, otherwise from <code>typing</code>).</p>
-<p>The values-view object must be a <strong>live view</strong> of the underlying dictionary: after the view is obtained, subsequent changes to the dictionary's contents (rows added, rows removed) must be reflected on every fresh operation performed on the view. The view holds no snapshot of the data.</p>
-<p>The values-view must support the following operations.</p>
-<h6><code>len(view)</code> — length</h6>
-<p>Returns the number of entries currently in the underlying dictionary as an <code>int</code>. This value must reflect the current state of the dictionary each time it is called (e.g., returns <code>0</code> for an empty dictionary, and returns the updated count after rows are inserted).</p>
-<h6><code>value in view</code> / <code>value not in view</code> — membership</h6>
-<p>Returns whether the given object equals at least one of the values currently stored in the dictionary.</p>
+<p>The table backing the dictionary (in these scenarios it is named <code>items</code>) has one row for each dictionary entry. Every row stores a serialized key, a serialized value, and an integer ordering column (<code>item_order</code>); it is that ordering column which establishes the order of iteration. Keys and values are Python objects that the standard pickle protocol serializes; iteration and membership operations must deserialize the blobs stored there, bringing back the original Python objects.</p>
+<p>Entries are yielded in ascending order of <code>item_order</code>.</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Values view returned by <code>Dict.values()</code></h5>
+<p>A values-view object is what a call to <code>.values()</code> on a <code>sc.Dict</code> instance must return, and the object in question must be an instance of <code>collections.abc.ValuesView</code> (that is, <code>isinstance(view, ValuesView)</code> is <code>True</code>; on Python ≥ 3.9 this corresponds to <code>ValuesView</code> from <code>collections.abc</code>, otherwise from <code>typing</code>).</p>
+<p>The values-view object must act as a <strong>live view</strong> over the underlying dictionary. After the view has been obtained, every fresh operation performed on the view must reflect the subsequent changes made to the dictionary's contents (rows added, rows removed). No snapshot of the data is kept by the view.</p>
+<p>The following operations must be supported by the values-view.</p>
+<h6><code>len(view)</code> — entry count</h6>
+<p>An <code>int</code> is returned giving the number of entries that the underlying dictionary currently contains. Each time the call is made, the value must reflect the dictionary's current state (e.g., <code>0</code> is returned for an empty dictionary, and the updated count is returned after rows are inserted).</p>
+<h6><code>value in view</code> / <code>value not in view</code> — membership testing</h6>
+<p>This test returns whether the object supplied equals at least one of the values the dictionary currently stores.</p>
 <ul>
-<li><code>value in view</code> is <code>True</code> if some stored value equals <code>value</code>, otherwise <code>False</code>.</li>
-<li><code>value not in view</code> is the logical negation.</li>
+<li><code>value in view</code> is <code>True</code> when some value stored in the dictionary equals <code>value</code>, and <code>False</code> otherwise.</li>
+<li><code>value not in view</code> is the logical negation of that.</li>
 </ul>
-<p>Membership comparison is by value equality after deserialization. The values stored may be of arbitrary picklable Python types, including (but not limited to):</p>
+<p>Membership comparison works on the basis of value equality, applied after deserialization. The values that get stored may be of arbitrary picklable Python types, including (but not limited to):</p>
 <ul>
-<li>strings (e.g., <code>&quot;a&quot;</code>),</li>
-<li>byte strings (e.g., <code>b&quot;a&quot;</code>),</li>
+<li>strings (for instance, <code>&quot;a&quot;</code>),</li>
+<li>byte strings (for instance, <code>b&quot;a&quot;</code>),</li>
 <li><code>None</code>,</li>
-<li>integers (e.g., <code>0</code>),</li>
-<li>tuples containing nested tuples and other objects (e.g., <code>((0, 1), &quot;a&quot;)</code>).</li>
+<li>integers (for instance, <code>0</code>),</li>
+<li>tuples that contain nested tuples alongside other objects (for instance, <code>((0, 1), &quot;a&quot;)</code>).</li>
 </ul>
-<p>A query for a value that is not present (e.g., <code>100</code> when no stored value equals <code>100</code>) must yield <code>False</code> for <code>in</code> and <code>True</code> for <code>not in</code>.</p>
-<h6><code>iter(view)</code> — iteration</h6>
-<p>Returns an iterator (an instance of <code>collections.abc.Iterator</code>) over the dictionary's values, in ascending <code>item_order</code>.</p>
+<p>When the queried value is not present (e.g., <code>100</code> when no stored value equals <code>100</code>), the check must yield <code>False</code> for <code>in</code> and <code>True</code> for <code>not in</code>.</p>
+<h6><code>iter(view)</code> — value iteration</h6>
+<p>What is returned is an iterator (an instance of <code>collections.abc.Iterator</code>) over the dictionary's values, in ascending <code>item_order</code>.</p>
 <ul>
-<li>Iterating over the returned iterator yields the deserialized values one at a time.</li>
-<li>Each call to <code>iter(view)</code> produces a fresh iterator reflecting the dictionary's current contents at the time of that call.</li>
-<li>For an empty dictionary, iteration yields no elements (an empty sequence). Requesting a new iterator and fully consuming it again on an empty dictionary again yields nothing.</li>
-<li>Values may be arbitrary picklable objects. For example, stored values including an integer <code>4</code>, an integer <code>2</code>, <code>None</code>, and a list <code>[1, 2]</code> (in that order) must be yielded as <code>[4, 2, None, [1, 2]]</code>.</li>
-<li>If an entry is removed from the underlying dictionary (e.g., via <code>del parent[key]</code>), a subsequently obtained iterator must omit the corresponding value.</li>
+<li>Walking through the iterator that is returned yields the deserialized values one at a time.</li>
+<li>Every call to <code>iter(view)</code> produces a fresh iterator, and that iterator reflects the dictionary's current contents as they stand at the time of the call.</li>
+<li>When the dictionary is empty, iteration yields no elements (an empty sequence). Asking for a new iterator once more and consuming it fully on an empty dictionary again yields nothing.</li>
+<li>Values may be arbitrary picklable objects. To illustrate: with stored values that include an integer <code>4</code>, an integer <code>2</code>, <code>None</code>, and a list <code>[1, 2]</code> (in that order), iteration must yield <code>[4, 2, None, [1, 2]]</code>.</li>
+<li>If an entry gets removed from the underlying dictionary (e.g., via <code>del parent[key]</code>), an iterator obtained afterwards must omit the value corresponding to it.</li>
 </ul>
-<h5>2. <code>Dict.keys()</code> type conformance</h5>
-<p>The object returned by <code>Dict.keys()</code> must be an instance of <code>collections.abc.KeysView</code> (<code>isinstance(view, KeysView)</code> is <code>True</code>), while continuing to iterate its keys correctly (e.g., yielding <code>[&quot;a&quot;, &quot;b&quot;]</code> for a dictionary containing those two keys in order).</p>
-<h4>Public API Surface</h4>
+<h5>2. Type conformance of <code>Dict.keys()</code></h5>
+<p>What <code>Dict.keys()</code> returns must be an instance of <code>collections.abc.KeysView</code> (that is, <code>isinstance(view, KeysView)</code> is <code>True</code>), while iteration over its keys continues to work correctly (e.g., a dictionary containing those two keys in order yields <code>[&quot;a&quot;, &quot;b&quot;]</code>).</p>
+<h4>Public API</h4>
 <ul>
-<li><code>sc.Dict</code> — existing class; must expose <code>.values()</code> and <code>.keys()</code> methods as described.</li>
-<li>The object returned by <code>sc.Dict.values()</code> must register as / subclass <code>collections.abc.ValuesView</code> and implement <code>__len__</code>, <code>__contains__</code>, and <code>__iter__</code>.</li>
-<li>The object returned by <code>sc.Dict.keys()</code> must register as / subclass <code>collections.abc.KeysView</code>.</li>
+<li><code>sc.Dict</code> — a class that already exists; it must expose the <code>.values()</code> and <code>.keys()</code> methods as described.</li>
+<li>Whatever <code>sc.Dict.values()</code> returns must register as / subclass <code>collections.abc.ValuesView</code> and must implement <code>__len__</code>, <code>__contains__</code>, and <code>__iter__</code>.</li>
+<li>As for <code>sc.Dict.keys()</code>, whatever it returns must register as / subclass <code>collections.abc.KeysView</code>.</li>
 </ul>
-<p>No other public names are required by this task.</p>
+<p>No public names other than these are required by this task.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">The package root sqlitecollections must expose</span>
-        <span class="spec-meta muted">117 words · source specification
+        <span class="spec-title">The following must be exposed by the package root sqlitecollections</span>
+        <span class="spec-meta muted">147 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add reverse iteration support for dictionary values views</h4>
-<h5>Public API</h5>
-<p>The package root <code>sqlitecollections</code> must expose:</p>
+      <div class="spec-body"><h4>Add support for reverse iteration of dictionary values views</h4>
+<h5>Public interface</h5>
+<p>The following must be exposed by the package root <code>sqlitecollections</code>:</p>
 <ul>
-<li><code>Dict</code>, constructible with:<pre><code class="language-python">Dict(connection: sqlite3.Connection, table_name: str)
+<li><code>Dict</code>, which can be constructed via:<pre><code class="language-python">Dict(connection: sqlite3.Connection, table_name: str)
 </code></pre>
-Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable.</li>
-<li><code>Dict.values()</code> returning a <code>ValuesView</code>.</li>
-<li>The <code>ValuesView</code> reverse-iteration protocol:<pre><code class="language-python">ValuesView.__reversed__(self)
+It must remain possible to use generic subscription, for example <code>Dict[Hashable, Any]</code>.</li>
+<li><code>Dict.values()</code>, which returns a <code>ValuesView</code>.</li>
+<li>The protocol for reverse iteration on <code>ValuesView</code>:<pre><code class="language-python">ValuesView.__reversed__(self)
 </code></pre>
 </li>
 </ul>
-<h5>Required behavior</h5>
-<p>Given a SQLite-backed <code>Dict</code> whose normal value order is <code>[4, 2]</code>:</p>
+<h5>Behavior requirements</h5>
+<p>Take a <code>Dict</code> backed by SQLite whose values have <code>[4, 2]</code> as their normal order:</p>
 <ul>
 <li>
-<p>On Python 3.8 or newer, <code>reversed(dictionary.values())</code> must:</p>
+<p>If the Python version is 3.8 or newer, <code>reversed(dictionary.values())</code> must:</p>
 <ul>
-<li>return an object that is an instance of <code>collections.abc.Iterator</code>;</li>
-<li>yield the values in reverse dictionary order, producing <code>[2, 4]</code> when consumed.</li>
+<li>return an object such that it is an instance of <code>collections.abc.Iterator</code>;</li>
+<li>yield the values in reverse dictionary order, so that <code>[2, 4]</code> is produced when they are consumed.</li>
 </ul>
 </li>
 <li>
-<p>On Python versions earlier than 3.8, <code>reversed(dictionary.values())</code> must raise <code>TypeError</code> with a message containing:</p>
+<p>If the Python version is earlier than 3.8, <code>reversed(dictionary.values())</code> must raise <code>TypeError</code> whose message contains:</p>
 <pre><code class="language-text">'ValuesView' object is not reversible
 </code></pre>
 </li>
@@ -851,17 +852,17 @@ Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">The behavior applies to</span>
-        <span class="spec-meta muted">436 words · source specification
+        <span class="spec-title">The behavior concerns</span>
+        <span class="spec-meta muted">455 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Implement live <code>Dict.items()</code> view behavior</h3>
-<h4>Public API</h4>
-<p>The behavior applies to:</p>
+      <div class="spec-body"><h3>Implement live behavior for the <code>Dict.items()</code> view</h3>
+<h4>Public interface</h4>
+<p>The behavior concerns:</p>
 <ul>
 <li><code>sqlitecollections.Dict[Hashable, Any](connection: sqlite3.Connection, table_name: str)</code></li>
 <li><code>sqlitecollections.Dict.items()</code></li>
-<li>The items-view operations:
+<li>Operations on the items view:
 <ul>
 <li><code>len(view)</code></li>
 <li><code>iter(view)</code></li>
@@ -872,18 +873,18 @@ Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable
 <li><code>Set.table_name</code></li>
 <li><code>sqlitecollections.base.SqliteCollectionBase._default_serializer</code></li>
 </ul>
-<h4>Required behavior</h4>
-<h5>Live length</h5>
-<p>The object returned by <code>Dict.items()</code> must remain connected to the current contents of its parent dictionary.</p>
+<h4>Behavior requirements</h4>
+<h5>Live length tracking</h5>
+<p>The object that <code>Dict.items()</code> returns must remain connected to the current contents of its parent dictionary.</p>
 <ul>
-<li>For an empty dictionary, <code>len(view)</code> is <code>0</code>.</li>
-<li>If four rows are subsequently added to the dictionary’s SQLite table, the same previously created view must report <code>len(view) == 4</code>.</li>
-<li>The size must therefore not be fixed when the view is created.</li>
+<li>When the dictionary is empty, <code>len(view)</code> is <code>0</code>.</li>
+<li>If four rows are added afterwards to the dictionary's SQLite table, the same view created earlier must report <code>len(view) == 4</code>.</li>
+<li>The size must therefore not be fixed at the moment the view is created.</li>
 </ul>
 <h5>Iteration</h5>
 <p><code>iter(view)</code> must return an <code>Iterator</code>.</p>
-<p>Each newly created iterator must reflect the dictionary’s current contents and yield deserialized <code>(key, value)</code> tuples in dictionary item order.</p>
-<p>For dictionary contents ordered as:</p>
+<p>Every newly created iterator must reflect the dictionary's current contents and yield deserialized <code>(key, value)</code> tuples in dictionary item order.</p>
+<p>When the dictionary contents are ordered as:</p>
 <pre><code class="language-python">&quot;a&quot; -&gt; 4
 &quot;b&quot; -&gt; 2
 &quot;c&quot; -&gt; None
@@ -892,178 +893,179 @@ Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable
 <p>iteration must produce:</p>
 <pre><code class="language-python">[(&quot;a&quot;, 4), (&quot;b&quot;, 2), (&quot;c&quot;, None), (&quot;d&quot;, [1, 2])]
 </code></pre>
-<p>An iterator over an empty view must produce no values. Once such an iterator is exhausted, consuming that same iterator again must still produce no values.</p>
-<p>After deleting <code>&quot;b&quot;</code> through <code>del parent[&quot;b&quot;]</code>, a new iterator from the existing view must produce:</p>
+<p>An iterator over an empty view must produce no values. After such an iterator is exhausted, consuming that same iterator again must still produce no values.</p>
+<p>After <code>&quot;b&quot;</code> is deleted via <code>del parent[&quot;b&quot;]</code>, a new iterator obtained from the existing view must produce:</p>
 <pre><code class="language-python">[(&quot;a&quot;, 4), (&quot;c&quot;, None), (&quot;d&quot;, [1, 2])]
 </code></pre>
 <h5>Intersection</h5>
-<p>The items view must support intersection using <code>&amp;</code> with a built-in set of <code>(key, value)</code> tuples.</p>
+<p>The items view must support intersection, via <code>&amp;</code>, with a built-in set of <code>(key, value)</code> tuples.</p>
 <p>The result must:</p>
 <ul>
 <li>Be an instance of <code>sqlitecollections.Set</code>.</li>
 <li>Use the same SQLite connection and expose its backing table through <code>result.table_name</code>.</li>
 <li>Contain only exact <code>(key, value)</code> matches.</li>
 </ul>
-<p>For a dictionary containing:</p>
+<p>For a dictionary that contains:</p>
 <pre><code class="language-python">{&quot;a&quot;: 4, &quot;c&quot;: 4, &quot;b&quot;: 4}
 </code></pre>
-<p>the following intersection must return an empty <code>sqlitecollections.Set</code>:</p>
+<p>the intersection below must return an empty <code>sqlitecollections.Set</code>:</p>
 <pre><code class="language-python">view &amp; {(&quot;a&quot;, 1), (&quot;b&quot;, 2)}
 </code></pre>
 <p>The chained expression:</p>
 <pre><code class="language-python">view &amp; {(&quot;a&quot;, 4), (&quot;b&quot;, 4)} &amp; {(&quot;b&quot;, 4)}
 </code></pre>
-<p>must return a <code>sqlitecollections.Set</code> containing only <code>(&quot;b&quot;, 4)</code>.</p>
+<p>must return a <code>sqlitecollections.Set</code> that contains only <code>(&quot;b&quot;, 4)</code>.</p>
 <p>Let:</p>
 <pre><code class="language-python">S = sqlitecollections.base.SqliteCollectionBase._default_serializer
 </code></pre>
-<p>The single row in the final result’s <code>serialized_value</code> column must equal:</p>
+<p>In the final result, the single row of the <code>serialized_value</code> column must equal:</p>
 <pre><code class="language-python">S((S(&quot;b&quot;), S(4)))
 </code></pre>
-<p>An empty intersection must have no rows in its <code>serialized_value</code> column.</p>
-<p>The backing tables created for these intersection results are temporary. Once the result object is deleted, its table—and any unreferenced intermediate table from a chained intersection—must be removed immediately, leaving only the original dictionary table.</p>
-<h5>Unhashable item values</h5>
+<p>When the intersection is empty, there must be no rows in its <code>serialized_value</code> column.</p>
+<p>The backing tables created for these intersection results are temporary. After the result object is deleted, its table—and any unreferenced intermediate table from a chained intersection—must be removed immediately, leaving only the original dictionary table.</p>
+<h5>Items with unhashable values</h5>
 <p>If the dictionary contains the item:</p>
 <pre><code class="language-python">(&quot;a&quot;, [4, 5])
 </code></pre>
 <p>then evaluating:</p>
 <pre><code class="language-python">view &amp; {(&quot;a&quot;, 1)}
 </code></pre>
-<p>must raise <code>TypeError</code>, even though the operand does not contain the dictionary’s actual item. The exception message must have the form:</p>
+<p>must raise <code>TypeError</code>, even though that operand does not contain the dictionary's actual item. The exception message must have the form:</p>
 <pre><code class="language-text">unhashable type: '&lt;type-name&gt;'
 </code></pre>
-<p>where <code>&lt;type-name&gt;</code> consists of letters, digits, or underscores.</p>
+<p>with <code>&lt;type-name&gt;</code> consisting of letters, digits, or underscores.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Extend the items-view object returned by sqlitecollections.Dict.items() with reflected set intersection.</span>
-        <span class="spec-meta muted">689 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add reflected set intersection to the items-view object that sqlitecollections.Dict.items() returns.</span>
+        <span class="spec-meta muted">761 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Extend the items-view object returned by <code>sqlitecollections.Dict.items()</code> with reflected set intersection. The package may be imported as <code>sc</code>; expressions in which an ordinary iterable appears on the left, such as <code>other &amp; dictionary.items()</code>, must work when the left operand does not implement that intersection itself.</p>
-<h4>Public API</h4>
-<p>Add the following method to the <code>Dict</code> items-view class:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Add reflected set intersection to the items-view object that <code>sqlitecollections.Dict.items()</code> returns. The package may be imported as <code>sc</code>; expressions in which an ordinary iterable sits on the left, such as <code>other &amp; dictionary.items()</code>, must work when the left operand does not implement that intersection itself.</p>
+<h4>Public Interface</h4>
+<p>Add the method below to the <code>Dict</code> items-view class:</p>
 <ul>
-<li><code>__rand__(self, other)</code> — return a new <code>sc.Set</code> containing the intersection of <code>other</code> and this items view.</li>
+<li><code>__rand__(self, other)</code> — return a new <code>sc.Set</code> containing the intersection of <code>other</code> with this items view.</li>
 </ul>
-<p>This is the reflected counterpart of the existing <code>view.__and__(other)</code> behavior. Python invokes it for <code>other &amp; view</code> after the left operand declines the operation. <code>other</code> may be any iterable of dictionary items; it does not have to be a set. Each element is expected to be a two-element <code>(key, value)</code> tuple. In particular, one-shot iterators must be supported and must not be assumed to be reusable.</p>
-<h4>Intersection semantics</h4>
-<p>Treat each dictionary item as the complete <code>(key, value)</code> pair. Include an item from <code>other</code> only when the view contains a pair with both the same key and the same value. A matching key with a different value is not an intersection match.</p>
-<p>The result has set semantics:</p>
+<p>This method serves as the reflected counterpart of the existing <code>view.__and__(other)</code> behavior. For <code>other &amp; view</code>, Python invokes it after the left operand declines the operation. <code>other</code> may be any iterable of dictionary items; it need not be a set. The expectation is that each element is a two-element <code>(key, value)</code> tuple. In particular, support must be provided for one-shot iterators, and such iterators must not be assumed to be reusable.</p>
+<h4>Semantics of the Intersection</h4>
+<p>Regard each dictionary item as the complete <code>(key, value)</code> pair. An item from <code>other</code> is included only when the view contains a pair having both the same key and the same value. A key that matches while the value differs is not an intersection match.</p>
+<p>The result obeys set semantics:</p>
 <ul>
-<li>it contains every pair present in both operands;</li>
-<li>duplicate input pairs produce only one result element;</li>
-<li>result ordering is unspecified; and</li>
-<li>the parent dictionary is not modified. Consuming a one-shot <code>other</code> iterator is expected.</li>
+<li>it contains every pair found in both operands;</li>
+<li>duplicate input pairs produce only one element in the result;</li>
+<li>the ordering of the result is unspecified; and</li>
+<li>no modification is made to the parent dictionary. It is expected that a one-shot <code>other</code> iterator will be consumed.</li>
 </ul>
-<p>For example, if the view contains <code>('a', 4)</code>, <code>('c', 4)</code>, and <code>('b', 4)</code>:</p>
+<p>As an example, take a view that contains <code>('a', 4)</code>, <code>('c', 4)</code>, and <code>('b', 4)</code>:</p>
 <ul>
 <li><code>iter((('a', 1), ('b', 2))) &amp; view</code> returns an empty <code>sc.Set</code>; and</li>
-<li><code>iter((('a', 4), ('b', 4))) &amp; view</code> returns an <code>sc.Set</code> containing exactly <code>('a', 4)</code> and <code>('b', 4)</code>.</li>
+<li><code>iter((('a', 4), ('b', 4))) &amp; view</code> returns an <code>sc.Set</code> whose contents are exactly <code>('a', 4)</code> and <code>('b', 4)</code>.</li>
 </ul>
-<h4>Result type, database ownership, and lifetime</h4>
-<p>The returned object must be an instance of <code>sc.Set</code>, backed by its own newly created SQLite table. Its <code>table_name</code> identifies that table.</p>
-<p>The result must use the parent dictionary's existing SQLite connection: <code>result.connection</code> is the same <code>sqlite3.Connection</code> object as the parent dictionary's <code>connection</code>. The result must not open or use a separate database.</p>
-<p>The result is volatile/non-persistent (<code>result.persist</code> is <code>False</code>), regardless of the parent dictionary's persistence setting. When the result object is deleted or finalized, its backing table and associated table metadata must be removed. This cleanup must remove only the result's resources: the parent dictionary's table, metadata, and contents must remain present and unchanged.</p>
-<h4>Item codec and stored representation</h4>
-<p>The result set must use the dictionary items-view codec so that it remains compatible with the parent dictionary's configured key and value serializers and deserializers. For a result item <code>(key, value)</code>, the bytes stored in the result table's <code>serialized_value</code> column are defined as follows:</p>
+<h4>Result type, ownership of the database, and lifetime</h4>
+<p>The object that is returned must be an instance of <code>sc.Set</code>, backed by a newly created SQLite table of its own. That table is identified by its <code>table_name</code>.</p>
+<p>The result must use the SQLite connection the parent dictionary already has: <code>result.connection</code> and the parent dictionary's <code>connection</code> are the same <code>sqlite3.Connection</code> object. The result must neither open nor use a separate database.</p>
+<p>The result is volatile/non-persistent (<code>result.persist</code> is <code>False</code>), irrespective of the parent dictionary's persistence setting. When the result object is deleted or finalized, its backing table and the associated table metadata must be removed. That cleanup must remove only the resources belonging to the result: the table, metadata, and contents of the parent dictionary must remain present and unchanged.</p>
+<h4>Item codec and the stored representation</h4>
+<p>The result set must use the dictionary items-view codec, so that compatibility with the parent dictionary's configured key and value serializers and deserializers is maintained. For a result item <code>(key, value)</code>, the bytes stored in the <code>serialized_value</code> column of the result table are defined as follows:</p>
 <ol>
-<li>Serialize <code>key</code> with the parent dictionary's effective <code>key_serializer</code>.</li>
-<li>Serialize <code>value</code> separately with the parent dictionary's effective <code>value_serializer</code>.</li>
-<li>Form a tuple containing those two byte strings.</li>
-<li>Serialize that byte-string tuple with the package's default serializer, which uses pickle protocol 3.</li>
+<li>Serialize <code>key</code> by applying the parent dictionary's effective <code>key_serializer</code>.</li>
+<li>Serialize <code>value</code> separately, using the parent dictionary's effective <code>value_serializer</code>.</li>
+<li>Assemble a tuple containing those two byte strings.</li>
+<li>Serialize that byte-string tuple with the package's default serializer; this serializer uses pickle protocol 3.</li>
 </ol>
-<p>Equivalently:</p>
+<p>Stated equivalently:</p>
 <p><code>stored_item = default_serialize((parent.key_serializer(key), parent.value_serializer(value)))</code></p>
-<p>The original <code>(key, value)</code> tuple must not be serialized directly as a single object. On deserialization, the outer byte-string tuple is decoded first, after which the parent dictionary's <code>key_deserializer</code> and <code>value_deserializer</code> are applied to their respective components. Thus iteration and other normal <code>sc.Set</code> operations on the result expose <code>(key, value)</code> pairs, while direct inspection of its SQLite table observes the nested, per-component representation above. With the default codecs, this is equivalent to <code>pickle.dumps((pickle.dumps(key, protocol=3), pickle.dumps(value, protocol=3)), protocol=3)</code>.</p>
-<h4>Hashability and errors</h4>
-<p>Items participating in the intersection must be hashable as set elements. This applies to pairs read from <code>other</code> and to pairs in the items view. In particular, although a <code>Dict</code> may store unhashable values, a pair whose value is unhashable cannot participate in this set operation.</p>
-<p>If an unhashable item or component is encountered, raise <code>TypeError</code> with a message of the form:</p>
+<p>The <code>(key, value)</code> tuple in its original form must not be serialized directly as a single object. When deserialization happens, the outer byte-string tuple is decoded first; after that, the parent dictionary's <code>key_deserializer</code> and <code>value_deserializer</code> are applied to their respective components. As a consequence, iteration and other normal <code>sc.Set</code> operations on the result expose <code>(key, value)</code> pairs, whereas direct inspection of its SQLite table reveals the nested, per-component representation given above. Under the default codecs, this is equivalent to <code>pickle.dumps((pickle.dumps(key, protocol=3), pickle.dumps(value, protocol=3)), protocol=3)</code>.</p>
+<h4>Hashability and error behavior</h4>
+<p>Every item that participates in the intersection must be hashable as a set element. This holds for pairs read from <code>other</code> as well as for pairs in the items view. In particular, even though a <code>Dict</code> may store unhashable values, a pair whose value is unhashable cannot take part in this set operation.</p>
+<p>When an unhashable item or component is encountered, raise <code>TypeError</code> with a message of the form:</p>
 <p><code>unhashable type: '&lt;typename&gt;'</code></p>
-<p>where <code>&lt;typename&gt;</code> is the offending object's type name. For example, a stored list value must produce <code>unhashable type: 'list'</code>. If the view contains such an unhashable item, reflected intersection must raise rather than silently ignoring that view item, even when the candidate pairs would otherwise not match it.</p>
-<h4>Scope</h4>
-<p>No other public API changes are required.</p>
+<p>where <code>&lt;typename&gt;</code> is the type name of the offending object. To illustrate, a stored list value must produce <code>unhashable type: 'list'</code>. If such an unhashable item is present in the view, reflected intersection must raise rather than silently ignore that view item, even when the candidate pairs would otherwise not match it.</p>
+<h4>Scope of the change</h4>
+<p>No public API changes beyond this one are required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">In the sqlitecollections package, sc.Dict is a persistent, SQLite-backed mapping.</span>
-        <span class="spec-meta muted">438 words · source specification
+        <span class="spec-title">Within the sqlitecollections package, sc.Dict is a mapping that is persistent and backed by SQLite.</span>
+        <span class="spec-meta muted">477 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>__or__</code> operator to the ItemsView of <code>sqlitecollections.Dict</code></h3>
+      <div class="spec-body"><h3>Task: Add support for the <code>__or__</code> operator on the ItemsView of <code>sqlitecollections.Dict</code></h3>
 <h4>Context</h4>
-<p>In the <code>sqlitecollections</code> package, <code>sc.Dict</code> is a persistent, SQLite-backed mapping. Calling <code>.items()</code> on a <code>Dict</code> returns an items-view object (analogous to Python's built-in <code>dict_items</code> / <code>ItemsView</code>), whose elements are <code>(key, value)</code> tuples drawn from the parent <code>Dict</code>.</p>
-<p>This items-view type must support the <code>|</code> (union) operator, mirroring the set-like union behavior of Python's built-in items view.</p>
+<p>Within the <code>sqlitecollections</code> package, <code>sc.Dict</code> is a mapping that is persistent and backed by SQLite. Invoking <code>.items()</code> on a <code>Dict</code> returns an items-view object (similar to Python's built-in <code>dict_items</code> / <code>ItemsView</code>), whose elements are <code>(key, value)</code> tuples taken from the parent <code>Dict</code>.</p>
+<p>This items-view type must support the <code>|</code> (union) operator, matching the set-like union behavior of Python's built-in items view.</p>
 <h4>Required Behavior</h4>
-<p>Implement the <code>__or__</code> method on the items-view object returned by <code>sc.Dict.items()</code>.</p>
+<p>Implement the <code>__or__</code> method on the items-view object that <code>sc.Dict.items()</code> returns.</p>
 <h5>Signature and construction</h5>
 <ul>
-<li>The items-view object is obtained via <code>parent.items()</code>, where <code>parent</code> is an <code>sc.Dict[...]</code> instance.</li>
-<li><code>items_view | other</code> must be supported, where <code>other</code> is any iterable of elements.</li>
+<li>The items-view object is obtained by calling <code>parent.items()</code>, where <code>parent</code> is an instance of <code>sc.Dict[...]</code>.</li>
+<li>The expression <code>items_view | other</code> must be supported, with <code>other</code> being any iterable of elements.</li>
 </ul>
 <h5>Result</h5>
 <ul>
-<li>The operation returns a <strong>new</strong> <code>sc.Set</code> instance (<code>sc.Set</code>).</li>
-<li>The result set contains the union of:
+<li>The operation returns a <strong>new</strong> instance of <code>sc.Set</code> (that is, <code>sc.Set</code>).</li>
+<li>The resulting set holds the union of:
 <ul>
-<li>all <code>(key, value)</code> tuples currently present in the parent <code>Dict</code>'s items view, and</li>
-<li>all elements yielded by iterating <code>other</code>.</li>
+<li>all <code>(key, value)</code> tuples that are currently present in the parent <code>Dict</code>'s items view, and</li>
+<li>all elements yielded when <code>other</code> is iterated.</li>
 </ul>
 </li>
-<li>Union semantics apply: duplicate elements (equal tuples appearing in both operands) appear only once in the resulting set.</li>
-<li>Elements are compared/deduplicated using the package's standard element serialization (the same default serialization used elsewhere in the package for storing elements). Each element stored in the result is the serialized form of the element itself. For a <code>(key, value)</code> tuple element, this is the serialization of the tuple whose components are the serialized <code>key</code> and serialized <code>value</code>.</li>
+<li>Union semantics apply: duplicate elements (equal tuples appearing in both operands) show up only once in the resulting set.</li>
+<li>Comparison/deduplication of elements uses the package's standard element serialization (the same default serialization used elsewhere in the package for storing elements). Each element stored in the result is the serialized form of the element itself. For a <code>(key, value)</code> tuple element, this means the serialization of the tuple whose components are the serialized <code>key</code> and the serialized <code>value</code>.</li>
 </ul>
-<p>Example of contents: given a parent <code>Dict</code> containing the single item <code>(&quot;a&quot;, 4)</code>, then <code>items_view | {(&quot;a&quot;, 1), (&quot;b&quot;, 2)}</code> produces a <code>sc.Set</code> containing exactly the three elements <code>(&quot;a&quot;, 4)</code>, <code>(&quot;a&quot;, 1)</code>, and <code>(&quot;b&quot;, 2)</code>.</p>
+<p>Example of the contents: given a parent <code>Dict</code> that contains the single item <code>(&quot;a&quot;, 4)</code>, the expression <code>items_view | {(&quot;a&quot;, 1), (&quot;b&quot;, 2)}</code> produces a <code>sc.Set</code> holding exactly the three elements <code>(&quot;a&quot;, 4)</code>, <code>(&quot;a&quot;, 1)</code>, and <code>(&quot;b&quot;, 2)</code>.</p>
 <h5>Persistence / side effects</h5>
 <ul>
-<li>The new <code>sc.Set</code> is backed by its own table (accessible via its <code>table_name</code> attribute).</li>
-<li>The union operation must not add, remove, or otherwise mutate the parent <code>Dict</code>'s underlying <code>items</code> table. After the resulting set is discarded, only the parent's original <code>items</code> table remains in the database (no stray tables from the operation should persist).</li>
+<li>The new <code>sc.Set</code> is backed by a table of its own (accessible via its <code>table_name</code> attribute).</li>
+<li>The union operation must not add, remove, or otherwise mutate the underlying <code>items</code> table of the parent <code>Dict</code>. After the resulting set is discarded, the only table that remains in the database is the parent's original <code>items</code> table (no stray tables from the operation should persist).</li>
 </ul>
 <h5>Error conditions</h5>
 <ul>
-<li>If any element produced during the operation (from the parent items or from <code>other</code>) is unhashable, the operation must raise <code>TypeError</code>. The error message must match the pattern <code>unhashable type: '&lt;name&gt;'</code> (i.e., the standard Python &quot;unhashable type&quot; message form). This includes the case where a parent <code>Dict</code> value is itself an unhashable object (e.g. a list), making the resulting <code>(key, value)</code> tuple unhashable.</li>
+<li>The operation must raise <code>TypeError</code> if any element produced during the operation (from the parent items or from <code>other</code>) is unhashable. The error message must match the pattern <code>unhashable type: '&lt;name&gt;'</code> (that is, the standard Python &quot;unhashable type&quot; message form). This includes the case where a parent <code>Dict</code> value is itself an unhashable object (e.g. a list), which makes the resulting <code>(key, value)</code> tuple unhashable.</li>
 </ul>
 <h4>Public API surface used</h4>
 <ul>
-<li><code>sc.Dict[...](connection=..., table_name=...)</code> — parent mapping constructor.</li>
+<li><code>sc.Dict[...](connection=..., table_name=...)</code> — constructor of the parent mapping.</li>
 <li><code>parent.items()</code> — returns the items-view object under test.</li>
-<li><code>items_view | other</code> — the new union operator, returning an <code>sc.Set</code>.</li>
-<li><code>sc.Set</code> — the result type; instances expose a <code>table_name</code> attribute.</li>
+<li><code>items_view | other</code> — the new union operator, which returns an <code>sc.Set</code>.</li>
+<li><code>sc.Set</code> — the type of the result; its instances expose a <code>table_name</code> attribute.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">In the sqlitecollections package (imported as sc), the Dict class provides a mapping backed by a SQLite table.</span>
-        <span class="spec-meta muted">290 words · source specification
+        <span class="spec-title">Within the sqlitecollections package (imported as sc), the Dict class provides a mapping that is backed by a SQLite table.</span>
+        <span class="spec-meta muted">317 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>__contains__</code> for the Dict items view</h3>
-<h4>Context</h4>
-<p>In the <code>sqlitecollections</code> package (imported as <code>sc</code>), the <code>Dict</code> class provides a mapping backed by a SQLite table. Its <code>items()</code> method returns an items-view object (analogous to Python's built-in <code>dict_items</code>). You must implement membership testing (<code>in</code> / <code>__contains__</code>) on this items-view object.</p>
-<h4>Setup / Construction</h4>
-<p>A <code>Dict</code> is constructed as:</p>
+      <div class="spec-body"><h3>Task: Implement <code>__contains__</code> for the items view of Dict</h3>
+<h4>Background</h4>
+<p>Within the <code>sqlitecollections</code> package (imported as <code>sc</code>), the <code>Dict</code> class provides a mapping that is backed by a SQLite table. Calling <code>items()</code> on it returns an items-view object (analogous to Python's built-in <code>dict_items</code>). What you must implement is membership testing (<code>in</code> / <code>__contains__</code>) on this items-view object.</p>
+<h4>Setup and Construction</h4>
+<p>You construct a <code>Dict</code> as follows:</p>
 <pre><code class="language-python">sc.Dict[Hashable, Any](connection=&lt;sqlite3.Connection&gt;, table_name=&quot;items&quot;)
 </code></pre>
-<p>The items view is obtained by calling <code>.items()</code> on the <code>Dict</code> instance.</p>
-<h4>Required Behavior</h4>
-<p>Implement the <code>__contains__</code> method on the items-view class so that the <code>in</code> operator works as follows.</p>
-<p>Given a <code>Dict</code> containing these key → value pairs:</p>
+<p>You obtain the items view by calling <code>.items()</code> on the <code>Dict</code> instance.</p>
+<h4>Behavior Requirements</h4>
+<p>Add an implementation of the <code>__contains__</code> method to the items-view class so that the <code>in</code> operator behaves as follows.</p>
+<p>Suppose a <code>Dict</code> holds the following key → value pairs:</p>
 <ul>
 <li><code>&quot;a&quot;</code> → <code>[4, 5]</code> (a list)</li>
 <li><code>&quot;c&quot;</code> → <code>4</code></li>
 <li><code>&quot;b&quot;</code> → <code>4</code></li>
 </ul>
-<p>The membership check operates on candidate objects and returns a <code>bool</code>:</p>
+<p>The membership check takes candidate objects as input and returns a <code>bool</code>:</p>
 <ol>
 <li>
-<p><strong>Two-element tuple <code>(key, value)</code>:</strong> membership is <code>True</code> if and only if <code>key</code> exists in the underlying <code>Dict</code> <strong>and</strong> the stored value for that key is equal to <code>value</code>. Value comparison uses normal equality semantics (e.g. a list value <code>[4, 5]</code> compares equal to <code>[4, 5]</code> but not to the tuple <code>(4, 5)</code>).</p>
+<p><strong>Two-element tuple <code>(key, value)</code>:</strong> membership is <code>True</code> if and only if <code>key</code> is present in the underlying <code>Dict</code> <strong>and</strong> the value stored under that key is equal to <code>value</code>. Comparison of values uses normal equality semantics (for example, a list value <code>[4, 5]</code> compares equal to <code>[4, 5]</code> but not to the tuple <code>(4, 5)</code>).</p>
 <ul>
 <li><code>(&quot;a&quot;, [4, 5])</code> → <code>True</code></li>
 <li><code>(&quot;a&quot;, (4, 5))</code> → <code>False</code></li>
@@ -1072,143 +1074,143 @@ Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable
 </ul>
 </li>
 <li>
-<p><strong>Any object that is not a matching <code>(key, value)</code> pair</strong> (including a candidate whose key is not present, or a non-tuple object such as a bare string) → <code>False</code>.</p>
+<p><strong>Any object that is not a matching <code>(key, value)</code> pair</strong> (including a candidate whose key is not present, or an object that is not a tuple, such as a bare string) → <code>False</code>.</p>
 <ul>
 <li><code>&quot;a&quot;</code> → <code>False</code></li>
 </ul>
 </li>
 </ol>
-<p>The method must not raise for non-pair inputs; it simply returns <code>False</code>.</p>
-<h4>API Surface</h4>
+<p>For inputs that are not pairs, the method must not raise; it just returns <code>False</code>.</p>
+<h4>Exposed API</h4>
 <ul>
-<li>Module: the top-level package imported as <code>sc</code> (i.e. <code>sqlitecollections</code>).</li>
-<li>The object returned by <code>sc.Dict(...).items()</code> must support <code>key_value in items_view</code>, i.e. it must define <code>__contains__(self, item) -&gt; bool</code> implementing the behavior above.</li>
+<li>Module: the top-level package that is imported as <code>sc</code> (i.e. <code>sqlitecollections</code>).</li>
+<li>The object returned by <code>sc.Dict(...).items()</code> must support <code>key_value in items_view</code>, in other words it must define <code>__contains__(self, item) -&gt; bool</code> that implements the behavior above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">This codebase (sqlitecollections, imported as sc) provides persistent, SQLite-backed collection types.</span>
-        <span class="spec-meta muted">410 words · source specification
+        <span class="spec-title">This codebase (sqlitecollections, imported as sc) offers collection types that are persistent and SQLite-backed.</span>
+        <span class="spec-meta muted">439 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add <code>__or__</code> operator support to the dictionary <code>ItemsView</code></h3>
-<h4>Context</h4>
-<p>This codebase (<code>sqlitecollections</code>, imported as <code>sc</code>) provides persistent, SQLite-backed collection types. The relevant object here is the items-view returned by <code>sc.Dict.items()</code>. You must add support for the <code>|</code> (union) operator on this items-view.</p>
-<h4>Public API Surface</h4>
-<p>The items-view object returned by <code>sc.Dict[...].items()</code> must support the binary <code>|</code> operator via an <code>__or__</code> method:</p>
+      <div class="spec-body"><h3>Task: Add support for the <code>__or__</code> operator to the dictionary <code>ItemsView</code></h3>
+<h4>Background</h4>
+<p>This codebase (<code>sqlitecollections</code>, imported as <code>sc</code>) offers collection types that are persistent and SQLite-backed. The object of interest here is the items-view returned by <code>sc.Dict.items()</code>. You must add support for the <code>|</code> (union) operator on this items-view.</p>
+<h4>Public API</h4>
+<p>The items-view object that <code>sc.Dict[...].items()</code> returns must support the binary <code>|</code> operator through an <code>__or__</code> method:</p>
 <pre><code class="language-python">def __or__(self, other) -&gt; &quot;sc.Set&quot;:
     ...
 </code></pre>
-<p><code>other</code> is an arbitrary iterable of items (i.e. an iterable yielding <code>(key, value)</code> pairs, but may be any iterable — see error handling below).</p>
-<h4>Required Behavior</h4>
-<p>Given a <code>sc.Dict</code> instance and its items-view <code>view = some_dict.items()</code>, evaluating <code>view | other</code> must:</p>
+<p><code>other</code> is an arbitrary iterable of items (that is, an iterable yielding <code>(key, value)</code> pairs, though it may be any iterable — see error handling below).</p>
+<h4>Behavior Requirements</h4>
+<p>For a <code>sc.Dict</code> instance together with its items-view <code>view = some_dict.items()</code>, the evaluation of <code>view | other</code> must:</p>
 <ol>
 <li>
-<p>Return a <strong>new</strong> <code>sc.Set</code> instance (an instance of <code>sc.Set</code>), stored in its own backing table.</p>
+<p>Return a <strong>new</strong> <code>sc.Set</code> instance (an instance of <code>sc.Set</code>), one that is stored in its own backing table.</p>
 </li>
 <li>
-<p>The resulting <code>sc.Set</code> contains the <strong>set union</strong> of:</p>
+<p>The <code>sc.Set</code> that results contains the <strong>set union</strong> of:</p>
 <ul>
-<li>all <code>(key, value)</code> pairs currently present in the source dictionary, and</li>
+<li>all <code>(key, value)</code> pairs that are currently present in the source dictionary, and</li>
 <li>all elements yielded by iterating <code>other</code>.</li>
 </ul>
-<p>Union semantics apply: elements equal to ones already present are not duplicated. In particular, if the source dictionary contains a pair <code>(k, v)</code> and <code>other</code> yields a pair with the same key but a <em>different</em> value, both distinct pairs appear in the result (they are different tuples and therefore distinct set elements).</p>
+<p>Union semantics apply: elements equal to ones already present are not duplicated. Specifically, when the source dictionary contains a pair <code>(k, v)</code> and <code>other</code> yields a pair having the same key but a <em>different</em> value, both distinct pairs appear in the result (the two are different tuples and therefore distinct set elements).</p>
 </li>
 <li>
-<p>Each element stored in the resulting <code>sc.Set</code> is the tuple <code>(key, value)</code> itself. Serialization of these tuple elements uses the standard default serialization: the tuple whose components are each independently serialized (i.e. the stored element for <code>(k, v)</code> corresponds to a tuple of the serialized key and serialized value, serialized as a tuple).</p>
+<p>Each element stored in the resulting <code>sc.Set</code> is the tuple <code>(key, value)</code> itself. For these tuple elements, serialization uses the standard default serialization: a tuple whose components are each independently serialized (i.e. the stored element for <code>(k, v)</code> corresponds to a tuple of the serialized key and serialized value, serialized as a tuple).</p>
 </li>
 <li>
-<p>The operation must not modify the source dictionary or its backing table. After the resulting <code>sc.Set</code> is created and subsequently discarded/garbage-collected, the source dictionary's backing table must remain intact and unchanged, and no orphaned tables should persist.</p>
+<p>The source dictionary and its backing table must not be modified by the operation. After the resulting <code>sc.Set</code> has been created and subsequently discarded/garbage-collected, the source dictionary's backing table must remain intact and unchanged, and no orphaned tables should persist.</p>
 </li>
 </ol>
-<h4>Error Handling</h4>
-<p>The elements being combined must be hashable (as required for set membership). If any value produced during the operation is unhashable (for example, a <code>(key, value)</code> pair whose value is a <code>list</code>), the operation must raise <code>TypeError</code> with a message of the form <code>unhashable type: '&lt;typename&gt;'</code> (the standard Python unhashable-type error).</p>
-<p>Iterating <code>other</code> and combining it with the dictionary's items must trigger this error when an unhashable element is encountered from either source.</p>
-<h4>Notes</h4>
+<h4>Handling of Errors</h4>
+<p>The elements being combined must be hashable (this is required for set membership). If any value produced during the operation turns out to be unhashable (for example, a <code>(key, value)</code> pair whose value is a <code>list</code>), the operation must raise <code>TypeError</code> carrying a message of the form <code>unhashable type: '&lt;typename&gt;'</code> (the standard Python unhashable-type error).</p>
+<p>This error must be triggered by iterating <code>other</code> and combining it with the dictionary's items when an unhashable element is encountered from either source.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The source dictionary's key type may be any hashable, and its value type may be arbitrary.</li>
-<li>The resulting <code>sc.Set</code> uses the default serializer for its stored elements.</li>
+<li>The key type of the source dictionary may be any hashable, and its value type may be arbitrary.</li>
+<li>The <code>sc.Set</code> that results uses the default serializer for its stored elements.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">This codebase provides SQLite-backed collection types.</span>
-        <span class="spec-meta muted">618 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Collection types with SQLite underneath are what this codebase supplies.</span>
+        <span class="spec-meta muted">706 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Context</h4>
-<p>This codebase provides SQLite-backed collection types. The relevant class is the items view returned by the <code>items()</code> method of the <code>Dict</code> collection (from the package imported as <code>sc</code>, for example <code>sc.Dict</code>). This items view already supports a left-side union operation (<code>|</code>). Add support for the <strong>reflected</strong> union operator (<code>__ror__</code>) so expressions where the items view appears on the <strong>right-hand side</strong> of <code>|</code> work correctly.</p>
-<h4>Required Behavior</h4>
-<p>Implement the <code>__ror__</code> method on the Dict items view class.</p>
-<p>Given <code>sut = some_dict.items()</code>, the expression:</p>
+      <div class="spec-body"><h4>Background</h4>
+<p>Collection types with SQLite underneath are what this codebase supplies. The class that matters is the items view handed back by the <code>items()</code> method of a <code>Dict</code> collection (the package is imported as <code>sc</code>, for instance <code>sc.Dict</code>). As it stands, the items view can already occupy the left side of a union (<code>|</code>). What needs adding is the <strong>reflected</strong> union operator (<code>__ror__</code>), so that expressions in which the items view sits on the <strong>right-hand side</strong> of <code>|</code> work correctly.</p>
+<h4>Behavior That Must Be Provided</h4>
+<p>Provide the Dict items view class with an implementation of the <code>__ror__</code> method.</p>
+<p>With <code>sut = some_dict.items()</code>, the expression:</p>
 <pre><code class="language-python">other | sut
 </code></pre>
-<p>must be supported, where <code>other</code> is any iterable, including a plain iterator such as one produced by <code>iter(...)</code>. Do not assume that <code>other</code> supports anything beyond iteration.</p>
-<h5>Semantics</h5>
+<p>must be supported. Any iterable qualifies as <code>other</code> — a plain iterator, such as the ones <code>iter(...)</code> produces, included. Beyond iteration, assume nothing about <code>other</code>.</p>
+<h5>Semantics of the Operation</h5>
 <ul>
-<li>Each item stored in the Dict is conceptually a <code>(key, value)</code> pair. When treated as a set, the items view yields these pairs as <code>(key, value)</code> tuples.</li>
-<li><code>other</code> yields elements that are themselves treated as elements to combine into a set.</li>
-<li>The result of <code>other | sut</code> is the <strong>set union</strong> of:
+<li>Conceptually, each item the Dict holds is one <code>(key, value)</code> pair. Treated as a set, the items view yields those pairs in the form of <code>(key, value)</code> tuples.</li>
+<li>The elements that <code>other</code> yields are, in turn, treated as the elements to be combined into a set.</li>
+<li>The outcome of <code>other | sut</code> is the <strong>set union</strong> of:
 <ul>
-<li>the elements produced by iterating <code>other</code>; and</li>
-<li>the <code>(key, value)</code> tuples contained in the items view.</li>
+<li>the elements that iterating <code>other</code> produces; and</li>
+<li>the <code>(key, value)</code> tuples that the items view contains.</li>
 </ul>
 </li>
-<li>The result must be a new SQLite-backed set collection: an instance of <code>sc.Set</code>. It must be materialized in its own new backing table, distinct from the source Dict's table. Iterating the result or querying its table must reflect exactly the union of the two element groups.</li>
-<li>Standard set semantics apply. Duplicate elements, including elements equal across the two operands, appear only once. For example, if <code>other</code> contains a tuple identical to one of the <code>(key, value)</code> pairs in the items view, that element appears once in the result.</li>
-<li>The operation must not modify the source Dict, its items view, or its backing table. Only the new result set's collection table is created by the operation.</li>
+<li>That result must be a new SQLite-backed set collection, in other words an instance of <code>sc.Set</code>. Materialization must happen in its own new backing table, one kept distinct from the source Dict's table. Iterating over the result, or querying its table, must mirror the union of the two element groups exactly.</li>
+<li>Set semantics of the standard kind apply. Duplicate elements — including elements which are equal across the two operands — show up only once. As an illustration: if <code>other</code> contains a tuple identical to one of the items view's <code>(key, value)</code> pairs, that element occurs once in the result.</li>
+<li>The source Dict, its items view, or its backing table must not be modified by the operation. Creation by the operation extends only to the collection table belonging to the new result set.</li>
 </ul>
-<h5>Connection and result-table lifetime</h5>
+<h5>Connection and lifetime of the result table</h5>
 <ul>
-<li>The returned <code>sc.Set</code> must use the source Dict's existing SQLite connection. The result's <code>connection</code> is the same connection object exposed by the source Dict, and the new result table is accessible through that connection.</li>
-<li>The result must be non-persistent (<code>persist</code> is false). Its newly created backing table is owned by that result and must be dropped when the result is discarded or garbage-collected. The corresponding collection metadata must be removed as part of the same cleanup.</li>
-<li>Cleanup of the result must leave the source Dict and its backing table intact. When the source Dict was the only collection before the operation, it must again be the only remaining collection after the result is discarded.</li>
+<li>As its SQLite connection, the returned <code>sc.Set</code> must use the one the source Dict already has. The result's <code>connection</code> is none other than the connection object the source Dict exposes, and through that connection the new result table is accessible.</li>
+<li>The result is required to be non-persistent (<code>persist</code> is false). The backing table created for it is owned by that result, and it must be dropped when the result is discarded or garbage-collected. The corresponding collection metadata, for its part, must be removed within that same cleanup.</li>
+<li>When the result undergoes cleanup, the source Dict and its backing table must come through intact. If, before the operation, the source Dict was the only collection there was, then after the result is discarded it must once more be the only collection that remains.</li>
 </ul>
-<h5>Element serialization</h5>
-<p>Elements in the resulting <code>sc.Set</code> are stored using the same default serialization used elsewhere in the codebase (<code>sc.base.SqliteCollectionBase._default_serializer</code>). A <code>(key, value)</code> pair from the items view is stored as the serialization of a 2-tuple whose members are the serialized key and the serialized value, equivalent to serializing <code>(serialize(key), serialize(value))</code>. Elements coming from <code>other</code> must be stored consistently with this same scheme so identical tuples from either operand collapse to a single set element.</p>
-<h5>Error conditions</h5>
+<h5>Serialization of elements</h5>
+<p>Storage for the elements of the resulting <code>sc.Set</code> uses the same default serialization found elsewhere in the codebase (<code>sc.base.SqliteCollectionBase._default_serializer</code>). For a <code>(key, value)</code> pair taken from the items view, what gets stored is the serialization of a 2-tuple whose members are the serialized key and the serialized value — equivalent to serializing <code>(serialize(key), serialize(value))</code>. Elements that come from <code>other</code>, meanwhile, must be stored in a way consistent with this same scheme, so that identical tuples from either operand collapse to a single set element.</p>
+<h5>Error cases</h5>
 <ul>
 <li>
-<p>If any element that would be placed into the resulting set is unhashable, raise <code>TypeError</code> with the standard Python message form:</p>
+<p>If any element that would end up in the resulting set is unhashable, <code>TypeError</code> must be raised, with the message taking Python's standard form:</p>
 <pre><code class="language-text">unhashable type: '&lt;typename&gt;'
 </code></pre>
 </li>
 <li>
-<p>In particular, this error occurs when a value in the items view is unhashable, such as a list, because the corresponding <code>(key, value)</code> tuple is then unhashable.</p>
+<p>In particular, this error arises when a value held in the items view is unhashable — a list, for instance — since the corresponding <code>(key, value)</code> tuple is then unhashable.</p>
 </li>
 </ul>
-<h4>API Surface to Provide</h4>
-<p>The Dict items view class returned by <code>sc.Dict(...).items()</code> must implement:</p>
+<h4>API to Provide</h4>
+<p>The Dict items view class — what <code>sc.Dict(...).items()</code> returns — must implement:</p>
 <pre><code class="language-python">def __ror__(self, other): ...
 </code></pre>
-<p>It returns an <code>sc.Set</code> instance backed by a new, distinct, non-persistent table. The table is accessible through the returned object's <code>table_name</code> attribute on the source Dict's SQLite connection.</p>
+<p>Its return value is an <code>sc.Set</code> instance whose backing table is new, distinct, and non-persistent. That table is accessible through the returned object's <code>table_name</code> attribute, on the source Dict's SQLite connection.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">This codebase provides SQLite-backed collection types under the package importable as sc (the sqlite_collections package).</span>
-        <span class="spec-meta muted">481 words · source specification
+        <span class="spec-title">The codebase contains collection types backed by SQLite, provided under a package importable as sc (the sqlite_collections package).</span>
+        <span class="spec-meta muted">511 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>__sub__</code> (set difference) for the Dict <code>ItemsView</code></h3>
-<h4>Context</h4>
-<p>This codebase provides SQLite-backed collection types under the package importable as <code>sc</code> (the <code>sqlite_collections</code> package). The relevant types here are:</p>
+      <div class="spec-body"><h3>Task: Implement the <code>__sub__</code> operation (set difference) for the Dict <code>ItemsView</code></h3>
+<h4>Background</h4>
+<p>The codebase contains collection types backed by SQLite, provided under a package importable as <code>sc</code> (the <code>sqlite_collections</code> package). The types relevant here are:</p>
 <ul>
-<li><code>sc.Dict</code> — a dictionary-like collection backed by an SQLite table, constructed as <code>sc.Dict[Hashable, Any](connection=&lt;sqlite3.Connection&gt;, table_name=&lt;str&gt;)</code>.</li>
-<li><code>sc.Dict.items()</code> — returns an items-view object over the dict's <code>(key, value)</code> pairs.</li>
-<li><code>sc.Set</code> — an SQLite-backed set collection.</li>
-<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — the default serialization callable used to turn a Python object into its stored (serialized) byte representation.</li>
+<li><code>sc.Dict</code> — a dictionary-like collection that is backed by an SQLite table, constructed as <code>sc.Dict[Hashable, Any](connection=&lt;sqlite3.Connection&gt;, table_name=&lt;str&gt;)</code>.</li>
+<li><code>sc.Dict.items()</code> — returns an items-view object covering the dict's <code>(key, value)</code> pairs.</li>
+<li><code>sc.Set</code> — a set collection backed by SQLite.</li>
+<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — the default serialization callable that turns a Python object into the (serialized) byte representation under which it is stored.</li>
 </ul>
-<p>The items-view object exposes each dictionary entry logically as a <code>(key, value)</code> 2-tuple.</p>
+<p>Logically, the items-view object exposes each dictionary entry as a <code>(key, value)</code> 2-tuple.</p>
 <h4>Requirement</h4>
-<p>Add support for the subtraction operator (<code>__sub__</code>) to the Dict items-view type, implementing set-difference semantics.</p>
+<p>Extend the Dict items-view type with support for the subtraction operator (<code>__sub__</code>), implementing set-difference semantics.</p>
 <h5>Signature / API surface</h5>
-<p>The items-view object returned by <code>sc.Dict.items()</code> must support:</p>
+<p>The items-view object that <code>sc.Dict.items()</code> returns must support:</p>
 <pre><code class="language-python">result = items_view - other
 </code></pre>
 <p>where <code>other</code> is any iterable yielding 2-tuples (e.g., a plain iterator over <code>(key, value)</code> pairs).</p>
@@ -1216,139 +1218,139 @@ Generic subscription such as <code>Dict[Hashable, Any]</code> must remain usable
 <p><code>items_view - other</code> must:</p>
 <ol>
 <li>
-<p>Return a new <code>sc.Set</code> instance (an instance of <code>sc.Set</code>), whose backing table is populated with the result.</p>
+<p>Return a new instance of <code>sc.Set</code> (an instance of <code>sc.Set</code>), with the result populated into its backing table.</p>
 </li>
 <li>
-<p>The result set contains exactly those <code>(key, value)</code> pairs present in the items-view that are <strong>not</strong> present in <code>other</code>. Set-difference is computed by treating each dictionary entry as a <code>(key, value)</code> 2-tuple and each element of <code>other</code> as a <code>(key, value)</code> 2-tuple; an item-view entry is excluded from the result if and only if an equal <code>(key, value)</code> 2-tuple appears in <code>other</code>.</p>
+<p>The result set contains exactly the <code>(key, value)</code> pairs that are present in the items-view and <strong>not</strong> present in <code>other</code>. To compute the set difference, each dictionary entry is treated as a <code>(key, value)</code> 2-tuple and each element of <code>other</code> is treated as a <code>(key, value)</code> 2-tuple; an item-view entry is excluded from the result if and only if an equal <code>(key, value)</code> 2-tuple appears in <code>other</code>.</p>
 <ul>
-<li>Membership comparison is by full pair equality: a pair is removed only when both its key and value match a pair in <code>other</code>. A pair whose key matches but whose value differs is retained.</li>
+<li>Membership comparison is based on full pair equality: a pair is removed only when both its key and its value match a pair in <code>other</code>. A pair whose key matches while its value differs is retained.</li>
 </ul>
 </li>
 <li>
-<p>Each element stored in the resulting <code>sc.Set</code> is the 2-tuple <code>(key, value)</code>. The serialized form stored for each element is the default serialization of a Python tuple whose two components are the default serializations of the key and value respectively — i.e. equivalent to:</p>
+<p>Each element stored in the resulting <code>sc.Set</code> is the 2-tuple <code>(key, value)</code>. For each element, the serialized form stored is the default serialization of a Python tuple whose two components are the default serializations of the key and value respectively — that is, equivalent to:</p>
 <pre><code class="language-python">_default_serializer(
     (_default_serializer(key), _default_serializer(value))
 )
 </code></pre>
-<p>where <code>_default_serializer</code> is <code>sc.base.SqliteCollectionBase._default_serializer</code>.</p>
+<p>where <code>_default_serializer</code> refers to <code>sc.base.SqliteCollectionBase._default_serializer</code>.</p>
 </li>
 </ol>
 <h5>Error condition</h5>
-<p>If any value in the items-view is not hashable, the subtraction operation must raise <code>TypeError</code> with a message matching the standard Python form <code>unhashable type: '&lt;typename&gt;'</code> (e.g. <code>unhashable type: 'list'</code>).</p>
+<p>When any value in the items-view is not hashable, the subtraction operation must raise <code>TypeError</code>, with a message matching the standard Python form <code>unhashable type: '&lt;typename&gt;'</code> (e.g. <code>unhashable type: 'list'</code>).</p>
 <h5>Resource behavior</h5>
-<p>The resulting <code>sc.Set</code> owns its own backing table. When the result object is deleted, its backing table must be cleaned up such that only the original items table remains in the database afterward.</p>
+<p>The resulting <code>sc.Set</code> has a backing table of its own. Once the result object is deleted, its backing table must be cleaned up such that afterward only the original items table remains in the database.</p>
 <h4>Example</h4>
-<p>Given a dict whose items are <code>(&quot;a&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>:</p>
+<p>For a dict whose items are <code>(&quot;a&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>:</p>
 <ul>
-<li><code>items - iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3)))</code> → a <code>sc.Set</code> containing <code>(&quot;a&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code> (none removed; values differ).</li>
-<li><code>items - iter(((&quot;a&quot;, 4), (&quot;b&quot;, 0)))</code> → a <code>sc.Set</code> containing <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code> (<code>(&quot;a&quot;, 4)</code> removed as an exact pair match).</li>
+<li><code>items - iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3)))</code> → a <code>sc.Set</code> containing <code>(&quot;a&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code> (none of them removed; the values differ).</li>
+<li><code>items - iter(((&quot;a&quot;, 4), (&quot;b&quot;, 0)))</code> → a <code>sc.Set</code> containing <code>(&quot;b&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code> (<code>(&quot;a&quot;, 4)</code> removed because it is an exact pair match).</li>
 </ul>
-<p>Given a dict containing an entry whose value is a list (unhashable), <code>items - iter(((&quot;a&quot;, 1),))</code> must raise <code>TypeError</code> matching <code>unhashable type: '&lt;typename&gt;'</code>.</p>
+<p>For a dict that contains an entry whose value is a list (unhashable), <code>items - iter(((&quot;a&quot;, 1),))</code> must raise <code>TypeError</code> matching <code>unhashable type: '&lt;typename&gt;'</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">This project provides SQLite-backed collection classes under a package imported as sc.</span>
-        <span class="spec-meta muted">709 words · source specification
+        <span class="spec-title">This project provides collection classes backed by SQLite under a package imported as sc.</span>
+        <span class="spec-meta muted">756 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>__rsub__</code> and <code>__xor__</code> on the Dict <code>ItemsView</code></h3>
-<h4>Context</h4>
-<p>This project provides SQLite-backed collection classes under a package imported as <code>sc</code>. A <code>Dict[KT, VT]</code> class (<code>sc.Dict</code>) is constructed with a SQLite <code>connection</code> and a <code>table_name</code>, e.g.:</p>
+      <div class="spec-body"><h3>Task: Add <code>__rsub__</code> and <code>__xor__</code> to the Dict <code>ItemsView</code></h3>
+<h4>Background</h4>
+<p>This project provides collection classes backed by SQLite under a package imported as <code>sc</code>. A <code>Dict[KT, VT]</code> class (<code>sc.Dict</code>) is constructed from a SQLite <code>connection</code> plus a <code>table_name</code>, e.g.:</p>
 <pre><code class="language-python">parent = sc.Dict[Hashable, Any](connection=memory_db, table_name=&quot;items&quot;)
 </code></pre>
-<p>Calling <code>parent.items()</code> returns an items-view object (analogous to <code>dict.items()</code>), which yields <code>(key, value)</code> pairs stored in the underlying table.</p>
-<p>The package also exposes:</p>
+<p>Calling <code>parent.items()</code> returns an items-view object (similar to <code>dict.items()</code>); it yields the <code>(key, value)</code> pairs stored in the underlying table.</p>
+<p>The package additionally exposes:</p>
 <ul>
-<li><code>sc.Set</code> — a SQLite-backed set class. Instances have a <code>.table_name</code> attribute naming their backing table.</li>
-<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — a static/class method that serializes an arbitrary Python object to the byte representation used when persisting values.</li>
+<li><code>sc.Set</code> — a set class backed by SQLite. Instances have a <code>.table_name</code> attribute that names their backing table.</li>
+<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — a static/class method that serializes an arbitrary Python object into the byte representation used when values are persisted.</li>
 </ul>
-<p>The items-view class already supports <code>__sub__</code> (<code>view - other</code>). You must add two new binary operators to that same items-view class.</p>
-<h4>Required behavior</h4>
-<p>Let <code>sut</code> be the object returned by <code>parent.items()</code>. It represents the set of <code>(key, value)</code> pairs currently in the Dict.</p>
+<p>The items-view class already has support for <code>__sub__</code> (<code>view - other</code>). Two new binary operators must be added to that same items-view class.</p>
+<h4>Behavior Requirements</h4>
+<p>Let <code>sut</code> denote the object returned by <code>parent.items()</code>. It stands for the set of <code>(key, value)</code> pairs currently present in the Dict.</p>
 <h5>1. <code>__rsub__</code> — <code>other - sut</code></h5>
-<p>Support the reflected subtraction operator so that an arbitrary iterable of pairs on the <strong>left</strong> side of <code>-</code> can be subtracted by the items view.</p>
+<p>Provide support for the reflected subtraction operator, so that an arbitrary iterable of pairs placed on the <strong>left</strong> side of <code>-</code> can be subtracted by the items view.</p>
 <ul>
-<li>The right operand is the items view <code>sut</code>. The left operand (<code>other</code>) is any iterable yielding 2-element items (pairs), including a plain iterator (e.g. <code>iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3)))</code>).</li>
-<li>The result is the set of items present in <code>other</code> but <strong>not</strong> present in <code>sut</code> (set difference <code>other - sut</code>), compared by pair equality.</li>
-<li>The result MUST be a new <code>sc.Set</code> instance (<code>isinstance(result, sc.Set)</code> is true).</li>
-<li>The elements stored in the resulting <code>sc.Set</code> are the surviving pairs themselves. Each stored element is a pair <code>(key, value)</code>, and its persisted serialized value is <code>_default_serializer((key, value))</code> — i.e. the whole pair is serialized as one object.</li>
-<li>Membership/difference is determined by the pair as a whole: a pair from <code>other</code> is excluded only if an equal <code>(key, value)</code> pair exists in <code>sut</code>. A pair whose key matches but whose value differs is retained.</li>
+<li>The items view <code>sut</code> is the right operand. The left operand (<code>other</code>) is any iterable yielding 2-element items (pairs), a plain iterator included (e.g. <code>iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3)))</code>).</li>
+<li>The result is the set of items found in <code>other</code> but <strong>not</strong> present in <code>sut</code> (the set difference <code>other - sut</code>), compared by pair equality.</li>
+<li>The result MUST be a newly created <code>sc.Set</code> instance (<code>isinstance(result, sc.Set)</code> is true).</li>
+<li>The surviving pairs themselves are the elements stored in the resulting <code>sc.Set</code>. Each stored element is a pair <code>(key, value)</code> whose persisted serialized value is <code>_default_serializer((key, value))</code> — i.e. the whole pair is serialized as a single object.</li>
+<li>The pair as a whole governs membership/difference: a pair coming from <code>other</code> is excluded only if an equal <code>(key, value)</code> pair exists in <code>sut</code>. A pair whose key matches but whose value differs is kept.</li>
 </ul>
-<p>Example: if <code>sut</code> contains <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, then:</p>
+<p>Example: suppose <code>sut</code> contains <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>. Then:</p>
 <ul>
-<li><code>iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3))) - sut</code> yields a set containing all three of <code>(&quot;a&quot;, 1)</code>, <code>(&quot;b&quot;, 2)</code>, <code>(&quot;c&quot;, 3)</code> (none match by full pair).</li>
-<li><code>iter(((&quot;a&quot;, 4), (&quot;b&quot;, 0))) - sut</code> yields a set containing only <code>(&quot;b&quot;, 0)</code> (<code>(&quot;a&quot;, 4)</code> matches an existing pair and is dropped).</li>
+<li><code>iter(((&quot;a&quot;, 1), (&quot;b&quot;, 2), (&quot;c&quot;, 3))) - sut</code> yields a set with all three of <code>(&quot;a&quot;, 1)</code>, <code>(&quot;b&quot;, 2)</code>, <code>(&quot;c&quot;, 3)</code> (none of them match by full pair).</li>
+<li><code>iter(((&quot;a&quot;, 4), (&quot;b&quot;, 0))) - sut</code> yields a set with only <code>(&quot;b&quot;, 0)</code> in it (<code>(&quot;a&quot;, 4)</code> matches a pair that is already present and is dropped).</li>
 </ul>
-<p><strong>Error condition:</strong> If any value in <code>sut</code> is unhashable (e.g. a value that is a <code>list</code>), the operation MUST raise <code>TypeError</code> whose message matches <code>unhashable type: '&lt;typename&gt;'</code> (the standard Python unhashable-type message). This applies even when the left operand is a small/simple iterable.</p>
+<p><strong>Error condition:</strong> If any value in <code>sut</code> is unhashable (for instance, a value that is a <code>list</code>), the operation MUST raise <code>TypeError</code> with a message that matches <code>unhashable type: '&lt;typename&gt;'</code> (the standard Python unhashable-type message). This holds even when the left operand is a small/simple iterable.</p>
 <h5>2. <code>__xor__</code> — <code>sut ^ other</code></h5>
-<p>Support the symmetric-difference operator.</p>
+<p>Provide support for the symmetric-difference operator.</p>
 <ul>
-<li>The left operand is the items view <code>sut</code>. The right operand (<code>other</code>) is any iterable yielding 2-element items (pairs), including a plain iterator.</li>
-<li>The result is the symmetric difference: pairs that are in exactly one of <code>sut</code> / <code>other</code> (compared by full <code>(key, value)</code> pair equality).</li>
-<li>The result MUST be a new <code>sc.Set</code> instance (<code>isinstance(result, sc.Set)</code> is true).</li>
-<li>Each element stored in the resulting <code>sc.Set</code> is a pair. <strong>Important:</strong> for <code>__xor__</code>, each element pair is stored as a 2-tuple whose two members are each already serialized, i.e. the stored element is <code>(_default_serializer(key), _default_serializer(value))</code>, and the persisted serialized value of that element is <code>_default_serializer((_default_serializer(key), _default_serializer(value)))</code>.</li>
+<li>The items view <code>sut</code> is the left operand. The right operand (<code>other</code>) is any iterable yielding 2-element items (pairs), a plain iterator included.</li>
+<li>The result is the symmetric difference: the pairs that are in exactly one of <code>sut</code> / <code>other</code> (compared by full <code>(key, value)</code> pair equality).</li>
+<li>The result MUST be a newly created <code>sc.Set</code> instance (<code>isinstance(result, sc.Set)</code> is true).</li>
+<li>Each element that is stored in the resulting <code>sc.Set</code> is a pair. <strong>Important:</strong> for <code>__xor__</code>, each element pair is stored as a 2-tuple in which each of the two members is already serialized, i.e. the stored element is <code>(_default_serializer(key), _default_serializer(value))</code>, and the persisted serialized value of that element is <code>_default_serializer((_default_serializer(key), _default_serializer(value)))</code>.</li>
 </ul>
-<p>Example: if <code>sut</code> contains <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, then <code>sut ^ iter(((&quot;a&quot;, 4), (&quot;b&quot;, 4), (&quot;c&quot;, 3)))</code> yields a set containing exactly the two pairs <code>(&quot;c&quot;, 4)</code> and <code>(&quot;c&quot;, 3)</code> (<code>(&quot;a&quot;, 4)</code> and <code>(&quot;b&quot;, 4)</code> appear on both sides and cancel out). These are stored as the doubly-serialized pair form described above.</p>
-<h4>Cleanup / side-effect requirements</h4>
-<p>Both operations create a new backing <code>sc.Set</code> (with its own table). When such a result object is deleted (its <code>__del__</code>/garbage collection), its backing table MUST be dropped, leaving only the original <code>items</code> table in the database. Producing the result must not leave stray tables behind after the result is disposed of.</p>
-<h4>API surface to implement</h4>
-<p>On the items-view class returned by <code>sc.Dict(...).items()</code>:</p>
+<p>Example: suppose <code>sut</code> contains <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>. Then <code>sut ^ iter(((&quot;a&quot;, 4), (&quot;b&quot;, 4), (&quot;c&quot;, 3)))</code> yields a set with exactly the two pairs <code>(&quot;c&quot;, 4)</code> and <code>(&quot;c&quot;, 3)</code> (<code>(&quot;a&quot;, 4)</code> and <code>(&quot;b&quot;, 4)</code> occur on both sides and cancel out). These are stored in the doubly-serialized pair form described above.</p>
+<h4>Cleanup and Side-Effect Requirements</h4>
+<p>Both operations create a new backing <code>sc.Set</code> (with a table of its own). When a result object of this kind is deleted (its <code>__del__</code>/garbage collection), its backing table MUST be dropped, with only the original <code>items</code> table remaining in the database. Producing the result must not leave stray tables behind after the result has been disposed of.</p>
+<h4>API Surface to Provide</h4>
+<p>On the class of the items view returned by <code>sc.Dict(...).items()</code>:</p>
 <ul>
-<li><code>__rsub__(self, other: Iterable) -&gt; sc.Set</code> — implements <code>other - view</code>.</li>
-<li><code>__xor__(self, other: Iterable) -&gt; sc.Set</code> — implements <code>view ^ other</code>.</li>
+<li><code>__rsub__(self, other: Iterable) -&gt; sc.Set</code> — the implementation of <code>other - view</code>.</li>
+<li><code>__xor__(self, other: Iterable) -&gt; sc.Set</code> — the implementation of <code>view ^ other</code>.</li>
 </ul>
-<p>Both accept any iterable of 2-element pairs (including bare iterators) and return a freshly created <code>sc.Set</code>.</p>
+<p>Both accept any iterable of 2-element pairs (bare iterators included) and return a freshly created <code>sc.Set</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Implement __xor__ and __rxor__ for Dict&#39;s ItemsView</span>
-        <span class="spec-meta muted">539 words · source specification
+        <span class="spec-title">Included in the codebase is a Dict class — a mapping that is persistent and backed by SQLite — and the .items() method of this class returns an items-view…</span>
+        <span class="spec-meta muted">619 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Implement <code>__xor__</code> and <code>__rxor__</code> for Dict's ItemsView</h3>
-<h4>Context</h4>
-<p>The codebase provides a <code>Dict</code> class (a persistent, SQLite-backed mapping) whose <code>.items()</code> method returns an items-view object. This items-view object behaves like a set of <code>(key, value)</code> pairs and supports set-like symmetric-difference operations against other iterables. You must implement/adjust the reflected symmetric-difference operation (<code>__rxor__</code>) and ensure the forward symmetric-difference operation (<code>__xor__</code>) handles a specific error case.</p>
+      <div class="spec-body"><h3>Task: Implement <code>__xor__</code> and <code>__rxor__</code> for the ItemsView of the Dict Class</h3>
+<h4>Background</h4>
+<p>Included in the codebase is a <code>Dict</code> class — a mapping that is persistent and backed by SQLite — and the <code>.items()</code> method of this class returns an items-view object. Acting as a set of <code>(key, value)</code> pairs, this items-view object offers set-style symmetric-difference operations that work against other iterables. You must implement/adjust the reflected symmetric-difference operation (<code>__rxor__</code>); you must also ensure that the forward symmetric-difference operation (<code>__xor__</code>) deals with a specific error case.</p>
 <h4>Public API Surface</h4>
-<p>The following are already available in the package (referenced here as <code>sc</code> for the top-level package):</p>
+<p>The following are already provided by the package (the top-level package is referred to here as <code>sc</code>):</p>
 <ul>
-<li><code>sc.Dict[K, V](connection=&lt;sqlite3.Connection&gt;, table_name=&lt;str&gt;)</code> — constructs a SQLite-backed dictionary bound to the given connection and table.</li>
-<li><code>&lt;Dict&gt;.items()</code> — returns the items-view object under test.</li>
-<li><code>sc.Set</code> — a SQLite-backed set type. Result objects returned by the symmetric-difference operations must be instances of this type.</li>
-<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — the default serialization callable used to persist values.</li>
+<li><code>sc.Dict[K, V](connection=&lt;sqlite3.Connection&gt;, table_name=&lt;str&gt;)</code> — creates a SQLite-backed dictionary bound to the connection and table that are supplied.</li>
+<li><code>&lt;Dict&gt;.items()</code> — returns the items-view object that is being tested.</li>
+<li><code>sc.Set</code> — a SQLite-backed set type. Any result object returned by the symmetric-difference operations must be an instance of this type.</li>
+<li><code>sc.base.SqliteCollectionBase._default_serializer(obj)</code> — the callable that is used by default to serialize values for persistence.</li>
 </ul>
-<p>You must ensure the items-view object supports the Python binary operator <code>^</code> in both operand positions:</p>
+<p>You must ensure that the Python binary operator <code>^</code> is supported by the items-view object in both operand positions:</p>
 <ul>
-<li><code>items_view ^ other</code> (forward, <code>__xor__</code>)</li>
-<li><code>other ^ items_view</code> (reflected, <code>__rxor__</code>)</li>
+<li><code>items_view ^ other</code> (the forward direction, <code>__xor__</code>)</li>
+<li><code>other ^ items_view</code> (the reflected direction, <code>__rxor__</code>)</li>
 </ul>
-<p>where <code>other</code> is an arbitrary iterable of two-element <code>(key, value)</code> pairs (including one-shot iterators).</p>
+<p>In both expressions, <code>other</code> denotes any iterable whose elements are two-element <code>(key, value)</code> pairs (one-shot iterators included).</p>
 <h4>Required Behavior</h4>
-<h5>Symmetric difference (<code>__rxor__</code>)</h5>
-<p>When the items-view appears on the right-hand side of <code>^</code> and the left-hand operand is an iterable yielding two-element <code>(key, value)</code> tuples:</p>
+<h5>Symmetric-difference operation (<code>__rxor__</code>)</h5>
+<p>Whenever the items-view sits on the right-hand side of <code>^</code> while the left-hand operand is an iterable that yields two-element <code>(key, value)</code> tuples:</p>
 <ul>
-<li>The result is the set-theoretic symmetric difference between the set of <code>(key, value)</code> pairs contained in the items-view and the set of <code>(key, value)</code> pairs produced by iterating the other operand. That is, it contains exactly those pairs present in one operand but not in both.</li>
-<li>Each pair is treated as a single hashable element (the pair as a whole), consistent with normal set symmetric-difference semantics over <code>(key, value)</code> tuples.</li>
-<li>The returned object must be an instance of <code>sc.Set</code>.</li>
-<li>The returned <code>Set</code> must persist its elements using the default serializer. Each stored element is the serialized form of a 2-tuple whose components are the individually serialized key and serialized value — i.e. <code>_default_serializer((_default_serializer(key), _default_serializer(value)))</code>.</li>
-<li>The other operand may be a one-use iterator; it must be consumed correctly.</li>
-<li>Producing the result must not alter the underlying items table of the source <code>Dict</code>; after the operation and disposal of the result, only the original items table content remains.</li>
+<li>The outcome is a set-theoretic symmetric difference of two sets: the set of <code>(key, value)</code> pairs held by the items-view, and the set of <code>(key, value)</code> pairs that comes out of iterating the other operand. A pair is part of the result exactly when it is present in one operand but not in both.</li>
+<li>Each pair counts as a single hashable element (the entire pair), in keeping with the semantics of ordinary set symmetric difference over <code>(key, value)</code> tuples.</li>
+<li>What the operation returns must be an instance of <code>sc.Set</code>.</li>
+<li>The elements of the returned <code>Set</code> must be persisted by way of the default serializer. Each element that gets stored is a 2-tuple in serialized form; its components are produced by serializing the key and the value individually — i.e. <code>_default_serializer((_default_serializer(key), _default_serializer(value)))</code>.</li>
+<li>The other operand may be a one-use iterator, and it must be consumed correctly.</li>
+<li>Computing the result must not change the underlying items table of the source <code>Dict</code>; after the operation finishes and the result is disposed of, what remains is only the original items table content.</li>
 </ul>
-<p>Example: given an items-view containing pairs <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>, evaluating <code>iter(((&quot;a&quot;, 4), (&quot;b&quot;, 4), (&quot;c&quot;, 3))) ^ items_view</code> yields a <code>Set</code> containing exactly the pairs <code>(&quot;c&quot;, 4)</code> and <code>(&quot;c&quot;, 3)</code> (the pairs that differ between the two operands).</p>
-<h5>Error case for unhashable values (both <code>__xor__</code> and <code>__rxor__</code>)</h5>
-<p>If, while computing the symmetric difference, a <code>(key, value)</code> pair from the items-view contains a <code>value</code> that is not hashable (e.g. a <code>list</code>), the operation must raise <code>TypeError</code> whose message matches the pattern <code>unhashable type: '&lt;name&gt;'</code> (where <code>&lt;name&gt;</code> is the offending type's name).</p>
-<p>This applies symmetrically:</p>
+<p>Example: suppose the items-view contains the pairs <code>(&quot;a&quot;, 4)</code>, <code>(&quot;c&quot;, 4)</code>, <code>(&quot;b&quot;, 4)</code>. The expression <code>iter(((&quot;a&quot;, 4), (&quot;b&quot;, 4), (&quot;c&quot;, 3))) ^ items_view</code> then yields a <code>Set</code> that contains exactly the pairs <code>(&quot;c&quot;, 4)</code> and <code>(&quot;c&quot;, 3)</code> (the pairs on which the two operands differ).</p>
+<h5>Error case when values are unhashable (both <code>__xor__</code> and <code>__rxor__</code>)</h5>
+<p>If, while the symmetric difference is being computed, a <code>(key, value)</code> pair drawn from the items-view has a <code>value</code> that is not hashable (e.g. a <code>list</code>), the operation must raise <code>TypeError</code>, and the message must match the pattern <code>unhashable type: '&lt;name&gt;'</code> (where <code>&lt;name&gt;</code> is the name of the offending type).</p>
+<p>This requirement is symmetric:</p>
 <ul>
-<li><code>items_view ^ other</code> must raise this <code>TypeError</code> when the items-view contains an unhashable value.</li>
-<li><code>other ^ items_view</code> must raise this <code>TypeError</code> when the items-view contains an unhashable value.</li>
+<li><code>items_view ^ other</code> must raise this <code>TypeError</code> whenever the items-view holds an unhashable value.</li>
+<li><code>other ^ items_view</code> must raise this <code>TypeError</code> whenever the items-view holds an unhashable value.</li>
 </ul>
-<p>In both error scenarios the other operand is a small iterable/iterator of <code>(key, value)</code> pairs.</p>
+<p>In both of these error scenarios, the other operand is a small iterable/iterator of <code>(key, value)</code> pairs.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Only the behavior described above is in scope. Do not add other operators, methods, or side effects.</li>
+<li>The scope covers only the behavior described above. Do not add other operators, methods, or side effects.</li>
 </ul>
 </div>
     </details>

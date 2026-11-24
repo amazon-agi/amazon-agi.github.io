@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/gidgethub/gidgethub/compare/79b3fc3928d1796b82c10df678fa8bfc624fa957...e19c701315a639f3fb52a7412a2e8f5cbbc0a349" target="_blank" rel="noopener" class="mono">79b3fc3928 … e19c701315</a> · 83 commits by 1 author over 37 d (2017-01-22 to 2017-03-01)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 39 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>40 lines of code in 6 files when the chain starts (a nearly empty repository) · over the 20 requests the developers added 1,125 and removed 208 lines of code, plus 20,503 lines of tests (57 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.8k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 16 and symbols introduced by earlier ones to depth 4</dd></div>
+      <div><dt>Specifications:</dt><dd>7.6k words · 5 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 16 and symbols introduced by earlier ones to depth 4</dd></div>
     </dl>
   </header>
 </section>
@@ -144,52 +144,53 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement webhook payload signature validation in the gidgethub.sansio module.</span>
-        <span class="spec-meta muted">296 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Webhook payload signature validation is to be implemented within the gidgethub.sansio module.</span>
+        <span class="spec-meta muted">348 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement webhook payload signature validation in the <code>gidgethub.sansio</code> module. The <code>gidgethub</code> package and the module path <code>gidgethub.sansio</code> must be importable.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Webhook payload signature validation is to be implemented within the <code>gidgethub.sansio</code> module. The <code>gidgethub</code> package, as well as the module path <code>gidgethub.sansio</code>, must be importable.</p>
 <h4>Public API</h4>
 <h5><code>gidgethub.sansio.ValidationFailure</code></h5>
-<p><code>ValidationFailure</code> is the exception used to report unsuccessful webhook validation. It must derive, directly or indirectly, from <code>Exception</code> so that it can be raised and caught as a normal exception.</p>
+<p><code>ValidationFailure</code> is the exception that reports a failed webhook validation. It must derive, either directly or indirectly, from <code>Exception</code>, so that it can be raised and caught like a normal exception.</p>
 <h5><code>gidgethub.sansio.validate(payload, *, secret, signature)</code></h5>
-<p>Validate a raw webhook payload against a supplied signature. <code>secret</code> and <code>signature</code> are keyword-only arguments.</p>
+<p>This function validates a raw webhook payload against a signature that has been supplied. The <code>secret</code> and <code>signature</code> arguments are keyword-only: they may only be supplied by keyword.</p>
 <h6>Parameters</h6>
 <ul>
-<li><code>payload</code>: a <code>bytes</code> object containing the raw, unmodified payload data.</li>
-<li><code>secret</code>: a <code>str</code> containing the shared secret.</li>
-<li><code>signature</code>: a <code>str</code> containing the signature to validate.</li>
+<li><code>payload</code>: a <code>bytes</code> object that holds the raw payload data in unmodified form.</li>
+<li><code>secret</code>: a <code>str</code> that holds the shared secret.</li>
+<li><code>signature</code>: a <code>str</code> that holds the signature to be validated.</li>
 </ul>
-<h6>Signature calculation</h6>
-<p>The expected digest is the ordinary SHA-1 digest of the shared secret's UTF-8 bytes immediately followed by the payload bytes, with no separator:</p>
+<h6>How the signature is calculated</h6>
+<p>The digest to expect is the plain SHA-1 digest of the shared secret's UTF-8 bytes immediately followed by the payload bytes, with no separator between the two:</p>
 <pre><code class="language-python">hashlib.sha1(secret.encode(&quot;utf-8&quot;) + payload).hexdigest()
 </code></pre>
-<p>This calculation is SHA-1 over the concatenated bytes; it is <strong>not</strong> HMAC-SHA-1. The complete expected signature is the exact, lowercase string:</p>
+<p>This is a straight SHA-1 computation over the concatenated bytes; it is <strong>not</strong> HMAC-SHA-1. The full expected signature is this exact, lowercase string:</p>
 <pre><code class="language-text">sha1=&lt;hexadecimal SHA-1 digest&gt;
 </code></pre>
-<h6>Validation behavior</h6>
+<h6>How validation behaves</h6>
 <ul>
-<li>If <code>signature</code> does not begin with the exact prefix <code>&quot;sha1=&quot;</code>, raise <code>ValidationFailure</code>.</li>
-<li>If the complete supplied signature does not match the signature calculated from <code>secret</code> and <code>payload</code>, raise <code>ValidationFailure</code>.</li>
-<li>If the complete supplied signature matches, return <code>None</code> and do not raise an exception.</li>
+<li>If <code>signature</code> does not start with the exact prefix <code>&quot;sha1=&quot;</code>, <code>ValidationFailure</code> must be raised.</li>
+<li><code>ValidationFailure</code> must be raised if the complete supplied signature does not match the signature computed from <code>secret</code> and <code>payload</code>.</li>
+<li>When the complete supplied signature matches, the function must return <code>None</code> and must not raise an exception.</li>
 </ul>
 <h6>Reference values</h6>
-<p>For:</p>
+<p>Given:</p>
 <pre><code class="language-python">payload = b&quot;gidget&quot;
 secret = &quot;123456&quot;
 </code></pre>
-<p>the SHA-1 digest of <code>secret.encode(&quot;utf-8&quot;) + payload</code> is:</p>
+<p>the SHA-1 digest of <code>secret.encode(&quot;utf-8&quot;) + payload</code> comes out as:</p>
 <pre><code class="language-text">6ea124f8bfc2e6f5a0a40687201c351716110bec
 </code></pre>
-<p>Consequently, this signature must validate successfully:</p>
+<p>As a result, the following signature must validate successfully:</p>
 <pre><code class="language-text">sha1=6ea124f8bfc2e6f5a0a40687201c351716110bec
 </code></pre>
-<p>The bare digest below lacks the required <code>&quot;sha1=&quot;</code> prefix and must raise <code>ValidationFailure</code>:</p>
+<p>The bare digest below is missing the required <code>&quot;sha1=&quot;</code> prefix and must cause <code>ValidationFailure</code> to be raised:</p>
 <pre><code class="language-text">6ea124f8bfc2e6f5a0a40687201c351716110bec
 </code></pre>
 <h4>Packaging</h4>
-<p>Provide package metadata or equivalent packaging support sufficient for the <code>gidgethub</code> package to be installed and imported. In particular, the following import must succeed:</p>
+<p>Package metadata or equivalent packaging support must be provided, sufficient for the <code>gidgethub</code> package to be installed and imported. In particular, this import must succeed:</p>
 <pre><code class="language-python">from gidgethub import sansio
 </code></pre>
 </div>
@@ -197,84 +198,86 @@ secret = &quot;123456&quot;
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">You will be working within the gidgethub package, specifically in the module gidgethub/sansio.py.</span>
-        <span class="spec-meta muted">336 words · source specification
+        <span class="spec-title">Your work takes place in the gidgethub package, and in particular in the module gidgethub/sansio.py.</span>
+        <span class="spec-meta muted">378 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-reg" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You will be working within the <code>gidgethub</code> package, specifically in the module <code>gidgethub/sansio.py</code>. This task involves two areas: the <code>validate</code> function's failure behavior, and adding a new <code>Event</code> class. You must also ensure the package's test directory is importable as a package.</p>
-<h4>Package Structure</h4>
-<p>The tests reside in <code>gidgethub/test/</code> and import the <code>sansio</code> module via a relative import from the parent package (<code>from .. import sansio</code>). Ensure <code>gidgethub/test/</code> is a proper package (i.e., it contains an <code>__init__.py</code>) so that relative imports from within it resolve to the <code>gidgethub</code> package.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Your work takes place in the <code>gidgethub</code> package, and in particular in the module <code>gidgethub/sansio.py</code>. The task covers two areas: the failure behavior of the <code>validate</code> function, and the addition of a new <code>Event</code> class. You must also ensure that the package's test directory can be imported as a package.</p>
+<h4>Package Layout</h4>
+<p>The tests live in <code>gidgethub/test/</code> and import the <code>sansio</code> module by means of a relative import from the parent package (<code>from .. import sansio</code>). Ensure that <code>gidgethub/test/</code> is a proper package (that is, it contains an <code>__init__.py</code>) so that relative imports made from within it resolve to the <code>gidgethub</code> package.</p>
 <h4>Requirements</h4>
-<h5>1. <code>sansio.validate</code> — signature validation</h5>
-<p>The module <code>gidgethub.sansio</code> must provide a function:</p>
+<h5>1. <code>sansio.validate</code> — signature checking</h5>
+<p>The module <code>gidgethub.sansio</code> must provide the following function:</p>
 <pre><code class="language-python">validate(payload, *, secret, signature)
 </code></pre>
 <ul>
-<li><code>payload</code> is a <code>bytes</code> object.</li>
-<li><code>secret</code> is the shared secret used to compute the expected signature.</li>
-<li><code>signature</code> is the signature to check the payload against.</li>
+<li>The <code>payload</code> argument is a <code>bytes</code> object.</li>
+<li>The <code>secret</code> argument is the shared secret used to compute the expected signature.</li>
+<li>The <code>signature</code> argument is the signature the payload is checked against.</li>
 </ul>
-<p>Behavior:</p>
+<p>Function behavior:</p>
 <ul>
-<li>When the provided <code>payload</code>, <code>secret</code>, and <code>signature</code> are consistent (the signature correctly corresponds to the payload computed with the secret), the function completes without raising.</li>
-<li>When the <code>payload</code> does not match the given <code>signature</code> for the given <code>secret</code> (for example, if the payload has been altered), the function must raise <code>sansio.ValidationFailure</code>.</li>
+<li>When the supplied <code>payload</code>, <code>secret</code>, and <code>signature</code> are consistent (the signature is the correct one for the payload computed with the secret), the function finishes without raising.</li>
+<li>When the <code>payload</code> does not match the supplied <code>signature</code> for the supplied <code>secret</code> (for example, if the payload has been altered), the function must raise <code>sansio.ValidationFailure</code>.</li>
 </ul>
-<h5>2. <code>sansio.ValidationFailure</code> — exception type</h5>
-<p>The module <code>gidgethub.sansio</code> must provide an exception class named <code>ValidationFailure</code>. It is raised by <code>validate</code> when signature validation fails. It must be a subclass of <code>Exception</code> so it can be caught in the usual way.</p>
-<h5>3. <code>sansio.Event</code> — event data holder</h5>
-<p>The module <code>gidgethub.sansio</code> must provide a class:</p>
+<h5>2. <code>sansio.ValidationFailure</code> — the exception type</h5>
+<p>An exception class named <code>ValidationFailure</code> must be provided by the module <code>gidgethub.sansio</code>. <code>validate</code> raises it when signature validation fails. It must be a subclass of <code>Exception</code> so that it can be caught in the usual way.</p>
+<h5>3. <code>sansio.Event</code> — holder for event data</h5>
+<p>The module <code>gidgethub.sansio</code> must provide the following class:</p>
 <pre><code class="language-python">class Event:
     def __init__(self, data, *, event, delivery_id):
         ...
 </code></pre>
-<p>Constructor parameters:</p>
+<p>Parameters of the constructor:</p>
 <ul>
-<li><code>data</code>: an arbitrary object (e.g., a <code>dict</code>) representing the event payload.</li>
-<li><code>event</code> (keyword-only): a string naming the event.</li>
-<li><code>delivery_id</code> (keyword-only): a string identifying the delivery.</li>
+<li><code>data</code>: an arbitrary object (for example, a <code>dict</code>) that represents the event payload.</li>
+<li><code>event</code> (keyword-only): a string that names the event.</li>
+<li><code>delivery_id</code> (keyword-only): a string that identifies the delivery.</li>
 </ul>
-<p>After construction, an instance must expose the constructor arguments as attributes, unchanged:</p>
+<p>Once an instance has been constructed, it must expose the constructor arguments as attributes, unchanged:</p>
 <ul>
-<li><code>event</code> — equal to the <code>event</code> argument passed in.</li>
-<li><code>delivery_id</code> — equal to the <code>delivery_id</code> argument passed in.</li>
-<li><code>data</code> — equal to the <code>data</code> argument passed in.</li>
+<li><code>event</code> — equal to the <code>event</code> argument that was passed in.</li>
+<li><code>delivery_id</code> — equal to the <code>delivery_id</code> argument that was passed in.</li>
+<li><code>data</code> — equal to the <code>data</code> argument that was passed in.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Add a public exception module to the gidgethub package and update webhook signature validation in gidgethub.sansio to report validation failures through…</span>
-        <span class="spec-meta muted">379 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add a public module of exceptions to the gidgethub package, and update the webhook signature validation in gidgethub.sansio so that it reports validation…</span>
+        <span class="spec-meta muted">426 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add a public exception module to the <code>gidgethub</code> package and update webhook signature validation in <code>gidgethub.sansio</code> to report validation failures through that module. Existing sans-I/O event behavior must remain compatible.</p>
-<h4>Public exception module</h4>
-<p>Create <code>gidgethub/exceptions.py</code>. It must define a public class named <code>ValidationFailure</code>.</p>
-<p><code>ValidationFailure</code> must derive from <code>Exception</code>, either directly or indirectly, so instances can be raised and caught normally. The module and class must be available through this import form:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>Add a public module of exceptions to the <code>gidgethub</code> package, and update the webhook signature validation in <code>gidgethub.sansio</code> so that it reports validation failures through that module. The behavior of existing sans-I/O events must remain compatible.</p>
+<h4>Public module for exceptions</h4>
+<p>Create <code>gidgethub/exceptions.py</code>. A public class named <code>ValidationFailure</code> must be defined in it.</p>
+<p><code>ValidationFailure</code> must derive from <code>Exception</code>, either directly or indirectly, so that instances of it can be raised and caught normally. The module and the class must be available via this import form:</p>
 <pre><code class="language-python">from gidgethub import exceptions
 exceptions.ValidationFailure
 </code></pre>
-<h4>Webhook signature validation</h4>
+<h4>Validation of webhook signatures</h4>
 <p><code>gidgethub.sansio</code> must continue to expose:</p>
 <pre><code class="language-python">def validate(payload: bytes, *, secret: str, signature: str) -&gt; None:
     ...
 </code></pre>
-<p><code>payload</code> is the raw webhook body as bytes. <code>secret</code> is a string, and <code>signature</code> is a string. Both <code>secret</code> and <code>signature</code> are keyword-only arguments.</p>
-<h5>Signature calculation</h5>
-<p>The expected signature is the literal, case-sensitive prefix <code>&quot;sha1=&quot;</code> followed by the lowercase hexadecimal SHA-1 digest calculated as follows:</p>
+<p>The <code>payload</code> argument is the raw webhook body as bytes. <code>secret</code> is a string, and so is <code>signature</code>. <code>secret</code> and <code>signature</code> are both keyword-only arguments.</p>
+<h5>Calculation of the signature</h5>
+<p>The expected signature consists of the literal, case-sensitive prefix <code>&quot;sha1=&quot;</code> followed by the lowercase hexadecimal SHA-1 digest, calculated as follows:</p>
 <ol>
-<li>Encode <code>secret</code> as UTF-8 bytes.</li>
-<li>Concatenate those secret bytes with the raw <code>payload</code> bytes, in that order.</li>
-<li>Compute SHA-1 over the concatenated bytes and use its hexadecimal digest.</li>
+<li>Encode the <code>secret</code> as UTF-8 bytes.</li>
+<li>Concatenate those secret bytes together with the raw <code>payload</code> bytes, in that order.</li>
+<li>Compute SHA-1 over the concatenated bytes and use the hexadecimal digest that results.</li>
 </ol>
-<p>Equivalently, the digest portion is:</p>
+<p>In equivalent form, the digest portion is:</p>
 <pre><code class="language-python">hashlib.sha1(secret.encode(&quot;utf-8&quot;) + payload).hexdigest()
 </code></pre>
-<p>This compatibility algorithm is plain SHA-1 over <code>secret_bytes + payload</code>; it is <strong>not</strong> standard HMAC-SHA1.</p>
-<p>For example:</p>
+<p>This algorithm, kept for compatibility, is plain SHA-1 over <code>secret_bytes + payload</code>; it is <strong>not</strong> standard HMAC-SHA1.</p>
+<p>As an example:</p>
 <pre><code class="language-python">validate(
     b&quot;gidget&quot;,
     secret=&quot;123456&quot;,
@@ -282,13 +285,13 @@ exceptions.ValidationFailure
 )
 </code></pre>
 <p>must succeed.</p>
-<h5>Validation outcomes</h5>
+<h5>Outcomes of validation</h5>
 <ul>
-<li>If <code>signature</code> does not begin with the exact <code>&quot;sha1=&quot;</code> prefix, <code>validate</code> must raise <code>gidgethub.exceptions.ValidationFailure</code>.</li>
-<li>If the signature has the prefix but is not exactly equal to the expected prefixed digest for the supplied <code>secret</code> and <code>payload</code>, <code>validate</code> must raise <code>gidgethub.exceptions.ValidationFailure</code>. This includes a changed payload or an incorrect secret or digest.</li>
-<li>If the supplied signature exactly matches the calculated signature, <code>validate</code> must return <code>None</code> without raising.</li>
+<li>If <code>signature</code> does not start with the exact <code>&quot;sha1=&quot;</code> prefix, <code>validate</code> must raise <code>gidgethub.exceptions.ValidationFailure</code>.</li>
+<li>If the signature carries the prefix but is not exactly equal to the expected prefixed digest for the supplied <code>secret</code> and <code>payload</code>, <code>validate</code> must raise <code>gidgethub.exceptions.ValidationFailure</code>. This includes a payload that has been changed, or an incorrect secret or digest.</li>
+<li>When the supplied signature exactly matches the calculated signature, <code>validate</code> must return <code>None</code> without raising.</li>
 </ul>
-<p>The exception raised by <code>validate</code> must be the same class object exposed as <code>gidgethub.exceptions.ValidationFailure</code>, not a separate exception class with the same name. Consequently, callers must be able to catch every malformed- or mismatched-signature failure using:</p>
+<p>The exception raised by <code>validate</code> must be the same class object that is exposed as <code>gidgethub.exceptions.ValidationFailure</code>, not a separate exception class that shares the name. As a consequence, callers must be able to catch every failure caused by a malformed or mismatched signature using:</p>
 <pre><code class="language-python">from gidgethub import exceptions
 
 try:
@@ -296,49 +299,50 @@ try:
 except exceptions.ValidationFailure:
     ...
 </code></pre>
-<h4>Existing <code>Event</code> compatibility</h4>
-<p>The existing <code>gidgethub.sansio.Event</code> API must continue to work:</p>
+<h4>Compatibility of the existing <code>Event</code></h4>
+<p>The existing API of <code>gidgethub.sansio.Event</code> must continue to work:</p>
 <pre><code class="language-python">Event(data, *, event: str, delivery_id: str)
 </code></pre>
-<p>Construction must retain the supplied values as the public attributes <code>data</code>, <code>event</code>, and <code>delivery_id</code>, respectively. <code>event</code> and <code>delivery_id</code> remain keyword-only arguments.</p>
+<p>On construction, the supplied values must be retained as the public attributes <code>data</code>, <code>event</code>, and <code>delivery_id</code>, respectively. The arguments <code>event</code> and <code>delivery_id</code> remain keyword-only.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">The gidgethub package provides transport-agnostic (sans-I/O) tools for working with GitHub webhooks.</span>
-        <span class="spec-meta muted">653 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The gidgethub package provides sans-I/O (transport-agnostic) tools for working with GitHub webhooks.</span>
+        <span class="spec-meta muted">705 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>The <code>gidgethub</code> package provides transport-agnostic (sans-I/O) tools for working with GitHub webhooks. This task has two parts:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The <code>gidgethub</code> package provides sans-I/O (transport-agnostic) tools for working with GitHub webhooks. The task consists of two parts:</p>
 <ol>
-<li>Expose the webhook-related exception classes at the package root.</li>
-<li>Add construction of <code>gidgethub.sansio.Event</code> instances from raw HTTP request data.</li>
+<li>Expose the exception classes related to webhooks at the package root.</li>
+<li>Add support for constructing <code>gidgethub.sansio.Event</code> instances from raw HTTP request data.</li>
 </ol>
-<h4>Part 1: Exceptions at the package root</h4>
-<p>The following classes must be available directly from the top-level <code>gidgethub</code> package:</p>
+<h4>Part 1: Exceptions available at the package root</h4>
+<p>The classes listed below must be available directly from the top-level <code>gidgethub</code> package:</p>
 <ul>
 <li><code>gidgethub.ValidationFailure</code></li>
 <li><code>gidgethub.BadRequest</code></li>
 </ul>
-<p>Both names must refer to exception types that subclass <code>Exception</code> and can be raised and caught normally. Exceptions raised by the sans-I/O behavior described below must be instances of the corresponding classes exposed at the package root; they must not be separate, unrelated exception classes.</p>
-<p>For example, both of these imports must work:</p>
+<p>Both of these names must refer to exception types that subclass <code>Exception</code> and can be raised and caught normally. When the sans-I/O behavior described below raises an exception, it must be an instance of the corresponding class exposed at the package root; it must not be a separate, unrelated exception class.</p>
+<p>For instance, both of the following imports must work:</p>
 <pre><code class="language-python">import gidgethub
 from gidgethub import BadRequest, ValidationFailure
 </code></pre>
-<h4>Part 2: <code>gidgethub.sansio</code></h4>
-<p>The <code>gidgethub.sansio</code> module must remain importable and provide <code>Event</code> and <code>validate</code>.</p>
+<h4>Part 2: The <code>gidgethub.sansio</code> module</h4>
+<p>The <code>gidgethub.sansio</code> module must remain importable, and it must provide <code>Event</code> and <code>validate</code>.</p>
 <h5><code>Event</code></h5>
-<h6>Constructor</h6>
+<h6>The constructor</h6>
 <pre><code class="language-python">Event(data, *, event, delivery_id)
 </code></pre>
 <ul>
-<li><code>data</code> is the deserialized webhook payload, typically a dictionary.</li>
-<li><code>event</code> is a keyword-only string identifying the event kind.</li>
-<li><code>delivery_id</code> is a keyword-only string identifying the delivery.</li>
+<li><code>data</code> holds the deserialized webhook payload, typically a dictionary.</li>
+<li><code>event</code> is a keyword-only string that identifies the event kind.</li>
+<li><code>delivery_id</code> is a keyword-only string that identifies the delivery.</li>
 </ul>
-<p>An instance must expose the values unchanged through these public attributes:</p>
+<p>An instance must expose these values, unchanged, through the following public attributes:</p>
 <ul>
 <li><code>instance.data</code></li>
 <li><code>instance.event</code></li>
@@ -357,9 +361,9 @@ assert event.delivery_id == &quot;delivery-id&quot;
 <h6><code>Event.from_http</code></h6>
 <pre><code class="language-python">Event.from_http(headers, body, *, secret=None)
 </code></pre>
-<p>This class method constructs and returns an <code>Event</code> from raw HTTP request information.</p>
+<p>Given raw HTTP request information, this class method constructs and returns an <code>Event</code>.</p>
 <ul>
-<li><code>headers</code> is a mapping from HTTP header names to values. Header lookup is case-sensitive; the relevant names are exactly:
+<li><code>headers</code> is a mapping of HTTP header names to values. Header lookup is case-sensitive; the names that matter are exactly:
 <ul>
 <li><code>content-type</code></li>
 <li><code>X-GitHub-Event</code></li>
@@ -367,212 +371,213 @@ assert event.delivery_id == &quot;delivery-id&quot;
 <li><code>X-Hub-Signature</code></li>
 </ul>
 </li>
-<li><code>body</code> is the raw request body as <code>bytes</code>.</li>
-<li><code>secret</code> is an optional keyword-only shared-secret string.</li>
+<li><code>body</code> is the request body in raw form, as <code>bytes</code>.</li>
+<li><code>secret</code> is a shared-secret string, optional and keyword-only.</li>
 </ul>
-<p>The method has the following behavior:</p>
+<p>Its behavior is as follows:</p>
 <ol>
 <li>
-<p><strong>Require JSON content.</strong> The <code>content-type</code> header must be present and indicate <code>application/json</code>. If it is absent or does not indicate that media type, raise <code>gidgethub.BadRequest</code>.</p>
+<p><strong>JSON content is required.</strong> The <code>content-type</code> header is required to be present and to indicate <code>application/json</code>. If the header is absent, or if it does not indicate that media type, raise <code>gidgethub.BadRequest</code>.</p>
 </li>
 <li>
-<p><strong>Apply signature validation according to the supplied inputs.</strong></p>
+<p><strong>Apply signature validation depending on the inputs that were supplied.</strong></p>
 <ul>
-<li>If <code>secret</code> is provided but <code>X-Hub-Signature</code> is absent, raise <code>gidgethub.ValidationFailure</code>.</li>
-<li>If <code>X-Hub-Signature</code> is present but <code>secret</code> is not provided, raise <code>gidgethub.ValidationFailure</code>.</li>
-<li>If both are present, validate the raw <code>body</code> with <code>validate</code>, using that secret and signature. Any <code>ValidationFailure</code> must propagate.</li>
-<li>If neither is present, signature validation is not required.</li>
+<li>When <code>secret</code> is provided but <code>X-Hub-Signature</code> is absent, raise <code>gidgethub.ValidationFailure</code>.</li>
+<li>When <code>X-Hub-Signature</code> is present but <code>secret</code> is not provided, raise <code>gidgethub.ValidationFailure</code>.</li>
+<li>When both are present, validate the raw <code>body</code> with <code>validate</code>, using that secret and signature. Any <code>ValidationFailure</code> that occurs must propagate.</li>
+<li>When neither is present, signature validation is not required.</li>
 </ul>
 </li>
 <li>
-<p><strong>Deserialize and construct the event.</strong> For a valid request, deserialize the JSON body and return an <code>Event</code> with:</p>
+<p><strong>Deserialization and event construction.</strong> For a valid request, deserialize the JSON body and return an <code>Event</code> where:</p>
 <ul>
-<li><code>data</code> equal to the deserialized JSON value,</li>
-<li><code>event</code> equal to the <code>X-GitHub-Event</code> header value, and</li>
-<li><code>delivery_id</code> equal to the <code>X-GitHub-Delivery</code> header value.</li>
+<li><code>data</code> is equal to the deserialized JSON value,</li>
+<li><code>event</code> is equal to the value of the <code>X-GitHub-Event</code> header, and</li>
+<li><code>delivery_id</code> is equal to the value of the <code>X-GitHub-Delivery</code> header.</li>
 </ul>
 </li>
 </ol>
-<p>For example, a UTF-8 body containing:</p>
+<p>As an example, a UTF-8 body containing:</p>
 <pre><code class="language-json">{&quot;action&quot;: &quot;opened&quot;}
 </code></pre>
-<p>must result in <code>event.data == {&quot;action&quot;: &quot;opened&quot;}</code>.</p>
+<p>must produce <code>event.data == {&quot;action&quot;: &quot;opened&quot;}</code>.</p>
 <h5><code>validate</code></h5>
 <pre><code class="language-python">validate(payload, *, secret, signature)
 </code></pre>
 <ul>
-<li><code>payload</code> is the raw request body as <code>bytes</code>.</li>
-<li><code>secret</code> is the keyword-only shared-secret string.</li>
-<li><code>signature</code> is the keyword-only signature string supplied with the request.</li>
+<li><code>payload</code> is the request body in raw form, as <code>bytes</code>.</li>
+<li><code>secret</code> is the shared-secret string, keyword-only.</li>
+<li><code>signature</code> is the keyword-only signature string provided with the request.</li>
 </ul>
-<p>A valid signature has the form:</p>
+<p>A valid signature takes the form:</p>
 <pre><code class="language-text">sha1=&lt;hexdigest&gt;
 </code></pre>
-<p>The digest is the ordinary SHA-1 digest of the UTF-8 bytes of <code>secret</code> concatenated with the raw <code>payload</code> bytes:</p>
+<p>That digest is the ordinary SHA-1 digest taken over the UTF-8 bytes of <code>secret</code> concatenated with the raw bytes of <code>payload</code>:</p>
 <pre><code class="language-text">SHA1(secret encoded as UTF-8 + payload)
 </code></pre>
-<p>This compatibility algorithm is plain SHA-1 over the concatenated bytes; it is <strong>not</strong> HMAC-SHA-1.</p>
-<p>Validation must behave as follows:</p>
+<p>For compatibility, this algorithm is plain SHA-1 over the concatenated bytes; it is <strong>not</strong> HMAC-SHA-1.</p>
+<p>Validation must work as follows:</p>
 <ul>
-<li>If <code>signature</code> does not begin with the exact prefix <code>sha1=</code>, raise <code>gidgethub.ValidationFailure</code>.</li>
-<li>Build the expected signature by prefixing <code>sha1=</code> to the hexadecimal SHA-1 digest described above.</li>
-<li>If the supplied signature does not match that expected signature, raise <code>gidgethub.ValidationFailure</code>.</li>
-<li>If it matches, return normally; callers do not rely on a return value.</li>
+<li>If <code>signature</code> does not start with the exact prefix <code>sha1=</code>, raise <code>gidgethub.ValidationFailure</code>.</li>
+<li>Form the expected signature by prepending <code>sha1=</code> to the hexadecimal SHA-1 digest described above.</li>
+<li>If the provided signature does not match that expected signature, raise <code>gidgethub.ValidationFailure</code>.</li>
+<li>If it matches, return normally; callers place no reliance on a return value.</li>
 </ul>
-<p>Required compatibility examples for <code>secret=&quot;123456&quot;</code> are:</p>
+<p>For <code>secret=&quot;123456&quot;</code>, the required compatibility examples are:</p>
 <ul>
-<li><code>payload == b&quot;gidget&quot;</code> accepts <code>sha1=6ea124f8bfc2e6f5a0a40687201c351716110bec</code>.</li>
-<li><code>payload == b'{&quot;action&quot;: &quot;opened&quot;}'</code> accepts <code>sha1=13ed44049d52492cab0f3aa22215091d35be4d58</code>.</li>
+<li><code>payload == b&quot;gidget&quot;</code> is accepted with <code>sha1=6ea124f8bfc2e6f5a0a40687201c351716110bec</code>.</li>
+<li><code>payload == b'{&quot;action&quot;: &quot;opened&quot;}'</code> is accepted with <code>sha1=13ed44049d52492cab0f3aa22215091d35be4d58</code>.</li>
 </ul>
-<h4>Import and exception compatibility</h4>
-<p><code>gidgethub</code> and <code>gidgethub.sansio</code> must both be importable. <code>Event</code> and <code>validate</code> must be available from <code>gidgethub.sansio</code>, while <code>ValidationFailure</code> and <code>BadRequest</code> must be available from <code>gidgethub</code>. A caller catching <code>gidgethub.ValidationFailure</code> or <code>gidgethub.BadRequest</code> must catch the corresponding exception raised by <code>gidgethub.sansio</code>.</p>
+<h4>Imports and exception compatibility</h4>
+<p>Both <code>gidgethub</code> and <code>gidgethub.sansio</code> must be importable. <code>Event</code> and <code>validate</code> must be available from <code>gidgethub.sansio</code>, and <code>ValidationFailure</code> and <code>BadRequest</code> must be available from <code>gidgethub</code>. A caller that catches <code>gidgethub.ValidationFailure</code> or <code>gidgethub.BadRequest</code> must catch the matching exception raised by <code>gidgethub.sansio</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Add the public function</span>
-        <span class="spec-meta muted">102 words · source specification
+        <span class="spec-title">Introduce the following public function</span>
+        <span class="spec-meta muted">117 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add the public function:</p>
+      <div class="spec-body"><h4>Change to implement</h4>
+<p>Introduce the following public function:</p>
 <pre><code class="language-python">gidgethub.sansio.create_headers(user_agent, api_version=None, oauth_token=None)
 </code></pre>
-<p><code>user_agent</code> is required. <code>api_version</code> and <code>oauth_token</code> must be accepted as optional keyword arguments.</p>
-<p>The function must return a header mapping with lowercase field names:</p>
+<p>The <code>user_agent</code> parameter is required. The function must accept <code>api_version</code> and <code>oauth_token</code> as optional keyword arguments.</p>
+<p>The function must return a header mapping whose field names are lowercase:</p>
 <ul>
-<li><code>&quot;user-agent&quot;</code> maps to the supplied <code>user_agent</code>.</li>
-<li>When <code>api_version</code> is supplied, <code>&quot;accept&quot;</code> maps to that exact value.</li>
-<li>When <code>oauth_token</code> is supplied, <code>&quot;authorization&quot;</code> maps to <code>&quot;token &quot;</code> followed by the supplied token.</li>
+<li><code>&quot;user-agent&quot;</code> is set to the supplied <code>user_agent</code>.</li>
+<li>When <code>api_version</code> is supplied, <code>&quot;accept&quot;</code> is set to that exact value.</li>
+<li>When <code>oauth_token</code> is supplied, <code>&quot;authorization&quot;</code> is set to <code>&quot;token &quot;</code> followed by the supplied token.</li>
 </ul>
-<p>When both optional arguments are supplied, the returned mapping must contain exactly these three entries:</p>
+<p>When both of the optional arguments are supplied, the mapping that is returned must contain exactly these three entries:</p>
 <pre><code class="language-python">{
     &quot;user-agent&quot;: user_agent,
     &quot;accept&quot;: api_version,
     &quot;authorization&quot;: f&quot;token {oauth_token}&quot;,
 }
 </code></pre>
-<p>All returned header keys must be lowercase.</p>
+<p>All of the returned header keys must be lowercase.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add a new public class named RateLimit to the gidgethub.sansio module.</span>
-        <span class="spec-meta muted">292 words · source specification
+        <span class="spec-title">A new public class called RateLimit is to be added to the gidgethub.sansio module.</span>
+        <span class="spec-meta muted">327 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add a <code>RateLimit</code> class to <code>gidgethub.sansio</code></h3>
-<h4>Overview</h4>
-<p>Add a new public class named <code>RateLimit</code> to the <code>gidgethub.sansio</code> module. This class represents the state of GitHub's API rate limiting, as reported through response headers.</p>
-<h4>API Surface</h4>
-<h5>Class: <code>gidgethub.sansio.RateLimit</code></h5>
+      <div class="spec-body"><h3>Task: Add a <code>RateLimit</code> class to the <code>gidgethub.sansio</code> module</h3>
+<h4>Summary</h4>
+<p>A new public class called <code>RateLimit</code> is to be added to the <code>gidgethub.sansio</code> module. The class models the state of GitHub's API rate limiting, as reported through response headers.</p>
+<h4>Public API</h4>
+<h5>The <code>gidgethub.sansio.RateLimit</code> class</h5>
 <h6>Constructor</h6>
 <pre><code class="language-python">RateLimit(*, limit, left, reset_epoch)
 </code></pre>
-<p>The constructor accepts three keyword arguments:</p>
+<p>Three keyword arguments are accepted by the constructor:</p>
 <ul>
-<li><code>limit</code>: an integer representing the maximum number of requests permitted in the rate-limit window.</li>
-<li><code>left</code>: an integer representing the number of requests remaining in the current window.</li>
-<li><code>reset_epoch</code>: a POSIX timestamp (a float, as produced by <code>datetime.datetime.timestamp()</code>) indicating when the rate-limit window resets.</li>
+<li><code>limit</code>: an integer giving the maximum number of requests permitted within the rate-limit window.</li>
+<li><code>left</code>: an integer giving the number of requests that remain in the current window.</li>
+<li><code>reset_epoch</code>: a POSIX timestamp (a float, as produced by <code>datetime.datetime.timestamp()</code>) telling when the rate-limit window resets.</li>
 </ul>
-<p>The constructed instance must expose the following attributes:</p>
+<p>An instance built by the constructor must expose the following attributes:</p>
 <ul>
-<li><code>limit</code>: the integer value passed as <code>limit</code>.</li>
-<li><code>left</code>: the integer value passed as <code>left</code>.</li>
-<li><code>reset</code>: a timezone-aware <code>datetime.datetime</code> object (in UTC) corresponding to <code>reset_epoch</code>. Converting the given <code>reset_epoch</code> back into a <code>datetime</code> must yield a value equal to the original <code>datetime</code> whose <code>.timestamp()</code> produced that epoch.</li>
+<li><code>limit</code>: the integer value that was passed as <code>limit</code>.</li>
+<li><code>left</code>: the integer value that was passed as <code>left</code>.</li>
+<li><code>reset</code>: a timezone-aware <code>datetime.datetime</code> object in UTC that corresponds to <code>reset_epoch</code>. Converting the provided <code>reset_epoch</code> back into a <code>datetime</code> must yield a value equal to the original <code>datetime</code> whose <code>.timestamp()</code> produced that epoch.</li>
 </ul>
-<h6>Class method: <code>from_http</code></h6>
+<h6>The <code>from_http</code> class method</h6>
 <pre><code class="language-python">@classmethod
 RateLimit.from_http(cls, headers)
 </code></pre>
-<p>Given a mapping of HTTP response headers, construct and return a <code>RateLimit</code> instance. The relevant headers are:</p>
+<p>When handed a mapping of HTTP response headers, the method constructs and returns a <code>RateLimit</code> instance. The headers that matter are:</p>
 <ul>
-<li><code>&quot;X-RateLimit-Limit&quot;</code>: a string containing the integer limit; used to populate <code>limit</code>.</li>
-<li><code>&quot;X-RateLimit-Remaining&quot;</code>: a string containing the integer number of remaining requests; used to populate <code>left</code>.</li>
-<li><code>&quot;X-RateLimit-Reset&quot;</code>: a string containing the reset time as a POSIX timestamp (float); used to populate <code>reset</code>.</li>
+<li><code>&quot;X-RateLimit-Limit&quot;</code>: a string holding the integer limit; it is used to populate <code>limit</code>.</li>
+<li><code>&quot;X-RateLimit-Remaining&quot;</code>: a string holding the integer number of requests that remain; it is used to populate <code>left</code>.</li>
+<li><code>&quot;X-RateLimit-Reset&quot;</code>: a string holding the reset time expressed as a POSIX timestamp (float); it is used to populate <code>reset</code>.</li>
 </ul>
-<p>The resulting instance must have <code>limit</code> and <code>left</code> equal to the integer values parsed from those headers, and <code>reset</code> equal to the timezone-aware UTC <code>datetime</code> corresponding to the parsed reset timestamp.</p>
+<p>In the resulting instance, <code>limit</code> and <code>left</code> must be equal to the integer values parsed out of those headers, and <code>reset</code> must be equal to the timezone-aware UTC <code>datetime</code> corresponding to the parsed reset timestamp.</p>
 <h4>Notes</h4>
 <ul>
-<li>All three constructor arguments are keyword arguments.</li>
-<li>The <code>reset</code> attribute is always a timezone-aware <code>datetime</code> in UTC, regardless of whether the instance was created directly or via <code>from_http</code>.</li>
+<li>The constructor's three arguments are all keyword arguments.</li>
+<li>No matter whether the instance was created directly or via <code>from_http</code>, the <code>reset</code> attribute is always a timezone-aware <code>datetime</code> in UTC.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Modify the create_headers function in the gidgethub.sansio module to rename one of its keyword parameters.</span>
-        <span class="spec-meta muted">238 words · source specification
+        <span class="spec-title">The task is to modify the create_headers function in the gidgethub.sansio module so that one of its keyword parameters is renamed.</span>
+        <span class="spec-meta muted">279 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>create_headers</code> function in the <code>gidgethub.sansio</code> module to rename one of its keyword parameters.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>The task is to modify the <code>create_headers</code> function in the <code>gidgethub.sansio</code> module so that one of its keyword parameters is renamed.</p>
 <h4>Function Signature</h4>
-<p>The function <code>create_headers</code> must be callable with the following signature:</p>
+<p>The function <code>create_headers</code> must be callable using the following signature:</p>
 <pre><code class="language-python">create_headers(requester, *, accept=..., oauth_token=...)
 </code></pre>
-<p>Where:</p>
+<p>Meaning of the parameters:</p>
 <ul>
-<li><code>requester</code> — a positional string argument identifying the user agent making the request.</li>
-<li><code>accept</code> — a keyword-only argument specifying the value to use for the request's <code>accept</code> header. This replaces the previously named <code>api_version</code> keyword argument.</li>
-<li><code>oauth_token</code> — an optional keyword-only argument for supplying an OAuth token.</li>
+<li><code>requester</code> — a positional string argument that identifies the user agent making the request.</li>
+<li><code>accept</code> — a keyword-only argument that gives the value to use for the request's <code>accept</code> header. It takes the place of the keyword argument previously named <code>api_version</code>.</li>
+<li><code>oauth_token</code> — an optional keyword-only argument used to supply an OAuth token.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p><code>create_headers</code> returns a mapping (dict-like) of HTTP header names to their values. The following behaviors must hold:</p>
+<h4>Behavior Requirements</h4>
+<p><code>create_headers</code> returns a mapping (dict-like) that pairs HTTP header names with their values. The behaviors listed below must hold:</p>
 <ol>
 <li>
-<p><strong>User agent header</strong>: The returned mapping must contain a <code>&quot;user-agent&quot;</code> key whose value equals the <code>requester</code> argument passed in.</p>
+<p><strong>User agent header</strong>: The mapping that is returned must contain a <code>&quot;user-agent&quot;</code> key, and the value of this key must equal the <code>requester</code> argument that was passed in.</p>
 </li>
 <li>
-<p><strong>Accept header via <code>accept</code> keyword</strong>: When the <code>accept</code> keyword argument is supplied, the returned mapping must contain an <code>&quot;accept&quot;</code> key whose value equals exactly the string passed as <code>accept</code>. For example, calling with <code>accept=&quot;application/vnd.github.cloak-preview+json&quot;</code> must produce a mapping where <code>headers[&quot;accept&quot;] == &quot;application/vnd.github.cloak-preview+json&quot;</code>.</p>
+<p><strong>Accept header through the <code>accept</code> keyword</strong>: If the <code>accept</code> keyword argument is supplied, the returned mapping must contain an <code>&quot;accept&quot;</code> key, and the value of this key must equal exactly the string provided as <code>accept</code>. As an illustration, a call made with <code>accept=&quot;application/vnd.github.cloak-preview+json&quot;</code> must produce a mapping in which <code>headers[&quot;accept&quot;] == &quot;application/vnd.github.cloak-preview+json&quot;</code>.</p>
 </li>
 <li>
-<p><strong>OAuth token handling</strong>: When <code>oauth_token</code> is supplied together with <code>accept</code> and <code>requester</code>, the returned mapping must contain exactly three entries. Every key in the returned mapping must be lowercase (i.e., each key equals its own lowercased form).</p>
+<p><strong>Handling of the OAuth token</strong>: If <code>oauth_token</code> is supplied alongside <code>accept</code> and <code>requester</code>, the returned mapping must contain exactly three entries. Every key present in the returned mapping must be lowercase (that is, each key equals its own lowercased form).</p>
 </li>
 </ol>
 <h4>Constraints</h4>
 <ul>
-<li>The keyword argument that controls the <code>accept</code> header value must be named <code>accept</code>. The name <code>api_version</code> must no longer be accepted for this purpose.</li>
+<li>The keyword argument that determines the value of the <code>accept</code> header must be named <code>accept</code>. The name <code>api_version</code> must no longer be accepted in this role.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Implement a new function accept_format() in the module gidgethub.sansio.</span>
-        <span class="spec-meta muted">241 words · source specification
+        <span class="spec-title">Implement a new function, accept_format(), in the module gidgethub.sansio.</span>
+        <span class="spec-meta muted">277 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a new function <code>accept_format()</code> in the module <code>gidgethub.sansio</code>.</p>
-<h4>Function Signature</h4>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Implement a new function, <code>accept_format()</code>, in the module <code>gidgethub.sansio</code>.</p>
+<h4>Signature of the Function</h4>
 <pre><code class="language-python">def accept_format(*, version=&quot;v3&quot;, media=None, json=True) -&gt; str:
 </code></pre>
-<p>All parameters are keyword-only (or at minimum must be callable by keyword as shown).</p>
-<h4>Behavior</h4>
-<p>The function constructs and returns a GitHub <code>Accept</code> header media-type string based on the provided parameters.</p>
-<p>The returned string is built from the following components:</p>
+<p>All parameters are keyword-only (or at minimum they must be callable by keyword as shown).</p>
+<h4>Behavior of the Function</h4>
+<p>Based on the parameters that are provided, the function constructs and returns a media-type string for the GitHub <code>Accept</code> header.</p>
+<p>The returned string is assembled from the following components:</p>
 <ol>
-<li>A fixed prefix: <code>application/vnd.github</code></li>
-<li>A version segment, prefixed with a <code>.</code> (dot).</li>
-<li>An optional media segment, prefixed with a <code>.</code> (dot), included only when <code>media</code> is provided (not <code>None</code>).</li>
-<li>An optional <code>+json</code> suffix, included only when <code>json</code> is <code>True</code>.</li>
+<li>A fixed prefix, <code>application/vnd.github</code></li>
+<li>A version segment, with a <code>.</code> (dot) before it.</li>
+<li>An optional media segment, with a <code>.</code> (dot) before it, included only when <code>media</code> is provided (not <code>None</code>).</li>
+<li>An optional <code>+json</code> suffix, which is included only when <code>json</code> is <code>True</code>.</li>
 </ol>
-<h5>Parameters</h5>
+<h5>Parameter Details</h5>
 <ul>
-<li><code>version</code> (default <code>&quot;v3&quot;</code>): The API version string. It is appended after the prefix separated by a dot.</li>
-<li><code>media</code> (default <code>None</code>): An optional media type string (e.g. <code>&quot;raw&quot;</code>). When provided, it is appended after the version, separated by a dot. When <code>None</code>, no media segment is added.</li>
-<li><code>json</code> (default <code>True</code>): When <code>True</code>, the suffix <code>+json</code> is appended to the end of the string. When <code>False</code>, no such suffix is added.</li>
+<li><code>version</code> (default <code>&quot;v3&quot;</code>): The API version string. It is appended after the prefix, with a dot as the separator.</li>
+<li><code>media</code> (default <code>None</code>): An optional media type string (e.g. <code>&quot;raw&quot;</code>). When it is provided, it is appended after the version, with a dot in between. When it is <code>None</code>, no media segment is added.</li>
+<li><code>json</code> (default <code>True</code>): When its value is <code>True</code>, the suffix <code>+json</code> is appended to the end of the string. When its value is <code>False</code>, no such suffix is added.</li>
 </ul>
-<h5>Construction Rule</h5>
-<p>The result is formed as:</p>
+<h5>How the Result Is Constructed</h5>
+<p>The result takes the following form:</p>
 <pre><code>application/vnd.github.&lt;version&gt;[.&lt;media&gt;][+json]
 </code></pre>
-<p>where <code>[.&lt;media&gt;]</code> appears only if <code>media</code> is not <code>None</code>, and <code>[+json]</code> appears only if <code>json</code> is <code>True</code>.</p>
-<h4>Examples</h4>
+<p>in which <code>[.&lt;media&gt;]</code> appears only if <code>media</code> is not <code>None</code>, and <code>[+json]</code> appears only if <code>json</code> is <code>True</code>.</p>
+<h4>Example Calls</h4>
 <table>
 <thead>
 <tr>
@@ -604,82 +609,82 @@ RateLimit.from_http(cls, headers)
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">RateLimit Class in gidgethub.sansio</span>
-        <span class="spec-meta muted">264 words · source specification
+        <span class="spec-title">the RateLimit class in gidgethub.sansio</span>
+        <span class="spec-meta muted">284 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: <code>RateLimit</code> Class in <code>gidgethub.sansio</code></h3>
-<h4>Overview</h4>
-<p>Implement a <code>RateLimit</code> class in the <code>gidgethub.sansio</code> module that models GitHub API rate limit information.</p>
+      <div class="spec-body"><h3>Task Specification: the <code>RateLimit</code> class in <code>gidgethub.sansio</code></h3>
+<h4>Summary</h4>
+<p>Create a <code>RateLimit</code> class in the <code>gidgethub.sansio</code> module that represents GitHub API rate limit information.</p>
 <h4>Public API</h4>
 <h5>Class: <code>gidgethub.sansio.RateLimit</code></h5>
 <h6>Constructor</h6>
 <pre><code class="language-python">RateLimit(*, left, rate, reset_epoch)
 </code></pre>
-<p>The constructor accepts three keyword arguments:</p>
+<p>Three keyword arguments are accepted by the constructor:</p>
 <ul>
-<li><code>left</code>: an integer representing the number of requests remaining.</li>
-<li><code>rate</code>: an integer representing the total rate limit (the maximum number of requests allowed).</li>
-<li><code>reset_epoch</code>: a POSIX timestamp (float, seconds since the epoch, in UTC) at which the rate limit resets.</li>
+<li><code>left</code>: an integer giving the number of requests remaining.</li>
+<li><code>rate</code>: an integer giving the total rate limit (the maximum number of requests allowed).</li>
+<li><code>reset_epoch</code>: a POSIX timestamp (float, seconds since the epoch, in UTC) giving the moment at which the rate limit resets.</li>
 </ul>
 <h6>Attributes</h6>
-<p>After construction, an instance must expose the following attributes:</p>
+<p>Once an instance has been constructed, it must expose the following attributes:</p>
 <ul>
-<li><code>left</code>: equal to the <code>left</code> value passed to the constructor.</li>
-<li><code>rate</code>: equal to the <code>rate</code> value passed to the constructor.</li>
-<li><code>reset_datetime</code>: a timezone-aware <code>datetime.datetime</code> in UTC, derived from <code>reset_epoch</code>. It must equal the <code>datetime.datetime</code> that produced <code>reset_epoch</code> (i.e., constructing it via <code>datetime.datetime.fromtimestamp(reset_epoch, datetime.timezone.utc)</code> yields a value equal to the original UTC datetime whose <code>.timestamp()</code> was <code>reset_epoch</code>).</li>
+<li><code>left</code>: equal to the <code>left</code> value supplied to the constructor.</li>
+<li><code>rate</code>: equal to the <code>rate</code> value supplied to the constructor.</li>
+<li><code>reset_datetime</code>: a timezone-aware <code>datetime.datetime</code> in UTC that is derived from <code>reset_epoch</code>. It must equal the <code>datetime.datetime</code> from which <code>reset_epoch</code> was produced (i.e., creating it via <code>datetime.datetime.fromtimestamp(reset_epoch, datetime.timezone.utc)</code> yields a value equal to the original UTC datetime whose <code>.timestamp()</code> was <code>reset_epoch</code>).</li>
 </ul>
 <h6>Class Method: <code>from_http</code></h6>
 <pre><code class="language-python">@classmethod
 def from_http(cls, headers) -&gt; &quot;RateLimit&quot;
 </code></pre>
-<p>Constructs a <code>RateLimit</code> instance from an HTTP response headers mapping. The relevant headers are:</p>
+<p>Builds a <code>RateLimit</code> instance from a mapping of HTTP response headers. The relevant headers are:</p>
 <ul>
-<li><code>&quot;X-RateLimit-Limit&quot;</code>: string form of an integer → used as <code>rate</code>.</li>
-<li><code>&quot;X-RateLimit-Remaining&quot;</code>: string form of an integer → used as <code>left</code>.</li>
-<li><code>&quot;X-RateLimit-Reset&quot;</code>: string form of a POSIX timestamp (float) → used as <code>reset_epoch</code>.</li>
+<li><code>&quot;X-RateLimit-Limit&quot;</code>: an integer in string form → used as <code>rate</code>.</li>
+<li><code>&quot;X-RateLimit-Remaining&quot;</code>: an integer in string form → used as <code>left</code>.</li>
+<li><code>&quot;X-RateLimit-Reset&quot;</code>: a POSIX timestamp (float) in string form → used as <code>reset_epoch</code>.</li>
 </ul>
-<p>The header values are strings and must be parsed into the appropriate numeric types. The returned instance's attributes must reflect these parsed values consistently with the constructor behavior described above (<code>rate</code>, <code>left</code>, and <code>reset_datetime</code> corresponding to a UTC datetime whose timestamp matches the parsed reset value).</p>
+<p>Since the header values are strings, they must be parsed into the appropriate numeric types. The attributes of the returned instance must reflect these parsed values in a way consistent with the constructor behavior described above (<code>rate</code>, <code>left</code>, and <code>reset_datetime</code> corresponding to a UTC datetime whose timestamp matches the parsed reset value).</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Provide a function named validate_event in gidgethub.sansio that verifies a webhook payload against a shared secret and supplied signature.</span>
-        <span class="spec-meta muted">387 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Add to gidgethub.sansio a function named validate_event that verifies a webhook payload against a shared secret and a supplied signature.</span>
+        <span class="spec-meta muted">422 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Provide a function named <code>validate_event</code> in <code>gidgethub.sansio</code> that verifies a webhook payload against a shared secret and supplied signature.</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Add to <code>gidgethub.sansio</code> a function named <code>validate_event</code> that verifies a webhook payload against a shared secret and a supplied signature.</p>
 <h4>Public API</h4>
-<p>Module: <code>gidgethub.sansio</code></p>
+<p>The module is <code>gidgethub.sansio</code>.</p>
 <pre><code class="language-python">def validate_event(payload, *, secret, signature):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>payload</code>: the raw payload bytes to validate. The payload must be used exactly as supplied, without decoding or other transformation.</li>
-<li><code>secret</code> (keyword-only): the shared secret string.</li>
-<li><code>signature</code> (keyword-only): the signature string, expected in the form <code>&quot;sha1=&lt;hex digest&gt;&quot;</code>.</li>
+<li><code>payload</code>: the raw payload bytes that are to be validated. The payload must be used exactly as it is supplied, without decoding or other transformation.</li>
+<li><code>secret</code> (keyword-only): the string holding the shared secret.</li>
+<li><code>signature</code> (keyword-only): the signature string, which is expected to have the form <code>&quot;sha1=&lt;hex digest&gt;&quot;</code>.</li>
 </ul>
-<p>The function returns <code>None</code> when validation succeeds.</p>
-<h4>Signature Calculation</h4>
-<p>The expected digest is the lowercase hexadecimal SHA-1 digest of the UTF-8 encoded secret directly followed by the raw payload bytes:</p>
+<p>When validation succeeds, the function returns <code>None</code>.</p>
+<h4>Computing the Signature</h4>
+<p>The expected digest is obtained by taking the lowercase hexadecimal SHA-1 digest of the UTF-8 encoded secret directly followed by the raw payload bytes:</p>
 <pre><code class="language-python">hashlib.sha1(secret.encode(&quot;utf-8&quot;) + payload).hexdigest()
 </code></pre>
-<p>The complete expected signature is <code>&quot;sha1=&quot;</code> followed by that digest. This compatibility algorithm is plain SHA-1 over the concatenated secret and payload; it is <strong>not</strong> HMAC-SHA-1.</p>
-<p>Validation compares the supplied signature with the complete expected signature. Consequently, the prefix and digest must match exactly, including case.</p>
+<p>The complete expected signature is made up of <code>&quot;sha1=&quot;</code> followed by that digest. The compatibility algorithm used here is plain SHA-1 over the concatenated secret and payload; it is <strong>not</strong> HMAC-SHA-1.</p>
+<p>During validation, the supplied signature is compared with the complete expected signature. As a consequence, the prefix and the digest must match exactly, including case.</p>
 <h4>Behavior</h4>
 <ul>
-<li>If <code>signature</code> starts with the exact prefix <code>&quot;sha1=&quot;</code> and exactly matches the calculated signature, validation succeeds and the function returns <code>None</code>.</li>
-<li>If <code>signature</code> does not start with <code>&quot;sha1=&quot;</code>, the function raises <code>gidgethub.ValidationFailure</code>.</li>
-<li>If the prefix is present but the digest is absent, malformed, or does not match the digest calculated from the given secret and payload, the function raises <code>gidgethub.ValidationFailure</code>. This includes signatures that cease to match because the payload or secret was changed.</li>
+<li>When <code>signature</code> starts with the exact prefix <code>&quot;sha1=&quot;</code> and exactly matches the calculated signature, validation succeeds and the function returns <code>None</code>.</li>
+<li>If <code>signature</code> does not begin with <code>&quot;sha1=&quot;</code>, the function raises <code>gidgethub.ValidationFailure</code>.</li>
+<li>If the prefix is present but the digest is missing, malformed, or does not match the digest calculated from the given secret and payload, the function raises <code>gidgethub.ValidationFailure</code>. This also covers signatures that cease to match because the payload or secret was changed.</li>
 </ul>
-<p>No particular exception message is required. <code>ValidationFailure</code> remains available from the top-level package:</p>
+<p>There is no requirement for a particular exception message. <code>ValidationFailure</code> is still available from the top-level package:</p>
 <pre><code class="language-python">from gidgethub import ValidationFailure
 </code></pre>
-<h4>Compatibility Example</h4>
-<p>The following call must succeed:</p>
+<h4>Example for Compatibility</h4>
+<p>The call shown below must succeed:</p>
 <pre><code class="language-python">from gidgethub.sansio import validate_event
 
 validate_event(
@@ -688,38 +693,38 @@ validate_event(
     signature=&quot;sha1=6ea124f8bfc2e6f5a0a40687201c351716110bec&quot;,
 )
 </code></pre>
-<p>For the same secret and signature, changing the payload to <code>b&quot;gidget!&quot;</code> must raise <code>ValidationFailure</code>. Passing the digest without the <code>&quot;sha1=&quot;</code> prefix must also raise <code>ValidationFailure</code>.</p>
-<h4>Naming and Integration Compatibility</h4>
+<p>With the secret and signature kept the same, changing the payload to <code>b&quot;gidget!&quot;</code> must raise <code>ValidationFailure</code>. Supplying the digest without the <code>&quot;sha1=&quot;</code> prefix must likewise raise <code>ValidationFailure</code>.</p>
+<h4>Compatibility of Naming and Integration</h4>
 <ul>
 <li>The validation behavior previously exposed as <code>gidgethub.sansio.validate</code> must now be available under the name <code>gidgethub.sansio.validate_event</code>.</li>
-<li>Only <code>validate_event</code> is required as the public name for this behavior; retaining <code>validate</code> as an additional alias is permitted but not required.</li>
-<li>Existing signed-webhook flows in <code>gidgethub.sansio</code>, including <code>Event.from_http</code>, must continue to function after the validator is exposed under its new name and must retain their existing observable behavior.</li>
-<li>No other public behavior in <code>gidgethub.sansio</code> is changed by this task.</li>
+<li><code>validate_event</code> is the only public name required for this behavior; retaining <code>validate</code> as an additional alias is permitted but not required.</li>
+<li>After the validator is exposed under its new name, the existing signed-webhook flows in <code>gidgethub.sansio</code>, including <code>Event.from_http</code>, must continue to function and must retain their existing observable behavior.</li>
+<li>This task changes no other public behavior in <code>gidgethub.sansio</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Expose HTTPException from the package root</span>
-        <span class="spec-meta muted">104 words · source specification
+        <span class="spec-title">HTTPException must be exposed from the package root</span>
+        <span class="spec-meta muted">116 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Expose <code>HTTPException</code> from the package root:</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p><code>HTTPException</code> must be exposed from the package root:</p>
 <pre><code class="language-python">from gidgethub import HTTPException
 </code></pre>
-<h5>Public API</h5>
+<h5>Public interface</h5>
 <pre><code class="language-python">HTTPException(status_code, message=None)
 </code></pre>
-<p>Both arguments must be accepted positionally.</p>
-<h5>Required behavior</h5>
+<p>Both arguments must be accepted when passed positionally.</p>
+<h5>Behavior that is required</h5>
 <ul>
 <li>
-<p>The constructed object must expose the supplied status code through a <code>status_code</code> attribute.</p>
+<p>The object, once constructed, must expose the supplied status code through a <code>status_code</code> attribute.</p>
 </li>
 <li>
-<p>If only a status code is provided:</p>
+<p>If only a status code is supplied:</p>
 <pre><code class="language-python">exc = HTTPException(400)
 </code></pre>
 <p>then:</p>
@@ -729,7 +734,7 @@ validate_event(
 </ul>
 </li>
 <li>
-<p>If a message is provided:</p>
+<p>If a message is supplied:</p>
 <pre><code class="language-python">exc = HTTPException(400, &quot;a better message&quot;)
 </code></pre>
 <p>then:</p>
@@ -739,42 +744,42 @@ validate_event(
 </ul>
 </li>
 </ul>
-<p>The explicit message replaces the status code as the exception’s string representation.</p>
+<p>The explicit message takes the place of the status code as the exception’s string representation.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Expose the following exception classes from the top-level gidgethub package</span>
-        <span class="spec-meta muted">112 words · source specification
+        <span class="spec-title">The following exception classes must be exposed from the top-level gidgethub package</span>
+        <span class="spec-meta muted">138 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change</h3>
-<p>Expose the following exception classes from the top-level <code>gidgethub</code> package:</p>
+      <div class="spec-body"><h3>Required modification</h3>
+<p>The following exception classes must be exposed from the top-level <code>gidgethub</code> package:</p>
 <pre><code class="language-python">from gidgethub import HTTPException, GitHubBroken
 </code></pre>
 <h4><code>HTTPException</code></h4>
-<p>Constructor:</p>
+<p>The constructor:</p>
 <pre><code class="language-python">HTTPException(status_code, message=None)
 </code></pre>
-<p>Required behavior:</p>
+<p>The required behavior:</p>
 <ul>
 <li>
-<p><code>status_code</code> accepts an <code>http.HTTPStatus</code> member and is available unchanged through the exception’s <code>status_code</code> attribute.</p>
+<p><code>status_code</code> accepts an <code>http.HTTPStatus</code> member, and that member is available unchanged through the exception’s <code>status_code</code> attribute.</p>
 </li>
 <li>
-<p>When created as:</p>
+<p>When an exception is created as:</p>
 <pre><code class="language-python">HTTPException(http.HTTPStatus.BAD_REQUEST)
 </code></pre>
-<p>converting the exception to a string must return:</p>
+<p>converting that exception to a string must return:</p>
 <pre><code class="language-text">Bad Request
 </code></pre>
 </li>
 <li>
-<p>A positional custom message overrides the default status-derived text. For example:</p>
+<p>Supplying a custom message as a positional argument overrides the default text derived from the status. As an example:</p>
 <pre><code class="language-python">HTTPException(http.HTTPStatus.BAD_REQUEST, &quot;a better message&quot;)
 </code></pre>
-<p>must have:</p>
+<p>the exception must have:</p>
 <ul>
 <li><code>status_code == http.HTTPStatus.BAD_REQUEST</code></li>
 <li><code>str(exception) == &quot;a better message&quot;</code></li>
@@ -782,105 +787,106 @@ validate_event(
 </li>
 </ul>
 <h4><code>GitHubBroken</code></h4>
-<p>Constructor usage:</p>
+<p>Usage of the constructor:</p>
 <pre><code class="language-python">GitHubBroken(status_code)
 </code></pre>
-<p>When created with:</p>
+<p>When an exception is created with:</p>
 <pre><code class="language-python">GitHubBroken(http.HTTPStatus.BAD_GATEWAY)
 </code></pre>
-<p>its <code>status_code</code> attribute must equal <code>http.HTTPStatus.BAD_GATEWAY</code>.</p>
+<p>its <code>status_code</code> attribute must be equal to <code>http.HTTPStatus.BAD_GATEWAY</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">You must implement a function that interprets HTTP responses from the GitHub API, and add a supporting exception class.</span>
-        <span class="spec-meta muted">270 words · source specification
+        <span class="spec-title">You must implement a function that interprets HTTP responses coming from the GitHub API, and add an exception class to support it.</span>
+        <span class="spec-meta muted">309 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>You must implement a function that interprets HTTP responses from the GitHub API, and add a supporting exception class. This work spans two modules in the <code>gidgethub</code> package.</p>
-<h5>Required: Exception class <code>GitHubBroken</code></h5>
-<p>In the <code>gidgethub</code> package's top-level module (<code>gidgethub/__init__.py</code>), there must be an exception class named <code>GitHubBroken</code>. It must be importable as:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>You must implement a function that interprets HTTP responses coming from the GitHub API, and add an exception class to support it. This work covers two modules within the <code>gidgethub</code> package.</p>
+<h5>Required: The exception class <code>GitHubBroken</code></h5>
+<p>The top-level module of the <code>gidgethub</code> package (<code>gidgethub/__init__.py</code>) must contain an exception class called <code>GitHubBroken</code>. It must be possible to import it as follows:</p>
 <pre><code class="language-python">from gidgethub import GitHubBroken
 </code></pre>
-<p>Requirements for <code>GitHubBroken</code>:</p>
+<p>The following requirements apply to <code>GitHubBroken</code>:</p>
 <ul>
-<li>It is an exception (raisable and catchable via <code>pytest.raises</code> / <code>except</code>).</li>
-<li>Instances must expose an attribute <code>status_code</code> that holds the HTTP status code associated with the error.</li>
-<li>The status code must be settable at construction time such that after raising an instance, <code>instance.status_code</code> returns the code that was provided.</li>
+<li>It is an exception (it can be raised and caught using <code>pytest.raises</code> / <code>except</code>).</li>
+<li>Instances must expose a <code>status_code</code> attribute that holds the HTTP status code tied to the error.</li>
+<li>The status code must be settable at construction time, so that once an instance is raised, <code>instance.status_code</code> returns the code that was supplied.</li>
 </ul>
-<p>The existing exceptions <code>BadRequest</code> and <code>ValidationFailure</code> already exist in this module and must remain importable; do not remove or break them.</p>
-<h5>Required: Function <code>decipher_response</code></h5>
-<p>In the module <code>gidgethub/sansio.py</code>, implement a function:</p>
+<p>The exceptions <code>BadRequest</code> and <code>ValidationFailure</code> already exist in this module; they must stay importable, and do not remove or break either of them.</p>
+<h5>Required: The <code>decipher_response</code> function</h5>
+<p>Implement a function inside the module <code>gidgethub/sansio.py</code>:</p>
 <pre><code class="language-python">def decipher_response(status_code, headers, body):
     ...
 </code></pre>
 <p>Parameters:</p>
 <ul>
-<li><code>status_code</code>: an integer HTTP status code.</li>
-<li><code>headers</code>: a mapping of HTTP response headers.</li>
-<li><code>body</code>: the raw response body as <code>bytes</code>.</li>
+<li><code>status_code</code>: an HTTP status code given as an integer.</li>
+<li><code>headers</code>: HTTP response headers as a mapping.</li>
+<li><code>body</code>: the raw response body, passed as <code>bytes</code>.</li>
 </ul>
 <p>Behavior:</p>
 <ul>
-<li>When <code>status_code</code> is greater than or equal to 500 (a server error), the function must raise <code>GitHubBroken</code> (the same class described above, from the <code>gidgethub</code> package). The raised exception's <code>status_code</code> attribute must equal the <code>status_code</code> value passed to the function.</li>
+<li>Whenever <code>status_code</code> is greater than or equal to 500 (a server error), the function must raise <code>GitHubBroken</code> (the same class described above, which comes from the <code>gidgethub</code> package). The <code>status_code</code> attribute of the raised exception must equal the <code>status_code</code> value that was passed to the function.</li>
 </ul>
-<p>Only this behavior is required. For example, calling the function with a status code of 502 and empty headers/body must raise <code>GitHubBroken</code> whose <code>status_code</code> attribute is <code>502</code>.</p>
-<p>No behavior is specified for status codes below 500; you need not implement or guarantee anything for those cases.</p>
+<p>This is the only behavior that is required. As an example, if the function is called with a status code of 502 and empty headers/body, it must raise <code>GitHubBroken</code> whose <code>status_code</code> attribute is <code>502</code>.</p>
+<p>For status codes below 500, no behavior is specified; there is no need for you to implement or guarantee anything for those cases.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">The gidgethub package root must export these exception classes</span>
-        <span class="spec-meta muted">126 words · source specification
+        <span class="spec-title">These exception classes must be exported from the gidgethub package root</span>
+        <span class="spec-meta muted">146 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>The <code>gidgethub</code> package root must export these exception classes:</p>
+      <div class="spec-body"><h4>Public API requirements</h4>
+<p>These exception classes must be exported from the <code>gidgethub</code> package root:</p>
 <h5><code>gidgethub.BadRequest</code></h5>
 <ul>
-<li>Must be constructible as <code>BadRequest(status_code)</code>.</li>
-<li>The resulting instance must expose <code>status_code</code> equal to the supplied value.</li>
-<li>For <code>http.HTTPStatus.BAD_REQUEST</code>, <code>status_code</code> must equal <code>http.HTTPStatus.BAD_REQUEST</code>.</li>
+<li>Construction as <code>BadRequest(status_code)</code> must be supported.</li>
+<li>The instance that results must expose <code>status_code</code> equal to the value provided.</li>
+<li>In the case of <code>http.HTTPStatus.BAD_REQUEST</code>, <code>status_code</code> must equal <code>http.HTTPStatus.BAD_REQUEST</code>.</li>
 </ul>
 <h5><code>gidgethub.InvalidField</code></h5>
 <ul>
 <li>
-<p>Must be constructible as <code>InvalidField(errors, message)</code>, with both arguments accepted positionally.</p>
+<p>Construction as <code>InvalidField(errors, message)</code> must be supported, with both arguments accepted positionally.</p>
 </li>
 <li>
-<p>The resulting instance must expose:</p>
+<p>The instance that results must expose:</p>
 <ul>
-<li><code>errors</code>, equal to the supplied errors collection.</li>
-<li><code>status_code</code>, always equal to <code>http.HTTPStatus.UNPROCESSABLE_ENTITY</code>.</li>
+<li><code>errors</code>, equal to the collection of errors that was provided.</li>
+<li><code>status_code</code>, which is always equal to <code>http.HTTPStatus.UNPROCESSABLE_ENTITY</code>.</li>
 </ul>
 </li>
 <li>
-<p>This must work for an errors value such as:</p>
+<p>This must work with an errors value such as:</p>
 <pre><code class="language-python">[{&quot;resource&quot;: &quot;Issue&quot;, &quot;field&quot;: &quot;title&quot;, &quot;code&quot;: &quot;missing_field&quot;}]
 </code></pre>
-<p>and a message such as <code>&quot;Validation Failed&quot;</code>.</p>
+<p>together with a message such as <code>&quot;Validation Failed&quot;</code>.</p>
 </li>
 </ul>
 <h5><code>gidgethub.RedirectionException</code></h5>
 <ul>
-<li>Must be constructible as <code>RedirectionException(status_code)</code>.</li>
-<li>The resulting instance must expose <code>status_code</code> equal to the supplied value.</li>
-<li>For <code>http.HTTPStatus.MOVED_PERMANENTLY</code>, <code>status_code</code> must equal <code>http.HTTPStatus.MOVED_PERMANENTLY</code>.</li>
+<li>Construction as <code>RedirectionException(status_code)</code> must be supported.</li>
+<li>The instance that results must expose <code>status_code</code> equal to the value provided.</li>
+<li>In the case of <code>http.HTTPStatus.MOVED_PERMANENTLY</code>, <code>status_code</code> must equal <code>http.HTTPStatus.MOVED_PERMANENTLY</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">The gidgethub package must publicly export these exception classes</span>
-        <span class="spec-meta muted">173 words · source specification
+        <span class="spec-title">These exception classes must be publicly exported by the gidgethub package</span>
+        <span class="spec-meta muted">192 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required public API</h4>
-<p>The <code>gidgethub</code> package must publicly export these exception classes:</p>
+      <div class="spec-body"><h4>Mandatory public API</h4>
+<p>These exception classes must be publicly exported by the <code>gidgethub</code> package:</p>
 <ul>
 <li><code>gidgethub.HTTPException</code></li>
 <li><code>gidgethub.RedirectionException</code></li>
@@ -888,12 +894,12 @@ validate_event(
 <li><code>gidgethub.GitHubBroken</code></li>
 <li><code>gidgethub.ValidationFailure</code></li>
 </ul>
-<p>The module <code>gidgethub.sansio</code> must expose:</p>
+<p>The following must be exposed by the module <code>gidgethub.sansio</code>:</p>
 <pre><code class="language-python">decipher_response(status_code, headers, body)
 </code></pre>
-<p>where <code>status_code</code> is an integer HTTP status, <code>headers</code> is a header mapping, and <code>body</code> is bytes.</p>
-<h4>Required behavior</h4>
-<p>For the following responses, <code>decipher_response()</code> must raise the specified exception. Every raised exception must expose a <code>.status_code</code> attribute that compares equal to the corresponding <code>http.HTTPStatus</code> value.</p>
+<p>In this signature, the <code>status_code</code> argument is an integer HTTP status, the <code>headers</code> argument is a header mapping, and the <code>body</code> argument is bytes.</p>
+<h4>Mandatory behavior</h4>
+<p>For the responses listed below, <code>decipher_response()</code> must raise the indicated exception. Every exception that is raised must expose a <code>.status_code</code> attribute that compares equal to the corresponding <code>http.HTTPStatus</code> value.</p>
 <table>
 <thead>
 <tr>
@@ -935,92 +941,93 @@ validate_event(
 </tr>
 </tbody>
 </table>
-<p>For a <code>400</code> response with:</p>
+<p>Given a <code>400</code> response with:</p>
 <pre><code class="language-python">headers = {&quot;content-type&quot;: &quot;application/json; charset=utf-8&quot;}
 body = json.dumps({&quot;message&quot;: &quot;it went bad&quot;}).encode(&quot;UTF-8&quot;)
 </code></pre>
-<p><code>decipher_response()</code> must raise <code>BadRequest</code>, with:</p>
+<p><code>decipher_response()</code> must raise <code>BadRequest</code>, where:</p>
 <ul>
-<li><code>.status_code</code> equal to <code>http.HTTPStatus.BAD_REQUEST</code></li>
-<li><code>str(exception)</code> exactly equal to <code>&quot;it went bad&quot;</code></li>
+<li><code>.status_code</code> is equal to <code>http.HTTPStatus.BAD_REQUEST</code></li>
+<li><code>str(exception)</code> is exactly equal to <code>&quot;it went bad&quot;</code></li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Add support for handling HTTP 422 (&#34;Unprocessable Entity&#34;) responses in the gidgethub library, introducing a new exception type for GitHub validation errors…</span>
-        <span class="spec-meta muted">343 words · source specification
+        <span class="spec-title">Extend the gidgethub library to handle HTTP 422 (&#34;Unprocessable Entity&#34;) responses, adding a new exception type for GitHub validation errors that report…</span>
+        <span class="spec-meta muted">368 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Add support for handling HTTP 422 (&quot;Unprocessable Entity&quot;) responses in the <code>gidgethub</code> library, introducing a new exception type for GitHub validation errors that report invalid fields.</p>
-<h4>Required Public API</h4>
-<h5>New Exception Class: <code>InvalidField</code></h5>
-<p>Add a new exception class named <code>InvalidField</code> that must be importable directly from the <code>gidgethub</code> package (i.e. <code>from gidgethub import InvalidField</code>).</p>
+      <div class="spec-body"><h3>Specification for the Task</h3>
+<h4>Summary</h4>
+<p>Extend the <code>gidgethub</code> library to handle HTTP 422 (&quot;Unprocessable Entity&quot;) responses, adding a new exception type for GitHub validation errors that report invalid fields.</p>
+<h4>Public API Requirements</h4>
+<h5>The New Exception Class <code>InvalidField</code></h5>
+<p>A new exception class called <code>InvalidField</code> must be added, and it must be possible to import it directly from the <code>gidgethub</code> package (i.e. <code>from gidgethub import InvalidField</code>).</p>
 <ul>
 <li>
-<p>It must be a subclass of the existing <code>ValidationFailure</code> exception (so that it also remains a subclass of whatever <code>ValidationFailure</code> currently derives from, e.g. <code>HTTPException</code>).</p>
+<p>It must be a subclass of the existing <code>ValidationFailure</code> exception (so it is also a subclass of whatever <code>ValidationFailure</code> currently derives from, e.g. <code>HTTPException</code>).</p>
 </li>
 <li>
 <p>Instances must have a <code>status_code</code> attribute.</p>
 </li>
 <li>
-<p>The constructor signature must be:</p>
+<p>The constructor must have the signature:</p>
 <pre><code class="language-python">InvalidField(errors, *args)
 </code></pre>
-<p>where:</p>
+<p>in which:</p>
 <ul>
-<li><code>errors</code> is a list of error detail dictionaries (each dictionary contains keys such as <code>&quot;resource&quot;</code>, <code>&quot;field&quot;</code>, and <code>&quot;code&quot;</code>).</li>
-<li><code>*args</code> are passed through in the same way the parent exception classes accept positional message arguments.</li>
+<li><code>errors</code> is a list of error detail dictionaries (each dictionary has keys such as <code>&quot;resource&quot;</code>, <code>&quot;field&quot;</code>, and <code>&quot;code&quot;</code>).</li>
+<li><code>*args</code> are forwarded in the same way the parent exception classes accept positional message arguments.</li>
 </ul>
 </li>
 <li>
-<p>The exception's string representation (<code>str(exception_instance)</code>) must combine the base message with the field name(s) drawn from <code>errors</code>. Specifically, when the base message is <code>&quot;it went bad&quot;</code> and <code>errors</code> contains a single entry whose <code>&quot;field&quot;</code> value is <code>&quot;title&quot;</code>, the string representation must be exactly:</p>
+<p>The string representation of the exception (<code>str(exception_instance)</code>) must merge the base message with the field name(s) drawn from <code>errors</code>. In particular, when the base message is <code>&quot;it went bad&quot;</code> and <code>errors</code> holds a single entry whose <code>&quot;field&quot;</code> value is <code>&quot;title&quot;</code>, the string representation must be exactly:</p>
 <pre><code>it went bad for 'title'
 </code></pre>
-<p>The field name is taken from the <code>&quot;field&quot;</code> key of the error entry, wrapped in single quotes.</p>
+<p>The field name is pulled from the <code>&quot;field&quot;</code> key of the error entry, wrapped in single quotes.</p>
 </li>
 </ul>
-<h4>Required Behavior Change</h4>
-<h5><code>gidgethub.sansio.decipher_response</code></h5>
-<p>The existing function <code>decipher_response(status_code, headers, body)</code> must be extended to handle a status code of <code>422</code>.</p>
-<p>When the response has status code <code>422</code>:</p>
+<h4>Required Change in Behavior</h4>
+<h5>The <code>gidgethub.sansio.decipher_response</code> Function</h5>
+<p>The existing function <code>decipher_response(status_code, headers, body)</code> must be extended so that a status code of <code>422</code> is handled.</p>
+<p>When the status code of the response is <code>422</code>:</p>
 <ul>
-<li>The response body is JSON (indicated by a <code>content-type</code> of <code>application/json; charset=utf-8</code>) and, once decoded, is an object containing:
+<li>The body of the response is JSON (a <code>content-type</code> of <code>application/json; charset=utf-8</code> indicates this) and, once decoded, is an object that contains:
 <ul>
 <li>a <code>&quot;message&quot;</code> key (a human-readable message string), and</li>
-<li>an <code>&quot;errors&quot;</code> key (a list of error detail dictionaries as described above).</li>
+<li>an <code>&quot;errors&quot;</code> key (a list of the error detail dictionaries described above).</li>
 </ul>
 </li>
-<li>The function must raise an <code>InvalidField</code> exception where:
+<li>The function must raise an <code>InvalidField</code> exception for which:
 <ul>
-<li><code>status_code</code> equals <code>http.HTTPStatus(422)</code>.</li>
-<li>The exception is constructed from the <code>&quot;errors&quot;</code> list and the <code>&quot;message&quot;</code> string, such that its string representation is the message followed by <code>&quot; for '&lt;field&gt;'&quot;</code> using the <code>&quot;field&quot;</code> value from the errors (as specified in the <code>InvalidField</code> section above).</li>
+<li><code>status_code</code> is equal to <code>http.HTTPStatus(422)</code>.</li>
+<li>The exception is built from the <code>&quot;errors&quot;</code> list together with the <code>&quot;message&quot;</code> string, so that its string representation is the message followed by <code>&quot; for '&lt;field&gt;'&quot;</code>, with the <code>&quot;field&quot;</code> value taken from the errors (as specified in the <code>InvalidField</code> section above).</li>
 </ul>
 </li>
 </ul>
-<p>All other status-code handling behavior of <code>decipher_response</code> must remain unchanged.</p>
+<p>All other status-code handling behavior of <code>decipher_response</code> must stay unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Extend the sans-I/O helpers in gidgethub.sansio so they correctly handle real GitHub HTTP headers and responses, while preserving the module&#39;s existing…</span>
-        <span class="spec-meta muted">1399 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The sans-I/O helpers in gidgethub.sansio are to be extended so that they correctly handle real GitHub HTTP headers and responses, with the module&#39;s existing…</span>
+        <span class="spec-meta muted">1602 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Extend the sans-I/O helpers in <code>gidgethub.sansio</code> so they correctly handle real GitHub HTTP headers and responses, while preserving the module's existing public API. The required work covers:</p>
+<p>The sans-I/O helpers in <code>gidgethub.sansio</code> are to be extended so that they correctly handle real GitHub HTTP headers and responses, with the module's existing public API preserved. The work that is required comprises:</p>
 <ol>
-<li>Case-insensitive handling of incoming HTTP header names.</li>
-<li>Webhook parsing and signature validation.</li>
-<li>Rate-limit parsing and response deciphering, including pagination, errors, JSON, and textual bodies.</li>
-<li>A standalone <code>convert_headers.py</code> utility for converting <code>curl --head</code> output to JSON.</li>
+<li>Handling incoming HTTP header names in a case-insensitive way.</li>
+<li>Parsing of webhooks and validation of signatures.</li>
+<li>Parsing of rate limits and deciphering of responses, including pagination, errors, JSON, and textual bodies.</li>
+<li>A standalone <code>convert_headers.py</code> utility for the conversion of <code>curl --head</code> output into JSON.</li>
 </ol>
-<p>The <code>gidgethub.sansio</code> module itself must remain sans-I/O; only the standalone conversion utility performs I/O.</p>
-<h4>1. HTTP header-name handling</h4>
-<p>Every lookup in an input HTTP-header mapping must be case-insensitive. Lowercase names, conventional title-case names, and other casing variants must have the same meaning. This applies in particular to:</p>
+<p>The <code>gidgethub.sansio</code> module itself must remain sans-I/O; the standalone conversion utility is the only part that performs I/O.</p>
+<h4>1. Handling of HTTP header names</h4>
+<p>Every lookup performed in an input HTTP-header mapping must be case-insensitive. Names in lowercase, names in conventional title case, and other casing variants must all have the same meaning. In particular, this applies to:</p>
 <ul>
 <li><code>content-type</code></li>
 <li><code>x-github-event</code></li>
@@ -1031,59 +1038,59 @@ body = json.dumps({&quot;message&quot;: &quot;it went bad&quot;}).encode(&quot;U
 <li><code>x-ratelimit-reset</code></li>
 <li><code>link</code></li>
 </ul>
-<p>Callers are not required to provide a special case-insensitive mapping; an ordinary mapping containing lowercase keys must work. Header values should not be altered merely to implement case-insensitive name matching.</p>
+<p>Callers are not required to supply a special case-insensitive mapping; an ordinary mapping whose keys are lowercase must work. Header values should not be modified merely so that case-insensitive name matching can be implemented.</p>
 <h4>2. Webhook validation and events</h4>
 <h5><code>gidgethub.sansio.validate_event</code></h5>
 <pre><code class="language-python">validate_event(payload, *, signature, secret)
 </code></pre>
 <ul>
 <li>
-<p><code>payload</code> is the raw webhook body as <code>bytes</code>.</p>
+<p><code>payload</code> is the webhook body in raw form, as <code>bytes</code>.</p>
 </li>
 <li>
-<p><code>signature</code> is the value of the signature header.</p>
+<p><code>signature</code> is the value taken from the signature header.</p>
 </li>
 <li>
 <p><code>secret</code> is a string.</p>
 </li>
 <li>
-<p>A valid signature must begin with the exact <code>sha1=</code> prefix.</p>
+<p>A valid signature must start with the exact <code>sha1=</code> prefix.</p>
 </li>
 <li>
-<p>For compatibility, the expected digest is SHA-1 over the UTF-8 bytes of the secret concatenated directly with the unchanged payload bytes:</p>
+<p>For compatibility, the digest to expect is SHA-1 computed over the UTF-8 bytes of the secret concatenated directly with the payload bytes, unchanged:</p>
 <pre><code class="language-python">expected = &quot;sha1=&quot; + hashlib.sha1(secret.encode(&quot;utf-8&quot;) + payload).hexdigest()
 </code></pre>
-<p>This compatibility scheme is concatenated SHA-1, <strong>not</strong> HMAC-SHA-1.</p>
+<p>The scheme used here for compatibility is concatenated SHA-1, <strong>not</strong> HMAC-SHA-1.</p>
 </li>
 <li>
-<p>If the prefix is malformed or the digest does not match, raise <code>gidgethub.ValidationFailure</code>.</p>
+<p>When the prefix is malformed or the digest does not match, raise <code>gidgethub.ValidationFailure</code>.</p>
 </li>
 <li>
-<p>On success, return <code>None</code>.</p>
+<p>Return <code>None</code> on success.</p>
 </li>
 </ul>
-<p>For example, the payload <code>b'{&quot;action&quot;: &quot;opened&quot;}'</code> and secret <code>&quot;123456&quot;</code> must accept the signature <code>sha1=13ed44049d52492cab0f3aa22215091d35be4d58</code>.</p>
+<p>As an example, the payload <code>b'{&quot;action&quot;: &quot;opened&quot;}'</code> and the secret <code>&quot;123456&quot;</code> must accept the signature <code>sha1=13ed44049d52492cab0f3aa22215091d35be4d58</code>.</p>
 <h5><code>gidgethub.sansio.Event</code></h5>
 <h6>Constructor</h6>
 <pre><code class="language-python">Event(data, *, event, delivery_id)
 </code></pre>
-<p>An instance exposes:</p>
+<p>An instance exposes the following:</p>
 <ul>
-<li><code>.data</code>: the supplied parsed payload.</li>
-<li><code>.event</code>: the supplied event-type string.</li>
-<li><code>.delivery_id</code>: the supplied delivery identifier.</li>
+<li><code>.data</code>: the parsed payload that was supplied.</li>
+<li><code>.event</code>: the event-type string that was supplied.</li>
+<li><code>.delivery_id</code>: the delivery identifier that was supplied.</li>
 </ul>
 <h6><code>Event.from_http</code></h6>
 <pre><code class="language-python">Event.from_http(headers, body, *, secret=None)
 </code></pre>
-<p>Construct an event from an HTTP-header mapping and a raw <code>bytes</code> body.</p>
+<p>Build an event from an HTTP-header mapping together with a raw <code>bytes</code> body.</p>
 <ul>
-<li>The <code>Content-Type</code> value must be <code>application/json</code>. If it is absent or does not match, raise <code>gidgethub.BadRequest</code> rather than accepting the body.</li>
-<li>Decode the body as UTF-8 and parse it as JSON. The parsed value becomes <code>.data</code>.</li>
-<li>Set <code>.event</code> from <code>X-GitHub-Event</code> and <code>.delivery_id</code> from <code>X-GitHub-Delivery</code>.</li>
-<li>Match all of those header names case-insensitively.</li>
+<li>The <code>Content-Type</code> value must be <code>application/json</code>. When it is absent or does not match, raise <code>gidgethub.BadRequest</code> instead of accepting the body.</li>
+<li>Decode the body as UTF-8 and parse it as JSON; the parsed value becomes <code>.data</code>.</li>
+<li>Set <code>.event</code> from <code>X-GitHub-Event</code> and take <code>.delivery_id</code> from <code>X-GitHub-Delivery</code>.</li>
+<li>All of those header names must be matched case-insensitively.</li>
 </ul>
-<p>Signature handling is determined by the presence of both the signature and secret:</p>
+<p>How the signature is handled is determined by whether both the signature and the secret are present:</p>
 <table>
 <thead>
 <tr>
@@ -1096,7 +1103,7 @@ body = json.dumps({&quot;message&quot;: &quot;it went bad&quot;}).encode(&quot;U
 <tr>
 <td>present</td>
 <td>provided</td>
-<td>Validate the raw body with <code>validate_event</code>; return the event only if validation succeeds.</td>
+<td>Validate the raw body with <code>validate_event</code>; the event is returned only if validation succeeds.</td>
 </tr>
 <tr>
 <td>present</td>
@@ -1111,23 +1118,23 @@ body = json.dumps({&quot;message&quot;: &quot;it went bad&quot;}).encode(&quot;U
 <tr>
 <td>absent</td>
 <td>omitted</td>
-<td>Skip validation and construct the event normally.</td>
+<td>Skip validation and build the event normally.</td>
 </tr>
 </tbody>
 </table>
-<p>A bad or malformed signature also raises <code>gidgethub.ValidationFailure</code>. Signature validation uses the original body bytes, before JSON decoding or reserialization.</p>
-<h4>3. Existing request-header helpers</h4>
-<p>These APIs and their behavior must remain compatible.</p>
+<p>A signature that is bad or malformed also raises <code>gidgethub.ValidationFailure</code>. Signature validation operates on the original body bytes, before JSON decoding or reserialization.</p>
+<h4>3. Request-header helpers that already exist</h4>
+<p>These APIs must remain compatible, as must their behavior.</p>
 <h5><code>gidgethub.sansio.accept_format</code></h5>
 <pre><code class="language-python">accept_format(*, version=&quot;v3&quot;, media=None, json=True)
 </code></pre>
-<p>Build a GitHub media type as follows:</p>
+<p>Build a GitHub media type in the following way:</p>
 <ol>
-<li>Start with <code>application/vnd.github.</code> followed by <code>version</code>.</li>
+<li>Begin with <code>application/vnd.github.</code> followed by <code>version</code>.</li>
 <li>If <code>media</code> is not <code>None</code>, append <code>.</code> and the media value.</li>
 <li>If <code>json</code> is true, append <code>+json</code>.</li>
 </ol>
-<p>Required examples:</p>
+<p>Examples that are required:</p>
 <pre><code class="language-python">accept_format()                              # &quot;application/vnd.github.v3+json&quot;
 accept_format(media=&quot;raw&quot;)                   # &quot;application/vnd.github.v3.raw+json&quot;
 accept_format(media=&quot;raw&quot;, json=False)       # &quot;application/vnd.github.v3.raw&quot;
@@ -1136,225 +1143,226 @@ accept_format(version=&quot;cloak-preview&quot;)       # &quot;application/vnd.g
 <h5><code>gidgethub.sansio.create_headers</code></h5>
 <pre><code class="language-python">create_headers(requester, *, accept=accept_format(), oauth_token=None)
 </code></pre>
-<p>Return a new dictionary containing:</p>
+<p>Return a new dictionary that contains:</p>
 <ul>
 <li><code>&quot;user-agent&quot;</code>: <code>requester</code></li>
-<li><code>&quot;accept&quot;</code>: the supplied <code>accept</code> value</li>
+<li><code>&quot;accept&quot;</code>: the <code>accept</code> value that was supplied</li>
 <li><code>&quot;authorization&quot;</code>: <code>&quot;token &quot; + oauth_token</code>, but only when <code>oauth_token</code> is not <code>None</code></li>
 </ul>
-<p>Every key in the returned dictionary must be lowercase. Do not add the authorization key when no token is supplied.</p>
+<p>Every key in the dictionary that is returned must be lowercase. The authorization key must not be added when no token is supplied.</p>
 <h4>4. <code>gidgethub.sansio.RateLimit</code></h4>
 <h5>Constructor</h5>
 <pre><code class="language-python">RateLimit(*, rate, left, reset_epoch)
 </code></pre>
-<p>Instances expose:</p>
+<p>Instances expose the following:</p>
 <ul>
-<li><code>.rate</code>: the integer request limit.</li>
-<li><code>.left</code>: the integer remaining-request count.</li>
+<li><code>.rate</code>: the request limit as an integer.</li>
+<li><code>.left</code>: the remaining-request count as an integer.</li>
 <li><code>.reset_datetime</code>: a timezone-aware <code>datetime.datetime</code> in UTC, created from <code>reset_epoch</code> seconds since the Unix epoch.</li>
 </ul>
 <h5><code>RateLimit.from_http</code></h5>
 <pre><code class="language-python">RateLimit.from_http(headers)
 </code></pre>
-<p>Read these names case-insensitively and construct a <code>RateLimit</code>:</p>
+<p>Read the names that follow case-insensitively and construct a <code>RateLimit</code>:</p>
 <ul>
 <li><code>X-RateLimit-Limit</code> -&gt; <code>.rate</code>, converted to <code>int</code></li>
 <li><code>X-RateLimit-Remaining</code> -&gt; <code>.left</code>, converted to <code>int</code></li>
 <li><code>X-RateLimit-Reset</code> -&gt; reset epoch, converted to <code>float</code></li>
 </ul>
-<p>The resulting reset datetime must retain subsecond precision and use <code>datetime.timezone.utc</code>.</p>
+<p>The reset datetime that results must retain subsecond precision and use <code>datetime.timezone.utc</code>.</p>
 <h4>5. <code>gidgethub.sansio.decipher_response</code></h4>
 <pre><code class="language-python">decipher_response(status_code, headers, body)
 </code></pre>
-<p>Interpret a GitHub API response from an integer status code, an HTTP-header mapping, and raw body bytes.</p>
-<h5>Successful statuses and return value</h5>
-<p>Only status codes <code>200</code>, <code>201</code>, and <code>204</code> are successful. On one of those statuses, return:</p>
+<p>Given an integer status code, an HTTP-header mapping, and raw body bytes, interpret a GitHub API response.</p>
+<h5>Successful statuses and the return value</h5>
+<p>The only successful status codes are <code>200</code>, <code>201</code>, and <code>204</code>. When the status is one of those, return:</p>
 <pre><code class="language-python">(data, rate_limit, more)
 </code></pre>
 <ul>
 <li><code>data</code> is the decoded body described below.</li>
-<li><code>rate_limit</code> is a <code>RateLimit</code> built from the response headers.</li>
+<li><code>rate_limit</code> is a <code>RateLimit</code> built out of the response headers.</li>
 <li><code>more</code> is the next-page URL as a string, or <code>None</code>.</li>
 </ul>
-<p>Other 2xx statuses are not implicitly successful. For example, status <code>205</code> must raise <code>gidgethub.HTTPException</code>, with <code>.status_code == http.HTTPStatus.RESET_CONTENT</code>.</p>
-<h5>Body decoding</h5>
-<p>Look up <code>Content-Type</code> case-insensitively and separate its media type from parameters such as <code>charset</code>.</p>
+<p>2xx statuses other than these are not implicitly successful. For example, status <code>205</code> must raise <code>gidgethub.HTTPException</code>, with <code>.status_code == http.HTTPStatus.RESET_CONTENT</code>.</p>
+<h5>Decoding of the body</h5>
+<p>Look up <code>Content-Type</code> case-insensitively and separate the media type from parameters such as <code>charset</code>.</p>
 <ul>
-<li>An empty body yields <code>None</code>.</li>
-<li>If no content type is supplied, the deciphered value is <code>None</code>.</li>
-<li>For media type <code>application/json</code>, decode the bytes using the declared charset (UTF-8 when omitted) and parse JSON. Return the resulting Python value.</li>
-<li>For every other media type, decode with the declared charset (UTF-8 when omitted) and return the resulting <code>str</code> without JSON parsing. This includes GitHub diff media types such as <code>application/vnd.github.v3.diff; charset=utf-8</code>; such a body may begin with <code>diff --git</code>.</li>
+<li>A body that is empty yields <code>None</code>.</li>
+<li>If no content type is supplied, the value produced by deciphering is <code>None</code>.</li>
+<li>For media type <code>application/json</code>, decode the bytes using the declared charset (UTF-8 when omitted) and parse the JSON. Return the Python value that results.</li>
+<li>For every media type other than that, decode with the declared charset (UTF-8 when omitted) and return the resulting <code>str</code> without JSON parsing. GitHub diff media types such as <code>application/vnd.github.v3.diff; charset=utf-8</code> fall under this; a body of that kind may begin with <code>diff --git</code>.</li>
 </ul>
-<p>The same decoding rules are used to obtain structured error details for unsuccessful statuses.</p>
+<p>The same decoding rules are used to obtain the structured error details for statuses that are not successful.</p>
 <h5>Pagination</h5>
-<p>Look up <code>Link</code> case-insensitively. Its value is a comma-separated sequence such as:</p>
+<p>Look up <code>Link</code> case-insensitively. Its value is a sequence whose entries are separated by commas, such as:</p>
 <pre><code class="language-text">&lt;URL&gt;; rel=&quot;next&quot;, &lt;URL&gt;; rel=&quot;last&quot;
 </code></pre>
 <ul>
-<li>Find the entry whose relation is <code>rel=&quot;next&quot;</code> and return its URL without the surrounding angle brackets as <code>more</code>.</li>
+<li>Locate the entry whose relation is <code>rel=&quot;next&quot;</code> and return its URL, without the surrounding angle brackets, as <code>more</code>.</li>
 <li>Relation entries may appear alongside <code>first</code>, <code>prev</code>, or <code>last</code> entries.</li>
-<li>If the header is absent or contains no <code>next</code> relation, return <code>None</code>.</li>
-<li>Preserve the URL text itself; it may be a URI template requiring expansion by the caller.</li>
+<li>If the header is missing or holds no <code>next</code> relation, return <code>None</code>.</li>
+<li>The URL text itself is to be preserved; it may be a URI template requiring expansion by the caller.</li>
 </ul>
-<p>For example, a <code>next</code> entry containing <code>&lt;https://api.github.com/repositories/4164482/pulls?page=2&gt;</code> produces <code>more == &quot;https://api.github.com/repositories/4164482/pulls?page=2&quot;</code>. A final page containing only <code>first</code> and <code>prev</code> relations produces <code>None</code>.</p>
+<p>As an example, a <code>next</code> entry that contains <code>&lt;https://api.github.com/repositories/4164482/pulls?page=2&gt;</code> produces <code>more == &quot;https://api.github.com/repositories/4164482/pulls?page=2&quot;</code>. A final page whose relations are only <code>first</code> and <code>prev</code> produces <code>None</code>.</p>
 <h5>Error responses</h5>
-<p>Any status other than <code>200</code>, <code>201</code>, or <code>204</code> raises an exception. Decode the body first. If the decoded JSON object has a non-empty <code>message</code> member, use that as the exception message; otherwise use the standard phrase for the HTTP status.</p>
-<p>Map statuses as follows:</p>
+<p>An exception is raised by any status other than <code>200</code>, <code>201</code>, or <code>204</code>. The body is to be decoded first. If the JSON object obtained by decoding has a <code>message</code> member that is non-empty, use it as the exception's message; if not, use the standard phrase for the HTTP status.</p>
+<p>Map the statuses in this manner:</p>
 <ul>
 <li><code>422</code>: raise <code>gidgethub.InvalidField</code>.</li>
-<li>Other 4xx statuses: raise <code>gidgethub.BadRequest</code>.</li>
-<li>5xx statuses: raise <code>gidgethub.GitHubBroken</code>.</li>
-<li>3xx statuses: raise <code>gidgethub.RedirectionException</code>.</li>
-<li>Every other unsupported status, including a 2xx status other than the three accepted values: raise <code>gidgethub.HTTPException</code>.</li>
+<li>The remaining 4xx statuses: raise <code>gidgethub.BadRequest</code>.</li>
+<li>Statuses in the 5xx range: raise <code>gidgethub.GitHubBroken</code>.</li>
+<li>Statuses in the 3xx range: raise <code>gidgethub.RedirectionException</code>.</li>
+<li>Every unsupported status besides these, including a 2xx status that is not one of the three accepted values: raise <code>gidgethub.HTTPException</code>.</li>
 </ul>
-<p>The raised exception's <code>.status_code</code> must be the corresponding <code>http.HTTPStatus</code> member.</p>
-<p>For a <code>422</code> response, preserve the JSON <code>errors</code> list on <code>.errors</code>. Build the displayed message by appending <code>for</code> and the comma-separated <code>repr()</code> of each error's <code>field</code> value to the response message. For example, a message of <code>it went bad</code> and one invalid field named <code>title</code> produces <code>it went bad for 'title'</code>.</p>
-<p>Error handling must not require rate-limit headers merely to raise the appropriate exception.</p>
-<h4>6. Exception compatibility</h4>
-<p>The existing hierarchy and constructor behavior remain public contracts:</p>
+<p>The <code>.status_code</code> of the raised exception must be the matching <code>http.HTTPStatus</code> member.</p>
+<p>For a <code>422</code> response, the JSON <code>errors</code> list is preserved on <code>.errors</code>. The message that gets displayed is built by appending <code>for</code> and the comma-separated <code>repr()</code> of each error's <code>field</code> value to the message from the response. As an example, the message <code>it went bad</code> together with a single invalid field named <code>title</code> produces <code>it went bad for 'title'</code>.</p>
+<p>Error handling must not require the rate-limit headers merely in order to raise the appropriate exception.</p>
+<h4>6. Compatibility of exceptions</h4>
+<p>The hierarchy as it exists, together with the constructor behavior, remains a set of public contracts:</p>
 <ul>
-<li><code>GitHubException</code> is the common base exception.</li>
-<li><code>ValidationFailure</code> derives from <code>GitHubException</code>.</li>
-<li><code>HTTPException</code> derives from <code>GitHubException</code> and stores its supplied status on <code>.status_code</code>.</li>
-<li><code>RedirectionException</code>, <code>BadRequest</code>, and <code>GitHubBroken</code> derive from <code>HTTPException</code>.</li>
-<li><code>InvalidField</code> derives from <code>BadRequest</code>, stores the supplied error details on <code>.errors</code>, and uses <code>http.HTTPStatus.UNPROCESSABLE_ENTITY</code> as <code>.status_code</code>.</li>
+<li><code>GitHubException</code> is the base exception common to all.</li>
+<li><code>ValidationFailure</code> is derived from <code>GitHubException</code>.</li>
+<li><code>HTTPException</code> is derived from <code>GitHubException</code> and stores the status supplied to it on <code>.status_code</code>.</li>
+<li><code>RedirectionException</code>, <code>BadRequest</code>, and <code>GitHubBroken</code> are derived from <code>HTTPException</code>.</li>
+<li><code>InvalidField</code> is derived from <code>BadRequest</code>, stores the error details supplied to it on <code>.errors</code>, and uses <code>http.HTTPStatus.UNPROCESSABLE_ENTITY</code> as <code>.status_code</code>.</li>
 </ul>
-<p>Constructing an <code>HTTPException</code> with only an <code>http.HTTPStatus</code> uses that status's phrase as <code>str(exception)</code>. Supplying a message uses the supplied message instead.</p>
+<p>When an <code>HTTPException</code> is constructed with only an <code>http.HTTPStatus</code>, that status's phrase serves as <code>str(exception)</code>. When a message is supplied, it is the supplied message that gets used instead.</p>
 <h4>7. <code>convert_headers.py</code></h4>
-<p>Provide a standalone script that converts the output of <code>curl --head</code> into a JSON header object.</p>
+<p>Supply a standalone script that turns the output of <code>curl --head</code> into a JSON header object.</p>
 <ul>
-<li>Read the complete raw response-header block from standard input and print that captured block to standard output.</li>
-<li>Interpret the first line as the HTTP status line and obtain the integer status code from its second whitespace-separated field.</li>
-<li>For each following header line, split at the first colon, trim surrounding whitespace from the name and value, and lowercase the name. Colons within a value must remain part of the value.</li>
-<li>Write the resulting object as JSON to <code>&lt;status_code&gt;.json</code> in the current working directory, replacing an existing output of that name.</li>
-<li>Preserve non-ASCII header text in the JSON output rather than forcing ASCII escape sequences.</li>
+<li>Read the raw response-header block in its entirety from standard input, and print the block so captured to standard output.</li>
+<li>Treat the first line as the HTTP status line, and take the integer status code from the second whitespace-separated field of that line.</li>
+<li>On each of the header lines that follow, split at the first colon, trim the surrounding whitespace off the name and the value, and put the name in lowercase. Colons that occur within a value must remain part of the value.</li>
+<li>Write the object that results, as JSON, to <code>&lt;status_code&gt;.json</code> in the current working directory, overwriting an existing output of that name.</li>
+<li>Non-ASCII header text is to be preserved in the JSON output rather than forced into ASCII escape sequences.</li>
 </ul>
-<p>For an input status line <code>HTTP/1.1 200 OK</code>, the output name is <code>200.json</code>. All keys in the resulting JSON object are lowercase.</p>
+<p>When the input status line is <code>HTTP/1.1 200 OK</code>, the name of the output is <code>200.json</code>. All keys of the JSON object that results are lowercase.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working in the gidgethub package, specifically the gidgethub.sansio module.</span>
-        <span class="spec-meta muted">584 words · source specification
+        <span class="spec-title">Your work is done in the gidgethub package, specifically the gidgethub.sansio module.</span>
+        <span class="spec-meta muted">654 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working in the <code>gidgethub</code> package, specifically the <code>gidgethub.sansio</code> module. This task involves two changes: renaming attributes on a rate-limit class to match GitHub's terminology, and supporting HTTP 204 (No Content) responses in the response-deciphering function.</p>
-<h4>Required Changes</h4>
-<h5>1. <code>RateLimit</code> class attribute renaming</h5>
-<p>The <code>gidgethub.sansio</code> module must provide a <code>RateLimit</code> class with the following public API:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Your work is done in the <code>gidgethub</code> package, specifically the <code>gidgethub.sansio</code> module. Two changes are involved in this task: renaming the attributes of a rate-limit class to match GitHub's terminology, and supporting HTTP 204 (No Content) responses in the response-deciphering function.</p>
+<h4>Changes Required</h4>
+<h5>1. Renaming the <code>RateLimit</code> class attributes</h5>
+<p>The <code>gidgethub.sansio</code> module must provide a <code>RateLimit</code> class whose public API is the following:</p>
 <p><strong>Constructor:</strong></p>
 <pre><code class="language-python">RateLimit(*, limit, remaining, reset_epoch)
 </code></pre>
 <ul>
-<li><code>limit</code>: an integer representing the maximum number of requests permitted.</li>
-<li><code>remaining</code>: an integer representing the number of requests remaining.</li>
-<li><code>reset_epoch</code>: a POSIX timestamp (as returned by <code>datetime.datetime.timestamp()</code>) indicating when the rate limit resets.</li>
+<li><code>limit</code>: an integer that represents the maximum number of requests permitted.</li>
+<li><code>remaining</code>: an integer that represents the number of requests remaining.</li>
+<li><code>reset_epoch</code>: a POSIX timestamp (as returned by <code>datetime.datetime.timestamp()</code>) that tells when the rate limit resets.</li>
 </ul>
-<p>The constructor arguments are keyword arguments named exactly <code>limit</code>, <code>remaining</code>, and <code>reset_epoch</code>.</p>
-<p><strong>Instance attributes:</strong></p>
+<p>The constructor's arguments are keyword arguments whose names are exactly <code>limit</code>, <code>remaining</code>, and <code>reset_epoch</code>.</p>
+<p><strong>Attributes on the instance:</strong></p>
 <ul>
-<li><code>.limit</code> — the integer value passed as <code>limit</code>.</li>
-<li><code>.remaining</code> — the integer value passed as <code>remaining</code>.</li>
-<li><code>.reset_datetime</code> — a timezone-aware <code>datetime.datetime</code> (UTC) corresponding to <code>reset_epoch</code>. It must equal a <code>datetime.datetime</code> constructed from the same timestamp in the UTC timezone.</li>
+<li><code>.limit</code> — the integer value passed in as <code>limit</code>.</li>
+<li><code>.remaining</code> — the integer value passed in as <code>remaining</code>.</li>
+<li><code>.reset_datetime</code> — a timezone-aware <code>datetime.datetime</code> (UTC) that corresponds to <code>reset_epoch</code>. It must equal a <code>datetime.datetime</code> built from the same timestamp in the UTC timezone.</li>
 </ul>
 <p><strong>Class method:</strong></p>
 <pre><code class="language-python">RateLimit.from_http(headers)
 </code></pre>
 <ul>
-<li>Accepts a mapping of HTTP response headers (lowercase header names as keys, string values).</li>
-<li>Reads:
+<li>Accepts a mapping of HTTP response headers (keys are lowercase header names, values are strings).</li>
+<li>Reads the following:
 <ul>
-<li><code>x-ratelimit-limit</code> → used as <code>limit</code> (parsed as an integer).</li>
-<li><code>x-ratelimit-remaining</code> → used as <code>remaining</code> (parsed as an integer).</li>
-<li><code>x-ratelimit-reset</code> → used as <code>reset_epoch</code> (parsed as a float POSIX timestamp).</li>
+<li><code>x-ratelimit-limit</code> → its value is used as <code>limit</code> (parsed as an integer).</li>
+<li><code>x-ratelimit-remaining</code> → its value is used as <code>remaining</code> (parsed as an integer).</li>
+<li><code>x-ratelimit-reset</code> → its value is used as <code>reset_epoch</code> (parsed as a float POSIX timestamp).</li>
 </ul>
 </li>
-<li>Returns a <code>RateLimit</code> instance whose <code>.limit</code>, <code>.remaining</code>, and <code>.reset_datetime</code> attributes reflect those header values.</li>
+<li>Returns a <code>RateLimit</code> instance where the <code>.limit</code>, <code>.remaining</code>, and <code>.reset_datetime</code> attributes reflect those header values.</li>
 </ul>
-<p>Note: the previously named attributes/parameters <code>rate</code> (now <code>limit</code>) and <code>left</code> (now <code>remaining</code>) must no longer exist under their old names; only the new names are valid.</p>
-<h5>2. <code>decipher_response</code> support for 204 responses</h5>
-<p>The <code>gidgethub.sansio</code> module must provide:</p>
+<p>Note: the attributes/parameters formerly named <code>rate</code> (now <code>limit</code>) and <code>left</code> (now <code>remaining</code>) must no longer exist under their old names; the new names are the only valid ones.</p>
+<h5>2. Support for 204 responses in <code>decipher_response</code></h5>
+<p>The <code>gidgethub.sansio</code> module must provide this function:</p>
 <pre><code class="language-python">decipher_response(status_code, headers, body)
 </code></pre>
 <ul>
-<li><code>status_code</code>: an integer HTTP status code.</li>
-<li><code>headers</code>: a mapping of HTTP response headers (lowercase keys, string values), including the <code>x-ratelimit-*</code> headers.</li>
-<li><code>body</code>: the raw response body (bytes).</li>
+<li><code>status_code</code>: an HTTP status code given as an integer.</li>
+<li><code>headers</code>: a mapping of HTTP response headers (keys lowercase, values strings), which includes the <code>x-ratelimit-*</code> headers.</li>
+<li><code>body</code>: the response body in raw form (bytes).</li>
 </ul>
-<p><strong>Return value:</strong> a 3-tuple <code>(data, rate_limit, more)</code> where:</p>
+<p><strong>Returned value:</strong> a 3-tuple <code>(data, rate_limit, more)</code> consisting of:</p>
 <ul>
-<li><code>data</code> is the decoded response payload (see below).</li>
-<li><code>rate_limit</code> is a <code>RateLimit</code> instance built from the response headers (its <code>.remaining</code> attribute must reflect <code>x-ratelimit-remaining</code>).</li>
-<li><code>more</code> is the URL string for the next page of results when pagination is present, or <code>None</code> when there is no next page.</li>
+<li><code>data</code> is the decoded payload of the response (see below).</li>
+<li><code>rate_limit</code> is a <code>RateLimit</code> instance constructed from the response headers (its <code>.remaining</code> attribute must reflect <code>x-ratelimit-remaining</code>).</li>
+<li><code>more</code> is the URL string of the next page of results when pagination is present, or <code>None</code> when no next page exists.</li>
 </ul>
-<p><strong>Behavior for a 204 (No Content) response:</strong></p>
+<p><strong>Behavior in the case of a 204 (No Content) response:</strong></p>
 <ul>
-<li>When the status code is <code>204</code> and the response body is empty, <code>data</code> must be <code>None</code>.</li>
-<li><code>rate_limit</code> must be populated from the headers as usual (e.g., <code>rate_limit.remaining</code> equals the value from <code>x-ratelimit-remaining</code>).</li>
-<li><code>more</code> must be <code>None</code>.</li>
+<li>If the status code is <code>204</code> and the response body is empty, <code>data</code> must be <code>None</code>.</li>
+<li><code>rate_limit</code> must be populated from the headers in the usual way (e.g., <code>rate_limit.remaining</code> equals the value from <code>x-ratelimit-remaining</code>).</li>
+<li><code>more</code> is required to be <code>None</code>.</li>
 </ul>
-<p><strong>Existing behavior that must continue to work:</strong></p>
+<p><strong>Behavior that already exists and must keep working:</strong></p>
 <ul>
-<li>For a successful JSON response (e.g., 200) with a single object body, <code>data</code> is the parsed JSON object (a dict).</li>
-<li>For a paginated JSON response, <code>data</code> is the parsed JSON list, and <code>more</code> is the URL of the next page taken from the pagination <code>Link</code> header (or <code>None</code> on the last page).</li>
-<li>For a response whose body is textual (non-JSON) content, <code>data</code> is the decoded text string.</li>
-<li>In all these cases <code>rate_limit</code> is built from the headers with the correct <code>.remaining</code> value.</li>
+<li>When a JSON response is successful (e.g., 200) and its body is a single object, <code>data</code> is the parsed JSON object (a dict).</li>
+<li>In the case of a paginated JSON response, <code>data</code> is the parsed JSON list, and <code>more</code> is the URL of the next page taken from the pagination <code>Link</code> header (or <code>None</code> on the last page).</li>
+<li>When the body of a response is textual (non-JSON) content, <code>data</code> is the decoded text string.</li>
+<li>In all of these cases, <code>rate_limit</code> is built from the headers with the correct value in <code>.remaining</code>.</li>
 </ul>
-<h4>Sample Data Fixture</h4>
-<p>A test fixture reads sample response headers and bodies from files under <code>gidgethub/test/samples/&lt;name&gt;/</code>. A 204 sample must exist under the <code>pr_merged</code> sample directory:</p>
+<h4>Fixture of Sample Data</h4>
+<p>Sample response headers and bodies are read by a test fixture from files under <code>gidgethub/test/samples/&lt;name&gt;/</code>. Under the <code>pr_merged</code> sample directory, a 204 sample must exist:</p>
 <ul>
-<li>A header file named <code>204.json</code> containing a JSON object of the response headers, including <code>x-ratelimit-remaining</code> set to <code>&quot;41&quot;</code>.</li>
-<li>An empty body file named <code>body</code>.</li>
+<li>A header file named <code>204.json</code> that holds a JSON object of the response headers, including <code>x-ratelimit-remaining</code> with a value of <code>&quot;41&quot;</code>.</li>
+<li>A body file named <code>body</code> that is empty.</li>
 </ul>
-<p>The header/body loading mechanism keys the header file by the status code (<code>204.json</code> for status code 204) and reads the body from the <code>body</code> file in the same directory.</p>
+<p>The loading mechanism for the header/body files keys the header file by the status code (<code>204.json</code> for status code 204) and reads the body from the <code>body</code> file in the same directory.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Add a new public function format_url to the gidgethub.sansio module.</span>
-        <span class="spec-meta muted">288 words · source specification
+        <span class="spec-title">Introduce a new public function, format_url, in the gidgethub.sansio module.</span>
+        <span class="spec-meta muted">303 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement <code>format_url()</code> in <code>gidgethub.sansio</code></h3>
-<h4>Objective</h4>
-<p>Add a new public function <code>format_url</code> to the <code>gidgethub.sansio</code> module.</p>
-<h4>Function Signature</h4>
+      <div class="spec-body"><h3>Task: Implement the <code>format_url()</code> function in <code>gidgethub.sansio</code></h3>
+<h4>Goal</h4>
+<p>Introduce a new public function, <code>format_url</code>, in the <code>gidgethub.sansio</code> module.</p>
+<h4>Signature</h4>
 <pre><code class="language-python">def format_url(url: str, url_vars) -&gt; str:
 </code></pre>
 <ul>
-<li><code>url</code>: a string that may be an absolute URL, a relative URL, or a URI Template (RFC 6570).</li>
-<li><code>url_vars</code>: a mapping of variable names to values used to expand any URI Template variables present in <code>url</code>.</li>
+<li><code>url</code>: a string; it may be an absolute URL, a relative URL, or a URI Template (RFC 6570).</li>
+<li><code>url_vars</code>: a mapping from variable names to values, used for expanding any URI Template variables present in <code>url</code>.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>The function returns a fully-formed absolute URL string. It must handle the following cases:</p>
+<h4>Required Functionality</h4>
+<p>The function returns a string that is a fully-formed absolute URL. The following cases must be handled:</p>
 <ol>
 <li>
-<p><strong>Absolute URL, no template variables</strong>
-If <code>url</code> is already an absolute URL (has a scheme and host), it is returned unchanged.</p>
+<p><strong>Absolute URL, with no template variables</strong>
+If <code>url</code> is already an absolute URL (it has a scheme and host), the function returns it unchanged.</p>
 <ul>
 <li>Input: <code>&quot;https://api.github.com/notifications&quot;</code>, <code>{}</code> → <code>&quot;https://api.github.com/notifications&quot;</code></li>
 </ul>
 </li>
 <li>
 <p><strong>Relative URL</strong>
-If <code>url</code> is a relative path (begins with <code>/</code>), it must be resolved against the GitHub API base URL <code>https://api.github.com</code>, producing an absolute URL.</p>
+When <code>url</code> is a relative path (one that begins with <code>/</code>), it must be resolved against the GitHub API base URL <code>https://api.github.com</code>, resulting in an absolute URL.</p>
 <ul>
 <li>Input: <code>&quot;/notifications&quot;</code>, <code>{}</code> → <code>&quot;https://api.github.com/notifications&quot;</code></li>
 </ul>
 </li>
 <li>
 <p><strong>URI Template expansion</strong>
-The <code>url</code> may contain URI Template expressions (e.g. <code>{/gist_id}</code>). These must be expanded using <code>url_vars</code>:</p>
+<code>url</code> may contain URI Template expressions (for example <code>{/gist_id}</code>). Such expressions must be expanded using <code>url_vars</code>:</p>
 <ul>
-<li>When the required variable is present in <code>url_vars</code>, it is substituted.
+<li>When <code>url_vars</code> contains the required variable, it is substituted.
 <ul>
 <li>Input: <code>&quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;</code>, <code>{&quot;gist_id&quot;: &quot;1234&quot;}</code> → <code>&quot;https://api.github.com/users/octocat/gists/1234&quot;</code></li>
 </ul>
 </li>
-<li>When <code>url_vars</code> does not contain the template variable, the template expression is removed (expands to empty).
+<li>When the template variable is not present in <code>url_vars</code>, the template expression is removed (expanding to empty).
 <ul>
 <li>Input: <code>&quot;https://api.github.com/users/octocat/gists{/gist_id}&quot;</code>, <code>{}</code> → <code>&quot;https://api.github.com/users/octocat/gists&quot;</code></li>
 </ul>
@@ -1362,53 +1370,54 @@ The <code>url</code> may contain URI Template expressions (e.g. <code>{/gist_id}
 </ul>
 </li>
 <li>
-<p><strong>Template expansion combined with relative-URL resolution</strong>
-A relative URL may itself contain template expressions; the template is expanded first and the result is resolved against the base URL.</p>
+<p><strong>Template expansion together with relative-URL resolution</strong>
+A relative URL may itself contain template expressions; the template is expanded first, and the result is then resolved against the base URL.</p>
 <ul>
 <li>Input: <code>&quot;/users/octocat/gists{/gist_id}&quot;</code>, <code>{&quot;gist_id&quot;: &quot;1234&quot;}</code> → <code>&quot;https://api.github.com/users/octocat/gists/1234&quot;</code></li>
 </ul>
 </li>
 </ol>
-<p>The template syntax to support is the standard RFC 6570 form, at minimum the path-segment expansion operator (<code>{/var}</code>) as shown above.</p>
+<p>The template syntax to be supported is the standard RFC 6570 form — at minimum, the path-segment expansion operator (<code>{/var}</code>) as shown above.</p>
 <h4>Notes</h4>
 <ul>
-<li>The GitHub API base URL used for resolving relative URLs is <code>https://api.github.com</code>.</li>
-<li>No behavior beyond the cases described above is required.</li>
+<li>The GitHub API base URL that is used when resolving relative URLs is <code>https://api.github.com</code>.</li>
+<li>Behavior beyond the cases described above is not required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add a __bool__ method to the RateLimit class located in the gidgethub.sansio module.</span>
-        <span class="spec-meta muted">229 words · source specification
+        <span class="spec-title">Add a __bool__ method to the RateLimit class of the gidgethub.sansio module.</span>
+        <span class="spec-meta muted">228 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Add a <code>__bool__</code> method to the <code>RateLimit</code> class located in the <code>gidgethub.sansio</code> module.</p>
-<h5>Context</h5>
-<p>The <code>gidgethub.sansio</code> module contains a <code>RateLimit</code> class that represents GitHub API rate-limit information. It is constructed with the following keyword arguments:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Goal</h5>
+<p>Add a <code>__bool__</code> method to the <code>RateLimit</code> class of the <code>gidgethub.sansio</code> module.</p>
+<h5>Background</h5>
+<p>The <code>gidgethub.sansio</code> module provides a <code>RateLimit</code> class that captures GitHub API rate-limit information. The class is constructed with the following keyword arguments:</p>
 <ul>
-<li><code>remaining</code> (int): the number of requests remaining in the current rate-limit window.</li>
-<li><code>limit</code> (int): the maximum number of requests allowed in the window.</li>
-<li><code>reset_epoch</code> (float): a Unix timestamp (seconds since the epoch, UTC) indicating when the rate limit resets.</li>
+<li><code>remaining</code> (int): how many requests remain within the current rate-limit window.</li>
+<li><code>limit</code> (int): the maximum number of requests permitted within the window.</li>
+<li><code>reset_epoch</code> (float): a Unix timestamp (seconds since the epoch, UTC) specifying when the rate limit resets.</li>
 </ul>
-<p>Instances expose (among others) a <code>reset_datetime</code> attribute, which is a timezone-aware <code>datetime.datetime</code> in UTC corresponding to <code>reset_epoch</code>.</p>
-<h5>Required Behavior</h5>
-<p>Implement <code>RateLimit.__bool__(self) -&gt; bool</code> so that truthiness of a <code>RateLimit</code> instance reflects whether an API request may currently be made:</p>
+<p>Instances expose, among other attributes, a <code>reset_datetime</code> attribute, which is a timezone-aware <code>datetime.datetime</code> in UTC corresponding to <code>reset_epoch</code>.</p>
+<h5>Behavior Requirements</h5>
+<p>Implement <code>RateLimit.__bool__(self) -&gt; bool</code> so that the truthiness of a <code>RateLimit</code> instance indicates whether an API request may currently be made:</p>
 <ul>
-<li>Return <code>True</code> if there are requests remaining (i.e. <code>remaining</code> is greater than 0), regardless of the reset time.</li>
-<li>Return <code>True</code> if there are no requests remaining but the reset time has already passed (i.e. <code>reset_datetime</code> is at or before the current UTC time), since the limit would be considered reset.</li>
-<li>Return <code>False</code> only when there are no requests remaining <strong>and</strong> the reset time is still in the future.</li>
+<li>Return <code>True</code> if requests remain (that is, <code>remaining</code> is greater than 0), regardless of the reset time.</li>
+<li>Return <code>True</code> if no requests remain but the reset time has already passed (that is, <code>reset_datetime</code> is at or before the current UTC time), since the limit would be considered reset.</li>
+<li>Return <code>False</code> only when no requests remain <strong>and</strong> the reset time still lies in the future.</li>
 </ul>
-<p>The current time must be compared using the timezone-aware UTC &quot;now&quot;.</p>
+<p>The comparison against the current time must use the timezone-aware UTC &quot;now&quot;.</p>
 <h5>Public API Surface</h5>
 <ul>
 <li>Module: <code>gidgethub.sansio</code></li>
 <li>Class: <code>RateLimit</code></li>
 <li>Method to add: <code>__bool__(self) -&gt; bool</code></li>
 </ul>
-<p>No other behavior of <code>RateLimit</code> should change.</p>
+<p>No other part of <code>RateLimit</code>'s behavior should change.</p>
 </div>
     </details>
   </div>

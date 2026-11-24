@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/laixintao/iredis/compare/462ab01a02e5f3a6091476f2c745718313d9c9da...9ad0533fcba85a559b685aa75300a4274870cc51" target="_blank" rel="noopener" class="mono">462ab01a02 … 9ad0533fcb</a> · 50 commits by 2 authors over 4 d (2019-08-13 to 2019-08-17)</dd></div>
       <div><dt>Window:</dt><dd>requests 9–28 of a run of 28 test-bearing changes (overlaps the previous window by 12) · training split</dd></div>
       <div><dt>Size:</dt><dd>665 lines of code in 21 files when the chain starts · over the 20 requests the developers added 619 and removed 431 lines of code, plus 494 lines of tests (28 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>8.0k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
+      <div><dt>Specifications:</dt><dd>8.7k words · 0 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 1</dd></div>
     </dl>
   </header>
 </section>
@@ -144,168 +144,168 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">There is an existing command-parsing facility in this codebase that parses a Redis-style command string into a structured dictionary of named components.</span>
-        <span class="spec-meta muted">399 words · source specification
+        <span class="spec-title">This codebase already contains a command-parsing facility that takes a Redis-style command string and turns it into a structured dictionary of named…</span>
+        <span class="spec-meta muted">410 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add support for parsing the <code>CLUSTER KEYSLOT</code> command</h3>
-<h4>Context</h4>
-<p>There is an existing command-parsing facility in this codebase that parses a Redis-style command string into a structured dictionary of named components. Your task is to extend it so that the <code>CLUSTER KEYSLOT</code> command is recognized and parsed correctly.</p>
-<h4>Behavior of the Parser (existing infrastructure)</h4>
-<p>The parser is invoked through a function that, given a command string, returns either:</p>
+      <div class="spec-body"><h3>Task: Add parsing support for the <code>CLUSTER KEYSLOT</code> command</h3>
+<h4>Background</h4>
+<p>This codebase already contains a command-parsing facility that takes a Redis-style command string and turns it into a structured dictionary of named components. Your task is to extend this facility so that the <code>CLUSTER KEYSLOT</code> command gets recognized and parsed correctly.</p>
+<h4>Parser Behavior (existing infrastructure)</h4>
+<p>The parser is invoked via a function that receives a command string and returns either:</p>
 <ul>
 <li>a dictionary mapping component names to their parsed string values (on a successful parse), or</li>
 <li><code>None</code> (when the input does not match a valid command form).</li>
 </ul>
-<p>The command keyword portion is preserved verbatim from the input, including its original letter casing (e.g. lowercase, uppercase, or mixed).</p>
+<p>The command keyword portion is taken verbatim from the input, with its original letter casing included (e.g. lowercase, uppercase, or mixed).</p>
 <h4>Required New Behavior: <code>CLUSTER KEYSLOT</code></h4>
 <p>Add parsing support for the <code>CLUSTER KEYSLOT &lt;key&gt;</code> command.</p>
 <h5>Syntax</h5>
-<p>The command consists of the two-word command keyword <code>cluster keyslot</code> followed by exactly one argument, the key.</p>
-<h5>Successful parse result</h5>
-<p>When the input matches, the parser must return a dictionary with exactly these two entries:</p>
+<p>The command is made up of the two-word command keyword <code>cluster keyslot</code>, followed by exactly one argument: the key.</p>
+<h5>Result on a successful parse</h5>
+<p>If the input matches, the parser must return a dictionary holding exactly these two entries:</p>
 <ul>
-<li><code>&quot;command_key&quot;</code>: the command keyword portion exactly as it appeared in the input (preserving original casing and the original spacing between the two words — a single space).</li>
+<li><code>&quot;command_key&quot;</code>: the command keyword portion exactly as it appeared in the input (its original casing is kept, as is the original spacing between the two words — a single space).</li>
 <li><code>&quot;key&quot;</code>: the key argument exactly as it appeared in the input.</li>
 </ul>
-<h5>Casing</h5>
-<p>The command keyword is case-insensitive for the purpose of matching, but is echoed back in the result verbatim as given. Examples:</p>
+<h5>Letter casing</h5>
+<p>For matching, the command keyword is case-insensitive; in the result, however, it is echoed back verbatim as given. Examples:</p>
 <ul>
 <li>Input <code>cluster keyslot mykey</code> → <code>{&quot;command_key&quot;: &quot;cluster keyslot&quot;, &quot;key&quot;: &quot;mykey&quot;}</code></li>
 <li>Input <code>CLUSTER KEYSLOT MYKEY</code> → <code>{&quot;command_key&quot;: &quot;CLUSTER KEYSLOT&quot;, &quot;key&quot;: &quot;MYKEY&quot;}</code></li>
 </ul>
-<p>The key argument itself is preserved verbatim (its casing is never altered).</p>
-<h5>Quoted key arguments</h5>
-<p>The key argument may be a double-quoted string. When the key is enclosed in (or contains) double quotes, the quote characters are retained as part of the <code>&quot;key&quot;</code> value — the value is captured exactly as it appears in the input, including surrounding quotes, embedded escaped quotes, and any internal whitespace. Examples:</p>
+<p>The key argument itself is likewise preserved verbatim (its casing is never modified).</p>
+<h5>Key arguments in double quotes</h5>
+<p>The key argument may be given as a double-quoted string. When the key is wrapped in (or contains) double quotes, the quote characters remain part of the <code>&quot;key&quot;</code> value — the value is captured exactly as it appears in the input, including surrounding quotes, embedded escaped quotes, and any internal whitespace. Examples:</p>
 <ul>
 <li>Input <code>cluster keyslot &quot;mykey&quot;</code> → <code>{&quot;command_key&quot;: &quot;cluster keyslot&quot;, &quot;key&quot;: &quot;\&quot;mykey\&quot;&quot;}</code></li>
 <li>Input <code>cluster keyslot &quot;\&quot;mykey&quot;</code> → <code>{&quot;command_key&quot;: &quot;cluster keyslot&quot;, &quot;key&quot;: &quot;\&quot;\\\&quot;mykey\&quot;&quot;}</code> (i.e., the raw characters <code>&quot;\&quot;mykey&quot;</code>)</li>
 <li>Input <code>cluster keyslot &quot;mykey &quot;</code> → <code>{&quot;command_key&quot;: &quot;cluster keyslot&quot;, &quot;key&quot;: &quot;\&quot;mykey \&quot;&quot;}</code> (a trailing space inside the quotes is preserved)</li>
 </ul>
 <h4>Scope</h4>
-<p>Only add the <code>CLUSTER KEYSLOT</code> command handling described above. Do not alter the behavior of any other command already supported by the parser.</p>
+<p>Add only the <code>CLUSTER KEYSLOT</code> command handling described above. Do not change the behavior of any other command that the parser already supports.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Redis Command Grammar</span>
-        <span class="spec-meta muted">743 words · source specification
+        <span class="spec-title">Grammar for Redis Commands</span>
+        <span class="spec-meta muted">815 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Redis Command Grammar</h3>
+      <div class="spec-body"><h3>Task Specification: Grammar for Redis Commands</h3>
 <h4>Overview</h4>
-<p>You must provide a grammar object that parses Redis <code>CLUSTER</code> subcommands and extracts named tokens from a command string. The grammar must recognize the syntax of several <code>CLUSTER</code> subcommands and expose the parsed components as named variables.</p>
+<p>You must supply a grammar object that parses Redis <code>CLUSTER</code> subcommands and extracts named tokens from a command string. The grammar must recognize the syntax of several <code>CLUSTER</code> subcommands and expose the parsed components as named variables.</p>
 <h4>Public API</h4>
-<p>Provide a module importable as:</p>
+<p>Supply a module importable as:</p>
 <pre><code>iredis.redis_grammar
 </code></pre>
-<p>This module must expose a module-level object named <code>redis_grammar</code>.</p>
-<p>The object must support:</p>
+<p>A module-level object named <code>redis_grammar</code> must be exposed by this module.</p>
+<p>The object must support the following:</p>
 <ul>
-<li><code>redis_grammar.match(command_string)</code> — returns a match object if the given command string is recognized by the grammar, or <code>None</code> if it is not recognized.</li>
-<li>The returned match object must support <code>.variables()</code>, returning a mapping (dict-like) from token name (string) to the matched substring (string). Looking up an unmatched token via <code>.get(name)</code> must return a falsy/<code>None</code> value.</li>
+<li><code>redis_grammar.match(command_string)</code> — returns a match object when the given command string is recognized by the grammar, or <code>None</code> when it is not recognized.</li>
+<li>The returned match object must support <code>.variables()</code>, which returns a mapping (dict-like) from token name (string) to the matched substring (string). An unmatched token looked up via <code>.get(name)</code> must return a falsy/<code>None</code> value.</li>
 </ul>
-<h4>Matching Rules</h4>
-<p>Commands are case-insensitive at the keyword level: the command keyword may appear in any case (e.g. <code>cluster meet</code>, <code>CLUSTER MEET</code>), and the token that captures the command keyword must reflect the exact case as typed in the input.</p>
-<p>The full command string must match in its entirety. Extra trailing arguments beyond what a subcommand accepts must cause the match to fail (return <code>None</code>). A leading/prefixing of the keyword (e.g. <code>Acluster info</code>) must not match.</p>
-<p>For each supported subcommand below, on a successful match the <code>variables()</code> mapping must contain the listed token names with the described values.</p>
+<h4>Rules for Matching</h4>
+<p>At the keyword level, commands are matched case-insensitively: the command keyword may appear in any case (e.g. <code>cluster meet</code>, <code>CLUSTER MEET</code>), and the token that captures the command keyword must reflect the case exactly as typed in the input.</p>
+<p>The entire command string must be matched. Trailing arguments in excess of what a subcommand accepts must cause the match to fail (return <code>None</code>). Prefixing the keyword with leading text (e.g. <code>Acluster info</code>) must not match.</p>
+<p>For each supported subcommand below, a successful match must produce a <code>variables()</code> mapping containing the listed token names with the described values.</p>
 <h5><code>cluster addslots</code> and <code>cluster delslots</code></h5>
 <ul>
-<li>Accepts one or more integer slot values separated by single spaces.</li>
-<li>Token <code>command_slots</code> = the command keyword as typed (e.g. <code>cluster addslots</code>).</li>
-<li>Token <code>slots</code> = the full space-joined string of slot integers (e.g. <code>1</code> or <code>1 2 3 4</code>).</li>
-<li>Non-integer arguments (e.g. <code>a</code>, <code>abc</code>, or a mix like <code>1 a</code>) must not match.</li>
+<li>Accepts one or more integer slot values, separated from one another by single spaces.</li>
+<li>Token <code>command_slots</code> = the command keyword as it was typed (e.g. <code>cluster addslots</code>).</li>
+<li>Token <code>slots</code> = the whole space-joined string of slot integers (e.g. <code>1</code> or <code>1 2 3 4</code>).</li>
+<li>Non-integer arguments (e.g. <code>a</code>, <code>abc</code>, or a mix such as <code>1 a</code>) must not match.</li>
 </ul>
 <h5><code>cluster count-failure-reports</code> and <code>cluster forget</code></h5>
 <ul>
-<li>Accepts exactly one integer node argument.</li>
-<li>Token <code>command_node</code> = the command keyword as typed.</li>
-<li>Token <code>node</code> = the single integer string.</li>
-<li>More than one argument, non-integer arguments, or a mix must not match.</li>
+<li>Exactly one integer node argument is accepted.</li>
+<li>Token <code>command_node</code> = the command keyword as it was typed.</li>
+<li>Token <code>node</code> = the string of the single integer.</li>
+<li>More than one argument, arguments that are non-integer, or a mix must not match.</li>
 </ul>
 <h5><code>cluster countkeysinslot</code></h5>
 <ul>
-<li>Accepts exactly one integer slot argument.</li>
-<li>Token <code>command_slot</code> = the command keyword as typed.</li>
-<li>Token <code>slot</code> = the single integer string.</li>
-<li>More than one argument or non-integer arguments must not match.</li>
+<li>Exactly one integer slot argument is accepted.</li>
+<li>Token <code>command_slot</code> = the command keyword as it was typed.</li>
+<li>Token <code>slot</code> = the string of the single integer.</li>
+<li>More than one argument, or non-integer arguments, must not match.</li>
 </ul>
 <h5><code>cluster failover</code></h5>
 <ul>
-<li>Accepts exactly one choice argument whose value (case-insensitive) is <code>force</code> or <code>takeover</code>.</li>
-<li>Token <code>command_failoverchoice</code> = the command keyword as typed.</li>
-<li>Token <code>failoverchoice</code> = the choice as typed (preserving case, e.g. <code>force</code>, <code>FORCE</code>, <code>takeover</code>, <code>TAKEOVER</code>).</li>
+<li>Accepts exactly one choice argument; its value (case-insensitive) is <code>force</code> or <code>takeover</code>.</li>
+<li>Token <code>command_failoverchoice</code> = the command keyword as it was typed.</li>
+<li>Token <code>failoverchoice</code> = the choice as it was typed (case preserved, e.g. <code>force</code>, <code>FORCE</code>, <code>takeover</code>, <code>TAKEOVER</code>).</li>
 </ul>
 <h5><code>cluster getkeysinslot</code></h5>
 <ul>
-<li>Accepts exactly two integer arguments: a slot and a count.</li>
-<li>Token <code>command_slot_count</code> = the command keyword as typed.</li>
-<li>Token <code>slot</code> = the first integer string.</li>
-<li>Token <code>count</code> = the second integer string.</li>
-<li>Fewer or more than two arguments, or non-integer arguments, must not match.</li>
+<li>Exactly two integer arguments are accepted: a slot and a count.</li>
+<li>Token <code>command_slot_count</code> = the command keyword as it was typed.</li>
+<li>Token <code>slot</code> = the string of the first integer.</li>
+<li>Token <code>count</code> = the string of the second integer.</li>
+<li>Fewer or more than two arguments, or arguments that are not integers, must not match.</li>
 </ul>
 <h5><code>cluster info</code></h5>
 <ul>
-<li>Accepts no arguments.</li>
-<li>Token <code>command</code> = the command keyword as typed.</li>
-<li>Any trailing argument must not match.</li>
+<li>No arguments are accepted.</li>
+<li>Token <code>command</code> = the command keyword as it was typed.</li>
+<li>Any argument trailing the command must not match.</li>
 </ul>
 <h5><code>cluster keyslot</code></h5>
 <ul>
-<li>Accepts exactly one key argument.</li>
-<li>Token <code>command_key</code> = the command keyword as typed.</li>
-<li>Token <code>key</code> = the key as typed.</li>
-<li>The key may be a bare word (e.g. <code>mykey</code>, <code>MYKEY</code>) or a double-quoted string. When double-quoted, the entire quoted literal (including surrounding quotes) is the token value:
+<li>Exactly one key argument is accepted.</li>
+<li>Token <code>command_key</code> = the command keyword as it was typed.</li>
+<li>Token <code>key</code> = the key as it was typed.</li>
+<li>The key may be a bare word (e.g. <code>mykey</code>, <code>MYKEY</code>) or a double-quoted string. When the key is double-quoted, the entire quoted literal (surrounding quotes included) is the token value:
 <ul>
 <li><code>&quot;mykey&quot;</code> → token value <code>&quot;mykey&quot;</code></li>
-<li>A quoted string containing an escaped quote, e.g. <code>&quot;\&quot;mykey&quot;</code> → token value includes the backslash-escaped quote exactly as typed.</li>
-<li>A quoted string containing spaces, e.g. <code>&quot;mykey &quot;</code> → the space is preserved inside the quotes.</li>
+<li>A quoted string holding an escaped quote, e.g. <code>&quot;\&quot;mykey&quot;</code> → the token value includes the backslash-escaped quote exactly as typed.</li>
+<li>A quoted string that contains spaces, e.g. <code>&quot;mykey &quot;</code> → the space inside the quotes is preserved.</li>
 </ul>
 </li>
 </ul>
 <h5><code>cluster meet</code></h5>
 <ul>
-<li>Accepts exactly two arguments: an IPv4 address and a port.</li>
-<li>Token <code>command_ip_port</code> = the command keyword as typed (e.g. <code>cluster meet</code>).</li>
-<li>Token <code>ip</code> = the IPv4 address string.</li>
-<li>Token <code>port</code> = the port string.</li>
+<li>Exactly two arguments are accepted: an IPv4 address and a port.</li>
+<li>Token <code>command_ip_port</code> = the command keyword as it was typed (e.g. <code>cluster meet</code>).</li>
+<li>Token <code>ip</code> = the IPv4 address as a string.</li>
+<li>Token <code>port</code> = the port as a string.</li>
 </ul>
-<p><strong>IPv4 validation:</strong> Each of the four dot-separated octets must be a valid integer in the range 0–255. Values with any octet greater than 255 (e.g. <code>192.168.0.256</code>, <code>192.256.0.26</code>, <code>99.999.100.1</code>, <code>300.168.0.1</code>) must not match. Valid examples include <code>192.168.0.1</code>, <code>255.255.255.255</code>, <code>0.0.0.0</code>.</p>
-<p><strong>Port validation:</strong> The port must be an integer in the range 1–65535 inclusive. <code>0</code> must not match. Values above 65535 (e.g. <code>65536</code>, <code>65545</code>, <code>65635</code>, <code>66535</code>, <code>75535</code>, <code>99999</code>, <code>99999999</code>) must not match. An IP-like value in the port position (e.g. <code>192.168.0.256</code>) must not match. Valid examples include <code>1</code>, <code>1024</code>, <code>6553</code>, <code>65535</code>.</p>
+<p><strong>Validation of the IPv4 address:</strong> Each of the four octets, separated by dots, must be a valid integer in the range 0–255. Any value with an octet greater than 255 (e.g. <code>192.168.0.256</code>, <code>192.256.0.26</code>, <code>99.999.100.1</code>, <code>300.168.0.1</code>) must not match. Valid examples include <code>192.168.0.1</code>, <code>255.255.255.255</code>, <code>0.0.0.0</code>.</p>
+<p><strong>Validation of the port:</strong> The port must be an integer within the range 1–65535, inclusive. A port of <code>0</code> must not match. Any value above 65535 (e.g. <code>65536</code>, <code>65545</code>, <code>65635</code>, <code>66535</code>, <code>75535</code>, <code>99999</code>, <code>99999999</code>) must not match. An IP-like value sitting in the port position (e.g. <code>192.168.0.256</code>) must not match. Valid examples include <code>1</code>, <code>1024</code>, <code>6553</code>, <code>65535</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>When a command string does not match the grammar, <code>match</code> returns <code>None</code>.</li>
-<li>Token values always reflect the exact text as it appeared in the input (case and quoting preserved).</li>
+<li>When a command string fails to match the grammar, <code>match</code> returns <code>None</code>.</li>
+<li>Token values always reflect the exact text from the input (case and quoting preserved).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Redis CLUSTER Command Parsing</span>
-        <span class="spec-meta muted">560 words · source specification
+        <span class="spec-title">Parsing of Redis CLUSTER Commands</span>
+        <span class="spec-meta muted">591 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Redis CLUSTER Command Parsing</h3>
-<h4>Overview</h4>
-<p>Extend the Redis command grammar/parser to support parsing of additional commands in the <code>cluster</code> command group. The parser must tokenize a command string into a structured dictionary of named components.</p>
-<h4>Test Harness Contract</h4>
-<p>A pytest fixture named <code>judge_command</code> is provided to the test suite. It takes two arguments:</p>
+      <div class="spec-body"><h3>Task Specification: Parsing of Redis CLUSTER Commands</h3>
+<h4>Summary</h4>
+<p>The Redis command grammar/parser is to be extended so that additional commands in the <code>cluster</code> command group can be parsed. A command string must be tokenized by the parser into a structured dictionary of named components.</p>
+<h4>Contract of the Test Harness</h4>
+<p>The test suite is given a pytest fixture named <code>judge_command</code>. It receives two arguments:</p>
 <ol>
-<li>A command string (the raw input to parse).</li>
-<li>An expected dictionary mapping named grammar components to their parsed string values (or <code>None</code>).</li>
+<li>A command string (the raw input to be parsed).</li>
+<li>An expected dictionary that maps named grammar components to their parsed string values (or <code>None</code>).</li>
 </ol>
-<p>The fixture parses the input string using the project's command grammar and verifies that each named component in the expected dictionary is present in the parse result with exactly the specified value. You must ensure the grammar produces parse results whose named components match the expectations below. The command keyword portion (including any subcommand) must be captured verbatim from the input, preserving its original case.</p>
-<h4>Required Parsing Behavior</h4>
-<p>The following commands must parse into the named components indicated. Command keywords are case-insensitive for recognition purposes, but the captured value must reflect the exact casing of the input.</p>
+<p>Using the project's command grammar, the fixture parses the input string and verifies that each named component in the expected dictionary is present in the parse result with exactly the specified value. You must ensure that the grammar produces parse results whose named components match the expectations below. The command keyword portion (including any subcommand) must be captured verbatim from the input, with its original case preserved.</p>
+<h4>Parsing Behavior That Is Required</h4>
+<p>The commands listed below must parse into the named components indicated. For recognition purposes, command keywords are case-insensitive, but the captured value must reflect the exact casing of the input.</p>
 <h5><code>CLUSTER MEET</code></h5>
 <p>Syntax: <code>cluster meet &lt;ip&gt; &lt;port&gt;</code></p>
-<p>Parse into these named components:</p>
+<p>The parse must produce these named components:</p>
 <ul>
-<li><code>command_ip_port</code>: the command keyword and subcommand, i.e. the text <code>cluster meet</code> (preserving input case).</li>
-<li><code>ip</code>: the IP address argument (e.g. <code>192.168.0.1</code>).</li>
-<li><code>port</code>: the port argument (e.g. <code>12200</code>).</li>
+<li><code>command_ip_port</code>: the command keyword together with the subcommand, i.e. the text <code>cluster meet</code> (preserving the input's case).</li>
+<li><code>ip</code>: the IP address argument (for example, <code>192.168.0.1</code>).</li>
+<li><code>port</code>: the port argument (for example, <code>12200</code>).</li>
 </ul>
 <p>Examples:</p>
 <ul>
@@ -314,22 +314,22 @@
 </ul>
 <h5><code>CLUSTER NODES</code></h5>
 <p>Syntax: <code>cluster nodes</code> (no arguments)</p>
-<p>Parse into this named component:</p>
+<p>The parse must produce this named component:</p>
 <ul>
-<li><code>command</code>: the full command text, i.e. <code>cluster nodes</code> (preserving input case).</li>
+<li><code>command</code>: the complete command text, i.e. <code>cluster nodes</code> (preserving the input's case).</li>
 </ul>
 <p>Examples:</p>
 <ul>
 <li><code>&quot;cluster nodes&quot;</code> → <code>command</code> = <code>&quot;cluster nodes&quot;</code></li>
 <li><code>&quot;CLUSTER NODES&quot;</code> → <code>command</code> = <code>&quot;CLUSTER NODES&quot;</code></li>
 </ul>
-<h4>Existing Behavior That Must Continue To Work</h4>
-<p>The following <code>cluster</code> group commands must remain parseable with the named components described:</p>
+<h4>Existing Behavior That Must Keep Working</h4>
+<p>The <code>cluster</code> group commands listed below must remain parseable with the named components described:</p>
 <h5><code>CLUSTER ADDSLOTS</code></h5>
 <p>Syntax: <code>cluster addslots &lt;slot&gt; [&lt;slot&gt; ...]</code></p>
 <ul>
-<li><code>command_slots</code>: the text <code>cluster addslots</code> (preserving case).</li>
-<li><code>slots</code>: all slot arguments as a single space-joined string.</li>
+<li><code>command_slots</code>: the text <code>cluster addslots</code> (case preserved).</li>
+<li><code>slots</code>: all slot arguments joined together as a single space-joined string.</li>
 </ul>
 <p>Examples:</p>
 <ul>
@@ -340,8 +340,8 @@
 <h5><code>CLUSTER DELSLOTS</code></h5>
 <p>Syntax: <code>cluster delslots &lt;slot&gt; [&lt;slot&gt; ...]</code></p>
 <ul>
-<li><code>command_slots</code>: the text <code>cluster delslots</code> (preserving case).</li>
-<li><code>slots</code>: all slot arguments as a single space-joined string.</li>
+<li><code>command_slots</code>: the text <code>cluster delslots</code> (case preserved).</li>
+<li><code>slots</code>: all slot arguments joined together as a single space-joined string.</li>
 </ul>
 <p>Examples:</p>
 <ul>
@@ -352,8 +352,8 @@
 <h5><code>CLUSTER KEYSLOT</code></h5>
 <p>Syntax: <code>cluster keyslot &lt;key&gt;</code></p>
 <ul>
-<li><code>command_key</code>: the text <code>cluster keyslot</code> (preserving case).</li>
-<li><code>key</code>: the key argument (preserving case).</li>
+<li><code>command_key</code>: the text <code>cluster keyslot</code> (case preserved).</li>
+<li><code>key</code>: the key argument (case preserved).</li>
 </ul>
 <p>Examples:</p>
 <ul>
@@ -361,35 +361,35 @@
 <li><code>&quot;cluster keyslot MYKEY&quot;</code> → <code>command_key</code> = <code>&quot;cluster keyslot&quot;</code>, <code>key</code> = <code>&quot;MYKEY&quot;</code></li>
 <li><code>&quot;CLUSTER KEYSLOT MYKEY&quot;</code> → <code>command_key</code> = <code>&quot;CLUSTER KEYSLOT&quot;</code>, <code>key</code> = <code>&quot;MYKEY&quot;</code></li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The grammar component names (<code>command</code>, <code>command_ip_port</code>, <code>command_slots</code>, <code>command_key</code>, <code>ip</code>, <code>port</code>, <code>slots</code>, <code>key</code>) are the keys the parse result must expose.</li>
-<li>Slot values, keys, IPs, and ports are captured as plain strings exactly as they appear in the input.</li>
+<li>The keys that the parse result must expose are the grammar component names (<code>command</code>, <code>command_ip_port</code>, <code>command_slots</code>, <code>command_key</code>, <code>ip</code>, <code>port</code>, <code>slots</code>, <code>key</code>).</li>
+<li>Slot values, keys, IPs, and ports are captured as plain strings, exactly as they appear in the input.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Add CLUSTER RESET Command Parsing</span>
-        <span class="spec-meta muted">404 words · source specification
+        <span class="spec-title">Add Parsing for the CLUSTER RESET Command</span>
+        <span class="spec-meta muted">439 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add CLUSTER RESET Command Parsing</h3>
-<h4>Overview</h4>
-<p>Extend the Redis-style command grammar/parser to support parsing the <code>CLUSTER RESET</code> command with a required reset-mode argument.</p>
-<h4>Context</h4>
-<p>The codebase contains a command parser that recognizes Redis cluster commands (e.g., <code>CLUSTER MEET</code>, <code>CLUSTER NODES</code>). Each recognized command string is parsed into a dictionary of named capture groups. You must add support for the <code>CLUSTER RESET</code> command.</p>
-<h4>Required Behavior</h4>
-<p>The parser must recognize the <code>CLUSTER RESET</code> command followed by one of two reset modes: <code>hard</code> or <code>soft</code>.</p>
-<h5>Successful parsing</h5>
-<p>When the input is <code>CLUSTER RESET</code> followed by whitespace and either <code>hard</code> or <code>soft</code>, the parser must produce a result containing exactly two named fields:</p>
+      <div class="spec-body"><h3>Task Specification: Add Parsing for the CLUSTER RESET Command</h3>
+<h4>Summary</h4>
+<p>Extend the Redis-style command grammar/parser so that it supports parsing the <code>CLUSTER RESET</code> command together with its required reset-mode argument.</p>
+<h4>Background</h4>
+<p>Within the codebase there is a command parser that recognizes Redis cluster commands (e.g., <code>CLUSTER MEET</code>, <code>CLUSTER NODES</code>). Each recognized command string gets parsed into a dictionary of named capture groups. Support for the <code>CLUSTER RESET</code> command must be added by you.</p>
+<h4>Behavior Requirements</h4>
+<p>The parser must recognize the <code>CLUSTER RESET</code> command when it is followed by one of two reset modes: <code>hard</code> or <code>soft</code>.</p>
+<h5>Parsing That Succeeds</h5>
+<p>If the input consists of <code>CLUSTER RESET</code> followed by whitespace and then either <code>hard</code> or <code>soft</code>, the parser must produce a result that contains exactly two named fields:</p>
 <ul>
-<li><code>command_resetchoice</code>: the matched command portion (<code>CLUSTER RESET</code>)</li>
-<li><code>resetchoice</code>: the matched reset mode (<code>hard</code> or <code>soft</code>)</li>
+<li><code>command_resetchoice</code>: the command portion that was matched (<code>CLUSTER RESET</code>)</li>
+<li><code>resetchoice</code>: the reset mode that was matched (<code>hard</code> or <code>soft</code>)</li>
 </ul>
-<h5>Case handling</h5>
-<p>Both the command keywords and the reset-mode argument are case-insensitive for matching purposes, but the captured values must preserve the <strong>exact original casing</strong> of the input. Examples of required input → captured output mappings:</p>
+<h5>Handling of Case</h5>
+<p>Both the command keywords and the reset-mode argument are case-insensitive for matching purposes, but the captured values must retain the <strong>exact original casing</strong> of the input. Examples of the required input → captured output mappings:</p>
 <ul>
 <li><code>cluster reset hard</code> → <code>command_resetchoice</code> = <code>cluster reset</code>, <code>resetchoice</code> = <code>hard</code></li>
 <li><code>cluster reset soft</code> → <code>command_resetchoice</code> = <code>cluster reset</code>, <code>resetchoice</code> = <code>soft</code></li>
@@ -397,131 +397,131 @@
 <li><code>CLUSTER RESET soft</code> → <code>command_resetchoice</code> = <code>CLUSTER RESET</code>, <code>resetchoice</code> = <code>soft</code></li>
 <li><code>CLUSTER RESET SOFT</code> → <code>command_resetchoice</code> = <code>CLUSTER RESET</code>, <code>resetchoice</code> = <code>SOFT</code></li>
 </ul>
-<h5>Rejected input</h5>
-<p>The reset mode must match <code>hard</code> or <code>soft</code> exactly (aside from case). Inputs where the mode has trailing characters or is misspelled must fail to parse (produce no match / <code>None</code>). Examples of inputs that must NOT be recognized:</p>
+<h5>Inputs That Must Be Rejected</h5>
+<p>The reset mode must match <code>hard</code> or <code>soft</code> exactly, aside from case. When the mode has trailing characters or is misspelled, the input must fail to parse (produce no match / <code>None</code>). Examples of input strings that must NOT be recognized:</p>
 <ul>
 <li><code>CLUSTER RESET SOFT1</code></li>
 <li><code>CLUSTER RESET SAOFT</code></li>
 </ul>
-<h4>API Surface</h4>
-<p>This change is to the command grammar/parser already exercised elsewhere in the codebase. The new <code>CLUSTER RESET</code> grammar entry must integrate with the existing parsing mechanism such that parsing a valid command string yields the named-group dictionary described above, and parsing an invalid one yields no match. No new public module or function names are introduced by this task beyond the added grammar rule; the parser entry point used by the rest of the cluster commands must handle these new inputs identically to how it handles existing cluster commands.</p>
-<p>The command must be added alongside the existing cluster command definitions using the same naming/capture-group conventions (i.e., a command-with-choice pattern that captures the command keywords into <code>command_resetchoice</code> and the argument into <code>resetchoice</code>).</p>
+<h4>API Impact</h4>
+<p>The target of this change is the command grammar/parser that is already exercised elsewhere in the codebase. The new <code>CLUSTER RESET</code> grammar entry must integrate with the existing parsing mechanism in such a way that parsing a valid command string yields the named-group dictionary described above, while parsing an invalid one yields no match. Beyond the added grammar rule, no new public module or function names are introduced by this task; the parser entry point that the rest of the cluster commands use must handle these new inputs identically to how it handles existing cluster commands.</p>
+<p>The command must be added alongside the existing cluster command definitions, following the same naming/capture-group conventions (that is, a command-with-choice pattern which captures the command keywords into <code>command_resetchoice</code> and the argument into <code>resetchoice</code>).</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">You are extending a Redis command parser/grammar that validates and parses Redis CLUSTER subcommands.</span>
-        <span class="spec-meta muted">567 words · source specification
+        <span class="spec-title">You are working on extending a Redis command parser/grammar whose job is to validate and parse Redis CLUSTER subcommands.</span>
+        <span class="spec-meta muted">641 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are extending a Redis command parser/grammar that validates and parses Redis <code>CLUSTER</code> subcommands. The parser must recognize the <code>CLUSTER SET-CONFIG-EPOCH</code> command and extract its epoch argument. Existing behavior for other <code>CLUSTER</code> subcommands must continue to work.</p>
+<p>You are working on extending a Redis command parser/grammar whose job is to validate and parse Redis <code>CLUSTER</code> subcommands. Recognition of the <code>CLUSTER SET-CONFIG-EPOCH</code> command, together with extraction of its epoch argument, is required of the parser. Behavior that already exists for the other <code>CLUSTER</code> subcommands must continue to work.</p>
 <h4>Test Harness Contract</h4>
-<p>Tests exercise the parser through a fixture that behaves like a callable named <code>judge_command</code>. Its behavior — which your implementation must support — is:</p>
+<p>The tests drive the parser by way of a fixture that acts like a callable named <code>judge_command</code>. The behavior of this callable — which your implementation must support — is:</p>
 <pre><code>judge_command(input_string, expected_result)
 </code></pre>
 <ul>
-<li><code>input_string</code>: a full Redis command string (e.g. <code>&quot;cluster set-config-epoch 123123 &quot;</code>).</li>
+<li><code>input_string</code>: a complete Redis command string (e.g. <code>&quot;cluster set-config-epoch 123123 &quot;</code>).</li>
 <li><code>expected_result</code>:
 <ul>
-<li>A <code>dict</code> mapping capture-group names to their captured string values, when the command is <strong>valid</strong> and parses successfully. The parse result's named captures must equal exactly the given dict (for the keys provided).</li>
-<li><code>None</code>, when the command is <strong>invalid</strong> / does not parse.</li>
+<li>A <code>dict</code> that maps capture-group names to the string values they captured, in the case where the command is <strong>valid</strong> and parses successfully. The named captures of the parse result must equal exactly the given dict (for the keys provided).</li>
+<li><code>None</code>, in the case where the command is <strong>invalid</strong> / does not parse.</li>
 </ul>
 </li>
 </ul>
-<p>Your grammar must produce named captures such that, when the input is parsed, the resulting group dictionary matches the expected dicts described below.</p>
+<p>Your grammar must generate named captures such that, once the input is parsed, the group dictionary that results matches the expected dicts described below.</p>
 <h4>Required Behavior</h4>
 <h5>CLUSTER SET-CONFIG-EPOCH</h5>
-<p>Add support for the command form:</p>
+<p>The following command form must be supported:</p>
 <pre><code>CLUSTER SET-CONFIG-EPOCH &lt;epoch&gt;
 </code></pre>
 <ul>
-<li>The command keyword portion (<code>cluster set-config-epoch</code>) must be captured under the group name <strong><code>command_epoch</code></strong>, preserving the original casing of the input.</li>
-<li>The epoch argument must be captured under the group name <strong><code>epoch</code></strong>.</li>
-<li>The epoch argument is a sequence of one or more decimal digits (e.g. <code>0</code>, <code>123123</code>).</li>
+<li>The keyword portion of the command (<code>cluster set-config-epoch</code>) must be captured under the group name <strong><code>command_epoch</code></strong>, with the input's original casing preserved.</li>
+<li>The epoch argument is required to be captured under the group name <strong><code>epoch</code></strong>.</li>
+<li>The epoch argument is a sequence consisting of one or more decimal digits (e.g. <code>0</code>, <code>123123</code>).</li>
 </ul>
-<p>Valid examples and their required named captures:</p>
+<p>Valid examples, together with the named captures they require:</p>
 <ul>
-<li>Input <code>&quot;cluster set-config-epoch 0 &quot;</code> →
+<li>For input <code>&quot;cluster set-config-epoch 0 &quot;</code> →
 <code>{&quot;command_epoch&quot;: &quot;cluster set-config-epoch&quot;, &quot;epoch&quot;: &quot;0&quot;}</code></li>
-<li>Input <code>&quot;cluster set-config-epoch 123123 &quot;</code> →
+<li>For input <code>&quot;cluster set-config-epoch 123123 &quot;</code> →
 <code>{&quot;command_epoch&quot;: &quot;cluster set-config-epoch&quot;, &quot;epoch&quot;: &quot;123123&quot;}</code></li>
 </ul>
-<p>Invalid example (must yield <code>None</code>):</p>
+<p>Example that is invalid (must yield <code>None</code>):</p>
 <ul>
-<li>Input <code>&quot;cluster set-config-epoch 123123 ad&quot;</code> — an extra non-numeric argument after the epoch is not permitted.</li>
+<li>Input <code>&quot;cluster set-config-epoch 123123 ad&quot;</code> — an argument that is extra and non-numeric, appearing after the epoch, is not permitted.</li>
 </ul>
-<p>Note: the valid inputs above include trailing whitespace after the epoch value, and this must still parse successfully. A trailing extra token that is not part of the accepted grammar must cause a parse failure.</p>
+<p>Note: the valid inputs above contain trailing whitespace after the epoch value, and parsing must still succeed for them. An extra trailing token that is not part of the accepted grammar must result in a parse failure.</p>
 <h5>CLUSTER RESET (existing behavior — must be preserved)</h5>
-<p>The command form:</p>
+<p>The form of the command:</p>
 <pre><code>CLUSTER RESET [HARD|SOFT]
 </code></pre>
 <ul>
-<li>The <code>CLUSTER RESET</code> keyword portion must be captured under the group name <strong><code>command_resetchoice</code></strong>, preserving original casing.</li>
-<li>The optional reset mode (<code>HARD</code> or <code>SOFT</code>, case as given) must be captured under the group name <strong><code>resetchoice</code></strong>.</li>
+<li>The keyword portion <code>CLUSTER RESET</code> must be captured under the group name <strong><code>command_resetchoice</code></strong>, keeping the original casing.</li>
+<li>The optional reset mode (<code>HARD</code> or <code>SOFT</code>, with the case as given) must be captured under the group name <strong><code>resetchoice</code></strong>.</li>
 </ul>
 <p>Valid examples:</p>
 <ul>
 <li><code>&quot;cluster reset hard&quot;</code> → <code>{&quot;command_resetchoice&quot;: &quot;cluster reset&quot;, &quot;resetchoice&quot;: &quot;hard&quot;}</code></li>
 <li><code>&quot;CLUSTER RESET SOFT&quot;</code> → <code>{&quot;command_resetchoice&quot;: &quot;CLUSTER RESET&quot;, &quot;resetchoice&quot;: &quot;SOFT&quot;}</code></li>
 </ul>
-<p>Invalid examples (must yield <code>None</code>):</p>
+<p>Examples that are invalid (must yield <code>None</code>):</p>
 <ul>
-<li><code>&quot;CLUSTER RESET SOFT1&quot;</code> — the reset mode must be exactly <code>HARD</code> or <code>SOFT</code>; trailing characters make it invalid.</li>
-<li><code>&quot;CLUSTER RESET SAOFT&quot;</code> — an unrecognized reset mode is invalid.</li>
+<li><code>&quot;CLUSTER RESET SOFT1&quot;</code> — the reset mode must be exactly <code>HARD</code> or <code>SOFT</code>; trailing characters make the input invalid.</li>
+<li><code>&quot;CLUSTER RESET SAOFT&quot;</code> — a reset mode that is not recognized is invalid.</li>
 </ul>
 <h5>CLUSTER NODES (existing behavior — must be preserved)</h5>
-<p>The command form <code>CLUSTER NODES</code> must parse, capturing the whole command under the group name <strong><code>command</code></strong>:</p>
+<p>The command form <code>CLUSTER NODES</code> must parse, with the whole command captured under the group name <strong><code>command</code></strong>:</p>
 <ul>
 <li><code>&quot;cluster nodes&quot;</code> → <code>{&quot;command&quot;: &quot;cluster nodes&quot;}</code></li>
 <li><code>&quot;CLUSTER NODES&quot;</code> → <code>{&quot;command&quot;: &quot;CLUSTER NODES&quot;}</code></li>
 </ul>
 <h4>General Requirements</h4>
 <ul>
-<li>Command keywords are matched case-insensitively, but the captured text must preserve the exact casing present in the input.</li>
-<li>The reset-mode validation must be strict: only the exact tokens <code>HARD</code> or <code>SOFT</code> (case-insensitive) are accepted, with no additional trailing characters.</li>
-<li>The epoch value must consist solely of digit characters; any non-digit trailing argument invalidates the command.</li>
+<li>Command keywords are matched in a case-insensitive way, but the text that is captured must preserve the exact casing present in the input.</li>
+<li>Validation of the reset mode must be strict: only the exact tokens <code>HARD</code> or <code>SOFT</code> (case-insensitive) are accepted, with no additional trailing characters.</li>
+<li>The epoch value must be composed solely of digit characters; any trailing argument that is non-digit invalidates the command.</li>
 </ul>
 <h4>Cleanup</h4>
-<p>Any module named <code>redis_lexer.py</code> is obsolete and unused; remove it. No public API depends on it.</p>
+<p>Any module named <code>redis_lexer.py</code> is obsolete and unused; remove it. There is no public API that depends on it.</p>
 <h4>Deliverable</h4>
-<p>Provide the grammar/parser additions so that the <code>CLUSTER SET-CONFIG-EPOCH</code> command parses as specified while all listed existing <code>CLUSTER</code> subcommand behaviors continue to work exactly as described.</p>
+<p>Supply the additions to the grammar/parser such that the <code>CLUSTER SET-CONFIG-EPOCH</code> command parses as specified, while all listed existing <code>CLUSTER</code> subcommand behaviors continue to work exactly as described.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add Grammar Support for CLUSTER SETSLOT Command</span>
-        <span class="spec-meta muted">506 words · source specification
+        <span class="spec-title">Add Support for the CLUSTER SETSLOT Command in the Grammar</span>
+        <span class="spec-meta muted">530 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Grammar Support for <code>CLUSTER SETSLOT</code> Command</h3>
-<h4>Overview</h4>
-<p>Extend the command parsing grammar to recognize and correctly parse the Redis <code>CLUSTER SETSLOT</code> command. The parser must break the input command string into named components (tokens) that can be extracted and inspected.</p>
-<h4>Parsing Infrastructure Context</h4>
-<p>The codebase contains a command grammar/parser that, when given a full command string, produces a mapping of named components to their matched substring values. Each recognized command form is associated with a top-level rule name, and individual arguments are captured under specific component names.</p>
-<p>Your task is to add a new grammar rule for the <code>CLUSTER SETSLOT</code> command so that parsing produces the component names and values described below.</p>
+      <div class="spec-body"><h3>Task Specification: Add Support for the <code>CLUSTER SETSLOT</code> Command in the Grammar</h3>
+<h4>Summary</h4>
+<p>The command parsing grammar is to be extended so that it recognizes and correctly parses the Redis <code>CLUSTER SETSLOT</code> command. The parser must split the input command string into named components (tokens) that can then be extracted and inspected.</p>
+<h4>Background on the Parsing Infrastructure</h4>
+<p>The codebase contains a command grammar/parser that takes a full command string and produces a mapping from named components to the substring values they matched. Each recognized command form is tied to a top-level rule name, and its individual arguments are captured under specific component names.</p>
+<p>Your task is to introduce a new grammar rule for the <code>CLUSTER SETSLOT</code> command such that parsing produces the component names and values described below.</p>
 <h4>Command Forms to Support</h4>
-<p>The <code>CLUSTER SETSLOT</code> command has two general shapes:</p>
-<h5>Form 1: with a subcommand that takes a node argument</h5>
+<p>The <code>CLUSTER SETSLOT</code> command comes in two general shapes:</p>
+<h5>Form 1: a subcommand that takes a node argument</h5>
 <pre><code>cluster setslot &lt;slot&gt; &lt;subcmd&gt; &lt;node&gt;
 </code></pre>
-<p>where <code>&lt;subcmd&gt;</code> is one of <code>importing</code>, <code>migrating</code>, or <code>node</code> (case-insensitive — both lowercase and uppercase spellings must be accepted, and the matched text is preserved as-is).</p>
-<h5>Form 2: with the <code>stable</code> subcommand (no node argument)</h5>
+<p>where <code>&lt;subcmd&gt;</code> is one of <code>importing</code>, <code>migrating</code>, or <code>node</code> (case-insensitive — spellings in both lowercase and uppercase must be accepted, and the matched text is kept as-is).</p>
+<h5>Form 2: the <code>stable</code> subcommand (without a node argument)</h5>
 <pre><code>cluster setslot &lt;slot&gt; &lt;subcmd&gt;
 </code></pre>
-<p>where <code>&lt;subcmd&gt;</code> is <code>stable</code> (case-insensitive — both <code>stable</code> and <code>STABLE</code> must be accepted, and the matched text is preserved as-is).</p>
-<h4>Required Parse Output</h4>
-<p>When a <code>CLUSTER SETSLOT</code> command is parsed successfully, the resulting component mapping must contain:</p>
+<p>where <code>&lt;subcmd&gt;</code> is <code>stable</code> (case-insensitive — both <code>stable</code> and <code>STABLE</code> must be accepted, with the matched text kept as-is).</p>
+<h4>Required Parse Result</h4>
+<p>Once a <code>CLUSTER SETSLOT</code> command has been parsed successfully, the component mapping that results must contain:</p>
 <ul>
-<li><code>command_slot_slotsubcmd_nodex</code> — always the literal value <code>&quot;cluster setslot&quot;</code> (the command keyword portion, matched case-insensitively but reported in this normalized-looking form as the rule label).</li>
-<li><code>slot</code> — the slot value token (e.g. <code>&quot;123&quot;</code>).</li>
-<li><code>slotsubcmd</code> — the subcommand token exactly as it appeared in the input (e.g. <code>&quot;importing&quot;</code>, <code>&quot;migrating&quot;</code>, <code>&quot;node&quot;</code>, <code>&quot;MIGRATING&quot;</code>, <code>&quot;stable&quot;</code>, <code>&quot;STABLE&quot;</code>).</li>
-<li><code>node</code> — the node token (e.g. <code>&quot;123123&quot;</code>), present <strong>only</strong> for Form 1 (subcommands <code>importing</code>, <code>migrating</code>, <code>node</code>). Absent for Form 2 (<code>stable</code>).</li>
+<li><code>command_slot_slotsubcmd_nodex</code> — always the literal value <code>&quot;cluster setslot&quot;</code> (the portion carrying the command keywords, matched case-insensitively but reported as the rule label in this normalized-looking form).</li>
+<li><code>slot</code> — the token holding the slot value (e.g. <code>&quot;123&quot;</code>).</li>
+<li><code>slotsubcmd</code> — the subcommand token, exactly as it appeared in the input (e.g. <code>&quot;importing&quot;</code>, <code>&quot;migrating&quot;</code>, <code>&quot;node&quot;</code>, <code>&quot;MIGRATING&quot;</code>, <code>&quot;stable&quot;</code>, <code>&quot;STABLE&quot;</code>).</li>
+<li><code>node</code> — the token for the node (e.g. <code>&quot;123123&quot;</code>); present <strong>only</strong> for Form 1 (subcommands <code>importing</code>, <code>migrating</code>, <code>node</code>), and absent for Form 2 (<code>stable</code>).</li>
 </ul>
-<p>The name <code>command_slot_slotsubcmd_nodex</code> is the identifier for this grammar rule and appears as a key in the parse result with the value being the matched command keywords.</p>
-<h4>Valid Examples (must parse to the given components)</h4>
+<p>The name <code>command_slot_slotsubcmd_nodex</code> identifies this grammar rule; it appears as a key in the parse result, and its value is the matched command keywords.</p>
+<h4>Valid Examples (must parse into the given components)</h4>
 <table>
 <thead>
 <tr>
@@ -556,7 +556,7 @@
 </tr>
 </tbody>
 </table>
-<h4>Invalid Examples (must NOT parse)</h4>
+<h4>Invalid Examples (must fail to parse)</h4>
 <table>
 <thead>
 <tr>
@@ -567,217 +567,219 @@
 <tbody>
 <tr>
 <td><code>cluster setslot 123 STABLE 123123</code></td>
-<td>The <code>stable</code> subcommand form does not accept a trailing node argument.</td>
+<td>The form using the <code>stable</code> subcommand does not accept a trailing node argument.</td>
 </tr>
 </tbody>
 </table>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The subcommand keywords are matched case-insensitively but the captured <code>slotsubcmd</code> value must preserve the original casing from the input.</li>
-<li>Trailing whitespace handling should be consistent with existing <code>CLUSTER</code> command rules in the grammar.</li>
-<li>This change only adds recognition of the <code>CLUSTER SETSLOT</code> command; no other commands' behavior should change.</li>
+<li>The subcommand keywords are matched case-insensitively, but the captured <code>slotsubcmd</code> value must preserve the input's original casing.</li>
+<li>Trailing whitespace should be handled consistently with the existing <code>CLUSTER</code> command rules in the grammar.</li>
+<li>This change adds recognition of the <code>CLUSTER SETSLOT</code> command only; the behavior of no other commands should change.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Add auth Command Parsing</span>
-        <span class="spec-meta muted">371 words · source specification
+        <span class="spec-title">Parsing Support for the auth Command</span>
+        <span class="spec-meta muted">440 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>auth</code> Command Parsing</h3>
+      <div class="spec-body"><h3>Task Specification: Parsing Support for the <code>auth</code> Command</h3>
 <h4>Overview</h4>
-<p>You must implement parsing support for an <code>auth</code> command that carries a password argument. The parser must recognize the command keyword and capture the associated password value into a structured result.</p>
-<h4>Required Behavior</h4>
-<p>When the input string <code>&quot;auth 123&quot;</code> is parsed, the parser must produce a result containing exactly the following key/value mapping:</p>
+<p>Parsing support must be implemented by you for an <code>auth</code> command that takes a password as its argument. Recognizing the command keyword is one thing the parser must do; capturing the password value associated with it into a structured result is the other.</p>
+<h4>Behavior Requirements</h4>
+<p>When the parser is given the input string <code>&quot;auth 123&quot;</code>, the result it produces must contain exactly the following key/value mapping:</p>
 <ul>
 <li><code>command_password</code> → <code>&quot;auth&quot;</code></li>
 <li><code>password</code> → <code>&quot;123&quot;</code></li>
 </ul>
-<p>That is:</p>
+<p>Concretely:</p>
 <ul>
-<li>The command keyword <code>auth</code> is captured under the field named <code>command_password</code>.</li>
-<li>The token following the command keyword (separated by whitespace) is captured as the password value under the field named <code>password</code>.</li>
-<li>The password value is preserved as-is as a string (e.g. <code>&quot;123&quot;</code>).</li>
+<li>It is under the field named <code>command_password</code> that the command keyword <code>auth</code> is captured.</li>
+<li>Under the field named <code>password</code>, the token following the command keyword (with whitespace as the separator) is what gets captured as the password value.</li>
+<li>Preserved as-is, the password value remains a string (e.g. <code>&quot;123&quot;</code>).</li>
 </ul>
-<h4>Test Fixture Contract</h4>
-<p>The tests rely on a fixture named <code>judge_command</code> (provided via pytest's <code>conftest.py</code> mechanism). You must supply this fixture so the tests can import and use it.</p>
-<h5><code>judge_command</code> fixture</h5>
+<h4>Contract for the Test Fixture</h4>
+<p>A fixture going by the name <code>judge_command</code> is something the tests rely on (pytest's <code>conftest.py</code> mechanism is what provides it). This fixture must be supplied by you so that the tests can import and use it.</p>
+<h5>The <code>judge_command</code> fixture</h5>
 <ul>
 <li><strong>Name:</strong> <code>judge_command</code></li>
-<li><strong>Location:</strong> must be available as a pytest fixture to all tests under <code>tests/</code> (i.e., defined in <code>tests/conftest.py</code>).</li>
-<li><strong>Type:</strong> a callable (a function) yielded/returned by the fixture.</li>
-<li><strong>Signature of the returned callable:</strong> <code>judge_command(command_string, expected)</code> where:
+<li><strong>Location:</strong> as a pytest fixture, it must be available to all tests under <code>tests/</code> (that is, it is defined in <code>tests/conftest.py</code>).</li>
+<li><strong>Type:</strong> the fixture yields/returns a callable (a function).</li>
+<li><strong>Signature of the returned callable:</strong> <code>judge_command(command_string, expected)</code>, with the following parameters:
 <ul>
-<li><code>command_string</code> (<code>str</code>): the raw command text to parse (e.g., <code>&quot;auth 123&quot;</code>).</li>
-<li><code>expected</code> (<code>dict</code>): the exact key/value mapping the parse result must match.</li>
+<li><code>command_string</code> (<code>str</code>): the raw text of the command to be parsed (e.g., <code>&quot;auth 123&quot;</code>).</li>
+<li><code>expected</code> (<code>dict</code>): the exact key/value mapping against which the parse result must be matched.</li>
 </ul>
 </li>
-<li><strong>Behavior of the returned callable:</strong> it must invoke the command parser on <code>command_string</code> and verify that the parsed result equals <code>expected</code>. If they do not match, it must raise an assertion failure.</li>
+<li><strong>Behavior of the returned callable:</strong> invoking the command parser on <code>command_string</code> and verifying that the parsed result equals <code>expected</code> is what the callable must do. If they do not match, an assertion failure is what it must raise.</li>
 </ul>
-<h4>Result Structure</h4>
-<p>The parsed result compared against <code>expected</code> must be equal to a plain mapping of field name → value. For the <code>auth</code> case this means the parse of <code>&quot;auth 123&quot;</code> yields a mapping equivalent to:</p>
+<h4>Structure of the Result</h4>
+<p>Compared against <code>expected</code>, the parsed result must be equal to a plain field name → value mapping. In the <code>auth</code> case, parsing <code>&quot;auth 123&quot;</code> therefore yields a mapping equivalent to the following:</p>
 <pre><code class="language-python">{&quot;command_password&quot;: &quot;auth&quot;, &quot;password&quot;: &quot;123&quot;}
 </code></pre>
-<p>The comparison inside <code>judge_command</code> must treat the parse output as equal to this dictionary. Ensure whatever object the parser returns compares equal to the expected <code>dict</code> (either return a <code>dict</code> directly or an object whose equality against a <code>dict</code> holds for these fields).</p>
+<p>Inside <code>judge_command</code>, the parse output must be treated by the comparison as equal to this dictionary. Ensure that the object returned by the parser — whatever it is — compares equal to the expected <code>dict</code> (either a <code>dict</code> returned directly, or an object whose equality against a <code>dict</code> holds for these fields).</p>
 <h4>Scope</h4>
-<p>Implement only what is needed to support parsing the <code>auth &lt;password&gt;</code> command as described above and to make the <code>judge_command</code> fixture available to the test suite. Do not implement additional commands or behaviors beyond this.</p>
+<p>What must be implemented is only what is needed for supporting the parsing of the <code>auth &lt;password&gt;</code> command as described above, as well as for making the <code>judge_command</code> fixture available to the test suite. Beyond this, additional commands or behaviors must not be implemented.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">You must extend a command-parsing component so that it recognizes a new echo command in addition to the existing auth command.</span>
-        <span class="spec-meta muted">227 words · source specification
+        <span class="spec-title">You must extend a component that parses commands so that it recognizes a new echo command alongside the existing auth command.</span>
+        <span class="spec-meta muted">248 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must extend a command-parsing component so that it recognizes a new <code>echo</code> command in addition to the existing <code>auth</code> command.</p>
-<h4>Command Parsing Behavior</h4>
-<p>The parser accepts a single command string as input and produces a structured result (a mapping/dictionary) describing the parsed command and its arguments.</p>
-<p>The command string consists of a command keyword followed by a single space and its argument.</p>
-<h5><code>auth</code> command</h5>
-<p>Input string of the form:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>You must extend a component that parses commands so that it recognizes a new <code>echo</code> command alongside the existing <code>auth</code> command.</p>
+<h4>Behavior of Command Parsing</h4>
+<p>The parser accepts a single command string as its input and produces a structured result (a mapping/dictionary) that describes the parsed command and its arguments.</p>
+<p>A command string is made up of a command keyword, followed by a single space and then its argument.</p>
+<h5>The <code>auth</code> command</h5>
+<p>The input string has this form:</p>
 <pre><code>auth &lt;password&gt;
 </code></pre>
-<p>Must parse into:</p>
+<p>It must parse into:</p>
 <pre><code class="language-python">{&quot;command_password&quot;: &quot;auth&quot;, &quot;password&quot;: &quot;&lt;password&gt;&quot;}
 </code></pre>
-<p>For example, <code>&quot;auth 123&quot;</code> produces <code>{&quot;command_password&quot;: &quot;auth&quot;, &quot;password&quot;: &quot;123&quot;}</code>.</p>
-<h5><code>echo</code> command (new)</h5>
-<p>Input string of the form:</p>
+<p>As an example, <code>&quot;auth 123&quot;</code> produces <code>{&quot;command_password&quot;: &quot;auth&quot;, &quot;password&quot;: &quot;123&quot;}</code>.</p>
+<h5>The <code>echo</code> command (new)</h5>
+<p>The input string has this form:</p>
 <pre><code>echo &lt;message&gt;
 </code></pre>
-<p>Must parse into:</p>
+<p>It must parse into:</p>
 <pre><code class="language-python">{&quot;command_message&quot;: &quot;echo&quot;, &quot;message&quot;: &quot;&lt;message&gt;&quot;}
 </code></pre>
-<p>For example, <code>&quot;echo hello&quot;</code> produces <code>{&quot;command_message&quot;: &quot;echo&quot;, &quot;message&quot;: &quot;hello&quot;}</code>.</p>
-<h4>Notes</h4>
+<p>As an example, <code>&quot;echo hello&quot;</code> produces <code>{&quot;command_message&quot;: &quot;echo&quot;, &quot;message&quot;: &quot;hello&quot;}</code>.</p>
+<h4>Remarks</h4>
 <ul>
-<li>The result keys differ per command type: the <code>auth</code> command uses the keys <code>command_password</code> and <code>password</code>; the <code>echo</code> command uses the keys <code>command_message</code> and <code>message</code>.</li>
-<li>In each case, the first key holds the literal command keyword (<code>&quot;auth&quot;</code> or <code>&quot;echo&quot;</code>), and the second key holds the remainder of the input (the argument value) as a string.</li>
-<li>The parsing entry point is exercised through a callable that takes the raw command string and returns the parsed mapping described above. Ensure the <code>echo</code> command is registered/handled alongside the existing <code>auth</code> command so both parse correctly.</li>
+<li>The result keys vary by command type: the <code>auth</code> command uses the keys <code>command_password</code> and <code>password</code>, whereas the <code>echo</code> command uses the keys <code>command_message</code> and <code>message</code>.</li>
+<li>In each case, the first key holds the literal command keyword (<code>&quot;auth&quot;</code> or <code>&quot;echo&quot;</code>), while the second key holds the remainder of the input — the argument value — as a string.</li>
+<li>The entry point for parsing is exercised through a callable, which takes the raw command string and returns the parsed mapping described above. Ensure the <code>echo</code> command is registered/handled alongside the existing <code>auth</code> command so that both parse correctly.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You must implement command parsing support for a new ping command within the connection command parsing system.</span>
-        <span class="spec-meta muted">295 words · source specification
+        <span class="spec-title">Within the connection command parsing system, you must implement command parsing support for a new ping command.</span>
+        <span class="spec-meta muted">320 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement command parsing support for a new <code>ping</code> command within the connection command parsing system. The parsing is exercised through a callable that takes a raw command string and produces a structured dictionary result (or a null/None result when the command is invalid).</p>
-<h4>Required Behavior</h4>
-<p>The command parser must recognize the <code>ping</code> command and parse it according to the following rules.</p>
-<h5><code>ping</code> with a single argument</h5>
-<p>Input: a command string consisting of the token <code>ping</code> followed by exactly one whitespace-separated argument.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Within the connection command parsing system, you must implement command parsing support for a new <code>ping</code> command. Parsing is exercised by way of a callable that takes a raw command string and produces a structured dictionary result (or, when the command is invalid, a null/None result).</p>
+<h4>Behavior Requirements</h4>
+<p>The command parser must recognize the <code>ping</code> command and must parse it in accordance with the rules that follow.</p>
+<h5><code>ping</code> followed by a single argument</h5>
+<p>Input: a command string that consists of the token <code>ping</code> followed by exactly one whitespace-separated argument.</p>
 <p>Example: <code>&quot;ping hello&quot;</code></p>
-<p>Expected parsed result — a dictionary:</p>
+<p>Expected result from parsing — a dictionary:</p>
 <pre><code>{&quot;command_messagex&quot;: &quot;ping&quot;, &quot;message&quot;: &quot;hello&quot;}
 </code></pre>
 <ul>
-<li>The key <code>command_messagex</code> holds the command name <code>&quot;ping&quot;</code>.</li>
-<li>The key <code>message</code> holds the single argument string.</li>
+<li>The command name <code>&quot;ping&quot;</code> is held under the key <code>command_messagex</code>.</li>
+<li>The single argument string is held under the key <code>message</code>.</li>
 </ul>
-<h5><code>ping</code> with no arguments</h5>
-<p>Input: the command string <code>&quot;ping&quot;</code> with no arguments.</p>
-<p>Expected parsed result — a dictionary:</p>
+<h5><code>ping</code> without arguments</h5>
+<p>Input: the command string <code>&quot;ping&quot;</code> with no arguments present.</p>
+<p>Expected result from parsing — a dictionary:</p>
 <pre><code>{&quot;command_messagex&quot;: &quot;ping&quot;, &quot;message&quot;: None}
 </code></pre>
 <ul>
-<li>The key <code>command_messagex</code> holds the command name <code>&quot;ping&quot;</code>.</li>
-<li>The key <code>message</code> is <code>None</code>.</li>
+<li>The command name <code>&quot;ping&quot;</code> is held under the key <code>command_messagex</code>.</li>
+<li>The <code>message</code> key is <code>None</code>.</li>
 </ul>
-<h5><code>ping</code> with more than one argument</h5>
-<p>Input: a command string consisting of <code>ping</code> followed by two or more whitespace-separated arguments.</p>
+<h5><code>ping</code> with more than a single argument</h5>
+<p>Input: a command string that consists of <code>ping</code> followed by two or more whitespace-separated arguments.</p>
 <p>Example: <code>&quot;ping hello world&quot;</code></p>
-<p>Expected parsed result: <code>None</code> (the command is invalid and yields no parsed structure).</p>
-<h4>Notes on Scope</h4>
+<p>Expected result from parsing: <code>None</code> (the command is invalid and yields no parsed structure).</p>
+<h4>Scope Notes</h4>
 <ul>
-<li>This task only concerns the <code>ping</code> command. Existing commands (<code>auth</code>, <code>echo</code>) must continue to parse as before; do not alter their behavior.</li>
-<li>Note that the <code>ping</code> command uses the result key <code>command_messagex</code> (not <code>command_message</code>) for the command name — this differs from other commands. Implement exactly this key name for <code>ping</code>.</li>
-<li>The parser must be reachable through the same public parsing entry point used by the existing commands, so that parsing a raw command string returns either the structured dictionary described above or <code>None</code> for invalid input.</li>
+<li>This task is concerned only with the <code>ping</code> command. The existing commands (<code>auth</code>, <code>echo</code>) must continue to parse as before; do not modify their behavior.</li>
+<li>Note that the <code>ping</code> command uses the result key <code>command_messagex</code> (not <code>command_message</code>) for the command name, which sets it apart from the other commands. For <code>ping</code>, implement exactly this key name.</li>
+<li>The parser must be reachable via the same public parsing entry point that the existing commands use, so that parsing a raw command string returns either the structured dictionary described above or <code>None</code> for input that is invalid.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">You are extending a Redis-like command grammar/parser.</span>
-        <span class="spec-meta muted">457 words · source specification
+        <span class="spec-title">This task is about extending a Redis-like command grammar/parser.</span>
+        <span class="spec-meta muted">519 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are extending a Redis-like command grammar/parser. The parser tokenizes a command string and produces a set of named grammar tokens with their captured values. Your task is to add support for two commands (<code>select</code> and <code>swapdb</code>) and to ensure the parser correctly captures repeated token values.</p>
-<h4>Command Parsing Model</h4>
-<p>The parser accepts a full command string and either:</p>
+<p>This task is about extending a Redis-like command grammar/parser. What the parser does is tokenize a command string and produce a set of named grammar tokens together with the values they have captured. Your job is to add support for the two commands (<code>select</code> and <code>swapdb</code>) and to ensure that the parser captures repeated token values correctly.</p>
+<h4>How Commands Are Parsed</h4>
+<p>The parser accepts a full command string, and either:</p>
 <ul>
-<li>successfully parses it, producing a collection of named &quot;variables&quot; (grammar tokens mapped to captured string values), or</li>
-<li>fails to parse it (invalid command), producing no result.</li>
+<li>the string is parsed successfully, which produces a collection of named &quot;variables&quot; (grammar tokens mapped to the captured string values), or</li>
+<li>parsing of the string fails (invalid command), and no result is produced.</li>
 </ul>
-<p>Each recognized command associates the command keyword with a token name, and captures its arguments under argument token names.</p>
-<h5>Variable collection semantics</h5>
-<p>The parsed result exposes a variables collection that supports:</p>
+<p>Each command that the parser recognizes pairs the command keyword with a token name, and that command's arguments are captured under argument token names.</p>
+<h5>Semantics of the variable collection</h5>
+<p>The parsed result exposes a variables collection, and this collection supports:</p>
 <ul>
-<li><code>get(token_name)</code> — returns the single captured value for a token, or <code>None</code> when the token was matched but had no value.</li>
-<li><code>getall(token_name)</code> — returns a list of <strong>all</strong> values captured for a token name. When a token name is captured multiple times within one command (e.g., a command with two arguments that use the same token name), each captured value must appear as a separate entry in this list.</li>
+<li><code>get(token_name)</code> — returns the single value captured for a token, or <code>None</code> in the case where the token was matched but had no value.</li>
+<li><code>getall(token_name)</code> — returns a list of <strong>all</strong> values that were captured for a token name. If the same token name is captured multiple times within one command (for example, a command with two arguments that use the same token name), each captured value must appear in this list as a separate entry.</li>
 </ul>
-<p>The parser must support a single token name being captured more than once in a command and must preserve all such captured values so they are all retrievable via <code>getall</code>.</p>
-<h4>Commands to Implement</h4>
+<p>The parser must support a single token name being captured more than once within a command, and it must preserve all such captured values so that they are all retrievable via <code>getall</code>.</p>
+<h4>Commands to Add</h4>
 <h5><code>select</code></h5>
-<p>Syntax: <code>select &lt;index&gt;</code></p>
+<p>The command syntax is <code>select &lt;index&gt;</code>.</p>
 <ul>
-<li>The command keyword <code>select</code> is captured under the token name <code>command_index</code>.</li>
-<li>It takes exactly one argument, captured under the token name <code>index</code>.</li>
-<li>The <code>index</code> argument must be an integer in the range <code>0</code> through <code>15</code> inclusive. The captured value is the argument's string form.</li>
-<li>Any index value of <code>16</code> or greater is invalid and must cause the command to fail to parse.</li>
-<li>A non-numeric index argument is invalid and must cause the command to fail to parse.</li>
+<li>The keyword of the command, <code>select</code>, is captured under the token name <code>command_index</code>.</li>
+<li>Exactly one argument is taken; it is captured under the token name <code>index</code>.</li>
+<li>The <code>index</code> argument must be an integer within the range <code>0</code> through <code>15</code> inclusive. What gets captured is the argument's string form.</li>
+<li>Any index value that is <code>16</code> or greater is invalid and must cause the command to fail to parse.</li>
+<li>An index argument that is non-numeric is invalid and must cause the command to fail to parse.</li>
 </ul>
 <h5><code>swapdb</code></h5>
-<p>Syntax: <code>swapdb &lt;index1&gt; &lt;index2&gt;</code></p>
+<p>The command syntax is <code>swapdb &lt;index1&gt; &lt;index2&gt;</code>.</p>
 <ul>
-<li>The command keyword <code>swapdb</code> is captured under the token name <code>command_index_index</code>.</li>
-<li>It takes exactly two arguments, <strong>both</strong> captured under the same token name <code>index</code>. The two captured values (in order: first argument, then second argument) must both be retrievable via <code>getall(&quot;index&quot;)</code>.</li>
-<li>Each index argument must be an integer in the range <code>0</code> through <code>15</code> inclusive, captured as its string form.</li>
-<li>A non-numeric index argument is invalid and must cause the command to fail to parse.</li>
-<li>Providing fewer than two arguments (e.g., only one index) is invalid and must cause the command to fail to parse.</li>
+<li>The keyword of the command, <code>swapdb</code>, is captured under the token name <code>command_index_index</code>.</li>
+<li>Exactly two arguments are taken, and <strong>both</strong> are captured under the same token name <code>index</code>. The two captured values (in the order: first argument, then second argument) must both be retrievable via <code>getall(&quot;index&quot;)</code>.</li>
+<li>Each of the index arguments must be an integer within the range <code>0</code> through <code>15</code> inclusive, captured as its string form.</li>
+<li>An index argument that is non-numeric is invalid and must cause the command to fail to parse.</li>
+<li>Supplying fewer than two arguments (for example, only one index) is invalid and must cause the command to fail to parse.</li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional Notes</h4>
 <ul>
-<li>The <code>index</code> token used by both commands represents a valid database index constrained to the range <code>0</code>–<code>15</code> inclusive.</li>
-<li>Existing command parsing behavior (such as the <code>ping</code> command) must remain unchanged.</li>
+<li>In both commands, the <code>index</code> token represents a valid database index that is constrained to the range <code>0</code>–<code>15</code> inclusive.</li>
+<li>Parsing behavior for existing commands (such as the <code>ping</code> command) must remain unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Extend the codebase’s existing generic command-parsing entry point.</span>
-        <span class="spec-meta muted">143 words · source specification
+        <span class="spec-title">This change extends the generic command-parsing entry point that already exists in the codebase.</span>
+        <span class="spec-meta muted">164 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add <code>DEL</code> command parsing</h4>
-<p>Extend the codebase’s existing generic command-parsing entry point. No new Python module, class, or function is introduced by this change; the public addition is support for the <code>DEL</code> command through the existing parser.</p>
-<h5>Required behavior</h5>
-<p>The parser accepts a command string and returns either a parsed mapping or <code>None</code>.</p>
-<p>Recognize uppercase <code>DEL</code> followed by one key and return:</p>
+      <div class="spec-body"><h4>Add parsing for the <code>DEL</code> command</h4>
+<p>This change extends the generic command-parsing entry point that already exists in the codebase. It introduces no new Python module, class, or function; the addition made public is support for the <code>DEL</code> command, provided by the existing parser.</p>
+<h5>Behavior that is required</h5>
+<p>The parser accepts a command string, and what it returns is either a parsed mapping or <code>None</code>.</p>
+<p>Recognize <code>DEL</code> in uppercase, followed by one key, and return:</p>
 <pre><code class="language-python">{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: &lt;key text&gt;}
 </code></pre>
-<p>Required examples:</p>
+<p>The following examples are required:</p>
 <ul>
 <li><code>DEL abc</code> → <code>{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: &quot;abc&quot;}</code></li>
 <li><code>DEL bc1</code> → <code>{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: &quot;bc1&quot;}</code></li>
 <li><code>DEL 1</code> → <code>{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: &quot;1&quot;}</code></li>
 </ul>
-<p>Quoted keys must be preserved exactly, including surrounding quotes and escape characters:</p>
+<p>Keys written in quotes must be preserved exactly, with the surrounding quotes and escape characters included:</p>
 <ul>
 <li><code>DEL &quot;hello world&quot;</code> → <code>{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: '&quot;hello world&quot;'}</code></li>
 <li><code>DEL &quot;hell\&quot;o world&quot;</code> → <code>{&quot;command_key&quot;: &quot;DEL&quot;, &quot;key&quot;: '&quot;hell\\&quot;o world&quot;'}</code></li>
 </ul>
-<p>A command containing an additional argument is invalid:</p>
+<p>A command that contains an additional argument is invalid:</p>
 <ul>
 <li><code>DEL 1 2</code> → <code>None</code></li>
 </ul>
@@ -786,21 +788,21 @@
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Extend the existing command grammar exposed from iredis.redis_grammar and matched through its existing command-string matching API.</span>
-        <span class="spec-meta muted">151 words · source specification
+        <span class="spec-title">Extend the existing command grammar that is exposed from iredis.redis_grammar and that is matched through its existing command-string matching API.</span>
+        <span class="spec-meta muted">162 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Add <code>EXISTS</code> to the generic command parser</h4>
-<p>Extend the existing command grammar exposed from <code>iredis.redis_grammar</code> and matched through its existing command-string matching API. No new standalone class or function is required.</p>
-<p>The parser must recognize the textual command:</p>
+      <div class="spec-body"><h4>Support <code>EXISTS</code> in the generic command parser</h4>
+<p>Extend the existing command grammar that is exposed from <code>iredis.redis_grammar</code> and that is matched through its existing command-string matching API. A new standalone class or function is not required.</p>
+<p>The parser must recognize this textual command:</p>
 <pre><code class="language-text">EXISTS &lt;keys&gt;
 </code></pre>
-<p>For a successful match, the returned variable mapping must expose:</p>
+<p>When a match is successful, the returned variable mapping must expose:</p>
 <ul>
-<li><code>command_keys</code>: the exact string <code>&quot;EXISTS&quot;</code></li>
-<li><code>keys</code>: the complete key-argument portion as written, without splitting, unquoting, or unescaping it</li>
+<li><code>command_keys</code>: exactly the string <code>&quot;EXISTS&quot;</code></li>
+<li><code>keys</code>: the complete key-argument portion as written, with no splitting, unquoting, or unescaping applied to it</li>
 </ul>
-<p>Required parsing results:</p>
+<p>The required parsing results are:</p>
 <table>
 <thead>
 <tr>
@@ -837,68 +839,68 @@
 </tr>
 </tbody>
 </table>
-<p>Quotes and escape characters must therefore remain present in the captured <code>keys</code> value. This change concerns parsing only; no command-execution behavior is required.</p>
+<p>Therefore, quotes and escape characters must remain present in the captured <code>keys</code> value. This change covers parsing only; no command-execution behavior is required.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Add support for parsing a new Redis-style command, EXPIRE, to the command grammar/parser.</span>
-        <span class="spec-meta muted">391 words · source specification
+        <span class="spec-title">Extend the command grammar/parser with support for parsing a new Redis-style command, EXPIRE.</span>
+        <span class="spec-meta muted">426 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add support for parsing the <code>EXPIRE</code> command</h3>
+      <div class="spec-body"><h3>Task: Implement parsing support for the <code>EXPIRE</code> command</h3>
 <h4>Overview</h4>
-<p>Add support for parsing a new Redis-style command, <code>EXPIRE</code>, to the command grammar/parser. The parser must recognize valid <code>EXPIRE</code> command syntax and extract its component parts into named tokens, while rejecting malformed input.</p>
-<h4>Grammar Rule to Implement</h4>
-<p>The <code>EXPIRE</code> command consists of three parts separated by whitespace:</p>
+<p>Extend the command grammar/parser with support for parsing a new Redis-style command, <code>EXPIRE</code>. The parser must recognize valid <code>EXPIRE</code> command syntax and break the command down into its component parts as named tokens; malformed input must be rejected.</p>
+<h4>Grammar Rule to Add</h4>
+<p>The <code>EXPIRE</code> command is made up of three parts separated by whitespace:</p>
 <ol>
 <li>The literal command keyword <code>EXPIRE</code>.</li>
-<li>A <code>key</code> argument.</li>
-<li>A <code>second</code> argument.</li>
+<li>An argument named <code>key</code>.</li>
+<li>An argument named <code>second</code>.</li>
 </ol>
-<h5>Named tokens produced on a successful parse</h5>
-<p>When an input string is successfully parsed as an <code>EXPIRE</code> command, the parse result must contain the following named captures:</p>
+<h5>Named tokens produced when a parse succeeds</h5>
+<p>If an input string is successfully parsed as an <code>EXPIRE</code> command, the parse result must contain the following named captures:</p>
 <ul>
-<li><code>command_key_second</code> — the matched command keyword, with value <code>&quot;EXPIRE&quot;</code>.</li>
-<li><code>key</code> — the key argument as it appears in the input.</li>
-<li><code>second</code> — the second argument as it appears in the input.</li>
+<li><code>command_key_second</code> — the command keyword that matched, with the value <code>&quot;EXPIRE&quot;</code>.</li>
+<li><code>key</code> — the key argument, as it appears in the input.</li>
+<li><code>second</code> — the second argument, as it appears in the input.</li>
 </ul>
-<p>The overall grammatical form (the &quot;command_key_second&quot; shape: a command keyword followed by a key and a numeric second value) is the category this command belongs to; the command keyword name for this token group is <code>command_key_second</code>.</p>
-<h4>Argument rules</h4>
+<p>This command belongs to the grammatical category defined by the overall form (the &quot;command_key_second&quot; shape: a command keyword followed by a key and a numeric second value); the name of the command keyword for this token group is <code>command_key_second</code>.</p>
+<h4>Rules for the arguments</h4>
 <ul>
-<li><strong><code>key</code></strong>: an arbitrary key token. It may be a bare word (e.g. <code>key</code>) or a purely numeric value (e.g. <code>12</code>).</li>
-<li><strong><code>second</code></strong>: must be an integer value consisting solely of digits (e.g. <code>12</code>). A value that contains any non-digit characters (e.g. <code>a12</code>) is <strong>not</strong> a valid <code>second</code>, and the entire command must fail to parse.</li>
+<li><strong><code>key</code></strong>: an arbitrary key token. It may be a bare word (e.g. <code>key</code>) or a value that is purely numeric (e.g. <code>12</code>).</li>
+<li><strong><code>second</code></strong>: must be an integer value made up solely of digits (e.g. <code>12</code>). When a value contains any non-digit characters (e.g. <code>a12</code>), it is <strong>not</strong> a valid <code>second</code>, and the entire command must fail to parse.</li>
 </ul>
-<h4>Parsing behavior and edge cases</h4>
-<p>Given valid, complete input, the parser returns a result whose named captures match the parts described above:</p>
+<h4>Parsing behavior and its edge cases</h4>
+<p>For input that is valid and complete, the parser returns a result whose named captures correspond to the parts described above:</p>
 <ul>
 <li><code>EXPIRE key 12</code> → <code>command_key_second</code> = <code>EXPIRE</code>, <code>key</code> = <code>key</code>, <code>second</code> = <code>12</code></li>
 <li><code>EXPIRE 12 12</code> → <code>command_key_second</code> = <code>EXPIRE</code>, <code>key</code> = <code>12</code>, <code>second</code> = <code>12</code></li>
 </ul>
-<p>Given invalid input, parsing must fail (produce no result):</p>
+<p>When the input is invalid, parsing must fail (producing no result):</p>
 <ul>
-<li><code>EXPIRE key a12</code> → fails, because <code>second</code> is not a valid integer.</li>
-<li><code>EXPIRE 12</code> → fails, because the <code>second</code> argument is missing (the command requires both a <code>key</code> and a <code>second</code>).</li>
+<li><code>EXPIRE key a12</code> → fails, since <code>second</code> is not a valid integer.</li>
+<li><code>EXPIRE 12</code> → fails, since the <code>second</code> argument is missing (both a <code>key</code> and a <code>second</code> are required by the command).</li>
 </ul>
-<h4>Integration</h4>
-<p>The <code>EXPIRE</code> rule must be registered into the existing command grammar so that it is recognized alongside the other already-supported commands (such as <code>EXISTS</code>). The parsing entry point used to parse commands in this codebase must be able to parse <code>EXPIRE</code> input and expose the named captures listed above; on malformed input it must indicate a parse failure rather than returning a partial or successful result.</p>
+<h4>Integration with the grammar</h4>
+<p>The <code>EXPIRE</code> rule must be registered into the existing command grammar so that it is recognized alongside the other commands that are already supported (such as <code>EXISTS</code>). The parsing entry point used in this codebase to parse commands must be able to parse <code>EXPIRE</code> input and expose the named captures listed above; on malformed input it must indicate a parse failure instead of returning a partial or successful result.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Extend the existing generic command parser</span>
-        <span class="spec-meta muted">155 words · source specification
+        <span class="spec-title">Extend the generic command parser that already exists</span>
+        <span class="spec-meta muted">184 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Generic command parsing changes</h3>
-<p>Extend the existing generic command parser; no new standalone class or function is required.</p>
-<h4><code>EXPIRE</code> parsing</h4>
-<p>The parser must support:</p>
+      <div class="spec-body"><h3>Changes to generic command parsing</h3>
+<p>Extend the generic command parser that already exists; creating a new standalone class or function is not required.</p>
+<h4>Parsing of <code>EXPIRE</code></h4>
+<p>The following must be supported by the parser:</p>
 <ul>
-<li>Input: <code>EXPIRE key 1565787643</code></li>
-<li>Parsed result:</li>
+<li>The input: <code>EXPIRE key 1565787643</code></li>
+<li>The parsed result:</li>
 </ul>
 <pre><code class="language-python">{
     &quot;command_key_second&quot;: &quot;EXPIRE&quot;,
@@ -906,40 +908,40 @@
     &quot;second&quot;: &quot;1565787643&quot;,
 }
 </code></pre>
-<p>The expiration value remains a string in the parsed result.</p>
-<p><code>EXPIRE key a12</code> must be rejected as invalid and produce no parsed result (<code>None</code>). Do not add an <code>EXPIREAT</code> command.</p>
-<h4><code>KEYS</code> parsing</h4>
-<p>Accept a <code>KEYS</code> command followed by a pattern. Return a dictionary containing:</p>
+<p>In the parsed result, the expiration value stays a string.</p>
+<p><code>EXPIRE key a12</code> must be rejected as invalid and must produce no parsed result (<code>None</code>). Do not introduce an <code>EXPIREAT</code> command.</p>
+<h4>Parsing of <code>KEYS</code></h4>
+<p>Accept a <code>KEYS</code> command that is followed by a pattern. Return a dictionary that contains:</p>
 <ul>
-<li><code>command_pattern</code>: the command token exactly as supplied, preserving case.</li>
-<li><code>pattern</code>: the pattern exactly as supplied.</li>
+<li><code>command_pattern</code>: the command token exactly as it was supplied, with its case preserved.</li>
+<li><code>pattern</code>: the pattern exactly as it was supplied.</li>
 </ul>
-<p>Required examples:</p>
+<p>The following examples are required:</p>
 <pre><code class="language-python">&quot;KEYS *&quot;     -&gt; {&quot;command_pattern&quot;: &quot;KEYS&quot;, &quot;pattern&quot;: &quot;*&quot;}
 &quot;KEYS *abc&quot;  -&gt; {&quot;command_pattern&quot;: &quot;KEYS&quot;, &quot;pattern&quot;: &quot;*abc&quot;}
 &quot;keys abc*&quot;  -&gt; {&quot;command_pattern&quot;: &quot;keys&quot;, &quot;pattern&quot;: &quot;abc*&quot;}
 </code></pre>
-<p>Thus, both uppercase and lowercase <code>KEYS</code> spellings must be recognized for these inputs, and leading or trailing <code>*</code> wildcard forms must be retained unchanged.</p>
+<p>Consequently, for these inputs, both uppercase and lowercase spellings of <code>KEYS</code> must be recognized, and wildcard forms with a leading or trailing <code>*</code> must be kept unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add support for parsing the MOVE command to the existing generic command parser.</span>
-        <span class="spec-meta muted">251 words · source specification
+        <span class="spec-title">Extend the existing generic command parser with support for parsing the MOVE command.</span>
+        <span class="spec-meta muted">266 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Add support for parsing the <code>MOVE</code> command to the existing generic command parser.</p>
+<p>Extend the existing generic command parser with support for parsing the <code>MOVE</code> command.</p>
 <h4>Background</h4>
-<p>The codebase contains a command parser that tokenizes and classifies command strings into a structured dictionary of named components. You must extend this parser to recognize the <code>MOVE</code> command.</p>
+<p>Within the codebase there is a command parser that tokenizes and classifies command strings into a structured dictionary of named components. You must extend this parser so that it recognizes the <code>MOVE</code> command.</p>
 <h4>Required Behavior</h4>
-<p>When the parser processes a command string of the form:</p>
+<p>When the parser processes a command string with the following form:</p>
 <pre><code>MOVE &lt;key&gt; &lt;index&gt;
 </code></pre>
-<p>it must produce a dictionary containing exactly the following key/value pairs:</p>
+<p>it must produce a dictionary that contains exactly the following key/value pairs:</p>
 <ul>
-<li><code>&quot;command_key_index&quot;</code> — the command token as it appeared in the input (e.g. <code>&quot;MOVE&quot;</code>).</li>
+<li><code>&quot;command_key_index&quot;</code> — the command token in the form it appeared in the input (e.g. <code>&quot;MOVE&quot;</code>).</li>
 <li><code>&quot;key&quot;</code> — the key argument (the first argument after the command).</li>
 <li><code>&quot;index&quot;</code> — the index argument (the second argument after the command).</li>
 </ul>
@@ -952,263 +954,266 @@
 </code></pre>
 <p>Notes:</p>
 <ul>
-<li>The index value is preserved as a string (no numeric conversion).</li>
-<li>The command is grouped under the classification/component name <code>command_key_index</code>, indicating a command that takes a key followed by an index argument.</li>
+<li>The index value is preserved as a string (no numeric conversion is performed).</li>
+<li>The command is grouped under the classification/component name <code>command_key_index</code>; this indicates a command that takes a key followed by an index argument.</li>
 </ul>
 <h4>Integration Requirements</h4>
-<p>The parsing must be reachable through the same public parsing interface already used to parse other commands in this codebase (the same entry point that handles commands such as <code>KEYS</code>). No new module or public function names are introduced by this task; you are extending the existing parser's grammar/command set so that <code>MOVE</code> is recognized and classified as described above.</p>
-<p>Commands already supported (such as <code>KEYS &lt;pattern&gt;</code>, which yields <code>{&quot;command_pattern&quot;: &quot;KEYS&quot;, &quot;pattern&quot;: &quot;*&quot;}</code>) must continue to parse unchanged.</p>
+<p>The parsing must be reachable via the same public parsing interface already used in this codebase to parse other commands (i.e. the same entry point that handles commands such as <code>KEYS</code>). This task introduces no new module or public function names; what you are doing is extending the existing parser's grammar/command set so that <code>MOVE</code> is recognized and classified as described above.</p>
+<p>Commands that are already supported (for instance <code>KEYS &lt;pattern&gt;</code>, which yields <code>{&quot;command_pattern&quot;: &quot;KEYS&quot;, &quot;pattern&quot;: &quot;*&quot;}</code>) must continue to parse unchanged.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Extend the command grammar/parser to recognize the PEXPIRE Redis command.</span>
-        <span class="spec-meta muted">332 words · source specification
+        <span class="spec-title">Extend the command grammar/parser so that it recognizes the PEXPIRE Redis command.</span>
+        <span class="spec-meta muted">337 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Extend the command grammar/parser to recognize the <code>PEXPIRE</code> Redis command. The parser must classify this command under a syntax group that pairs a key with a millisecond value, and it must correctly extract the command name, the key, and the millisecond argument as named tokens.</p>
+<p>Extend the command grammar/parser so that it recognizes the <code>PEXPIRE</code> Redis command. The parser must classify this command under a syntax group in which a key is paired with a millisecond value, and it must extract the command name, the key, and the millisecond argument correctly, as named tokens.</p>
 <h4>Required Behavior</h4>
-<p>Add support for parsing the <code>PEXPIRE</code> command. The command has the following form:</p>
+<p>Support must be added for parsing the <code>PEXPIRE</code> command. This command takes the following form:</p>
 <pre><code>PEXPIRE &lt;key&gt; &lt;millisecond&gt;
 </code></pre>
-<h5>Token extraction</h5>
-<p>When a valid <code>PEXPIRE</code> command string is parsed, the result must include the following named fields:</p>
+<h5>Extracting tokens</h5>
+<p>When a valid <code>PEXPIRE</code> command string is parsed, the parse result must include the following named fields:</p>
 <ul>
-<li><code>command_key_millisecond</code> — set to the command name <code>&quot;PEXPIRE&quot;</code>.</li>
-<li><code>key</code> — the raw text of the key argument.</li>
-<li><code>millisecond</code> — the raw text of the millisecond argument.</li>
+<li><code>command_key_millisecond</code> — assigned the command name <code>&quot;PEXPIRE&quot;</code>.</li>
+<li><code>key</code> — the key argument's raw text.</li>
+<li><code>millisecond</code> — the millisecond argument's raw text.</li>
 </ul>
-<h5>Argument rules</h5>
+<h5>Rules for arguments</h5>
 <ul>
-<li><code>&lt;key&gt;</code> may be any token, including one composed entirely of digits (e.g. <code>12</code> is a valid key).</li>
-<li><code>&lt;millisecond&gt;</code> must consist only of digits. A token containing non-digit characters (e.g. <code>a12</code>) is not a valid millisecond value.</li>
+<li><code>&lt;key&gt;</code> may be any token, even one composed entirely of digits (e.g. <code>12</code> is a valid key).</li>
+<li><code>&lt;millisecond&gt;</code> must be made up of digits only. A token that contains non-digit characters (e.g. <code>a12</code>) is not a valid millisecond value.</li>
 </ul>
 <h5>Valid / invalid cases</h5>
 <ul>
-<li><code>PEXPIRE key 12</code> → parses successfully with <code>command_key_millisecond = &quot;PEXPIRE&quot;</code>, <code>key = &quot;key&quot;</code>, <code>millisecond = &quot;12&quot;</code>.</li>
-<li><code>PEXPIRE 12 12</code> → parses successfully with <code>command_key_millisecond = &quot;PEXPIRE&quot;</code>, <code>key = &quot;12&quot;</code>, <code>millisecond = &quot;12&quot;</code>.</li>
-<li><code>PEXPIRE key a12</code> → does not parse (the millisecond argument is invalid because it is not all digits).</li>
-<li><code>PEXPIRE 12</code> → does not parse (the millisecond argument is missing; both a key and a millisecond value are required).</li>
+<li><code>PEXPIRE key 12</code> → parses successfully, producing <code>command_key_millisecond = &quot;PEXPIRE&quot;</code>, <code>key = &quot;key&quot;</code>, <code>millisecond = &quot;12&quot;</code>.</li>
+<li><code>PEXPIRE 12 12</code> → parses successfully, producing <code>command_key_millisecond = &quot;PEXPIRE&quot;</code>, <code>key = &quot;12&quot;</code>, <code>millisecond = &quot;12&quot;</code>.</li>
+<li><code>PEXPIRE key a12</code> → does not parse (the millisecond argument is invalid since it is not all digits).</li>
+<li><code>PEXPIRE 12</code> → does not parse (the millisecond argument is absent; both a key and a millisecond value are required).</li>
 </ul>
-<p>When a command string does not conform to the grammar (missing required arguments, or an argument that violates the type rules above), parsing must fail / produce no valid parse result rather than returning a partial or malformed result.</p>
+<p>If a command string does not conform to the grammar (required arguments are missing, or an argument violates the type rules above), parsing must fail / produce no valid parse result rather than returning a partial or malformed result.</p>
 <h4>Grouping</h4>
-<p><code>PEXPIRE</code> belongs to a command category whose members take a key followed by a millisecond value. The named group/token used to capture the command name for this category is <code>command_key_millisecond</code>. Ensure <code>PEXPIRE</code> is recognized as a member of this category so that parsing yields the <code>command_key_millisecond</code>, <code>key</code>, and <code>millisecond</code> fields described above.</p>
+<p><code>PEXPIRE</code> is part of a command category whose members take a key followed by a millisecond value. For this category, the named group/token that captures the command name is <code>command_key_millisecond</code>. Ensure <code>PEXPIRE</code> is recognized as belonging to this category so that parsing yields the <code>command_key_millisecond</code>, <code>key</code>, and <code>millisecond</code> fields described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Add PEXPIREAT Command Parsing Support</span>
-        <span class="spec-meta muted">271 words · source specification
+        <span class="spec-title">Support Parsing of the PEXPIREAT Command</span>
+        <span class="spec-meta muted">307 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add PEXPIREAT Command Parsing Support</h3>
-<h4>Overview</h4>
-<p>Extend the command grammar/parser to recognize and correctly parse the Redis <code>PEXPIREAT</code> command.</p>
-<h4>Required Behavior</h4>
-<p>The parser must accept the <code>PEXPIREAT</code> command, which takes exactly two arguments:</p>
+      <div class="spec-body"><h3>Task Specification: Support Parsing of the PEXPIREAT Command</h3>
+<h4>Summary</h4>
+<p>Extend the command grammar/parser so that it recognizes the Redis <code>PEXPIREAT</code> command and parses it correctly.</p>
+<h4>Behavior Requirements</h4>
+<p>The parser must accept the <code>PEXPIREAT</code> command; that command takes exactly two arguments:</p>
 <ol>
-<li>A key (arbitrary token).</li>
-<li>A timestamp in milliseconds (must be a valid integer).</li>
+<li>A key, which is an arbitrary token.</li>
+<li>A timestamp in milliseconds (this must be a valid integer).</li>
 </ol>
-<h5>Valid input</h5>
-<p>When given a well-formed <code>PEXPIREAT</code> command, the parser must produce a result mapping with the following three named components:</p>
+<h5>Handling of valid input</h5>
+<p>If the <code>PEXPIREAT</code> command it receives is well-formed, the parser must produce a result mapping with these three named components:</p>
 <ul>
-<li><code>command_key_timestampms</code>: the command name token (e.g., <code>&quot;PEXPIREAT&quot;</code>).</li>
-<li><code>key</code>: the key argument as a string.</li>
-<li><code>timestampms</code>: the timestamp-in-milliseconds argument as a string.</li>
+<li><code>command_key_timestampms</code>: the token holding the command name (for example, <code>&quot;PEXPIREAT&quot;</code>).</li>
+<li><code>key</code>: the key argument, expressed as a string.</li>
+<li><code>timestampms</code>: the timestamp-in-milliseconds argument, expressed as a string.</li>
 </ul>
-<p>For example, parsing:</p>
+<p>As an example, parsing:</p>
 <pre><code>PEXPIREAT key 1565787643
 </code></pre>
-<p>must yield:</p>
+<p>must yield the following:</p>
 <pre><code>{
     &quot;command_key_timestampms&quot;: &quot;PEXPIREAT&quot;,
     &quot;key&quot;: &quot;key&quot;,
     &quot;timestampms&quot;: &quot;1565787643&quot;
 }
 </code></pre>
-<h5>Invalid input</h5>
-<p>The parser must reject (produce no valid parse / a <code>None</code> result) when the command is malformed. Specifically:</p>
+<h5>Handling of invalid input</h5>
+<p>Whenever the command is malformed, the parser must reject it (produce no valid parse / a <code>None</code> result). Specifically:</p>
 <ul>
-<li>The <code>timestampms</code> argument must consist only of digits. A value containing non-digit characters (e.g., <code>a12</code>) is invalid, so:</li>
+<li>The <code>timestampms</code> argument must consist only of digits. A value that contains non-digit characters (for example, <code>a12</code>) is invalid, so the following:</li>
 </ul>
 <pre><code>PEXPIREAT key a12
 </code></pre>
 <p>must fail to parse (yield <code>None</code>).</p>
-<h4>Integration Notes</h4>
+<h4>Notes on Integration</h4>
 <ul>
-<li>This parsing behavior is exercised through the same command-parsing mechanism used by other existing commands such as <code>PEXPIRE</code>. The new <code>PEXPIREAT</code> handling must integrate into that shared grammar so that a parsed command exposes its components under the named keys listed above.</li>
-<li>The component naming convention parallels existing commands: the command name is captured under a key that describes its argument shape — here <code>command_key_timestampms</code>, reflecting that the command is followed by a <code>key</code> and a <code>timestampms</code> value.</li>
+<li>This parsing behavior is exercised through the same command-parsing mechanism that other existing commands, such as <code>PEXPIRE</code>, use. Handling of the new <code>PEXPIREAT</code> command must integrate into that shared grammar so that a parsed command exposes its components under the named keys listed above.</li>
+<li>The convention for naming components parallels existing commands: the command name is captured under a key that describes its argument shape — in this case <code>command_key_timestampms</code>, reflecting that a <code>key</code> and a <code>timestampms</code> value follow the command.</li>
 </ul>
-<h4>Scope</h4>
-<p>Implement only the <code>PEXPIREAT</code> command parsing as described. No other commands or behaviors are in scope.</p>
+<h4>Scope of Work</h4>
+<p>Implement only the parsing of the <code>PEXPIREAT</code> command as described above. No other commands or behaviors are in scope.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You must add support for parsing the Redis RENAME command to the existing command-parsing system.</span>
-        <span class="spec-meta muted">396 words · source specification
+        <span class="spec-title">Support for parsing the Redis RENAME command must be added to the existing command-parsing system.</span>
+        <span class="spec-meta muted">418 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Overview</h5>
-<p>You must add support for parsing the Redis <code>RENAME</code> command to the existing command-parsing system. The parser takes a raw command string as input and produces a structured dictionary of named components, or returns <code>None</code> when the input does not match the expected grammar.</p>
-<h5>Context</h5>
-<p>There is an existing command grammar / parser used to recognize Redis commands (commands like <code>MOVE</code>, <code>PEXPIRE</code>, <code>PEXPIREAT</code> are already handled). Each command definition associates a command syntax with a set of named capture groups. When a command string is parsed successfully, the result is a mapping from group names to the matched substrings. When the command string does not conform to the required syntax, parsing yields <code>None</code>.</p>
-<p>You must extend this system so it recognizes the <code>RENAME</code> command.</p>
-<h5>Required Behavior</h5>
-<p>The <code>RENAME</code> command takes exactly two arguments: a source key and a destination key. Its syntax is:</p>
+      <div class="spec-body"><h4>Task Description</h4>
+<h5>Summary</h5>
+<p>Support for parsing the Redis <code>RENAME</code> command must be added to the existing command-parsing system. The parser takes a raw command string as its input; it produces a structured dictionary of named components, or it returns <code>None</code> when the input does not match the expected grammar.</p>
+<h5>Background</h5>
+<p>Redis commands are recognized by an existing command grammar / parser (commands such as <code>MOVE</code>, <code>PEXPIRE</code>, <code>PEXPIREAT</code> are already handled). Each command definition ties a command syntax to a set of named capture groups. When parsing of a command string succeeds, the result is a mapping from group names to the matched substrings. When the command string fails to conform to the required syntax, parsing yields <code>None</code>.</p>
+<p>This system must be extended so that it recognizes the <code>RENAME</code> command.</p>
+<h5>Behavior Requirements</h5>
+<p>The <code>RENAME</code> command takes exactly two arguments — a source key and a destination key. The syntax is:</p>
 <pre><code>RENAME &lt;key&gt; &lt;newkey&gt;
 </code></pre>
-<p>When a <code>RENAME</code> command is parsed:</p>
+<p>Parsing a <code>RENAME</code> command:</p>
 <ul>
-<li>The command token must be recognized case-insensitively (e.g. a lowercase <code>rename</code> is valid).</li>
-<li>The parse result must be a dictionary containing exactly the following keys:
+<li>Recognition of the command token must be case-insensitive (e.g. <code>rename</code> in lowercase is valid).</li>
+<li>The parse result must be a dictionary that contains exactly the following keys:
 <ul>
-<li><code>&quot;command_key_newkey&quot;</code> — set to the command token exactly as it appeared in the input (e.g. <code>&quot;rename&quot;</code>).</li>
-<li><code>&quot;key&quot;</code> — set to the first argument (the source key) exactly as it appeared.</li>
-<li><code>&quot;newkey&quot;</code> — set to the second argument (the destination key) exactly as it appeared.</li>
+<li><code>&quot;command_key_newkey&quot;</code> — set to the command token exactly as it was written in the input (e.g. <code>&quot;rename&quot;</code>).</li>
+<li><code>&quot;key&quot;</code> — set to the first argument (the source key) exactly as it was written.</li>
+<li><code>&quot;newkey&quot;</code> — set to the second argument (the destination key) exactly as it was written.</li>
 </ul>
 </li>
-<li>Both <code>key</code> and <code>newkey</code> accept arbitrary token values, including purely numeric tokens (e.g. <code>&quot;123&quot;</code> is a valid key).</li>
+<li>Both <code>key</code> and <code>newkey</code> accept arbitrary token values, including tokens that are purely numeric (e.g. <code>&quot;123&quot;</code> is a valid key).</li>
 </ul>
-<p>Examples of successful parses:</p>
+<p>Examples of parses that succeed:</p>
 <ul>
-<li>Input <code>rename key newkey</code> produces:
+<li>Given the input <code>rename key newkey</code>, the parse produces:
 <code>{&quot;command_key_newkey&quot;: &quot;rename&quot;, &quot;key&quot;: &quot;key&quot;, &quot;newkey&quot;: &quot;newkey&quot;}</code></li>
-<li>Input <code>rename 123 newkey</code> produces:
+<li>Given the input <code>rename 123 newkey</code>, the parse produces:
 <code>{&quot;command_key_newkey&quot;: &quot;rename&quot;, &quot;key&quot;: &quot;123&quot;, &quot;newkey&quot;: &quot;newkey&quot;}</code></li>
 </ul>
-<p>The parse must return <code>None</code> (no match) when the command does not supply both a key and a newkey argument. For example:</p>
+<p>When the command does not provide both a key and a newkey argument, the parse must return <code>None</code> (no match). As an example:</p>
 <ul>
-<li>Input <code>rename 123 </code> (a source key but no destination key) produces <code>None</code>.</li>
+<li>The input <code>rename 123 </code> (there is a source key but no destination key) produces <code>None</code>.</li>
 </ul>
 <h5>API Surface</h5>
-<p>The change must integrate into the existing generic command-parsing mechanism so that a command string is parsed into the described dictionary structure (or <code>None</code>). No new public function names are introduced by this change beyond registering the <code>RENAME</code> command within the existing grammar so that the standard parse entry point returns the results described above. The named capture group identifier associated with this command is <code>command_key_newkey</code>, and the argument group names are <code>key</code> and <code>newkey</code>.</p>
+<p>This change must integrate into the existing generic command-parsing mechanism, so that a command string is parsed into the dictionary structure described above (or <code>None</code>). Apart from registering the <code>RENAME</code> command within the existing grammar so that the standard parse entry point returns the results described earlier, no new public function names are introduced by this change. The named capture group identifier for this command is <code>command_key_newkey</code>, and the argument group names are <code>key</code> and <code>newkey</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">Implement the following three pieces of functionality in the iredis package.</span>
-        <span class="spec-meta muted">925 words · source specification
+        <span class="spec-title">Three features, spelled out below, must be implemented in the iredis package.</span>
+        <span class="spec-meta muted">994 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement the following three pieces of functionality in the <code>iredis</code> package.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>Three features, spelled out below, must be implemented in the <code>iredis</code> package.</p>
 <h4>1. <code>iredis.redis_grammar.REDIS_COMMANDS</code></h4>
-<p>The module <code>iredis.redis_grammar</code> must expose a module-level attribute named <code>REDIS_COMMANDS</code>.</p>
-<p>This value must be a valid input to <code>prompt_toolkit.contrib.regular_languages.compiler.compile</code>, i.e. calling <code>compile(REDIS_COMMANDS)</code> must succeed and return a compiled grammar object without raising.</p>
+<p>A module-level attribute named <code>REDIS_COMMANDS</code> must be exposed by the module <code>iredis.redis_grammar</code>.</p>
+<p>This value must be valid as an input to <code>prompt_toolkit.contrib.regular_languages.compiler.compile</code> — that is, calling <code>compile(REDIS_COMMANDS)</code> must succeed and return a compiled grammar object, with no exception raised.</p>
 <h4>2. <code>iredis.utils.timer</code></h4>
-<p>Add a function <code>timer(name)</code> to the module <code>iredis.utils</code>.</p>
-<p>Behavior:</p>
+<p>A <code>timer(name)</code> function must be added to <code>iredis.utils</code>.</p>
+<p>Behavior requirements:</p>
 <ul>
 <li>
-<p>The module <code>iredis.utils</code> must define a module-level <code>logger</code> object (as used for logging).</p>
+<p><code>iredis.utils</code> must define a <code>logger</code> object at module level (the one used for logging).</p>
 </li>
 <li>
-<p>Each call to <code>timer(name)</code> logs a debug message via <code>logger.debug(...)</code> whose first positional argument is a string of the exact format:</p>
+<p>Every call of <code>timer(name)</code> logs a debug message through <code>logger.debug(...)</code>, and the string serving as that call's first positional argument has exactly this format:</p>
 <pre><code>[timer N] E -&gt; name
 </code></pre>
-<p>where:</p>
+<p>in which:</p>
 <ul>
-<li><code>name</code> is the string argument passed to the call.</li>
-<li><code>N</code> is a call counter — a single digit that increments on every call to <code>timer</code>. It reflects the total number of times <code>timer</code> has been called across the lifetime of the process (i.e. the count is global/persistent, not reset between separate calls). The first call is index <code>1</code>, and it keeps incrementing on each subsequent invocation.</li>
-<li><code>E</code> is the elapsed wall-clock time, in seconds, between the immediately preceding <code>timer</code> call and this call, formatted as a decimal number beginning with <code>0.</code> (e.g. <code>0.104312</code>). The elapsed time must match the actual delay between consecutive calls.</li>
+<li><code>name</code> denotes the string argument that was passed in with the call.</li>
+<li><code>N</code> is a call counter, shown as a single digit; it goes up by one on every call to <code>timer</code>. Its value says how many times <code>timer</code> has been called in total over the lifetime of the process (that is, the count is global/persistent and is not reset between separate calls). Index <code>1</code> belongs to the first call, and each subsequent invocation pushes the number up by one.</li>
+<li><code>E</code> is the wall-clock time that has elapsed, in seconds, from the immediately preceding <code>timer</code> call to this one, written as a decimal number that starts with <code>0.</code> (e.g. <code>0.104312</code>). This elapsed time must match the actual delay between consecutive calls.</li>
 </ul>
 </li>
 </ul>
-<p>Concretely, given the sequence of calls:</p>
+<p>A concrete sequence of calls shows this:</p>
 <ol>
-<li><code>timer(&quot;foo&quot;)</code> → counter becomes 1</li>
+<li><code>timer(&quot;foo&quot;)</code> → the counter reaches 1</li>
 <li>sleep ~0.1s</li>
-<li><code>timer(&quot;bar&quot;)</code> → counter becomes 2, message is <code>[timer 2] 0.10xxxx -&gt; bar</code>, where the elapsed value is between the time since the previous <code>timer</code> call</li>
-<li><code>timer(&quot;foo&quot;)</code> → counter becomes 3</li>
+<li><code>timer(&quot;bar&quot;)</code> → the counter reaches 2, and the message reads <code>[timer 2] 0.10xxxx -&gt; bar</code>, its elapsed value coming from the time since the previous <code>timer</code> call</li>
+<li><code>timer(&quot;foo&quot;)</code> → the counter reaches 3</li>
 <li>sleep ~0.2s</li>
-<li><code>timer(&quot;bar&quot;)</code> → counter becomes 4, message is <code>[timer 4] 0.20xxxx -&gt; bar</code></li>
+<li><code>timer(&quot;bar&quot;)</code> → the counter reaches 4, and the message reads <code>[timer 4] 0.20xxxx -&gt; bar</code></li>
 </ol>
-<p>The elapsed value in the message reflects the time since the last <code>timer</code> call, and the counter <code>N</code> in the message is the counter value at the time of that specific call.</p>
+<p>In the message, the elapsed value shows the time that has passed since the last <code>timer</code> call, while the counter <code>N</code> it contains is the value the counter had at that particular call.</p>
 <h4>3. <code>iredis.entry.compile_grammar_bg</code></h4>
-<p>Add a function <code>compile_grammar_bg(session)</code> to the module <code>iredis.entry</code>.</p>
-<p>Behavior:</p>
+<p>The module <code>iredis.entry</code> must gain a function <code>compile_grammar_bg(session)</code>.</p>
+<p>Behavior requirements:</p>
 <ul>
-<li>The function accepts a <code>session</code> object.</li>
-<li>It must perform the grammar compilation work in a <strong>background thread</strong>: calling <code>compile_grammar_bg(session)</code> starts exactly one new thread and returns immediately, before the background work has completed.</li>
-<li>Immediately after the call returns, the <code>session</code> object's attributes <code>session.lexer</code> and <code>session.completer</code> must remain unchanged (i.e. if they were falsy/<code>None</code> before the call, they are still <code>None</code> right after the call returns, because the background work has not finished yet).</li>
-<li>Once the background thread completes (and no other threads are running from this operation), the <code>session</code> object must have both <code>session.lexer</code> and <code>session.completer</code> set to truthy (non-<code>None</code>) values.</li>
-<li>After the work is done, the extra background thread must have terminated (the thread count returns to what it was before the call).</li>
+<li>A <code>session</code> object is accepted by the function.</li>
+<li>The grammar compilation must happen in a <strong>background thread</strong>: calling <code>compile_grammar_bg(session)</code> must start exactly one new thread and return immediately, before the background work has completed.</li>
+<li>Immediately after the call returns, the attributes <code>session.lexer</code> and <code>session.completer</code> on the <code>session</code> object must be in the same state as before (that is, if they were falsy/<code>None</code> prior to the call, they are still <code>None</code> at that point, because the background work has yet to finish).</li>
+<li>When the background thread has completed (and no other threads from this operation are running), both <code>session.lexer</code> and <code>session.completer</code> must be set to truthy (non-<code>None</code>) values on the <code>session</code> object.</li>
+<li>Once the work is finished, the extra background thread must have terminated (so the thread count is back where it was before the call).</li>
 </ul>
-<p>The function must be importable as <code>from iredis.entry import compile_grammar_bg</code>.</p>
-<h4>Additional Requirements</h4>
+<p>The function must be importable via <code>from iredis.entry import compile_grammar_bg</code>.</p>
+<h4>Extra Requirements</h4>
 <ul>
-<li><strong>Correction to the <code>timer</code> counter semantics:</strong> the counter value <code>N</code> embedded in the log message is <strong>zero-based with respect to the current call</strong> — i.e., it equals the number of <code>timer</code> calls made <em>before</em> the current one. Concretely, for the sequence: <code>timer(&quot;foo&quot;)</code>, sleep ~0.1s, <code>timer(&quot;bar&quot;)</code>, <code>timer(&quot;foo&quot;)</code>, sleep ~0.2s, <code>timer(&quot;bar&quot;)</code>, the second call must log a message matching <code>[timer 1] 0.1xxxxx -&gt; bar</code> and the fourth call must log a message matching <code>[timer 3] 0.2xxxxx -&gt; bar</code>. (This supersedes the earlier statement that these calls log <code>[timer 2]</code> and <code>[timer 4]</code>.)</li>
-<li>The <code>N</code> in the logged message must be rendered as a single digit with no padding, and the elapsed value <code>E</code> must be rendered as <code>0.</code> followed by one or more digits (e.g. <code>0.104312</code>), matching the regular expression <code>\[timer (\d)\] (0\.\d+) -&gt; &lt;name&gt;</code>.</li>
-<li>The elapsed value <code>E</code> must accurately reflect real wall-clock time between consecutive <code>timer</code> calls: after a ~0.1s delay the parsed float must fall in <code>[0.1, 0.2]</code>, and after a ~0.2s delay it must fall in <code>[0.2, 0.3]</code>.</li>
-<li>The counter state must be module-global and persist across all calls within the process; it is never reset between calls, and the timestamp used for the elapsed calculation must be updated on every call (including calls whose output is not inspected).</li>
-<li><code>iredis.utils.logger</code> must be a module-level attribute of <code>iredis.utils</code> that <code>timer</code> looks up at call time through the module namespace (so that replacing <code>iredis.utils.logger</code> with a substitute object causes <code>timer</code> to invoke <code>debug</code> on the substitute). The formatted message must be passed as the <strong>first positional argument</strong> to <code>logger.debug</code>.</li>
-<li><code>REDIS_COMMANDS</code> must not merely be compilable: <code>prompt_toolkit.contrib.regular_languages.compiler.compile(REDIS_COMMANDS)</code> must yield a compiled grammar that is a fully functional Redis command grammar, behaviorally equivalent to the package's existing <code>redis_grammar</code> object. In particular, matching valid Redis command lines against the compiled grammar must succeed and produce the same named variable captures (command names, keys, values, and other argument groups) that the existing grammar produces, and invalid command lines must fail to match as before.</li>
-<li><code>compile_grammar_bg(session)</code> must start <strong>exactly one</strong> additional thread: immediately after the call returns, the process's active thread count must be exactly one greater than it was just before the call (the new thread must already be running at that point, and no other threads may be spawned as part of the operation).</li>
-<li>After the background thread finishes and the active thread count has returned to its pre-call value, <code>session.lexer</code> and <code>session.completer</code> must both hold truthy values; before that point (immediately upon return of <code>compile_grammar_bg</code>), any pre-existing <code>None</code> values on those attributes must still be <code>None</code>.</li>
-<li>The background work must complete in bounded time on its own (without any further interaction), so that the extra thread reliably terminates and the attributes become set shortly after the call.</li>
+<li><strong>Correction regarding the <code>timer</code> counter semantics:</strong> the <code>N</code> that appears inside the log message is <strong>zero-based with respect to the current call</strong> — that is, it counts the <code>timer</code> calls that happened <em>before</em> the current one. As a concrete illustration, for the sequence <code>timer(&quot;foo&quot;)</code>, sleep ~0.1s, <code>timer(&quot;bar&quot;)</code>, <code>timer(&quot;foo&quot;)</code>, sleep ~0.2s, <code>timer(&quot;bar&quot;)</code>, the second call must log a message matching <code>[timer 1] 0.1xxxxx -&gt; bar</code>, and the fourth call must log a message matching <code>[timer 3] 0.2xxxxx -&gt; bar</code>. (This overrides the earlier statement that these calls log <code>[timer 2]</code> and <code>[timer 4]</code>.)</li>
+<li>In the logged message, <code>N</code> must appear as a single digit without any padding, and the elapsed value <code>E</code> must appear as <code>0.</code> with one or more digits after it (e.g. <code>0.104312</code>), in accordance with the regular expression <code>\[timer (\d)\] (0\.\d+) -&gt; &lt;name&gt;</code>.</li>
+<li><code>E</code> must be a true measure of real wall-clock time between consecutive <code>timer</code> calls: after a ~0.1s delay, the parsed float must land inside <code>[0.1, 0.2]</code>, and after a ~0.2s delay, inside <code>[0.2, 0.3]</code>.</li>
+<li>The counter state must be module-global and must survive across all calls within the process; nothing resets it between calls, and every call must refresh the timestamp used for the elapsed calculation (calls whose output is not inspected included).</li>
+<li><code>iredis.utils.logger</code> must be a module-level attribute of <code>iredis.utils</code>, and <code>timer</code> must look it up at call time through the module namespace (with the consequence that swapping <code>iredis.utils.logger</code> for a substitute object makes <code>timer</code> invoke <code>debug</code> on that substitute). The formatted message must be passed to <code>logger.debug</code> as its <strong>first positional argument</strong>.</li>
+<li>Compilability alone is not enough for <code>REDIS_COMMANDS</code>: <code>prompt_toolkit.contrib.regular_languages.compiler.compile(REDIS_COMMANDS)</code> must yield a compiled grammar that is fully functional as a Redis command grammar and behaviorally equivalent to the package's existing <code>redis_grammar</code> object. Specifically, when valid Redis command lines are matched against the compiled grammar, matching must succeed and must produce the same named variable captures (command names, keys, values, and other argument groups) that the existing grammar produces; invalid command lines must fail to match just as they did before.</li>
+<li><code>compile_grammar_bg(session)</code> must bring <strong>exactly one</strong> additional thread into existence: immediately after the call returns, the active thread count of the process must sit exactly one above what it was just before the call (at that point the new thread must already be running, and no other threads may be spawned in the course of the operation).</li>
+<li>After the background thread has finished and the active thread count is back at its pre-call value, <code>session.lexer</code> and <code>session.completer</code> must both hold truthy values; before that point (immediately upon return of <code>compile_grammar_bg</code>), any <code>None</code> values already present on those attributes must still be <code>None</code>.</li>
+<li>The background work must reach completion within bounded time by itself (without any further interaction needed), so that the extra thread reliably terminates and the attributes end up set shortly after the call.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Implement a Client class in the module iredis/client.py that can be imported as from iredis.client import Client.</span>
-        <span class="spec-meta muted">441 words · source specification
+        <span class="spec-title">Write a Client class in the module iredis/client.py, one that can be imported via from iredis.client import Client.</span>
+        <span class="spec-meta muted">494 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a <code>Client</code> class in the module <code>iredis/client.py</code> that can be imported as <code>from iredis.client import Client</code>.</p>
-<h4>Public API</h4>
-<h5><code>Client</code> class</h5>
-<p><strong>Constructor signature:</strong></p>
+      <div class="spec-body"><h3>Specification for the Task</h3>
+<h4>Goal</h4>
+<p>Write a <code>Client</code> class in the module <code>iredis/client.py</code>, one that can be imported via <code>from iredis.client import Client</code>.</p>
+<h4>Public Interface</h4>
+<h5>The <code>Client</code> class</h5>
+<p><strong>Signature of the constructor:</strong></p>
 <pre><code class="language-python">Client(host, port, db)
 </code></pre>
 <ul>
-<li><code>host</code>: a string representing the connection host (e.g., <code>&quot;127.0.0.1&quot;</code>).</li>
-<li><code>port</code>: a string representing the connection port (e.g., <code>&quot;6379&quot;</code>).</li>
-<li><code>db</code>: a database identifier (may be <code>None</code>).</li>
+<li><code>host</code>: a string denoting the connection host (for example, <code>&quot;127.0.0.1&quot;</code>).</li>
+<li><code>port</code>: a string denoting the connection port (for example, <code>&quot;6379&quot;</code>).</li>
+<li><code>db</code>: an identifier of a database (may be <code>None</code>).</li>
 </ul>
-<p>The constructor must accept these three positional arguments and successfully create an instance. No specific attribute behavior beyond accepting these arguments is required.</p>
-<h5><code>Client._strip_quote_args(command)</code> method</h5>
-<p>An instance method that takes a single string argument (<code>command</code>) and returns an <strong>iterable of string tokens</strong> parsed from the input.</p>
-<h4>Required Behavior of <code>_strip_quote_args</code></h4>
-<p>The method splits an input command string into a sequence of tokens, honoring quoting rules. When the returned tokens are concatenated with a single space between them, the results must match the following:</p>
+<p>The constructor must accept these three positional arguments and successfully create an instance. No particular attribute behavior beyond accepting these arguments is required.</p>
+<h5>The <code>Client._strip_quote_args(command)</code> method</h5>
+<p>An instance method that takes a single string argument (<code>command</code>) and returns an <strong>iterable of string tokens</strong> obtained by parsing the input.</p>
+<h4>Behavior Required of <code>_strip_quote_args</code></h4>
+<p>The method breaks an input command string into a sequence of tokens while respecting the quoting rules. If the returned tokens are concatenated with a single space between them, the results must match what follows:</p>
 <ol>
 <li>
-<p><strong>Unquoted, space-separated words</strong> — each whitespace-separated word becomes a separate token.</p>
+<p><strong>Unquoted words separated by spaces</strong> — each whitespace-separated word becomes a token of its own.</p>
 <ul>
 <li>Input: <code>hello world</code> → tokens: <code>hello</code>, <code>world</code></li>
-<li>Joined with spaces: <code>hello world</code></li>
+<li>Joined using spaces: <code>hello world</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Single-quoted segments</strong> — a segment wrapped in single quotes (<code>'...'</code>) has its surrounding quotes stripped, and its interior (which may contain spaces) is preserved as content.</p>
+<p><strong>Segments in single quotes</strong> — when a segment is wrapped in single quotes (<code>'...'</code>), the surrounding quotes are stripped and its interior (which may contain spaces) is kept as content.</p>
 <ul>
-<li>Input: <code>'hello world'</code> → joined result: <code>hello world</code></li>
-<li>The interior spaces are retained within the segment; the quotes themselves are removed.</li>
+<li>Input: <code>'hello world'</code> → result after joining: <code>hello world</code></li>
+<li>Spaces belonging to the interior stay within the segment; the quotes themselves are removed.</li>
 </ul>
 </li>
 <li>
-<p><strong>Double-quoted segments</strong> — a segment wrapped in double quotes (<code>&quot;...&quot;</code>) has its surrounding quotes stripped, and its interior (which may contain spaces) is preserved as content. Multiple double-quoted segments separated by whitespace each yield content that, when joined by a single space, reproduces the interiors in order.</p>
+<p><strong>Segments in double quotes</strong> — when a segment is wrapped in double quotes (<code>&quot;...&quot;</code>), the surrounding quotes are stripped and its interior (which may contain spaces) is kept as content. With multiple double-quoted segments separated by whitespace, each yields content that, after being joined by a single space, reproduces the interiors in order.</p>
 <ul>
-<li>Input: <code>&quot;hello&quot; &quot;world 1&quot;</code> → joined result: <code>hello world 1</code></li>
-<li>The first token's content is <code>hello</code>; the second segment's interior is <code>world 1</code>.</li>
+<li>Input: <code>&quot;hello&quot; &quot;world 1&quot;</code> → result after joining: <code>hello world 1</code></li>
+<li>The content of the first token is <code>hello</code>; the interior of the second segment is <code>world 1</code>.</li>
 </ul>
 </li>
 </ol>
-<h4>Verification Contract</h4>
-<p>For each of the following inputs, calling <code>_strip_quote_args</code> and joining the returned tokens with <code>&quot;&quot;.join(...)</code> — i.e., concatenating tokens with no separator — must produce the expected string:</p>
+<h4>Contract for Verification</h4>
+<p>For each of the inputs that follow, invoking <code>_strip_quote_args</code> and joining the returned tokens with <code>&quot;&quot;.join(...)</code> — that is, concatenating the tokens with no separator — must produce the expected string:</p>
 <table>
 <thead>
 <tr>
 <th>Input</th>
-<th>Expected joined result</th>
+<th>Expected result after joining</th>
 </tr>
 </thead>
 <tbody>
@@ -1226,13 +1231,13 @@
 </tr>
 </tbody>
 </table>
-<p>Note the concatenation is done with the empty string as the joiner. This means the tokenization must produce tokens such that their direct concatenation yields the expected output. Concretely:</p>
+<p>Keep in mind that the concatenation is performed with the empty string serving as the joiner. Accordingly, the tokenization must produce tokens whose direct concatenation gives the expected output. Specifically:</p>
 <ul>
-<li>For <code>hello world</code>, the tokens concatenate to <code>hello world</code> (a single space appears in the joined output).</li>
-<li>For <code>'hello world'</code>, the tokens concatenate to <code>hello world</code>.</li>
-<li>For <code>&quot;hello&quot; &quot;world 1&quot;</code>, the tokens concatenate to <code>hello world 1</code>.</li>
+<li>Given the input <code>hello world</code>, the tokens concatenate to <code>hello world</code> (a single space is present in the joined output).</li>
+<li>Given the input <code>'hello world'</code>, the tokens concatenate to <code>hello world</code>.</li>
+<li>Given the input <code>&quot;hello&quot; &quot;world 1&quot;</code>, the tokens concatenate to <code>hello world 1</code>.</li>
 </ul>
-<p>The tokenization must produce token sequences whose empty-string concatenation equals these expected values.</p>
+<p>The tokenization must produce token sequences such that concatenating them with the empty string equals these expected values.</p>
 </div>
     </details>
   </div>

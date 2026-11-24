@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/ASFHyP3/hyp3-sdk/compare/f82c649b51fecabaf5b0b3a1d147540537d95d4b...271252da13c5ecc3413089515393fd9589618014" target="_blank" rel="noopener" class="mono">f82c649b51 … 271252da13</a> · 170 commits by 3 authors over 5 mo (2020-09-16 to 2021-02-16)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 54 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>210 lines of code in 26 files when the chain starts · over the 20 requests the developers added 1,262 and removed 483 lines of code, plus 845 lines of tests (44 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.8k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 15 and symbols introduced by earlier ones to depth 2</dd></div>
+      <div><dt>Specifications:</dt><dd>10.7k words · 3 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 15 and symbols introduced by earlier ones to depth 2</dd></div>
     </dl>
   </header>
 </section>
@@ -144,58 +144,58 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">HyP3 SDK Jobs and Batch API</span>
-        <span class="spec-meta muted">1093 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The module hyp3_sdk.jobs is where the classes Job and Batch are to be implemented, while hyp3_sdk.exceptions receives a supporting exception class.</span>
+        <span class="spec-meta muted">1213 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: HyP3 SDK Jobs and Batch API</h3>
-<h4>Overview</h4>
-<p>Implement a <code>Job</code> class and a <code>Batch</code> class in the module <code>hyp3_sdk.jobs</code>, plus a supporting exception class in <code>hyp3_sdk.exceptions</code>. These model individual processing jobs and collections of jobs.</p>
-<h4>Module: <code>hyp3_sdk.exceptions</code></h4>
-<p>Define an exception class:</p>
+      <div class="spec-body"><h3>HyP3 SDK Jobs and Batch API — Task Specification</h3>
+<h4>Summary</h4>
+<p>The module <code>hyp3_sdk.jobs</code> is where the classes <code>Job</code> and <code>Batch</code> are to be implemented, while <code>hyp3_sdk.exceptions</code> receives a supporting exception class. Together, the two classes model single processing jobs as well as collections of them.</p>
+<h4>The <code>hyp3_sdk.exceptions</code> module</h4>
+<p>The following exception class is to be defined:</p>
 <pre><code class="language-python">class HyP3Error(Exception):
     ...
 </code></pre>
-<h4>Module: <code>hyp3_sdk.jobs</code></h4>
-<p>Both <code>Job</code> and <code>Batch</code> must be importable as:</p>
+<h4>The <code>hyp3_sdk.jobs</code> module</h4>
+<p>Imports of both <code>Job</code> and <code>Batch</code> must work in this form:</p>
 <pre><code class="language-python">from hyp3_sdk.jobs import Batch, Job
 </code></pre>
 <hr />
-<h5>Class <code>Job</code></h5>
-<p>Represents a single processing job.</p>
-<h6>Attributes / fields</h6>
-<p>A <code>Job</code> carries the following data, corresponding to the fields present in a job dictionary:</p>
+<h5>The <code>Job</code> class</h5>
+<p>An instance of this class stands for one processing job.</p>
+<h6>Attributes and fields</h6>
+<p>The data a <code>Job</code> holds mirrors the fields found in a job dictionary:</p>
 <ul>
 <li><code>job_id</code> (str)</li>
 <li><code>job_type</code> (str)</li>
 <li><code>name</code> (str)</li>
 <li><code>job_parameters</code> (dict)</li>
-<li><code>status_code</code> (str) — one of <code>&quot;SUCCEEDED&quot;</code>, <code>&quot;FAILED&quot;</code>, <code>&quot;RUNNING&quot;</code>, <code>&quot;PENDING&quot;</code> (and possibly other values).</li>
+<li><code>status_code</code> (str) — one of <code>&quot;SUCCEEDED&quot;</code>, <code>&quot;FAILED&quot;</code>, <code>&quot;RUNNING&quot;</code>, <code>&quot;PENDING&quot;</code> (further values are also possible).</li>
 <li><code>request_time</code> (datetime)</li>
 <li><code>user_id</code> (str)</li>
-<li><code>expiration_time</code> (datetime or absent) — only present for successful jobs</li>
+<li><code>expiration_time</code> (datetime or absent) — present only for successful jobs</li>
 <li><code>browse_images</code> (list or absent)</li>
 <li><code>thumbnail_images</code> (list or absent)</li>
 <li><code>files</code> (list or absent)</li>
 </ul>
-<p>Fields that are optional in the source dictionary may be absent on the object (for example, a failed job has no <code>expiration_time</code>, <code>browse_images</code>, <code>thumbnail_images</code>, or <code>files</code>).</p>
+<p>A field that is optional in the source dictionary may be absent from the object (for example, a failed job has no <code>expiration_time</code>, <code>browse_images</code>, <code>thumbnail_images</code>, or <code>files</code>).</p>
 <h6><code>Job.from_dict(data: dict) -&gt; Job</code> (classmethod)</h6>
-<p>Construct a <code>Job</code> from a dictionary. The dictionary may contain any of the following keys:</p>
+<p>This classmethod builds a <code>Job</code> out of a supplied dictionary. Any of the keys listed below may be present in that dictionary:</p>
 <ul>
 <li><code>job_id</code>, <code>job_type</code>, <code>name</code>, <code>job_parameters</code>, <code>status_code</code>, <code>user_id</code> — plain values.</li>
-<li><code>request_time</code> — an ISO-8601 datetime string; it must be parsed into a <code>datetime</code>.</li>
-<li><code>expiration_time</code> — an ISO-8601 datetime string (which may be absent); when present, it must be parsed into a <code>datetime</code>.</li>
-<li><code>browse_images</code>, <code>thumbnail_images</code>, <code>files</code> — lists, each of which may be absent.</li>
+<li><code>request_time</code> — an ISO-8601 datetime string, which parsing must turn into a <code>datetime</code>.</li>
+<li><code>expiration_time</code> — an ISO-8601 datetime string (this key may be missing); whenever it is there, parsing must turn it into a <code>datetime</code>.</li>
+<li><code>browse_images</code>, <code>thumbnail_images</code>, <code>files</code> — lists, each of which may be missing.</li>
 </ul>
-<p>Keys absent from the input must not be required and must not appear in the round-tripped output described below.</p>
+<p>The implementation must not require any key the input is missing, and keys of that kind must not occur in the round-tripped output described below.</p>
 <h6><code>to_dict(self) -&gt; dict</code></h6>
-<p>Serialize the job back to a dictionary. The result must exactly reproduce the original input dictionary passed to <code>from_dict</code>, providing a lossless round trip:</p>
+<p>This serializes the job back into a dictionary. What must come out is an exact reproduction of the dictionary originally supplied to <code>from_dict</code>, making the round trip lossless:</p>
 <ul>
-<li>Datetime attributes (<code>request_time</code>, and <code>expiration_time</code> when present) must be serialized back to the same ISO-8601 string form.</li>
-<li>Attributes that were absent in the source dictionary must not appear in the output dictionary.</li>
-<li>Key ordering does not matter, but the set of keys and their values must match the original.</li>
+<li>The datetime attributes (<code>request_time</code>, plus <code>expiration_time</code> when it is present) must be serialized back into the same ISO-8601 string form.</li>
+<li>An attribute that was absent from the source dictionary must not show up in the output dictionary.</li>
+<li>The order of the keys is irrelevant, but the set of keys together with their values must match the original.</li>
 </ul>
-<p>Example round-trippable dictionaries:</p>
+<p>Examples of dictionaries that round-trip:</p>
 <pre><code class="language-python">{
     &quot;browse_images&quot;: [&quot;https://PAIR_PROCESS.png&quot;],
     &quot;expiration_time&quot;: &quot;2020-10-08T00:00:00+00:00&quot;,
@@ -220,81 +220,81 @@
     &quot;user_id&quot;: &quot;asf_hyp3&quot;
 }
 </code></pre>
-<h6>Status query methods</h6>
-<p>All of these methods take no arguments and return a <code>bool</code> based on the current value of <code>status_code</code>:</p>
+<h6>Status-checking methods</h6>
+<p>All of the methods below take no arguments and return a <code>bool</code> that depends on the current value of <code>status_code</code>:</p>
 <ul>
-<li><code>succeeded(self) -&gt; bool</code> — <code>True</code> if and only if <code>status_code == &quot;SUCCEEDED&quot;</code>.</li>
-<li><code>failed(self) -&gt; bool</code> — <code>True</code> if and only if <code>status_code == &quot;FAILED&quot;</code>.</li>
-<li><code>complete(self) -&gt; bool</code> — <code>True</code> if and only if the job has finished, meaning its <code>status_code</code> is either <code>&quot;SUCCEEDED&quot;</code> or <code>&quot;FAILED&quot;</code>.</li>
-<li><code>running(self) -&gt; bool</code> — <code>True</code> if and only if the job is not complete, including <code>&quot;RUNNING&quot;</code>, <code>&quot;PENDING&quot;</code>, and any other non-terminal status.</li>
+<li><code>succeeded(self) -&gt; bool</code> — returns <code>True</code> if and only if <code>status_code == &quot;SUCCEEDED&quot;</code>.</li>
+<li><code>failed(self) -&gt; bool</code> — returns <code>True</code> if and only if <code>status_code == &quot;FAILED&quot;</code>.</li>
+<li><code>complete(self) -&gt; bool</code> — returns <code>True</code> if and only if the job has finished, i.e. its <code>status_code</code> is either <code>&quot;SUCCEEDED&quot;</code> or <code>&quot;FAILED&quot;</code>.</li>
+<li><code>running(self) -&gt; bool</code> — returns <code>True</code> if and only if the job is not complete; this covers <code>&quot;RUNNING&quot;</code>, <code>&quot;PENDING&quot;</code>, and any other non-terminal status.</li>
 </ul>
-<p>These methods must reflect changes made directly to <code>status_code</code> after construction.</p>
+<p>These methods must reflect modifications made directly to <code>status_code</code> after construction.</p>
 <h6><code>expired(self) -&gt; bool</code></h6>
 <ul>
-<li>If the job has an <code>expiration_time</code>, return <code>True</code> if and only if that time is strictly in the past; return <code>False</code> otherwise.</li>
-<li>Both timezone-aware and timezone-naive <code>datetime</code> values must be supported. ISO-8601 values carrying an offset remain timezone-aware when parsed and are compared to the current instant using a compatible timezone-aware current time. If a caller directly assigns a timezone-naive <code>datetime</code> to <code>expiration_time</code>, compare it against the current local time represented as a timezone-naive <code>datetime</code> (equivalent to <code>datetime.now()</code> semantics). Never mix a timezone-naive expiration value with a timezone-aware current value during comparison.</li>
-<li>If the job has no <code>expiration_time</code> (for example, a failed job), raise <code>hyp3_sdk.exceptions.HyP3Error</code>.</li>
+<li>When the job has an <code>expiration_time</code>, return <code>True</code> if and only if that time lies strictly in the past; return <code>False</code> otherwise.</li>
+<li>Both timezone-aware and timezone-naive <code>datetime</code> values must be supported. ISO-8601 values that carry an offset stay timezone-aware after parsing, and the comparison to the current instant must use a compatible timezone-aware current time. When a caller assigns a timezone-naive <code>datetime</code> directly to <code>expiration_time</code>, compare it against the current local time expressed as a timezone-naive <code>datetime</code> (equivalent to <code>datetime.now()</code> semantics). A timezone-naive expiration value must never be mixed with a timezone-aware current value in a comparison.</li>
+<li>When the job has no <code>expiration_time</code> (a failed job, for instance), raise <code>hyp3_sdk.exceptions.HyP3Error</code>.</li>
 </ul>
 <hr />
-<h5>Class <code>Batch</code></h5>
-<p>Represents an ordered collection of <code>Job</code> objects.</p>
+<h5>The <code>Batch</code> class</h5>
+<p>This stands for an ordered collection of <code>Job</code> objects.</p>
 <h6>Constructor</h6>
 <pre><code class="language-python">Batch(jobs: list)
 </code></pre>
 <ul>
-<li>Store the given list of <code>Job</code> objects in the <code>jobs</code> attribute, preserving order.</li>
-<li>Constructing a batch with an empty list must emit a <code>UserWarning</code> through Python's standard <code>warnings</code> mechanism, while still creating a valid empty batch.</li>
+<li>The given list of <code>Job</code> objects must be stored in the <code>jobs</code> attribute, with their order preserved.</li>
+<li>When a batch is constructed with an empty list, a <code>UserWarning</code> must be emitted through Python's standard <code>warnings</code> mechanism, and a valid empty batch must still be produced.</li>
 </ul>
 <h6><code>__len__(self) -&gt; int</code></h6>
-<p>Return the number of jobs in the batch.</p>
+<p>Return the number of jobs the batch holds.</p>
 <h6><code>__add__(self, other) -&gt; Batch</code></h6>
-<p>Support the <code>+</code> operator and return a new <code>Batch</code>:</p>
+<p>The <code>+</code> operator must be supported, and it must return a new <code>Batch</code>:</p>
 <ul>
-<li><code>Batch + Batch</code> produces a batch whose jobs are the concatenation of both operands' jobs, with the left operand's jobs first.</li>
-<li><code>Batch + Job</code> produces a batch with that single job appended after all existing jobs.</li>
+<li><code>Batch + Batch</code> produces a batch whose jobs are the concatenation of both operands' jobs, with the left operand's jobs coming first.</li>
+<li><code>Batch + Job</code> produces a batch in which that single job is appended after all existing jobs.</li>
 </ul>
-<p>The operation must not mutate either operand.</p>
+<p>This operation must not mutate either operand.</p>
 <h6><code>complete(self) -&gt; bool</code></h6>
-<p>Return <code>True</code> if and only if every job in the batch is complete. Return <code>False</code> if any job is still running.</p>
+<p>Return <code>True</code> if and only if every job in the batch is complete; if any job is still running, return <code>False</code>.</p>
 <h6><code>succeeded(self) -&gt; bool</code></h6>
-<p>Return <code>True</code> if and only if every job in the batch has succeeded.</p>
+<p>Return <code>True</code> if and only if every one of the batch's jobs has succeeded.</p>
 <h6><code>any_expired(self) -&gt; bool</code></h6>
-<p>Return <code>True</code> if and only if at least one job in the batch has expired. Jobs without an expiration time, such as failed jobs, must be ignored rather than treated as expired or allowed to raise an error. Expiration checks must support both timezone-aware and directly assigned timezone-naive values according to <code>Job.expired()</code>.</p>
+<p>Return <code>True</code> if and only if at least one job in the batch has expired. Jobs without an expiration time, such as failed jobs, must be ignored instead of being treated as expired or being allowed to raise an error. The expiration checks must support both timezone-aware values and directly assigned timezone-naive values, in line with <code>Job.expired()</code>.</p>
 <h6><code>filter_jobs(self, succeeded=True, running=True, failed=False, include_expired=True) -&gt; Batch</code></h6>
-<p>Return a new <code>Batch</code> containing a subset of this batch's jobs while preserving their original relative order. Inclusion is controlled by status category:</p>
+<p>Return a new <code>Batch</code> that contains a subset of this batch's jobs, with their original relative order preserved. Which jobs are included is governed by status category:</p>
 <ul>
-<li>If <code>succeeded</code> is <code>True</code>, jobs whose <code>status_code</code> is <code>&quot;SUCCEEDED&quot;</code> are candidates for inclusion.</li>
-<li>If <code>running</code> is <code>True</code>, jobs that are running (not complete) are included.</li>
-<li>If <code>failed</code> is <code>True</code>, jobs whose <code>status_code</code> is <code>&quot;FAILED&quot;</code> are included.</li>
-<li>If a category's flag is <code>False</code>, jobs in that category are excluded.</li>
+<li>If <code>succeeded</code> is <code>True</code>, jobs with a <code>status_code</code> of <code>&quot;SUCCEEDED&quot;</code> are candidates for inclusion.</li>
+<li>If <code>running</code> is <code>True</code>, jobs that are running (i.e., not complete) are included.</li>
+<li>If <code>failed</code> is <code>True</code>, jobs carrying the <code>status_code</code> <code>&quot;FAILED&quot;</code> are included.</li>
+<li>If a category's flag is <code>False</code>, the jobs belonging to that category are excluded.</li>
 </ul>
-<p>Succeeded jobs receive an additional expiration filter:</p>
+<p>An extra expiration filter applies to succeeded jobs:</p>
 <ul>
-<li>When <code>include_expired</code> is <code>True</code> (the default), succeeded jobs are included regardless of expiration.</li>
-<li>When <code>include_expired</code> is <code>False</code>, expired succeeded jobs are excluded, leaving only non-expired succeeded jobs.</li>
-<li><code>include_expired</code> affects only succeeded jobs; it does not affect running or failed jobs.</li>
-<li>Any expiration evaluation must support timezone-aware values and directly assigned timezone-naive values according to <code>Job.expired()</code>.</li>
+<li>When <code>include_expired</code> is <code>True</code> (the default), succeeded jobs are included irrespective of expiration.</li>
+<li>When <code>include_expired</code> is <code>False</code>, succeeded jobs that have expired are excluded, leaving only non-expired succeeded jobs.</li>
+<li><code>include_expired</code> has an effect on succeeded jobs only; running and failed jobs are not affected by it.</li>
+<li>Any expiration evaluation must support timezone-aware values as well as timezone-naive values assigned directly, in accordance with <code>Job.expired()</code>.</li>
 </ul>
-<p>Calling <code>filter_jobs()</code> with no arguments therefore returns all succeeded jobs, whether expired or not, and all running jobs, but no failed jobs.</p>
-<p>The returned <code>Batch</code> must maintain the relative order of jobs from the original batch.</p>
+<p>Calling <code>filter_jobs()</code> with no arguments therefore returns all succeeded jobs, whether expired or not, together with all running jobs, but no failed jobs.</p>
+<p>The relative order that the jobs had in the original batch must be maintained by the returned <code>Batch</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>Datetime parsing and serialization must handle timezone-aware ISO-8601 strings such as <code>&quot;2020-09-22T23:55:10+00:00&quot;</code> and reproduce them exactly on round trip. Expiration logic must additionally remain valid when <code>expiration_time</code> is replaced with a timezone-naive <code>datetime</code>.</li>
-<li><code>copy.copy</code> of a <code>Job</code> must produce an independent object whose <code>expiration_time</code> can be modified without affecting the original.</li>
+<li>Parsing and serialization of datetimes must handle timezone-aware ISO-8601 strings such as <code>&quot;2020-09-22T23:55:10+00:00&quot;</code>, and on a round trip these must be reproduced exactly. Expiration logic must, in addition, stay valid when <code>expiration_time</code> is swapped for a timezone-naive <code>datetime</code>.</li>
+<li>Applying <code>copy.copy</code> to a <code>Job</code> must produce an independent object whose <code>expiration_time</code> can be modified with no effect on the original.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Modify the job expiration logic in the hyp3_sdk package so that expiration-time comparisons work correctly with timezone-aware datetime objects.</span>
-        <span class="spec-meta muted">314 words · source specification
+        <span class="spec-title">Update the job expiration logic in the hyp3_sdk package so that comparisons of expiration times behave correctly with timezone-aware datetime objects.</span>
+        <span class="spec-meta muted">328 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the job expiration logic in the <code>hyp3_sdk</code> package so that expiration-time comparisons work correctly with <strong>timezone-aware</strong> <code>datetime</code> objects.</p>
+      <div class="spec-body"><h4>Summary</h4>
+<p>Update the job expiration logic in the <code>hyp3_sdk</code> package so that comparisons of expiration times behave correctly with <strong>timezone-aware</strong> <code>datetime</code> objects.</p>
 <h4>API Surface</h4>
-<p>The following must be importable and callable:</p>
+<p>The items listed below must be importable and callable:</p>
 <ul>
 <li>Module: <code>hyp3_sdk.jobs</code>
 <ul>
@@ -311,7 +311,7 @@
 <ul>
 <li>Constructor: <code>Batch(jobs: list[Job])</code></li>
 <li>Method: <code>any_expired(self) -&gt; bool</code></li>
-<li>Support for <code>+=</code> with a single <code>Job</code> (in-place addition that appends the job to the batch)</li>
+<li>Support for <code>+=</code> with a single <code>Job</code> (an in-place addition that appends the job to the batch)</li>
 <li>Attribute: <code>jobs</code> (list of <code>Job</code>)</li>
 </ul>
 </li>
@@ -323,46 +323,46 @@
 </ul>
 </li>
 </ul>
-<h4>Required Behavior</h4>
+<h4>Behavior Requirements</h4>
 <h5><code>Job.expired()</code></h5>
-<p><code>Job.expired()</code> must determine whether the job has passed its expiration time by comparing <code>self.expiration_time</code> against the <strong>current time as a timezone-aware <code>datetime</code> in UTC</strong>.</p>
+<p>To determine whether the job has passed its expiration time, <code>Job.expired()</code> must compare <code>self.expiration_time</code> against the <strong>current time as a timezone-aware <code>datetime</code> in UTC</strong>.</p>
 <ul>
-<li>The <code>expiration_time</code> attribute will be set to a timezone-aware <code>datetime</code> (UTC).</li>
-<li>If <code>expiration_time</code> is in the future relative to the current UTC time, <code>expired()</code> returns <code>False</code>.</li>
-<li>If <code>expiration_time</code> is in the past relative to the current UTC time, <code>expired()</code> returns <code>True</code>.</li>
-<li>The comparison must not raise a <code>TypeError</code> due to comparing offset-aware and offset-naive datetimes. The current-time reference used internally for the comparison must itself be timezone-aware (UTC).</li>
+<li>A timezone-aware <code>datetime</code> (UTC) is what the <code>expiration_time</code> attribute will be set to.</li>
+<li><code>expired()</code> returns <code>False</code> if <code>expiration_time</code> is in the future relative to the current UTC time.</li>
+<li><code>expired()</code> returns <code>True</code> if <code>expiration_time</code> is in the past relative to the current UTC time.</li>
+<li>The comparison must not raise a <code>TypeError</code> as a result of comparing offset-aware and offset-naive datetimes. The reference to the current time that the comparison uses internally must itself be timezone-aware (UTC).</li>
 </ul>
-<p>If <code>expired()</code> is called on a <code>Job</code> for which expiration cannot be evaluated (e.g. a job whose state does not provide a valid expiration time), it must raise <code>HyP3Error</code>.</p>
+<p>When <code>expired()</code> is called on a <code>Job</code> for which expiration cannot be evaluated (e.g. a job whose state does not provide a valid expiration time), it must raise <code>HyP3Error</code>.</p>
 <h5><code>Batch.any_expired()</code></h5>
-<p><code>Batch.any_expired()</code> must return <code>True</code> if any job in the batch is expired (per the <code>Job.expired()</code> semantics above), and <code>False</code> if none are expired. It must correctly handle batches whose jobs have timezone-aware UTC <code>expiration_time</code> values.</p>
+<p><code>Batch.any_expired()</code> must return <code>True</code> when any job in the batch is expired (per the <code>Job.expired()</code> semantics above), and <code>False</code> when none are expired. It must correctly handle batches in which the jobs have timezone-aware UTC <code>expiration_time</code> values.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Expiration comparisons must operate on timezone-aware UTC datetimes without raising errors when the stored <code>expiration_time</code> is timezone-aware.</li>
-<li>All other existing behavior of <code>Job</code> and <code>Batch</code> (status handling, success determination, filtering, batch composition) must remain intact.</li>
+<li>When the stored <code>expiration_time</code> is timezone-aware, expiration comparisons must operate on timezone-aware UTC datetimes without raising errors.</li>
+<li>All other existing behavior of <code>Job</code> and <code>Batch</code> (status handling, success determination, filtering, batch composition) must stay intact.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">HyP3 SDK — Job Model and API Client</span>
-        <span class="spec-meta muted">619 words · source specification
+        <span class="spec-title">HyP3 SDK: Job Model and API Client</span>
+        <span class="spec-meta muted">670 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: HyP3 SDK — Job Model and API Client</h3>
-<h4>Overview</h4>
-<p>Implement a Python SDK package named <code>hyp3_sdk</code> that provides a <code>Job</code> data model and a <code>HyP3</code> API client class. The functionality described below must be importable and behave exactly as specified.</p>
-<h4>Package-Level Requirements</h4>
-<p>The top-level package <code>hyp3_sdk</code> must expose the following importable names:</p>
+      <div class="spec-body"><h3>Task Specification — HyP3 SDK: Job Model and API Client</h3>
+<h4>Summary</h4>
+<p>A Python SDK package named <code>hyp3_sdk</code> must be created, providing a <code>Job</code> data model together with a <code>HyP3</code> API client class. The functionality described below must be importable, and its behavior must match the specification exactly.</p>
+<h4>Requirements at the Package Level</h4>
+<p>These importable names must be exposed by the top-level package <code>hyp3_sdk</code>:</p>
 <ul>
-<li><code>Job</code> — a class (see <strong>Job Model</strong> below)</li>
-<li><code>HyP3</code> — a class (see <strong>HyP3 Client</strong> below)</li>
-<li><code>TESTING</code> — a module-level boolean attribute, assignable by callers (e.g. <code>hyp3_sdk.TESTING = True</code>). Setting this to <code>True</code> must be a supported operation and must not require external configuration/credentials for the client to be constructed and used.</li>
+<li><code>Job</code> — a class (details in <strong>Job Model</strong> below)</li>
+<li><code>HyP3</code> — a class (details in <strong>HyP3 Client</strong> below)</li>
+<li><code>TESTING</code> — a module-level boolean attribute that callers can assign (e.g. <code>hyp3_sdk.TESTING = True</code>). Assigning <code>True</code> to it must be a supported operation and must not require external configuration/credentials for the client to be constructed and used.</li>
 </ul>
 <h4>Job Model</h4>
-<p>Implement a class <code>Job</code> in the <code>hyp3_sdk</code> package.</p>
+<p>The <code>hyp3_sdk</code> package must contain an implementation of a class <code>Job</code>.</p>
 <h5><code>Job.from_dict(cls, data: dict) -&gt; Job</code></h5>
-<p>A class method (constructor) that builds a <code>Job</code> instance from a dictionary. The dictionary may contain the following keys:</p>
+<p>A class method that doubles as a constructor: it takes a dictionary and builds a <code>Job</code> instance from it. Below are the keys that the dictionary may contain:</p>
 <ul>
 <li><code>job_type</code> (str)</li>
 <li><code>job_id</code> (str)</li>
@@ -371,181 +371,182 @@
 <li><code>user_id</code> (str)</li>
 <li><code>name</code> (str)</li>
 <li><code>job_parameters</code> (dict)</li>
-<li><code>files</code> (list of dicts, each with <code>url</code>, <code>size</code>, <code>filename</code>)</li>
+<li><code>files</code> (a list of dicts, each having <code>url</code>, <code>size</code>, <code>filename</code>)</li>
 <li><code>browse_images</code> (list of str)</li>
 <li><code>thumbnail_images</code> (list of str)</li>
 <li><code>expiration_time</code> (str)</li>
 </ul>
-<p>Not all keys are guaranteed to be present. Keys whose value would be <code>None</code> are omitted from the input entirely; the method must construct a valid <code>Job</code> when any subset of the optional keys (all except what is minimally required to describe a job) is absent. At minimum, the method must correctly handle inputs that always include <code>job_type</code>, <code>job_id</code>, <code>request_time</code>, <code>status_code</code>, <code>user_id</code>, <code>name</code>, and <code>job_parameters</code>, with <code>files</code>, <code>browse_images</code>, <code>thumbnail_images</code>, and <code>expiration_time</code> being optionally present.</p>
-<p>The <code>request_time</code> string is provided in ISO-8601 format with second precision and should be parsed appropriately for internal representation.</p>
+<p>It is not guaranteed that all keys will be present. Keys whose value would be <code>None</code> are left out of the input altogether; the method must construct a valid <code>Job</code> when any subset of the optional keys (all except the minimum needed to describe a job) is absent. The method must correctly handle, at minimum, those inputs that always include <code>job_type</code>, <code>job_id</code>, <code>request_time</code>, <code>status_code</code>, <code>user_id</code>, <code>name</code>, and <code>job_parameters</code>; <code>files</code>, <code>browse_images</code>, <code>thumbnail_images</code>, and <code>expiration_time</code> may optionally be present.</p>
+<p>The <code>request_time</code> value arrives as an ISO-8601 string with second precision, and appropriate parsing for internal representation should be applied to it.</p>
 <h5><code>Job.to_dict(self) -&gt; dict</code></h5>
-<p>An instance method returning a dictionary representation of the job. This method must be the inverse companion of <code>from_dict</code> such that a <code>Job</code> produced by <code>from_dict</code> and then serialized with <code>to_dict</code> yields data that can round-trip back through <code>from_dict</code>. Fields that were absent (i.e., had no value) must not appear in the output dictionary — only populated fields are included. The <code>request_time</code> (and any datetime fields) must be serialized back to ISO-8601 strings with second precision.</p>
+<p>An instance method, it returns the job's representation as a dictionary. It must function as the inverse companion of <code>from_dict</code>: when a <code>Job</code> has been produced by <code>from_dict</code> and then serialized with <code>to_dict</code>, the outcome yields data that can round-trip back through <code>from_dict</code>. The output dictionary must not contain fields that were absent (i.e., had no value); included are the populated fields only. <code>request_time</code> (together with any datetime fields) must be serialized back into ISO-8601 strings with second precision.</p>
 <h4>HyP3 Client</h4>
-<p>Implement a class <code>HyP3</code> in the <code>hyp3_sdk</code> package.</p>
-<h5>Construction</h5>
-<p><code>HyP3()</code> must be constructable with no arguments. When the package-level <code>TESTING</code> flag is <code>True</code>, construction must succeed without requiring any credentials, network access, or external configuration.</p>
+<p>A class <code>HyP3</code> must be implemented in the <code>hyp3_sdk</code> package as well.</p>
+<h5>Instantiation</h5>
+<p><code>HyP3()</code> must be constructable when called with no arguments. If the <code>TESTING</code> flag at package level is <code>True</code>, construction must succeed while requiring no credentials, network access, or external configuration.</p>
 <h5><code>HyP3.url</code></h5>
-<p>The instance must expose an attribute <code>url</code> that is the base URL of the HyP3 API service. This base URL is combined with the path <code>/jobs</code> (via standard URL joining) to form the endpoint used for job queries.</p>
+<p>An attribute named <code>url</code>, whose value is the base URL of the HyP3 API service, must be exposed by the instance. Joining that base URL with the path <code>/jobs</code> (via standard URL joining) produces the endpoint used for job queries.</p>
 <h5><code>HyP3.find_jobs(self)</code></h5>
-<p>Perform an HTTP <code>GET</code> request to the <code>/jobs</code> endpoint (the base <code>url</code> joined with <code>/jobs</code>).</p>
-<p>The response body is JSON with the shape:</p>
+<p>This method must perform an HTTP <code>GET</code> request against the <code>/jobs</code> endpoint (the base <code>url</code> joined with <code>/jobs</code>).</p>
+<p>The body of the response is JSON, shaped as follows:</p>
 <pre><code class="language-json">{ &quot;jobs&quot;: [ &lt;job dict&gt;, &lt;job dict&gt;, ... ] }
 </code></pre>
-<p>Each element of the <code>jobs</code> array is a job dictionary of the form produced by <code>Job.to_dict</code>.</p>
-<p><code>find_jobs</code> must return a collection of the jobs described in the response. The returned value must support <code>len()</code>, and its length must equal the number of job entries in the <code>jobs</code> array of the response. Each job entry in the response must be represented as a corresponding item in the returned collection (constructed via the <code>Job</code> model).</p>
+<p>Each element of the <code>jobs</code> array is a job dictionary matching the form that <code>Job.to_dict</code> produces.</p>
+<p>What <code>find_jobs</code> must return is a collection of the jobs that the response describes. The returned value must support <code>len()</code>, and its length must equal the number of job entries in the response's <code>jobs</code> array. For each job entry in the response, the returned collection must contain a corresponding item that represents it (constructed via the <code>Job</code> model).</p>
 <h4>Constraints</h4>
 <ul>
-<li>The client's request behavior must be driven entirely by HTTP interactions with the <code>url</code>-derived endpoint (i.e., no other side channels).</li>
-<li>With <code>TESTING = True</code>, no real network or authentication setup is performed by the SDK itself; requests are issued to the configured <code>url</code> and are expected to be intercepted at the HTTP layer.</li>
+<li>HTTP interactions with the <code>url</code>-derived endpoint must be what drives the client's request behavior entirely (i.e., no other side channels).</li>
+<li>When <code>TESTING = True</code>, the SDK on its own performs no real network or authentication setup; the requests are sent to the configured <code>url</code> and are expected to be intercepted at the HTTP layer.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Implement a method _get_job_by_id on the HyP3 class that retrieves a single job from the HyP3 API by its job ID.</span>
-        <span class="spec-meta muted">289 words · source specification
+        <span class="spec-title">Implement a method _get_job_by_id on the HyP3 class that fetches a single job from the HyP3 API using its job ID.</span>
+        <span class="spec-meta muted">303 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement a method <code>_get_job_by_id</code> on the <code>HyP3</code> class that retrieves a single job from the HyP3 API by its job ID.</p>
-<h4>API Surface</h4>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Implement a method <code>_get_job_by_id</code> on the <code>HyP3</code> class that fetches a single job from the HyP3 API using its job ID.</p>
+<h4>API Interface</h4>
 <h5><code>HyP3._get_job_by_id</code></h5>
-<p>Add the following method to the existing <code>HyP3</code> class (in the module that already exposes <code>HyP3</code>):</p>
+<p>To the existing <code>HyP3</code> class (in the module that already exposes <code>HyP3</code>), add the following method:</p>
 <pre><code class="language-python">def _get_job_by_id(self, job_id):
     ...
 </code></pre>
 <ul>
-<li><strong>Parameter</strong>: <code>job_id</code> — the identifier of the job to retrieve.</li>
-<li><strong>Returns</strong>: a <code>Job</code> object representing the retrieved job.</li>
+<li><strong>Parameter</strong>: <code>job_id</code> — the identifier of the job that is to be retrieved.</li>
+<li><strong>Returns</strong>: a <code>Job</code> object that represents the retrieved job.</li>
 </ul>
 <h4>Behavior</h4>
 <ol>
 <li>
-<p>The method issues an HTTP <code>GET</code> request to the URL formed by joining the instance's base URL (<code>self.url</code>) with the path <code>/jobs/{job_id}</code>, where <code>{job_id}</code> is the provided job ID.</p>
+<p>The method sends an HTTP <code>GET</code> request to the URL that results from joining the instance's base URL (<code>self.url</code>) with the path <code>/jobs/{job_id}</code>, where <code>{job_id}</code> is the supplied job ID.</p>
 </li>
 <li>
-<p>The API responds with a JSON body describing a single job.</p>
+<p>The API's response is a JSON body that describes a single job.</p>
 </li>
 <li>
-<p>The method parses the JSON response and constructs a <code>Job</code> object from it. The resulting <code>Job</code> object must equal the <code>Job</code> that would be produced by deserializing the same job dictionary (i.e., a round-trip: serializing a <code>Job</code> to its dictionary form and passing that dictionary through the API response must yield an object equal to the original <code>Job</code>).</p>
+<p>The method parses the JSON response and builds a <code>Job</code> object from it. The <code>Job</code> object that results must equal the <code>Job</code> that would be produced by deserializing the same job dictionary (in other words, a round-trip: a <code>Job</code> is serialized to its dictionary form and that dictionary is passed through the API response; this must yield an object equal to the original <code>Job</code>).</p>
 </li>
 </ol>
 <h4>Supporting Requirements</h4>
-<p>The following must already exist or be provided such that the round-trip works:</p>
+<p>For the round-trip to work, the following must already exist or be provided:</p>
 <ul>
 <li>
 <p>A <code>Job</code> type that:</p>
 <ul>
-<li>Has a <code>job_id</code> attribute.</li>
-<li>Can be serialized to a dictionary via a <code>to_dict()</code> method.</li>
-<li>Can be reconstructed from that dictionary form.</li>
-<li>Supports equality comparison: two <code>Job</code> instances are equal when they were constructed from equivalent dictionary data.</li>
+<li>Contains a <code>job_id</code> attribute.</li>
+<li>Can be serialized into a dictionary using a <code>to_dict()</code> method.</li>
+<li>Can be rebuilt from that dictionary form.</li>
+<li>Supports equality comparison: two <code>Job</code> instances are equal when the dictionary data they were constructed from is equivalent.</li>
 </ul>
 </li>
 <li>
-<p>The <code>HyP3</code> class must be constructible with no arguments (<code>HyP3()</code>) and must expose a <code>url</code> attribute that serves as the base URL for API requests.</p>
+<p>The <code>HyP3</code> class must be constructible without any arguments (<code>HyP3()</code>) and must expose a <code>url</code> attribute that acts as the base URL for API requests.</p>
 </li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The value returned by <code>_get_job_by_id</code> must compare equal to a <code>Job</code> constructed from the same underlying job data that the API returns.</li>
+<li>The value that <code>_get_job_by_id</code> returns must compare equal to a <code>Job</code> constructed from the same underlying job data that the API returns.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">HyP3 SDK Implementation</span>
-        <span class="spec-meta muted">849 words · source specification
+        <span class="spec-title">Implementing the HyP3 SDK</span>
+        <span class="spec-meta muted">895 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: HyP3 SDK Implementation</h3>
-<p>You are implementing parts of a Python SDK for interacting with a HyP3 processing API. Below is the exact behavior required.</p>
-<h4>Test Helper (must exist)</h4>
-<p>There must be a helper available at <code>tests/helpers.py</code> exposing a function:</p>
+      <div class="spec-body"><h3>Task Specification: Implementing the HyP3 SDK</h3>
+<p>You are to implement portions of a Python SDK that interacts with a HyP3 processing API. The exact behavior required is given below.</p>
+<h4>Test Helper (must be present)</h4>
+<p>A helper must be available at <code>tests/helpers.py</code> that exposes a function:</p>
 <pre><code class="language-python">def get_mock_job(job_type='...', job_parameters=None, status_code=None, files=None):
     ...
 </code></pre>
-<p>It returns a <code>Job</code> instance (see below) constructed with the provided attributes. The first positional argument is the job type. <code>job_parameters</code>, <code>status_code</code>, and <code>files</code> set the corresponding job attributes when provided. This helper is used to build <code>Job</code> objects for testing; construct it so the <code>Job</code> produced round-trips through <code>Job.to_dict()</code>/<code>Job.from_dict()</code> and supports the behaviors described below.</p>
-<h4>Module: <code>hyp3_sdk.util</code></h4>
+<p>It returns a <code>Job</code> instance (see below) built with the provided attributes. The job type is the first positional argument. When <code>job_parameters</code>, <code>status_code</code>, or <code>files</code> are provided, they set the corresponding job attributes. This helper is used to build <code>Job</code> objects for testing; build it so that the <code>Job</code> it produces round-trips through <code>Job.to_dict()</code>/<code>Job.from_dict()</code> and supports the behaviors described below.</p>
+<h4>The <code>hyp3_sdk.util</code> Module</h4>
 <h5><code>download_file(url, filepath) -&gt; Path</code></h5>
-<p>Downloads the content at <code>url</code> via an HTTP GET request and writes it to <code>filepath</code>. Returns the path the file was written to as a <code>pathlib.Path</code> object equal to the given <code>filepath</code>. The written file's contents must exactly match the response body.</p>
-<h4>Module: <code>hyp3_sdk.jobs</code></h4>
-<h5>Class <code>Job</code></h5>
+<p>Fetches, via an HTTP GET request, the content at <code>url</code> and writes it to <code>filepath</code>. It returns the path the file was written to, as a <code>pathlib.Path</code> object equal to the given <code>filepath</code>. The contents of the written file must match the response body exactly.</p>
+<h4>The <code>hyp3_sdk.jobs</code> Module</h4>
+<h5>The <code>Job</code> Class</h5>
 <p>A <code>Job</code> represents a single processing job. It must support:</p>
 <ul>
-<li><code>Job.from_dict(d: dict) -&gt; Job</code> — class method constructing a <code>Job</code> from a dictionary.</li>
-<li><code>job.to_dict() -&gt; dict</code> — returns a dictionary representation. It must accept a keyword argument <code>for_resubmit: bool = False</code>; when <code>for_resubmit=True</code>, the returned dictionary contains only the fields needed to resubmit the job (job type and job parameters), and when <code>False</code> (default) it contains the full representation.</li>
-<li>The round trip <code>Job.from_dict(job.to_dict())</code> must produce an equivalent <code>Job</code> (i.e., two <code>Job</code> objects with the same field values compare equal via <code>==</code>).</li>
-<li>Attributes including at least: <code>job_id</code>, <code>status_code</code>, <code>files</code>, and job type / job parameters.</li>
+<li><code>Job.from_dict(d: dict) -&gt; Job</code> — a class method that constructs a <code>Job</code> from a dictionary.</li>
+<li><code>job.to_dict() -&gt; dict</code> — returns the job as a dictionary. It must accept a keyword argument <code>for_resubmit: bool = False</code>; with <code>for_resubmit=True</code>, the dictionary returned contains only the fields needed to resubmit the job (job type and job parameters), and with <code>False</code> (the default) it contains the full representation.</li>
+<li>The round trip <code>Job.from_dict(job.to_dict())</code> must result in an equivalent <code>Job</code> (that is, two <code>Job</code> objects with the same field values compare equal via <code>==</code>).</li>
+<li>It has attributes including at least: <code>job_id</code>, <code>status_code</code>, <code>files</code>, and job type / job parameters.</li>
 </ul>
-<p>Attributes relevant to the tests:</p>
+<p>The attributes relevant to the tests:</p>
 <ul>
-<li><code>status_code</code> — a string such as <code>'SUCCEEDED'</code>.</li>
-<li><code>files</code> — a list of dicts, each with keys <code>url</code>, <code>size</code>, and <code>filename</code>.</li>
-<li><code>job_id</code> — the job identifier string.</li>
+<li><code>status_code</code> — a string, for example <code>'SUCCEEDED'</code>.</li>
+<li><code>files</code> — a list of dicts; each dict has the keys <code>url</code>, <code>size</code>, and <code>filename</code>.</li>
+<li><code>job_id</code> — the string identifying the job.</li>
 </ul>
 <h6><code>job.download_files(location) -&gt; List[Path]</code></h6>
-<p>For a job (in a SUCCEEDED state with files), downloads every file listed in <code>job.files</code> into the directory <code>location</code>. Each file is written to <code>location / &lt;filename&gt;</code>, where <code>&lt;filename&gt;</code> is taken from the file entry's <code>filename</code> key. Returns a list of <code>pathlib.Path</code> objects, one per downloaded file, in the same order as <code>job.files</code>. Each returned path must point to a file whose contents equal the downloaded response body.</p>
-<h5>Class <code>Batch</code></h5>
-<p>A <code>Batch</code> is constructed from a list of <code>Job</code> objects:</p>
+<p>For a job (in a SUCCEEDED state with files), every file listed in <code>job.files</code> is downloaded into the directory <code>location</code>. Each file is written to <code>location / &lt;filename&gt;</code>, with <code>&lt;filename&gt;</code> taken from the file entry's <code>filename</code> key. The method returns a list of <code>pathlib.Path</code> objects — one per downloaded file — in the same order as <code>job.files</code>. Every path returned must point to a file whose contents equal the downloaded response body.</p>
+<h5>The <code>Batch</code> Class</h5>
+<p>A <code>Batch</code> is built from a list of <code>Job</code> objects:</p>
 <pre><code class="language-python">Batch(jobs: List[Job])
 </code></pre>
 <h6><code>batch.download_files(location) -&gt; List[Path]</code></h6>
-<p>Downloads the files for every job in the batch into the directory <code>location</code> (using the same per-file behavior as <code>Job.download_files</code>). Returns a flat list of <code>pathlib.Path</code> objects for all downloaded files across all jobs. Each path is <code>location / &lt;filename&gt;</code> and points to a file whose contents equal the corresponding response body.</p>
-<h4>Module: <code>hyp3_sdk</code> (class <code>HyP3</code>)</h4>
-<p>The <code>HyP3</code> class is instantiated with no required arguments: <code>HyP3()</code>. It exposes a <code>url</code> attribute (the base API URL); endpoint requests are made against paths joined onto this base URL.</p>
+<p>Downloads, into the directory <code>location</code>, the files for every job in the batch (using the same per-file behavior as <code>Job.download_files</code>). The method returns a flat list of <code>pathlib.Path</code> objects for all downloaded files across all jobs. Each path is <code>location / &lt;filename&gt;</code> and points to a file whose contents equal the corresponding response body.</p>
+<h4>The <code>hyp3_sdk</code> Module (class <code>HyP3</code>)</h4>
+<p>Instantiating the <code>HyP3</code> class requires no arguments: <code>HyP3()</code>. It exposes a <code>url</code> attribute (the base API URL); requests to endpoints are made against paths joined onto this base URL.</p>
 <h5><code>api.watch(job, interval=...) -&gt; Job</code></h5>
-<p>Given a <code>Job</code>, repeatedly polls the endpoint <code>GET {url}/jobs/{job.job_id}</code> until the returned job has a completed status (<code>status_code == 'SUCCEEDED'</code>, or otherwise a terminal/complete state). Polls at the given <code>interval</code> (seconds) between requests. When the polled job is complete, returns the resulting <code>Job</code>. The response body of each request is a JSON dict representing the job; <code>watch</code> returns a <code>Job</code> equal to that final job.</p>
+<p>Given a <code>Job</code>, it repeatedly polls the endpoint <code>GET {url}/jobs/{job.job_id}</code> until the job returned has a completed status (<code>status_code == 'SUCCEEDED'</code>, or otherwise a terminal/complete state). The polling interval between requests is the given <code>interval</code> (seconds). When the polled job is complete, the resulting <code>Job</code> is returned. Each request's response body is a JSON dict representing the job; <code>watch</code> returns a <code>Job</code> equal to that final job.</p>
 <h5><code>api.refresh(job) -&gt; Job</code></h5>
-<p>Performs a single <code>GET {url}/jobs/{job.job_id}</code> request and returns a <code>Job</code> built from the response body (a JSON dict representing the job).</p>
+<p>Makes a single <code>GET {url}/jobs/{job.job_id}</code> request and returns a <code>Job</code> built from the response body (a JSON dict representing the job).</p>
 <h5><code>api.submit_job_dict(job_dict) -&gt; Job</code></h5>
-<p>Submits a single job via <code>POST {url}/jobs</code>, sending the given job dictionary (in the resubmit format). The response body is a JSON dict of the form <code>{'jobs': [&lt;job_dict&gt;]}</code>. Returns a single <code>Job</code> built from that one job in the response.</p>
+<p>Submits one job via <code>POST {url}/jobs</code>, sending the given job dictionary (in the resubmit format). The response body is a JSON dict with the form <code>{'jobs': [&lt;job_dict&gt;]}</code>. The return value is a single <code>Job</code> built from that one job in the response.</p>
 <h5><code>api.submit_autorift_job(granule1, granule2) -&gt; Job</code></h5>
-<p>Submits an AUTORIFT job via <code>POST {url}/jobs</code>. The job's type is <code>'AUTORIFT'</code> and its job parameters include <code>granules</code> set to <code>[granule1, granule2]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; returns the single <code>Job</code> from the response.</p>
+<p>Submits an AUTORIFT job via <code>POST {url}/jobs</code>. The job type is <code>'AUTORIFT'</code>, and the job parameters include <code>granules</code> set to <code>[granule1, granule2]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; the single <code>Job</code> from the response is returned.</p>
 <h5><code>api.submit_rtc_job(granule) -&gt; Job</code></h5>
-<p>Submits an RTC job via <code>POST {url}/jobs</code>. The job's type is <code>'RTC_GAMMA'</code> and its job parameters include <code>granules</code> set to <code>[granule]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; returns the single <code>Job</code> from the response.</p>
+<p>Submits an RTC job via <code>POST {url}/jobs</code>. The job type is <code>'RTC_GAMMA'</code>, and the job parameters include <code>granules</code> set to <code>[granule]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; the single <code>Job</code> from the response is returned.</p>
 <h5><code>api.submit_insar_job(granule1, granule2) -&gt; Job</code></h5>
-<p>Submits an InSAR job via <code>POST {url}/jobs</code>. The job's type is <code>'INSAR_GAMMA'</code> and its job parameters include <code>granules</code> set to <code>[granule1, granule2]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; returns the single <code>Job</code> from the response.</p>
+<p>Submits an InSAR job via <code>POST {url}/jobs</code>. The job type is <code>'INSAR_GAMMA'</code>, and the job parameters include <code>granules</code> set to <code>[granule1, granule2]</code>. The response body is <code>{'jobs': [&lt;job_dict&gt;]}</code>; the single <code>Job</code> from the response is returned.</p>
 <h5><code>api.my_info() -&gt; dict</code></h5>
-<p>Performs a <code>GET {url}/user</code> request and returns the parsed JSON response body unchanged (a dict containing keys such as <code>job_names</code>, <code>quota</code>, and <code>user_id</code>).</p>
+<p>Makes a <code>GET {url}/user</code> request and returns the parsed JSON response body without modification (a dict containing keys such as <code>job_names</code>, <code>quota</code>, and <code>user_id</code>).</p>
 <h5><code>api.check_quota() -&gt; int</code></h5>
-<p>Performs a <code>GET {url}/user</code> request and returns the remaining quota value, i.e. the value at <code>response['quota']['remaining']</code> from the user info response body.</p>
+<p>Makes a <code>GET {url}/user</code> request and returns the remaining quota value, i.e. the value at <code>response['quota']['remaining']</code> in the user info response body.</p>
 <h4>Notes</h4>
 <ul>
-<li>All HTTP interactions are standard requests to the URLs described; response bodies are JSON (or, for file downloads, raw bytes/text).</li>
-<li><code>Job</code> objects must implement equality (<code>==</code>) based on their field values, so that two jobs constructed from the same dictionary compare equal.</li>
-<li>Returned file paths must be <code>pathlib.Path</code> objects.</li>
+<li>All HTTP interactions take the form of standard requests to the URLs described; response bodies are JSON (or, for file downloads, raw bytes/text).</li>
+<li><code>Job</code> objects must implement equality (<code>==</code>) based on field values, so that two jobs built from the same dictionary compare equal.</li>
+<li>File paths that are returned must be <code>pathlib.Path</code> objects.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You are implementing/modifying a Python SDK named hyp3_sdk.</span>
-        <span class="spec-meta muted">1018 words · source specification
+        <span class="spec-title">You are implementing or modifying a Python SDK named hyp3_sdk.</span>
+        <span class="spec-meta muted">1087 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-reg" title="Opus 5.5"></i><i class="dot c-reg" title="Opus 5"></i><i class="dot c-reg" title="GPT-6 Astra"></i><i class="dot c-reg" title="Fable 5"></i><i class="dot c-reg" title="GLM-5.3-Flash"></i><i class="dot c-reg" title="GLM-5.3"></i><i class="dot c-reg" title="GPT-6.1 Sol"></i><i class="dot c-reg" title="GPT-5.6"></i><i class="dot c-reg" title="Kimi K3"></i><i class="dot c-reg" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are implementing/modifying a Python SDK named <code>hyp3_sdk</code>. The relevant public API surface and behaviors are described below. All names, module paths, and signatures must match exactly so that external code can import and call them.</p>
-<h4>Public API Surface</h4>
-<h5><code>hyp3_sdk</code> package</h5>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>You are implementing or modifying a Python SDK named <code>hyp3_sdk</code>. The parts of the public API surface and the behaviors that matter are described below. All names, module paths, and signatures must match exactly so that external code can import and call them.</p>
+<h4>The public API surface</h4>
+<h5>The <code>hyp3_sdk</code> package</h5>
 <p>The following must be importable directly from <code>hyp3_sdk</code>:</p>
 <ul>
 <li><code>Job</code></li>
 <li><code>HyP3</code></li>
 </ul>
 <p>The package must expose a module-level attribute <code>TESTING</code> that can be assigned (e.g., <code>hyp3_sdk.TESTING = True</code>).</p>
-<h5><code>hyp3_sdk.jobs</code> module</h5>
-<p>Must expose the classes <code>Job</code> and <code>Batch</code>.</p>
-<h5><code>hyp3_sdk.util</code> module</h5>
-<p>Must expose the function <code>download_file</code>.</p>
-<h5><code>hyp3_sdk.exceptions</code> module</h5>
-<p>Must expose <code>HyP3Error</code>.</p>
+<h5>The <code>hyp3_sdk.jobs</code> module</h5>
+<p>The classes <code>Job</code> and <code>Batch</code> must be exposed.</p>
+<h5>The <code>hyp3_sdk.util</code> module</h5>
+<p>The function <code>download_file</code> must be exposed.</p>
+<h5>The <code>hyp3_sdk.exceptions</code> module</h5>
+<p><code>HyP3Error</code> must be exposed.</p>
 <hr />
-<h4><code>Job</code> class</h4>
+<h4>The <code>Job</code> class</h4>
 <h5><code>Job.from_dict(job_dict: dict) -&gt; Job</code></h5>
-<p>A classmethod that constructs a <code>Job</code> from a dictionary. The dictionary may contain the following keys (some optional / possibly absent):</p>
+<p>A classmethod that builds a <code>Job</code> from a dictionary. The dictionary may contain the following keys (some optional / possibly absent):</p>
 <ul>
 <li><code>job_type</code> (str)</li>
 <li><code>job_id</code> (str)</li>
@@ -559,57 +560,57 @@
 <li><code>thumbnail_images</code> (list of str URLs)</li>
 <li><code>expiration_time</code> (str)</li>
 </ul>
-<p>Keys that are absent from the input dict must be treated as unset/optional; construction must succeed when only a subset of keys is provided.</p>
+<p>Keys missing from the input dict must be handled as unset/optional; construction must succeed when just a subset of the keys is supplied.</p>
 <h5><code>Job.to_dict() -&gt; dict</code></h5>
-<p>Returns a dictionary representation of the job. A <code>Job</code> constructed via <code>from_dict</code> and then serialized via <code>to_dict</code> must round-trip (i.e., <code>Job.from_dict(job.to_dict())</code> produces an equivalent job with the same field values). Fields that were not set should not be spuriously introduced in a way that breaks round-tripping.</p>
-<h5>Attributes</h5>
-<p>Instances must expose at least the following mutable attributes, settable and readable directly:</p>
+<p>Returns a dictionary representation of the job. A <code>Job</code> built via <code>from_dict</code> and then serialized via <code>to_dict</code> must round-trip (i.e., <code>Job.from_dict(job.to_dict())</code> produces an equivalent job carrying the same field values). Fields that were never set should not be introduced spuriously in a way that breaks round-tripping.</p>
+<h5>Instance attributes</h5>
+<p>Instances must expose at least the following mutable attributes, which are settable and readable directly:</p>
 <ul>
 <li><code>job_id</code></li>
 <li><code>status_code</code></li>
 <li><code>expiration_time</code></li>
 </ul>
-<h5>Status query methods</h5>
+<h5>Methods that query status</h5>
 <ul>
-<li><code>Job.succeeded() -&gt; bool</code> — True when <code>status_code == 'SUCCEEDED'</code>.</li>
-<li><code>Job.running() -&gt; bool</code> — True when the job is in a running/pending state (i.e., not succeeded and not failed).</li>
-<li><code>Job.failed() -&gt; bool</code> — True when <code>status_code == 'FAILED'</code>.</li>
-<li><code>Job.expired() -&gt; bool</code> — True when the job has an <code>expiration_time</code> in the past (relative to now, timezone-aware), False otherwise.</li>
+<li><code>Job.succeeded() -&gt; bool</code> — True if <code>status_code == 'SUCCEEDED'</code>.</li>
+<li><code>Job.running() -&gt; bool</code> — True if the job is in a running/pending state (i.e., not succeeded and not failed).</li>
+<li><code>Job.failed() -&gt; bool</code> — True if <code>status_code == 'FAILED'</code>.</li>
+<li><code>Job.expired() -&gt; bool</code> — True if the job's <code>expiration_time</code> lies in the past (relative to now, timezone-aware), False otherwise.</li>
 </ul>
 <h5><code>Job.download_files(location) -&gt; list</code></h5>
-<p>For a succeeded job with a <code>files</code> list, downloads each file (each entry has <code>url</code>, <code>size</code>, <code>filename</code>) into the given directory <code>location</code> (a path). Returns the list of downloaded file paths. The downloaded file contents must match the HTTP response body from the file <code>url</code>.</p>
+<p>When the job has succeeded and has a <code>files</code> list, each file is downloaded (each entry has <code>url</code>, <code>size</code>, <code>filename</code>) into the given directory <code>location</code> (a path). Returns the list of paths of the downloaded files. The contents of the downloaded files must match the HTTP response body from the file <code>url</code>.</p>
 <hr />
-<h4><code>Batch</code> class</h4>
+<h4>The <code>Batch</code> class</h4>
 <h5><code>Batch(jobs: list)</code></h5>
-<p>Constructed from a list of <code>Job</code> instances.</p>
+<p>Built from a list of <code>Job</code> instances.</p>
 <h5><code>len(batch)</code></h5>
-<p>Returns the number of jobs in the batch.</p>
+<p>Returns the count of jobs in the batch.</p>
 <h5><code>batch.jobs</code></h5>
-<p>The list of <code>Job</code> instances in the batch, preserving insertion order.</p>
+<p>The list of <code>Job</code> instances held by the batch, with insertion order preserved.</p>
 <h5><code>Batch.complete() -&gt; bool</code></h5>
-<p>Returns True only when all jobs in the batch are complete (succeeded or failed — i.e., none are still running/pending).</p>
+<p>Returns True only when every job in the batch is complete (succeeded or failed — i.e., none are still running/pending).</p>
 <h5><code>Batch.succeeded() -&gt; bool</code></h5>
-<p>Returns True only when all jobs in the batch have succeeded.</p>
+<p>Returns True only when every job in the batch has succeeded.</p>
 <h5><code>Batch.any_expired() -&gt; bool</code></h5>
-<p>Returns True when at least one job in the batch is expired.</p>
+<p>Returns True if at least one job in the batch is expired.</p>
 <h5><code>Batch.download_files(location) -&gt; list</code></h5>
-<p>Downloads the files of all jobs in the batch into directory <code>location</code>, returning the combined list of downloaded file paths. All files across all jobs must be written with contents matching their respective HTTP response bodies.</p>
+<p>Downloads the files belonging to all jobs in the batch into the directory <code>location</code>, returning the combined list of downloaded file paths. All files across all jobs must be written with contents that match their respective HTTP response bodies.</p>
 <h5><code>Batch.filter(succeeded=True, running=True, failed=False, include_expired=True) -&gt; Batch</code></h5>
-<p>Returns a new <code>Batch</code> containing the subset of jobs matching the selection flags. This method is named <strong><code>filter</code></strong> (not <code>filter_jobs</code>).</p>
-<p>Selection semantics:</p>
+<p>Returns a new <code>Batch</code> that contains the subset of jobs matching the selection flags. The method is named <strong><code>filter</code></strong> (not <code>filter_jobs</code>).</p>
+<p>Semantics of selection:</p>
 <ul>
-<li>A job is included if its status matches one of the enabled status categories:
+<li>A job is included when its status matches one of the enabled status categories:
 <ul>
-<li>succeeded jobs are included when <code>succeeded=True</code></li>
-<li>running jobs are included when <code>running=True</code></li>
-<li>failed jobs are included when <code>failed=True</code></li>
+<li>jobs that have succeeded are included when <code>succeeded=True</code></li>
+<li>jobs that are running are included when <code>running=True</code></li>
+<li>jobs that have failed are included when <code>failed=True</code></li>
 </ul>
 </li>
-<li>When <code>include_expired=False</code>, any job that is expired is excluded from the result even if its status category is enabled.</li>
-<li>The relative order of jobs is preserved in the returned batch.</li>
+<li>When <code>include_expired=False</code>, any expired job is excluded from the result even if its status category is enabled.</li>
+<li>The relative order of the jobs is preserved in the batch that is returned.</li>
 </ul>
-<p>Default behavior (<code>batch.filter()</code>): includes succeeded and running jobs (including expired ones), excludes failed jobs.</p>
-<p>Examples of expected results given a batch containing: a succeeded-not-expired job, a running job, a succeeded-expired job, a pending (running) job, and a failed job:</p>
+<p>Default behavior (<code>batch.filter()</code>): succeeded and running jobs are included (including expired ones), failed jobs are excluded.</p>
+<p>Examples of the expected results for a batch containing: a succeeded-not-expired job, a running job, a succeeded-expired job, a pending (running) job, and a failed job:</p>
 <ul>
 <li><code>filter()</code> → 4 jobs: [succeeded-not-expired, running, succeeded-expired, pending].</li>
 <li><code>filter(include_expired=False)</code> → 3 jobs: [succeeded-not-expired, running, pending].</li>
@@ -619,506 +620,509 @@
 <li><code>filter(failed=True)</code> → all jobs, in original order.</li>
 </ul>
 <hr />
-<h4><code>HyP3</code> class</h4>
+<h4>The <code>HyP3</code> class</h4>
 <h5><code>HyP3(...)</code></h5>
-<p>Constructible with no required arguments. Exposes a <code>url</code> attribute (a base API URL string) used for building request endpoints. When <code>hyp3_sdk.TESTING</code> is True, construction must not require real credentials/authentication.</p>
+<p>Can be constructed without any required arguments. It exposes a <code>url</code> attribute (a string holding the base API URL) that is used for building request endpoints. When <code>hyp3_sdk.TESTING</code> is True, construction must not require real credentials/authentication.</p>
 <h5><code>HyP3.find_jobs(...) -&gt; Batch</code></h5>
-<p>Issues a GET request to <code>{url}/jobs</code>. The API returns JSON of the form <code>{'jobs': [ &lt;job_dict&gt;, ... ]}</code>. Returns a <code>Batch</code> containing the corresponding <code>Job</code> instances.</p>
+<p>Sends a GET request to <code>{url}/jobs</code>. The JSON that the API returns is of the form <code>{'jobs': [ &lt;job_dict&gt;, ... ]}</code>. Returns a <code>Batch</code> that contains the corresponding <code>Job</code> instances.</p>
 <h5><code>HyP3.get_job_by_id(job_id) -&gt; Job</code></h5>
-<p>Issues a GET request to <code>{url}/jobs/{job_id}</code>. The API returns a single job dict (JSON). Returns the corresponding <code>Job</code>.</p>
+<p>Sends a GET request to <code>{url}/jobs/{job_id}</code>. A single job dict (JSON) is returned by the API. Returns the corresponding <code>Job</code>.</p>
 <h5><code>HyP3.watch(job_or_batch, ...) -&gt; Job | Batch</code></h5>
-<p>Polls the API (GET <code>{url}/jobs/{job_id}</code>) until the job(s) reach a completed state (e.g., <code>SUCCEEDED</code>), and returns the updated job/batch reflecting the final status.</p>
+<p>Polls the API (GET <code>{url}/jobs/{job_id}</code>) until the job(s) reach a completed state (e.g., <code>SUCCEEDED</code>), and returns the updated job/batch that reflects the final status.</p>
 <h5><code>HyP3.refresh(job) -&gt; Job</code></h5>
-<p>Issues a GET request to <code>{url}/jobs/{job_id}</code> and returns an updated <code>Job</code> reflecting the latest server state (e.g., an updated <code>status_code</code>).</p>
-<h5>Job submission</h5>
-<p>The <code>HyP3</code> class must support submitting jobs. Submission issues a POST to <code>{url}/jobs</code>; the API responds with <code>{'jobs': [ &lt;job_dict&gt;, ... ]}</code>. Submission methods must construct the appropriate request payload and return the resulting <code>Job</code>/<code>Batch</code> parsed from the response.</p>
-<p>Supported job types (via <code>job_parameters</code>) include at least:</p>
+<p>Sends a GET request to <code>{url}/jobs/{job_id}</code> and returns an updated <code>Job</code> that reflects the latest server state (e.g., an updated <code>status_code</code>).</p>
+<h5>Submitting jobs</h5>
+<p>The <code>HyP3</code> class must support submitting jobs. Submission sends a POST to <code>{url}/jobs</code>; the API responds with <code>{'jobs': [ &lt;job_dict&gt;, ... ]}</code>. The submission methods must build the appropriate request payload and return the resulting <code>Job</code>/<code>Batch</code> parsed from the response.</p>
+<p>The job types supported (via <code>job_parameters</code>) include at least:</p>
 <ul>
 <li><code>AUTORIFT</code> with <code>job_parameters={'granules': [...]}</code> (two granules)</li>
 <li><code>RTC_GAMMA</code> with <code>job_parameters={'granules': [...]}</code> (one granule)</li>
 <li><code>INSAR_GAMMA</code> with <code>job_parameters={'granules': [...]}</code> (two granules)</li>
-<li>submitting a prepared job dictionary directly</li>
+<li>directly submitting a job dictionary that has already been prepared</li>
 </ul>
-<p>Each submission returns a result whose serialized form corresponds to the job returned by the API.</p>
+<p>Each submission returns a result whose serialized form corresponds to the job the API returned.</p>
 <hr />
-<h4><code>download_file</code> function</h4>
+<h4>The <code>download_file</code> function</h4>
 <h5><code>hyp3_sdk.util.download_file(url, location, ...) -&gt; path</code></h5>
-<p>Downloads the content at <code>url</code> and writes it to a file at/under <code>location</code>, returning the resulting file path. The written file's contents must match the HTTP response body.</p>
+<p>Downloads the content at <code>url</code> and writes it into a file at/under <code>location</code>, returning the resulting file path. The contents of the written file must match the HTTP response body.</p>
 <hr />
-<h4>Notes on data formats</h4>
+<h4>Notes concerning data formats</h4>
 <ul>
-<li><code>request_time</code> is serialized as an ISO-8601 string with second precision.</li>
-<li><code>expiration_time</code>, when present, is a timezone-aware timestamp; expiration comparisons are made against the current time in UTC.</li>
+<li><code>request_time</code> is serialized to an ISO-8601 string with second precision.</li>
+<li>When present, <code>expiration_time</code> is a timezone-aware timestamp; expiration comparisons are performed against the current time in UTC.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You need to modify the Batch class to rename its job-filtering method and ensure it behaves as described below.</span>
-        <span class="spec-meta muted">427 words · source specification
+        <span class="spec-title">You need to modify the Batch class</span>
+        <span class="spec-meta muted">449 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You need to modify the <code>Batch</code> class to rename its job-filtering method and ensure it behaves as described below.</p>
-<h4>Required Change</h4>
-<p>The <code>Batch</code> class currently exposes a method named <code>filter</code>. Rename this method to <code>filter_jobs</code>. The method must keep the same signature and behavior described below (only the name changes).</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You need to modify the <code>Batch</code> class: rename its job-filtering method and ensure it behaves as described below.</p>
+<h4>Required Modification</h4>
+<p>At present, the <code>Batch</code> class exposes a method called <code>filter</code>. Change the name of this method to <code>filter_jobs</code>. The method must retain the same signature and the behavior described below (the name is the only thing that changes).</p>
 <h4>API Surface</h4>
 <h5><code>Batch.filter_jobs(self, succeeded=True, running=True, failed=False, include_expired=True)</code></h5>
-<p>Returns a new <code>Batch</code> instance containing the subset of the batch's jobs that match the requested status criteria.</p>
+<p>Returns a new <code>Batch</code> instance whose contents are the subset of the batch's jobs that match the requested status criteria.</p>
 <h4>Behavior</h4>
-<p>Given a <code>Batch</code> containing a collection of <code>Job</code> objects (accessible via the <code>jobs</code> attribute and whose length is obtainable via <code>len(batch)</code>), <code>filter_jobs</code> selects jobs according to the following keyword flags:</p>
+<p>Given a <code>Batch</code> that contains a collection of <code>Job</code> objects (accessible via the <code>jobs</code> attribute and with a length obtainable via <code>len(batch)</code>), <code>filter_jobs</code> chooses jobs based on the following keyword flags:</p>
 <ul>
-<li><code>succeeded</code> (default <code>True</code>): when <code>True</code>, jobs that have succeeded are included; when <code>False</code>, succeeded jobs are excluded.</li>
-<li><code>running</code> (default <code>True</code>): when <code>True</code>, jobs that are running are included; when <code>False</code>, running jobs are excluded.</li>
-<li><code>failed</code> (default <code>False</code>): when <code>True</code>, jobs that have failed are included; when <code>False</code>, failed jobs are excluded.</li>
-<li><code>include_expired</code> (default <code>True</code>): when <code>False</code>, jobs that are expired are excluded even if they would otherwise match another status flag; when <code>True</code>, expired jobs are not excluded on account of being expired.</li>
+<li><code>succeeded</code> (default <code>True</code>): a value of <code>True</code> includes jobs that have succeeded; a value of <code>False</code> excludes succeeded jobs.</li>
+<li><code>running</code> (default <code>True</code>): a value of <code>True</code> includes jobs that are running; a value of <code>False</code> excludes running jobs.</li>
+<li><code>failed</code> (default <code>False</code>): a value of <code>True</code> includes jobs that have failed; a value of <code>False</code> excludes failed jobs.</li>
+<li><code>include_expired</code> (default <code>True</code>): when <code>False</code>, expired jobs are excluded even if they would otherwise match another status flag; when <code>True</code>, jobs that are expired are not excluded because they are expired.</li>
 </ul>
-<p>The returned value is a <code>Batch</code> object. The order of jobs in the returned batch preserves the relative order of the matching jobs from the original batch. The number of jobs in the returned batch equals the number of jobs matching the criteria, and <code>len()</code> applied to the returned batch returns that count.</p>
-<p>Each <code>Job</code> object supports predicate methods used to determine its state:</p>
+<p>The value returned is a <code>Batch</code> object. The relative order of the matching jobs from the original batch is preserved in the returned batch. The count of jobs in the returned batch is equal to the number of jobs that match the criteria, and <code>len()</code> applied to the returned batch returns that count.</p>
+<p>Each <code>Job</code> object supports predicate methods for determining its state:</p>
 <ul>
 <li><code>job.succeeded()</code> — whether the job succeeded.</li>
 <li><code>job.running()</code> — whether the job is running.</li>
 <li><code>job.failed()</code> — whether the job failed.</li>
 <li><code>job.expired()</code> — whether the job is expired.</li>
 </ul>
-<p>Jobs also expose a <code>status_code</code> attribute; the jobs in the returned batch retain their original <code>status_code</code> values.</p>
-<h4>Concrete Expected Results</h4>
-<p>For a batch containing (in order): a succeeded (non-expired) job, a running job, a succeeded expired job, a pending/running job, and a failed job:</p>
+<p>In addition, jobs expose a <code>status_code</code> attribute; within the returned batch, jobs keep their original <code>status_code</code> values.</p>
+<h4>Concrete Expected Outcomes</h4>
+<p>For a batch containing the following jobs (in order): a succeeded (non-expired) job, a running job, a succeeded expired job, a pending/running job, and a failed job:</p>
 <ul>
 <li><code>filter_jobs()</code> → 4 jobs: [succeeded non-expired, running, succeeded expired, running].</li>
 <li><code>filter_jobs(include_expired=False)</code> → 3 jobs: [succeeded non-expired, running, running].</li>
 <li><code>filter_jobs(running=False)</code> → 2 jobs: [succeeded non-expired, succeeded expired].</li>
 <li><code>filter_jobs(succeeded=False)</code> → 2 jobs: [running, running].</li>
 <li><code>filter_jobs(succeeded=False, running=False, failed=True)</code> → 1 job: [failed].</li>
-<li><code>filter_jobs(failed=True)</code> → all jobs in the original batch, in original order.</li>
+<li><code>filter_jobs(failed=True)</code> → all jobs from the original batch, in their original order.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The <code>Job</code> class provides a <code>from_dict</code> classmethod that constructs a <code>Job</code> from a dictionary.</li>
-<li>Only the method name change and the behavior above are in scope.</li>
+<li>The <code>Job</code> class offers a <code>from_dict</code> classmethod that builds a <code>Job</code> from a dictionary.</li>
+<li>The only items in scope are the method name change and the behavior described above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">You must update two download-related functions in the hyp3_sdk package so that they accept both string paths and pathlib.Path objects for their…</span>
-        <span class="spec-meta muted">303 words · source specification
+        <span class="spec-title">Two download-related functions in the hyp3_sdk package must be updated so that their destination/location arguments accept both string paths and…</span>
+        <span class="spec-meta muted">322 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must update two download-related functions in the <code>hyp3_sdk</code> package so that they accept both string paths and <code>pathlib.Path</code> objects for their destination/location arguments, while continuing to return <code>pathlib.Path</code> objects.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Two download-related functions in the <code>hyp3_sdk</code> package must be updated so that their destination/location arguments accept both string paths and <code>pathlib.Path</code> objects, while they continue to return <code>pathlib.Path</code> objects.</p>
 <h4>Requirements</h4>
 <h5>1. <code>hyp3_sdk.util.download_file</code></h5>
 <p><strong>Signature:</strong> <code>download_file(url, filepath)</code></p>
 <ul>
-<li><code>url</code>: the URL to download content from.</li>
-<li><code>filepath</code>: the target file location. This argument MUST accept <strong>either</strong> a <code>str</code> <strong>or</strong> a <code>pathlib.Path</code>.</li>
+<li><code>url</code>: the URL that content is downloaded from.</li>
+<li><code>filepath</code>: the location of the target file. This argument MUST accept <strong>either</strong> a <code>str</code> <strong>or</strong> a <code>pathlib.Path</code>.</li>
 </ul>
 <p><strong>Behavior:</strong></p>
 <ul>
-<li>Downloads the content available at <code>url</code> and writes it to the location given by <code>filepath</code>.</li>
-<li>Returns a <code>pathlib.Path</code> object representing the file location. The return value MUST always be a <code>pathlib.Path</code> instance, even when <code>filepath</code> was passed as a <code>str</code>.</li>
-<li>When <code>filepath</code> is passed as a string, the returned <code>Path</code> MUST be equal to the <code>Path</code> constructed from that same string (i.e., the same location the caller specified).</li>
+<li>Downloads the content available at <code>url</code> and writes it to the location specified by <code>filepath</code>.</li>
+<li>Returns a <code>pathlib.Path</code> object that represents the file location. What is returned MUST always be a <code>pathlib.Path</code> instance, even when <code>filepath</code> was passed as a <code>str</code>.</li>
+<li>If <code>filepath</code> is passed as a string, the <code>Path</code> that is returned MUST be equal to the <code>Path</code> constructed from that same string (that is, the same location the caller specified).</li>
 </ul>
-<h5>2. <code>download_files</code> method (on the job object in <code>hyp3_sdk</code>)</h5>
-<p>The job object exposes a method:</p>
+<h5>2. The <code>download_files</code> method (exposed by the job object in <code>hyp3_sdk</code>)</h5>
+<p>The job object exposes the following method:</p>
 <p><strong>Signature:</strong> <code>download_files(location)</code></p>
 <ul>
-<li><code>location</code>: the directory into which the job's result files should be downloaded. This argument MUST accept <strong>either</strong> a <code>str</code> <strong>or</strong> a <code>pathlib.Path</code>.</li>
+<li><code>location</code>: the directory that the job's result files should be downloaded into. This argument MUST accept <strong>either</strong> a <code>str</code> <strong>or</strong> a <code>pathlib.Path</code>.</li>
 </ul>
 <p><strong>Behavior:</strong></p>
 <ul>
-<li>Downloads all files associated with the job into the directory given by <code>location</code>.</li>
-<li>Returns a list of <code>pathlib.Path</code> objects, one per downloaded file, each pointing to the downloaded file inside the given directory.</li>
-<li>Each returned path MUST be equal to <code>location_as_path / &lt;filename&gt;</code>, where <code>&lt;filename&gt;</code> is the file's declared filename, regardless of whether <code>location</code> was supplied as a <code>str</code> or a <code>Path</code>.</li>
-<li>The contents written to each downloaded file MUST match the content served at the file's URL.</li>
+<li>Downloads all files associated with the job into the directory specified by <code>location</code>.</li>
+<li>Returns a list of <code>pathlib.Path</code> objects, one per downloaded file, with each one pointing to the downloaded file inside the given directory.</li>
+<li>Each returned path MUST be equal to <code>location_as_path / &lt;filename&gt;</code>, where <code>&lt;filename&gt;</code> denotes the file's declared filename, regardless of whether <code>location</code> was supplied as a <code>str</code> or a <code>Path</code>.</li>
+<li>For each downloaded file, the contents written to it MUST match the content served at the file's URL.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The only change required is to make these functions tolerate <code>str</code> inputs in addition to <code>Path</code> inputs, normalizing them internally so that returned values remain <code>pathlib.Path</code> objects. Existing behavior when a <code>Path</code> is passed must be preserved.</li>
+<li>The only change that is required is to have these functions tolerate <code>str</code> inputs in addition to <code>Path</code> inputs, normalizing them internally so that the returned values remain <code>pathlib.Path</code> objects. The existing behavior when a <code>Path</code> is passed must be preserved.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Modify the download_files method on the Job class so that its download-location argument has a default value, allowing it to be called with no arguments.</span>
-        <span class="spec-meta muted">281 words · source specification
+        <span class="spec-title">Alter the download_files method of the Job class so that the argument for the download location has a default value, making it possible to call the method…</span>
+        <span class="spec-meta muted">298 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h5>Objective</h5>
-<p>Modify the <code>download_files</code> method on the <code>Job</code> class so that its download-location argument has a default value, allowing it to be called with no arguments.</p>
+      <div class="spec-body"><h5>Goal</h5>
+<p>Alter the <code>download_files</code> method of the <code>Job</code> class so that the argument for the download location has a default value, making it possible to call the method with no arguments.</p>
 <h5>API Surface</h5>
-<p>The <code>Job</code> class exposes a method with the following signature:</p>
+<p>The <code>Job</code> class exposes a method with this signature:</p>
 <pre><code class="language-python">def download_files(self, location: Union[Path, str] = '.') -&gt; List[Path]:
 </code></pre>
-<p>The <code>location</code> parameter must default to the current working directory (<code>.</code>) when not supplied by the caller.</p>
+<p>If the caller does not supply <code>location</code>, the parameter must default to the current working directory (<code>.</code>).</p>
 <h5>Required Behavior</h5>
-<p><code>download_files</code> downloads all files associated with a succeeded job into the directory specified by <code>location</code> and returns a list of <code>Path</code> objects, one per downloaded file, in the same order as the job's files.</p>
+<p><code>download_files</code> downloads all files belonging to a succeeded job into the directory indicated by <code>location</code>, and it returns a list of <code>Path</code> objects, one per downloaded file, in the same order as the job's files.</p>
 <p>Specifically:</p>
 <ul>
 <li>
-<p>When called <strong>with</strong> an explicit <code>location</code> (a directory path as either a string or <code>Path</code>), each file is downloaded into that directory. The returned <code>Path</code> for a file is <code>location / &lt;filename&gt;</code>, where <code>&lt;filename&gt;</code> is the file's declared filename. The downloaded file's contents match the response body retrieved from the file's URL.</p>
+<p>When the method is called <strong>with</strong> an explicit <code>location</code> (a directory path given as either a string or a <code>Path</code>), it downloads each file into that directory. The <code>Path</code> returned for a file is <code>location / &lt;filename&gt;</code>, where <code>&lt;filename&gt;</code> represents the file's declared filename. The contents of the downloaded file match the response body retrieved from the file's URL.</p>
 </li>
 <li>
-<p>When called <strong>with no argument</strong>, the method behaves as if <code>location</code> were the current working directory. Each file is downloaded into the current working directory, and the returned <code>Path</code> for a file resolves (via absolute path) to <code>&lt;current working directory&gt; / &lt;filename&gt;</code>. The downloaded file's contents match the response body retrieved from the file's URL.</p>
+<p>When the method is called <strong>with no argument</strong>, it behaves as though <code>location</code> were the current working directory. Each file is downloaded into the current working directory, and the <code>Path</code> returned for a file resolves (via absolute path) to <code>&lt;current working directory&gt; / &lt;filename&gt;</code>. The contents of the downloaded file match the response body retrieved from the file's URL.</p>
 </li>
 </ul>
-<p>Each job file is described by a mapping containing at least:</p>
+<p>Each job file is described by a mapping that contains at least:</p>
 <ul>
-<li><code>url</code> — the location from which the file contents are fetched,</li>
-<li><code>filename</code> — the name to use for the downloaded file on disk,</li>
-<li><code>size</code> — the file size.</li>
+<li><code>url</code> — the location the file contents are fetched from,</li>
+<li><code>filename</code> — the name to give the downloaded file on disk,</li>
+<li><code>size</code> — the file's size.</li>
 </ul>
-<p>The returned list preserves the order of the job's files and contains the full <code>Path</code> to each downloaded file on disk.</p>
+<p>The list that is returned preserves the order of the job's files and contains the full <code>Path</code> to each downloaded file on disk.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Ensure that all HTTP requests made through a HyP3 client&#39;s session automatically include a User-Agent header identifying the SDK and its version.</span>
-        <span class="spec-meta muted">294 words · source specification
+        <span class="spec-title">Ensure that a User-Agent header identifying the SDK and its version is included automatically in all HTTP requests sent through a HyP3 client&#39;s session.</span>
+        <span class="spec-meta muted">317 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Ensure that all HTTP requests made through a <code>HyP3</code> client's session automatically include a <code>User-Agent</code> header identifying the SDK and its version.</p>
-<h4>Public API Surface</h4>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Ensure that a <code>User-Agent</code> header identifying the SDK and its version is included automatically in all HTTP requests sent through a <code>HyP3</code> client's session.</p>
+<h4>Public API</h4>
 <h5>Package: <code>hyp3_sdk</code></h5>
-<p>The package must expose the following module-level attributes:</p>
+<p>The following module-level attributes must be exposed by the package:</p>
 <ul>
-<li><code>hyp3_sdk.__name__</code> — the package name (standard Python package name string, i.e. <code>&quot;hyp3_sdk&quot;</code>).</li>
-<li><code>hyp3_sdk.__version__</code> — a string representing the installed version of the package.</li>
+<li><code>hyp3_sdk.__name__</code> — the name of the package (the standard Python package name string, i.e. <code>&quot;hyp3_sdk&quot;</code>).</li>
+<li><code>hyp3_sdk.__version__</code> — a string that represents the installed version of the package.</li>
 </ul>
 <h5>Class: <code>hyp3_sdk.HyP3</code></h5>
-<p>The <code>HyP3</code> class must be importable directly from <code>hyp3_sdk</code>:</p>
+<p>The <code>HyP3</code> class must be directly importable from <code>hyp3_sdk</code>:</p>
 <pre><code class="language-python">from hyp3_sdk import HyP3
 </code></pre>
-<p>An instance must be constructible with no arguments:</p>
+<p>It must be possible to construct an instance with no arguments:</p>
 <pre><code class="language-python">api = HyP3()
 </code></pre>
-<p>The instance must provide:</p>
+<p>The instance must make the following available:</p>
 <ul>
-<li><code>api.url</code> — a string attribute holding the base URL used by the client. This must be a valid absolute base URL suitable for use with <code>urllib.parse.urljoin</code> (i.e., resolving a relative path like <code>/foo</code> against it yields a valid request URL).</li>
-<li><code>api.session</code> — a <code>requests</code>-compatible session object capable of issuing HTTP requests (e.g., <code>api.session.get(url)</code>).</li>
+<li><code>api.url</code> — a string attribute holding the base URL the client uses. It must be a valid absolute base URL that is suitable for use with <code>urllib.parse.urljoin</code> (i.e., resolving a relative path such as <code>/foo</code> against it yields a valid request URL).</li>
+<li><code>api.session</code> — a session object compatible with <code>requests</code> that is capable of issuing HTTP requests (e.g., <code>api.session.get(url)</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>Every HTTP request issued through <code>api.session</code> must carry a <code>User-Agent</code> request header whose value is exactly:</p>
+<h4>Behavior Requirements</h4>
+<p>Each HTTP request issued through <code>api.session</code> must carry a <code>User-Agent</code> request header whose value is exactly:</p>
 <pre><code>{name} v{version}
 </code></pre>
-<p>where <code>{name}</code> is <code>hyp3_sdk.__name__</code> and <code>{version}</code> is <code>hyp3_sdk.__version__</code>. Concretely, given the package name <code>hyp3_sdk</code> and a version string such as <code>1.2.3</code>, the header value would be <code>hyp3_sdk v1.2.3</code>.</p>
-<p>This header must be set on the session so that it is applied automatically to requests made via the session, without the caller needing to specify it per request.</p>
-<p>Requests made through the session must otherwise function normally — issuing a GET request and returning the server's response body (including JSON-decodable content) unchanged.</p>
+<p>where <code>{name}</code> is <code>hyp3_sdk.__name__</code> and <code>{version}</code> is <code>hyp3_sdk.__version__</code>. As a concrete case, for the package name <code>hyp3_sdk</code> and a version string such as <code>1.2.3</code>, the header value would be <code>hyp3_sdk v1.2.3</code>.</p>
+<p>The header must be set on the session so that it is applied automatically to requests made via the session, without callers having to specify it per request.</p>
+<p>Otherwise, requests made through the session must function normally — issuing a GET request and returning the server's response body (including JSON-decodable content) unchanged.</p>
 <h4>Notes</h4>
 <ul>
-<li>The <code>User-Agent</code> header value must contain a single space before the <code>v</code> and no other surrounding whitespace.</li>
-<li>The behavior applies to the session obtained from a default-constructed <code>HyP3()</code> instance.</li>
+<li>The value of the <code>User-Agent</code> header must contain a single space before the <code>v</code> and no other surrounding whitespace.</li>
+<li>This behavior applies to the session obtained from a default-constructed <code>HyP3()</code> instance.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Modify the User-Agent HTTP header format used by the HyP3 SDK&#39;s session.</span>
-        <span class="spec-meta muted">176 words · source specification
+        <span class="spec-title">Change the format of the User-Agent HTTP header that the HyP3 SDK&#39;s session uses.</span>
+        <span class="spec-meta muted">186 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the User-Agent HTTP header format used by the HyP3 SDK's session.</p>
-<h4>Background</h4>
-<p>The <code>hyp3_sdk</code> package provides an API client whose session automatically attaches a <code>User-Agent</code> header to all outgoing HTTP requests. The package exposes:</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Change the format of the User-Agent HTTP header that the HyP3 SDK's session uses.</p>
+<h4>Context</h4>
+<p>The <code>hyp3_sdk</code> package provides an API client; the client's session automatically attaches a <code>User-Agent</code> header to all outgoing HTTP requests. The package exposes:</p>
 <ul>
-<li><code>hyp3_sdk.__name__</code> — the package name string.</li>
-<li><code>hyp3_sdk.__version__</code> — the package version string.</li>
+<li><code>hyp3_sdk.__name__</code> — the string holding the package name.</li>
+<li><code>hyp3_sdk.__version__</code> — the string holding the package version.</li>
 </ul>
-<p>The API client object exposes a <code>session</code> attribute (a requests-compatible session) that includes the <code>User-Agent</code> header in the headers of every request it issues.</p>
+<p>The API client object exposes a <code>session</code> attribute (a requests-compatible session), and every request this session issues includes the <code>User-Agent</code> header in its headers.</p>
 <h4>Required Behavior</h4>
-<p>The <code>User-Agent</code> header value sent by the session must be formatted as the package name and version separated by a single forward slash, with no additional characters:</p>
+<p>The <code>User-Agent</code> header value that the session sends must be formatted as the package name and version separated by a single forward slash, with no additional characters:</p>
 <pre><code>{hyp3_sdk.__name__}/{hyp3_sdk.__version__}
 </code></pre>
-<p>For example, if <code>hyp3_sdk.__name__</code> is <code>hyp3_sdk</code> and <code>hyp3_sdk.__version__</code> is <code>1.2.3</code>, the header value must be exactly:</p>
+<p>As an example, if <code>hyp3_sdk.__name__</code> is <code>hyp3_sdk</code> and <code>hyp3_sdk.__version__</code> is <code>1.2.3</code>, the header value must be exactly:</p>
 <pre><code>hyp3_sdk/1.2.3
 </code></pre>
-<p>This header must be present on requests made through the client's <code>session</code>.</p>
+<p>On requests made through the client's <code>session</code>, this header must be present.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The header value must use exactly the <code>name/version</code> format shown above (a slash separator, no <code>v</code> prefix, no spaces).</li>
-<li>No other behavior of the session or client should change.</li>
+<li>Exactly the <code>name/version</code> format shown above must be used for the header value (a slash separator, no <code>v</code> prefix, no spaces).</li>
+<li>Other behavior of the session or client should remain unchanged.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">You are working on the hyp3_sdk package.</span>
-        <span class="spec-meta muted">691 words · source specification
+        <span class="spec-title">The package you are working on is hyp3_sdk.</span>
+        <span class="spec-meta muted">728 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>hyp3_sdk</code> package. This task involves fixing the constructor of the <code>Batch</code> class and confirming the behavior of the <code>HyP3</code> API client. The changes are small and focused.</p>
+<p>The package you are working on is <code>hyp3_sdk</code>. The task is to fix the constructor of the <code>Batch</code> class and to confirm the behavior of the <code>HyP3</code> API client. The changes are minor and tightly focused.</p>
 <h4>Required Changes</h4>
-<h5>1. <code>Batch</code> class constructor</h5>
-<p>The <code>Batch</code> class (importable from the package's jobs module, alongside <code>Job</code>) must support being constructed with <strong>no arguments</strong>.</p>
-<p>Currently, constructing a <code>Batch</code> may only work when an explicit list is passed, and may emit a warning when given an empty list. The required behavior is:</p>
+<h5>1. Constructor of the <code>Batch</code> class</h5>
+<p>The <code>Batch</code> class (importable from the package's jobs module, alongside <code>Job</code>) must support construction with <strong>no arguments</strong>.</p>
+<p>As things stand, constructing a <code>Batch</code> may only work when an explicit list is passed, and it may emit a warning when an empty list is given. The behavior that is required is:</p>
 <ul>
-<li><code>Batch()</code> — called with no arguments — must construct successfully and produce a batch whose length (via <code>len()</code>) is <code>0</code>. No warning should be required or emitted for this case.</li>
-<li><code>Batch([])</code> — called with an empty list — must also construct successfully and produce a batch whose length is <code>0</code>. This case must <strong>not</strong> require the caller to catch any warning.</li>
+<li><code>Batch()</code> — called with no arguments — must construct successfully and create a batch whose length (via <code>len()</code>) is <code>0</code>. For this case, no warning should be required or emitted.</li>
+<li><code>Batch([])</code> — called with an empty list — must also construct successfully and create a batch whose length is <code>0</code>. In this case, the caller must <strong>not</strong> be required to catch any warning.</li>
 <li><code>Batch([job1, job2])</code> — called with a list of <code>Job</code> instances — must construct successfully, and <code>len()</code> of the resulting batch must equal the number of jobs provided (e.g., <code>2</code> for two jobs).</li>
 </ul>
-<p>In other words, the <code>jobs</code> parameter of the <code>Batch</code> constructor must be optional, defaulting to an empty batch, and constructing an empty batch (whether via no argument or an empty list) must be a fully supported, silent operation.</p>
-<p>The constructor signature should be:</p>
+<p>Put differently, the <code>jobs</code> parameter of the <code>Batch</code> constructor must be optional and default to an empty batch, and constructing an empty batch (whether via no argument or an empty list) must be a silent, fully supported operation.</p>
+<p>The signature of the constructor should be:</p>
 <pre><code class="language-python">class Batch:
     def __init__(self, jobs=None):
         ...
 </code></pre>
-<p><code>len(batch)</code> must return the number of jobs contained in the batch.</p>
+<p><code>len(batch)</code> must return the number of jobs that the batch contains.</p>
 <h5>2. <code>HyP3</code> client — <code>session</code> User-Agent and <code>my_info</code></h5>
-<p>The <code>HyP3</code> class (importable as <code>from hyp3_sdk import HyP3</code>) must attach a <code>User-Agent</code> header to the HTTP requests it makes through its <code>session</code>.</p>
+<p>The <code>HyP3</code> class (importable as <code>from hyp3_sdk import HyP3</code>) must attach a <code>User-Agent</code> header to the HTTP requests that it makes through its <code>session</code>.</p>
 <ul>
 <li>
-<p>The <code>HyP3</code> instance must expose a <code>session</code> attribute (a request session). Any request made through this session must include a <code>User-Agent</code> request header with the value:</p>
+<p>The <code>HyP3</code> instance must expose a <code>session</code> attribute (a request session). Any request that goes through this session must include a <code>User-Agent</code> request header with the value:</p>
 <pre><code>hyp3_sdk/&lt;version&gt;
 </code></pre>
 <p>where <code>&lt;version&gt;</code> is the value of <code>hyp3_sdk.__version__</code>.</p>
 </li>
 <li>
-<p>The <code>HyP3</code> instance must expose a <code>my_info()</code> method that performs a <code>GET</code> request to the <code>/user</code> endpoint (relative to the client's <code>url</code>) using the same <code>session</code>. The request issued by <code>my_info()</code> must also carry the same <code>User-Agent</code> header (<code>hyp3_sdk/&lt;version&gt;</code>). <code>my_info()</code> must return the parsed JSON body of the response (a dict).</p>
+<p>The <code>HyP3</code> instance must expose a <code>my_info()</code> method that, using the same <code>session</code>, performs a <code>GET</code> request to the <code>/user</code> endpoint (relative to the client's <code>url</code>). The request that <code>my_info()</code> issues must also carry the same <code>User-Agent</code> header (<code>hyp3_sdk/&lt;version&gt;</code>). <code>my_info()</code> must return the response's parsed JSON body (a dict).</p>
 </li>
 </ul>
-<h4>Existing Behavior That Must Continue To Work</h4>
-<p>The following <code>HyP3</code> behaviors are exercised and must remain intact. All HTTP interactions are relative to the client's <code>url</code> attribute.</p>
+<h4>Existing Behavior That Must Keep Working</h4>
+<p>The <code>HyP3</code> behaviors listed below are exercised and must remain intact. All HTTP interactions are made relative to the client's <code>url</code> attribute.</p>
 <ul>
-<li><code>find_jobs()</code> — issues a <code>GET</code> to <code>/jobs</code>, parses the JSON response containing a <code>jobs</code> list, and returns a collection whose <code>len()</code> equals the number of jobs returned.</li>
-<li><code>_get_job_by_id(job_id)</code> — issues a <code>GET</code> to <code>/jobs/&lt;job_id&gt;</code> and returns the corresponding <code>Job</code>.</li>
-<li><code>watch(job, interval=...)</code> — repeatedly polls <code>/jobs/&lt;job_id&gt;</code> until the job reaches a complete/succeeded status, then returns the completed <code>Job</code>.</li>
-<li><code>refresh(job)</code> — issues a <code>GET</code> to <code>/jobs/&lt;job_id&gt;</code> and returns an updated <code>Job</code> reflecting the latest server state.</li>
-<li><code>submit_job_dict(job_dict)</code> — issues a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
-<li><code>submit_autorift_job(granule1, granule2)</code> — issues a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
-<li><code>submit_rtc_job(granule)</code> — issues a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
-<li><code>submit_insar_job(granule1, granule2)</code> — issues a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
-<li><code>my_info()</code> — returns the full parsed JSON dict from <code>/user</code>.</li>
-<li><code>check_quota()</code> — reads the <code>/user</code> endpoint and returns the value at <code>quota.remaining</code> from the JSON response.</li>
+<li><code>find_jobs()</code> — sends a <code>GET</code> to <code>/jobs</code>, parses the JSON response containing a <code>jobs</code> list, and returns a collection whose <code>len()</code> equals the number of jobs that were returned.</li>
+<li><code>_get_job_by_id(job_id)</code> — sends a <code>GET</code> to <code>/jobs/&lt;job_id&gt;</code> and returns the corresponding <code>Job</code>.</li>
+<li><code>watch(job, interval=...)</code> — polls <code>/jobs/&lt;job_id&gt;</code> repeatedly until the job has reached a complete/succeeded status, then returns the completed <code>Job</code>.</li>
+<li><code>refresh(job)</code> — sends a <code>GET</code> to <code>/jobs/&lt;job_id&gt;</code> and returns an updated <code>Job</code> that reflects the latest server state.</li>
+<li><code>submit_job_dict(job_dict)</code> — sends a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
+<li><code>submit_autorift_job(granule1, granule2)</code> — sends a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
+<li><code>submit_rtc_job(granule)</code> — sends a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
+<li><code>submit_insar_job(granule1, granule2)</code> — sends a <code>POST</code> to <code>/jobs</code> and returns the resulting <code>Job</code>.</li>
+<li><code>my_info()</code> — returns the full parsed JSON dict obtained from <code>/user</code>.</li>
+<li><code>check_quota()</code> — reads the <code>/user</code> endpoint and returns, from the JSON response, the value at <code>quota.remaining</code>.</li>
 </ul>
-<p>The <code>Job</code> class must support:</p>
+<p>The <code>Job</code> class must support the following:</p>
 <ul>
-<li><code>Job.from_dict(d)</code> — construct a <code>Job</code> from a dict.</li>
-<li><code>job.to_dict()</code> — serialize a <code>Job</code> to a dict.</li>
-<li><code>job.to_dict(for_resubmit=True)</code> — serialize a <code>Job</code> into a dict suitable for resubmission.</li>
-<li>Equality comparison between <code>Job</code> instances (two jobs built from the same data compare equal).</li>
-<li>A <code>job_id</code> attribute and a <code>status_code</code> attribute.</li>
+<li><code>Job.from_dict(d)</code> — build a <code>Job</code> from a dict.</li>
+<li><code>job.to_dict()</code> — serialize a <code>Job</code> into a dict.</li>
+<li><code>job.to_dict(for_resubmit=True)</code> — serialize a <code>Job</code> into a dict that is suitable for resubmission.</li>
+<li>Equality comparison between <code>Job</code> instances (two jobs created from the same data compare equal).</li>
+<li>A <code>job_id</code> attribute as well as a <code>status_code</code> attribute.</li>
 </ul>
-<h4>Package-Level Constants</h4>
+<h4>Constants at the Package Level</h4>
 <ul>
 <li><code>hyp3_sdk.__version__</code> must be defined.</li>
 <li><code>hyp3_sdk.__name__</code> resolves to <code>hyp3_sdk</code>.</li>
-<li><code>hyp3_sdk.TESTING</code> must be settable (e.g., to <code>True</code>) to enable a testing mode for the client.</li>
+<li>It must be possible to set <code>hyp3_sdk.TESTING</code> (e.g., to <code>True</code>) in order to enable a testing mode for the client.</li>
 </ul>
 <h4>Notes</h4>
-<p>The primary deliverable of this task is making the <code>Batch</code> constructor accept no argument (defaulting to an empty batch) without emitting a warning, and ensuring the empty-batch case works silently. The <code>HyP3</code> <code>session</code> User-Agent header and <code>my_info()</code> behavior described above must be present and correct.</p>
+<p>The main deliverable of this task is making the <code>Batch</code> constructor accept no argument (defaulting to an empty batch) without emitting a warning, and ensuring that the empty-batch case works silently. The <code>HyP3</code> <code>session</code> User-Agent header and the <code>my_info()</code> behavior described above must be present and correct.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Modify the find_jobs method of the HyP3 class (in the hyp3_sdk package, accessible as hyp3_sdk.HyP3) so that it emits a warning to the user when a job…</span>
-        <span class="spec-meta muted">162 words · source specification
+        <span class="spec-title">Change the find_jobs method on the HyP3 class (in the hyp3_sdk package, where the class is accessible as hyp3_sdk.HyP3) so that, when a job search returns…</span>
+        <span class="spec-meta muted">186 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the <code>find_jobs</code> method of the <code>HyP3</code> class (in the <code>hyp3_sdk</code> package, accessible as <code>hyp3_sdk.HyP3</code>) so that it emits a warning to the user when a job search returns no results.</p>
-<h4>Required Behavior</h4>
-<p>The <code>HyP3.find_jobs()</code> method queries the HyP3 API for jobs and returns a batch/collection of the matching jobs.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Change the <code>find_jobs</code> method on the <code>HyP3</code> class (in the <code>hyp3_sdk</code> package, where the class is accessible as <code>hyp3_sdk.HyP3</code>) so that, when a job search returns no results, it emits a warning to the user.</p>
+<h4>Behavior That Is Required</h4>
+<p>The <code>HyP3.find_jobs()</code> method makes a query to the HyP3 API for jobs and returns a batch/collection of the jobs that match.</p>
 <ul>
-<li>When the search returns one or more jobs, the method must return the collection of those jobs unchanged. The length of the returned collection must equal the number of jobs found. No warning is emitted in this case.</li>
-<li>When the search returns zero jobs, the method must issue a <code>UserWarning</code> (via the standard Python warnings mechanism) and return an empty collection (a collection whose length is 0).</li>
+<li>When the search returns one or more jobs, the method must return the collection made up of those jobs unchanged. The length of the collection that is returned must equal the number of jobs found. In this case, no warning is emitted.</li>
+<li>When the search returns zero jobs, the method must issue a <code>UserWarning</code> (by means of the standard Python warnings mechanism) and return an empty collection (that is, a collection whose length is 0).</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The returned value must support <code>len()</code>.</li>
-<li>The existing signature and return type of <code>find_jobs()</code> must remain compatible; the only added behavior is the emission of a <code>UserWarning</code> when the result set is empty.</li>
+<li>The value that is returned must support <code>len()</code>.</li>
+<li>The signature and return type that <code>find_jobs()</code> already has must remain compatible; the only behavior being added is the emission of a <code>UserWarning</code> when the result set is empty.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Create a new module asf_search within the hyp3_sdk package (i.e.</span>
-        <span class="spec-meta muted">606 words · source specification
+        <span class="spec-title">Create a new module named asf_search inside the hyp3_sdk package (that is, importable as from hyp3_sdk import asf_search).</span>
+        <span class="spec-meta muted">666 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement an ASF Search wrapper module</h3>
-<h4>Overview</h4>
-<p>Create a new module <code>asf_search</code> within the <code>hyp3_sdk</code> package (i.e. importable as <code>from hyp3_sdk import asf_search</code>). This module provides thin wrappers around two ASF search HTTP endpoints for retrieving granule metadata and finding temporally nearest neighbors.</p>
-<h4>Module-level constants</h4>
-<p>The module must define two module-level string constants holding the endpoint URLs used for HTTP requests:</p>
+      <div class="spec-body"><h3>Task: Build an ASF Search wrapper module</h3>
+<h4>Summary</h4>
+<p>Create a new module named <code>asf_search</code> inside the <code>hyp3_sdk</code> package (that is, importable as <code>from hyp3_sdk import asf_search</code>). This module offers thin wrappers around two ASF search HTTP endpoints — one for retrieving granule metadata and one for finding temporally nearest neighbors.</p>
+<h4>Constants at module level</h4>
+<p>The module must define two string constants at module level that hold the endpoint URLs used for HTTP requests:</p>
 <ul>
-<li><code>_SEARCH_API</code> — the URL used for granule metadata searches (queried via HTTP <code>POST</code>).</li>
-<li><code>_BASLINE_API</code> — the URL used for baseline/nearest-neighbor lookups (queried via HTTP <code>GET</code>).</li>
+<li><code>_SEARCH_API</code> — the URL used when searching for granule metadata (queried via HTTP <code>POST</code>).</li>
+<li><code>_BASLINE_API</code> — the URL used when performing baseline/nearest-neighbor lookups (queried via HTTP <code>GET</code>).</li>
 </ul>
-<p>(Note the spelling <code>_BASLINE_API</code> exactly as written.)</p>
-<p>These should point at the appropriate ASF Search API endpoints. Their exact values are not otherwise constrained, but they must be the URLs the functions below issue their requests against.</p>
+<p>(Note that the spelling is <code>_BASLINE_API</code>, exactly as written.)</p>
+<p>These constants should point at the appropriate ASF Search API endpoints. No further constraint is placed on their exact values, but they must be the URLs that the functions below issue their requests against.</p>
 <h4>Public functions</h4>
 <h5><code>get_metadata(granules)</code></h5>
-<p>Retrieves metadata for one or more granules by issuing an HTTP <code>POST</code> request to <code>_SEARCH_API</code>.</p>
+<p>Fetches metadata for one or more granules by sending an HTTP <code>POST</code> request to <code>_SEARCH_API</code>.</p>
 <p><strong>Input:</strong></p>
 <ul>
-<li><code>granules</code> — either a single granule name (string) or a list of granule names (list of strings).</li>
+<li><code>granules</code> — either a single granule name (a string) or a list of granule names (a list of strings).</li>
 </ul>
-<p><strong>Response handling:</strong>
-The endpoint returns JSON of the form <code>{'results': [ ... ]}</code>, where each element in <code>results</code> is a dict describing a product. Each product dict has a <code>'productType'</code> key. Some products are duplicated metadata entries distinguished by having a <code>'productType'</code> value that begins with the prefix <code>METADATA_</code> (e.g. <code>'METADATA_SLC'</code>). These metadata-type entries must be filtered out; only the non-metadata products are considered.</p>
+<p><strong>Handling of the response:</strong>
+The endpoint returns JSON of the form <code>{'results': [ ... ]}</code>, in which each element of <code>results</code> is a dict describing one product. Every product dict has a <code>'productType'</code> key. Some of the products are duplicated metadata entries, recognizable by a <code>'productType'</code> value that begins with the prefix <code>METADATA_</code> (e.g. <code>'METADATA_SLC'</code>). Such metadata-type entries must be filtered out; only the non-metadata products are taken into consideration.</p>
 <p><strong>Output:</strong></p>
 <ul>
-<li>When <code>granules</code> is a single string: return the single matching product dict (not wrapped in a list).</li>
-<li>When <code>granules</code> is a list: return a list of the matching product dicts, in the order they appear in the response after filtering.</li>
+<li>If <code>granules</code> is a single string: return the one matching product dict (not wrapped in a list).</li>
+<li>If <code>granules</code> is a list: return a list of the matching product dicts, ordered as they appear in the response after filtering.</li>
 </ul>
-<p>Examples of the filtering/return semantics:</p>
+<p>Examples illustrating the filtering/return semantics:</p>
 <ul>
-<li>Single-string input, response results <code>[{'productType': 'METADATA_SLC'}, {'productType': 'SLC'}]</code> → returns <code>{'productType': 'SLC'}</code>.</li>
-<li>List input, response results <code>[{'productType': 'SLC'}, {'productType': 'METADATA_SLC'}, {'productType': 'METADATA_SLC'}, {'productType': 'SLC'}]</code> → returns <code>[{'productType': 'SLC'}, {'productType': 'SLC'}]</code>.</li>
+<li>Input given as a single string, response results <code>[{'productType': 'METADATA_SLC'}, {'productType': 'SLC'}]</code> → returns <code>{'productType': 'SLC'}</code>.</li>
+<li>Input given as a list, response results <code>[{'productType': 'SLC'}, {'productType': 'METADATA_SLC'}, {'productType': 'METADATA_SLC'}, {'productType': 'SLC'}]</code> → returns <code>[{'productType': 'SLC'}, {'productType': 'SLC'}]</code>.</li>
 </ul>
 <h5><code>get_nearest_neighbors(granule, total=...)</code></h5>
-<p>Finds the temporally nearest neighbor granules by issuing an HTTP <code>GET</code> request to <code>_BASLINE_API</code>.</p>
+<p>Locates the temporally nearest neighbor granules by sending an HTTP <code>GET</code> request to <code>_BASLINE_API</code>.</p>
 <p><strong>Input:</strong></p>
 <ul>
-<li><code>granule</code> — a single granule name (string).</li>
-<li><code>total</code> — optional keyword argument (integer) limiting the maximum number of neighbors returned. It has a default value (see below).</li>
+<li><code>granule</code> — a single granule name (a string).</li>
+<li><code>total</code> — an optional keyword argument (an integer) that limits the maximum number of neighbors returned. A default value is defined for it (see below).</li>
 </ul>
-<p><strong>Response handling:</strong>
-The endpoint returns JSON of the form <code>{'results': [ ... ]}</code>, where each element is a dict containing a <code>'temporalBaseline'</code> key with an integer value (positive, negative, or zero).</p>
-<p>Only entries with a <strong>negative</strong> <code>temporalBaseline</code> are eligible as neighbors (entries with a non-negative baseline are excluded).</p>
-<p>The eligible entries must be returned ordered from the temporal baseline closest to zero to the most negative (i.e. sorted by <code>temporalBaseline</code> in descending numeric order — least negative first).</p>
+<p><strong>Handling of the response:</strong>
+The endpoint returns JSON of the form <code>{'results': [ ... ]}</code>, where every element is a dict containing a <code>'temporalBaseline'</code> key whose value is an integer (positive, negative, or zero).</p>
+<p>Only entries whose <code>temporalBaseline</code> is <strong>negative</strong> are eligible as neighbors (entries with a non-negative baseline are excluded).</p>
+<p>The eligible entries must be returned ordered from the temporal baseline closest to zero down to the most negative (that is, sorted by <code>temporalBaseline</code> in descending numeric order — least negative first).</p>
 <p><strong>Output:</strong></p>
 <ul>
-<li>A list of the eligible product dicts, sorted as described, truncated to at most <code>total</code> items. If fewer eligible entries exist than <code>total</code>, return all of them.</li>
+<li>A list of the eligible product dicts, sorted as described above and truncated to at most <code>total</code> items. If there are fewer eligible entries than <code>total</code>, return all of them.</li>
 </ul>
-<p><strong>Default for <code>total</code>:</strong></p>
+<p><strong>Default value for <code>total</code>:</strong></p>
 <ul>
-<li>The default value must be such that, given four candidate entries with baselines <code>12, -60, -12, -24</code>, calling with no <code>total</code> argument returns exactly the two closest-to-zero negative entries: <code>[{'temporalBaseline': -12}, {'temporalBaseline': -24}]</code>. (A default of <code>2</code> satisfies this.)</li>
+<li>The default value must be such that, given four candidate entries with baselines <code>12, -60, -12, -24</code>, a call made without a <code>total</code> argument returns exactly the two negative entries closest to zero: <code>[{'temporalBaseline': -12}, {'temporalBaseline': -24}]</code>. (A default of <code>2</code> satisfies this.)</li>
 </ul>
-<p>Worked examples given response results <code>[{'temporalBaseline': 12}, {'temporalBaseline': -60}, {'temporalBaseline': -12}, {'temporalBaseline': -24}]</code>:</p>
+<p>Worked examples, using response results <code>[{'temporalBaseline': 12}, {'temporalBaseline': -60}, {'temporalBaseline': -12}, {'temporalBaseline': -24}]</code>:</p>
 <ul>
 <li><code>get_nearest_neighbors('S1B_IW_SLC_')</code> → <code>[{'temporalBaseline': -12}, {'temporalBaseline': -24}]</code></li>
 <li><code>get_nearest_neighbors('S1B_IW_SLC_', total=3)</code> → <code>[{'temporalBaseline': -12}, {'temporalBaseline': -24}, {'temporalBaseline': -60}]</code></li>
 <li><code>get_nearest_neighbors('S1B_IW_SLC_', total=100)</code> → <code>[{'temporalBaseline': -12}, {'temporalBaseline': -24}, {'temporalBaseline': -60}]</code></li>
 </ul>
-<h4>Notes</h4>
+<h4>Additional notes</h4>
 <ul>
-<li>HTTP requests must be made using a library compatible with <code>responses</code>-style mocking (i.e. the standard <code>requests</code> library), so the <code>POST</code> to <code>_SEARCH_API</code> and the <code>GET</code> to <code>_BASLINE_API</code> can be intercepted.</li>
-<li>The returned dicts should be the product dicts exactly as they appear in the response <code>results</code> (subject to the described filtering and ordering).</li>
+<li>HTTP requests must be sent with a library that is compatible with <code>responses</code>-style mocking (that is, the standard <code>requests</code> library), so that the <code>POST</code> to <code>_SEARCH_API</code> and the <code>GET</code> to <code>_BASLINE_API</code> can be intercepted.</li>
+<li>The dicts that are returned should be the product dicts exactly as they appear in the response <code>results</code> (subject to the filtering and ordering described above).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Implement the hyp3_sdk.asf_search Python module, referred to below as asf_search.</span>
-        <span class="spec-meta muted">676 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Implement the hyp3_sdk.asf_search Python module, which is referred to below as asf_search.</span>
+        <span class="spec-meta muted">739 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Implement the <code>hyp3_sdk.asf_search</code> Python module, referred to below as <code>asf_search</code>. It provides helpers for querying ASF search services and extracting metadata and temporal-neighbor results. The module must expose the public API and behavior described here.</p>
+<p>Implement the <code>hyp3_sdk.asf_search</code> Python module, which is referred to below as <code>asf_search</code>. It offers helpers for querying ASF search services and for extracting metadata and temporal-neighbor results. The public API and behavior described here must be exposed by the module.</p>
 <h4>Module-level attributes</h4>
-<p>The module must define these caller-accessible attributes:</p>
+<p>The module must define these attributes, which are accessible to callers:</p>
 <ul>
-<li><code>_SEARCH_API</code> — a URL string identifying the metadata search endpoint used by <code>get_metadata</code> with HTTP POST.</li>
-<li><code>_BASLINE_API</code> — a URL string identifying the baseline query endpoint used by <code>get_nearest_neighbors</code> with HTTP GET. The spelling <code>_BASLINE_API</code> is intentional and must be preserved.</li>
+<li><code>_SEARCH_API</code> — a URL string that identifies the metadata search endpoint, which <code>get_metadata</code> uses with HTTP POST.</li>
+<li><code>_BASLINE_API</code> — a URL string that identifies the baseline query endpoint, which <code>get_nearest_neighbors</code> uses with HTTP GET. The spelling of <code>_BASLINE_API</code> is deliberate and must be preserved.</li>
 </ul>
 <h4><code>get_metadata</code></h4>
 <pre><code class="language-python">def get_metadata(granules) -&gt; dict | list[dict]
 </code></pre>
-<p>Retrieve product metadata for either one granule or a collection of granules.</p>
+<p>This function retrieves product metadata for either one granule or a collection of granules.</p>
 <h5>Inputs and request</h5>
 <ul>
-<li><code>granules</code> may be either a single granule identifier string or a list of granule identifier strings.</li>
-<li>The function must use the supplied identifier or identifiers to form an HTTP POST request to <code>_SEARCH_API</code>.</li>
-<li>The exact request payload or query-parameter encoding is otherwise not constrained.</li>
+<li><code>granules</code> may be either one granule identifier string or a list of granule identifier strings.</li>
+<li>The function must use the identifier or identifiers that are supplied to build an HTTP POST request to <code>_SEARCH_API</code>.</li>
+<li>Otherwise, the exact request payload or query-parameter encoding is not constrained.</li>
 </ul>
 <h5>Response filtering</h5>
-<p>The response body is JSON with a top-level <code>results</code> key whose value is a list of dictionaries. Each result dictionary contains at least a <code>productType</code> key.</p>
+<p>The response body is JSON that has a top-level <code>results</code> key whose value is a list of dictionaries. Each result dictionary has at least a <code>productType</code> key.</p>
 <ul>
-<li>A result is a metadata product when its <code>productType</code> begins with the prefix <code>METADATA_</code>.</li>
-<li>Metadata products must be excluded. For example, both <code>METADATA_SLC</code> and <code>METADATA_GRD</code> are excluded.</li>
-<li>Every other product type, such as <code>SLC</code> or <code>GRD_HD</code>, is retained.</li>
-<li>For list input, retained results must remain in the same relative order in which they appeared in the response.</li>
-<li>Result dictionaries must be returned unchanged from the response.</li>
+<li>A result is a metadata product when its <code>productType</code> starts with the prefix <code>METADATA_</code>.</li>
+<li>Metadata products must be excluded. As an example, both <code>METADATA_SLC</code> and <code>METADATA_GRD</code> are excluded.</li>
+<li>Every product type other than a metadata product, such as <code>SLC</code> or <code>GRD_HD</code>, is retained.</li>
+<li>When the input is a list, the retained results must stay in the same relative order in which they appeared in the response.</li>
+<li>The result dictionaries must be returned unchanged from the response.</li>
 </ul>
 <h5>Return shape</h5>
-<p>The return shape depends on the shape of <code>granules</code>:</p>
+<p>The shape of what is returned depends on the shape of <code>granules</code>:</p>
 <ul>
-<li>When <code>granules</code> is a list of identifiers, return the complete list of retained non-metadata result dictionaries.</li>
-<li>When <code>granules</code> is a single identifier string, return the matching non-metadata result dictionary itself, not a one-element list. If filtering yields multiple non-metadata results for a string input, return the first retained result.</li>
+<li>When <code>granules</code> is a list of identifiers, return the full list of retained non-metadata result dictionaries.</li>
+<li>When <code>granules</code> is a single identifier string, return the matching non-metadata result dictionary itself, and not a one-element list. If, for a string input, filtering yields multiple non-metadata results, return the first retained result.</li>
 </ul>
 <h5>Examples</h5>
-<p>For list input, if the response contains product types in this order:</p>
+<p>For list input, if the product types in the response appear in this order:</p>
 <pre><code class="language-text">GRD_HD, METADATA_GRD, METADATA_SLC, SLC
 </code></pre>
-<p>return a two-element list containing the <code>GRD_HD</code> and <code>SLC</code> dictionaries, in that order.</p>
-<p>For string input, if the response contains <code>METADATA_SLC</code> followed by <code>SLC</code>, return the <code>SLC</code> dictionary directly.</p>
+<p>return a two-element list that contains the <code>GRD_HD</code> and <code>SLC</code> dictionaries, in that order.</p>
+<p>When the input is a string, if the response contains <code>METADATA_SLC</code> followed by <code>SLC</code>, return the <code>SLC</code> dictionary directly.</p>
 <h4><code>get_nearest_neighbors</code></h4>
 <pre><code class="language-python">def get_nearest_neighbors(granule, max_neighbors=2) -&gt; list[dict]
 </code></pre>
-<p>Retrieve the nearest earlier granules in the reference granule's temporal stack.</p>
+<p>This function retrieves the nearest earlier granules located in the reference granule's temporal stack.</p>
 <h5>Inputs and request</h5>
 <ul>
-<li><code>granule</code> is the reference granule identifier string.</li>
-<li><code>max_neighbors</code> is the maximum number of neighbors to return and defaults to <code>2</code>.</li>
-<li>The function must use <code>granule</code> to form an HTTP GET request to <code>_BASLINE_API</code>.</li>
-<li>The exact request payload or query-parameter encoding is otherwise not constrained.</li>
+<li><code>granule</code> is the identifier string of the reference granule.</li>
+<li><code>max_neighbors</code> is the maximum number of neighbors to return, and it defaults to <code>2</code>.</li>
+<li>The function must use <code>granule</code> to build an HTTP GET request to <code>_BASLINE_API</code>.</li>
+<li>Beyond the points above, the exact request payload or query-parameter encoding is not constrained.</li>
 </ul>
 <h5>Response selection and ordering</h5>
-<p>The response body is JSON with a top-level <code>results</code> key whose value is a list of dictionaries. Each result dictionary contains at least an integer <code>temporalBaseline</code>, which may be positive or negative.</p>
+<p>The response body is JSON that contains a top-level <code>results</code> key whose value is a list of dictionaries. Each result dictionary has at least an integer <code>temporalBaseline</code>, which may be positive or negative.</p>
 <ul>
-<li>Consider only results whose <code>temporalBaseline</code> is strictly less than zero. Results with zero or a positive baseline must be excluded.</li>
-<li>Sort the remaining results by <code>temporalBaseline</code> in descending order. Because all retained values are negative, this places the baselines closest to zero first.</li>
-<li>Return at most the first <code>max_neighbors</code> sorted results. If fewer negative-baseline results exist, return all available negative-baseline results rather than attempting to fill the requested count.</li>
-<li>The returned list must therefore be ordered from the closest earlier temporal neighbor to the farthest selected earlier neighbor.</li>
-<li>Result dictionaries must be returned unchanged from the response.</li>
+<li>Take into account only results whose <code>temporalBaseline</code> is strictly less than zero. Results that have zero or a positive baseline must be excluded.</li>
+<li>Sort the results that remain by <code>temporalBaseline</code> in descending order. Since all retained values are negative, this ordering puts the baselines closest to zero first.</li>
+<li>Return at most the first <code>max_neighbors</code> of the sorted results. If fewer negative-baseline results exist, return all the negative-baseline results that are available rather than trying to fill the requested count.</li>
+<li>The list that is returned must therefore be ordered from the closest earlier temporal neighbor to the farthest selected earlier neighbor.</li>
+<li>The result dictionaries must be returned unchanged from the response.</li>
 </ul>
 <h5>Example</h5>
-<p>Given response results with <code>temporalBaseline</code> values <code>12</code>, <code>-60</code>, <code>-12</code>, and <code>-24</code>:</p>
+<p>Suppose the response results have <code>temporalBaseline</code> values <code>12</code>, <code>-60</code>, <code>-12</code>, and <code>-24</code>:</p>
 <ul>
-<li><code>get_nearest_neighbors(granule)</code> returns the dictionaries for <code>-12</code> and <code>-24</code>, in that order.</li>
-<li><code>get_nearest_neighbors(granule, max_neighbors=3)</code> returns the dictionaries for <code>-12</code>, <code>-24</code>, and <code>-60</code>, in that order.</li>
-<li><code>get_nearest_neighbors(granule, max_neighbors=100)</code> returns those same three dictionaries because only three negative-baseline results are available.</li>
+<li><code>get_nearest_neighbors(granule)</code> returns the <code>-12</code> and <code>-24</code> dictionaries, in that order.</li>
+<li><code>get_nearest_neighbors(granule, max_neighbors=3)</code> returns the <code>-12</code>, <code>-24</code>, and <code>-60</code> dictionaries, in that order.</li>
+<li><code>get_nearest_neighbors(granule, max_neighbors=100)</code> returns those same three dictionaries, since only three negative-baseline results are available.</li>
 </ul>
 <h4>Scope</h4>
-<p>Both functions must use their first argument when constructing the outgoing request. Beyond the required HTTP method and endpoint attribute, request payload and parameter details are not part of this specification.</p>
+<p>Both functions must use their first argument when they build the outgoing request. Apart from the required HTTP method and endpoint attribute, the details of the request payload and parameters are not part of this specification.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Correct and fully expose the ASF temporal-baseline search API in hyp3_sdk.asf_search.</span>
-        <span class="spec-meta muted">377 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The ASF temporal-baseline search API in hyp3_sdk.asf_search must be corrected and fully exposed.</span>
+        <span class="spec-meta muted">425 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Scope</h4>
-<p>Correct and fully expose the ASF temporal-baseline search API in <code>hyp3_sdk.asf_search</code>. The module must remain importable with:</p>
+<p>The ASF temporal-baseline search API in <code>hyp3_sdk.asf_search</code> must be corrected and fully exposed. The module must remain importable by means of:</p>
 <pre><code class="language-python">from hyp3_sdk import asf_search
 </code></pre>
-<p>The target is the existing <code>hyp3_sdk.asf_search</code> module; no <code>hyp3lib.asf_search</code> module is required.</p>
-<h4>Baseline endpoint constant</h4>
-<p>Expose the correctly spelled module-level constant:</p>
+<p>What is being targeted is the existing <code>hyp3_sdk.asf_search</code> module; there is no requirement for a <code>hyp3lib.asf_search</code> module.</p>
+<h4>Constant for the baseline endpoint</h4>
+<p>Expose the module-level constant with the correct spelling:</p>
 <pre><code class="language-python">_BASELINE_API = 'https://api.daac.asf.alaska.edu/services/search/baseline'
 </code></pre>
-<p>Nearest-neighbor requests must use <code>_BASELINE_API</code>. The old misspelling <code>_BASLINE_API</code> is not the required API and need not be retained for compatibility.</p>
+<p>Requests for nearest neighbors must use <code>_BASELINE_API</code>. The earlier misspelling <code>_BASLINE_API</code> is not the required API, and it does not have to be retained for compatibility.</p>
 <h4><code>get_nearest_neighbors</code></h4>
-<p>Provide the following public function behavior:</p>
+<p>The public function must provide the following behavior:</p>
 <pre><code class="language-python">get_nearest_neighbors(granule: str, max_neighbors: int = 2) -&gt; List[dict]
 </code></pre>
 <ul>
-<li><code>granule</code> is the name of the reference granule.</li>
-<li><code>max_neighbors</code> is optional, defaults to <code>2</code>, and is the maximum number of neighbor dictionaries to return.</li>
-<li>Each call must perform an HTTP <code>GET</code> against the endpoint identified by <code>_BASELINE_API</code>, using the reference granule as the baseline-search master and requesting <code>jsonlite</code> output. Equivalently, the request parameters are <code>master=&lt;granule&gt;</code> and <code>output=jsonlite</code>.</li>
-<li>HTTP failure responses must be surfaced rather than processed as successful search results.</li>
-<li>Read candidate records from the top-level <code>results</code> value in the JSON response.</li>
-<li>Retain only records whose <code>temporalBaseline</code> is strictly less than zero. Records with a zero or positive temporal baseline are not backward-in-time neighbors and must be excluded.</li>
-<li>Sort eligible records by <code>temporalBaseline</code> in descending order, so the baseline closest to zero appears first. For example, <code>-12</code> precedes <code>-24</code>, which precedes <code>-60</code>.</li>
-<li>Return at most <code>max_neighbors</code> records from that ordering. If the limit exceeds the number of eligible records, return all eligible records without padding.</li>
-<li>Apart from filtering, ordering, and limiting the list, return the selected result dictionaries unchanged.</li>
+<li><code>granule</code> holds the name of the reference granule.</li>
+<li><code>max_neighbors</code> is optional, has a default of <code>2</code>, and specifies the maximum number of neighbor dictionaries to return.</li>
+<li>On each call, an HTTP <code>GET</code> must be performed against the endpoint identified by <code>_BASELINE_API</code>, with the reference granule serving as the baseline-search master and <code>jsonlite</code> requested as the output. In other words, the request parameters are <code>master=&lt;granule&gt;</code> and <code>output=jsonlite</code>.</li>
+<li>Responses that are HTTP failures must be surfaced rather than processed as successful search results.</li>
+<li>Take the candidate records from the top-level <code>results</code> value of the JSON response.</li>
+<li>Keep only records whose <code>temporalBaseline</code> is strictly less than zero. Records whose temporal baseline is zero or positive are not backward-in-time neighbors and must be excluded.</li>
+<li>Sort the eligible records by <code>temporalBaseline</code> in descending order, so that the baseline closest to zero comes first. For instance, <code>-12</code> precedes <code>-24</code>, which precedes <code>-60</code>.</li>
+<li>From that ordering, return at most <code>max_neighbors</code> records. If the limit is greater than the number of eligible records, return all eligible records without padding.</li>
+<li>Aside from the filtering, the ordering, and the limiting of the list, return the selected result dictionaries unchanged.</li>
 </ul>
-<p>For example, given:</p>
+<p>As an example, given the response:</p>
 <pre><code class="language-python">{
     &quot;results&quot;: [
         {&quot;temporalBaseline&quot;: 12},
@@ -1128,7 +1132,7 @@ The endpoint returns JSON of the form <code>{'results': [ ... ]}</code>, where e
     ]
 }
 </code></pre>
-<p>these calls must produce:</p>
+<p>the following calls must produce:</p>
 <pre><code class="language-python">get_nearest_neighbors(&quot;S1B_IW_SLC_&quot;)
 # [{&quot;temporalBaseline&quot;: -12}, {&quot;temporalBaseline&quot;: -24}]
 
@@ -1140,34 +1144,34 @@ get_nearest_neighbors(&quot;S1B_IW_SLC_&quot;, max_neighbors=100)
 # [{&quot;temporalBaseline&quot;: -12}, {&quot;temporalBaseline&quot;: -24},
 #  {&quot;temporalBaseline&quot;: -60}]
 </code></pre>
-<p>Thus, if the response contains only the already ordered records <code>{&quot;temporalBaseline&quot;: -12}</code> and <code>{&quot;temporalBaseline&quot;: -24}</code>, the default call returns that <code>results</code> list unchanged.</p>
+<p>Consequently, if the response contains only the records <code>{&quot;temporalBaseline&quot;: -12}</code> and <code>{&quot;temporalBaseline&quot;: -24}</code>, which are already ordered, the default call returns that <code>results</code> list unchanged.</p>
 <h4>Compatibility</h4>
-<p>Keep the existing ASF metadata-search surface intact: <code>_SEARCH_API</code> and <code>get_metadata</code> must remain available with their current request, metadata-record filtering, and scalar-versus-iterable return behavior. No behavior outside <code>hyp3_sdk.asf_search</code> should be changed.</p>
+<p>The existing ASF metadata-search surface must be kept intact: <code>_SEARCH_API</code> and <code>get_metadata</code> must remain available, keeping their current request, metadata-record filtering, and scalar-versus-iterable return behavior. Outside <code>hyp3_sdk.asf_search</code>, no behavior should be changed.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">Extend the HyP3 class (importable as from hyp3_sdk import HyP3, or from whichever module currently exports it in this codebase) with methods for preparing…</span>
-        <span class="spec-meta muted">576 words · source specification
+        <span class="spec-title">Add methods to the HyP3 class (importable as from hyp3_sdk import HyP3, or from whichever module in this codebase currently exports it) whose purpose is to…</span>
+        <span class="spec-meta muted">656 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Extend the <code>HyP3</code> class (importable as <code>from hyp3_sdk import HyP3</code>, or from whichever module currently exports it in this codebase) with methods for preparing job definitions and submitting one or more prepared jobs to the HyP3 API.</p>
-<h4>Required API Surface</h4>
+      <div class="spec-body"><h4>Summary</h4>
+<p>Add methods to the <code>HyP3</code> class (importable as <code>from hyp3_sdk import HyP3</code>, or from whichever module in this codebase currently exports it) whose purpose is to prepare job definitions and to submit one or more prepared jobs to the HyP3 API.</p>
+<h4>API Surface Requirements</h4>
 <h5><code>HyP3.prepare_rtc_job</code> (static method)</h5>
 <p>Signature:</p>
 <pre><code class="language-python">@staticmethod
 def prepare_rtc_job(granule, name=None, **kwargs) -&gt; dict
 </code></pre>
-<p>Builds and returns a job-definition dictionary for an RTC job. Behavior:</p>
+<p>The method assembles a dictionary that defines an RTC job and returns that dictionary. Required behavior:</p>
 <ul>
-<li>Always includes the key <code>'job_type'</code> set to <code>'RTC_GAMMA'</code>.</li>
-<li>Always includes the key <code>'job_parameters'</code>, a dictionary that always contains <code>'granules'</code> set to a single-element list <code>[granule]</code>.</li>
-<li>Any additional keyword arguments (<code>**kwargs</code>) are merged into the <code>'job_parameters'</code> dictionary as key/value pairs, preserving their values and types exactly.</li>
-<li>If <code>name</code> is provided (not <code>None</code>), the returned dictionary includes a top-level <code>'name'</code> key with that value. If <code>name</code> is <code>None</code>, the <code>'name'</code> key must be absent entirely.</li>
+<li>There is always a key <code>'job_type'</code>, and its value is <code>'RTC_GAMMA'</code>.</li>
+<li>There is also always a key <code>'job_parameters'</code>, whose value is a dictionary that always contains <code>'granules'</code>, set to the single-element list <code>[granule]</code>.</li>
+<li>Any extra keyword arguments (<code>**kwargs</code>) are merged into the <code>'job_parameters'</code> dictionary as key/value pairs, and both their values and their types are kept exactly as supplied.</li>
+<li>When <code>name</code> is supplied (not <code>None</code>), a top-level <code>'name'</code> key with that value is part of the returned dictionary. When <code>name</code> is <code>None</code>, the <code>'name'</code> key must be left out entirely.</li>
 </ul>
-<p>Examples of returned structure:</p>
+<p>Examples of the structure the method returns:</p>
 <ul>
 <li><code>prepare_rtc_job(granule='my_granule')</code> → <code>{'job_type': 'RTC_GAMMA', 'job_parameters': {'granules': ['my_granule']}}</code></li>
 <li><code>prepare_rtc_job(granule='my_granule', name='my_name')</code> → <code>{'job_type': 'RTC_GAMMA', 'name': 'my_name', 'job_parameters': {'granules': ['my_granule']}}</code></li>
@@ -1178,14 +1182,14 @@ def prepare_rtc_job(granule, name=None, **kwargs) -&gt; dict
 <pre><code class="language-python">@staticmethod
 def prepare_insar_job(granule1, granule2, name=None, **kwargs) -&gt; dict
 </code></pre>
-<p>Builds and returns a job-definition dictionary for an InSAR job. Behavior:</p>
+<p>The method assembles a dictionary that defines an InSAR job and returns that dictionary. Required behavior:</p>
 <ul>
-<li>Always includes the key <code>'job_type'</code> set to <code>'INSAR_GAMMA'</code>.</li>
-<li>Always includes the key <code>'job_parameters'</code>, a dictionary that always contains <code>'granules'</code> set to the two-element list <code>[granule1, granule2]</code> in that order.</li>
-<li>Any additional keyword arguments (<code>**kwargs</code>) are merged into the <code>'job_parameters'</code> dictionary as key/value pairs, preserving their values and types exactly.</li>
-<li>If <code>name</code> is provided (not <code>None</code>), the returned dictionary includes a top-level <code>'name'</code> key with that value. If <code>name</code> is <code>None</code>, the <code>'name'</code> key must be absent entirely.</li>
+<li>There is always a key <code>'job_type'</code>, and its value is <code>'INSAR_GAMMA'</code>.</li>
+<li>There is also always a key <code>'job_parameters'</code>, whose value is a dictionary that always contains <code>'granules'</code>, set to the two-element list <code>[granule1, granule2]</code>, with its elements in that order.</li>
+<li>Any extra keyword arguments (<code>**kwargs</code>) are merged into the <code>'job_parameters'</code> dictionary as key/value pairs, and both their values and their types are kept exactly as supplied.</li>
+<li>When <code>name</code> is supplied (not <code>None</code>), a top-level <code>'name'</code> key with that value is part of the returned dictionary. When <code>name</code> is <code>None</code>, the <code>'name'</code> key must be left out entirely.</li>
 </ul>
-<p>Examples of returned structure:</p>
+<p>Examples of the structure the method returns:</p>
 <ul>
 <li><code>prepare_insar_job(granule1='g1', granule2='g2')</code> → <code>{'job_type': 'INSAR_GAMMA', 'job_parameters': {'granules': ['g1', 'g2']}}</code></li>
 <li><code>prepare_insar_job(granule1='g1', granule2='g2', name='my_name')</code> → <code>{'job_type': 'INSAR_GAMMA', 'name': 'my_name', 'job_parameters': {'granules': ['g1', 'g2']}}</code></li>
@@ -1195,141 +1199,142 @@ def prepare_insar_job(granule1, granule2, name=None, **kwargs) -&gt; dict
 <p>Signature:</p>
 <pre><code class="language-python">def submit_prepared_jobs(self, prepared_jobs)
 </code></pre>
-<p>Submits one or more prepared job definitions to the HyP3 API. Behavior:</p>
+<p>One or more prepared job definitions are submitted by this method to the HyP3 API. Required behavior:</p>
 <ul>
-<li>Accepts <code>prepared_jobs</code> as either a single prepared-job dictionary or a list of prepared-job dictionaries.</li>
-<li>Issues an HTTP <code>POST</code> request to the <code>/jobs</code> endpoint (i.e., the API's base <code>url</code> joined with <code>/jobs</code>).</li>
-<li>The request body must be a JSON object with a single key <code>'jobs'</code> whose value is a list of the prepared job dictionaries. When a single dictionary is passed, it must be wrapped into a one-element list; when a list is passed, it is sent as-is.</li>
-<li>The API responds with a JSON object containing a <code>'jobs'</code> key holding a list of job objects.</li>
-<li>The method returns the parsed jobs from the response. Given a response whose <code>'jobs'</code> list is empty, the method returns an empty list (<code>[]</code>). Given a response containing job objects, the method returns them parsed into the codebase's existing job/batch representation such that the returned value equals the corresponding job object as produced by the existing job-parsing mechanism used elsewhere in this class.</li>
+<li>The method accepts <code>prepared_jobs</code> in either form: a single prepared-job dictionary, or a list of prepared-job dictionaries.</li>
+<li>To reach the <code>/jobs</code> endpoint — that is, the API's base <code>url</code> joined with <code>/jobs</code> — an HTTP <code>POST</code> request is issued.</li>
+<li>As its body, the request must carry a JSON object whose single key is <code>'jobs'</code>; the value under that key is a list of the prepared job dictionaries. A single dictionary that is passed must be wrapped into a one-element list, while a list that is passed goes out as-is.</li>
+<li>The API's response is a JSON object in which a <code>'jobs'</code> key holds a list of job objects.</li>
+<li>The jobs parsed from the response are what this method returns. With a response whose <code>'jobs'</code> list is empty, an empty list (<code>[]</code>) is what the method returns. With a response that contains job objects, they are returned after being parsed into the codebase's existing job/batch representation, so that the returned value equals the corresponding job object as produced by the job-parsing mechanism this class already uses elsewhere.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The base URL is available via the instance attribute <code>self.url</code>.</li>
-<li>Parsing of the API's response <code>'jobs'</code> entries into job objects should reuse the same representation the class already uses for jobs (a job produced from an API job dictionary must compare equal to the corresponding returned value).</li>
+<li>The instance attribute <code>self.url</code> provides the base URL.</li>
+<li>To turn the API's response <code>'jobs'</code> entries into job objects, the same representation that the class already uses for jobs should be reused (a job built from an API job dictionary must compare equal to the corresponding returned value).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Update job submission APIs so they consistently return a Batch, including submissions containing only one job.</span>
-        <span class="spec-meta muted">251 words · source specification
+        <span class="spec-title">Modify the job submission APIs so that they consistently return a Batch, including submissions that contain only one job.</span>
+        <span class="spec-meta muted">281 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Update job submission APIs so they consistently return a <code>Batch</code>, including submissions containing only one job.</p>
+      <div class="spec-body"><h4>Change that is required</h4>
+<p>Modify the job submission APIs so that they consistently return a <code>Batch</code>, including submissions that contain only one job.</p>
 <h5>Public API</h5>
-<p>The package-root import must remain available:</p>
+<p>Importing from the package root must remain available:</p>
 <pre><code class="language-python">from hyp3_sdk import HyP3
 </code></pre>
-<p>The following <code>HyP3</code> methods are affected:</p>
+<p>These <code>HyP3</code> methods are affected:</p>
 <pre><code class="language-python">HyP3.submit_prepared_jobs(jobs) -&gt; Batch
 HyP3.submit_autorift_job(granule1, granule2, ...) -&gt; Batch
 HyP3.submit_rtc_job(granule, ...) -&gt; Batch
 HyP3.submit_insar_job(granule1, granule2, ...) -&gt; Batch
 </code></pre>
-<p>Preserve any existing optional parameters on these methods.</p>
-<h5>Submission behavior</h5>
+<p>Keep any existing optional parameters on these methods intact.</p>
+<h5>Behavior of submissions</h5>
 <ul>
-<li>Submissions use an HTTP <code>POST</code> to the client’s <code>/jobs</code> endpoint.</li>
+<li>Submissions are performed with an HTTP <code>POST</code> to the client’s <code>/jobs</code> endpoint.</li>
 <li><code>submit_prepared_jobs</code> must accept:
 <ul>
 <li>a list of prepared job dictionaries; or</li>
 <li>a single prepared job dictionary, such as a resubmission payload.</li>
 </ul>
 </li>
-<li>For a list of prepared jobs, the POST JSON body must be:</li>
+<li>When the input is a list of prepared jobs, the POST JSON body must be:</li>
 </ul>
 <pre><code class="language-json">{&quot;jobs&quot;: [/* supplied prepared jobs, unchanged */]}
 </code></pre>
-<h5>Return value</h5>
-<p>Every method listed above must return a <code>Batch</code>; it must not unwrap a single submitted job into a standalone job object or return a raw list.</p>
-<p>The returned batch must expose an ordered <code>jobs</code> attribute populated from the API response’s <code>jobs</code> array:</p>
+<h5>Returned value</h5>
+<p>Every method named above must return a <code>Batch</code>; it must not unwrap a single submitted job into a standalone job object or return a raw list.</p>
+<p>The batch that is returned must expose an ordered <code>jobs</code> attribute, populated from the <code>jobs</code> array in the API response:</p>
 <pre><code class="language-json">{&quot;jobs&quot;: [/* returned job objects */]}
 </code></pre>
-<p>Each entry in <code>batch.jobs</code> must compare equal to the corresponding complete job dictionary from that response.</p>
-<p>Consequently:</p>
+<p>Each entry in <code>batch.jobs</code> must compare equal to the complete job dictionary from that response that corresponds to it.</p>
+<p>As a result:</p>
 <ul>
-<li>A two-job response produces a batch where <code>batch.jobs[0]</code> and <code>batch.jobs[1]</code> correspond to the first and second response jobs.</li>
-<li>A one-job response from any specialized submit method produces a batch whose first entry is that returned job.</li>
-<li>Resubmitting one prepared job through <code>submit_prepared_jobs</code> also produces a one-job batch rather than a standalone job.</li>
+<li>A response containing two jobs produces a batch in which <code>batch.jobs[0]</code> and <code>batch.jobs[1]</code> correspond to the first and second response jobs.</li>
+<li>A one-job response from any of the specialized submit methods produces a batch whose first entry is that returned job.</li>
+<li>When one prepared job is resubmitted through <code>submit_prepared_jobs</code>, that likewise produces a one-job batch rather than a standalone job.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working on a Python client library (hyp3_sdk) that submits and manages processing jobs against a remote HyP3 API.</span>
-        <span class="spec-meta muted">475 words · source specification
+        <span class="spec-title">The library at hand is hyp3_sdk, a Python client that submits processing jobs to a remote HyP3 API and manages them there.</span>
+        <span class="spec-meta muted">563 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a Python client library (<code>hyp3_sdk</code>) that submits and manages processing jobs against a remote HyP3 API. This task concerns the behavior of the job-submission method that sends prepared job definitions to the API and returns the resulting jobs.</p>
+<p>The library at hand is <code>hyp3_sdk</code>, a Python client that submits processing jobs to a remote HyP3 API and manages them there. This task is about how the job-submission method behaves — the method that takes prepared job definitions, sends them to the API, and returns the jobs that result.</p>
 <h4>Required Change</h4>
-<p>The <code>submit_prepared_jobs</code> method of the <code>HyP3</code> client currently returns a batch whose <code>.jobs</code> list contains raw dictionaries (as parsed directly from the API response). This must change so that <code>.jobs</code> contains fully-constructed <code>Job</code> objects instead of plain dictionaries.</p>
+<p>As things stand, <code>submit_prepared_jobs</code> — a method on the <code>HyP3</code> client — returns a batch in which <code>.jobs</code> is a list of raw dictionaries, parsed directly out of the API response. This must change — <code>.jobs</code> must hold fully-constructed <code>Job</code> objects rather than plain dictionaries.</p>
 <h4>API Surface</h4>
-<p>The relevant public API (which must exist and be importable) includes:</p>
+<p>The public API that matters for this task (it must exist and be importable) includes:</p>
 <ul>
 <li>
-<p>A class <code>HyP3</code> (importable such that <code>from hyp3_sdk import HyP3</code> or equivalent works as it does today) with:</p>
+<p>A class named <code>HyP3</code> (importable, with <code>from hyp3_sdk import HyP3</code> or an equivalent import continuing to work as it does today), which provides:</p>
 <ul>
-<li><code>HyP3()</code> — constructible with no arguments; exposes a <code>.url</code> attribute usable as the base URL for API requests.</li>
-<li><code>submit_prepared_jobs(prepared_jobs)</code> — accepts either a single prepared-job dictionary or a list of prepared-job dictionaries. It POSTs to the <code>/jobs</code> endpoint of the API and returns a batch object.</li>
-<li><code>submit_autorift_job(...)</code>, <code>submit_rtc_job(...)</code>, <code>submit_insar_job(...)</code> — existing submission convenience methods that also return a batch object.</li>
+<li><code>HyP3()</code> — can be constructed with no arguments; the object exposes a <code>.url</code> attribute that can serve as the base URL for requests to the API.</li>
+<li><code>submit_prepared_jobs(prepared_jobs)</code> — the input it accepts is either one prepared-job dictionary or a list of such dictionaries. The method POSTs to the API's <code>/jobs</code> endpoint and returns a batch object.</li>
+<li><code>submit_autorift_job(...)</code>, <code>submit_rtc_job(...)</code>, <code>submit_insar_job(...)</code> — convenience methods for submission, already in place, which likewise return a batch object.</li>
 </ul>
 </li>
 <li>
-<p>A <code>Job</code> class with:</p>
+<p>A <code>Job</code> class that offers:</p>
 <ul>
-<li><code>to_dict()</code> — serializes the job to a dictionary.</li>
-<li><code>to_dict(for_resubmit=True)</code> — serializes only the subset of fields needed to resubmit the job.</li>
-<li>Equality (<code>__eq__</code>) support such that two <code>Job</code> instances comparing equal when they represent the same job.</li>
+<li><code>to_dict()</code> — serializes the job into a dictionary.</li>
+<li><code>to_dict(for_resubmit=True)</code> — serializes only the subset of fields that are needed to resubmit the job.</li>
+<li>Equality support (<code>__eq__</code>), set up so that two <code>Job</code> instances compare equal when they stand for the same job.</li>
 </ul>
 </li>
 <li>
-<p>A batch object returned by the submission methods, exposing a <code>.jobs</code> attribute (a list).</p>
+<p>A batch object, which is what the submission methods return; it exposes a <code>.jobs</code> attribute (a list).</p>
 </li>
 </ul>
-<h4>Behavior Required</h4>
-<p>When <code>submit_prepared_jobs</code> is called (with a single dict or a list of dicts), the method sends the payload to the <code>/jobs</code> endpoint and parses the API response. The response contains a <code>jobs</code> key whose value is a list of job dictionaries. Each dictionary in that list must be converted into a <code>Job</code> instance, and the returned batch's <code>.jobs</code> attribute must be the list of these <code>Job</code> instances, in the same order as returned by the API.</p>
-<p>Consequently:</p>
+<h4>Required Behavior</h4>
+<p>Calling <code>submit_prepared_jobs</code> — whether what was passed in is one dict or a list of dicts — results in the payload being sent to the <code>/jobs</code> endpoint and in the API response being parsed. In that response there is a <code>jobs</code> key; the value under it is a list of job dictionaries. Each dictionary that the list contains must be turned into a <code>Job</code> instance, and the batch that gets returned must have, as its <code>.jobs</code> attribute, the list of these <code>Job</code> instances — in the same order the API returned them.</p>
+<p>As a result:</p>
 <ul>
-<li><code>batch.jobs</code> must be a list of <code>Job</code> objects, not raw dictionaries.</li>
-<li>For a batch built from an API response containing N job dictionaries, <code>batch.jobs</code> must equal the list of the N corresponding <code>Job</code> objects.</li>
-<li>The same conversion applies to all submission methods (<code>submit_autorift_job</code>, <code>submit_rtc_job</code>, <code>submit_insar_job</code>, <code>submit_prepared_jobs</code>): the elements of <code>batch.jobs</code> must be <code>Job</code> instances that compare equal to the <code>Job</code> objects reconstructed from the API's returned job dictionaries.</li>
+<li><code>batch.jobs</code> must be a list of <code>Job</code> objects rather than raw dictionaries.</li>
+<li>When a batch is built from an API response that contains N job dictionaries, the N corresponding <code>Job</code> objects, as a list, are what <code>batch.jobs</code> must equal.</li>
+<li>All of the submission methods are covered by this same conversion (<code>submit_autorift_job</code>, <code>submit_rtc_job</code>, <code>submit_insar_job</code>, <code>submit_prepared_jobs</code>): the entries of <code>batch.jobs</code> must be <code>Job</code> instances, and they must compare equal to the <code>Job</code> objects reconstructed from the job dictionaries the API returned.</li>
 </ul>
-<h4>Equality Requirement</h4>
-<p>A <code>Job</code> constructed from a job dictionary must compare equal (<code>==</code>) to another <code>Job</code> constructed from the same job data. In particular, given a <code>Job</code> object <code>j</code>, a <code>Job</code> reconstructed from <code>j.to_dict()</code> must satisfy <code>reconstructed == j</code>.</p>
+<h4>Equality Behavior</h4>
+<p>If a <code>Job</code> is built from a job dictionary, and another <code>Job</code> is built from that same job data, the two must compare equal (<code>==</code>). Specifically, for a <code>Job</code> object <code>j</code>: when a <code>Job</code> is reconstructed from <code>j.to_dict()</code>, the equality <code>reconstructed == j</code> must hold.</p>
 <h4>Constraints</h4>
 <ul>
-<li>The submission request payload behavior remains as it currently is; only the type of the elements stored in the returned batch's <code>.jobs</code> list changes (from dictionaries to <code>Job</code> objects).</li>
-<li>Do not change any other public behavior.</li>
+<li>The submission request payload keeps behaving as it does now; the only change is in the type of the elements that get stored in <code>.jobs</code> on the returned batch (from dictionaries to <code>Job</code> objects).</li>
+<li>Do not alter any other public behavior.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You are implementing changes to a HyP3 Python SDK.</span>
-        <span class="spec-meta muted">314 words · source specification
+        <span class="spec-title">In this task, you implement changes to a HyP3 Python SDK.</span>
+        <span class="spec-meta muted">349 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-miss" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are implementing changes to a HyP3 Python SDK. Below are the exact behaviors your implementation must satisfy.</p>
-<h4>1. <code>Batch</code> iteration support</h4>
-<p>The <code>Batch</code> class (located in the jobs module, importable as used elsewhere in the codebase) holds a collection of <code>Job</code> objects. It is currently constructed as <code>Batch(jobs)</code> where <code>jobs</code> is an optional list of <code>Job</code> objects (defaulting to an empty list when no argument or an empty list is passed).</p>
-<p>Add iteration support to <code>Batch</code> so that iterating over a <code>Batch</code> instance yields its contained <code>Job</code> objects, in the same order they were provided at construction. Iterating over a <code>Batch</code> built from a list of jobs must produce those exact job objects, one at a time, in order.</p>
-<p>The <code>Batch</code> class must continue to support <code>len()</code>, returning the number of contained jobs (0 for an empty or default-constructed batch).</p>
-<h4>2. <code>HyP3.prepare_autorift_job</code> static method</h4>
-<p>Add a static method <code>prepare_autorift_job</code> to the <code>HyP3</code> class (in the hyp3 module, importable as <code>HyP3</code>). It builds and returns a job specification dictionary for an AutoRIFT job.</p>
-<p>Signature:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>In this task, you implement changes to a HyP3 Python SDK. The exact behaviors your implementation must satisfy are given below.</p>
+<h4>1. Iteration support for <code>Batch</code></h4>
+<p>The <code>Batch</code> class (found in the jobs module, importable the way it is used elsewhere in the codebase) contains a collection of <code>Job</code> objects. At present it is constructed via <code>Batch(jobs)</code>, where <code>jobs</code> is an optional list of <code>Job</code> objects (it defaults to an empty list when no argument or an empty list is passed).</p>
+<p>Add iteration support to <code>Batch</code> such that iterating over a <code>Batch</code> instance yields the <code>Job</code> objects it contains, in the same order in which they were provided at construction. When a <code>Batch</code> has been built from a list of jobs, iterating over it must produce those exact job objects, one at a time, in order.</p>
+<p>The <code>Batch</code> class must continue to support <code>len()</code>, which returns the number of contained jobs (0 for an empty or default-constructed batch).</p>
+<h4>2. The static method <code>HyP3.prepare_autorift_job</code></h4>
+<p>Add to the <code>HyP3</code> class (in the hyp3 module, importable as <code>HyP3</code>) a static method <code>prepare_autorift_job</code>. The method builds and returns a job specification dictionary for an AutoRIFT job.</p>
+<p>Signature of the method:</p>
 <pre><code class="language-python">@staticmethod
 def prepare_autorift_job(granule1, granule2, name=None)
 </code></pre>
-<p>Behavior:</p>
+<p>Behavior of the method:</p>
 <ul>
 <li>
-<p>When called as <code>prepare_autorift_job(granule1='my_granule1', granule2='my_granule2')</code>, it must return:</p>
+<p>If the method is called as <code>prepare_autorift_job(granule1='my_granule1', granule2='my_granule2')</code>, it must return:</p>
 <pre><code class="language-python">{
     'job_type': 'AUTORIFT',
     'job_parameters': {
@@ -1337,10 +1342,10 @@ def prepare_autorift_job(granule1, granule2, name=None)
     }
 }
 </code></pre>
-<p>That is: the two granules are placed as a two-element list under <code>job_parameters['granules']</code>, in the order <code>[granule1, granule2]</code>. The <code>name</code> key must <strong>not</strong> be present when <code>name</code> is not provided.</p>
+<p>In other words: the two granules are placed as a two-element list under <code>job_parameters['granules']</code>, in the order <code>[granule1, granule2]</code>. When <code>name</code> is not provided, the <code>name</code> key must <strong>not</strong> be present.</p>
 </li>
 <li>
-<p>When called with a <code>name</code> argument, e.g. <code>prepare_autorift_job(granule1='my_granule1', granule2='my_granule2', name='my_name')</code>, the returned dictionary must additionally contain the key <code>'name'</code> set to that value:</p>
+<p>If the method is called with a <code>name</code> argument, e.g. <code>prepare_autorift_job(granule1='my_granule1', granule2='my_granule2', name='my_name')</code>, the dictionary it returns must additionally contain the key <code>'name'</code> set to that value:</p>
 <pre><code class="language-python">{
     'job_type': 'AUTORIFT',
     'name': 'my_name',
@@ -1351,10 +1356,10 @@ def prepare_autorift_job(granule1, granule2, name=None)
 </code></pre>
 </li>
 </ul>
-<p>This is consistent with the existing <code>prepare_rtc_job</code> and <code>prepare_insar_job</code> static methods, which must remain unchanged in behavior.</p>
+<p>This aligns with the existing <code>prepare_rtc_job</code> and <code>prepare_insar_job</code> static methods, whose behavior must remain unchanged.</p>
 <h4>Constraints</h4>
 <ul>
-<li>All existing behavior of <code>Batch</code> (length, addition of batches) and of the other <code>HyP3.prepare_*_job</code> methods must be preserved.</li>
+<li>All existing behavior of <code>Batch</code> (length, addition of batches), together with that of the other <code>HyP3.prepare_*_job</code> methods, must be preserved.</li>
 </ul>
 </div>
     </details>

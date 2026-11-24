@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/bwhmather/ssort/compare/705c9b0db2bee95e90463c398c684ad33ba163ec...0459835807289878895eb85858b4f85d91013a1a" target="_blank" rel="noopener" class="mono">705c9b0db2 … 0459835807</a> · 75 commits by 1 author over 22 d (2021-03-18 to 2021-04-09)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 51 test-bearing changes · eval split</dd></div>
       <div><dt>Size:</dt><dd>298 lines of code in 13 files when the chain starts · over the 20 requests the developers added 8,709 and removed 619 lines of code, plus 1,677 lines of tests (95 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>9.8k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>10.7k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 17 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,134 +144,134 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Extend the dependency-extraction functionality to support Python binary operations and unary operations.</span>
-        <span class="spec-meta muted">571 words · source specification
+        <span class="spec-title">The dependency-extraction functionality is to be extended so that Python binary operations and unary operations are supported.</span>
+        <span class="spec-meta muted">607 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>Extend the dependency-extraction functionality to support Python binary operations and unary operations. The system analyzes a parsed Python expression (an AST node) and returns the list of free variable names the expression depends on.</p>
+<p>The dependency-extraction functionality is to be extended so that Python binary operations and unary operations are supported. The system takes a parsed Python expression (an AST node), analyzes it, and returns the list of free variable names the expression depends on.</p>
 <h4>Public API</h4>
-<p>There is an existing function that must handle the additional node types described below:</p>
+<p>An already-existing function must handle the additional node types described below:</p>
 <pre><code class="language-python">get_dependencies(node) -&gt; list[str]
 </code></pre>
 <ul>
-<li><strong>Input:</strong> A Python AST node representing an expression (as produced by parsing a single expression, e.g. via <code>ast.parse(source, mode=&quot;eval&quot;)</code> and taking the body).</li>
-<li><strong>Output:</strong> A list of variable name strings that the expression depends on, in left-to-right order of appearance.</li>
+<li><strong>Input:</strong> A Python AST node representing an expression (obtained by parsing a single expression, e.g. via <code>ast.parse(source, mode=&quot;eval&quot;)</code> and taking the resulting body).</li>
+<li><strong>Output:</strong> A list of the variable name strings that the expression depends on, in the order they appear from left to right.</li>
 </ul>
 <h4>Required Behavior</h4>
 <h5>Binary operations</h5>
-<p>For an expression consisting of two operands combined by a binary operator (for example <code>a + b</code>), the returned dependency list must contain the names referenced by the left operand followed by the names referenced by the right operand, in that order.</p>
+<p>When an expression consists of two operands joined by a binary operator (for example <code>a + b</code>), the returned dependency list must contain the names referenced by the left operand and then the names referenced by the right operand, in that order.</p>
 <ul>
 <li>Example: <code>a + b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 </ul>
 <h5>Unary operations</h5>
-<p>For an expression consisting of a single operand preceded by a unary operator (for example <code>-x</code>), the returned dependency list must contain the names referenced by the operand.</p>
+<p>When an expression consists of a single operand with a unary operator in front of it (for example <code>-x</code>), the returned dependency list must contain the names referenced by the operand.</p>
 <ul>
-<li>Example: <code>-plus</code> → <code>[&quot;plus&quot;]</code> (the operand name <code>plus</code> is a variable reference; the leading <code>-</code> is the unary operator, not part of the name)</li>
+<li>Example: <code>-plus</code> → <code>[&quot;plus&quot;]</code> (the operand name <code>plus</code> is a variable reference; the <code>-</code> at the front is the unary operator, not part of the name)</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>Names appearing as variable references within these operations must be collected as dependencies.</li>
-<li>The relative ordering of names must follow their left-to-right position in the source expression.</li>
+<li>The names that appear as variable references inside these operations must be collected as dependencies.</li>
+<li>The relative order of names must match their left-to-right position in the source expression.</li>
 </ul>
 <h4>Additional Requirements</h4>
 <ul>
-<li>Dependency analysis must also handle function and lambda bodies, including the lexical bindings introduced by parameters, assignments, and imports.</li>
-<li>Assignment targets introduce bindings rather than dependencies. For example, <code>x = y</code> binds <code>x</code> and contributes <code>[&quot;y&quot;]</code> as dependencies.</li>
-<li>Binding extraction from assignment targets must recurse through tuple, list, and starred unpacking in source order. Thus <code>(a, *b) = value</code> binds <code>a</code> and <code>b</code>. Attribute and subscript targets do not bind the base identifier as a new local name.</li>
-<li>Imports introduce the names that Python places in the local namespace and do not treat module-path components as free variable references:
+<li>Dependency analysis must also cover function and lambda bodies, including the lexical bindings that parameters, assignments, and imports introduce.</li>
+<li>Assignment targets produce bindings rather than dependencies. For example, <code>x = y</code> binds <code>x</code> and contributes <code>[&quot;y&quot;]</code> as dependencies.</li>
+<li>When extracting bindings from assignment targets, the recursion must go through tuple, list, and starred unpacking in source order. Thus <code>(a, *b) = value</code> binds <code>a</code> and <code>b</code>. The base identifier of attribute and subscript targets is not bound as a new local name.</li>
+<li>Imports bring in the names that Python places in the local namespace, and module-path components are not treated as free variable references:
 <ul>
 <li><code>import package</code> binds <code>package</code>.</li>
 <li><code>import package.module</code> binds <code>package</code>.</li>
 <li><code>import package.module as alias</code> binds <code>alias</code>.</li>
 <li><code>from package import item</code> binds <code>item</code>.</li>
 <li><code>from package import item as alias</code> binds <code>alias</code>.</li>
-<li>Multiple imported names are recognized in source order.</li>
+<li>When multiple names are imported, they are recognized in source order.</li>
 </ul>
 </li>
 <li>Function and lambda parameters, including positional-only, positional, keyword-only, variadic positional, and variadic keyword parameters, are bindings local to that function body and must not be returned as free dependencies from the body.</li>
-<li>A name assigned or imported anywhere in a function is local throughout that function’s body, matching Python’s lexical scoping rules. References to that name are excluded from the function’s free dependencies even when the reference appears textually before the assignment or import.</li>
-<li>Assignment right-hand sides remain subject to dependency analysis. For example, a function containing <code>local = external</code> and then using <code>local</code> depends on <code>external</code>, not on <code>local</code>.</li>
-<li>Imported aliases and other local bindings shadow names from enclosing scopes. For example, a function containing <code>import package as p</code> and returning <code>p.value + other</code> has <code>[&quot;other&quot;]</code> as its free dependencies.</li>
-<li>Shadowing is limited to the scope that introduces the binding. Names used in decorators, default argument expressions, and annotations evaluated outside the function body are analyzed in the enclosing scope and are not hidden by the function’s parameters or local assignments.</li>
+<li>If a name is assigned or imported anywhere in a function, that name is local throughout the function’s body, in line with Python’s lexical scoping rules. A reference to that name is excluded from the function’s free dependencies even when the reference appears textually before the assignment or import.</li>
+<li>Assignment right-hand sides remain subject to dependency analysis. For example, a function that contains <code>local = external</code> and then uses <code>local</code> depends on <code>external</code>, not on <code>local</code>.</li>
+<li>Names from enclosing scopes are shadowed by imported aliases and other local bindings. For example, a function that contains <code>import package as p</code> and returns <code>p.value + other</code> has <code>[&quot;other&quot;]</code> as its free dependencies.</li>
+<li>Shadowing applies only within the scope that introduces the binding. The names used in decorators, default argument expressions, and annotations evaluated outside the function body are analyzed in the enclosing scope and are not hidden by the function’s parameters or local assignments.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Add a function that reads Python source code from a file-like object and splits it into its top-level statements, returning both the source text and the…</span>
-        <span class="spec-meta muted">592 words · source specification
+        <span class="spec-title">Introduce a function that reads Python source code from a file-like object and divides it into its top-level statements, returning for each statement both…</span>
+        <span class="spec-meta muted">611 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement a File-Splitting Function</h3>
-<h4>Objective</h4>
-<p>Add a function that reads Python source code from a file-like object and splits it into its top-level statements, returning both the source text and the parsed AST node for each statement.</p>
+      <div class="spec-body"><h3>Task: Implement a Function That Splits a File</h3>
+<h4>Goal</h4>
+<p>Introduce a function that reads Python source code from a file-like object and divides it into its top-level statements, returning for each statement both the source text and the parsed AST node.</p>
 <h4>Public API</h4>
-<p>Create a function named <code>split</code> in the module <code>ssort._parsing</code>:</p>
+<p>Define a function called <code>split</code> in the module <code>ssort._parsing</code>:</p>
 <pre><code class="language-python">def split(file, filename):
     ...
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>file</code>: a text file-like object (e.g. an <code>io.StringIO</code>) supporting reading of the full source contents.</li>
-<li><code>filename</code>: a string used as the filename for parsing purposes (e.g. <code>&quot;&lt;unknown&gt;&quot;</code>).</li>
+<li><code>file</code>: a text file-like object (e.g. an <code>io.StringIO</code>) that supports reading of the full source contents.</li>
+<li><code>filename</code>: a string serving as the filename for parsing purposes (e.g. <code>&quot;&lt;unknown&gt;&quot;</code>).</li>
 </ul>
 <h5>Return value</h5>
-<p>An <strong>iterable</strong> of pairs. Each pair corresponds to one top-level statement in the source, in source order, and is unpackable as <code>(text, node)</code> where:</p>
+<p>An <strong>iterable</strong> of pairs. Each pair maps to one top-level statement in the source, in source order, and is unpackable as <code>(text, node)</code> where:</p>
 <ul>
-<li><code>text</code> is a <code>str</code> containing the source text of that single statement (see rules below).</li>
-<li><code>node</code> is the parsed AST node for that statement.</li>
+<li><code>text</code> is a <code>str</code> holding the source text of that one statement (see the rules below).</li>
+<li><code>node</code> is the AST node obtained by parsing that statement.</li>
 </ul>
-<p>The tests only inspect the <code>text</code> element of each pair; the <code>node</code> element must be present and unpackable but its exact contents are not otherwise constrained.</p>
-<h4>Text Extraction Rules</h4>
-<p>For each top-level statement, the <code>text</code> string must be produced according to the following rules, all of which are verified:</p>
+<p>The tests only examine the <code>text</code> element of each pair; the <code>node</code> element must be present and unpackable, but its exact contents are not otherwise constrained.</p>
+<h4>Rules for Extracting Text</h4>
+<p>For each top-level statement, the <code>text</code> string must be produced in accordance with the rules below, all of which are checked:</p>
 <ol>
 <li>
-<p><strong>Basic statement</strong>: A single statement's text is exactly its source, with no surrounding whitespace added or trailing newline.</p>
+<p><strong>Single statement</strong>: The text of a single statement is exactly its source, with neither surrounding whitespace added nor a trailing newline.</p>
 <ul>
 <li><code>&quot;a = 4&quot;</code> → <code>[&quot;a = 4&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Trailing newline is stripped</strong>: A single trailing newline at the end of the file must not appear in the statement text.</p>
+<p><strong>A trailing newline is stripped</strong>: A single trailing newline at the end of the file must not be present in the statement text.</p>
 <ul>
 <li><code>&quot;a = 4\n&quot;</code> → <code>[&quot;a = 4&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Leading blank lines are preserved</strong>: Blank lines that appear before the first statement are retained as part of that statement's text.</p>
+<p><strong>Leading blank lines are retained</strong>: Blank lines that occur before the first statement are kept as part of that statement's text.</p>
 <ul>
 <li><code>&quot;\n\na = 4&quot;</code> → <code>[&quot;\n\na = 4&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Multiple statements on separate lines</strong>: Each newline-separated statement becomes its own entry, and the newline separators between them are not included in the text.</p>
+<p><strong>Multiple statements on separate lines</strong>: Each statement separated by newlines becomes its own entry, and the newline separators between them are excluded from the text.</p>
 <ul>
 <li><code>&quot;a = 4\nb = 2&quot;</code> → <code>[&quot;a = 4&quot;, &quot;b = 2&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Multiple statements on the same line (semicolon-separated)</strong>: Statements separated by <code>;</code> on one line are split into separate entries. The semicolon and any surrounding whitespace are not included in the statement texts.</p>
+<p><strong>Multiple statements on the same line (semicolon-separated)</strong>: Statements separated by <code>;</code> on one line are divided into separate entries. The semicolon and any surrounding whitespace are left out of the statement texts.</p>
 <ul>
 <li><code>&quot;a = 4; b = 2&quot;</code> → <code>[&quot;a = 4&quot;, &quot;b = 2&quot;]</code></li>
 <li><code>&quot;a = 4 ;b = 2&quot;</code> → <code>[&quot;a = 4&quot;, &quot;b = 2&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Trailing (inline) comments</strong>: A comment following a statement on the same line is kept as part of that statement's text (including the whitespace before the comment).</p>
+<p><strong>Trailing (inline) comments</strong>: A comment that follows a statement on the same line remains part of that statement's text (the whitespace before the comment included).</p>
 <ul>
 <li><code>&quot;a = 4  # Assign a\nb = 2  # Assign b&quot;</code> → <code>[&quot;a = 4  # Assign a&quot;, &quot;b = 2  # Assign b&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Leading comments</strong>: A comment on its own line immediately preceding a statement is attached to (included as part of) that following statement's text.</p>
+<p><strong>Leading comments</strong>: A comment that sits on its own line immediately before a statement is attached to (included as part of) that following statement's text.</p>
 <ul>
 <li><code>&quot;# Assign a\na = 4\n# Assign b\nb = 2&quot;</code> → <code>[&quot;# Assign a\na = 4&quot;, &quot;# Assign b\nb = 2&quot;]</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Leading and trailing comments combined</strong>: Both a preceding comment line and a same-line trailing comment are included in a statement's text.</p>
+<p><strong>Leading and trailing comments combined</strong>: Both a preceding comment line and a trailing comment on the same line are included in a statement's text.</p>
 <ul>
 <li>Input:<pre><code># Before a
 a = 4  # After a
@@ -287,8 +287,8 @@ b = 2  # After b
 </ol>
 <h4>Notes</h4>
 <ul>
-<li>The order of returned statements always follows the order they appear in the source.</li>
-<li>Whitespace within a statement's own text (such as the spaces before a trailing comment) is preserved exactly; only separators between statements (newlines, semicolons and their adjacent whitespace) and a single trailing file newline are excluded.</li>
+<li>Returned statements always appear in the order in which they occur in the source.</li>
+<li>Whitespace inside a statement's own text (such as the spaces before a trailing comment) is preserved exactly; only the separators between statements (newlines, semicolons and their adjacent whitespace) and a single trailing file newline are excluded.</li>
 </ul>
 </div>
     </details>
@@ -296,27 +296,27 @@ b = 2  # After b
       <summary class="spec-summary">
         <span class="spec-num">03</span>
         <span class="spec-title">Source Splitting Function</span>
-        <span class="spec-meta muted">849 words · rewritten by GPT-5.6-sol
+        <span class="spec-meta muted">885 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task Specification: Source Splitting Function</h3>
 <h4>Overview</h4>
-<p>Implement a source splitter that reads a Python module and yields each of its top-level statements in source order. Each result must pair the original source text belonging to the statement with the corresponding parsed AST node.</p>
-<p>Only direct module-level statements are separate results. Statements nested inside a function, class, conditional, or other compound statement remain part of their enclosing statement's text and are not yielded separately.</p>
+<p>Implement a source splitter that reads a Python module and yields, in source order, each of its top-level statements. Each result must pair the statement's original source text with the corresponding parsed AST node.</p>
+<p>Only direct module-level statements become separate results. Statements nested inside a function, class, conditional, or other compound statement remain part of their enclosing statement's text; they are not yielded separately.</p>
 <h4>Public API</h4>
-<p>The established import location must remain available:</p>
+<p>The established import location must stay available:</p>
 <pre><code class="language-python">from ssort._parsing import split
 </code></pre>
-<p>The callable has the following interface:</p>
+<p>The interface of the callable is:</p>
 <pre><code class="language-python">split(file, filename)
 </code></pre>
-<p>A package-root export is not a substitute for the <code>ssort._parsing.split</code> import path.</p>
+<p>A package-root export does not serve as a substitute for the <code>ssort._parsing.split</code> import path.</p>
 <h5>Parameters</h5>
 <ul>
-<li><code>file</code>: a readable text file-like object whose source contents are obtained by reading the stream to completion. For in-memory source, callers may use <code>io.StringIO</code>. The first argument is not a plain source string.</li>
-<li><code>filename</code>: a string passed through for parsing purposes, including parser diagnostics such as <code>SyntaxError</code> metadata.</li>
+<li><code>file</code>: a readable text file-like object; its source contents are obtained by reading the stream to completion. Callers may use <code>io.StringIO</code> for in-memory source. The first argument is not a plain source string.</li>
+<li><code>filename</code>: a string passed along for parsing purposes, including parser diagnostics such as <code>SyntaxError</code> metadata.</li>
 </ul>
-<p>For example:</p>
+<p>For instance:</p>
 <pre><code class="language-python">import io
 
 from ssort._parsing import split
@@ -324,64 +324,64 @@ from ssort._parsing import split
 results = split(io.StringIO(&quot;a = 4&quot;), &quot;&lt;unknown&gt;&quot;)
 </code></pre>
 <h4>Return Value</h4>
-<p>Return an iterable containing one pair for each top-level statement. Results must be in the same order as the statements in the input.</p>
-<p>Each pair contains:</p>
+<p>The function must return an iterable containing one pair for each top-level statement. The results must be in the same order as the statements in the input.</p>
+<p>Each pair consists of:</p>
 <ol>
-<li><code>text</code>: the statement's source text as a string.</li>
+<li><code>text</code>: the statement's source text, as a string.</li>
 <li><code>node</code>: the corresponding module-level Python AST statement node.</li>
 </ol>
-<p>Pairs must support tuple unpacking:</p>
+<p>The pairs must support tuple unpacking:</p>
 <pre><code class="language-python">for text, node in split(file, filename):
     ...
 </code></pre>
-<p>The AST nodes must correspond to parsing the supplied module source, with source-location information referring to that original input.</p>
+<p>The AST nodes must correspond to parsing the supplied module source, with their source-location information referring to that original input.</p>
 <h4>Required Behavior</h4>
 <h5>Empty input</h5>
-<p>An empty source stream yields no results. More generally, material that produces no module-level AST statements does not itself create a result.</p>
+<p>No results are yielded for an empty source stream. More generally, content that produces no module-level AST statements does not itself create a result.</p>
 <h5>Simple statements</h5>
-<p>A single simple statement yields exactly one pair. Its text contains the statement without an unowned trailing line ending.</p>
-<p>For source <code>&quot;a = 4&quot;</code>, the returned text is <code>&quot;a = 4&quot;</code>. Source <code>&quot;a = 4\n&quot;</code> also returns <code>&quot;a = 4&quot;</code>.</p>
+<p>Exactly one pair is yielded for a single simple statement. Its text holds the statement with no unowned trailing line ending.</p>
+<p>For the source <code>&quot;a = 4&quot;</code>, the returned text is <code>&quot;a = 4&quot;</code>. The source <code>&quot;a = 4\n&quot;</code> likewise returns <code>&quot;a = 4&quot;</code>.</p>
 <h5>Multiple top-level statements</h5>
-<p>Yield one result per top-level statement, in source order. For example, <code>&quot;a = 4\nb = 2&quot;</code> produces texts:</p>
+<p>Yield one result for each top-level statement, in source order. For instance, <code>&quot;a = 4\nb = 2&quot;</code> produces these texts:</p>
 <pre><code class="language-python">[&quot;a = 4&quot;, &quot;b = 2&quot;]
 </code></pre>
 <h5>Leading blank lines and other leading source</h5>
-<p>Blank lines before the first top-level statement are part of that statement's returned text and must be preserved verbatim. Do not apply a blanket leading-whitespace trim. For example, <code>&quot;\n\na = 4&quot;</code> produces the single text:</p>
+<p>Blank lines occurring before the first top-level statement are part of that statement's returned text and must be preserved verbatim. Do not carry out a blanket leading-whitespace trim. For instance, <code>&quot;\n\na = 4&quot;</code> produces the single text:</p>
 <pre><code class="language-python">&quot;\n\na = 4&quot;
 </code></pre>
-<p>Likewise, leading comment lines immediately preceding a statement belong to that statement. Blank lines and leading comments between two statements are associated with the following statement rather than emitted independently.</p>
+<p>Likewise, leading comment lines that immediately precede a statement belong to that statement. Blank lines and leading comments that fall between two statements are associated with the following statement rather than being emitted independently.</p>
 <h5>Comments</h5>
-<p>Preserve comments associated with a statement:</p>
+<p>Comments associated with a statement must be preserved:</p>
 <ul>
-<li>Comment lines leading into a statement are included at the beginning of its text.</li>
-<li>An inline comment on the same line as a statement is included at the end of its text.</li>
-<li>Comments do not create AST statement results of their own.</li>
+<li>Comment lines leading into a statement are included at the start of its text.</li>
+<li>An inline comment that appears on the same line as a statement is included at the end of its text.</li>
+<li>Comments do not create AST statement results on their own.</li>
 </ul>
-<p>For example:</p>
+<p>For instance:</p>
 <pre><code class="language-python"># Before a
 a = 4  # After a
 # Before b
 b = 2  # After b
 </code></pre>
-<p>produces:</p>
+<p>gives:</p>
 <pre><code class="language-python">[
     &quot;# Before a\na = 4  # After a&quot;,
     &quot;# Before b\nb = 2  # After b&quot;,
 ]
 </code></pre>
-<h5>Statements separated by semicolons</h5>
-<p>Separate top-level simple statements on the same physical line must be yielded separately. The separating semicolon and whitespace used only around that separator are not included in either result.</p>
-<p>Both of these inputs:</p>
+<h5>Semicolon-separated statements</h5>
+<p>Top-level simple statements that are separate and share the same physical line must be yielded separately. Neither result includes the separating semicolon or the whitespace used only around that separator.</p>
+<p>Both of the following inputs:</p>
 <pre><code class="language-python">a = 4; b = 2
 a = 4 ;b = 2
 </code></pre>
-<p>produce the texts:</p>
+<p>produce these texts:</p>
 <pre><code class="language-python">[&quot;a = 4&quot;, &quot;b = 2&quot;]
 </code></pre>
-<p>If the final same-line statement has an inline comment, that comment remains attached to the final statement.</p>
+<p>If the final same-line statement has an inline comment, that comment stays attached to the final statement.</p>
 <h5>Multiline and compound statements</h5>
-<p>A statement spanning multiple physical lines must be returned as one complete source block, through the final line of that statement. This includes all indented suites belonging to a compound statement. Nested statements in such a suite must not become separate top-level results.</p>
-<p>For a decorated function definition, the single result must include every decorator line, the complete function signature, and the entire function body, preserving their source formatting. Given:</p>
+<p>A statement that spans multiple physical lines must be returned as one complete source block, extending through the final line of that statement. All indented suites belonging to a compound statement are included. Nested statements within such a suite must not become separate top-level results.</p>
+<p>For a decorated function definition, the single result must include every decorator line, the complete function signature, and the entire function body, with their source formatting preserved. Given:</p>
 <pre><code class="language-python">@something(2, kwarg=3)
 def decorated(arg, *args, kwarg, **kwargs):
     pass
@@ -391,34 +391,34 @@ def decorated(arg, *args, kwarg, **kwargs):
 def decorated(arg, *args, kwarg, **kwargs):
     pass
 </code></pre>
-<p>The paired node is the corresponding function-definition AST node. The same completeness rule applies to any other multiline top-level statement.</p>
-<h5>Source preservation and boundaries</h5>
-<p>Returned text must be sliced from the original source rather than regenerated. Preserve source spelling, indentation, internal line breaks, decorator formatting, and comment spacing exactly. Exclude separator characters and boundary whitespace that do not belong to a statement, such as same-line semicolon separators and a trailing line ending after the statement. Leading blank lines and comments assigned to a statement under the rules above are part of its text and must not be stripped.</p>
-<h4>Parsing Errors</h4>
-<p>The source is parsed as Python using the supplied <code>filename</code>. Invalid Python may raise the parser's normal <code>SyntaxError</code>, and the supplied filename must be reflected in that parsing context.</p>
+<p>Its paired node is the corresponding function-definition AST node. Any other multiline top-level statement falls under this same completeness rule.</p>
+<h5>Preserving source and boundaries</h5>
+<p>The returned text must be sliced from the original source rather than being regenerated. Source spelling, indentation, internal line breaks, decorator formatting, and comment spacing must be preserved exactly. Separator characters and boundary whitespace that do not belong to a statement must be excluded, such as same-line semicolon separators and a trailing line ending after the statement. Leading blank lines and comments that are assigned to a statement under the rules above are part of its text and must not be stripped.</p>
+<h4>Errors from parsing</h4>
+<p>The source is parsed as Python, with the supplied <code>filename</code>. The parser's normal <code>SyntaxError</code> may be raised for invalid Python, and that parsing context must reflect the supplied filename.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Update the existing public AST-analysis APIs</span>
-        <span class="spec-meta muted">462 words · source specification
+        <span class="spec-title">Make the following updates to the existing public AST-analysis APIs</span>
+        <span class="spec-meta muted">497 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required change</h3>
+      <div class="spec-body"><h3>Required modification</h3>
 <h4>Public API</h4>
-<p>Update the existing public AST-analysis APIs:</p>
+<p>Make the following updates to the existing public AST-analysis APIs:</p>
 <ul>
 <li><code>bindings.get_bindings(node: ast.AST) -&gt; Iterable[str]</code></li>
 <li><code>dependencies.get_dependencies(node: ast.AST) -&gt; Iterable[dependency result]</code></li>
 </ul>
-<p>Each item yielded by <code>get_dependencies</code> must be an object exposing a readable <code>.name</code> attribute containing the dependency name as a string. No particular concrete result class or additional fields are required.</p>
-<h4>Binding behavior</h4>
-<p>Materializing <code>get_bindings(node)</code> as a list must produce these ordered results:</p>
+<p>Every item that <code>get_dependencies</code> yields must be an object that exposes a readable <code>.name</code> attribute containing the dependency name as a string. Neither a particular concrete result class nor additional fields are required.</p>
+<h4>Behavior of bindings</h4>
+<p>Materializing <code>get_bindings(node)</code> as a list must produce the following results, in this order:</p>
 <table>
 <thead>
 <tr>
-<th>Source represented by <code>node</code></th>
+<th>Source that <code>node</code> represents</th>
 <th>Bindings</th>
 </tr>
 </thead>
@@ -452,19 +452,19 @@ def decorated(arg, *args, kwarg, **kwargs):
 <td><code>[&quot;something_else&quot;]</code></td>
 </tr>
 <tr>
-<td>Bare name expression <code>a</code></td>
+<td>A bare name expression <code>a</code></td>
 <td><code>[]</code></td>
 </tr>
 </tbody>
 </table>
-<p>A function definition contributes its declared function name as a binding; names merely referenced in its body do not become bindings for this result.</p>
-<h4>Dependency result behavior</h4>
-<p>For the following inputs, iterating over <code>get_dependencies(node)</code> and reading each item’s <code>.name</code> must produce the listed names in order.</p>
+<p>A function definition contributes the function name it declares as a binding; names that are merely referenced in its body do not become bindings in this result.</p>
+<h4>Behavior of dependency results</h4>
+<p>Given the following inputs, iterating over <code>get_dependencies(node)</code> and reading the <code>.name</code> of each item must produce the listed names in order.</p>
 <h5>Function definitions and shadowing</h5>
 <table>
 <thead>
 <tr>
-<th>Source represented by <code>node</code></th>
+<th>Source that <code>node</code> represents</th>
 <th>Dependency names</th>
 </tr>
 </thead>
@@ -474,7 +474,7 @@ def decorated(arg, *args, kwarg, **kwargs):
 <td><code>[&quot;name&quot;]</code></td>
 </tr>
 <tr>
-<td>A function body referencing <code>a</code> followed by <code>b</code></td>
+<td>A function body that references <code>a</code> followed by <code>b</code></td>
 <td><code>[&quot;a&quot;, &quot;b&quot;]</code></td>
 </tr>
 <tr>
@@ -482,29 +482,29 @@ def decorated(arg, *args, kwarg, **kwargs):
 <td><code>[]</code></td>
 </tr>
 <tr>
-<td>A function assigning <code>a = b</code> and referencing <code>a</code></td>
+<td>A function that assigns <code>a = b</code> and references <code>a</code></td>
 <td><code>[&quot;b&quot;]</code></td>
 </tr>
 <tr>
-<td>A function with <code>*rest</code> whose body references <code>value</code> and <code>rest</code></td>
+<td>A function with <code>*rest</code> where the body references <code>value</code> and <code>rest</code></td>
 <td><code>[&quot;value&quot;]</code></td>
 </tr>
 <tr>
-<td>A function referencing <code>a</code> before a later <code>a = b</code> assignment</td>
+<td>A function that references <code>a</code> before a later <code>a = b</code> assignment</td>
 <td><code>[&quot;b&quot;]</code></td>
 </tr>
 <tr>
-<td><code>@decorator(arg)</code> applied to a function with an otherwise empty body</td>
+<td><code>@decorator(arg)</code> applied to a function whose body is otherwise empty</td>
 <td><code>[&quot;decorator&quot;, &quot;arg&quot;]</code></td>
 </tr>
 </tbody>
 </table>
-<p>Function arguments, variadic arguments, and assignment targets shadow references to the same names. An assignment makes its target local throughout the function, including references occurring before the assignment. Dependencies used by decorator expressions remain included.</p>
+<p>References to the same names are shadowed by function arguments, variadic arguments, and assignment targets. An assignment makes its target local throughout the function, including references that occur before the assignment. Dependencies that decorator expressions use remain included.</p>
 <h5>Expressions and assignments</h5>
 <table>
 <thead>
 <tr>
-<th>Source represented by <code>node</code></th>
+<th>Source that <code>node</code> represents</th>
 <th>Dependency names</th>
 </tr>
 </thead>
@@ -522,7 +522,7 @@ def decorated(arg, *args, kwarg, **kwargs):
 <td><code>[&quot;plus&quot;]</code></td>
 </tr>
 <tr>
-<td>Bare name expression <code>name</code></td>
+<td>A bare name expression <code>name</code></td>
 <td><code>[&quot;name&quot;]</code></td>
 </tr>
 <tr>
@@ -535,12 +535,12 @@ def decorated(arg, *args, kwarg, **kwargs):
 </tr>
 </tbody>
 </table>
-<p>Assignment targets and literal values are not dependencies in these cases.</p>
+<p>In these cases, assignment targets and literal values are not dependencies.</p>
 <h5>Calls</h5>
 <table>
 <thead>
 <tr>
-<th>Source represented by <code>node</code></th>
+<th>Source that <code>node</code> represents</th>
 <th>Dependency names</th>
 </tr>
 </thead>
@@ -563,43 +563,43 @@ def decorated(arg, *args, kwarg, **kwargs):
 </tr>
 </tbody>
 </table>
-<p>For method calls, include the receiver but not the method attribute name. For keyword arguments, include dependencies from argument values but not keyword labels. Literal argument values contribute no dependency.</p>
+<p>For a method call, include the receiver but do not include the method attribute name. For keyword arguments, include the dependencies coming from the argument values but do not include the keyword labels. A literal argument value contributes no dependency.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Dependency Extraction for Class Definitions</span>
-        <span class="spec-meta muted">477 words · source specification
+        <span class="spec-title">Extracting Dependencies from Class Definitions</span>
+        <span class="spec-meta muted">531 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Dependency Extraction for Class Definitions</h3>
-<h4>Objective</h4>
-<p>Implement dependency extraction for Python class definition AST nodes. Given a parsed AST node representing a class definition, produce the ordered list of external name dependencies referenced by that class.</p>
+      <div class="spec-body"><h3>Task Specification: Extracting Dependencies from Class Definitions</h3>
+<h4>Goal</h4>
+<p>Implement dependency extraction for the AST nodes of Python class definitions. Starting from a parsed AST node that represents a class definition, the implementation produces the ordered list of external name dependencies referenced by that class.</p>
 <h4>Public API</h4>
-<p>The following must be importable from the dependencies module (the same module that currently provides <code>get_dependencies</code>):</p>
+<p>It must be possible to import the following from the dependencies module (this being the same module that currently provides <code>get_dependencies</code>):</p>
 <pre><code class="language-python">get_dependencies(node)
 </code></pre>
 <ul>
-<li><strong>Input:</strong> an AST node (as produced by parsing Python source with the standard <code>ast</code> module).</li>
-<li><strong>Output:</strong> an iterable of dependency objects. Each dependency object exposes a <code>.name</code> attribute (a <code>str</code>) giving the referenced name.</li>
+<li><strong>Input:</strong> an AST node (of the kind produced when Python source is parsed with the standard <code>ast</code> module).</li>
+<li><strong>Output:</strong> an iterable of dependency objects. Each dependency object exposes a <code>.name</code> attribute (a <code>str</code>) holding the referenced name.</li>
 </ul>
-<h4>Required Behavior for Class Definitions</h4>
-<p>When <code>get_dependencies</code> is called with a class definition node, it must return the class's external name dependencies <strong>in source order</strong>, considering the following contributions:</p>
+<h4>Behavior Required for Class Definitions</h4>
+<p>When <code>get_dependencies</code> is called with a class definition node, it must return the class's external name dependencies <strong>in source order</strong>, taking the following contributions into account:</p>
 <ol>
-<li><strong>Decorators on the class</strong> — every name referenced in each class decorator expression, including the decorator callable and any arguments passed to it.</li>
-<li><strong>Base classes</strong> — each base class name.</li>
-<li><strong>Class body</strong> — names referenced within the class body that are not defined within the class itself.</li>
+<li><strong>Class decorators</strong> — every name referenced in each decorator expression on the class, including the decorator callable and any arguments passed to it.</li>
+<li><strong>Base classes</strong> — the name of each base class.</li>
+<li><strong>Class body</strong> — names referenced within the class body that the class itself does not define.</li>
 </ol>
-<h5>Names defined within the class are NOT dependencies</h5>
-<p>Names assigned within the class body (e.g. class-level attribute assignments) become part of the class's own namespace. Consequently:</p>
+<h5>Names defined inside the class are NOT dependencies</h5>
+<p>Names that get assigned within the class body (e.g. class-level attribute assignments) become part of the class's own namespace. As a consequence:</p>
 <ul>
-<li>The assignment <em>targets</em> themselves are not dependencies.</li>
-<li>When such a locally-defined name is later referenced <strong>within the same class body</strong> (for example, used as an argument to a method decorator), that reference is also <strong>not</strong> treated as a dependency, because it resolves to the class-level definition.</li>
-<li>However, a name that is defined at class level but referenced <strong>inside a method body</strong> IS a dependency of the class (method bodies do not resolve names against the enclosing class namespace at definition time).</li>
+<li>The <em>targets</em> of the assignments are themselves not dependencies.</li>
+<li>If a name defined locally in this way is later referenced <strong>within the same class body</strong> (for example, as an argument to a method decorator), that reference is also <strong>not</strong> treated as a dependency, because it resolves to the class-level definition.</li>
+<li>On the other hand, a name that is defined at class level but referenced <strong>inside a method body</strong> IS a dependency of the class (at definition time, method bodies do not resolve names against the namespace of the enclosing class).</li>
 </ul>
-<h5>Worked example</h5>
-<p>For the following class definition:</p>
+<h5>Example walkthrough</h5>
+<p>Given the following class definition:</p>
 <pre><code class="language-python">@decorator(arg)
 class A(B, C):
     _a = something
@@ -609,47 +609,47 @@ class A(B, C):
     def method():
         return _b
 </code></pre>
-<p><code>get_dependencies</code> must yield dependencies whose <code>.name</code> values, in order, are:</p>
+<p>For this class definition, <code>get_dependencies</code> must yield dependencies whose <code>.name</code> values are, in order:</p>
 <pre><code>[&quot;decorator&quot;, &quot;arg&quot;, &quot;B&quot;, &quot;C&quot;, &quot;something&quot;, &quot;something&quot;, &quot;method_decorator&quot;, &quot;_b&quot;]
 </code></pre>
-<p>Breakdown of why each appears (and why others do not):</p>
+<p>Why each of them appears (and why the others do not):</p>
 <ul>
-<li><code>decorator</code>, <code>arg</code> — from the class decorator expression <code>@decorator(arg)</code>.</li>
-<li><code>B</code>, <code>C</code> — the base classes.</li>
-<li><code>something</code>, <code>something</code> — the right-hand side of the two class-level attribute assignments (<code>_a</code> and <code>_b</code>). Each occurrence is emitted; the assignment targets <code>_a</code> and <code>_b</code> are not dependencies.</li>
-<li><code>method_decorator</code> — the decorator applied to <code>method</code>.</li>
-<li><code>_b</code> — referenced inside the method body; since <code>_b</code> is defined at class level but used within a nested method body, it is a dependency.</li>
-<li><code>_a</code> is <strong>not</strong> present: although referenced (as <code>@method_decorator(_a)</code>), it is defined earlier in the same class body and resolves locally.</li>
+<li><code>decorator</code>, <code>arg</code> — these come from the class decorator expression <code>@decorator(arg)</code>.</li>
+<li><code>B</code>, <code>C</code> — the names of the base classes.</li>
+<li><code>something</code>, <code>something</code> — the right-hand sides of the two class-level attribute assignments (<code>_a</code> and <code>_b</code>). Each occurrence is emitted; the targets of those assignments, <code>_a</code> and <code>_b</code>, are not dependencies.</li>
+<li><code>method_decorator</code> — the decorator that is applied to <code>method</code>.</li>
+<li><code>_b</code> — referenced inside the method body; because <code>_b</code> is defined at class level but used within a nested method body, it is a dependency.</li>
+<li><code>_a</code> is <strong>not</strong> present: even though it is referenced (as <code>@method_decorator(_a)</code>), it is defined earlier in the same class body and therefore resolves locally.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The ordering of the returned dependencies must match the left-to-right, top-to-bottom source order as illustrated above (decorators, then bases, then body).</li>
-<li>Only the behavior described here is required.</li>
+<li>The dependencies that get returned must come in an order matching the left-to-right, top-to-bottom source order illustrated above (decorators, then bases, then body).</li>
+<li>The behavior described here is the only behavior that is required.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You must implement dependency analysis support for global and nonlocal variable declarations within Python function definitions.</span>
-        <span class="spec-meta muted">560 words · source specification
+        <span class="spec-title">You must implement support for dependency analysis of global and nonlocal variable declarations within Python function definitions.</span>
+        <span class="spec-meta muted">592 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h5>Overview</h5>
-<p>You must implement dependency analysis support for <code>global</code> and <code>nonlocal</code> variable declarations within Python function definitions. The analysis inspects a parsed Python AST node and determines which names the code depends on from an enclosing/outer scope.</p>
+<p>You must implement support for dependency analysis of <code>global</code> and <code>nonlocal</code> variable declarations within Python function definitions. The analysis works by inspecting a parsed Python AST node and figuring out which names the code depends on from an enclosing/outer scope.</p>
 <h5>Public API</h5>
-<p>The following must be importable and callable:</p>
+<p>The items below must be importable and callable:</p>
 <ul>
-<li><code>get_dependencies(node)</code> — accepts a Python AST node (as produced by parsing a function definition) and returns an iterable of dependency objects. Each dependency object must expose a <code>.name</code> attribute (a <code>str</code>) giving the name of the depended-upon symbol.</li>
+<li><code>get_dependencies(node)</code> — accepts a Python AST node (as produced by parsing a function definition) and returns an iterable of dependency objects. Every dependency object must expose a <code>.name</code> attribute (a <code>str</code>); this attribute gives the name of the depended-upon symbol.</li>
 </ul>
-<p>The order of the returned dependencies must match the order in which the corresponding names are first encountered in the source.</p>
-<h5>Required Behavior</h5>
-<p>The analysis already handles ordinary name resolution (parameters, local assignments, decorators, etc.). You are adding handling for <code>global</code> and <code>nonlocal</code> declarations. In all cases below, the <code>node</code> passed to <code>get_dependencies</code> is a single top-level function definition.</p>
-<p>A name that is assigned within a function is normally treated as a local variable and does NOT become a dependency. The presence of a <code>global</code> or <code>nonlocal</code> declaration changes whether such an assigned name is considered a dependency, according to the rules below.</p>
-<h6><code>nonlocal</code> declarations</h6>
+<p>The returned dependencies must be ordered so that their order matches the order in which the corresponding names are first encountered in the source.</p>
+<h5>Behavior Requirements</h5>
+<p>Ordinary name resolution (parameters, local assignments, decorators, etc.) is already covered by the analysis. What you are adding is handling for <code>global</code> and <code>nonlocal</code> declarations. In every case below, the <code>node</code> passed to <code>get_dependencies</code> is a single top-level function definition.</p>
+<p>A name that is assigned inside a function is normally regarded as a local variable and does NOT become a dependency. Whether such an assigned name counts as a dependency is altered by the presence of a <code>global</code> or <code>nonlocal</code> declaration, following the rules below.</p>
+<h6>Handling of <code>nonlocal</code> declarations</h6>
 <ol>
 <li>
-<p>When a function declares a name <code>nonlocal</code> and then assigns to it, and that name is <strong>not</strong> bound anywhere in the analyzed function's own scope (i.e., it must resolve to some enclosing scope outside the analyzed function), the name <strong>is</strong> a dependency.</p>
+<p>If a function declares a name <code>nonlocal</code> and afterwards assigns to it, and that name is <strong>not</strong> bound anywhere in the analyzed function's own scope (that is, it must resolve to some enclosing scope outside the analyzed function), then the name <strong>is</strong> a dependency.</p>
 <p>Example:</p>
 <pre><code class="language-python">def function():
     nonlocal a
@@ -658,7 +658,7 @@ class A(B, C):
 <p>Dependencies: <code>[&quot;a&quot;]</code></p>
 </li>
 <li>
-<p>The same holds when the <code>nonlocal</code> declaration and assignment occur inside a nested (inner) function, and the declared name is not bound anywhere in the analyzed function's scope tree that would satisfy the <code>nonlocal</code> binding:</p>
+<p>The same applies when the <code>nonlocal</code> declaration and the assignment take place inside a nested (inner) function, and the declared name is not bound anywhere in the analyzed function's scope tree in a way that would satisfy the <code>nonlocal</code> binding:</p>
 <pre><code class="language-python">def function():
     def inner():
         nonlocal a
@@ -668,7 +668,7 @@ class A(B, C):
 <p>Dependencies: <code>[&quot;a&quot;]</code></p>
 </li>
 <li>
-<p>When the <code>nonlocal</code> name is bound in an enclosing scope <strong>within</strong> the analyzed function (for example, assigned in the body of the analyzed function itself), the <code>nonlocal</code> reference is satisfied internally, so the name is <strong>not</strong> a dependency:</p>
+<p>When the <code>nonlocal</code> name is bound in an enclosing scope <strong>within</strong> the analyzed function (for instance, assigned in the body of the analyzed function itself), the <code>nonlocal</code> reference is satisfied internally, and therefore the name is <strong>not</strong> a dependency:</p>
 <pre><code class="language-python">def function():
     def inner():
         nonlocal a
@@ -679,10 +679,10 @@ class A(B, C):
 <p>Dependencies: <code>[]</code></p>
 </li>
 </ol>
-<h6><code>global</code> declarations</h6>
+<h6>Handling of <code>global</code> declarations</h6>
 <ol start="4">
 <li>
-<p>When a function declares a name <code>global</code> and then assigns to it, the name <strong>is</strong> a dependency:</p>
+<p>If a function declares a name <code>global</code> and then assigns to it, that name <strong>is</strong> a dependency:</p>
 <pre><code class="language-python">def function():
     global a
     a = 4
@@ -690,7 +690,7 @@ class A(B, C):
 <p>Dependencies: <code>[&quot;a&quot;]</code></p>
 </li>
 <li>
-<p>The same holds when the <code>global</code> declaration and assignment occur inside a nested (inner) function:</p>
+<p>The same applies when the <code>global</code> declaration and the assignment take place inside a nested (inner) function:</p>
 <pre><code class="language-python">def function():
     def inner():
         global a
@@ -700,7 +700,7 @@ class A(B, C):
 <p>Dependencies: <code>[&quot;a&quot;]</code></p>
 </li>
 <li>
-<p>Unlike <code>nonlocal</code>, a <code>global</code> name remains a dependency even when a name of the same identifier is also assigned as a local in an enclosing scope within the analyzed function. The local assignment does not satisfy or cancel the <code>global</code> dependency:</p>
+<p>In contrast to <code>nonlocal</code>, a <code>global</code> name remains a dependency even when a name with the same identifier is also assigned as a local in an enclosing scope within the analyzed function. The local assignment neither satisfies nor cancels the <code>global</code> dependency:</p>
 <pre><code class="language-python">def function():
     def inner():
         global a
@@ -711,89 +711,91 @@ class A(B, C):
 <p>Dependencies: <code>[&quot;a&quot;]</code></p>
 </li>
 </ol>
-<h5>Summary of the distinction</h5>
+<h5>Summary of the difference</h5>
 <ul>
-<li><code>nonlocal name</code>: contributes <code>name</code> as a dependency <strong>only if</strong> <code>name</code> is not bound anywhere in the analyzed function's own scope tree; if it is bound in an intervening enclosing scope inside the analyzed function, it is resolved internally and is not a dependency.</li>
-<li><code>global name</code>: always contributes <code>name</code> as a dependency when assigned under a <code>global</code> declaration, regardless of any same-named local assignments in enclosing scopes within the analyzed function.</li>
+<li><code>nonlocal name</code>: adds <code>name</code> as a dependency <strong>only if</strong> <code>name</code> is not bound anywhere in the analyzed function's own scope tree; when it is bound in an intervening enclosing scope inside the analyzed function, it is resolved internally and is not a dependency.</li>
+<li><code>global name</code>: always contributes <code>name</code> as a dependency when it is assigned under a <code>global</code> declaration, regardless of any same-named local assignments in enclosing scopes within the analyzed function.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">You must implement (or extend) two public functions that analyze Python AST nodes</span>
-        <span class="spec-meta muted">331 words · source specification
+        <span class="spec-title">In this task you must implement (or extend) two public functions — get_bindings and get_dependencies — that carry out analysis of Python AST nodes.</span>
+        <span class="spec-meta muted">400 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement (or extend) two public functions that analyze Python AST nodes: <code>get_bindings</code> and <code>get_dependencies</code>. This task specifically requires adding correct handling for <strong>augmented assignments</strong> and <strong>annotated assignments</strong> to both functions.</p>
-<h4>Public API</h4>
-<p>The following must be importable from the same module that already provides these functions (the module under test imports <code>get_bindings</code> and <code>get_dependencies</code> directly, along with an internal <code>_parse</code> helper used to turn source strings into AST nodes):</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>In this task you must implement (or extend) two public functions — <code>get_bindings</code> and <code>get_dependencies</code> — that carry out analysis of Python AST nodes. Concretely, what this task requires is that both functions be given correct handling of <strong>augmented assignments</strong> and <strong>annotated assignments</strong>.</p>
+<h4>Public Interface</h4>
+<p>It must be possible to import every item listed below from the same module that already provides these functions (the module being tested imports <code>get_bindings</code> and <code>get_dependencies</code> directly, together with an internal <code>_parse</code> helper that takes source strings and turns them into AST nodes):</p>
 <ul>
-<li><code>get_bindings(node)</code> — returns an iterable of names (strings) that the given AST node <strong>binds</strong> (introduces into scope).</li>
-<li><code>get_dependencies(node)</code> — returns an iterable of dependency objects, each having a <code>.name</code> attribute (a string), representing names the node <strong>reads / depends on</strong>.</li>
+<li><code>get_bindings(node)</code> — returns an iterable of names (strings) that the AST node handed to it <strong>binds</strong> (i.e., brings into scope).</li>
+<li><code>get_dependencies(node)</code> — returns an iterable of dependency objects, each of which carries a <code>.name</code> attribute (a string); these objects stand for the names that the node <strong>reads / depends on</strong>.</li>
 </ul>
-<p>The <code>node</code> passed in is a parsed Python AST node (as produced by parsing a source snippet).</p>
-<h4>Required Behavior</h4>
-<h5>Augmented Assignment (<code>a += b</code>)</h5>
-<p>For an augmented assignment statement of the form <code>target op= value</code>:</p>
+<p>Whatever <code>node</code> you are handed is a parsed Python AST node (it comes from parsing a source snippet).</p>
+<h4>Behavior Requirements</h4>
+<h5>Augmented Assignment Statements (<code>a += b</code>)</h5>
+<p>Consider an augmented assignment statement whose form is <code>target op= value</code>:</p>
 <ul>
-<li><strong>Bindings:</strong> the target name is bound. For <code>a += b</code>, <code>get_bindings</code> yields exactly <code>[&quot;a&quot;]</code>.</li>
-<li><strong>Dependencies:</strong> the value expression is a dependency. For <code>a += b</code>, <code>get_dependencies</code> yields dependency objects whose <code>.name</code> values are exactly <code>[&quot;b&quot;]</code>.</li>
+<li><strong>Bindings:</strong> the name sitting in the target position is bound. Given <code>a += b</code> as input, <code>get_bindings</code> yields exactly <code>[&quot;a&quot;]</code>.</li>
+<li><strong>Dependencies:</strong> the value expression acts as a dependency. With <code>a += b</code> as input, <code>get_dependencies</code> yields dependency objects, and their <code>.name</code> values are exactly <code>[&quot;b&quot;]</code>.</li>
 </ul>
-<h5>Annotated Assignment (<code>a: int = b</code>)</h5>
-<p>For an annotated assignment statement of the form <code>target: annotation = value</code>:</p>
+<h5>Annotated Assignment Statements (<code>a: int = b</code>)</h5>
+<p>Now take an annotated assignment statement with the shape <code>target: annotation = value</code>:</p>
 <ul>
-<li><strong>Bindings:</strong> the target name is bound. For <code>a: int = b</code>, <code>get_bindings</code> yields exactly <code>[&quot;a&quot;]</code>.</li>
-<li><strong>Dependencies:</strong> the value expression is a dependency. For <code>a: int = b</code>, <code>get_dependencies</code> yields dependency objects whose <code>.name</code> values are exactly <code>[&quot;b&quot;]</code>.</li>
+<li><strong>Bindings:</strong> the target name is what gets bound. When <code>a: int = b</code> is the input, <code>get_bindings</code> yields exactly <code>[&quot;a&quot;]</code>.</li>
+<li><strong>Dependencies:</strong> the value expression is what counts as a dependency. When <code>a: int = b</code> is the input, the <code>.name</code> values of the dependency objects that <code>get_dependencies</code> yields are exactly <code>[&quot;b&quot;]</code>.</li>
 </ul>
-<h4>Notes on Ordering and Content</h4>
+<h4>Ordering and Content Notes</h4>
 <ul>
-<li>The results are compared as ordered lists; produce names in the natural left-to-right order implied by the examples above (single-element results in these cases).</li>
-<li>For the augmented and annotated assignment dependency cases described, only the value expression contributes to dependencies (the target name and, for annotated assignment, the annotation, do not appear in the dependency results for these examples).</li>
+<li>The comparison treats the results as ordered lists; output the names in the natural left-to-right order that the examples above imply (in these cases, each result has a single element).</li>
+<li>For the augmented and annotated assignment dependency cases covered above, the value expression is the only contributor to dependencies (neither the target name nor, for annotated assignment, the annotation appears in the dependency results for these examples).</li>
 </ul>
-<p>Deliver exactly the behavior described above; do not add behavior beyond these cases.</p>
+<p>Deliver exactly the behavior set out above; do not add any behavior that goes beyond these cases.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Implement support for Python try/except/else/finally statements in two existing static-analysis functions</span>
-        <span class="spec-meta muted">471 words · source specification
+        <span class="spec-title">Extend two existing static-analysis functions with support for Python try/except/else/finally statements</span>
+        <span class="spec-meta muted">499 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement support for Python <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> statements in two existing static-analysis functions: one that extracts the names <strong>bound</strong> (assigned/introduced) by a piece of code, and one that extracts the names a piece of code <strong>depends on</strong> (references from the surrounding scope).</p>
-<p>Both functions operate on Python AST nodes (produced by the standard <code>ast</code> module) and must recursively handle <code>ast.Try</code> nodes and all of their child statements.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Extend two existing static-analysis functions with support for Python <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> statements: one that extracts the names <strong>bound</strong> (assigned/introduced) by a piece of code, and one that extracts the names that a piece of code <strong>depends on</strong> (references from the surrounding scope).</p>
+<p>Both functions work on Python AST nodes (which the standard <code>ast</code> module produces) and must recursively process <code>ast.Try</code> nodes and all of their child statements.</p>
 <h4>Public API</h4>
-<p>The following callables must be importable and callable as described. (Their existing behavior for other node types must remain intact; this task only adds handling for <code>try</code> statements.)</p>
+<p>The callables listed below must be importable and callable as described. (For other node types, their existing behavior must remain intact; this task only adds handling for <code>try</code> statements.)</p>
 <h5><code>get_bindings(node)</code></h5>
 <ul>
-<li><strong>Input:</strong> an AST node (e.g. the module node returned by parsing a code snippet).</li>
-<li><strong>Output:</strong> an iterable of strings — the names bound within <code>node</code>, yielded in source order (order of appearance when reading the code top to bottom, left to right).</li>
+<li><strong>Input:</strong> an AST node (e.g. the module node that parsing a code snippet returns).</li>
+<li><strong>Output:</strong> an iterable of strings — the names bound within <code>node</code>, yielded in source order (the order of appearance when the code is read top to bottom, left to right).</li>
 </ul>
 <h5><code>get_dependencies(node)</code></h5>
 <ul>
 <li><strong>Input:</strong> an AST node.</li>
-<li><strong>Output:</strong> an iterable of dependency objects, in source order. Each object exposes a <code>.name</code> attribute (a string) giving the referenced name.</li>
+<li><strong>Output:</strong> an iterable of dependency objects, in source order. Each object exposes a <code>.name</code> attribute (a string) that gives the referenced name.</li>
 </ul>
-<h4>Required Behavior for <code>try</code> Statements</h4>
-<p>An <code>ast.Try</code> node has four parts, which must be processed in this order:</p>
+<h4>Behavior Required for <code>try</code> Statements</h4>
+<p>An <code>ast.Try</code> node has four parts, and these must be processed in this order:</p>
 <ol>
-<li><code>body</code> — the statements in the <code>try:</code> block.</li>
-<li><code>handlers</code> — the <code>except</code> clauses. Each handler may optionally bind a name (the <code>as &lt;name&gt;</code> target). If present, that bound name is a binding.</li>
-<li><code>orelse</code> — the statements in the <code>else:</code> block.</li>
-<li><code>finalbody</code> — the statements in the <code>finally:</code> block.</li>
+<li><code>body</code> — the statements that make up the <code>try:</code> block.</li>
+<li><code>handlers</code> — the <code>except</code> clauses. Each handler may optionally bind a name (the <code>as &lt;name&gt;</code> target). If that bound name is present, it is a binding.</li>
+<li><code>orelse</code> — the statements that make up the <code>else:</code> block.</li>
+<li><code>finalbody</code> — the statements that make up the <code>finally:</code> block.</li>
 </ol>
 <h5>Bindings</h5>
-<p>When collecting bindings from a <code>try</code> statement, yield, in order:</p>
+<p>When bindings are collected from a <code>try</code> statement, yield, in order:</p>
 <ul>
-<li>All bindings produced within the <code>try</code> body.</li>
-<li>For each <code>except</code> clause: the name introduced by its <code>as &lt;name&gt;</code> clause (if any), followed by the bindings produced within that handler's body.</li>
-<li>All bindings produced within the <code>else</code> block.</li>
-<li>All bindings produced within the <code>finally</code> block.</li>
+<li>All bindings generated inside the <code>try</code> body.</li>
+<li>For each <code>except</code> clause: the name that its <code>as &lt;name&gt;</code> clause introduces (if any), followed by the bindings generated inside that handler's body.</li>
+<li>All bindings generated inside the <code>else</code> block.</li>
+<li>All bindings generated inside the <code>finally</code> block.</li>
 </ul>
-<p>Concretely, for a construct of the form:</p>
+<p>As a concrete example, for a construct of the form:</p>
 <pre><code class="language-python">try:
     a = something_stupid()
 except Exception as exc:
@@ -803,61 +805,62 @@ else:
 finally:
     d = finish()
 </code></pre>
-<p>the bindings, in order, are: <code>a</code>, <code>exc</code>, <code>b</code>, <code>c</code>, <code>d</code>.</p>
+<p>the resulting bindings, in order, are: <code>a</code>, <code>exc</code>, <code>b</code>, <code>c</code>, <code>d</code>.</p>
 <h5>Dependencies</h5>
-<p>When collecting dependencies from a <code>try</code> statement, yield, in order, the dependencies of:</p>
+<p>When dependencies are collected from a <code>try</code> statement, yield, in order, the dependencies of:</p>
 <ul>
-<li>The <code>try</code> body.</li>
-<li>Each <code>except</code> clause: the type expression being caught (e.g. <code>Exception</code>) is a dependency, along with any dependencies in the handler body. The <code>as &lt;name&gt;</code> target is a binding, not a dependency, and must not appear.</li>
+<li>The body of the <code>try</code>.</li>
+<li>Each <code>except</code> clause: the type expression that is being caught (e.g. <code>Exception</code>) is a dependency, together with any dependencies in the handler body. The <code>as &lt;name&gt;</code> target is a binding, not a dependency, and it must not appear.</li>
 <li>The <code>else</code> block.</li>
 <li>The <code>finally</code> block.</li>
 </ul>
-<p>For the same construct above, the dependency names, in order, are: <code>something_stupid</code>, <code>Exception</code>, <code>recover</code>, <code>otherwise</code>, <code>finish</code>.</p>
+<p>For the same construct as above, the dependency names, in order, are: <code>something_stupid</code>, <code>Exception</code>, <code>recover</code>, <code>otherwise</code>, <code>finish</code>.</p>
 <h4>Notes</h4>
 <ul>
-<li>Names bound locally (such as an assignment target within a block, or an <code>except ... as</code> name) are treated as bindings, not dependencies.</li>
-<li>Ordering is significant: results must reflect the top-to-bottom structure of the <code>try</code> statement (body, then handlers, then else, then finally).</li>
+<li>Names that are bound locally (such as an assignment target within a block, or an <code>except ... as</code> name) are treated as bindings, not dependencies.</li>
+<li>Order matters: the results must reflect the top-to-bottom structure of the <code>try</code> statement (body, then handlers, then else, then finally).</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">You are working in the ssort package.</span>
-        <span class="spec-meta muted">234 words · source specification
+        <span class="spec-title">You are working inside the ssort package.</span>
+        <span class="spec-meta muted">268 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working in the <code>ssort</code> package. This task concerns the source-splitting utility in the module <code>ssort._parsing</code>.</p>
-<h5>Required API</h5>
-<p>Implement (or modify) a function in <code>ssort._parsing</code>:</p>
+      <div class="spec-body"><h4>Description of the Task</h4>
+<p>You are working inside the <code>ssort</code> package. This task deals with the source-splitting utility in the module <code>ssort._parsing</code>.</p>
+<h5>Required Interface</h5>
+<p>Within <code>ssort._parsing</code>, implement (or modify) a function:</p>
 <pre><code class="language-python">def split(source, filename=&quot;&lt;unknown&gt;&quot;):
     ...
 </code></pre>
-<p><strong>Parameters:</strong></p>
+<p><strong>Function parameters:</strong></p>
 <ul>
-<li><code>source</code> — a <code>str</code> containing Python source code.</li>
-<li><code>filename</code> — a <code>str</code>, passed as a keyword argument, used as the filename label when parsing the source. It must have a default value of <code>&quot;&lt;unknown&gt;&quot;</code> and be accepted as a keyword argument named <code>filename</code>.</li>
+<li><code>source</code> — a <code>str</code> that contains Python source code.</li>
+<li><code>filename</code> — a <code>str</code> that is passed as a keyword argument and is used as the filename label when the source is parsed. Its default value must be <code>&quot;&lt;unknown&gt;&quot;</code>, and it must be accepted as a keyword argument named <code>filename</code>.</li>
 </ul>
-<p><strong>Return value:</strong></p>
+<p><strong>Returned value:</strong></p>
 <ul>
-<li>An iterable of pairs <code>(text, node)</code>, where:
+<li>An iterable of pairs <code>(text, node)</code>, in which:
 <ul>
-<li><code>text</code> is a <code>str</code> giving the source text of one top-level segment of the input.</li>
-<li><code>node</code> is the corresponding parsed AST node for that segment.</li>
+<li><code>text</code> is a <code>str</code> that gives the source text of one top-level segment of the input.</li>
+<li><code>node</code> is the parsed AST node that corresponds to that segment.</li>
 </ul>
 </li>
 </ul>
-<p>Consumers iterate over the result and unpack each element as <code>text, ast</code>.</p>
-<h5>Behavior</h5>
+<p>Code that consumes the result iterates over it and unpacks each element as <code>text, ast</code>.</p>
+<h5>Behavior of the Function</h5>
 <ul>
-<li>The function accepts the source code directly as a string. It must <strong>not</strong> require or expect a file-like object; it operates on the string <code>source</code> argument itself.</li>
-<li>The source is split into its top-level segments. For each segment, the function yields a tuple of the segment's text (as a string) and the AST node parsed from it.</li>
-<li>For empty input, the function yields no segments.</li>
+<li>The source code is accepted by the function directly as a string. The function must <strong>not</strong> require or expect a file-like object; it works on the string <code>source</code> argument itself.</li>
+<li>The source gets divided into its top-level segments. For each segment, the function yields a tuple made up of the segment's text (as a string) together with the AST node parsed from it.</li>
+<li>When the input is empty, the function yields no segments.</li>
 </ul>
-<h5>Constraints</h5>
+<h5>Constraints on the Implementation</h5>
 <ul>
-<li>The public signature must be exactly <code>split(source, filename=&quot;&lt;unknown&gt;&quot;)</code> so callers can invoke it as <code>split(some_string, filename=&quot;&lt;unknown&gt;&quot;)</code>.</li>
-<li>The first positional argument is the raw source string, not a stream/file object.</li>
+<li>The public signature must be exactly <code>split(source, filename=&quot;&lt;unknown&gt;&quot;)</code>, so that callers can invoke it in the form <code>split(some_string, filename=&quot;&lt;unknown&gt;&quot;)</code>.</li>
+<li>The first positional argument is the raw source string and not a stream/file object.</li>
 </ul>
 </div>
     </details>
@@ -865,94 +868,94 @@ finally:
       <summary class="spec-summary">
         <span class="spec-num">10</span>
         <span class="spec-title">Implement bubble_sort</span>
-        <span class="spec-meta muted">307 words · source specification
+        <span class="spec-meta muted">325 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task Specification: Implement <code>bubble_sort</code></h3>
-<h4>Objective</h4>
-<p>Implement a bubble sort function that sorts a list in place based on a caller-supplied comparison predicate.</p>
+<h4>Goal</h4>
+<p>Implement a bubble sort function that sorts a list in place using a comparison predicate supplied by the caller.</p>
 <h4>Public API</h4>
-<p>Create a module at <code>ssort/_sorting.py</code> that exposes the following function:</p>
+<p>Create a module at <code>ssort/_sorting.py</code> that exposes this function:</p>
 <pre><code class="language-python">def bubble_sort(array, swap):
     ...
 </code></pre>
 <h4>Behavior</h4>
-<p><code>bubble_sort</code> sorts <code>array</code> <strong>in place</strong> and returns <code>None</code>. The ordering is determined entirely by the <code>swap</code> predicate.</p>
+<p><code>bubble_sort</code> sorts <code>array</code> <strong>in place</strong> and returns <code>None</code>. The <code>swap</code> predicate is what entirely determines the ordering.</p>
 <h5>Parameters</h5>
 <ul>
-<li><code>array</code>: a list of elements to be sorted in place.</li>
-<li><code>swap</code>: a callable taking two arguments <code>(a, b)</code> where <code>a</code> and <code>b</code> are elements of <code>array</code>. It returns a truthy value when the pair is considered out of order and must be swapped, and a falsy value otherwise. For a pair of adjacent elements where <code>a</code> precedes <code>b</code>, <code>swap(a, b)</code> being truthy indicates that <code>a</code> should come <em>after</em> <code>b</code> in the final ordering.</li>
+<li><code>array</code>: the list of elements to be sorted in place.</li>
+<li><code>swap</code>: a callable that receives two arguments <code>(a, b)</code>, where <code>a</code> and <code>b</code> are elements of <code>array</code>. It returns a truthy value when the pair is regarded as out of order and must be swapped, and a falsy value otherwise. When two adjacent elements form a pair with <code>a</code> preceding <code>b</code>, <code>swap(a, b)</code> being truthy signals that <code>a</code> should come <em>after</em> <code>b</code> in the final ordering.</li>
 </ul>
 <h5>Requirements</h5>
 <ul>
-<li>The function mutates <code>array</code> directly so that, after it returns, the elements are arranged so that no adjacent pair <code>(a, b)</code> (with <code>a</code> before <code>b</code>) satisfies <code>swap(a, b)</code> being truthy.</li>
-<li>The function must not return a new list; it modifies the given list and its return value is unused.</li>
+<li>The function mutates <code>array</code> directly so that, after it returns, the elements are arranged in a way that leaves no adjacent pair <code>(a, b)</code> (with <code>a</code> before <code>b</code>) for which <code>swap(a, b)</code> is truthy.</li>
+<li>The function must not return a new list; it alters the given list, and its return value is unused.</li>
 </ul>
 <h5>Edge cases</h5>
 <ul>
-<li>An empty list remains empty.</li>
+<li>An empty list stays empty.</li>
 <li>A list with a single element is left unchanged.</li>
-<li>A list already in the correct order is left unchanged.</li>
-<li>A list in the opposite order is fully reordered so that the predicate is satisfied for all adjacent pairs.</li>
+<li>A list that is already in the correct order is left unchanged.</li>
+<li>A list arranged in the reverse order is fully reordered so that the predicate is satisfied for all adjacent pairs.</li>
 </ul>
 <h5>Example semantics</h5>
-<p>With <code>swap = lambda a, b: a &gt; b</code> (i.e., swap when the earlier element is greater than the later one):</p>
+<p>With <code>swap = lambda a, b: a &gt; b</code> (that is, swap when the earlier element is greater than the later one):</p>
 <ul>
-<li><code>[3, 2, 1]</code> becomes <code>[1, 2, 3]</code></li>
-<li><code>[5, 4, 3, 2, 1]</code> becomes <code>[1, 2, 3, 4, 5]</code></li>
-<li><code>[0, 1, 3, 5, 6]</code> remains <code>[0, 1, 3, 5, 6]</code></li>
+<li><code>[3, 2, 1]</code> is sorted into <code>[1, 2, 3]</code></li>
+<li><code>[5, 4, 3, 2, 1]</code> is sorted into <code>[1, 2, 3, 4, 5]</code></li>
+<li><code>[0, 1, 3, 5, 6]</code> stays <code>[0, 1, 3, 5, 6]</code></li>
 </ul>
-<p>That is, the given predicate produces ascending numeric order.</p>
+<p>In other words, the given predicate results in ascending numeric order.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Implement a function get_dependencies that analyzes a Python AST node and returns the list of free-variable dependencies — the names that the node…</span>
-        <span class="spec-meta muted">873 words · source specification
+        <span class="spec-title">You are to implement a function get_dependencies that examines a Python AST node and returns the list of free-variable dependencies — the names the node…</span>
+        <span class="spec-meta muted">924 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h3>Task: Implement <code>get_dependencies</code> for AST Statement Nodes</h3>
 <h4>Overview</h4>
-<p>Implement a function <code>get_dependencies</code> that analyzes a Python AST node and returns the list of free-variable dependencies — the names that the node references but does not itself define/bind within its own scope. This task extends existing support to cover several additional statement types.</p>
+<p>You are to implement a function <code>get_dependencies</code> that examines a Python AST node and returns the list of free-variable dependencies — the names the node references but does not itself define/bind within its own scope. This task broadens existing support so that several additional statement types are covered.</p>
 <h4>Public API</h4>
-<p>The function must be importable as <code>get_dependencies</code> from the module used by the test suite (the same module that already exposes it for the currently-passing cases).</p>
+<p>It must be possible to import the function as <code>get_dependencies</code> from the module used by the test suite (the same module that already exposes it for the currently-passing cases).</p>
 <pre><code class="language-python">def get_dependencies(node) -&gt; list
 </code></pre>
 <ul>
-<li><strong>Input:</strong> a Python AST node (as produced by <code>ast.parse</code>, then typically taking the single statement from the module body).</li>
-<li><strong>Output:</strong> a list of dependency objects. Each dependency object must have a <code>.name</code> attribute (a <code>str</code>) giving the referenced identifier.</li>
-<li><strong>Ordering:</strong> dependencies must appear in source order — the order in which the referencing names are encountered while traversing the node's children left-to-right, top-to-bottom.</li>
-<li><strong>Duplicates:</strong> a name is reported for each distinct referencing location as it is encountered (see examples; no global deduplication is required beyond what the examples show).</li>
+<li><strong>Input:</strong> a Python AST node (as produced by <code>ast.parse</code>, typically with the single statement taken from the module body).</li>
+<li><strong>Output:</strong> a list of dependency objects. Each dependency object is required to have a <code>.name</code> attribute (a <code>str</code>) that gives the referenced identifier.</li>
+<li><strong>Ordering:</strong> dependencies must appear in source order — the order in which the referencing names are encountered when the node's children are traversed left-to-right, top-to-bottom.</li>
+<li><strong>Duplicates:</strong> for each distinct referencing location, the name is reported as it is encountered (see examples; no global deduplication is required beyond what the examples show).</li>
 </ul>
-<p>The existing dependency-object type already used for the currently-supported node types must be reused; only the <code>.name</code> attribute is exercised.</p>
-<h4>Scoping / Binding Rules</h4>
-<p>A &quot;dependency&quot; is a name that is <em>read</em> (loaded) without first being <em>bound</em> in the applicable scope. Names that are bound before/at the point of use within the node's scope are NOT dependencies.</p>
-<p>The following behaviors must hold for the node types below.</p>
+<p>The dependency-object type already in use for the currently-supported node types must be reused; only the <code>.name</code> attribute is exercised.</p>
+<h4>Scoping and Binding Rules</h4>
+<p>A &quot;dependency&quot; is a name that is <em>read</em> (loaded) without being <em>bound</em> first in the applicable scope. Names that are bound before or at the point of use within the node's scope are NOT dependencies.</p>
+<p>For the node types below, the following behaviors must hold.</p>
 <h5><code>Return</code> (<code>return &lt;expr&gt;</code>)</h5>
-<p>Report all names read in the returned expression.</p>
+<p>All names read in the returned expression must be reported.</p>
 <ul>
 <li><code>return a + b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 </ul>
 <h5><code>Delete</code> (<code>del &lt;targets&gt;</code>)</h5>
-<p>The targets of a <code>del</code> statement are treated as dependencies (the deleted name must exist, so it is read), including all names appearing within each target expression.</p>
+<p>The targets of a <code>del</code> statement count as dependencies (the deleted name must exist, hence it is read), including all names appearing within each target expression.</p>
 <ul>
 <li><code>del something</code> → <code>[&quot;something&quot;]</code></li>
 <li><code>del a, b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code></li>
 <li><code>del a[b:c]</code> → <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code></li>
 </ul>
 <h5><code>Raise</code> (<code>raise &lt;exc&gt;</code>)</h5>
-<p>Report all names read in the raised expression (and cause, if present).</p>
+<p>All names read in the raised expression (and the cause, if present) must be reported.</p>
 <ul>
 <li><code>raise Exception(message)</code> → <code>[&quot;Exception&quot;, &quot;message&quot;]</code></li>
 </ul>
 <h5><code>For</code> / <code>AsyncFor</code></h5>
-<p>Structure: <code>for &lt;target&gt; in &lt;iter&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.</p>
+<p>Form: <code>for &lt;target&gt; in &lt;iter&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.</p>
 <ul>
-<li>The iterable expression is evaluated in the enclosing scope; its names are dependencies.</li>
-<li>The loop target binds names for the body; those bound names are NOT dependencies when read in the body.</li>
-<li>Names read in the body/orelse that are not bound by the target (or otherwise bound earlier) are dependencies.</li>
-<li>Assignments in the body bind names locally (they are not dependencies where used after binding, and their assigned targets are not dependencies).</li>
+<li>The iterable expression is evaluated in the enclosing scope; the names in it are dependencies.</li>
+<li>The loop target binds names for the body; when those bound names are read in the body, they are NOT dependencies.</li>
+<li>Names read in the body/orelse that are not bound by the target (nor otherwise bound earlier) are dependencies.</li>
+<li>Assignments inside the body bind names locally (uses made after the binding are not dependencies, and their assigned targets are not dependencies).</li>
 </ul>
 <p>Example:</p>
 <pre><code class="language-python">for a in b(c):
@@ -961,16 +964,16 @@ else:
     f = g
 </code></pre>
 <p>→ <code>[&quot;b&quot;, &quot;c&quot;, &quot;e&quot;, &quot;g&quot;]</code>
-(<code>a</code> bound by target, <code>d</code>/<code>f</code> bound by assignment; <code>b</code>, <code>c</code> from iterable; <code>e</code>, <code>g</code> read but unbound.)</p>
-<p>The loop target binding only takes effect for the body — it does not shadow uses within the iterable itself, which is evaluated first:</p>
+(<code>a</code> is bound by the target, <code>d</code>/<code>f</code> are bound by assignment; <code>b</code>, <code>c</code> come from the iterable; <code>e</code>, <code>g</code> are read but unbound.)</p>
+<p>Binding by the loop target only takes effect for the body — it does not shadow uses within the iterable itself, which is evaluated first:</p>
 <pre><code class="language-python">for a in a():
     pass
 </code></pre>
 <p>→ <code>[&quot;a&quot;]</code></p>
-<p><code>AsyncFor</code> (<code>async for ...</code>, valid inside an async function) behaves identically to <code>For</code>.</p>
+<p><code>AsyncFor</code> (<code>async for ...</code>, valid inside an async function) behaves the same as <code>For</code>.</p>
 <h5><code>While</code></h5>
-<p>Structure: <code>while &lt;test&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.
-Report names read in the test, body, and orelse (subject to the usual binding rules within the body/orelse).</p>
+<p>Form: <code>while &lt;test&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.
+Names read in the test, body, and orelse must be reported (subject to the usual binding rules within the body/orelse).</p>
 <pre><code class="language-python">while predicate():
     action()
 else:
@@ -978,8 +981,8 @@ else:
 </code></pre>
 <p>→ <code>[&quot;predicate&quot;, &quot;action&quot;, &quot;cleanup&quot;]</code></p>
 <h5><code>If</code></h5>
-<p>Structure: <code>if &lt;test&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.
-Report names read in the test, body, and orelse.</p>
+<p>Form: <code>if &lt;test&gt;: &lt;body&gt; else: &lt;orelse&gt;</code>.
+Names read in the test, body, and orelse must be reported.</p>
 <pre><code class="language-python">if predicate():
     return subsequent()
 else:
@@ -987,330 +990,334 @@ else:
 </code></pre>
 <p>→ <code>[&quot;predicate&quot;, &quot;subsequent&quot;, &quot;alternate&quot;]</code></p>
 <h5><code>With</code> / <code>AsyncWith</code></h5>
-<p>Structure: <code>with &lt;items&gt;: &lt;body&gt;</code>, where each item is <code>&lt;context_expr&gt; as &lt;optional_var&gt;</code>.</p>
+<p>Form: <code>with &lt;items&gt;: &lt;body&gt;</code>, where each item is <code>&lt;context_expr&gt; as &lt;optional_var&gt;</code>.</p>
 <ul>
-<li>Names read in each context expression are dependencies.</li>
-<li>The <code>as</code> variable binds a name for the body; reads of that name in the body are NOT dependencies.</li>
-<li>Other names read in the body are dependencies.</li>
+<li>Names read in each context expression count as dependencies.</li>
+<li>The <code>as</code> variable binds a name for the body; reads of that name within the body are NOT dependencies.</li>
+<li>The remaining names read in the body are dependencies.</li>
 </ul>
 <pre><code class="language-python">with A() as a:
     a()
     b()
 </code></pre>
 <p>→ <code>[&quot;A&quot;, &quot;b&quot;]</code></p>
-<p><code>AsyncWith</code> (<code>async with ...</code>, valid inside an async function) behaves identically to <code>With</code>.</p>
+<p><code>AsyncWith</code> (<code>async with ...</code>, valid inside an async function) behaves the same as <code>With</code>.</p>
 <h5><code>AsyncFunctionDef</code></h5>
-<p>An async function definition behaves like a regular function definition for dependency purposes. Its parameters bind names locally; the body's <code>await</code> expressions and calls contribute the names they read.</p>
+<p>For dependency purposes, an async function definition behaves like a regular function definition. Its parameters bind names locally; <code>await</code> expressions and calls in the body contribute the names they read.</p>
 <pre><code class="language-python">async def function(arg):
     return await other(arg)
 </code></pre>
 <p>→ <code>[&quot;other&quot;]</code>
-(<code>arg</code> bound by the parameter; <code>other</code> is a free reference; the awaited expression's inner names are traversed normally.)</p>
-<h4>Existing Behavior (must remain intact)</h4>
-<p>The function already supports and must continue to support these node types with the same semantics; the additions above must not regress them:</p>
+(<code>arg</code> is bound by the parameter; <code>other</code> is a free reference; the inner names of the awaited expression are traversed normally.)</p>
+<h4>Existing Behavior (must stay intact)</h4>
+<p>The function already supports these node types and must keep supporting them with the same semantics; the additions above must not regress them:</p>
 <ul>
-<li><strong>Function definitions</strong>: parameters, assignments, <code>nonlocal</code>/<code>global</code> declarations shadow/expose names appropriately; decorators and default/annotation expressions in the enclosing scope contribute dependencies; nested closures capture correctly.</li>
-<li><strong>Class definitions</strong>: decorators, base classes, and body references contribute dependencies in source order.</li>
+<li><strong>Function definitions</strong>: parameters, assignments, and <code>nonlocal</code>/<code>global</code> declarations shadow/expose names appropriately; decorators and default/annotation expressions located in the enclosing scope contribute dependencies; names captured by nested closures are handled correctly.</li>
+<li><strong>Class definitions</strong>: decorators, base classes, and references from the body contribute dependencies in source order.</li>
 <li><strong>Assignments</strong>: <code>Assign</code> (<code>a = b</code> → <code>[&quot;b&quot;]</code>), <code>AugAssign</code> (<code>a += b</code> → <code>[&quot;b&quot;]</code>), <code>AnnAssign</code> (<code>a: int = b</code> → <code>[&quot;b&quot;]</code>).</li>
-<li><strong>Try</strong> statements.</li>
+<li>The <strong>Try</strong> statement.</li>
 <li><strong>Expressions</strong>: <code>BinOp</code> (<code>a + b</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>), <code>UnaryOp</code> (<code>-plus</code> → <code>[&quot;plus&quot;]</code>), <code>Name</code> (<code>name</code> → <code>[&quot;name&quot;]</code>), <code>Call</code> including <code>*args</code>/<code>**kwargs</code> unpacking and method calls, tuples/lists including star-unpacking, slices, etc.</li>
 </ul>
-<p>Example of ordering across a <code>Call</code>:</p>
+<p>Example demonstrating ordering across a <code>Call</code>:</p>
 <pre><code class="language-python">function(1, arg_value, kwarg=kwarg_value, kwarg_2=2)
 </code></pre>
 <p>→ <code>[&quot;function&quot;, &quot;arg_value&quot;, &quot;kwarg_value&quot;]</code></p>
-<p>Method call <code>obj.method(arg_value, kwarg=kwarg_value)</code> → <code>[&quot;obj&quot;, &quot;arg_value&quot;, &quot;kwarg_value&quot;]</code>.</p>
-<p>Tuple <code>(a, b, 3)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>; <code>(a, *b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>.</p>
+<p>For a method call, <code>obj.method(arg_value, kwarg=kwarg_value)</code> → <code>[&quot;obj&quot;, &quot;arg_value&quot;, &quot;kwarg_value&quot;]</code>.</p>
+<p>Tuples: <code>(a, b, 3)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>; <code>(a, *b)</code> → <code>[&quot;a&quot;, &quot;b&quot;]</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Implement dependency-analysis functionality that inspects a Python AST node and returns the names of external dependencies referenced by the code, correctly…</span>
-        <span class="spec-meta muted">400 words · source specification
+        <span class="spec-title">Implement dependency-analysis functionality that examines a Python AST node and returns the names of the external dependencies the code references, handling…</span>
+        <span class="spec-meta muted">443 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement dependency-analysis functionality that inspects a Python AST node and returns the names of external dependencies referenced by the code, correctly handling comprehension expressions.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>Implement dependency-analysis functionality that examines a Python AST node and returns the names of the external dependencies the code references, handling comprehension expressions correctly.</p>
 <h4>Public API</h4>
-<p>The tests rely on two helper functions being importable/available in the test module's scope. You must provide the underlying functionality that these helpers wrap:</p>
+<p>The tests depend on two helper functions being importable/available in the test module's scope. You must supply the underlying functionality that these helpers wrap:</p>
 <ul>
 <li>
-<p><code>_parse(source: str)</code> — parses a snippet of Python source code into an AST node representing the expression/statement. The snippet may be indented (leading whitespace on all lines) and may span multiple lines; such formatting must be tolerated and dedented as needed before parsing. It returns the single AST node corresponding to the parsed source.</p>
+<p><code>_parse(source: str)</code> — parses a snippet of Python source code into an AST node that represents the expression/statement. The snippet may be indented (leading whitespace on every line) and may span multiple lines; formatting like this must be tolerated and dedented as needed before parsing. It returns the single AST node that corresponds to the parsed source.</p>
 </li>
 <li>
-<p><code>_dep_names(node)</code> — given the AST node produced by <code>_parse</code>, returns a <code>list[str]</code> of the names of the external dependencies referenced within that node.</p>
+<p><code>_dep_names(node)</code> — given the AST node that <code>_parse</code> produces, returns a <code>list[str]</code> of the names of the external dependencies referenced within that node.</p>
 </li>
 </ul>
-<p>Provide these functions (or the machinery they call) so that they are importable and callable exactly as named.</p>
+<p>Provide these functions (or the machinery they call) in a way that leaves them importable and callable exactly as named.</p>
 <h4>Required Behavior</h4>
-<p><code>_dep_names</code> must compute the external dependencies of comprehension expressions. A dependency is a free name that the expression relies on from the surrounding scope — this includes functions being called and the iterables being iterated over. Names that are <em>bound</em> by the comprehension itself (the target variables of the <code>for</code> clauses) are <strong>not</strong> dependencies and must be excluded from the result.</p>
+<p><code>_dep_names</code> must work out the external dependencies of comprehension expressions. A dependency is a free name on which the expression relies from the surrounding scope — this includes the functions being called as well as the iterables being iterated over. Names that are <em>bound</em> by the comprehension itself (that is, the target variables of the <code>for</code> clauses) are <strong>not</strong> dependencies and must be left out of the result.</p>
 <h5>Ordering</h5>
-<p>The returned list must preserve the order in which dependencies first appear in the source expression, reading left to right (element/key/value expressions before the iterables of the generators).</p>
+<p>The list that is returned must preserve the order in which dependencies first appear in the source expression when read left to right (element/key/value expressions come before the iterables of the generators).</p>
 <h5>Comprehension types to support</h5>
 <ol>
 <li>
-<p><strong>List comprehension</strong> — e.g. <code>[action(a) for a in iterator]</code>
-Bound name: <code>a</code>. Dependencies: <code>[&quot;action&quot;, &quot;iterator&quot;]</code>.</p>
+<p><strong>List comprehension</strong> — for example <code>[action(a) for a in iterator]</code>
+The bound name is <code>a</code>. The dependencies are <code>[&quot;action&quot;, &quot;iterator&quot;]</code>.</p>
 </li>
 <li>
-<p><strong>Set comprehension</strong> — e.g. <code>{action(a) for a in iterator}</code>
-Bound name: <code>a</code>. Dependencies: <code>[&quot;action&quot;, &quot;iterator&quot;]</code>.</p>
+<p><strong>Set comprehension</strong> — for example <code>{action(a) for a in iterator}</code>
+The bound name is <code>a</code>. The dependencies are <code>[&quot;action&quot;, &quot;iterator&quot;]</code>.</p>
 </li>
 <li>
-<p><strong>Dict comprehension</strong> — e.g.</p>
+<p><strong>Dict comprehension</strong> — for example:</p>
 <pre><code>{
     process_key(key): process_value(value)
     for key, value in iterator
 }
 </code></pre>
-<p>Bound names: <code>key</code>, <code>value</code> (tuple target). Dependencies from the key expression, then the value expression, then the iterable: <code>[&quot;process_key&quot;, &quot;process_value&quot;, &quot;iterator&quot;]</code>.</p>
+<p>The bound names are <code>key</code> and <code>value</code> (tuple target). The dependencies are taken from the key expression, then the value expression, then the iterable: <code>[&quot;process_key&quot;, &quot;process_value&quot;, &quot;iterator&quot;]</code>.</p>
 </li>
 </ol>
 <h5>Key point</h5>
-<p>The comprehension's loop target variables (single names or tuple-unpacked names) must be treated as locally bound and therefore must never appear in the returned dependency list, even when those same names are used within the element/key/value expressions.</p>
-<p>Called-function names and iterable names that are not bound by the comprehension must appear in the dependency list.</p>
+<p>The comprehension's loop target variables (single names or tuple-unpacked names) must be handled as locally bound and consequently must never show up in the returned dependency list, even when those same names are used within the element/key/value expressions.</p>
+<p>Names of called functions and names of iterables that are not bound by the comprehension must appear in the dependency list.</p>
 <h4>Output</h4>
-<p><code>_dep_names</code> returns a plain Python <code>list</code> of <code>str</code>, in source order of first appearance, with comprehension-bound target names excluded.</p>
+<p><code>_dep_names</code> returns a plain Python <code>list</code> of <code>str</code>, in order of first appearance in the source, with the target names bound by the comprehension excluded.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Implement dependency-name extraction for Python lambda expressions within an existing AST dependency-analysis module.</span>
-        <span class="spec-meta muted">332 words · source specification
+        <span class="spec-title">Within an existing AST dependency-analysis module, implement dependency-name extraction for Python lambda expressions.</span>
+        <span class="spec-meta muted">340 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Implement dependency-name extraction for Python <code>lambda</code> expressions within an existing AST dependency-analysis module.</p>
-<h4>Background</h4>
-<p>The codebase contains a dependency analyzer that walks a Python Abstract Syntax Tree (AST) node and determines which external names the node depends on. &quot;Dependencies&quot; are the free names referenced by the code that are not defined locally within the analyzed construct.</p>
-<h4>Required Behavior</h4>
-<p>The dependency analyzer must correctly compute the dependency names for a <code>lambda</code> expression node.</p>
-<p>Given a lambda expression, the following names must be treated as <strong>locally bound</strong> (and therefore excluded from the dependency list):</p>
+      <div class="spec-body"><h4>Goal</h4>
+<p>Within an existing AST dependency-analysis module, implement dependency-name extraction for Python <code>lambda</code> expressions.</p>
+<h4>Context</h4>
+<p>The codebase includes a dependency analyzer that traverses a node in a Python Abstract Syntax Tree (AST) and determines which external names that node depends on. &quot;Dependencies&quot; refers to the free names referenced by the code that are not defined locally within the analyzed construct.</p>
+<h4>Behavior Requirements</h4>
+<p>For a <code>lambda</code> expression node, the dependency analyzer must compute the dependency names correctly.</p>
+<p>Given a lambda expression, the following names must be handled as <strong>locally bound</strong> (and therefore left out of the dependency list):</p>
 <ul>
 <li>All positional parameters</li>
 <li>The variadic positional parameter (<code>*args</code>)</li>
 <li>The variadic keyword parameter (<code>**kwargs</code>)</li>
 </ul>
-<p>Any name referenced in the lambda's body that is <strong>not</strong> one of the lambda's own parameters must be reported as a dependency.</p>
-<h5>Concrete Case</h5>
-<p>For the lambda expression:</p>
+<p>Any name referenced within the lambda's body that is <strong>not</strong> one of the lambda's own parameters must be reported as a dependency.</p>
+<h5>Concrete Example</h5>
+<p>Consider the lambda expression:</p>
 <pre><code class="language-python">lambda arg, *args, **kwargs: arg + other(*args) / kwargs
 </code></pre>
-<p>The parameters <code>arg</code>, <code>args</code>, and <code>kwargs</code> are bound by the lambda and must be excluded. The only free name in the body is <code>other</code>, so the computed dependency names must be exactly:</p>
+<p>The lambda binds the parameters <code>arg</code>, <code>args</code>, and <code>kwargs</code>, which must be excluded. <code>other</code> is the only free name in the body, so the computed dependency names must be exactly:</p>
 <pre><code class="language-python">[&quot;other&quot;]
 </code></pre>
-<h4>Existing Infrastructure (already present, do not reimplement)</h4>
-<p>The module already provides internal helpers used to drive the analysis:</p>
+<h4>Infrastructure That Already Exists (do not reimplement)</h4>
+<p>The module already contains internal helpers that are used to drive the analysis:</p>
 <ul>
-<li>A helper that parses a source-code string into an AST expression node (equivalent to <code>_parse(source: str) -&gt; ast.AST</code>), returning the parsed expression node.</li>
-<li>A helper that runs the dependency analyzer on an AST node and returns the resulting list of dependency name strings (equivalent to <code>_dep_names(node: ast.AST) -&gt; list[str]</code>).</li>
+<li>A helper that parses a source-code string into an AST expression node (equivalent to <code>_parse(source: str) -&gt; ast.AST</code>), and returns the parsed expression node.</li>
+<li>A helper that applies the dependency analyzer to an AST node and returns the resulting list of dependency name strings (equivalent to <code>_dep_names(node: ast.AST) -&gt; list[str]</code>).</li>
 </ul>
-<p>Your work is to ensure that when the dependency analyzer encounters a <code>lambda</code> node, it produces the correct set of free-name dependencies as described above, honoring the lambda's positional, <code>*args</code>, and <code>**kwargs</code> parameters as local bindings. The returned value must be a list of name strings.</p>
-<p>The public entry points (<code>_parse</code> and <code>_dep_names</code>) and their signatures must remain callable as described so the analysis can be invoked and its dependency-name list retrieved.</p>
+<p>Your task is to ensure that when the dependency analyzer encounters a <code>lambda</code> node, it produces the correct set of free-name dependencies as set out above, treating the lambda's positional, <code>*args</code>, and <code>**kwargs</code> parameters as local bindings. The value it returns must be a list of name strings.</p>
+<p>The public entry points (<code>_parse</code> and <code>_dep_names</code>) and their signatures must stay callable as described, so that the analysis can be invoked and its dependency-name list retrieved.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Provide a bubble_sort function that is importable from the module ssort._bubble_sort.</span>
-        <span class="spec-meta muted">121 words · source specification
+        <span class="spec-title">The aim is to provide a bubble_sort function that is importable from the module ssort._bubble_sort.</span>
+        <span class="spec-meta muted">137 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Provide a <code>bubble_sort</code> function that is importable from the module <code>ssort._bubble_sort</code>.</p>
-<h4>Required API</h4>
-<p>Create the module <code>ssort/_bubble_sort.py</code> exposing a callable:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>The aim is to provide a <code>bubble_sort</code> function that is importable from the module <code>ssort._bubble_sort</code>.</p>
+<h4>API Requirements</h4>
+<p>The module <code>ssort/_bubble_sort.py</code> must be created so that it exposes a callable:</p>
 <pre><code class="language-python">def bubble_sort(...)
 </code></pre>
-<p>The function must be importable as:</p>
+<p>The function must be importable in the following way:</p>
 <pre><code class="language-python">from ssort._bubble_sort import bubble_sort
 </code></pre>
-<h4>Required Behavior</h4>
-<p>The <code>bubble_sort</code> function must correctly sort input according to a dependency/ordering relationship, including the following case:</p>
+<h4>Behavior Requirements</h4>
+<p>The <code>bubble_sort</code> function must correctly sort input according to a dependency/ordering relationship. This includes the following case:</p>
 <ul>
-<li><strong>Empty input:</strong> When given an empty collection, the function must complete successfully and produce an empty result (no elements, no error).</li>
+<li><strong>Empty input:</strong> When the collection it is given is empty, the function must complete successfully and produce an empty result (no elements, no error).</li>
 </ul>
-<h4>Notes</h4>
+<h4>Remarks</h4>
 <ul>
-<li>If a <code>bubble_sort</code> implementation already exists elsewhere in the codebase (e.g. in <code>ssort/_sorting.py</code>), its behavior must remain available under the new import path <code>ssort._bubble_sort</code>. The public entry point that the caller relies on is <code>ssort._bubble_sort.bubble_sort</code>.</li>
+<li>Should a <code>bubble_sort</code> implementation already exist elsewhere in the codebase (e.g. in <code>ssort/_sorting.py</code>), its behavior must remain available under the new import path <code>ssort._bubble_sort</code>. The public entry point on which the caller relies is <code>ssort._bubble_sort.bubble_sort</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Implement and complete the two AST-analysis APIs that report the names bound by a Python node and the external names on which that node depends.</span>
-        <span class="spec-meta muted">1016 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Two AST-analysis APIs are to be implemented and completed here</span>
+        <span class="spec-meta muted">1184 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement and complete the two AST-analysis APIs that report the names bound by a Python node and the external names on which that node depends. Inputs are nodes produced by Python's standard <code>ast</code> module.</p>
-<p>The attribute and deletion cases described below must integrate with all existing traversal and scope behavior. In particular, dependency results must retain the analyzer's established dependency-record interface; they are not strings.</p>
-<h4>Public API</h4>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>Two AST-analysis APIs are to be implemented and completed here: one reports the names a Python node binds, and the other reports the external names that node depends on. Whatever is passed in takes the form of nodes that Python's standard <code>ast</code> module produced.</p>
+<p>The attribute and deletion cases covered below must integrate with all the traversal and scope behavior that already exists. Notably, dependency results must retain the analyzer's established dependency-record interface — these results are not strings.</p>
+<h4>Public interface</h4>
 <h5><code>get_bindings(node)</code></h5>
-<p><code>get_bindings</code>, available from <code>ssort._bindings</code>, accepts one <code>ast</code> node and returns an iterable of binding names. Every yielded item is a string. The iterable may be lazy, but callers must be able to materialize it with <code>list(...)</code>.</p>
-<p>A binding is a name introduced or assigned in the namespace represented by the node. The returned names follow target/source order.</p>
+<p>For <code>get_bindings</code>, which is available via <code>ssort._bindings</code>, one <code>ast</code> node is accepted, and an iterable of binding names is returned. Every item it yields is a string. The iterable may be lazy; even so, callers must be able to materialize it with <code>list(...)</code>.</p>
+<p>A binding, by definition, is a name that is introduced or assigned within the namespace the node stands for. The names that are returned follow target/source order.</p>
 <h5><code>get_dependencies(node)</code></h5>
-<p><code>get_dependencies</code>, available from <code>ssort._dependencies</code>, accepts one <code>ast</code> node and returns an iterable of dependency records. Each yielded item must use the analyzer's established <code>Dependency</code> record interface and expose the referenced identifier as a string through its <code>.name</code> attribute. Returning bare strings is incompatible with this API.</p>
-<p>Dependency records can also carry source-location, deferred-resolution, and scope information. Recursive and scope-aware analysis must preserve the record type and relevant metadata rather than reducing a dependency to its name.</p>
-<p>For examples in this specification, dependency names are projected as follows:</p>
+<p>As for <code>get_dependencies</code>, available via <code>ssort._dependencies</code>: one <code>ast</code> node is accepted, and an iterable of dependency records is returned. Each item that gets yielded must use the analyzer's established <code>Dependency</code> record interface and must expose the referenced identifier as a string through its <code>.name</code> attribute. This API is incompatible with the return of bare strings.</p>
+<p>Dependency records can additionally carry source-location, deferred-resolution, and scope information. Analysis that is recursive and scope-aware must preserve the record type along with the relevant metadata rather than reducing a dependency to its name.</p>
+<p>Throughout this specification's examples, projection of dependency names happens like this:</p>
 <pre><code class="language-python">def dependency_names(node):
     return [dependency.name for dependency in get_dependencies(node)]
 </code></pre>
-<p>Unless a scope rule suppresses an occurrence, dependency records are emitted in source/traversal order. Repeated references may produce repeated records; results are not required to be deduplicated.</p>
-<h4>Binding Requirements</h4>
+<p>Except where a scope rule suppresses an occurrence, dependency records are emitted in source/traversal order. When a reference occurs repeatedly, repeated records may result; the results are under no requirement to be deduplicated.</p>
+<h4>Binding rules</h4>
 <h5>Deletion</h5>
-<p>An <code>ast.Delete</code> statement never creates a binding. This applies regardless of the number or shape of its targets:</p>
+<p>An <code>ast.Delete</code> statement never results in a binding. This holds no matter how many targets there are or what shape they take:</p>
 <ul>
 <li><code>del something</code> produces <code>[]</code>.</li>
 <li><code>del a, b</code> produces <code>[]</code>.</li>
 <li><code>del a[b:c]</code> produces <code>[]</code>.</li>
 <li><code>del obj.attr</code> produces <code>[]</code>.</li>
 </ul>
-<p>The names involved in deletion may still be dependencies, as specified below.</p>
-<h5>Assignment targets</h5>
-<p>Assignments bind plain name targets and recursively bind names in tuple/starred target patterns, in target order. For example:</p>
+<p>As set out further down, the names appearing in a deletion may nevertheless be dependencies.</p>
+<h5>Targets in assignments</h5>
+<p>Plain name targets get bound by assignments, and names inside tuple/starred target patterns are bound recursively, with target order respected. Examples:</p>
 <ul>
 <li><code>a = b</code> binds <code>[&quot;a&quot;]</code>.</li>
 <li><code>a, *b = c</code> binds <code>[&quot;a&quot;, &quot;b&quot;]</code>.</li>
 </ul>
-<p>An attribute target does not introduce a local name. Consequently, <code>obj.attr = value</code> binds <code>[]</code>. The same principle applies when an attribute target occurs within a larger supported target pattern: the attribute identifier is not emitted as a binding. Subscript targets likewise do not introduce a name.</p>
-<p>This must remain compatible with established binding behavior for other supported statements: function and class definitions bind their declared names; augmented and annotated assignments bind their name targets; import statements bind imported names or aliases; and compound statements continue to expose the bindings collected from their supported targets and suites in their established order.</p>
-<h4>Dependency Requirements</h4>
-<h5>Deletion targets</h5>
-<p>Deletion has no bindings, but evaluating what is to be deleted can require names:</p>
+<p>No local name is introduced by an attribute target. Because of this, <code>obj.attr = value</code> binds <code>[]</code>. The principle is the same when an attribute target appears inside a larger supported target pattern: the attribute identifier does not get emitted as a binding. Subscript targets, in like manner, introduce no name.</p>
+<p>Compatibility with the established binding behavior of the other supported statements must be preserved: declared names are what function and class definitions bind; name targets are bound by augmented and annotated assignments; imported names or aliases are what import statements bind; and compound statements keep exposing, in their established order, the bindings gathered from their supported targets and suites.</p>
+<h4>Dependency rules</h4>
+<h5>Targets of deletions</h5>
+<p>Deletion comes with no bindings, but names can be required in order to evaluate the thing being deleted:</p>
 <ul>
 <li><code>del something</code> has dependency names <code>[&quot;something&quot;]</code>.</li>
 <li><code>del a, b</code> has dependency names <code>[&quot;a&quot;, &quot;b&quot;]</code>.</li>
-<li><code>del a[b:c]</code> has dependency names <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code>: the subscript base is followed by names in the lower, upper, and step expressions that are present.</li>
-<li><code>del obj.attr</code> has dependency names <code>[&quot;obj&quot;]</code>. The <code>Del</code> context on the outer <code>Attribute</code> node must not prevent its base expression from being analyzed.</li>
+<li><code>del a[b:c]</code> has dependency names <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]</code>: after the subscript base come the names found in the lower, upper, and step expressions that are present.</li>
+<li><code>del obj.attr</code> has dependency names <code>[&quot;obj&quot;]</code>. Analysis of its base expression must not be blocked by the <code>Del</code> context that sits on the outer <code>Attribute</code> node.</li>
 </ul>
-<h5>Attribute access</h5>
-<p>For an <code>ast.Attribute</code>, analyze the base expression recursively but never treat the attribute identifier itself as a dependency. This rule applies to nested chains and to supported attribute contexts, including ordinary loads and deletion targets.</p>
-<p>Thus:</p>
+<h5>Accessing attributes</h5>
+<p>When the node is an <code>ast.Attribute</code>, the base expression is analyzed recursively, while the attribute identifier itself is never treated as a dependency. The rule covers nested chains, and it also covers supported attribute contexts — ordinary loads and deletion targets included.</p>
+<p>Concretely:</p>
 <pre><code class="language-python">dependency_names(ast.parse(&quot;obj.attr.method()&quot;).body[0]) == [&quot;obj&quot;]
 </code></pre>
-<p>Neither <code>attr</code> nor <code>method</code> is a dependency. If the base is a more complex expression, dependencies from that base expression are retained in their normal order.</p>
-<h5>Assignment interaction</h5>
-<p>Assignment dependency behavior remains distinct from binding behavior. Ordinary, augmented, and annotated assignments retain their established value-expression analysis: target identifiers are not emitted as reads merely because they are assigned, and an annotation is not itself included by the existing annotated-assignment rule. The new attribute-target binding rule must not suppress dependencies from the assignment's value.</p>
-<h5>Existing traversal and scope compatibility</h5>
-<p>The attribute/deletion behavior must compose with the analyzer's existing externally visible rules, including the following:</p>
+<p><code>attr</code> is not a dependency, and neither is <code>method</code>. If what sits at the base is a more complex expression, the dependencies coming from that base expression are retained in their normal order.</p>
+<h5>Interactions with assignments</h5>
+<p>Binding behavior and assignment dependency behavior stay separate from each other. The established value-expression analysis of ordinary, augmented, and annotated assignments is retained: a target identifier is not emitted as a read merely because it gets assigned, and the annotation itself is not included by the existing annotated-assignment rule. The new attribute-target binding rule must not suppress the dependencies that come from the assignment's value.</p>
+<h5>Composing with the existing traversal and scope behavior</h5>
+<p>The attribute/deletion behavior must compose with the analyzer's existing externally visible rules — the following are among them:</p>
 <ul>
-<li>Expression statements, returns, calls, operators, comparisons, containers, subscripts, slices, <code>await</code>, and <code>yield</code> forms recursively expose dependencies from their supported child expressions. Constants and control-flow-only statements contribute none.</li>
-<li>A call includes dependencies from its callable, positional arguments (including unpacked arguments), and keyword values. Keyword labels and attribute method names are not dependency names.</li>
-<li>Function and lambda parameters shadow same-named references in their bodies. Names bound anywhere in a function body are treated as local for free-name analysis, while decorator dependencies remain visible. Function-body dependencies retain their deferred nature.</li>
-<li><code>global</code> dependencies remain global through nested function analysis. A <code>nonlocal</code> dependency is resolved against an enclosing function binding when one exists and otherwise remains an external dependency of that enclosing scope.</li>
-<li>Class analysis includes dependencies from decorators, base expressions, and externally resolved class-body expressions while respecting class-body binding order and deferred dependencies from methods.</li>
-<li>Loop targets, comprehension targets, and <code>with ... as ...</code> targets shadow corresponding uses in their controlled bodies according to the existing scope rules, while iterator and context expressions still contribute their dependencies.</li>
-<li>Conditional, loop, <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>, and context-manager suites retain their established structural traversal order. Exception type expressions, raised expressions, and assertion messages are analyzed when present.</li>
-<li>Imports have bindings but do not themselves introduce dependency records for imported module/name text.</li>
+<li>The dependencies of supported child expressions are recursively exposed by expression statements, returns, calls, operators, comparisons, containers, subscripts, slices, <code>await</code>, and <code>yield</code> forms. Constants contribute none; the same holds for control-flow-only statements.</li>
+<li>In a call, dependencies are gathered from the callable, the positional arguments (unpacked arguments included), and the keyword values. Keyword labels and attribute method names do not count as dependency names.</li>
+<li>Parameters of functions and lambdas shadow, within their bodies, references bearing the same name. For free-name analysis, any name bound anywhere in a function body is treated as local, while decorator dependencies remain visible. Function-body dependencies keep their deferred nature.</li>
+<li><code>global</code> dependencies stay global when nested function analysis is in play. A <code>nonlocal</code> dependency is resolved against an enclosing function binding when one exists; otherwise, it remains an external dependency of that enclosing scope.</li>
+<li>Dependencies from decorators, base expressions, and externally resolved class-body expressions are included by class analysis, which respects class-body binding order as well as the deferred dependencies that come from methods.</li>
+<li>Under the existing scope rules, loop targets, comprehension targets, and <code>with ... as ...</code> targets shadow the corresponding uses inside the bodies they control; iterator and context expressions still contribute their dependencies.</li>
+<li>The structural traversal order already established for conditional, loop, <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code>, and context-manager suites is retained. Exception type expressions, raised expressions, and assertion messages are analyzed when present.</li>
+<li>Imports have bindings; however, no dependency records are introduced by the imports themselves for the imported module/name text.</li>
 </ul>
-<h4>Edge Cases and Non-Goals</h4>
+<h4>Edge cases and out-of-scope items</h4>
 <ul>
-<li>Attribute identifiers are never emitted as bindings or dependencies. Only dependencies of the attribute's base expression are relevant.</li>
-<li>Deletion never emits bindings, even when deleting a simple name.</li>
-<li>Attribute or subscript assignment does not create a binding for the base object.</li>
-<li>Do not replace dependency records with strings. Consumers obtain names through <code>.name</code> and rely on record metadata during scoped composition.</li>
-<li>These functions analyze an AST node; they do not parse source text themselves. Inputs may be assumed to be valid nodes obtained from <code>ast.parse</code> or equivalent standard AST construction.</li>
-<li>Binding strings and projected dependency names preserve the applicable source/traversal order.</li>
+<li>As bindings or as dependencies, attribute identifiers are never emitted. The only relevant dependencies are those of the attribute's base expression.</li>
+<li>Bindings are never emitted by deletion — not even when the name being deleted is a simple one.</li>
+<li>Assigning to an attribute or a subscript creates no binding for the base object.</li>
+<li>Do not swap out dependency records for strings. It is through <code>.name</code> that consumers obtain names, and they rely on record metadata during scoped composition.</li>
+<li>An AST node is what these functions analyze; source text is not parsed by them. It may be assumed that the inputs are valid nodes that came from <code>ast.parse</code> or from equivalent standard AST construction.</li>
+<li>The applicable source/traversal order is preserved by binding strings and projected dependency names alike.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">You must implement correct handling of Python dictionary literal expressions (AST Dict nodes) in two existing analysis functions</span>
-        <span class="spec-meta muted">432 words · source specification
+        <span class="spec-title">There are two existing analysis functions</span>
+        <span class="spec-meta muted">463 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must implement correct handling of Python dictionary literal expressions (AST <code>Dict</code> nodes) in two existing analysis functions: one that computes <strong>bindings</strong> and one that computes <strong>dependencies</strong> of an AST node.</p>
-<h4>Context</h4>
-<p>The codebase analyzes Python Abstract Syntax Tree (AST) nodes to determine:</p>
+<p>There are two existing analysis functions: one computes the <strong>bindings</strong> of an AST node, and the other computes its <strong>dependencies</strong>. You must make these two functions handle Python dictionary literal expressions (AST <code>Dict</code> nodes) correctly.</p>
+<h4>Background</h4>
+<p>By analyzing Python Abstract Syntax Tree (AST) nodes, the codebase determines:</p>
 <ul>
-<li><strong>Bindings</strong>: names that a node <em>binds</em> / introduces into scope.</li>
-<li><strong>Dependencies</strong>: names that a node <em>depends on</em> / reads from the surrounding scope.</li>
+<li><strong>Bindings</strong>: the names that a node <em>binds</em> / introduces into scope.</li>
+<li><strong>Dependencies</strong>: the names that a node <em>depends on</em> / reads from the surrounding scope.</li>
 </ul>
-<p>A dictionary literal AST node has the structure:</p>
+<p>The AST node representing a dictionary literal has this structure:</p>
 <pre><code>Dict(expr* keys, expr* values)
 </code></pre>
-<p>For dictionary unpacking (e.g. <code>{**values}</code>), the AST represents this as a <code>None</code> entry in <code>keys</code> with the unpacked expression in the corresponding <code>values</code> position.</p>
-<h4>Required Behavior</h4>
-<h5>Bindings for <code>Dict</code> nodes</h5>
-<p>The bindings analysis, when applied to a dictionary literal node, must yield <strong>no bindings</strong> in all cases. This includes:</p>
+<p>In the case of dictionary unpacking (e.g. <code>{**values}</code>), the AST records a <code>None</code> entry in <code>keys</code> and places the unpacked expression in the matching <code>values</code> position.</p>
+<h4>Behavior Requirements</h4>
+<h5>Bindings of <code>Dict</code> nodes</h5>
+<p>For a dictionary literal node, the bindings analysis must yield <strong>no bindings</strong> in all cases. This includes:</p>
 <ul>
-<li>A dictionary with a key/value pair, e.g. <code>{key: value}</code> → no bindings.</li>
-<li>An empty dictionary, e.g. <code>{}</code> → no bindings.</li>
-<li>A dictionary with unpacking, e.g. <code>{**values}</code> → no bindings.</li>
+<li>A dictionary that contains a key/value pair, e.g. <code>{key: value}</code> → no bindings.</li>
+<li>A dictionary that is empty, e.g. <code>{}</code> → no bindings.</li>
+<li>A dictionary that uses unpacking, e.g. <code>{**values}</code> → no bindings.</li>
 </ul>
-<h5>Dependencies for <code>Dict</code> nodes</h5>
-<p>The dependencies analysis, when applied to a dictionary literal node, must report the names read by the node, ordered as encountered:</p>
+<h5>Dependencies of <code>Dict</code> nodes</h5>
+<p>For a dictionary literal node, the dependencies analysis must report the names that the node reads, ordered as encountered:</p>
 <ul>
-<li>A dictionary with a key/value pair, e.g. <code>{key: value}</code> → dependencies are the names appearing in the <strong>values</strong> only. For <code>{key: value}</code>, the resulting dependency name list is <code>[&quot;value&quot;]</code>. (Keys are not reported as dependencies for this case.)</li>
-<li>An empty dictionary, e.g. <code>{}</code> → no dependencies (empty list).</li>
-<li>A dictionary with unpacking, e.g. <code>{**values}</code> → the unpacked expression contributes its name as a dependency. For <code>{**values}</code>, the resulting dependency name list is <code>[&quot;values&quot;]</code>.</li>
+<li>A dictionary that contains a key/value pair, e.g. <code>{key: value}</code> → the dependencies are the names appearing in the <strong>values</strong> only. Given <code>{key: value}</code>, the dependency name list that results is <code>[&quot;value&quot;]</code>. (In this case, keys are not reported as dependencies.)</li>
+<li>A dictionary that is empty, e.g. <code>{}</code> → no dependencies (an empty list).</li>
+<li>A dictionary that uses unpacking, e.g. <code>{**values}</code> → the unpacked expression's name is contributed as a dependency. Given <code>{**values}</code>, the dependency name list that results is <code>[&quot;values&quot;]</code>.</li>
 </ul>
 <h4>Public API</h4>
-<p>The following functions must exist and be importable/callable with the signatures below.</p>
+<p>The functions listed below must exist and be importable/callable with these signatures.</p>
 <h5><code>get_bindings</code></h5>
 <pre><code class="language-python">def get_bindings(node):
     ...
 </code></pre>
 <ul>
 <li><strong>Input</strong>: an AST node.</li>
-<li><strong>Output</strong>: an iterable of binding names. For <code>Dict</code> nodes it must yield nothing (an empty result when materialized into a list).</li>
+<li><strong>Output</strong>: an iterable of binding names. When the node is a <code>Dict</code>, this iterable must yield nothing (an empty result once materialized into a list).</li>
 </ul>
 <h5>Dependency analysis</h5>
-<p>There must be functionality that, given an AST node, produces the ordered list of dependency names for that node. Based on the analysis:</p>
+<p>Functionality is required that, given an AST node, produces the ordered list of dependency names for that node. Per the analysis:</p>
 <ul>
-<li>For <code>{key: value}</code> the dependency names are <code>[&quot;value&quot;]</code>.</li>
-<li>For <code>{}</code> the dependency names are <code>[]</code>.</li>
-<li>For <code>{**values}</code> the dependency names are <code>[&quot;values&quot;]</code>.</li>
+<li>For <code>{key: value}</code>, the dependency names are <code>[&quot;value&quot;]</code>.</li>
+<li>For <code>{}</code>, the dependency names are <code>[]</code>.</li>
+<li>For <code>{**values}</code>, the dependency names are <code>[&quot;values&quot;]</code>.</li>
 </ul>
-<p>The dependency names are the identifier strings referenced (read) by the node, preserving encounter order.</p>
+<p>These dependency names are the identifier strings that the node references (reads), and their encounter order is preserved.</p>
 <h4>Notes</h4>
 <ul>
-<li>Only the behavior described above for dictionary literal nodes is required.</li>
-<li>The parsing of source strings into AST nodes and any surrounding harness already exists; you only need to ensure the binding and dependency analyses handle <code>Dict</code> nodes as specified.</li>
+<li>The behavior described above for dictionary literal nodes is the only behavior that is required.</li>
+<li>Parsing source strings into AST nodes, together with any surrounding harness, already exists; the only thing you need to do is ensure that the binding and dependency analyses handle <code>Dict</code> nodes as specified.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">You must implement correct handling of with statement AST nodes for two existing functions that analyze Python source code</span>
-        <span class="spec-meta muted">522 words · source specification
+        <span class="spec-title">You must implement correct handling of with statement AST nodes in two existing functions that analyze Python source code — a bindings extractor and a…</span>
+        <span class="spec-meta muted">580 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must implement correct handling of <code>with</code> statement AST nodes for two existing functions that analyze Python source code: a bindings extractor and a dependency extractor. Both functions traverse a Python AST and yield names.</p>
-<h4>Context</h4>
-<p>The code parses Python source into an AST (via the standard <code>ast</code> module) and then walks the tree. A helper parses a source string into an AST node (dedenting as needed). The two public functions under test operate on such nodes:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>You must implement correct handling of <code>with</code> statement AST nodes in two existing functions that analyze Python source code — a bindings extractor and a dependency extractor. Both functions walk over a Python AST and yield names.</p>
+<h4>Background</h4>
+<p>Python source is parsed into an AST (via the standard <code>ast</code> module), and the code then walks the tree. A helper takes a source string and parses it into an AST node (dedenting as needed). The two public functions under test operate on nodes of this kind:</p>
 <ul>
-<li><code>get_bindings(node)</code> — returns an iterable (generator) yielding the names that are <em>bound</em> (assigned/introduced into scope) within the given node.</li>
-<li>A dependency extractor whose results are gathered as a list of names representing the <em>free/used</em> names (dependencies) referenced within the given node, in source order.</li>
+<li><code>get_bindings(node)</code> — returns an iterable (generator) which yields the names that are <em>bound</em> (assigned/introduced into scope) inside the given node.</li>
+<li>A dependency extractor whose results are gathered as a list of names which represent the <em>free/used</em> names (dependencies) referenced within the given node, in source order.</li>
 </ul>
-<p>Both functions must correctly recurse into the body of a <code>with</code> statement and into the context-manager expressions of its items.</p>
-<h4><code>with</code> Statement AST Shape</h4>
-<p>A <code>with</code> node has the form:</p>
+<p>Both functions must recurse correctly into the body of a <code>with</code> statement and into the context-manager expressions of its items.</p>
+<h4>AST Shape of the <code>with</code> Statement</h4>
+<p>A <code>with</code> node has this form:</p>
 <pre><code>With(withitem* items, stmt* body, string? type_comment)
 </code></pre>
-<p>Each <code>withitem</code> has:</p>
+<p>Each <code>withitem</code> contains:</p>
 <ul>
-<li>a <code>context_expr</code> (the expression being entered, e.g. <code>A()</code> or <code>chdir(...)</code>)</li>
+<li>a <code>context_expr</code> (the expression that gets entered, e.g. <code>A()</code> or <code>chdir(...)</code>)</li>
 <li>an optional <code>optional_vars</code> (the target of <code>as</code>, e.g. <code>a</code> in <code>with A() as a:</code>)</li>
 </ul>
 <h4>Required Behavior</h4>
 <h5>Bindings (<code>get_bindings</code>)</h5>
-<p>When applied to a <code>with</code> node, <code>get_bindings</code> must yield:</p>
+<p>When a <code>with</code> node is passed to <code>get_bindings</code>, the function must yield:</p>
 <ol>
-<li>Any name bound by a withitem's <code>as</code> target (<code>optional_vars</code>), and</li>
-<li>All names bound anywhere inside the statements of the <code>with</code> body.</li>
+<li>Any name that a withitem's <code>as</code> target (<code>optional_vars</code>) binds, and</li>
+<li>All names that are bound anywhere inside the statements of the <code>with</code> body.</li>
 </ol>
-<p>Names must be yielded in source order.</p>
-<p>Examples of required results:</p>
+<p>The names must be yielded in the order in which they appear in the source.</p>
+<p>Examples of the required results:</p>
 <ul>
 <li>
 <p>For:</p>
@@ -1318,8 +1325,8 @@ Bound name: <code>a</code>. Dependencies: <code>[&quot;action&quot;, &quot;itera
     a()
     b()
 </code></pre>
-<p>yields <code>[&quot;a&quot;]</code>
-(<code>a</code> comes from the <code>as a</code> target; <code>a()</code> and <code>b()</code> are calls, not bindings.)</p>
+<p>the function yields <code>[&quot;a&quot;]</code>
+(<code>a</code> is contributed by the <code>as a</code> target; <code>a()</code> and <code>b()</code> are calls, not bindings.)</p>
 </li>
 <li>
 <p>For:</p>
@@ -1329,18 +1336,18 @@ Bound name: <code>a</code>. Dependencies: <code>[&quot;action&quot;, &quot;itera
         if req.name:
             results.append(req.name)
 </code></pre>
-<p>yields <code>[&quot;requirements&quot;, &quot;req&quot;]</code>
-(<code>requirements</code> from the assignment; <code>req</code> from the <code>for</code> loop target. The withitem here has no <code>as</code> target, so it contributes no binding. Names used but not bound, such as <code>results</code>, are not included.)</p>
+<p>the function yields <code>[&quot;requirements&quot;, &quot;req&quot;]</code>
+(<code>requirements</code> comes from the assignment; <code>req</code> comes from the <code>for</code> loop target. The withitem in this example has no <code>as</code> target, so it contributes no binding. Names that are used but not bound, such as <code>results</code>, are not included.)</p>
 </li>
 </ul>
 <h5>Dependencies (dependency extractor)</h5>
-<p>When applied to a <code>with</code> node, the dependency extractor must include:</p>
+<p>Given a <code>with</code> node, the dependency extractor must include:</p>
 <ol>
-<li>All names used within each withitem's <code>context_expr</code>, and</li>
-<li>All names used within the <code>with</code> body that are not otherwise resolved as local bindings.</li>
+<li>All names used in each withitem's <code>context_expr</code>, and</li>
+<li>All names used in the <code>with</code> body that are not otherwise resolved as local bindings.</li>
 </ol>
-<p>Names must appear in source order, and the same name may appear multiple times (once per use site).</p>
-<p>Example of required result:</p>
+<p>The names must appear in the order in which they occur in the source, and the same name may appear multiple times (once per use site).</p>
+<p>Example of the required result:</p>
 <ul>
 <li>
 <p>For:</p>
@@ -1353,151 +1360,151 @@ Bound name: <code>a</code>. Dependencies: <code>[&quot;action&quot;, &quot;itera
 <p>the dependency names are:</p>
 <pre><code>[&quot;chdir&quot;, &quot;os&quot;, &quot;path&quot;, &quot;parse_requirements&quot;, &quot;path&quot;, &quot;results&quot;]
 </code></pre>
-<p>Explanation of ordering and inclusion:</p>
+<p>Explanation of the ordering and of which names are included:</p>
 <ul>
-<li><code>chdir</code>, <code>os</code>, <code>path</code> come from the context expression <code>chdir(os.path.dirname(path))</code>.</li>
-<li><code>parse_requirements</code> and <code>path</code> come from <code>parse_requirements(path)</code> on the right-hand side of the assignment.</li>
-<li><code>results</code> comes from <code>results.append(req.name)</code>.</li>
-<li>Names bound inside the body (<code>requirements</code>, <code>req</code>) and attribute-access members (<code>values</code>, <code>name</code>, <code>append</code>, <code>dirname</code>) are not dependency names. In particular, <code>requirements.values()</code> and <code>req.name</code> do not contribute <code>requirements</code> or <code>req</code> as dependencies because those names are locally bound within the same scope.</li>
+<li><code>chdir</code>, <code>os</code>, <code>path</code> originate in the context expression <code>chdir(os.path.dirname(path))</code>.</li>
+<li><code>parse_requirements</code> and <code>path</code> originate in <code>parse_requirements(path)</code> on the right-hand side of the assignment.</li>
+<li><code>results</code> originates in <code>results.append(req.name)</code>.</li>
+<li>Names bound inside the body (<code>requirements</code>, <code>req</code>), along with attribute-access members (<code>values</code>, <code>name</code>, <code>append</code>, <code>dirname</code>), are not dependency names. In particular, <code>requirements.values()</code> and <code>req.name</code> do not contribute <code>requirements</code> or <code>req</code> as dependencies, since those names are locally bound within the same scope.</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The order of yielded/returned names must match the source order described above.</li>
-<li>Only the behavior described here for <code>with</code> nodes is in scope. Do not change unrelated behavior.</li>
+<li>The order of the names that are yielded/returned must match the source order described above.</li>
+<li>Only the behavior described here for <code>with</code> nodes is in scope. Do not change behavior that is unrelated.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">Implement or correct the binding-name extraction logic for Python import statements so that dotted (nested) module imports bind only their root module name.</span>
-        <span class="spec-meta muted">254 words · source specification
+        <span class="spec-title">Correct or implement the logic that extracts binding names for Python import statements so that imports of dotted (nested) modules bind only their root…</span>
+        <span class="spec-meta muted">272 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Objective</h4>
-<p>Implement or correct the binding-name extraction logic for Python <code>import</code> statements so that dotted (nested) module imports bind only their root module name.</p>
+<p>Correct or implement the logic that extracts binding names for Python <code>import</code> statements so that imports of dotted (nested) modules bind only their root module name.</p>
 <h4>Public API</h4>
-<p>The function under test is:</p>
+<p>The function being tested is:</p>
 <pre><code class="language-python">get_bindings(node)
 </code></pre>
-<p>It must be importable from the same module currently exposing it (the module already provides <code>get_bindings</code>; no path change is required by this task).</p>
+<p>It must be importable from the module that currently exposes it (that module already provides <code>get_bindings</code>; no change to the path is required by this task).</p>
 <ul>
-<li><strong>Input:</strong> <code>node</code> — an AST node representing a parsed Python statement.</li>
-<li><strong>Output:</strong> an iterable of binding name strings introduced by that statement. Callers may wrap the result in <code>list(...)</code>, so it must be iterable and yield strings in order.</li>
+<li><strong>Input:</strong> <code>node</code> — an AST node that represents a parsed Python statement.</li>
+<li><strong>Output:</strong> an iterable of the binding name strings that the statement introduces. Because callers may wrap the result in <code>list(...)</code>, it must be iterable and yield strings in order.</li>
 </ul>
-<p>A helper for parsing source into a node exists in the test environment; you only need to ensure <code>get_bindings</code> behaves correctly given an AST node produced from a source string.</p>
+<p>A helper that parses source into a node exists in the test environment; you only need to ensure that <code>get_bindings</code> behaves correctly when given an AST node produced from a source string.</p>
 <h4>Required Behavior</h4>
-<p>For an <code>import</code> statement of the form:</p>
+<p>For an <code>import</code> statement that has the form:</p>
 <pre><code class="language-python">import module.submodule
 </code></pre>
-<p><code>get_bindings</code> must yield exactly the root module name:</p>
+<p>in this case <code>get_bindings</code> must yield exactly the root module name:</p>
 <pre><code>[&quot;module&quot;]
 </code></pre>
-<p>That is, when a plain <code>import</code> targets a dotted (nested) module path with no alias, the only name bound in the current namespace is the leftmost (root) component of the dotted path. The remaining components after the first dot must not be included, and the full dotted path must not be included.</p>
+<p>In other words, if a plain <code>import</code> targets a dotted (nested) module path and no alias is given, the only name bound in the current namespace is the leftmost (root) component of the dotted path. The components that remain after the first dot must not be included, and the full dotted path must not be included either.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not alter existing behavior for other statement forms already handled (e.g., simple imports, aliased imports with <code>as</code>, and <code>from ... import ...</code>). Only the dotted-import-without-alias case is the subject of this correction: it must return the root component alone.</li>
+<li>Do not change the existing behavior for other statement forms that are already handled (e.g., simple imports, aliased imports with <code>as</code>, and <code>from ... import ...</code>). This correction concerns only the dotted-import-without-alias case: it must return the root component alone.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">There is a function get_bindings that analyzes a Python AST node representing an assignment and yields the names that the assignment binds.</span>
-        <span class="spec-meta muted">268 words · source specification
+        <span class="spec-title">A function named get_bindings examines a Python AST node representing an assignment and yields the names that the assignment binds.</span>
+        <span class="spec-meta muted">294 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Support List Targets in Binding Extraction</h3>
-<h4>Context</h4>
-<p>There is a function <code>get_bindings</code> that analyzes a Python AST node representing an assignment and yields the names that the assignment binds. It is imported and called as <code>get_bindings(node)</code>, where <code>node</code> is an AST node produced by parsing a Python statement.</p>
-<p>The function returns an iterable of binding name strings. Callers typically wrap the result in <code>list(...)</code>.</p>
-<h4>Required Change</h4>
-<p><code>get_bindings</code> must correctly handle <strong>list literals used as assignment targets</strong>, in the same way it already handles tuple targets.</p>
+      <div class="spec-body"><h3>Task: Support for List Targets in Binding Extraction</h3>
+<h4>Background</h4>
+<p>A function named <code>get_bindings</code> examines a Python AST node representing an assignment and yields the names that the assignment binds. It is imported and called as <code>get_bindings(node)</code>, where <code>node</code> is an AST node obtained by parsing a Python statement.</p>
+<p>The function returns an iterable made up of binding name strings. Callers typically take the result and wrap it in <code>list(...)</code>.</p>
+<h4>Required Modification</h4>
+<p><code>get_bindings</code> must handle <strong>list literals used as assignment targets</strong> correctly, in the same way that it already handles tuple targets.</p>
 <h5>Behavior</h5>
-<p>When the assignment target is a list, each element of the list contributes its bound name(s), in left-to-right order. This must work recursively and must handle starred targets.</p>
-<p>Specifically:</p>
+<p>If the target of an assignment is a list, each element of the list contributes the name(s) it binds, in left-to-right order. This must work recursively, and it must handle starred targets.</p>
+<p>In particular:</p>
 <ol>
 <li>
-<p><strong>Flat list target</strong> — For an assignment whose target is a list of simple names, e.g.:</p>
+<p><strong>Flat list target</strong> — For an assignment in which the target is a list of simple names, for example:</p>
 <pre><code class="language-python">[a, b, [c, d]] = value
 </code></pre>
-<p>the bound names must be yielded in order. Nested lists must be descended into, so the names from the inner list are included in their left-to-right position.
-For the example above, the result is <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]</code>.</p>
+<p>the names that are bound must be yielded in order. Nested lists must be descended into, so that the names coming from the inner list are included in their left-to-right position.
+The result for the example above is <code>[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;]</code>.</p>
 </li>
 <li>
-<p><strong>Starred element in a list target</strong> — For an assignment such as:</p>
+<p><strong>Starred element in a list target</strong> — For an assignment of the form:</p>
 <pre><code class="language-python">[first, *rest] = value
 </code></pre>
-<p>both the plain name and the starred name must be yielded, in order. The starred name is yielded as its bare name (without any prefix).
-For the example above, the result is <code>[&quot;first&quot;, &quot;rest&quot;]</code>.</p>
+<p>the plain name and the starred name must both be yielded, in order. The starred name is yielded as its bare name (that is, without any prefix).
+For the example just given, the result is <code>[&quot;first&quot;, &quot;rest&quot;]</code>.</p>
 </li>
 </ol>
 <h4>Notes</h4>
 <ul>
-<li>The names are yielded as plain strings.</li>
-<li>Order must reflect the left-to-right source order of the targets, including recursion into nested list (and, as already supported, tuple) targets.</li>
+<li>The names are yielded in the form of plain strings.</li>
+<li>The order must reflect the left-to-right source order of the targets, which includes recursion into nested list (and, as already supported, tuple) targets.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You must implement functionality in a Python package named ssort.</span>
-        <span class="spec-meta muted">759 words · source specification
+        <span class="spec-title">Functionality must be implemented in a Python package named ssort.</span>
+        <span class="spec-meta muted">824 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must implement functionality in a Python package named <code>ssort</code>. This package sorts top-level statements in a Python source file so that statements appear after the statements they depend on, while preserving cycles and producing deterministic output. It also involves computing the dependencies (referenced names) of Python AST expression nodes.</p>
-<p>There are two distinct pieces of public behavior to implement:</p>
+<p>Functionality must be implemented in a Python package named <code>ssort</code>. The package sorts the top-level statements in a Python source file so that each statement appears after the statements it depends on, while cycles are preserved and the output is deterministic. The work also covers computing the dependencies (referenced names) of Python AST expression nodes.</p>
+<p>Two distinct pieces of public behavior are to be implemented:</p>
 <ol>
 <li>A top-level <code>ssort</code> function that reorders source code.</li>
 <li>Correct dependency-name extraction for subscript/slice expressions.</li>
 </ol>
 <hr />
 <h4>Part 1: The <code>ssort</code> function</h4>
-<h5>API surface</h5>
-<p>Provide a callable importable as:</p>
+<h5>Public API</h5>
+<p>Expose a callable that can be imported as:</p>
 <pre><code class="language-python">from ssort import ssort
 </code></pre>
-<p>Signature:</p>
+<p>The signature is:</p>
 <pre><code class="language-python">def ssort(source: str) -&gt; str: ...
 </code></pre>
 <h5>Behavior</h5>
-<p><code>ssort</code> takes a string of Python source code and returns a string of Python source code in which the top-level statements have been reordered so that, wherever possible, a statement that defines a name comes before statements that depend on (reference) that name.</p>
+<p><code>ssort</code> accepts a string of Python source code and returns a string of Python source code in which the top-level statements have been rearranged so that, wherever possible, a statement defining a name is positioned before the statements that depend on (reference) that name.</p>
 <p>Detailed requirements:</p>
 <ul>
 <li>
-<p><strong>Empty input.</strong> Given the empty string <code>&quot;&quot;</code>, the function returns <code>&quot;\n&quot;</code>.</p>
+<p><strong>Empty input.</strong> When the input is the empty string <code>&quot;&quot;</code>, the function returns <code>&quot;\n&quot;</code>.</p>
 </li>
 <li>
-<p><strong>Trailing newline normalization.</strong> The returned string always ends with exactly one trailing newline character.</p>
+<p><strong>Trailing newline normalization.</strong> The returned string always finishes with exactly one trailing newline character.</p>
 <ul>
-<li>Input <code>&quot;a = 1&quot;</code> (no trailing newline) returns <code>&quot;a = 1\n&quot;</code>.</li>
-<li>Input <code>&quot;b = 2\n&quot;</code> (already has trailing newline) returns <code>&quot;b = 2\n&quot;</code>.</li>
+<li>The input <code>&quot;a = 1&quot;</code>, which has no trailing newline, returns <code>&quot;a = 1\n&quot;</code>.</li>
+<li>The input <code>&quot;b = 2\n&quot;</code>, which already ends with a trailing newline, returns <code>&quot;b = 2\n&quot;</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Dependency ordering.</strong> Each top-level statement is emitted after the top-level statements that define the names it references, when such an ordering is possible. The relative arrangement is determined by these dependency relationships combined with a deterministic tie-breaking order (see below).</p>
+<p><strong>Dependency ordering.</strong> Every top-level statement is emitted after the top-level statements that define the names it references, whenever such an ordering is possible. How statements are arranged relative to one another is decided by these dependency relationships together with a deterministic tie-breaking order (see below).</p>
 </li>
 <li>
-<p><strong>Cycles are preserved.</strong> When a group of statements mutually depend on one another (directly or transitively), forming a dependency cycle, those statements must be kept and emitted; the cycle must not cause the function to fail. Within a cycle, the statements retain their original relative order. Concretely:</p>
+<p><strong>Cycles are preserved.</strong> If a set of statements depend on one another mutually (directly or transitively), forming a dependency cycle, those statements must be kept and emitted; the cycle must not make the function fail. Inside a cycle, the statements keep their original relative order. Concretely:</p>
 <ul>
-<li>Input:<pre><code>a = b
+<li>Given this input:<pre><code>a = b
 b = c
 c = a
 </code></pre>
-returns the same text unchanged:<pre><code>a = b
+the function returns the same text, unchanged:<pre><code>a = b
 b = c
 c = a
 </code></pre>
 </li>
-<li>Input:<pre><code>a = c
+<li>Given this input:<pre><code>a = c
 b = a
 c = b
 </code></pre>
-returns the same text unchanged:<pre><code>a = c
+the function returns the same text, unchanged:<pre><code>a = c
 b = a
 c = b
 </code></pre>
@@ -1505,49 +1512,49 @@ c = b
 </ul>
 </li>
 <li>
-<p><strong>Statements depending on a cycle.</strong> A statement that depends on names produced within a cycle must be ordered after the members of the cycle it depends on, while cycle members keep their original relative order among themselves. Concretely:</p>
+<p><strong>Statements depending on a cycle.</strong> A statement that depends on names produced inside a cycle must be ordered after the members of the cycle that it depends on, while the members of the cycle keep their original relative order among themselves. Concretely:</p>
 <ul>
-<li>Input:<pre><code>c = a
+<li>Given this input:<pre><code>c = a
 a = b
 b = a
 </code></pre>
-returns:<pre><code>a = b
+the function returns:<pre><code>a = b
 c = a
 b = a
 </code></pre>
-Here <code>a = b</code> and <code>b = a</code> form a cycle and keep their original relative order (<code>a = b</code> before <code>b = a</code>); <code>c = a</code> depends on <code>a</code>, so it is placed after the point where <code>a</code> is available.</li>
+In this example, <code>a = b</code> and <code>b = a</code> make up a cycle and keep their original relative order (<code>a = b</code> before <code>b = a</code>); because <code>c = a</code> depends on <code>a</code>, it is placed after the point at which <code>a</code> becomes available.</li>
 </ul>
 </li>
 <li>
-<p><strong>Determinism.</strong> For a given input, the output is fully deterministic (a fixed, repeatable ordering), including how independent statements and cycle members are arranged.</p>
+<p><strong>Determinism.</strong> Given a particular input, the output is fully deterministic (a fixed, repeatable ordering), including the way independent statements and cycle members are arranged.</p>
 </li>
 </ul>
 <h5>Notes on assignment statements</h5>
-<p>For a simple assignment like <code>x = y</code>, the statement <em>defines</em> the name(s) on the left-hand side (<code>x</code>) and <em>depends on</em> the name(s) referenced on the right-hand side (<code>y</code>). This is the relationship that drives the ordering.</p>
+<p>For a simple assignment such as <code>x = y</code>, the statement <em>defines</em> the name(s) on the left-hand side (<code>x</code>) and <em>depends on</em> the name(s) referenced on the right-hand side (<code>y</code>). It is this relationship that drives the ordering.</p>
 <hr />
-<h4>Part 2: Subscript and slice dependency extraction</h4>
-<p>The package computes the ordered list of names that a Python AST expression node depends on (references). You must ensure this is correct for subscription and slice expressions.</p>
+<h4>Part 2: Dependency extraction for subscripts and slices</h4>
+<p>The package computes the ordered list of names that a given Python AST expression node depends on (references). You must make sure this is correct for subscription and slice expressions.</p>
 <h5>Behavior</h5>
-<p>Given an AST expression node, dependency extraction yields the referenced names <strong>in source order</strong> (left to right as they appear in the expression). For subscript and slice expressions specifically:</p>
+<p>Applied to an AST expression node, dependency extraction yields the referenced names <strong>in source order</strong> (left to right as they appear in the expression). For subscript and slice expressions in particular:</p>
 <ul>
 <li>
-<p>A simple subscription <code>array[key]</code> depends on <code>array</code>, then <code>key</code> → <code>[&quot;array&quot;, &quot;key&quot;]</code>.</p>
+<p>A simple subscription <code>array[key]</code> depends on <code>array</code>, followed by <code>key</code> → <code>[&quot;array&quot;, &quot;key&quot;]</code>.</p>
 </li>
 <li>
-<p>A slice subscription <code>array[start:end]</code> depends on <code>array</code>, then <code>start</code>, then <code>end</code> → <code>[&quot;array&quot;, &quot;start&quot;, &quot;end&quot;]</code>.</p>
+<p>A slice subscription <code>array[start:end]</code> depends on <code>array</code>, followed by <code>start</code> and then <code>end</code> → <code>[&quot;array&quot;, &quot;start&quot;, &quot;end&quot;]</code>.</p>
 </li>
 <li>
-<p>A slice with only an upper bound <code>array[:end]</code> depends on <code>array</code>, then <code>end</code> → <code>[&quot;array&quot;, &quot;end&quot;]</code>.</p>
+<p>A slice that specifies only an upper bound, <code>array[:end]</code>, depends on <code>array</code>, followed by <code>end</code> → <code>[&quot;array&quot;, &quot;end&quot;]</code>.</p>
 </li>
 <li>
-<p>A slice with only a lower bound <code>array[start:]</code> depends on <code>array</code>, then <code>start</code> → <code>[&quot;array&quot;, &quot;start&quot;]</code>.</p>
+<p>A slice that specifies only a lower bound, <code>array[start:]</code>, depends on <code>array</code>, followed by <code>start</code> → <code>[&quot;array&quot;, &quot;start&quot;]</code>.</p>
 </li>
 <li>
-<p>An empty slice <code>array[:]</code> depends only on <code>array</code> → <code>[&quot;array&quot;]</code>.</p>
+<p>For an empty slice <code>array[:]</code>, the only dependency is <code>array</code> → <code>[&quot;array&quot;]</code>.</p>
 </li>
 </ul>
-<p>In all cases, the object being subscripted contributes its dependencies first, followed by the dependencies appearing inside the subscript brackets in left-to-right order. Missing slice components (absent lower/upper bound) contribute no names.</p>
-<p>This dependency extraction must be integrated such that it is exercised through the same mechanism used for other expression types in the package (the module that maps AST nodes to their dependency names). Ensure that the full range of expression node types is handled without error when computing dependencies (non-name-bearing expression constructs simply contribute no additional names).</p>
+<p>In every case, the object being subscripted contributes its dependencies first, and the dependencies appearing inside the subscript brackets follow in left-to-right order. Slice components that are missing (an absent lower/upper bound) contribute no names.</p>
+<p>This dependency extraction must be integrated so that it is exercised through the same mechanism the package applies to other expression types (the module that maps AST nodes to their dependency names). Ensure that dependency computation handles the full range of expression node types without error (expression constructs that do not bear names simply contribute no additional names).</p>
 </div>
     </details>
   </div>

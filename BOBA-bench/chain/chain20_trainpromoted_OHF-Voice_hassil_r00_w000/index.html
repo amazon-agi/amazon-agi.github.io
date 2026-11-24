@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/OHF-Voice/hassil/compare/35832a2526b8b880f0e5fcd24df4fed0d8ceeb8c...0af1b4e0092de92dcbac59a8ea4a658b85169721" target="_blank" rel="noopener" class="mono">35832a2526 … 0af1b4e009</a> · 94 commits by 5 authors over 6 mo (2023-01-31 to 2023-07-25)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 20 test-bearing changes · training split</dd></div>
       <div><dt>Size:</dt><dd>4,911 lines of code in 54 files when the chain starts · over the 20 requests the developers added 1,129 and removed 3,741 lines of code, plus 630 lines of tests (96 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>10.3k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
+      <div><dt>Specifications:</dt><dd>11.3k words · 1 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 19 and symbols introduced by earlier ones to depth 3</dd></div>
     </dl>
   </header>
 </section>
@@ -144,50 +144,51 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">You are working on hassil, a Python library for matching natural-language sentences against intent templates.</span>
-        <span class="spec-meta muted">518 words · source specification
+        <span class="spec-title">You are working on hassil, a Python library that matches natural-language sentences against intent templates.</span>
+        <span class="spec-meta muted">562 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are working on <strong>hassil</strong>, a Python library for matching natural-language sentences against intent templates. Implement the changes described below.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>You are working on <strong>hassil</strong>, a Python library that matches natural-language sentences against intent templates. Carry out the changes described below.</p>
 <h4>Public API Surface</h4>
-<h5><code>parse_sentence</code> importable from package root</h5>
-<p>The function <code>parse_sentence</code> must be importable directly from the top-level package:</p>
+<h5><code>parse_sentence</code> importable from the package root</h5>
+<p><code>parse_sentence</code> must be importable directly from the top-level package:</p>
 <pre><code class="language-python">from hassil import parse_sentence
 </code></pre>
-<p>It must remain importable from <code>hassil.parse</code> as well (existing location). Both import paths must refer to the same callable. It takes a template string and returns a parsed sentence object usable by the matching and sampling functions.</p>
-<h5><code>recognize</code> — new <code>ignore_whitespace</code> parameter</h5>
-<p>The <code>recognize</code> function (importable as it currently is) must accept a new optional keyword argument:</p>
+<p>Importing it from <code>hassil.parse</code> (its existing location) must also continue to work. The two import paths must refer to the same callable. The function takes a template string and returns a parsed sentence object that the matching and sampling functions can use.</p>
+<h5><code>recognize</code> — the new <code>ignore_whitespace</code> parameter</h5>
+<p>The <code>recognize</code> function (importable in its current form) must accept a new optional keyword argument:</p>
 <pre><code class="language-python">recognize(text, intents, ..., ignore_whitespace=False)
 </code></pre>
 <ul>
-<li><code>ignore_whitespace</code> defaults to <code>False</code>, preserving all existing behavior.</li>
-<li>When <code>ignore_whitespace=True</code>, all whitespace is treated as insignificant during matching. That is, whitespace present in the input text and whitespace implied between template tokens is ignored when determining whether the input matches a template.</li>
+<li>The default of <code>ignore_whitespace</code> is <code>False</code>, which preserves all existing behavior.</li>
+<li>When <code>ignore_whitespace=True</code>, all whitespace is treated as insignificant during matching. In other words, whitespace present in the input text as well as whitespace implied between template tokens is ignored when determining whether the input matches a template.</li>
 </ul>
-<p>Concretely, with <code>ignore_whitespace=True</code>, a template such as <code>run [the] test</code> (where <code>[the]</code> is an optional word) must successfully match all of the following inputs:</p>
+<p>To make this concrete: with <code>ignore_whitespace=True</code>, a template such as <code>run [the] test</code> (where <code>[the]</code> is an optional word) must successfully match all of the following inputs:</p>
 <ul>
-<li><code>&quot;runtest&quot;</code> (no spaces, optional word absent)</li>
-<li><code>&quot;runthetest&quot;</code> (no spaces, optional word present)</li>
-<li><code>&quot;r u n t h e t e s t&quot;</code> (arbitrary spaces inserted between every character)</li>
+<li><code>&quot;runtest&quot;</code> (without spaces, optional word absent)</li>
+<li><code>&quot;runthetest&quot;</code> (without spaces, optional word present)</li>
+<li><code>&quot;r u n t h e t e s t&quot;</code> (with arbitrary spaces inserted between every character)</li>
 </ul>
-<p>In each of these cases, <code>recognize</code> must return a non-<code>None</code> result.</p>
-<h4>Behavior That Must Continue to Work</h4>
-<h5>Whitespace normalization in alternatives (default matching)</h5>
-<p>Alternative groups written with irregular internal whitespace must still match correctly under normal (default) matching. For example, the template:</p>
+<p>In each of these cases, the result returned by <code>recognize</code> must be non-<code>None</code>.</p>
+<h4>Behavior That Must Keep Working</h4>
+<h5>Whitespace normalization inside alternatives (default matching)</h5>
+<p>Under normal (default) matching, alternative groups written with irregular internal whitespace must still match correctly. As an example, the template:</p>
 <pre><code>set brightness to ( minimum | lowest)
 </code></pre>
-<p>— note the leading space after <code>(</code> and around the <code>|</code> — must match the input <code>&quot;set brightness to lowest&quot;</code>.</p>
-<h5>Existing recognition behavior</h5>
-<p>Entity-text and number-text recognition must continue to work as before. For example:</p>
+<p>— which has a leading space after <code>(</code> and spaces around the <code>|</code> — must match the input <code>&quot;set brightness to lowest&quot;</code>.</p>
+<h5>Recognition behavior already in place</h5>
+<p>Recognition of entity text and of number text must continue to work as before. For example:</p>
 <ul>
-<li>A template capturing a <code>{name}</code> entity mapped to value <code>&quot;A&quot;</code> from text <code>alpha</code> must, for inputs like <code>&quot;run test alpha now&quot;</code>, <code>&quot;run test alpha&quot;</code>, and <code>&quot;alpha test&quot;</code>, produce a result whose <code>name</code> entity has value <code>&quot;A&quot;</code> and whose captured text stripped of surrounding whitespace equals <code>&quot;alpha&quot;</code>.</li>
-<li>A template capturing a <code>{percentage}</code> entity for <code>50%</code> must, for inputs like <code>&quot;set 50% now&quot;</code>, <code>&quot;set 50%&quot;</code>, and <code>&quot;50% set&quot;</code>, produce a result whose <code>percentage</code> entity has value <code>50</code> and stripped captured text <code>&quot;50%&quot;</code>.</li>
+<li>For a template capturing a <code>{name}</code> entity mapped to the value <code>&quot;A&quot;</code> from the text <code>alpha</code>, inputs like <code>&quot;run test alpha now&quot;</code>, <code>&quot;run test alpha&quot;</code>, and <code>&quot;alpha test&quot;</code> must produce a result in which the <code>name</code> entity has value <code>&quot;A&quot;</code> and the captured text, stripped of surrounding whitespace, equals <code>&quot;alpha&quot;</code>.</li>
+<li>For a template capturing a <code>{percentage}</code> entity for <code>50%</code>, inputs like <code>&quot;set 50% now&quot;</code>, <code>&quot;set 50%&quot;</code>, and <code>&quot;50% set&quot;</code> must produce a result in which the <code>percentage</code> entity has value <code>50</code> and the stripped captured text is <code>&quot;50%&quot;</code>.</li>
 </ul>
-<h4>Sentence Sampling — Nested Optionals</h4>
-<p>The function <code>sample_expression</code> (importable as it currently is) generates all possible concrete sentences a template can match. It must correctly enumerate templates containing multiple/adjacent optional segments.</p>
-<p>For the template:</p>
+<h4>Sampling of Sentences — Nested Optionals</h4>
+<p>The function <code>sample_expression</code> (importable in its current form) generates all possible concrete sentences that a template can match. It must enumerate correctly for templates containing multiple/adjacent optional segments.</p>
+<p>For this template:</p>
 <pre><code>turn [on] [the] light[s]
 </code></pre>
-<p><code>sample_expression(parse_sentence(...))</code> must yield exactly the following set of strings (each optional segment independently present or absent):</p>
+<p><code>sample_expression(parse_sentence(...))</code> must yield exactly the following set of strings (with each optional segment independently present or absent):</p>
 <ul>
 <li><code>&quot;turn light&quot;</code></li>
 <li><code>&quot;turn lights&quot;</code></li>
@@ -198,24 +199,24 @@
 <li><code>&quot;turn on the light&quot;</code></li>
 <li><code>&quot;turn on the lights&quot;</code></li>
 </ul>
-<p>Whitespace in the produced strings must be single-spaced and correctly collapsed where optional words are omitted (no doubled or trailing spaces).</p>
-<p>Existing single-optional and alternative sampling behavior must be preserved (e.g., <code>turn [on] the light</code> and <code>this is (the | a) test</code> enumerate as expected).</p>
+<p>Whitespace in the produced strings must be single-spaced and correctly collapsed where optional words are omitted, with no doubled or trailing spaces.</p>
+<p>The existing sampling behavior for a single optional and for alternatives must be preserved (e.g., <code>turn [on] the light</code> and <code>this is (the | a) test</code> enumerate as expected).</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Add settings Block Support to Intents YAML</span>
-        <span class="spec-meta muted">319 words · source specification
+        <span class="spec-title">Adding settings Block Support to the Intents YAML</span>
+        <span class="spec-meta muted">359 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add <code>settings</code> Block Support to Intents YAML</h3>
-<h4>Objective</h4>
-<p>Extend the intents YAML parsing so that a top-level <code>settings</code> block can specify parsing/matching options. Specifically, a <code>settings</code> block may declare <code>ignore_whitespace</code>, and when set, whitespace is ignored during sentence recognition without needing to pass the option explicitly to the recognition call.</p>
-<h4>Required Behavior</h4>
-<h5>YAML <code>settings</code> block</h5>
-<p>The intents YAML document may contain an optional top-level <code>settings</code> mapping alongside the existing <code>language</code> and <code>intents</code> keys. Within <code>settings</code>, the key <code>ignore_whitespace</code> (boolean) may be provided.</p>
-<p>Example structure:</p>
+      <div class="spec-body"><h3>Task Specification: Adding <code>settings</code> Block Support to the Intents YAML</h3>
+<h4>Goal</h4>
+<p>Extend the parsing of the intents YAML so that parsing/matching options can be specified through a top-level <code>settings</code> block. In particular, a <code>settings</code> block may declare <code>ignore_whitespace</code>, and when it is set, whitespace is ignored during sentence recognition without the option having to be passed explicitly to the recognition call.</p>
+<h4>Behavior Requirements</h4>
+<h5>The <code>settings</code> Block in the YAML</h5>
+<p>An optional top-level <code>settings</code> mapping may appear in the intents YAML document, alongside the already existing <code>language</code> and <code>intents</code> keys. Inside <code>settings</code>, the key <code>ignore_whitespace</code> (boolean) may be supplied.</p>
+<p>Example of the structure:</p>
 <pre><code class="language-yaml">language: &quot;en&quot;
 settings:
   ignore_whitespace: true
@@ -225,106 +226,108 @@ intents:
       - sentences:
           - &quot;run [the] test&quot;
 </code></pre>
-<p>When <code>settings.ignore_whitespace</code> is <code>true</code>, the parsed <code>Intents</code> object must carry this setting so that subsequent recognition ignores whitespace.</p>
-<h5>Recognition using the setting</h5>
-<p>When an <code>Intents</code> object was loaded from YAML whose <code>settings</code> block declared <code>ignore_whitespace: true</code>, calling <code>recognize(sentence, intents)</code> — <strong>without</strong> passing <code>ignore_whitespace</code> — must behave as if whitespace-insensitive matching were requested.</p>
-<p>Concretely, given intents defining a sentence pattern such as <code>&quot;run [the] test&quot;</code>, the following input sentences must all successfully match (return a non-<code>None</code> result) when the loaded intents carry <code>ignore_whitespace: true</code> in their settings:</p>
+<p>When <code>settings.ignore_whitespace</code> is <code>true</code>, the <code>Intents</code> object produced by parsing must carry this setting so that recognition performed afterwards ignores whitespace.</p>
+<h5>Recognition That Uses the Setting</h5>
+<p>When an <code>Intents</code> object has been loaded from YAML whose <code>settings</code> block declared <code>ignore_whitespace: true</code>, a call to <code>recognize(sentence, intents)</code> — <strong>without</strong> supplying <code>ignore_whitespace</code> — must behave as if whitespace-insensitive matching were requested.</p>
+<p>Concretely, given intents that define a sentence pattern such as <code>&quot;run [the] test&quot;</code>, all of the following input sentences must match successfully (they return a non-<code>None</code> result) when the loaded intents carry <code>ignore_whitespace: true</code> in their settings:</p>
 <ul>
 <li><code>&quot;runtest&quot;</code></li>
 <li><code>&quot;runthetest&quot;</code></li>
 <li><code>&quot;r u n t h e t e s t&quot;</code></li>
 </ul>
-<h4>Public API Surface</h4>
+<h4>Public API</h4>
 <ul>
-<li><code>Intents.from_yaml(file)</code> — classmethod that parses the YAML (file object / path as already supported) and returns an <code>Intents</code> instance. It must now also read the optional top-level <code>settings</code> block, including <code>ignore_whitespace</code>, and store it on the returned object.</li>
-<li><code>recognize(sentence, intents)</code> — module-level function. It must honor the <code>ignore_whitespace</code> setting stored on the given <code>intents</code> object when no explicit <code>ignore_whitespace</code> argument is supplied, and return <code>None</code> on no match or a truthy result object on a match.</li>
+<li><code>Intents.from_yaml(file)</code> — a classmethod that parses the YAML (a file object / path, as already supported) and returns an <code>Intents</code> instance. It must now also read the optional top-level <code>settings</code> block, <code>ignore_whitespace</code> included, and store it on the object that is returned.</li>
+<li><code>recognize(sentence, intents)</code> — a module-level function. It must honor the <code>ignore_whitespace</code> setting stored on the given <code>intents</code> object when no explicit <code>ignore_whitespace</code> argument is supplied, and it must return <code>None</code> in the case of no match or a truthy result object in the case of a match.</li>
 </ul>
-<p>The <code>ignore_whitespace</code> keyword argument to <code>recognize</code> remains available; the new behavior is that the setting from the YAML <code>settings</code> block takes effect when the argument is not explicitly provided.</p>
+<p>The <code>ignore_whitespace</code> keyword argument of <code>recognize</code> continues to be available; the new behavior is that, when the argument is not explicitly provided, the setting from the YAML <code>settings</code> block takes effect.</p>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">You are working on a sentence-matching library (Hassil-style intent recognition) that parses template sentences and matches them against input text.</span>
-        <span class="spec-meta muted">506 words · source specification
+        <span class="spec-title">Your work concerns a sentence-matching library (Hassil-style intent recognition) that parses template sentences and matches them against input text.</span>
+        <span class="spec-meta muted">531 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a sentence-matching library (Hassil-style intent recognition) that parses template sentences and matches them against input text. Two behaviors need to be corrected/implemented related to (1) how grouped/alternative word fragments are treated, and (2) how &quot;skip words&quot; interact with whitespace-ignoring matching.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable as described:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>Your work concerns a sentence-matching library (Hassil-style intent recognition) that parses template sentences and matches them against input text. Two behaviors need correcting/implementing: (1) the treatment of grouped/alternative word fragments, and (2) the way &quot;skip words&quot; interact with whitespace-ignoring matching.</p>
+<h4>Public API</h4>
+<p>The items below must be importable and callable as described:</p>
 <ul>
-<li><code>parse_sentence(text: str)</code> — parses a template string into a sentence object (as already used in the library).</li>
-<li><code>is_match(text: str, sentence, *, expansion_rules=None, slot_lists=None) -&gt; bool</code> — returns whether <code>text</code> matches the parsed <code>sentence</code>. (Existing signature; <code>expansion_rules</code> and <code>slot_lists</code> are keyword arguments as already supported.)</li>
-<li><code>recognize(text: str, intents) -&gt; Optional[...]</code> — matches input text against a collection of intents, returning a truthy result on success or <code>None</code> on failure.</li>
-<li><code>Intents.from_yaml(file)</code> — constructs an <code>Intents</code> collection from a YAML stream.</li>
+<li><code>parse_sentence(text: str)</code> — takes a template string and produces a sentence object (already in use within the library).</li>
+<li><code>is_match(text: str, sentence, *, expansion_rules=None, slot_lists=None) -&gt; bool</code> — indicates whether <code>text</code> matches the parsed <code>sentence</code>. (The signature is the existing one; <code>expansion_rules</code> and <code>slot_lists</code> are keyword arguments, as already supported.)</li>
+<li><code>recognize(text: str, intents) -&gt; Optional[...]</code> — compares input text against a collection of intents, returning a truthy result on success or <code>None</code> on failure.</li>
+<li><code>Intents.from_yaml(file)</code> — builds an <code>Intents</code> collection from a YAML stream.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Whitespace is significant by default</h5>
-<p>When <code>ignore_whitespace</code> is not enabled, template matching must require whitespace boundaries to be present in the input where the template has them. Concretely, a template consisting of distinct space-separated words must NOT match an input string that has all whitespace removed.</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Whitespace matters by default</h5>
+<p>If <code>ignore_whitespace</code> is not enabled, template matching must require the input to contain whitespace boundaries wherever the template has them. Concretely, a template made up of distinct space-separated words must NOT match an input string from which all whitespace has been removed.</p>
 <ul>
-<li>Given a template parsed from <code>&quot;this is a test&quot;</code>, the input <code>&quot;thisisatest&quot;</code> must NOT match.</li>
+<li>For a template parsed from <code>&quot;this is a test&quot;</code>, the input <code>&quot;thisisatest&quot;</code> must NOT match.</li>
 </ul>
-<h5>2. Grouped alternatives and optional groups may adjoin surrounding characters without internal whitespace</h5>
-<p>Template parsing must correctly handle alternative groups <code>( ... | ... )</code> and optional groups <code>[ ... ]</code> whose delimiters directly abut adjacent text and whose alternatives are separated by <code>|</code> without surrounding spaces.</p>
+<h5>2. Grouped alternatives and optional groups may sit flush against surrounding characters without internal whitespace</h5>
+<p>Template parsing must handle alternative groups <code>( ... | ... )</code> and optional groups <code>[ ... ]</code> correctly when their delimiters directly abut adjacent text and their alternatives are separated by <code>|</code> without surrounding spaces.</p>
 <ul>
 <li>
-<p>A template parsed from <code>&quot;give me the penn(y|ies)&quot;</code> must match both <code>&quot;give me the penny&quot;</code> and <code>&quot;give me the pennies&quot;</code>. The group attaches directly to the preceding <code>penn</code> with no intervening whitespace, and the alternatives <code>y</code> and <code>ies</code> are separated by <code>|</code> with no surrounding spaces.</p>
+<p>For the template parsed from <code>&quot;give me the penn(y|ies)&quot;</code>, matching must succeed for both <code>&quot;give me the penny&quot;</code> and <code>&quot;give me the pennies&quot;</code>. The group attaches directly to the preceding <code>penn</code> without any intervening whitespace, and the alternatives <code>y</code> and <code>ies</code> are separated by <code>|</code> with no surrounding spaces.</p>
 </li>
 <li>
-<p>Optional groups may include a trailing space inside the brackets to represent optional whitespace. A template parsed from <code>&quot;[the ]kitchen&quot;</code> must match both <code>&quot;the kitchen&quot;</code> and <code>&quot;kitchen&quot;</code>. When used as an expansion rule (e.g. bound to a rule named <code>area</code>) and referenced from a larger template, matching must succeed accordingly — for example, a rule <code>area</code> = <code>&quot;[the ]kitchen&quot;</code> used within a prefix/suffix template must allow input where the optional <code>the </code> is absent (e.g. matching <code>&quot;abc-kitchen-123&quot;</code>).</p>
+<p>An optional group may include a trailing space inside the brackets to stand for optional whitespace. For the template parsed from <code>&quot;[the ]kitchen&quot;</code>, matching must succeed for both <code>&quot;the kitchen&quot;</code> and <code>&quot;kitchen&quot;</code>. When such a template is used as an expansion rule (e.g. bound to a rule named <code>area</code>) and referenced from a larger template, matching must succeed accordingly — for instance, a rule <code>area</code> = <code>&quot;[the ]kitchen&quot;</code> used within a prefix/suffix template must allow input in which the optional <code>the </code> is absent (e.g. matching <code>&quot;abc-kitchen-123&quot;</code>).</p>
 </li>
 </ul>
-<h5>3. Skip words combined with ignore_whitespace</h5>
-<p>When an <code>Intents</code> collection is configured with <code>ignore_whitespace: true</code> and declares one or more <code>skip_words</code>, recognition must ignore those skip words even when they appear adjacent to matched content without whitespace separation.</p>
+<h5>3. Skip words in combination with ignore_whitespace</h5>
+<p>If an <code>Intents</code> collection is configured with <code>ignore_whitespace: true</code> and declares one or more <code>skip_words</code>, recognition must ignore those skip words even when they occur adjacent to matched content with no whitespace separation.</p>
 <ul>
-<li>Given intents configured with <code>ignore_whitespace: true</code>, a single intent whose sentence is <code>&quot;ad&quot;</code>, and a skip word <code>&quot;bc&quot;</code>, the input <code>&quot;abcd&quot;</code> must be recognized successfully (the skip word <code>bc</code> is skipped, leaving <code>ad</code> to match). <code>recognize(&quot;abcd&quot;, intents)</code> must return a non-<code>None</code> result.</li>
+<li>With intents configured with <code>ignore_whitespace: true</code>, a single intent whose sentence is <code>&quot;ad&quot;</code>, and a skip word <code>&quot;bc&quot;</code>, the input <code>&quot;abcd&quot;</code> must be recognized successfully (the skip word <code>bc</code> gets skipped, leaving <code>ad</code> to match). <code>recognize(&quot;abcd&quot;, intents)</code> must return a result that is not <code>None</code>.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>Existing matching behavior for other constructs (optional plurals, expansion rules, slot lists, and whitespace-ignoring recognition without skip words) must remain intact.</li>
-<li>The <code>ignore_whitespace</code> setting continues to allow matching regardless of whitespace differences in input when enabled.</li>
+<li>Matching behavior that already exists for other constructs (optional plurals, expansion rules, slot lists, and whitespace-ignoring recognition without skip words) must stay intact.</li>
+<li>When enabled, the <code>ignore_whitespace</code> setting continues to allow matching regardless of whitespace differences in the input.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">You are working on a Python library for matching natural-language sentences against sentence templates.</span>
-        <span class="spec-meta muted">604 words · source specification
+        <span class="spec-title">You are working on a Python library that matches natural-language sentences against sentence templates.</span>
+        <span class="spec-meta muted">626 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a Python library for matching natural-language sentences against sentence templates. You must ensure that optional-whitespace constructs, expansion rules, and slot lists interact correctly so that certain Dutch-language sentences match a template — including cases where words run together because an optional space is absent.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as described (all currently exist except where behavior must be corrected):</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Overview</h4>
+<p>You are working on a Python library that matches natural-language sentences against sentence templates. You must ensure that optional-whitespace constructs, expansion rules, and slot lists interact correctly, such that certain Dutch-language sentences match a template — including cases in which words run together because an optional space is missing.</p>
+<h4>Public API</h4>
+<p>The following must be importable and callable exactly as described (all of them currently exist, except where behavior must be corrected):</p>
 <ul>
-<li><code>parse_sentence(text: str)</code> — parses a sentence template string and returns a sentence object usable for matching.</li>
-<li><code>is_match(text: str, sentence, *, slot_lists=None, expansion_rules=None) -&gt; bool</code> — returns whether the given input text matches the parsed sentence template, given optional <code>slot_lists</code> and <code>expansion_rules</code> mappings. Returns a truthy value on match.</li>
-<li><code>TextSlotList.from_strings(values, allow_template=False)</code> — constructs a slot list from an iterable of string values. When <code>allow_template=False</code>, the provided strings are treated as literal text rather than as templates.</li>
+<li><code>parse_sentence(text: str)</code> — parses a sentence template string and returns a sentence object that can be used for matching.</li>
+<li><code>is_match(text: str, sentence, *, slot_lists=None, expansion_rules=None) -&gt; bool</code> — returns whether the supplied input text matches the parsed sentence template, given the optional <code>slot_lists</code> and <code>expansion_rules</code> mappings. On a match, the value returned is truthy.</li>
+<li><code>TextSlotList.from_strings(values, allow_template=False)</code> — builds a slot list from an iterable of string values. With <code>allow_template=False</code>, the strings supplied are handled as literal text instead of as templates.</li>
 </ul>
-<p>These must be importable from the module path the library already exposes them from (the same module used by the rest of the library's public interface).</p>
+<p>They must be importable from the module path from which the library already exposes them (i.e., the same module the rest of the library's public interface uses).</p>
 <h4>Template Syntax (as exercised)</h4>
-<p>The parser must support these constructs within a template string:</p>
+<p>Inside a template string, the parser must support the following constructs:</p>
 <ul>
-<li><strong>Optional groups</strong>: <code>[ ... ]</code> — the enclosed content may be present or absent.</li>
-<li><strong>Alternatives</strong>: <code>( a | b | c )</code> — exactly one of the listed alternatives.</li>
-<li><strong>Expansion rule references</strong>: <code>&lt;name&gt;</code> — replaced by the parsed sentence associated with <code>name</code> in the <code>expansion_rules</code> mapping.</li>
-<li><strong>Slot list references</strong>: <code>{name}</code> — matched against the values in the <code>slot_lists</code> mapping under <code>name</code>.</li>
-<li><strong>Optional whitespace</strong>: <code>[ ]</code> — an optional single space. This must match both when a space is present between the surrounding tokens and when no space is present (i.e., the surrounding tokens are directly adjacent / run together).</li>
-<li><strong>Nesting</strong>: alternatives and optional groups may contain literal words, whitespace, expansion-rule references, and slot-list references; expansion rules may themselves resolve to templates containing optional groups and alternatives.</li>
+<li><strong>Optional groups</strong>: <code>[ ... ]</code> — the content enclosed may be present or absent.</li>
+<li><strong>Alternatives</strong>: <code>( a | b | c )</code> — exactly one of the alternatives listed.</li>
+<li><strong>Expansion rule references</strong>: <code>&lt;name&gt;</code> — replaced with the parsed sentence that <code>name</code> is associated with in the <code>expansion_rules</code> mapping.</li>
+<li><strong>Slot list references</strong>: <code>{name}</code> — matched against the values that the <code>slot_lists</code> mapping holds under <code>name</code>.</li>
+<li><strong>Optional whitespace</strong>: <code>[ ]</code> — a single optional space. It must match both when a space is present between the surrounding tokens and when no space is present (i.e., the surrounding tokens are directly adjacent / run together).</li>
+<li><strong>Nesting</strong>: literal words, whitespace, expansion-rule references, and slot-list references may appear inside alternatives and optional groups; expansion rules may themselves resolve to templates that contain optional groups and alternatives.</li>
 </ul>
-<h4>Required Behavior</h4>
-<p>Given a template with an explicit optional-whitespace token <code>[ ]</code> placed between two adjacent references, matching must succeed whether or not a literal space appears at that position in the input text. In particular, when an optional area reference is immediately followed (via <code>[ ]</code>) by a lamp reference, both of the following must be treated as valid matches:</p>
+<h4>Behavior Required</h4>
+<p>If a template has an explicit optional-whitespace token <code>[ ]</code> sitting between two adjacent references, matching must succeed whether or not a literal space occurs at that position in the input text. Specifically, when an optional area reference is immediately followed by a lamp reference (via <code>[ ]</code>), both of the following must be treated as valid matches:</p>
 <ul>
-<li>Input where the two parts are separated by a space (e.g. &quot;... de keuken de lampen ...&quot;).</li>
-<li>Input where the two parts are joined with no separating space (e.g. &quot;... de keukenlampen ...&quot;).</li>
+<li>Input in which the two parts are separated by a space (e.g. &quot;... de keuken de lampen ...&quot;).</li>
+<li>Input in which the two parts are joined with no separating space (e.g. &quot;... de keukenlampen ...&quot;).</li>
 </ul>
-<p>Matching must be case-insensitive with respect to the literal words and slot-list values (input text in mixed/upper case must match lowercase template words and capitalized slot-list values).</p>
-<p>Concretely, using:</p>
+<p>Matching must be case-insensitive for the literal words and the slot-list values (input text in mixed/upper case must match lowercase template words and capitalized slot-list values).</p>
+<p>Concretely, with:</p>
 <ul>
 <li>a template equivalent to <code>&quot;[&lt;doe&gt;] (alle|in) &lt;area&gt;[ ]&lt;lamp&gt; aan [willen | kunnen] [&lt;doe&gt;]&quot;</code>,</li>
-<li>a slot list <code>area</code> built from the literal strings <code>[&quot;Keuken&quot;, &quot;Woonkamer&quot;]</code> with <code>allow_template=False</code>,</li>
+<li>a slot list <code>area</code> constructed from the literal strings <code>[&quot;Keuken&quot;, &quot;Woonkamer&quot;]</code> with <code>allow_template=False</code>,</li>
 <li>expansion rules:
 <ul>
 <li><code>area</code> → <code>&quot;[de|het] {area}&quot;</code></li>
@@ -333,132 +336,133 @@ intents:
 </ul>
 </li>
 </ul>
-<p>both of these input strings must match:</p>
+<p>both of the following input strings must match:</p>
 <ul>
 <li><code>&quot;Mogen in de keuken de lampen aan?&quot;</code></li>
 <li><code>&quot;Mogen in de keukenlampen aan?&quot;</code></li>
 </ul>
-<p>Trailing punctuation such as <code>?</code> in the input must not prevent a match, and unmatched trailing optional groups (e.g. the final <code>[willen | kunnen]</code> and <code>[&lt;doe&gt;]</code>) must be allowed to be absent.</p>
+<p>Trailing punctuation in the input, such as <code>?</code>, must not prevent a match, and trailing optional groups that go unmatched (e.g. the final <code>[willen | kunnen]</code> and <code>[&lt;doe&gt;]</code>) must be allowed to be absent.</p>
 <h4>Scope</h4>
-<p>Do not change the public API names or signatures. The task is to ensure optional-whitespace tokens correctly permit both &quot;space present&quot; and &quot;space absent&quot; matches when situated between references that expand to further tokens, while continuing to support optional groups, alternatives, expansion rules, and literal (non-template) slot lists as described above.</p>
+<p>The public API names and signatures must not be changed. The task is to ensure that optional-whitespace tokens correctly permit both &quot;space present&quot; and &quot;space absent&quot; matches when they are situated between references that expand to further tokens, while support for optional groups, alternatives, expansion rules, and literal (non-template) slot lists continues as described above.</p>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Update the recognition API exposed as recognize from the hassil package (implemented by hassil.recognize.recognize).</span>
-        <span class="spec-meta muted">103 words · source specification
+        <span class="spec-title">Update the recognition API that the hassil package exposes as recognize (implemented by hassil.recognize.recognize).</span>
+        <span class="spec-meta muted">115 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Recognition result context</h4>
-<p>Update the recognition API exposed as <code>recognize</code> from the <code>hassil</code> package (implemented by <code>hassil.recognize.recognize</code>).</p>
-<p>The exercised call shape is:</p>
+      <div class="spec-body"><h4>Context for recognition results</h4>
+<p>Update the recognition API that the <code>hassil</code> package exposes as <code>recognize</code> (implemented by <code>hassil.recognize.recognize</code>).</p>
+<p>The call shape being exercised is:</p>
 <pre><code class="language-python">recognize(text, intents, slot_lists=slot_lists)
 </code></pre>
-<p>A successful recognition returns a <code>RecognizeResult</code> with a public <code>context</code> mapping in addition to its existing <code>entities</code> mapping.</p>
-<p>When an intent match is associated with required context, that matched context must be included in <code>result.context</code>. In particular, recognizing a play intent whose matched required context is:</p>
+<p>A successful recognition returns a <code>RecognizeResult</code> that carries a public <code>context</code> mapping in addition to its existing <code>entities</code> mapping.</p>
+<p>If an intent match has required context associated with it, that matched context must be included in <code>result.context</code>. Specifically, when a play intent is recognized and its matched required context is:</p>
 <pre><code class="language-python">{&quot;domain&quot;: &quot;media_player&quot;}
 </code></pre>
-<p>must produce:</p>
+<p>the recognition must produce:</p>
 <pre><code class="language-python">result.context[&quot;domain&quot;] == &quot;media_player&quot;
 </code></pre>
-<p>The normal recognized slot remains available through <code>result.entities</code>; for the same recognition, the <code>name</code> entity’s value remains <code>&quot;media_player.roku&quot;</code>.</p>
+<p>The normal recognized slot continues to be available via <code>result.entities</code>; for the same recognition, the value of the <code>name</code> entity remains <code>&quot;media_player.roku&quot;</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">You are working on the hassil library, which recognizes intents from natural-language sentences by matching them against templated intent definitions.</span>
-        <span class="spec-meta muted">477 words · source specification
+        <span class="spec-title">The library you will be modifying in this task is hassil, which handles intent recognition by matching natural-language sentences against templated intent…</span>
+        <span class="spec-meta muted">538 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>hassil</code> library, which recognizes intents from natural-language sentences by matching them against templated intent definitions. This task requires adding a new attribute to the object that represents a matched entity, so that callers can access a cleaned-up version of the matched text.</p>
-<h4>Required Change</h4>
-<h5><code>MatchEntity</code> — add a <code>text_clean</code> attribute</h5>
-<p>The object representing a single matched entity (the type <code>hassil</code> stores per entity in a recognition result, accessible via <code>result.entities[&lt;name&gt;]</code>) must expose a new attribute named <code>text_clean</code>.</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>The library you will be modifying in this task is <code>hassil</code>, which handles intent recognition by matching natural-language sentences against templated intent definitions. What the task requires is that an additional attribute be added to the object standing for a matched entity, so that callers can obtain the matched text in a cleaned-up form.</p>
+<h4>Required Modification</h4>
+<h5><code>MatchEntity</code> — a new <code>text_clean</code> attribute</h5>
+<p>A single matched entity is represented by an object; this is the type that <code>hassil</code> stores per entity inside a recognition result, reachable through <code>result.entities[&lt;name&gt;]</code>, and it must expose a new attribute with the name <code>text_clean</code>.</p>
 <ul>
-<li><strong><code>text_clean</code></strong> must contain the matched text for that entity with surrounding whitespace and trailing punctuation removed.</li>
+<li><strong><code>text_clean</code></strong> must hold, for that entity, the matched text once surrounding whitespace and trailing punctuation have been taken away.</li>
 </ul>
-<p>The existing attributes on this object must continue to work:</p>
+<p>The attributes this object already has must keep functioning:</p>
 <ul>
-<li><strong><code>value</code></strong> — the output value associated with the matched list item.</li>
-<li><strong><code>text</code></strong> — the raw matched text (unchanged behavior; may include surrounding whitespace and adjacent punctuation from the input sentence).</li>
+<li><strong><code>value</code></strong> — the output value that goes with the matched list item.</li>
+<li><strong><code>text</code></strong> — the raw matched text (its behavior stays the same; it may carry surrounding whitespace and punctuation adjacent to it from the input sentence).</li>
 </ul>
-<p><code>text_clean</code> is a distinct attribute from <code>text</code>; it is not merely the raw text. It must yield the underlying token/word content with leading and trailing whitespace stripped and with trailing punctuation characters (such as <code>,</code> and <code>!</code>) that were adjacent to the matched text removed, leaving just the core word(s).</p>
-<h4>Recognition Behavior Requirements</h4>
-<p>The public recognition entry point continues to be:</p>
+<p><code>text_clean</code> is a separate attribute from <code>text</code>; it is not simply the raw text. What it must yield is the underlying token/word content: leading and trailing whitespace stripped away, trailing punctuation characters that were adjacent to the matched text (such as <code>,</code> and <code>!</code>) removed, and just the core word(s) left over.</p>
+<h4>Recognition Behavior — Requirements</h4>
+<p>The public entry point for recognition is still:</p>
 <pre><code class="language-python">recognize(sentence: str, intents: Intents) -&gt; Optional[RecognizeResult]
 </code></pre>
-<p>and intents are loaded via:</p>
+<p>and intent loading happens via:</p>
 <pre><code class="language-python">Intents.from_yaml(file_like_object) -&gt; Intents
 </code></pre>
-<p>The recognizer must correctly match sentences even when:</p>
+<p>Even in the situations below, the recognizer must match sentences correctly:</p>
 <ol>
 <li>
-<p><strong>The list value's <code>in</code> text contains trailing whitespace.</strong> A list defined with an <code>in</code> value such as <code>&quot;alpha &quot;</code> (with a trailing space) must still match occurrences of <code>alpha</code> in input sentences, and the resulting matched entity's <code>value</code> must be the configured <code>out</code> value (e.g. <code>&quot;A&quot;</code>).</p>
+<p><strong>Trailing whitespace is present in the list value's <code>in</code> text.</strong> When a list is defined using an <code>in</code> value such as <code>&quot;alpha &quot;</code> (a trailing space included), occurrences of <code>alpha</code> within input sentences must still be matched, and the matched entity that results must have the configured <code>out</code> value as its <code>value</code> (e.g. <code>&quot;A&quot;</code>).</p>
 </li>
 <li>
-<p><strong>The matched word is immediately followed by punctuation in the input sentence.</strong> For a sentence where the entity word is followed directly by punctuation (for example <code>run test alpha, now</code> or <code>run test alpha!</code>), recognition must succeed and the entity must match. In these cases:</p>
+<p><strong>Punctuation in the input sentence comes immediately after the matched word.</strong> If the entity word has punctuation directly after it within a sentence (for example <code>run test alpha, now</code> or <code>run test alpha!</code>), the entity must match and recognition must succeed. In such cases:</p>
 <ul>
-<li>The entity's <code>value</code> must be the configured output value.</li>
-<li>The entity's <code>text_clean</code> must equal the core matched word without the trailing punctuation or surrounding whitespace (e.g. <code>&quot;alpha&quot;</code>), regardless of whether the input had a comma, exclamation mark, or trailing/leading spaces around it.</li>
+<li>The <code>value</code> of the entity must be the output value that was configured.</li>
+<li>The entity's <code>text_clean</code> must equal the core matched word once the trailing punctuation and the surrounding whitespace are gone (e.g. <code>&quot;alpha&quot;</code>), no matter whether the input contained a comma, an exclamation mark, or trailing/leading spaces around it.</li>
 </ul>
 </li>
 </ol>
-<p>For a given intent list defined as:</p>
+<p>Now consider an intent list defined as follows:</p>
 <pre><code class="language-yaml">lists:
   name:
     values:
       - in: &quot;alpha &quot;
         out: &quot;A&quot;
 </code></pre>
-<p>recognizing any of the sentences <code>run test alpha, now</code>, <code>run test alpha!</code>, or <code>alpha test</code> must:</p>
+<p>recognition of any of the sentences <code>run test alpha, now</code>, <code>run test alpha!</code>, or <code>alpha test</code> must:</p>
 <ul>
-<li>return a non-<code>None</code> result,</li>
-<li>produce an entity <code>name</code> whose <code>value</code> is <code>&quot;A&quot;</code>,</li>
-<li>produce that entity's <code>text_clean</code> equal to <code>&quot;alpha&quot;</code>.</li>
+<li>return a result that is non-<code>None</code>,</li>
+<li>produce an entity <code>name</code> for which <code>value</code> is <code>&quot;A&quot;</code>,</li>
+<li>produce, on that entity, a <code>text_clean</code> equal to <code>&quot;alpha&quot;</code>.</li>
 </ul>
-<h4>Packaging Requirement</h4>
-<p>The <code>tests</code> package/directory must be excluded from the distribution so it is not installed as an importable package when the project is built and installed.</p>
+<h4>Requirement on Packaging</h4>
+<p>The <code>tests</code> package/directory must be left out of the distribution, so that it does not end up installed as an importable package once the project has been built and installed.</p>
 <h4>Scope</h4>
-<p>Do not change any other public behavior. Existing attributes and functions must retain their current signatures and semantics.</p>
+<p>Any other public behavior must stay untouched. The current signatures and semantics of existing attributes and functions must be retained.</p>
 </div>
     </details>
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Add Permutation Support to Sentence Template Grouping</span>
-        <span class="spec-meta muted">707 words · source specification
+        <span class="spec-title">Introduce Permutation Support into Sentence Template Grouping</span>
+        <span class="spec-meta muted">783 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Permutation Support to Sentence Template Grouping</h3>
+      <div class="spec-body"><h3>Task Specification: Introduce Permutation Support into Sentence Template Grouping</h3>
 <h4>Overview</h4>
-<p>The codebase parses sentence templates into an expression tree, then matches input text against those templates. You must add support for a new grouping construct — a <strong>permutation group</strong> — that allows the items in a group to match in any order.</p>
-<h4>Background: Existing Grouping Constructs</h4>
-<p>The template parser already supports two grouping delimiters inside parentheses:</p>
+<p>Sentence templates are parsed by this codebase into an expression tree; input text is then matched against those templates. You are required to add support for a new grouping construct — a <strong>permutation group</strong> — under which the items in a group are able to match in any order.</p>
+<h4>Background: Grouping Constructs Already Supported</h4>
+<p>Two grouping delimiters inside parentheses are already supported by the template parser:</p>
 <ul>
-<li><strong>Sequence groups</strong>: items separated by nothing/implicitly are matched in order. e.g. <code>(a b)</code>.</li>
-<li><strong>Alternative groups</strong>: items separated by <code>|</code> match any one of the alternatives. e.g. <code>(a|b)</code>.</li>
+<li><strong>Sequence groups</strong>: the items are separated by nothing/implicitly, so they are matched in order. e.g. <code>(a b)</code>.</li>
+<li><strong>Alternative groups</strong>: <code>|</code> separates the items, and any one of the alternatives is matched. e.g. <code>(a|b)</code>.</li>
 </ul>
-<p>You must add a third:</p>
+<p>A third must be added:</p>
 <ul>
-<li><strong>Permutation groups</strong>: items separated by <code>;</code> (semicolon) that match in <em>any</em> order.</li>
+<li><strong>Permutation groups</strong>: a <code>;</code> (semicolon) separates the items, which then match in <em>any</em> order.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Parsing a permutation group</h5>
-<p>When a parenthesized group contains items separated by the <code>;</code> (semicolon) delimiter, the parser must produce an expression that represents matching those items in <strong>every possible order</strong> (all permutations).</p>
-<p>The parsing entry points are the existing functions used to turn template text into expressions. Specifically:</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Parsing of a permutation group</h5>
+<p>Whenever a parenthesized group has its items separated by the <code>;</code> (semicolon) delimiter, the parser must produce an expression that represents those items being matched in <strong>every possible order</strong> (all permutations).</p>
+<p>Parsing is entered through the existing functions that convert template text into expressions. Specifically:</p>
 <ul>
-<li><code>parse_expression(next_chunk(&quot;(test; test2)&quot;))</code> (from the expression parsing module — the same module that exposes <code>parse_expression</code>, <code>next_chunk</code>, <code>ListReference</code>, and the expression node types) must produce an <strong>alternative</strong> expression whose alternatives are the two orderings of the two segments.</li>
+<li><code>parse_expression(next_chunk(&quot;(test; test2)&quot;))</code>, which comes from the expression parsing module (this is the same module that exposes <code>parse_expression</code>, <code>next_chunk</code>, <code>ListReference</code>, and the expression node types), must produce an <strong>alternative</strong> expression; the two orderings of the two segments are its alternatives.</li>
 </ul>
-<p>Concretely, for the input <code>(test; test2)</code>:</p>
+<p>Here is what happens concretely for the input <code>(test; test2)</code>:</p>
 <ul>
-<li>The group is split on <code>;</code> into two segments. The text before the <code>;</code> is <code>&quot;test&quot;</code>; the text after is <code>&quot; test2&quot;</code> (note: leading whitespace after the semicolon is preserved as part of the segment text — do NOT strip it).</li>
-<li>Each segment becomes a sequence group wrapping its parsed text (a text/word node).</li>
-<li>The result is an <strong>alternative</strong> whose items are one sequence group per permutation. Each permutation is itself a <strong>sequence group</strong> whose items are the per-segment sequence groups arranged in that permutation's order.</li>
+<li>A split on <code>;</code> turns the group into two segments. The text <code>&quot;test&quot;</code> stands before the <code>;</code>; the text <code>&quot; test2&quot;</code> stands after it (note: the leading whitespace after the semicolon stays part of the segment text — do NOT strip it).</li>
+<li>From each segment, a sequence group is formed that wraps its parsed text (a text/word node).</li>
+<li>What you end up with is an <strong>alternative</strong>; one sequence group per permutation makes up its items. Each permutation, in turn, is a <strong>sequence group</strong>, and the items it contains are the per-segment sequence groups laid out in that permutation's order.</li>
 </ul>
-<p>For two segments <code>A</code> (= sequence group containing text <code>&quot;test&quot;</code>) and <code>B</code> (= sequence group containing text <code>&quot; test2&quot;</code>), the produced structure is exactly:</p>
+<p>Take two segments, <code>A</code> (= sequence group containing text <code>&quot;test&quot;</code>) and <code>B</code> (= sequence group containing text <code>&quot; test2&quot;</code>); the structure produced comes out exactly as:</p>
 <pre><code>alternative(
     items=[
         sequence_group(items=[A, B]),
@@ -471,61 +475,61 @@ intents:
 <li><code>A = sequence_group(items=[text_node(text=&quot;test&quot;)])</code></li>
 <li><code>B = sequence_group(items=[text_node(text=&quot; test2&quot;)])</code></li>
 </ul>
-<p>The ordering of the permutations in the alternative's <code>items</code> list must be: the identity order first (<code>[A, B]</code>), then the swapped order (<code>[B, A]</code>).</p>
-<p>Use the existing expression node constructors/types already present in that module: the alternative node (constructed as in the existing alternative-group handling), the sequence-group node (the standard group node), and the text/word node used for literal text. The <code>text</code> fields must contain exactly the substrings described above, including the preserved leading space in the second segment.</p>
-<h5>2. Matching a permutation group</h5>
-<p>When a full sentence template containing a permutation group is parsed with <code>parse_sentence(...)</code> (the existing sentence-parsing function in its current module) and matched against input text with <code>is_match(...)</code> (the existing matching helper), the input must be considered a match if it corresponds to <strong>any</strong> ordering of the permutation group's segments.</p>
-<p>For the template <code>&quot;( in the kitchen ; is there smoke )&quot;</code>:</p>
+<p>In the alternative's <code>items</code> list, the permutations must be ordered like this: first the identity order (<code>[A, B]</code>), after that the swapped order (<code>[B, A]</code>).</p>
+<p>For building the nodes, use the expression node constructors/types that already exist in that module: the alternative node (construct it the way the existing alternative-group handling does), the sequence-group node (the standard group node), and the text/word node that serves for literal text. Exactly the substrings described above — the preserved leading space in the second segment included — are what the <code>text</code> fields must contain.</p>
+<h5>2. Matching of a permutation group</h5>
+<p>Parsing of a full sentence template that contains a permutation group happens with <code>parse_sentence(...)</code> (the sentence-parsing function that already exists in its current module); matching against input text then happens with <code>is_match(...)</code> (the matching helper that already exists). The input must count as a match if it corresponds to <strong>any</strong> ordering of the permutation group's segments.</p>
+<p>With the template <code>&quot;( in the kitchen ; is there smoke )&quot;</code>:</p>
 <ul>
-<li>The input <code>&quot; in the kitchen is there smoke &quot;</code> must match (segments in their written order).</li>
-<li>The input <code>&quot; is there smoke in the kitchen &quot;</code> must match (segments in the reversed order).</li>
+<li>The input <code>&quot; in the kitchen is there smoke &quot;</code> must match (the segments appear in their written order).</li>
+<li>The input <code>&quot; is there smoke in the kitchen &quot;</code> must match (the segments appear in the reversed order).</li>
 </ul>
-<p>Whitespace inside and around the segments must be handled consistently with existing matching behavior, such that both orderings above match the given inputs.</p>
+<p>Handling of whitespace inside and around the segments must stay consistent with existing matching behavior, so that both orderings above match the given inputs.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Do not alter the behavior of existing sequence groups or alternative groups.</li>
-<li>The semicolon <code>;</code> is the delimiter that triggers permutation grouping within a parenthesized group.</li>
-<li>Segment text is preserved verbatim between delimiters (no trimming of leading/trailing whitespace within a segment).</li>
-<li>The permutation expansion enumerates all orderings of the group's segments; for N segments this yields N! orderings as the alternatives.</li>
+<li>The behavior of existing sequence groups or alternative groups must not be altered.</li>
+<li>Within a parenthesized group, it is the semicolon <code>;</code> that acts as the delimiter triggering permutation grouping.</li>
+<li>Between delimiters, segment text is preserved verbatim (a segment undergoes no trimming of its leading/trailing whitespace).</li>
+<li>All orderings of the group's segments get enumerated by the permutation expansion; with N segments, N! orderings result, and these are the alternatives.</li>
 </ul>
-<h4>Public API Surface (must remain importable and callable)</h4>
-<p>All names below already exist except where new behavior is added to them; no new public functions or classes are required — the new behavior is expressed through the existing API:</p>
+<h4>Public API Surface (must stay importable and callable)</h4>
+<p>Every name below already exists, apart from the places where new behavior is added to it; no new public functions or classes are required — the existing API is what carries the new behavior:</p>
 <ul>
 <li>Expression parsing module: <code>parse_expression(chunk)</code>, <code>next_chunk(text)</code>, <code>ListReference</code>, the alternative node type, the sequence/group node type, and the text/word node type.</li>
 <li>Sentence module: <code>parse_sentence(text)</code>.</li>
 <li>Matching helper: <code>is_match(text, sentence)</code>.</li>
 </ul>
-<p>The only functional change is that these functions must now correctly handle the <code>;</code> permutation delimiter as described above.</p>
+<p>That these functions must now correctly handle the <code>;</code> permutation delimiter, as described above, is the only functional change.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">Update permutation parsing and matching through the following public APIs</span>
-        <span class="spec-meta muted">211 words · source specification
+        <span class="spec-title">Permutation parsing and matching must be updated through the following public APIs</span>
+        <span class="spec-meta muted">230 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change: whitespace around permutation items</h4>
-<p>Update permutation parsing and matching through the following public APIs:</p>
+      <div class="spec-body"><h4>Required modification: whitespace around permutation items</h4>
+<p>Permutation parsing and matching must be updated through the following public APIs:</p>
 <ul>
 <li><code>hassil.expression.next_chunk(text: str)</code></li>
 <li><code>hassil.expression.parse_expression(chunk)</code></li>
-<li>Expression model types from <code>hassil.expression</code>: <code>Alternative</code>, <code>Sequence</code>, and <code>TextChunk</code></li>
+<li>The expression model types from <code>hassil.expression</code>: <code>Alternative</code>, <code>Sequence</code>, and <code>TextChunk</code></li>
 <li><code>hassil.parse_sentence(text: str)</code></li>
 <li><code>hassil.is_match(text: str, sentence) -&gt; bool</code></li>
 </ul>
-<h5>Expression structure</h5>
-<p>Parsing the expression:</p>
+<h5>Structure of the expression</h5>
+<p>Parsing this expression:</p>
 <pre><code class="language-text">(test; test2)
 </code></pre>
-<p>must produce an <code>Alternative</code> containing both item orderings.</p>
-<p>Each ordering must be represented as a <code>Sequence</code> with:</p>
+<p>must produce an <code>Alternative</code> that contains both item orderings.</p>
+<p>Each ordering must be represented as a <code>Sequence</code> consisting of:</p>
 <ol>
-<li>A separate <code>TextChunk(text=&quot; &quot;)</code> before the first permutation item.</li>
-<li>A separate <code>TextChunk(text=&quot; &quot;)</code> between the two items.</li>
-<li>A separate <code>TextChunk(text=&quot; &quot;)</code> after the last item.</li>
+<li>A separate <code>TextChunk(text=&quot; &quot;)</code> placed before the first permutation item.</li>
+<li>A separate <code>TextChunk(text=&quot; &quot;)</code> placed between the two items.</li>
+<li>A separate <code>TextChunk(text=&quot; &quot;)</code> placed after the last item.</li>
 </ol>
-<p>Each original item remains wrapped in its own <code>Sequence</code>, and its original text whitespace is preserved. Therefore, the two alternatives must be structurally equivalent to:</p>
+<p>Each original item is still wrapped in its own <code>Sequence</code>, and the whitespace of its original text is preserved. Consequently, the two alternatives must be structurally equivalent to:</p>
 <pre><code class="language-text">Alternative([
     Sequence([
         TextChunk(&quot; &quot;),
@@ -543,45 +547,45 @@ intents:
     ]),
 ])
 </code></pre>
-<p>The leading space in <code>&quot; test2&quot;</code> is retained because it was present in the source expression.</p>
-<h5>Matching behavior</h5>
-<p>For a sentence parsed from:</p>
+<p>The leading space in <code>&quot; test2&quot;</code> is kept because the source expression contained it.</p>
+<h5>Behavior of matching</h5>
+<p>When a sentence is parsed from:</p>
 <pre><code class="language-text">(in the kitchen;is there smoke)
 </code></pre>
-<p><code>is_match</code> must return <code>True</code> for both:</p>
+<p><code>is_match</code> must return <code>True</code> for both of the following:</p>
 <pre><code class="language-text">in the kitchen is there smoke
 </code></pre>
-<p>and:</p>
+<p>as well as:</p>
 <pre><code class="language-text">is there smoke in the kitchen
 </code></pre>
-<p>The input strings do not need leading or trailing whitespace.</p>
+<p>Leading or trailing whitespace is not needed on the input strings.</p>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Expose and support the following public API from the hassil package</span>
-        <span class="spec-meta muted">192 words · source specification
+        <span class="spec-title">From the hassil package, expose and support the following public API</span>
+        <span class="spec-meta muted">204 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change: local expansion rules</h4>
-<p>Expose and support the following public API from the <code>hassil</code> package:</p>
+      <div class="spec-body"><h4>Change required: local expansion rules</h4>
+<p>From the <code>hassil</code> package, expose and support the following public API:</p>
 <ul>
 <li><code>hassil.Intents</code>
 <ul>
-<li>Class method: <code>Intents.from_yaml(yaml_file)</code></li>
-<li><code>yaml_file</code> may be a text file-like object such as <code>io.StringIO</code>.</li>
+<li>Provides the class method <code>Intents.from_yaml(yaml_file)</code></li>
+<li>The <code>yaml_file</code> argument may be a text file-like object such as <code>io.StringIO</code>.</li>
 </ul>
 </li>
 <li><code>hassil.recognize</code>
 <ul>
-<li>Callable as <code>recognize(sentence: str, intents: Intents)</code>.</li>
-<li>On a successful match, returns a non-<code>None</code> result with <code>result.intent.name</code>.</li>
+<li>Can be called as <code>recognize(sentence: str, intents: Intents)</code>.</li>
+<li>When a match succeeds, it returns a non-<code>None</code> result with <code>result.intent.name</code>.</li>
 </ul>
 </li>
 </ul>
-<h5>YAML behavior</h5>
-<p>An intent data entry may define an <code>expansion_rules</code> mapping alongside its <code>sentences</code> list:</p>
+<h5>YAML handling</h5>
+<p>Alongside its <code>sentences</code> list, an intent data entry may define an <code>expansion_rules</code> mapping:</p>
 <pre><code class="language-yaml">intents:
   GetSmokeState:
     data:
@@ -594,8 +598,8 @@ intents:
           - &quot;&lt;verb&gt; &lt;subject&gt; &lt;state&gt; &lt;location&gt;&quot;
           - &quot;&lt;verb&gt; &lt;subject&gt; &lt;location&gt; &lt;state&gt;&quot;
 </code></pre>
-<p>References such as <code>&lt;verb&gt;</code>, <code>&lt;subject&gt;</code>, <code>&lt;state&gt;</code>, and <code>&lt;location&gt;</code> in those sentences must resolve to the expansion rules defined on that data entry.</p>
-<p>A local expansion rule may itself reference a top-level expansion rule, and that top-level rule may reference a list. For example:</p>
+<p>In those sentences, references such as <code>&lt;verb&gt;</code>, <code>&lt;subject&gt;</code>, <code>&lt;state&gt;</code>, and <code>&lt;location&gt;</code> must resolve to the expansion rules defined on that data entry.</p>
+<p>A local expansion rule may itself refer to a top-level expansion rule, and that top-level rule may refer to a list. For example:</p>
 <pre><code class="language-yaml">expansion_rules:
   area: &quot;[the] {area}&quot;
 
@@ -604,23 +608,23 @@ lists:
     values:
       - kitchen
 </code></pre>
-<p>With the complete configuration above, both of these calls must succeed:</p>
+<p>Using the full configuration above, both of these calls must succeed:</p>
 <pre><code class="language-python">recognize(&quot;are the lights on in the kitchen&quot;, intents)
 recognize(&quot;are the lights in the kitchen on&quot;, intents)
 </code></pre>
-<p>Each must return a non-<code>None</code> result whose <code>intent.name</code> is <code>&quot;GetSmokeState&quot;</code>.</p>
+<p>Each of these calls must return a non-<code>None</code> result whose <code>intent.name</code> is <code>&quot;GetSmokeState&quot;</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">The following existing public API must support this behavior</span>
-        <span class="spec-meta muted">137 words · source specification
+        <span class="spec-title">This behavior must be supported by the following existing public API</span>
+        <span class="spec-meta muted">150 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change: recognize sentences containing unmatched list values</h4>
+      <div class="spec-body"><h4>Required change: recognizing sentences that contain unmatched list values</h4>
 <h5>Public API</h5>
-<p>The following existing public API must support this behavior:</p>
+<p>This behavior must be supported by the following existing public API:</p>
 <ul>
 <li><code>hassil.Intents</code>
 <ul>
@@ -630,114 +634,114 @@ recognize(&quot;are the lights in the kitchen on&quot;, intents)
 <li><code>hassil.recognize(sentence, intents)</code></li>
 </ul>
 <h5>Required behavior</h5>
-<p>Given intents loaded from YAML containing:</p>
+<p>Suppose intents have been loaded from YAML that contains:</p>
 <ul>
-<li>an intent sentence template: <code>&quot;turn on {domain} in {area} now&quot;</code></li>
-<li>an <code>area</code> list containing only <code>&quot;kitchen&quot;</code> and <code>&quot;bedroom&quot;</code></li>
-<li>a <code>domain</code> list containing only <code>&quot;lights&quot;</code></li>
+<li>an intent sentence template, namely <code>&quot;turn on {domain} in {area} now&quot;</code></li>
+<li>an <code>area</code> list that contains only <code>&quot;kitchen&quot;</code> and <code>&quot;bedroom&quot;</code></li>
+<li>a <code>domain</code> list that contains only <code>&quot;lights&quot;</code></li>
 </ul>
-<p>calling:</p>
+<p>then the call:</p>
 <pre><code class="language-python">recognize(&quot;turn on fans in living room now&quot;, intents)
 </code></pre>
 <p>must return a non-<code>None</code> recognition result.</p>
-<p>Recognition must therefore remain possible when text occupying list placeholders is absent from the corresponding configured lists, including when multiple placeholders in the same sentence are unmatched:</p>
+<p>Therefore, recognition must remain possible when the text that occupies list placeholders is absent from the corresponding configured lists, including when multiple placeholders in the same sentence are unmatched:</p>
 <ul>
-<li><code>&quot;fans&quot;</code> is not in the <code>domain</code> list.</li>
-<li><code>&quot;living room&quot;</code> is not in the <code>area</code> list.</li>
+<li><code>&quot;fans&quot;</code> does not appear in the <code>domain</code> list.</li>
+<li><code>&quot;living room&quot;</code> does not appear in the <code>area</code> list.</li>
 </ul>
-<p>No additional result fields or unmatched-value representation are required by this change.</p>
+<p>This change requires no additional result fields or unmatched-value representation.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">You must extend the hassil intent recognition library to support unmatched entities — a mechanism that allows a sentence to be recognized even when some of…</span>
-        <span class="spec-meta muted">709 words · source specification
+        <span class="spec-title">You must extend the hassil intent recognition library so that it supports unmatched entities — a mechanism that makes it possible to recognize a sentence…</span>
+        <span class="spec-meta muted">753 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You must extend the <code>hassil</code> intent recognition library to support <strong>unmatched entities</strong> — a mechanism that allows a sentence to be recognized even when some of its entity slots cannot be resolved against the configured slot lists (either text lists or numeric ranges). This behavior must be opt-in via a new parameter.</p>
+<p>You must extend the <code>hassil</code> intent recognition library so that it supports <strong>unmatched entities</strong> — a mechanism that makes it possible to recognize a sentence even when some of its entity slots cannot be resolved against the configured slot lists (either text lists or numeric ranges). This behavior must be opt-in through a new parameter.</p>
 <h4>Public API Surface</h4>
 <h5>New classes in <code>hassil.recognize</code></h5>
-<p>Two new public classes must be importable from the <code>hassil.recognize</code> module:</p>
+<p>It must be possible to import two new public classes from the <code>hassil.recognize</code> module:</p>
 <ol>
 <li>
 <p><strong><code>UnmatchedTextEntity</code></strong></p>
 <ul>
-<li>Represents a named entity slot whose captured text could not be matched to any value in the corresponding text slot list.</li>
-<li>Must be constructible positionally as <code>UnmatchedTextEntity(name, text)</code> where:
+<li>Represents a named entity slot for which the captured text could not be matched to any value in the corresponding text slot list.</li>
+<li>It must be possible to construct it positionally as <code>UnmatchedTextEntity(name, text)</code>, where:
 <ul>
-<li><code>name</code> (str): the entity/slot name.</li>
-<li><code>text</code> (str): the raw captured text for that slot.</li>
+<li><code>name</code> (str): the name of the entity/slot.</li>
+<li><code>text</code> (str): the raw text captured for that slot.</li>
 </ul>
 </li>
-<li>Two instances must compare equal when their <code>name</code> and <code>text</code> are equal.</li>
+<li>When their <code>name</code> and <code>text</code> are equal, two instances must compare equal.</li>
 </ul>
 </li>
 <li>
 <p><strong><code>UnmatchedRangeEntity</code></strong></p>
 <ul>
-<li>Represents a named entity slot whose captured numeric value falls outside the configured numeric range list.</li>
-<li>Must be constructible as <code>UnmatchedRangeEntity(name, value=...)</code> where:
+<li>Represents a named entity slot for which the captured numeric value falls outside the configured numeric range list.</li>
+<li>It must be possible to construct it as <code>UnmatchedRangeEntity(name, value=...)</code>, where:
 <ul>
-<li><code>name</code> (str): the entity/slot name.</li>
-<li><code>value</code> (int): the captured numeric value.</li>
+<li><code>name</code> (str): the name of the entity/slot.</li>
+<li><code>value</code> (int): the numeric value that was captured.</li>
 </ul>
 </li>
-<li>Two instances must compare equal when their <code>name</code> and <code>value</code> are equal.</li>
+<li>When their <code>name</code> and <code>value</code> are equal, two instances must compare equal.</li>
 </ul>
 </li>
 </ol>
 <h5>Modified function: <code>recognize</code></h5>
-<p>The existing <code>hassil.recognize</code> (also re-exported from the top-level <code>hassil</code> package) must accept a new keyword parameter:</p>
+<p>A new keyword parameter must be accepted by the existing <code>hassil.recognize</code> (also re-exported from the top-level <code>hassil</code> package):</p>
 <pre><code>recognize(sentence, intents, ..., allow_unmatched_entities: bool = False)
 </code></pre>
 <ul>
-<li>Default value is <code>False</code>, preserving the current behavior.</li>
-<li>When <code>False</code>: a sentence that contains entity slots which cannot be resolved must <strong>not</strong> match (the function returns <code>None</code>).</li>
-<li>When <code>True</code>: unresolved entity slots do not cause matching to fail; instead each unresolved slot is captured as an unmatched entity, and the sentence is still recognized (the function returns a non-<code>None</code> result).</li>
+<li>The default value is <code>False</code>, which preserves the current behavior.</li>
+<li>When <code>False</code>: a sentence containing entity slots that cannot be resolved must <strong>not</strong> match (the function returns <code>None</code>).</li>
+<li>When <code>True</code>: unresolved entity slots do not make matching fail; instead, each unresolved slot is captured as an unmatched entity, and the sentence is still recognized (the function returns a non-<code>None</code> result).</li>
 </ul>
 <h5>Result object</h5>
-<p>The object returned by <code>recognize</code> must expose an attribute:</p>
+<p>The object that <code>recognize</code> returns must expose an attribute:</p>
 <ul>
-<li><strong><code>unmatched_entities</code></strong>: a mapping (<code>dict</code>) from entity/slot name (str) to the corresponding unmatched-entity object (<code>UnmatchedTextEntity</code> or <code>UnmatchedRangeEntity</code>).
+<li><strong><code>unmatched_entities</code></strong>: a mapping (<code>dict</code>) taking an entity/slot name (str) to the corresponding unmatched-entity object (<code>UnmatchedTextEntity</code> or <code>UnmatchedRangeEntity</code>).
 <ul>
-<li>When no entities are unmatched, this mapping is empty.</li>
+<li>When no entities are unmatched, the mapping is empty.</li>
 </ul>
 </li>
 </ul>
 <h4>Required Behavior</h4>
-<p>Given a sentence template that contains multiple entity slots, where:</p>
+<p>Take a sentence template that contains multiple entity slots, where:</p>
 <ul>
-<li>One or more <strong>text slots</strong> reference a text slot list, and the corresponding text in the input sentence does not match any value in that list.</li>
-<li>A <strong>range slot</strong> references a numeric range list (with a configured minimum and maximum), and the numeric value in the input sentence falls outside that inclusive range.</li>
+<li>One or more <strong>text slots</strong> refer to a text slot list, and the corresponding text in the input sentence does not match any value in that list.</li>
+<li>A <strong>range slot</strong> refers to a numeric range list (with a configured minimum and maximum), and the numeric value in the input sentence falls outside that inclusive range.</li>
 </ul>
 <p>Then:</p>
 <ul>
-<li>With <code>allow_unmatched_entities=False</code>, recognition of that sentence returns <code>None</code>.</li>
-<li>With <code>allow_unmatched_entities=True</code>, recognition returns a result whose <code>unmatched_entities</code> mapping contains exactly one entry per unresolved slot:
+<li>With <code>allow_unmatched_entities=False</code>, recognition returns <code>None</code> for that sentence.</li>
+<li>With <code>allow_unmatched_entities=True</code>, recognition returns a result in which the <code>unmatched_entities</code> mapping holds exactly one entry per unresolved slot:
 <ul>
-<li>Each unresolved <strong>text slot</strong> maps to an <code>UnmatchedTextEntity</code> whose <code>name</code> is the slot name and whose <code>text</code> is the exact substring captured for that slot from the input sentence. This captured text corresponds to the portion of the sentence that filled the slot, including any trailing whitespace that separates it from the following literal text in the template.</li>
-<li>Each unresolved <strong>range slot</strong> maps to an <code>UnmatchedRangeEntity</code> whose <code>name</code> is the slot name and whose <code>value</code> is the integer parsed from the input for that slot.</li>
+<li>Each unresolved <strong>text slot</strong> is mapped to an <code>UnmatchedTextEntity</code> whose <code>name</code> is the slot name and whose <code>text</code> is the exact substring captured from the input sentence for that slot. That captured text corresponds to the part of the sentence that filled the slot, including any trailing whitespace separating it from the following literal text in the template.</li>
+<li>Each unresolved <strong>range slot</strong> is mapped to an <code>UnmatchedRangeEntity</code> whose <code>name</code> is the slot name and whose <code>value</code> is the integer parsed from the input for that slot.</li>
 </ul>
 </li>
 </ul>
 <h5>Concrete example</h5>
-<p>A template like:</p>
+<p>Consider a template like:</p>
 <pre><code>set [all] {domain} in {area} to {percent}% now
 </code></pre>
-<p>with slot lists:</p>
+<p>along with the slot lists:</p>
 <ul>
 <li><code>area</code> = <code>[&quot;living room&quot;, &quot;bedroom&quot;]</code></li>
 <li><code>domain</code> = <code>[&quot;lights&quot;]</code></li>
 <li><code>percent</code> = numeric range from <code>0</code> to <code>100</code></li>
 </ul>
-<p>Recognizing the input:</p>
+<p>Recognizing the following input:</p>
 <pre><code>set fans in living room to 101% now
 </code></pre>
 <ul>
-<li>With <code>allow_unmatched_entities=False</code>: returns <code>None</code> (<code>fans</code> is not a valid <code>domain</code>, and <code>101</code> is out of range).</li>
-<li>With <code>allow_unmatched_entities=True</code>: returns a result with:<pre><code>unmatched_entities == {
+<li>With <code>allow_unmatched_entities=False</code>: <code>None</code> is returned (<code>fans</code> is not a valid <code>domain</code>, and <code>101</code> is out of range).</li>
+<li>With <code>allow_unmatched_entities=True</code>: a result is returned with:<pre><code>unmatched_entities == {
     &quot;domain&quot;: UnmatchedTextEntity(&quot;domain&quot;, &quot;fans &quot;),
     &quot;area&quot;:   UnmatchedTextEntity(&quot;area&quot;, &quot;living room &quot;),
     &quot;percent&quot;: UnmatchedRangeEntity(&quot;percent&quot;, value=101),
@@ -745,69 +749,69 @@ recognize(&quot;are the lights in the kitchen on&quot;, intents)
 </code></pre>
 </li>
 </ul>
-<p>Note that:</p>
+<p>Keep in mind that:</p>
 <ul>
-<li><code>area</code> resolves to <code>&quot;living room&quot;</code> here, which <em>is</em> in the list, yet it is still reported as unmatched — the captured slot text <code>&quot;living room &quot;</code> (with trailing space) is treated as the unmatched value in this scenario. The captured text for text slots includes the trailing whitespace preceding the next literal in the template.</li>
-<li>The out-of-range numeric value <code>101</code> is captured as an integer <code>value</code> on the range entity.</li>
+<li>Here <code>area</code> resolves to <code>&quot;living room&quot;</code>, which <em>is</em> in the list, and yet it is still reported as unmatched — the captured slot text <code>&quot;living room &quot;</code> (with trailing space) is treated as the unmatched value in this scenario. For text slots, the captured text includes the trailing whitespace preceding the next literal in the template.</li>
+<li>On the range entity, the out-of-range numeric value <code>101</code> is captured as an integer <code>value</code>.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>Optional/alternative template constructs (e.g. an optional <code>[all]</code> fragment) must not interfere with capturing the unmatched slot text.</li>
-<li>The <code>recognize_all</code> interface and other existing exports (<code>Intents</code>, <code>TextChunk</code>, <code>TextSlotList</code>) must continue to function as before.</li>
+<li>Optional/alternative template constructs (e.g. an optional <code>[all]</code> fragment) must not interfere with the capture of the unmatched slot text.</li>
+<li>The <code>recognize_all</code> interface and the other existing exports (<code>Intents</code>, <code>TextChunk</code>, <code>TextSlotList</code>) must continue to work as before.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">This codebase implements an intent recognition system that matches natural-language sentences against sentence templates.</span>
-        <span class="spec-meta muted">587 words · source specification
+        <span class="spec-title">An intent recognition system is implemented in this codebase</span>
+        <span class="spec-meta muted">704 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Support unmatched non-numeric input for range list slots</h3>
-<h4>Background</h4>
-<p>This codebase implements an intent recognition system that matches natural-language sentences against sentence templates. Templates reference <em>list slots</em> using <code>{name}</code> placeholders. A list slot may be defined as a <strong>range list</strong> (a numeric range of allowed values, e.g. percentages).</p>
-<p>When recognition is invoked with unmatched entities enabled, the system is allowed to succeed even when some slot placeholders cannot be satisfied by valid input; those slots are reported separately as &quot;unmatched entities&quot; instead of causing recognition to fail.</p>
-<h4>Public API</h4>
-<p>The following API surface must exist and behave as described:</p>
+      <div class="spec-body"><h3>Task: Let range list slots handle unmatched non-numeric input</h3>
+<h4>Overview</h4>
+<p>An intent recognition system is implemented in this codebase; its purpose is to match natural-language sentences against sentence templates. Inside a template, <em>list slots</em> are referred to by way of <code>{name}</code> placeholders. A list slot may also be defined as a <strong>range list</strong> (a numeric range of allowed values, e.g. percentages).</p>
+<p>If recognition is invoked while unmatched entities are enabled, the system is allowed to succeed even when valid input cannot satisfy some of the slot placeholders; those slots are then reported separately as &quot;unmatched entities&quot;, rather than causing recognition to fail.</p>
+<h4>Public API surface</h4>
+<p>The API surface enumerated below must exist, and it must behave in the way described:</p>
 <ul>
 <li>
-<p>Module: <code>hassil.recognize</code> (or wherever <code>recognize</code> currently lives — it must be importable exactly as it is today).</p>
+<p>Module: <code>hassil.recognize</code> (or wherever <code>recognize</code> lives at present — importing it must keep working exactly as it does today).</p>
 <ul>
-<li>Function: <code>recognize(text, intents, allow_unmatched_entities=False, ...)</code> — returns a recognition result object on success, or <code>None</code> on failure.</li>
-<li>The result object must expose an attribute <code>unmatched_entities</code>: a <code>dict</code> mapping slot name (<code>str</code>) to an unmatched-entity object.</li>
+<li>Function: <code>recognize(text, intents, allow_unmatched_entities=False, ...)</code> — on success the value returned is a recognition result object, and on failure it is <code>None</code>.</li>
+<li>An attribute named <code>unmatched_entities</code> must be exposed by the result object; it is a <code>dict</code> mapping a slot name (<code>str</code>) to an unmatched-entity object.</li>
 </ul>
 </li>
 <li>
-<p>Unmatched-entity value types (importable from their current location, e.g. <code>hassil.recognize</code>):</p>
+<p>Value types for unmatched entities (importable from wherever they currently sit, e.g. <code>hassil.recognize</code>):</p>
 <ul>
-<li><code>UnmatchedTextEntity(name: str, text: str)</code> — represents a slot that could not be matched, capturing the raw leftover text. Constructible positionally (<code>UnmatchedTextEntity(&quot;percent&quot;, &quot;blah blah blah &quot;)</code>) and by keyword (<code>text=...</code>), and comparable by value (equality based on <code>name</code> and <code>text</code>).</li>
-<li><code>UnmatchedRangeEntity(name: str, value: int)</code> — represents a range slot whose captured value is numeric but out of the allowed range. Comparable by value (equality based on <code>name</code> and <code>value</code>).</li>
+<li><code>UnmatchedTextEntity(name: str, text: str)</code> — models a slot that could not be matched; the raw leftover text is what it captures. Instances can be constructed positionally (<code>UnmatchedTextEntity(&quot;percent&quot;, &quot;blah blah blah &quot;)</code>) or by keyword (<code>text=...</code>), and they compare by value (their equality is determined by <code>name</code> and <code>text</code>).</li>
+<li><code>UnmatchedRangeEntity(name: str, value: int)</code> — models a range slot whose captured value is a number, but one that lies out of the allowed range. These instances compare by value too (their equality is determined by <code>name</code> and <code>value</code>).</li>
 </ul>
 </li>
 </ul>
-<h4>Required behavior</h4>
-<p>Given a template whose text contains a range-list slot, the recognizer must classify unmatched input for that slot as follows when <code>allow_unmatched_entities=True</code>:</p>
+<h4>Behavior that is required</h4>
+<p>Assume a template that has a range-list slot in its text. Whenever <code>allow_unmatched_entities=True</code>, the recognizer must classify input that goes unmatched on that slot in the following way:</p>
 <ol>
 <li>
-<p><strong>Numeric-but-out-of-range input</strong> → the slot is reported as an <code>UnmatchedRangeEntity</code> whose <code>value</code> is the parsed integer of the captured number.</p>
+<p><strong>Numeric-but-out-of-range input</strong> → an <code>UnmatchedRangeEntity</code> is the report for the slot; its <code>value</code> is the parsed integer of the captured number.</p>
 </li>
 <li>
-<p><strong>Non-numeric input</strong> → the slot is reported as an <code>UnmatchedTextEntity</code> whose <code>text</code> is the captured raw text (including any trailing whitespace that is captured as part of the span).</p>
+<p><strong>Non-numeric input</strong> → an <code>UnmatchedTextEntity</code> is the report for the slot, and its <code>text</code> is the captured raw text (any trailing whitespace that is captured as part of the span is included).</p>
 </li>
 </ol>
-<p>In both cases, other slots in the same template that cannot be matched against their lists are still reported as <code>UnmatchedTextEntity</code> with their captured raw text.</p>
-<h5>Concrete requirements exercised</h5>
-<p>Consider a template equivalent to:</p>
+<p>Both cases have this in common: other slots in the same template that cannot be matched against their lists are still reported as <code>UnmatchedTextEntity</code>, together with the raw text captured for them.</p>
+<h5>Requirements exercised on a concrete example</h5>
+<p>Take a template that is equivalent to the following:</p>
 <pre><code>set [all] {domain} in {area} to {percent}[%] now
 </code></pre>
-<p>where <code>domain</code> and <code>area</code> are text/values list slots, and <code>percent</code> is a range list (integer range with a defined min/max), and the literal <code>%</code> following <code>{percent}</code> is optional.</p>
+<p>In this template, <code>domain</code> and <code>area</code> are text/values list slots; <code>percent</code> is a range list (an integer range with a defined min/max); and the literal <code>%</code> following <code>{percent}</code> is optional.</p>
 <ul>
 <li>
-<p>With <code>allow_unmatched_entities=False</code>, a sentence supplying a numeric <code>percent</code> value outside the range (e.g. <code>set fans in living room to 101% now</code>, where 101 exceeds the range) must <strong>not</strong> match (<code>recognize</code> returns <code>None</code>).</p>
+<p>For <code>allow_unmatched_entities=False</code>, a sentence that gives <code>percent</code> a numeric value outside the range (e.g. <code>set fans in living room to 101% now</code>, where 101 exceeds the range) must <strong>not</strong> match; in that situation, <code>recognize</code> returns <code>None</code>.</p>
 </li>
 <li>
-<p>With <code>allow_unmatched_entities=True</code>, that same sentence must match, producing <code>unmatched_entities</code> equal to:</p>
+<p>For <code>allow_unmatched_entities=True</code>, the very same sentence must match, and the <code>unmatched_entities</code> produced are equal to:</p>
 <ul>
 <li><code>domain</code> → <code>UnmatchedTextEntity(&quot;domain&quot;, &quot;fans &quot;)</code></li>
 <li><code>area</code> → <code>UnmatchedTextEntity(&quot;area&quot;, &quot;living room &quot;)</code></li>
@@ -815,481 +819,485 @@ recognize(&quot;are the lights in the kitchen on&quot;, intents)
 </ul>
 </li>
 <li>
-<p>With <code>allow_unmatched_entities=True</code>, a sentence where the <code>percent</code> slot receives non-numeric text (e.g. <code>set all lights in kitchen to blah blah blah now</code>, where <code>domain</code> and <code>area</code> correspond to valid list values <code>lights</code> and <code>kitchen</code>, and the optional <code>%</code> is absent) must match, producing <code>unmatched_entities</code> equal to:</p>
+<p>Again with <code>allow_unmatched_entities=True</code>: matching must succeed for a sentence that puts non-numeric text into the <code>percent</code> slot (e.g. <code>set all lights in kitchen to blah blah blah now</code>, where <code>domain</code> and <code>area</code> correspond to the valid list values <code>lights</code> and <code>kitchen</code>, and the optional <code>%</code> is absent), and the <code>unmatched_entities</code> produced are equal to:</p>
 <ul>
 <li><code>percent</code> → <code>UnmatchedTextEntity(&quot;percent&quot;, text=&quot;blah blah blah &quot;)</code></li>
 </ul>
-<p>(Note: <code>domain</code> and <code>area</code> are matched normally here and therefore do <strong>not</strong> appear in <code>unmatched_entities</code>.)</p>
+<p>(Note: <code>domain</code> and <code>area</code> are matched the normal way in this scenario, and therefore do <strong>not</strong> appear in <code>unmatched_entities</code>.)</p>
 </li>
 </ul>
-<h4>Summary of the change</h4>
-<p>Previously, a range-list slot could only produce an unmatched entity when its captured input was a number out of range. The recognizer must now also handle the case where the captured input for a range-list slot is <strong>not a number at all</strong>, treating it like any other unmatched text slot and reporting it as an <code>UnmatchedTextEntity</code> carrying the raw captured text.</p>
+<h4>What the change does</h4>
+<p>Before this change, an unmatched entity could come out of a range-list slot only in cases where the slot's captured input was a number that fell outside the range. The recognizer must now also cover the case in which the captured input for a range-list slot is <strong>not a number at all</strong>; input of that kind gets treated like any other unmatched text slot, and it is reported as an <code>UnmatchedTextEntity</code> that carries the raw captured text.</p>
 </div>
     </details>
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Extend the hassil intent-recognition library to support wildcard slot lists.</span>
-        <span class="spec-meta muted">439 words · source specification
+        <span class="spec-title">Extend the hassil intent-recognition library so that it supports wildcard slot lists.</span>
+        <span class="spec-meta muted">454 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add Wildcard Slot List Support to <code>hassil</code></h3>
-<h4>Overview</h4>
-<p>Extend the <code>hassil</code> intent-recognition library to support <strong>wildcard</strong> slot lists. A wildcard slot list matches arbitrary text in the input sentence at the position where the corresponding slot reference <code>{name}</code> appears, rather than matching against a fixed set of known values.</p>
-<h4>Slot List Definition</h4>
-<p>Slot lists are declared under the top-level <code>lists:</code> key of an intents YAML document. In addition to the existing slot list forms, a slot list must be able to be declared as a wildcard using the following form:</p>
+      <div class="spec-body"><h3>Task: Add Support for Wildcard Slot Lists in <code>hassil</code></h3>
+<h4>Summary</h4>
+<p>Extend the <code>hassil</code> intent-recognition library so that it supports <strong>wildcard</strong> slot lists. Rather than matching against a fixed set of known values, a wildcard slot list matches arbitrary text in the input sentence at the position where the corresponding slot reference <code>{name}</code> appears.</p>
+<h4>Defining Slot Lists</h4>
+<p>Slot lists are declared beneath the top-level <code>lists:</code> key of an intents YAML document. Besides the existing slot list forms, it must be possible to declare a slot list as a wildcard using the following form:</p>
 <pre><code class="language-yaml">lists:
   album:
     wildcard: true
 </code></pre>
-<p>A slot list whose mapping contains <code>wildcard: true</code> is a wildcard list. When a sentence template references such a list via <code>{album}</code>, the reference must consume arbitrary text from the input at that position.</p>
+<p>A slot list is a wildcard list if its mapping contains <code>wildcard: true</code>. Whenever a sentence template references such a list via <code>{album}</code>, arbitrary text from the input must be consumed by the reference at that position.</p>
 <h4>YAML Parsing</h4>
-<p><code>Intents.from_yaml(...)</code> (in the <code>hassil</code> package, accessible as <code>from hassil import Intents</code>) must accept and parse the wildcard slot list form shown above without error, producing an <code>Intents</code> object that can be used for recognition.</p>
+<p>The wildcard slot list form shown above must be accepted and parsed without error by <code>Intents.from_yaml(...)</code> (in the <code>hassil</code> package, accessible as <code>from hassil import Intents</code>), producing an <code>Intents</code> object that can be used for recognition.</p>
 <h4>Recognition Behavior</h4>
-<p>The function <code>recognize(sentence, intents, allow_unmatched_entities=True)</code> (accessible as <code>from hassil import recognize</code>) must recognize sentences whose templates reference wildcard slot lists.</p>
-<p>Given:</p>
+<p>Sentences whose templates reference wildcard slot lists must be recognized by the function <code>recognize(sentence, intents, allow_unmatched_entities=True)</code> (accessible as <code>from hassil import recognize</code>).</p>
+<p>Given the following:</p>
 <ul>
 <li>A template such as <code>&quot;play {album} by {artist} [please] now&quot;</code>, where <code>album</code> and <code>artist</code> are wildcard lists (and <code>[please]</code> is optional text).</li>
 <li>An input sentence such as <code>&quot;play the white album by the beatles please now&quot;</code>.</li>
 </ul>
-<p>Recognition must succeed (return a non-<code>None</code> result), and the wildcard slots must be populated with the spans of input text that fall between the surrounding fixed literals of the template. Specifically:</p>
+<p>Recognition must succeed (return a result that is not <code>None</code>), and the wildcard slots must be populated with the spans of input text that lie between the surrounding fixed literals of the template. Specifically:</p>
 <ul>
-<li>The wildcard slot named <code>album</code> must capture the text between <code>play </code> and <code> by</code>, yielding the value <code>&quot;the white album &quot;</code>.</li>
-<li>The wildcard slot named <code>artist</code> must capture the text between <code>by </code> and the following portion of the template, yielding the value <code>&quot;the beatles &quot;</code>.</li>
+<li>The wildcard slot named <code>album</code> must capture the text lying between <code>play </code> and <code> by</code>, yielding the value <code>&quot;the white album &quot;</code>.</li>
+<li>The wildcard slot named <code>artist</code> must capture the text lying between <code>by </code> and the portion of the template that follows, yielding the value <code>&quot;the beatles &quot;</code>.</li>
 </ul>
-<p>The captured wildcard text is exposed on the recognition result as <code>result.entities[name].value</code>, where <code>result.entities</code> is a mapping of slot name to a matched-entity object exposing a <code>.value</code> attribute holding the captured string (including any trailing whitespace, as shown by the expected values above).</p>
-<p>Each wildcard must capture the minimal text needed so that the remaining literal portions of the template (<code>by</code>, the optional <code>please</code>, and <code>now</code>) still match the rest of the sentence.</p>
+<p>The recognition result exposes the captured wildcard text as <code>result.entities[name].value</code>, where <code>result.entities</code> is a mapping from slot name to a matched-entity object that exposes a <code>.value</code> attribute holding the captured string (including any trailing whitespace, as the expected values above show).</p>
+<p>Each wildcard must capture the minimal text necessary so that the template's remaining literal portions (<code>by</code>, the optional <code>please</code>, and <code>now</code>) still match the rest of the sentence.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Existing recognition behavior for non-wildcard slot lists, text slot lists, range slot lists, unmatched entities (via <code>allow_unmatched_entities</code>), and expansion rules must continue to work unchanged.</li>
-<li>The public import surface used must remain valid: <code>Intents</code>, <code>recognize</code>, <code>recognize_all</code> from <code>hassil</code>; <code>TextChunk</code> from <code>hassil.expression</code>; <code>TextSlotList</code> from <code>hassil.intents</code>; and <code>UnmatchedTextEntity</code>, <code>UnmatchedRangeEntity</code> from <code>hassil.recognize</code>.</li>
+<li>For non-wildcard slot lists, text slot lists, range slot lists, unmatched entities (via <code>allow_unmatched_entities</code>), and expansion rules, the existing recognition behavior must continue to work unchanged.</li>
+<li>The public import surface that is used must remain valid: <code>Intents</code>, <code>recognize</code>, <code>recognize_all</code> from <code>hassil</code>; <code>TextChunk</code> from <code>hassil.expression</code>; <code>TextSlotList</code> from <code>hassil.intents</code>; and <code>UnmatchedTextEntity</code>, <code>UnmatchedRangeEntity</code> from <code>hassil.recognize</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">Modify the sentence recognition logic in the intent-matching library so that wildcard entities cannot match empty text.</span>
-        <span class="spec-meta muted">479 words · source specification
+        <span class="spec-title">Adjust the sentence recognition logic in the intent-matching library so that wildcard entities cannot match empty text.</span>
+        <span class="spec-meta muted">505 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the sentence recognition logic in the intent-matching library so that <strong>wildcard entities cannot match empty text</strong>. A wildcard must capture at least one non-empty span of text to be considered a valid match.</p>
-<h4>Public API</h4>
-<p>The following API surface must be importable and callable as described:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Adjust the sentence recognition logic in the intent-matching library so that <strong>wildcard entities cannot match empty text</strong>. For a wildcard to be considered a valid match, it must capture at least one non-empty span of text.</p>
+<h4>Public API Surface</h4>
+<p>The API surface given below must be importable and callable as described:</p>
 <ul>
-<li><code>recognize(text: str, intents, *, allow_unmatched_entities: bool = False)</code> — attempts to recognize an intent from an input sentence given a set of intent definitions. Returns a result object on success or <code>None</code> if no intent matches.</li>
-<li><code>Intents.from_yaml(file)</code> — loads intent definitions from a YAML source (file object / stream).</li>
-<li>The result object returned by <code>recognize</code> (on success) exposes:
+<li><code>recognize(text: str, intents, *, allow_unmatched_entities: bool = False)</code> — tries to recognize an intent from an input sentence, given a set of intent definitions. It returns a result object on success, or <code>None</code> if no intent matches.</li>
+<li><code>Intents.from_yaml(file)</code> — loads intent definitions out of a YAML source (file object / stream).</li>
+<li>The object that <code>recognize</code> returns (on success) exposes:
 <ul>
-<li><code>.entities</code> — a mapping of entity name → entity object, where each entity object has a <code>.value</code> attribute.</li>
-<li><code>.unmatched_entities</code> — a mapping of entity name → unmatched entity object.</li>
+<li><code>.entities</code> — a mapping of entity name → entity object; every entity object has a <code>.value</code> attribute.</li>
+<li><code>.unmatched_entities</code> — likewise a mapping of entity name → unmatched entity object.</li>
 </ul>
 </li>
-<li><code>UnmatchedTextEntity</code> — an unmatched entity type with attributes including <code>.text</code> (the captured text).</li>
-<li><code>UnmatchedRangeEntity</code> — an unmatched entity type with attributes including <code>.value</code> (a numeric value).</li>
+<li><code>UnmatchedTextEntity</code> — an unmatched entity type whose attributes include <code>.text</code> (the captured text).</li>
+<li><code>UnmatchedRangeEntity</code> — an unmatched entity type whose attributes include <code>.value</code> (a numeric value).</li>
 </ul>
-<p>(These types and functions already exist in the codebase; the behavioral change concerns wildcard matching.)</p>
-<h4>Required Behavior</h4>
-<h5>Wildcards cannot be empty</h5>
-<p>When an intent template contains wildcard entities (free-text captures), a wildcard must match <strong>at least some text</strong>. It must not match an empty span.</p>
-<p>Given an intent template that expects text of the form:</p>
+<p>(These types and functions are already present in the codebase; the change in behavior concerns wildcard matching.)</p>
+<h4>Behavior Requirements</h4>
+<h5>Wildcards cannot capture empty text</h5>
+<p>Whenever an intent template contains wildcard entities (free-text captures), a wildcard must match <strong>at least some text</strong> and must not match an empty span.</p>
+<p>Consider an intent template that expects text of the form:</p>
 <pre><code>play {album} by {artist} please now
 </code></pre>
-<p>where <code>{album}</code> and <code>{artist}</code> are wildcard entities:</p>
+<p>in which <code>{album}</code> and <code>{artist}</code> are wildcard entities:</p>
 <ul>
 <li>
-<p>For the input sentence <code>&quot;play the white album by the beatles please now&quot;</code>, recognition (called <strong>without</strong> <code>allow_unmatched_entities</code>) must succeed. The resulting entities must satisfy:</p>
+<p>When the input sentence is <code>&quot;play the white album by the beatles please now&quot;</code>, recognition (called <strong>without</strong> <code>allow_unmatched_entities</code>) must succeed. The entities in the result must satisfy:</p>
 <ul>
-<li><code>album</code> entity <code>.value</code> equals <code>&quot;the white album &quot;</code></li>
-<li><code>artist</code> entity <code>.value</code> equals <code>&quot;the beatles &quot;</code></li>
+<li>the <code>.value</code> of the <code>album</code> entity equals <code>&quot;the white album &quot;</code></li>
+<li>the <code>.value</code> of the <code>artist</code> entity equals <code>&quot;the beatles &quot;</code></li>
 </ul>
 </li>
 <li>
-<p>For the input sentence <code>&quot;play by please now&quot;</code>, where both wildcard positions would have to capture empty text, recognition (called <strong>without</strong> <code>allow_unmatched_entities</code>) must return <code>None</code> (no match), because wildcards cannot be empty.</p>
+<p>With the input sentence <code>&quot;play by please now&quot;</code> — where both wildcard positions would have to capture empty text — recognition (called <strong>without</strong> <code>allow_unmatched_entities</code>) must return <code>None</code> (no match), because wildcards cannot be empty.</p>
 </li>
 </ul>
-<h5>Unmatched entities behavior (unchanged, must remain correct)</h5>
-<p>When <code>recognize</code> is called with <code>allow_unmatched_entities=True</code> and the sentence contains portions that cannot be matched to concrete entity values, recognition may still succeed, populating <code>.unmatched_entities</code>. The following behaviors must hold:</p>
+<h5>Unmatched-entity behavior (unchanged, must remain correct)</h5>
+<p>If <code>recognize</code> is called with <code>allow_unmatched_entities=True</code> and the sentence has portions that cannot be matched to concrete entity values, recognition may still succeed and fill <code>.unmatched_entities</code>. The behaviors that follow must hold:</p>
 <ul>
 <li>
-<p>For a sentence that leaves three entity slots unmatched named <code>domain</code>, <code>area</code>, and <code>percent</code>:</p>
+<p>When a sentence leaves three entity slots unmatched, named <code>domain</code>, <code>area</code>, and <code>percent</code>:</p>
 <ul>
-<li><code>.unmatched_entities</code> has exactly the keys <code>{&quot;domain&quot;, &quot;area&quot;, &quot;percent&quot;}</code>.</li>
-<li><code>domain</code> is an <code>UnmatchedTextEntity</code> whose <code>.text</code> equals <code>&quot;fans &quot;</code>.</li>
-<li><code>area</code> is an <code>UnmatchedTextEntity</code> whose <code>.text</code> equals <code>&quot;living room &quot;</code>.</li>
-<li><code>percent</code> is an <code>UnmatchedRangeEntity</code> whose <code>.value</code> equals <code>101</code>.</li>
+<li><code>.unmatched_entities</code> contains exactly the keys <code>{&quot;domain&quot;, &quot;area&quot;, &quot;percent&quot;}</code>.</li>
+<li><code>domain</code> is an <code>UnmatchedTextEntity</code>, and its <code>.text</code> equals <code>&quot;fans &quot;</code>.</li>
+<li><code>area</code> is an <code>UnmatchedTextEntity</code>, and its <code>.text</code> equals <code>&quot;living room &quot;</code>.</li>
+<li><code>percent</code> is an <code>UnmatchedRangeEntity</code>, and its <code>.value</code> equals <code>101</code>.</li>
 </ul>
 </li>
 <li>
-<p>For a sentence that leaves a single entity slot unmatched named <code>percent</code>:</p>
+<p>When a sentence leaves a single entity slot unmatched, named <code>percent</code>:</p>
 <ul>
-<li><code>.unmatched_entities</code> has exactly the key <code>{&quot;percent&quot;}</code>.</li>
-<li><code>percent</code> is an <code>UnmatchedTextEntity</code> whose <code>.text</code> equals <code>&quot;blah blah blah &quot;</code>.</li>
+<li><code>.unmatched_entities</code> contains exactly the key <code>{&quot;percent&quot;}</code>.</li>
+<li><code>percent</code> is an <code>UnmatchedTextEntity</code>, and its <code>.text</code> equals <code>&quot;blah blah blah &quot;</code>.</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>The only functional change is enforcing that wildcard entities must capture non-empty text. Existing successful matches with non-empty wildcard content and existing unmatched-entity behavior must continue to work exactly as described above.</li>
+<li>The only functional change consists of enforcing that wildcard entities must capture non-empty text. Successful existing matches with non-empty wildcard content, as well as the existing unmatched-entity behavior, must keep working exactly as described above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Add Permutation Support to Expression Parser</span>
-        <span class="spec-meta muted">639 words · source specification
+        <span class="spec-title">Permutation Support for the Expression Parser</span>
+        <span class="spec-meta muted">709 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Add Permutation Support to Expression Parser</h3>
-<h4>Overview</h4>
-<p>Add support for a new grammar construct called a <strong>permutation</strong> to the sentence expression parser. A permutation groups two or more items and matches when those items appear in <strong>any order</strong> in the input text.</p>
+      <div class="spec-body"><h3>Task Specification: Permutation Support for the Expression Parser</h3>
+<h4>Summary</h4>
+<p>A new grammar construct, the <strong>permutation</strong>, is to be added to the sentence expression parser. A permutation brings together two or more items and matches when those items occur in <strong>any order</strong> in the input text.</p>
 <h4>Syntax</h4>
-<p>A permutation is written using parentheses with items separated by semicolons (<code>;</code>):</p>
+<p>To write a permutation, put the items between parentheses and separate them with semicolons (<code>;</code>):</p>
 <pre><code>(item1; item2)
 (A; B; C)
 </code></pre>
-<p>This is distinct from the existing <strong>alternative</strong> construct, which uses the pipe (<code>|</code>) separator inside parentheses and matches exactly one of its items.</p>
-<h4>Required Behavior</h4>
-<p>When the parser encounters a parenthesized group whose top-level items are separated by semicolons, it must produce an expression that matches any ordering of those items.</p>
-<h5>Expansion Model</h5>
-<p>A permutation of N items must be represented as an <strong>alternative</strong> (the same alternative construct produced for <code>|</code>-separated groups) containing one group per possible ordering of the items — i.e., every permutation of the N items, in order. For 2 items there are 2 orderings; for 3 items there are 6 orderings.</p>
-<h5>Whitespace Insertion</h5>
-<p>Because permutations are intended for reordering whole words/phrases, each ordering must include a single literal space text chunk (<code>&quot; &quot;</code>) <strong>before the first item, between every pair of adjacent items, and after the last item</strong>.</p>
-<p>Concretely, for an input like <code>(test; test2)</code>, each ordering-group must be structured as an ordered sequence of:</p>
+<p>This is not the same as the existing <strong>alternative</strong> construct: there, items inside parentheses are separated by the pipe (<code>|</code>), and exactly one of the items is matched.</p>
+<h4>Behavior Requirements</h4>
+<p>If a parenthesized group has its top-level items separated by semicolons, the parser must produce an expression that matches those items in any ordering.</p>
+<h5>How the Expansion Works</h5>
+<p>An <strong>alternative</strong> (the same alternative construct produced for <code>|</code>-separated groups) is the required representation for a permutation of N items: it holds one group for each possible ordering of the items — that is, every permutation of the N items, in order. With 2 items there are 2 orderings; with 3 items there are 6 orderings.</p>
+<h5>Inserted Whitespace</h5>
+<p>Permutations are meant for reordering whole words/phrases; consequently, a single literal space text chunk (<code>&quot; &quot;</code>) must be present in every ordering <strong>before the first item, between every pair of adjacent items, and after the last item</strong>.</p>
+<p>To make this concrete with an input such as <code>(test; test2)</code>, each ordering-group must take the form of the following ordered sequence:</p>
 <ol>
-<li>a text chunk containing a single space <code>&quot; &quot;</code>,</li>
-<li>the first item's parsed group,</li>
-<li>a text chunk containing a single space <code>&quot; &quot;</code>,</li>
-<li>the second item's parsed group,</li>
-<li>a text chunk containing a single space <code>&quot; &quot;</code>.</li>
+<li>a text chunk whose content is a single space <code>&quot; &quot;</code>,</li>
+<li>the group parsed from the first item,</li>
+<li>a text chunk whose content is a single space <code>&quot; &quot;</code>,</li>
+<li>the group parsed from the second item,</li>
+<li>a text chunk whose content is a single space <code>&quot; &quot;</code>.</li>
 </ol>
-<p>Each individual permutation item is parsed as its own group. Note that the raw text of items following the separator retains its leading whitespace exactly as written in the source (e.g., in <code>(test; test2)</code> the second item parses to text <code>&quot; test2&quot;</code> while the first is <code>&quot;test&quot;</code>).</p>
-<h5>Resulting Structure Example</h5>
-<p>For the input <code>(test; test2)</code>, the parsed expression must equal an alternative whose items are:</p>
+<p>Every individual permutation item is parsed into a group of its own. Also worth noting: for items following the separator, the raw text keeps its leading whitespace exactly as it is written in the source (in <code>(test; test2)</code>, for example, the second item parses to text <code>&quot; test2&quot;</code>, whereas the first is <code>&quot;test&quot;</code>).</p>
+<h5>Example of the Resulting Structure</h5>
+<p>With <code>(test; test2)</code> as the input, the parsed expression must equal an alternative whose items are:</p>
 <ul>
-<li>Ordering 1 — a group containing, in order: text <code>&quot; &quot;</code>, group[text <code>&quot;test&quot;</code>], text <code>&quot; &quot;</code>, group[text <code>&quot; test2&quot;</code>], text <code>&quot; &quot;</code>.</li>
-<li>Ordering 2 — a group containing, in order: text <code>&quot; &quot;</code>, group[text <code>&quot; test2&quot;</code>], text <code>&quot; &quot;</code>, group[text <code>&quot;test&quot;</code>], text <code>&quot; &quot;</code>.</li>
+<li>Ordering 1 — a group whose contents, in order, are: text <code>&quot; &quot;</code>, group[text <code>&quot;test&quot;</code>], text <code>&quot; &quot;</code>, group[text <code>&quot; test2&quot;</code>], text <code>&quot; &quot;</code>.</li>
+<li>Ordering 2 — a group whose contents, in order, are: text <code>&quot; &quot;</code>, group[text <code>&quot; test2&quot;</code>], text <code>&quot; &quot;</code>, group[text <code>&quot;test&quot;</code>], text <code>&quot; &quot;</code>.</li>
 </ul>
 <h4>Matching Behavior</h4>
-<p>A sentence containing a permutation must match input where the permutation's items appear in any order (with the surrounding/interleaving whitespace accounted for by the inserted spaces). For example, a sentence built from <code>(in the kitchen; is there smoke)</code> must match both:</p>
+<p>When a sentence has a permutation in it, that sentence must match input in which the permutation's items occur in any order (the inserted spaces account for the surrounding/interleaving whitespace). As an example, a sentence constructed from <code>(in the kitchen; is there smoke)</code> must match both:</p>
 <ul>
 <li><code>in the kitchen is there smoke</code></li>
 <li><code>is there smoke in the kitchen</code></li>
 </ul>
 <h4>Public API Surface</h4>
-<p>The implementation must integrate with the existing expression module and parsing pipeline. The following existing, importable callables/classes are used and must continue to work as before, now also handling permutations:</p>
+<p>The implementation must be integrated with the existing expression module and parsing pipeline. Below are existing, importable callables/classes that are used; they must continue to work as before, now also handling permutations:</p>
 <ul>
-<li><code>parse_expression(chunk)</code> — parses a single expression chunk (as produced by <code>next_chunk</code>) and returns the corresponding expression object. When given a semicolon-separated parenthesized group, it returns the alternative-of-orderings structure described above.</li>
-<li><code>next_chunk(text)</code> — yields/returns the next parseable chunk from a text string (used to feed <code>parse_expression</code>).</li>
-<li><code>parse_sentence(text)</code> — parses a full sentence string into a matchable sentence expression.</li>
-<li>The expression constructors already available for building/comparing expression trees:
+<li><code>parse_expression(chunk)</code> — parses one expression chunk (the kind that <code>next_chunk</code> produces) and returns the expression object corresponding to it. When its input is a semicolon-separated parenthesized group, it returns the alternative-of-orderings structure described above.</li>
+<li><code>next_chunk(text)</code> — given a text string, yields/returns the next chunk that can be parsed out of it (this feeds <code>parse_expression</code>).</li>
+<li><code>parse_sentence(text)</code> — parses a full sentence string, producing a matchable sentence expression.</li>
+<li>These expression constructors are already available for building/comparing expression trees:
 <ul>
-<li>text chunk (<code>TextChunk</code>, referred to as <code>t(text=...)</code> where <code>text</code> is the literal string),</li>
+<li>text chunk (<code>TextChunk</code>, referred to as <code>t(text=...)</code>, with <code>text</code> being the literal string),</li>
 <li>group (<code>group(items=[...])</code>),</li>
 <li>alternative (<code>alt(items=[...])</code>).</li>
 </ul>
 </li>
-<li><code>is_match(text, sentence)</code> — returns whether the given input text matches the given parsed sentence.</li>
+<li><code>is_match(text, sentence)</code> — returns whether the input text supplied matches the parsed sentence supplied.</li>
 </ul>
-<h4>Distinguishing Alternatives from Permutations</h4>
-<p>The separator inside a parenthesized group determines the construct:</p>
+<h4>Telling Alternatives and Permutations Apart</h4>
+<p>What decides the construct is the separator inside a parenthesized group:</p>
 <ul>
-<li><code>|</code> → alternative (match exactly one item) — existing behavior, unchanged.</li>
-<li><code>;</code> → permutation (match items in any order) — new behavior described above.</li>
+<li><code>|</code> → alternative (match exactly one item) — behavior that already exists and remains unchanged.</li>
+<li><code>;</code> → permutation (match items in any order) — the new behavior described above.</li>
 </ul>
 <h4>Notes</h4>
-<p>Only the parsing/matching behavior described above is in scope. Do not add or alter unrelated recognizer features.</p>
+<p>Only the parsing/matching behavior described above falls within scope. No unrelated recognizer features are to be added or altered.</p>
 </div>
     </details>
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">You must extend the hassil sentence-recognition library to support two related features</span>
-        <span class="spec-meta muted">915 words · source specification
+        <span class="spec-title">You must extend the hassil sentence-recognition library so that it covers two related features</span>
+        <span class="spec-meta muted">991 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must extend the <code>hassil</code> sentence-recognition library to support two related features:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You must extend the <code>hassil</code> sentence-recognition library so that it covers two related features:</p>
 <ol>
-<li><strong>Unmatched entities</strong> — an opt-in mode that lets recognition succeed even when some entity values fall outside their configured slot lists, collecting those values separately.</li>
-<li><strong>Wildcard slot lists</strong> — slot lists that greedily capture arbitrary (non-empty) text as an entity value.</li>
+<li><strong>Unmatched entities</strong> — an opt-in mode thanks to which recognition can succeed even though some entity values lie outside their configured slot lists; those values get collected separately.</li>
+<li><strong>Wildcard slot lists</strong> — slot lists that greedily capture arbitrary (non-empty) text and use it as an entity value.</li>
 </ol>
-<h4>Public API Surface</h4>
-<h5>New classes in <code>hassil.recognize</code></h5>
-<p>Add two new classes to the <code>hassil.recognize</code> module. They must be importable as:</p>
+<h4>Public API</h4>
+<h5>New classes inside <code>hassil.recognize</code></h5>
+<p>Two new classes must be added to the <code>hassil.recognize</code> module, importable in this way:</p>
 <pre><code class="language-python">from hassil.recognize import UnmatchedRangeEntity, UnmatchedTextEntity
 </code></pre>
 <ul>
-<li><code>UnmatchedTextEntity</code> — represents an entity whose value was captured as raw text that did not match its slot list. It must expose:
+<li><code>UnmatchedTextEntity</code> — models an entity for which the value was captured as raw text that failed to match its slot list. It must expose:
 <ul>
-<li><code>.text</code> — a <code>str</code> holding the captured text.</li>
+<li><code>.text</code> — the captured text, held in a <code>str</code>.</li>
 </ul>
 </li>
-<li><code>UnmatchedRangeEntity</code> — represents an entity whose value matched a numeric range list's numeric pattern but fell outside the configured range. It must expose:
+<li><code>UnmatchedRangeEntity</code> — models an entity whose value matched the numeric pattern of a numeric range list yet lay outside the configured range. It must expose:
 <ul>
 <li><code>.value</code> — the numeric value (an <code>int</code>).</li>
 </ul>
 </li>
 </ul>
 <p>Both classes should be associated with the name of the entity/slot they correspond to (the slot name, e.g. <code>&quot;domain&quot;</code>, <code>&quot;area&quot;</code>, <code>&quot;percent&quot;</code>).</p>
-<h5>Modified recognition functions</h5>
-<p>The <code>recognize</code> function (importable as <code>from hassil import recognize</code>) and its companion <code>recognize_all</code> must accept a new keyword-only argument:</p>
+<h5>Changes to the recognition functions</h5>
+<p>A new keyword-only argument must be accepted both by the <code>recognize</code> function (importable as <code>from hassil import recognize</code>) and by its companion <code>recognize_all</code>:</p>
 <pre><code class="language-python">allow_unmatched_entities: bool = False
 </code></pre>
-<p>The default must be <code>False</code>, preserving current behavior.</p>
+<p><code>False</code> must be the default, which keeps current behavior intact.</p>
 <h5><code>RecognizeResult</code></h5>
-<p>The result object returned by <code>recognize</code> must expose a new attribute:</p>
+<p>The result object that <code>recognize</code> returns must expose a new attribute:</p>
 <ul>
-<li><code>.unmatched_entities</code> — a mapping (<code>dict</code>) from entity/slot name (<code>str</code>) to an unmatched-entity object (either <code>UnmatchedTextEntity</code> or <code>UnmatchedRangeEntity</code>).</li>
+<li><code>.unmatched_entities</code> — a mapping (<code>dict</code>) in which each entity/slot name (<code>str</code>) maps to an unmatched-entity object (either <code>UnmatchedTextEntity</code> or <code>UnmatchedRangeEntity</code>).</li>
 </ul>
-<p>When no unmatched entities are involved, this mapping is empty.</p>
-<p>The existing <code>.entities</code> attribute (mapping slot name to a matched entity object with a <code>.value</code> attribute) remains as-is.</p>
-<h4>Behavior: Unmatched Entities</h4>
-<p>When <code>allow_unmatched_entities=False</code> (default), recognition behaves as it currently does: a sentence only matches if every entity value is found in its slot list (or valid range). If any entity value is outside its list/range, <code>recognize</code> returns <code>None</code>.</p>
-<p>When <code>allow_unmatched_entities=True</code>, recognition may still succeed even when one or more entity values do not match their slot list or range. Each such value is recorded in <code>result.unmatched_entities</code>, keyed by the slot name.</p>
-<h5>Text slot list entities</h5>
-<p>If an entity references a text slot list but the actual text in the sentence is not one of the list's values, the captured text is stored as an <code>UnmatchedTextEntity</code>:</p>
+<p>This mapping is empty whenever no unmatched entities are involved.</p>
+<p>The pre-existing <code>.entities</code> attribute (which maps a slot name to a matched entity object with a <code>.value</code> attribute) is left untouched.</p>
+<h4>Unmatched-Entity Behavior</h4>
+<p>When <code>allow_unmatched_entities=False</code> (the default), recognition keeps working as it does now: a sentence matches only if every entity value is found in its slot list (or valid range). Should any entity value lie outside its list/range, <code>recognize</code> returns <code>None</code>.</p>
+<p>Turning to <code>allow_unmatched_entities=True</code>: recognition may still succeed even though one or more entity values do not match their slot list or range. Each value of that kind is recorded in <code>result.unmatched_entities</code>, the slot name serving as the key.</p>
+<h5>Entities tied to text slot lists</h5>
+<p>When an entity references a text slot list while the sentence's actual text is not one of the list's values, the captured text is stored as an <code>UnmatchedTextEntity</code>:</p>
 <ul>
-<li><code>.text</code> holds the raw span of text that filled that slot, <strong>including a trailing space</strong> where the sentence continues (i.e. the captured text preserves the whitespace boundary as it appears leading into the next literal token).</li>
+<li><code>.text</code> contains the raw span of text that occupied the slot, <strong>including a trailing space</strong> wherever the sentence continues (that is, the whitespace boundary leading into the next literal token is preserved within the captured text).</li>
 </ul>
-<p>Example: given the sentence template <code>&quot;set [all] {domain} in {area} to {percent}[%] now&quot;</code> with <code>domain</code> values <code>[lights]</code>, <code>area</code> values <code>[kitchen, bedroom]</code>, and <code>percent</code> a percentage range from 0 to 100:</p>
+<p>Example: consider the sentence template <code>&quot;set [all] {domain} in {area} to {percent}[%] now&quot;</code>, where <code>domain</code> has the values <code>[lights]</code>, <code>area</code> has the values <code>[kitchen, bedroom]</code>, and <code>percent</code> is a percentage range from 0 to 100:</p>
 <ul>
-<li>Input <code>&quot;set fans in living room to 101% now&quot;</code> with <code>allow_unmatched_entities=True</code> succeeds. The result's <code>unmatched_entities</code> has exactly the keys <code>{&quot;domain&quot;, &quot;area&quot;, &quot;percent&quot;}</code>:
+<li>The input <code>&quot;set fans in living room to 101% now&quot;</code>, when <code>allow_unmatched_entities=True</code>, succeeds. The result's <code>unmatched_entities</code> contains exactly the keys <code>{&quot;domain&quot;, &quot;area&quot;, &quot;percent&quot;}</code>:
 <ul>
 <li><code>domain</code> → <code>UnmatchedTextEntity</code> with <code>.text == &quot;fans &quot;</code></li>
 <li><code>area</code> → <code>UnmatchedTextEntity</code> with <code>.text == &quot;living room &quot;</code></li>
 <li><code>percent</code> → <code>UnmatchedRangeEntity</code> with <code>.value == 101</code></li>
 </ul>
 </li>
-<li>The same input with <code>allow_unmatched_entities=False</code> returns <code>None</code>.</li>
+<li>With <code>allow_unmatched_entities=False</code>, that same input returns <code>None</code>.</li>
 </ul>
-<h5>Range slot list entities</h5>
-<p>If an entity references a numeric range slot list:</p>
+<h5>Entities tied to range slot lists</h5>
+<p>Next, suppose an entity references a numeric range slot list:</p>
 <ul>
-<li>If the sentence contains a <strong>number</strong> at that position that matches the range's numeric format but is <strong>outside</strong> the allowed <code>from</code>/<code>to</code> bounds, it is recorded as an <code>UnmatchedRangeEntity</code> with <code>.value</code> equal to that number (as an <code>int</code>).</li>
-<li>If the sentence contains <strong>non-numeric text</strong> at that position, it is recorded as an <code>UnmatchedTextEntity</code> with <code>.text</code> equal to the captured text (with trailing whitespace preserved as above).</li>
+<li>If a <strong>number</strong> shows up at that position in the sentence, matches the range's numeric format, and yet lies <strong>outside</strong> the allowed <code>from</code>/<code>to</code> bounds, it is recorded as an <code>UnmatchedRangeEntity</code> whose <code>.value</code> is equal to that number (as an <code>int</code>).</li>
+<li>If the sentence instead has <strong>non-numeric text</strong> at that position, it is recorded as an <code>UnmatchedTextEntity</code> whose <code>.text</code> is equal to the captured text (with trailing whitespace preserved as described above).</li>
 </ul>
-<p>Example (same template as above):</p>
+<p>Example (the same template):</p>
 <ul>
-<li>Input <code>&quot;set all lights in kitchen to blah blah blah now&quot;</code> with <code>allow_unmatched_entities=True</code> succeeds. Here <code>domain</code>, <code>area</code> match their lists normally, so <code>unmatched_entities</code> has exactly the key <code>{&quot;percent&quot;}</code>:
+<li>With <code>allow_unmatched_entities=True</code>, the input <code>&quot;set all lights in kitchen to blah blah blah now&quot;</code> succeeds. Since <code>domain</code> and <code>area</code> match their lists as usual here, <code>unmatched_entities</code> contains exactly the key <code>{&quot;percent&quot;}</code>:
 <ul>
 <li><code>percent</code> → <code>UnmatchedTextEntity</code> with <code>.text == &quot;blah blah blah &quot;</code></li>
 </ul>
 </li>
 </ul>
-<h5>Matched entities still populate normally</h5>
-<p>Entities whose values do match their lists/ranges continue to appear in <code>result.entities</code> as before and must <strong>not</strong> appear in <code>unmatched_entities</code>.</p>
-<h4>Behavior: Wildcard Slot Lists</h4>
-<p>A slot list may be declared as a wildcard in the intents YAML by setting <code>wildcard: true</code> on the list instead of providing <code>values</code> or a <code>range</code>:</p>
+<h5>Matched entities keep populating as before</h5>
+<p>Whenever an entity's value does match its list/range, that entity keeps appearing in <code>result.entities</code> as before and must <strong>not</strong> show up in <code>unmatched_entities</code>.</p>
+<h4>Wildcard Slot List Behavior</h4>
+<p>In the intents YAML, a slot list may be turned into a wildcard by placing <code>wildcard: true</code> on the list rather than supplying <code>values</code> or a <code>range</code>:</p>
 <pre><code class="language-yaml">lists:
   album:
     wildcard: true
   artist:
     wildcard: true
 </code></pre>
-<p>A wildcard slot list, when referenced by an entity in a sentence template, greedily captures arbitrary text from the input until sentence matching can continue with the following literal text. This capture works with the normal <code>recognize</code> call (no special flag required).</p>
-<h5>Captured value</h5>
-<p>For a wildcard entity, the captured text is stored as a normal matched entity in <code>result.entities</code>, and its <code>.value</code> is the captured text <strong>including the trailing space</strong> where the sentence continues into the next literal token.</p>
-<p>Example: given the sentence template <code>&quot;play {album} by {artist} [please] now&quot;</code> where <code>album</code> and <code>artist</code> are wildcard lists:</p>
+<p>Once an entity in a sentence template references a wildcard slot list, that list greedily captures arbitrary text out of the input, continuing until sentence matching can resume with the following literal text. A normal <code>recognize</code> call suffices for this capture (no special flag is required).</p>
+<h5>The value that is captured</h5>
+<p>In the wildcard case, the captured text is stored in <code>result.entities</code> as a normal matched entity, and its <code>.value</code> is that captured text <strong>including the trailing space</strong> where the sentence continues on into the next literal token.</p>
+<p>Example: take the template <code>&quot;play {album} by {artist} [please] now&quot;</code>, in which <code>album</code> and <code>artist</code> are wildcard lists:</p>
 <ul>
-<li>Input <code>&quot;play the white album by the beatles please now&quot;</code> succeeds:
+<li>The input <code>&quot;play the white album by the beatles please now&quot;</code> succeeds, giving:
 <ul>
 <li><code>result.entities[&quot;album&quot;].value == &quot;the white album &quot;</code></li>
 <li><code>result.entities[&quot;artist&quot;].value == &quot;the beatles &quot;</code></li>
 </ul>
 </li>
 </ul>
-<h5>Wildcards cannot be empty</h5>
-<p>A wildcard entity must capture at least one non-empty piece of text. If matching would require a wildcard to capture nothing, the sentence does not match.</p>
-<p>Example (same template):</p>
+<h5>Wildcards cannot come out empty</h5>
+<p>Whatever a wildcard entity captures must amount to at least one non-empty piece of text. If matching would require the wildcard to capture nothing, that sentence does not match.</p>
+<p>Example (that same template):</p>
 <ul>
-<li>Input <code>&quot;play by please now&quot;</code> returns <code>None</code>, because it would require <code>album</code> to be empty.</li>
+<li>The input <code>&quot;play by please now&quot;</code> returns <code>None</code>, since matching would require <code>album</code> to be empty.</li>
 </ul>
 <h4>Backward Compatibility</h4>
 <ul>
-<li>All existing recognition behavior must remain unchanged when the new features are not used.</li>
-<li><code>allow_unmatched_entities</code> defaults to <code>False</code>.</li>
-<li>Slot lists without <code>wildcard: true</code> behave exactly as before.</li>
-<li><code>RecognizeResult.unmatched_entities</code> is present (and empty) even in ordinary successful matches.</li>
+<li>Whenever the new features are not in use, all existing recognition behavior must stay unchanged.</li>
+<li><code>allow_unmatched_entities</code> uses <code>False</code> as its default.</li>
+<li>Without <code>wildcard: true</code>, slot lists behave exactly as they always have.</li>
+<li><code>RecognizeResult.unmatched_entities</code> is present (and empty) even for an ordinary successful match.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">You are working on a sentence-recognition library that matches natural-language input strings against a set of intent sentence templates.</span>
-        <span class="spec-meta muted">688 words · source specification
+        <span class="spec-title">The setting for this task is a sentence-recognition library, one whose job is to take natural-language input strings and match them against a set of intent…</span>
+        <span class="spec-meta muted">779 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on a sentence-recognition library that matches natural-language input strings against a set of intent sentence templates. Templates may contain fixed text, list-based slot references (e.g. <code>{area}</code>, <code>{domain}</code>, <code>{percent}</code>), and wildcard slots. The recognition entry point is the <code>recognize</code> function.</p>
-<p>Two related bugs must be fixed, both concerning slot references that appear <strong>at the very end of a sentence template</strong> (i.e., with no trailing fixed text after them):</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Summary</h4>
+<p>The setting for this task is a sentence-recognition library, one whose job is to take natural-language input strings and match them against a set of intent sentence templates. Fixed text, list-based slot references (e.g. <code>{area}</code>, <code>{domain}</code>, <code>{percent}</code>), and wildcard slots may all occur inside a template. The <code>recognize</code> function serves as recognition's entry point.</p>
+<p>Two related bugs, both involving slot references positioned <strong>at the very end of a sentence template</strong> (that is, with no fixed text trailing them), must be fixed:</p>
 <ol>
-<li>Text slots being captured as <strong>unmatched entities</strong> when <code>allow_unmatched_entities=True</code>.</li>
-<li><strong>Wildcard</strong> slots that consume free-form text.</li>
+<li>When <code>allow_unmatched_entities=True</code>, text slots being captured as <strong>unmatched entities</strong>.</li>
+<li>Free-form text being consumed by <strong>wildcard</strong> slots.</li>
 </ol>
-<p>Currently, when such a slot is the final token of a template and there is trailing input text to capture, recognition does not correctly handle the capture at end-of-sentence. This must be fixed.</p>
-<h4>Public API</h4>
-<p>The following must be importable from the library's top-level package (the same module that already exposes these names — this task does not add new public names, it fixes behavior):</p>
+<p>As things stand, when a slot of this kind forms a template's last token and trailing input text remains to be captured, recognition fails to handle that end-of-sentence capture correctly. Fixing this is required.</p>
+<h4>The public API</h4>
+<p>From the library's top-level package, the following must be importable (this being the very module that already exposes these names — no new public names get added by this task; what it fixes is behavior):</p>
 <ul>
-<li><code>recognize(sentence, intents, allow_unmatched_entities=False)</code> — attempts to match <code>sentence</code> (a <code>str</code>) against the provided <code>intents</code> structure. Returns a result object when a match is found, or <code>None</code> when no template matches.</li>
-<li><code>UnmatchedTextEntity</code> — the class used to represent an unmatched text entity captured during recognition with <code>allow_unmatched_entities=True</code>.</li>
+<li><code>recognize(sentence, intents, allow_unmatched_entities=False)</code> — it takes <code>sentence</code> (a <code>str</code>) and attempts to match it against the supplied <code>intents</code> structure. A result object is returned when a match is found; <code>None</code> is returned when no template matches.</li>
+<li><code>UnmatchedTextEntity</code> — the class whose instances represent unmatched text entities captured by recognition with <code>allow_unmatched_entities=True</code>.</li>
 </ul>
-<p>The <code>intents</code> argument is the parsed intents structure produced by the library's existing intents-loading facility (built from a YAML-style definition containing intents, sentence templates, and slot lists).</p>
-<h4>Result object shape</h4>
-<p>A successful (non-<code>None</code>) recognition result must expose:</p>
+<p>The <code>intents</code> argument is given the parsed intents structure that the library's existing intents-loading facility produces (the facility builds it from a YAML-style definition containing intents, sentence templates, and slot lists).</p>
+<h4>Shape of the result object</h4>
+<p>The following must be exposed by a successful (non-<code>None</code>) recognition result:</p>
 <ul>
-<li><code>result.entities</code> — a mapping from slot name (<code>str</code>) to a matched entity object. Each matched entity object has a <code>.value</code> attribute holding the captured value.</li>
-<li><code>result.unmatched_entities</code> — a mapping from slot name (<code>str</code>) to an unmatched entity object. When <code>allow_unmatched_entities=True</code>, slots that could not be matched against a configured list but that captured free text are represented here. Each unmatched-text entity is an instance of <code>UnmatchedTextEntity</code> and exposes a <code>.text</code> attribute holding the captured raw text.</li>
+<li><code>result.entities</code> — a mapping whose keys are slot names (<code>str</code>) and whose values are matched entity objects. A <code>.value</code> attribute, which holds the captured value, is present on each matched entity object.</li>
+<li><code>result.unmatched_entities</code> — a mapping whose keys are slot names (<code>str</code>) and whose values are unmatched entity objects. When <code>allow_unmatched_entities=True</code>, slots that captured free text but could not be matched against a configured list are represented in this mapping. Each unmatched-text entity is an <code>UnmatchedTextEntity</code> instance, and it exposes a <code>.text</code> attribute holding the raw text that was captured.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Unmatched text entity at end of sentence</h5>
-<p>Given an intent whose sentence template ends with a list slot reference and no trailing fixed text — for example a template of the form:</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Unmatched text entity at the sentence's end</h5>
+<p>Suppose an intent comes with a sentence template that finishes with a list slot reference and has nothing fixed after it — one example being the template:</p>
 <pre><code>set {area} {domain} to {percent}
 </code></pre>
-<p>where <code>area</code> and <code>domain</code> are backed by value lists and <code>percent</code> is (in this scenario) not matchable from its list — recognizing an input such as:</p>
+<p>in which value lists back <code>area</code> and <code>domain</code>, while <code>percent</code> is not matchable from its list (in this scenario) — the input to recognize is:</p>
 <pre><code>set kitchen lights to fifty
 </code></pre>
-<p>with <code>allow_unmatched_entities=True</code> must succeed (return a non-<code>None</code> result). In that result:</p>
+<p>Recognition of it must succeed with <code>allow_unmatched_entities=True</code>, which means it must return a non-<code>None</code> result. Within that result:</p>
 <ul>
-<li>The set of keys in <code>unmatched_entities</code> must be exactly <code>{&quot;percent&quot;}</code>.</li>
-<li>The <code>percent</code> unmatched entity must be an instance of <code>UnmatchedTextEntity</code>.</li>
-<li>Its <code>.text</code> must be exactly <code>&quot;fifty&quot;</code> (the trailing input text, with no surrounding padding).</li>
+<li>Viewed as a set, the keys of <code>unmatched_entities</code> must be exactly <code>{&quot;percent&quot;}</code>.</li>
+<li>The unmatched entity belonging to <code>percent</code> must be an <code>UnmatchedTextEntity</code> instance.</li>
+<li>Its <code>.text</code> must be exactly <code>&quot;fifty&quot;</code> — the input's trailing text, with no padding surrounding it.</li>
 </ul>
-<h5>2. Wildcard slot at end of sentence</h5>
-<p>Given an intent whose sentence template ends with a wildcard slot reference — for example a template of the form:</p>
+<h5>2. Wildcard slot at the sentence's end</h5>
+<p>Now take an intent whose sentence template finishes with a wildcard slot reference; an example is the template below:</p>
 <pre><code>start {album} by {artist}
 </code></pre>
-<p>where both <code>album</code> and <code>artist</code> are wildcard slots — recognizing an input such as:</p>
+<p>in which <code>album</code> and <code>artist</code> are both wildcard slots — recognize this input:</p>
 <pre><code>start the white album by the beatles
 </code></pre>
-<p>(with default <code>allow_unmatched_entities=False</code>) must succeed (return a non-<code>None</code> result). In that result:</p>
+<p>With the default <code>allow_unmatched_entities=False</code> in effect, recognition must succeed — in other words, return a non-<code>None</code> result. Inside that result:</p>
 <ul>
-<li><code>result.entities[&quot;album&quot;].value</code> must be exactly <code>&quot;the white album &quot;</code> (note the trailing space).</li>
-<li><code>result.entities[&quot;artist&quot;].value</code> must be exactly <code>&quot;the beatles&quot;</code> (no trailing space, since it is captured at the end of the sentence).</li>
+<li><code>result.entities[&quot;album&quot;].value</code> must be exactly <code>&quot;the white album &quot;</code> — pay attention to the trailing space.</li>
+<li><code>result.entities[&quot;artist&quot;].value</code> must be exactly <code>&quot;the beatles&quot;</code>; because its capture happens at the sentence's end, there is no trailing space.</li>
 </ul>
-<h4>Regression / Non-Interference</h4>
-<p>Existing behavior for templates that have trailing fixed text after a slot must continue to work unchanged. In particular, for a template of the form:</p>
+<h4>Non-Interference / Regression</h4>
+<p>Whenever a template places fixed text after one of its slots, the behavior that already exists must keep working without change. As a specific case, take this template:</p>
 <pre><code>set [all] {domain} in {area} to {percent}[%] now
 </code></pre>
 <ul>
-<li>Recognizing <code>&quot;set all lights in the living room to blah blah blah now&quot;</code> with <code>allow_unmatched_entities=True</code> must still succeed, producing an <code>UnmatchedTextEntity</code> for <code>percent</code> whose <code>.text</code> is <code>&quot;blah blah blah &quot;</code>.</li>
+<li>With <code>allow_unmatched_entities=True</code>, recognition of <code>&quot;set all lights in the living room to blah blah blah now&quot;</code> must still succeed; an <code>UnmatchedTextEntity</code> gets produced for <code>percent</code>, and its <code>.text</code> is <code>&quot;blah blah blah &quot;</code>.</li>
 </ul>
-<p>And for wildcard templates with trailing text such as:</p>
+<p>Wildcard templates that carry trailing text are covered as well — for instance:</p>
 <pre><code>play {album} by {artist} [please] now
 </code></pre>
 <ul>
-<li>Recognizing <code>&quot;play by please now&quot;</code> (with default settings) must still return <code>None</code> (no match), because the wildcard slots cannot be satisfied with empty content.</li>
+<li>Under the default settings, recognition of <code>&quot;play by please now&quot;</code> must still return <code>None</code> (i.e. no match), because empty content cannot satisfy the wildcard slots.</li>
 </ul>
-<h4>Scope</h4>
-<p>Only the end-of-sentence handling for these two slot cases needs fixing. Do not change any other observable behavior of <code>recognize</code>, the result object, or <code>UnmatchedTextEntity</code>.</p>
+<h4>Scope of the fix</h4>
+<p>Fixing is required only for the end-of-sentence handling of these two slot cases. Apart from that, do not modify any other observable behavior of <code>recognize</code>, the result object, or <code>UnmatchedTextEntity</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
-        <span class="spec-title">You are working on an intent recognition library that matches natural-language sentences against a set of intents defined in YAML.</span>
-        <span class="spec-meta muted">713 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">The work takes place in an intent recognition library that matches natural-language sentences against a set of intents defined in YAML.</span>
+        <span class="spec-meta muted">771 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are working on an intent recognition library that matches natural-language sentences against a set of intents defined in YAML. This task refines the behavior of entity matching, specifically around <strong>unmatched entities</strong> and <strong>wildcard slot lists</strong>.</p>
-<h4>Public API Surface</h4>
-<p>The following must be importable and callable as described (from the library's top-level package):</p>
+<p>The work takes place in an intent recognition library that matches natural-language sentences against a set of intents defined in YAML. This task refines the behavior of entity matching, focusing specifically on <strong>unmatched entities</strong> and <strong>wildcard slot lists</strong>.</p>
+<h4>Public API</h4>
+<p>The items listed below must be importable and callable as described (from the library's top-level package):</p>
 <ul>
-<li><code>Intents.from_yaml(file_like)</code> — a classmethod that constructs an <code>Intents</code> object from a YAML text stream (a file-like object such as an <code>io.StringIO</code>).</li>
-<li><code>recognize_all(sentence: str, intents: Intents, allow_unmatched_entities: bool = False) -&gt; Iterable[...]</code> — yields all recognition results for the given sentence against the given intents. When <code>allow_unmatched_entities=True</code>, results may include entities that could not be filled from a fixed list.</li>
-<li><code>recognize(sentence: str, intents: Intents) -&gt; Optional[...]</code> — returns a single best recognition result, or <code>None</code> if there is no match.</li>
-<li><code>UnmatchedTextEntity</code> — a class representing an unmatched text entity, exposing at least a <code>.text</code> attribute (a <code>str</code>).</li>
+<li><code>Intents.from_yaml(file_like)</code> — a classmethod that builds an <code>Intents</code> object from a YAML text stream (a file-like object, such as an <code>io.StringIO</code>).</li>
+<li><code>recognize_all(sentence: str, intents: Intents, allow_unmatched_entities: bool = False) -&gt; Iterable[...]</code> — yields all recognition results obtained by matching the given sentence against the given intents. With <code>allow_unmatched_entities=True</code>, results may include entities that could not be filled from a fixed list.</li>
+<li><code>recognize(sentence: str, intents: Intents) -&gt; Optional[...]</code> — returns a single best recognition result, or <code>None</code> when there is no match.</li>
+<li><code>UnmatchedTextEntity</code> — a class that represents an unmatched text entity and exposes at least a <code>.text</code> attribute (a <code>str</code>).</li>
 </ul>
-<p>Each recognition result object must expose:</p>
+<p>Every recognition result object must expose:</p>
 <ul>
-<li><code>.entities</code> — a mapping (dict-like) from entity name (<code>str</code>) to a matched entity object. Each matched entity object exposes a <code>.value</code> attribute.</li>
-<li><code>.unmatched_entities</code> — a mapping (dict-like) from entity name (<code>str</code>) to an unmatched entity object (e.g. an <code>UnmatchedTextEntity</code>).</li>
+<li><code>.entities</code> — a mapping (dict-like) from entity name (<code>str</code>) to a matched entity object. Every matched entity object exposes a <code>.value</code> attribute.</li>
+<li><code>.unmatched_entities</code> — a mapping (dict-like) from entity name (<code>str</code>) to an unmatched entity object (for example an <code>UnmatchedTextEntity</code>).</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Empty unmatched entities must be filtered out</h5>
-<p>When <code>recognize_all</code> is called with <code>allow_unmatched_entities=True</code>, any result whose set of unmatched entities would contain an entity with <strong>empty text</strong> must not be produced. An unmatched entity is considered empty when its captured text is empty (contains no non-whitespace characters, i.e. requires at least some actual text).</p>
-<p>Concretely, given an intent whose sentence templates include:</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Unmatched entities that are empty must be filtered out</h5>
+<p>When <code>recognize_all</code> is invoked with <code>allow_unmatched_entities=True</code>, any result whose set of unmatched entities would contain an entity with <strong>empty text</strong> must not be produced. An unmatched entity counts as empty when its captured text is empty (contains no non-whitespace characters, i.e. at least some actual text is required).</p>
+<p>As a concrete illustration, take an intent whose sentence templates include:</p>
 <ul>
 <li><code>&quot;turn on {name}&quot;</code></li>
 <li><code>&quot;illuminate all[ {area}] lights&quot;</code></li>
 </ul>
-<p>with lists <code>name</code> (values include <code>light</code>) and <code>area</code> (values include <code>bedroom</code>):</p>
+<p>with the lists <code>name</code> (whose values include <code>light</code>) and <code>area</code> (whose values include <code>bedroom</code>):</p>
 <ul>
-<li>Input <code>&quot;turn on &quot;</code> (with a trailing space and no following text): produces <strong>no results</strong>, because the only way to match would require an empty <code>name</code> entity, which is not allowed.</li>
-<li>Input <code>&quot;illuminate all lights&quot;</code>: produces <strong>exactly one result</strong>, and that result has <strong>no unmatched entities</strong> (the optional <code>[ {area}]</code> portion is simply absent).</li>
-<li>Input <code>&quot;illuminate all kitchen lights&quot;</code>: produces <strong>exactly one result</strong>. That result has unmatched entities whose keys are exactly <code>{&quot;area&quot;}</code>. The <code>area</code> unmatched entity is an instance of <code>UnmatchedTextEntity</code>, and its <code>.text</code> equals <code>&quot;kitchen &quot;</code>.</li>
+<li>Input <code>&quot;turn on &quot;</code> (a trailing space with nothing following it): produces <strong>no results</strong>, since matching would be possible only through an empty <code>name</code> entity, and such an entity is not allowed.</li>
+<li>Input <code>&quot;illuminate all lights&quot;</code>: produces <strong>exactly one result</strong>, and that result has <strong>no unmatched entities</strong> (the optional <code>[ {area}]</code> part is merely absent).</li>
+<li>Input <code>&quot;illuminate all kitchen lights&quot;</code>: produces <strong>exactly one result</strong>. The unmatched entities of that result have keys that are exactly <code>{&quot;area&quot;}</code>. The unmatched entity for <code>area</code> is an instance of <code>UnmatchedTextEntity</code>, and its <code>.text</code> equals <code>&quot;kitchen &quot;</code>.</li>
 </ul>
-<h5>2. Wildcard slot lists — entity set correctness</h5>
-<p>For intents that use wildcard slot lists (list definitions marked <code>wildcard: true</code>), the resulting <code>.entities</code> mapping must contain exactly the entities that were actually matched — no extra keys, no missing keys.</p>
-<p>Given an intent with sentence templates:</p>
+<h5>2. Wildcard slot lists — correctness of the entity set</h5>
+<p>For intents that make use of wildcard slot lists (list definitions marked <code>wildcard: true</code>), the <code>.entities</code> mapping of the result must contain exactly the entities that were actually matched — with no extra keys and no missing keys.</p>
+<p>Take an intent that has the sentence templates:</p>
 <ul>
 <li><code>&quot;play {album} by {artist} [please] now&quot;</code></li>
 <li><code>&quot;start {album} by {artist}&quot;</code></li>
 </ul>
-<p>where <code>album</code> and <code>artist</code> are both wildcard lists:</p>
+<p>in which <code>album</code> and <code>artist</code> are both wildcard lists:</p>
 <ul>
-<li>Input <code>&quot;play the white album by the beatles please now&quot;</code>: matches the <code>play</code> template; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles &quot;</code>. The <code>artist</code> capture ends before the optional/final fixed text.</li>
-<li>Input <code>&quot;start the white album by the beatles&quot;</code>: matches the <code>start</code> template; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles&quot;</code>. The <code>artist</code> capture extends to the end of the sentence.</li>
+<li>Input <code>&quot;play the white album by the beatles please now&quot;</code>: the <code>play</code> template is matched; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles &quot;</code>. The capture for <code>artist</code> ends before the optional/final fixed text.</li>
+<li>Input <code>&quot;start the white album by the beatles&quot;</code>: the <code>start</code> template is matched; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles&quot;</code>. The capture for <code>artist</code> extends to the end of the sentence.</li>
 </ul>
-<h5>3. Optional wildcard slot lists</h5>
-<p>A wildcard slot list may appear inside an optional segment of a sentence template. When the optional segment is present, the wildcard entity is captured; when it is absent, that entity must not appear in the result at all.</p>
-<p>Given an intent with sentence template <code>&quot;play {album}[by {artist}]&quot;</code> where <code>album</code> and <code>artist</code> are both wildcard lists:</p>
+<h5>3. Wildcard slot lists inside optional segments</h5>
+<p>A wildcard slot list is allowed to appear inside an optional segment of a sentence template. If the optional segment is present, the wildcard entity is captured; if it is absent, that entity must not appear in the result at all.</p>
+<p>Take an intent with the sentence template <code>&quot;play {album}[by {artist}]&quot;</code>, in which <code>album</code> and <code>artist</code> are both wildcard lists:</p>
 <ul>
-<li>Input <code>&quot;play the white album by the beatles&quot;</code>: matches; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles&quot;</code>.</li>
-<li>Input <code>&quot;play the white album&quot;</code>: matches; <code>.entities</code> keys are exactly <code>{&quot;album&quot;}</code> (the optional <code>[by {artist}]</code> segment is absent, so there is no <code>artist</code> entity); <code>album.value == &quot;the white album&quot;</code>.</li>
+<li>Input <code>&quot;play the white album by the beatles&quot;</code>: a match is found; <code>.entities</code> keys are exactly <code>{&quot;album&quot;, &quot;artist&quot;}</code>; <code>album.value == &quot;the white album &quot;</code>; <code>artist.value == &quot;the beatles&quot;</code>.</li>
+<li>Input <code>&quot;play the white album&quot;</code>: a match is found; <code>.entities</code> keys are exactly <code>{&quot;album&quot;}</code> (the optional <code>[by {artist}]</code> segment is absent, and therefore no <code>artist</code> entity exists); <code>album.value == &quot;the white album&quot;</code>.</li>
 </ul>
-<h4>Notes on Whitespace</h4>
-<p>Wildcard and unmatched-text captures preserve surrounding whitespace as shown in the exact expected <code>.value</code> / <code>.text</code> strings above (some end with a trailing space, others do not, depending on whether trailing text follows in the template). Match these exactly.</p>
+<h4>Notes About Whitespace</h4>
+<p>Wildcard and unmatched-text captures preserve surrounding whitespace as shown in the exact expected <code>.value</code> / <code>.text</code> strings above (some of these strings end with a trailing space and others do not, depending on whether trailing text follows in the template). These strings must be matched exactly.</p>
 <h4>Environment</h4>
-<p>The codebase targets Python 3.8 or newer; you may use language features accordingly and need not support Python 3.7.</p>
+<p>The codebase targets Python 3.8 or newer; language features may be used accordingly, and there is no need to support Python 3.7.</p>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">You are working on hassil, a library for recognizing intents from natural language sentences using YAML-defined intent templates with slot lists.</span>
-        <span class="spec-meta muted">636 words · source specification
+        <span class="spec-title">You are working on hassil — a library that recognizes intents in natural language sentences via intent templates, defined in YAML, that come with slot lists.</span>
+        <span class="spec-meta muted">703 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on <code>hassil</code>, a library for recognizing intents from natural language sentences using YAML-defined intent templates with slot lists. This task extends the handling of <strong>unmatched entities</strong> so that entities required by an intent's context (but absent from the input) are surfaced as unmatched entities.</p>
-<h4>Public API Requirement</h4>
-<p>In the module <code>hassil.recognize</code>, add a new module-level constant:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>You are working on <code>hassil</code> — a library that recognizes intents in natural language sentences via intent templates, defined in YAML, that come with slot lists. The handling of <strong>unmatched entities</strong> is what this task extends: entities that an intent's context requires, but that are absent from the input, are now reported as unmatched entities.</p>
+<h4>Requirement for the Public API</h4>
+<p>Inside the module <code>hassil.recognize</code>, introduce a new module-level constant:</p>
 <pre><code class="language-python">MISSING_ENTITY
 </code></pre>
-<p>It must be importable as <code>from hassil.recognize import MISSING_ENTITY</code>. It is a sentinel string value used as the <code>text</code> attribute of an unmatched text entity that was created to represent a required-context entity that had no corresponding value in the input sentence. Its exact value is not otherwise constrained, but it must be a distinct marker distinguishing &quot;this entity was entirely missing from the input&quot; from a real captured text fragment.</p>
-<p>The existing importable names <code>UnmatchedRangeEntity</code> and <code>UnmatchedTextEntity</code> from <code>hassil.recognize</code> remain available and unchanged.</p>
-<h4>Behavior to Implement</h4>
-<h5>Context: recognition with <code>allow_unmatched_entities</code></h5>
-<p>The <code>recognize(sentence, intents, allow_unmatched_entities=...)</code> function attempts to match an input sentence against the defined intents. When <code>allow_unmatched_entities=False</code>, a sentence only matches if every entity referenced by the matched template resolves to a real slot-list value. When <code>allow_unmatched_entities=True</code>, the function may still return a result even when some entities cannot be matched, populating the result's <code>unmatched_entities</code> dictionary (keyed by entity/slot name) with <code>UnmatchedTextEntity</code> (or <code>UnmatchedRangeEntity</code>) instances.</p>
-<h5>New requirement: required-context entities that are missing</h5>
-<p>An intent's data may declare <code>requires_context</code>, a mapping of context keys to expected values (for example <code>domain: cover</code>). These context keys correspond to entities that would normally be supplied by matching a slot in the sentence text.</p>
-<p>When a sentence is recognized:</p>
+<p>An import written as <code>from hassil.recognize import MISSING_ENTITY</code> must work. The constant is a sentinel string value that serves as the <code>text</code> attribute of an unmatched text entity; that entity is created to represent a required-context entity for which the input sentence had no corresponding value. Beyond this role, nothing constrains its exact value — even so, it must be a distinct marker that distinguishes &quot;this entity was entirely missing from the input&quot; from a real captured text fragment.</p>
+<p><code>UnmatchedRangeEntity</code> and <code>UnmatchedTextEntity</code> — already importable from <code>hassil.recognize</code> — stay available, and nothing about them changes.</p>
+<h4>Behavior to Be Implemented</h4>
+<h5>Background: how <code>allow_unmatched_entities</code> affects recognition</h5>
+<p><code>recognize(sentence, intents, allow_unmatched_entities=...)</code> takes an input sentence and attempts to match it against the defined intents. Under <code>allow_unmatched_entities=False</code>, a sentence is matched only when every entity referenced by the matched template resolves to a real slot-list value. Under <code>allow_unmatched_entities=True</code>, the function may still return a result even when some entities cannot be matched; in that situation, the result's <code>unmatched_entities</code> dictionary (keyed by entity/slot name) gets filled with <code>UnmatchedTextEntity</code> (or <code>UnmatchedRangeEntity</code>) instances.</p>
+<h5>New requirement: missing required-context entities</h5>
+<p>The data belonging to an intent may declare <code>requires_context</code>, a mapping that pairs context keys with the values expected for them (for example <code>domain: cover</code>). Matching a slot in the sentence text is what would normally supply the entities to which these context keys correspond.</p>
+<p>During recognition of a sentence:</p>
 <ul>
 <li>
-<p>If the input does <strong>not</strong> provide a value for a key named in <code>requires_context</code>, and <code>allow_unmatched_entities=True</code>, the recognition result must include an entry in <code>unmatched_entities</code> keyed by that context key. That entry must be an <code>UnmatchedTextEntity</code> whose <code>text</code> attribute equals <code>MISSING_ENTITY</code>.</p>
+<p>If the input does <strong>not</strong> supply a value for a key named in <code>requires_context</code>, and <code>allow_unmatched_entities=True</code>, the recognition result must include an entry in <code>unmatched_entities</code> under that context key. That entry must be an <code>UnmatchedTextEntity</code>, and its <code>text</code> attribute must be equal to <code>MISSING_ENTITY</code>.</p>
 </li>
 <li>
-<p>If <code>allow_unmatched_entities=False</code>, the presence of an unsatisfied required-context key must cause the sentence to fail to match (the function returns <code>None</code>).</p>
+<p>With <code>allow_unmatched_entities=False</code>, whenever an unsatisfied required-context key is present, the sentence must fail to match (the function returns <code>None</code>).</p>
 </li>
 </ul>
-<h5>Interaction with text entities that are unmatched</h5>
-<p>When a sentence template contains a slot reference (for example <code>{name}</code>) and the actual words in that position do not correspond to any value in the slot list, that produces its own <code>UnmatchedTextEntity</code> keyed by the slot name, whose <code>text</code> attribute is the literal captured text fragment (with normal surrounding-whitespace handling). This existing behavior is unchanged.</p>
-<p>Both kinds of unmatched entities coexist. Specifically, given an intent whose sentence references a text slot and whose data also declares a required-context key not present in the input:</p>
+<h5>Interaction with unmatched text entities</h5>
+<p>Whenever a sentence template contains a slot reference (for example <code>{name}</code>) and the words actually found in that position do not correspond to any value in the slot list, an <code>UnmatchedTextEntity</code> of its own is produced — keyed by the slot name — and its <code>text</code> attribute holds the literal captured text fragment (with normal handling of the surrounding whitespace). Nothing about this already-existing behavior changes.</p>
+<p>Both kinds of unmatched entities occur alongside one another. To spell this out, take an intent whose sentence references a text slot and whose data also declares a required-context key that is absent from the input:</p>
 <ul>
 <li>
-<p>If the sentence's slot text <strong>does</strong> match a real slot-list value, then only the missing required-context key appears in <code>unmatched_entities</code> (with <code>text == MISSING_ENTITY</code>).</p>
+<p>When the sentence's slot text <strong>does</strong> match a real slot-list value, then <code>unmatched_entities</code> contains only the missing required-context key (with <code>text == MISSING_ENTITY</code>).</p>
 </li>
 <li>
-<p>If the sentence's slot text does <strong>not</strong> match a real slot-list value, then both the slot name (with <code>text</code> equal to the captured fragment) and the missing required-context key (with <code>text == MISSING_ENTITY</code>) appear in <code>unmatched_entities</code>.</p>
+<p>When the sentence's slot text does <strong>not</strong> match a real slot-list value, then <code>unmatched_entities</code> contains both the slot name (whose <code>text</code> equals the captured fragment) and the missing required-context key (with <code>text == MISSING_ENTITY</code>).</p>
 </li>
 </ul>
-<h4>Concrete Example</h4>
-<p>Given these intents:</p>
+<h4>Worked Example</h4>
+<p>Consider this set of intents:</p>
 <pre><code class="language-yaml">language: &quot;en&quot;
 intents:
   Test:
@@ -1304,81 +1312,81 @@ lists:
       - garage door
 </code></pre>
 <ul>
-<li><code>recognize(&quot;open garage door&quot;, intents, allow_unmatched_entities=False)</code> → returns <code>None</code>.</li>
-<li><code>recognize(&quot;open garage door&quot;, intents, allow_unmatched_entities=True)</code> → returns a result whose <code>unmatched_entities</code> keys are exactly <code>{&quot;domain&quot;}</code>; the <code>&quot;domain&quot;</code> entry is an <code>UnmatchedTextEntity</code> with <code>text == MISSING_ENTITY</code>.</li>
-<li><code>recognize(&quot;open back door&quot;, intents, allow_unmatched_entities=True)</code> → returns a result whose <code>unmatched_entities</code> keys are exactly <code>{&quot;domain&quot;, &quot;name&quot;}</code>. The <code>&quot;domain&quot;</code> entry is an <code>UnmatchedTextEntity</code> with <code>text == MISSING_ENTITY</code>; the <code>&quot;name&quot;</code> entry is an <code>UnmatchedTextEntity</code> with <code>text == &quot;back door&quot;</code>.</li>
+<li><code>recognize(&quot;open garage door&quot;, intents, allow_unmatched_entities=False)</code> → the call returns <code>None</code>.</li>
+<li><code>recognize(&quot;open garage door&quot;, intents, allow_unmatched_entities=True)</code> → the call returns a result for which the keys of <code>unmatched_entities</code> are exactly <code>{&quot;domain&quot;}</code>; the entry <code>&quot;domain&quot;</code> is an <code>UnmatchedTextEntity</code> having <code>text == MISSING_ENTITY</code>.</li>
+<li><code>recognize(&quot;open back door&quot;, intents, allow_unmatched_entities=True)</code> → the call returns a result for which the keys of <code>unmatched_entities</code> are exactly <code>{&quot;domain&quot;, &quot;name&quot;}</code>. The entry <code>&quot;domain&quot;</code> is an <code>UnmatchedTextEntity</code> having <code>text == MISSING_ENTITY</code>, while the entry <code>&quot;name&quot;</code> is an <code>UnmatchedTextEntity</code> with <code>text == &quot;back door&quot;</code>.</li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Do not alter existing behavior for sentences that fully match, or for existing unmatched-text/unmatched-range handling.</li>
-<li>The <code>unmatched_entities</code> dictionary must contain entries only for entities that are genuinely unmatched or missing; do not add empty or spurious entries.</li>
+<li>For sentences that fully match, and likewise for the existing unmatched-text/unmatched-range handling, current behavior must not be altered.</li>
+<li>The <code>unmatched_entities</code> dictionary must hold entries only for entities that are genuinely unmatched or missing; empty or spurious entries must not be added.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">You are modifying an intent recognition library that matches natural-language sentences against a set of intents defined in YAML.</span>
-        <span class="spec-meta muted">687 words · source specification
+        <span class="spec-title">The library you are modifying handles intent recognition</span>
+        <span class="spec-meta muted">797 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
       <div class="spec-body"><h4>Overview</h4>
-<p>You are modifying an intent recognition library that matches natural-language sentences against a set of intents defined in YAML. Sentences may contain slot references that map to named lists. This task concerns how entity keys are named when slot references use a <strong>slot alias</strong> and how unmatched entities behave.</p>
-<h4>Background: Slot Reference Syntax</h4>
-<p>In sentence templates, a slot reference can take two forms:</p>
+<p>The library you are modifying handles intent recognition: it matches natural-language sentences against a set of intents defined in YAML. Named lists may be referred to from within a sentence by way of slot references. The task at hand covers two questions: which name an entity key receives when a slot reference uses a <strong>slot alias</strong>, and the way unmatched entities behave.</p>
+<h4>Background: Slot Reference Forms</h4>
+<p>A slot reference inside a sentence template can appear in two forms:</p>
 <ul>
-<li><code>{list_name}</code> — references a list directly; the entity key is the list name.</li>
-<li><code>{list_name:slot_name}</code> — references a list but assigns it an alias (slot name); the entity key must be the <strong>slot name</strong>, not the list name.</li>
+<li><code>{list_name}</code> — the list is referenced directly; the list name serves as the entity key.</li>
+<li><code>{list_name:slot_name}</code> — the list is referenced while an alias (the slot name) is assigned to it; the entity key must be the <strong>slot name</strong> rather than the list name.</li>
 </ul>
-<h4>Required Behavior</h4>
-<h5>1. Slot name used for matched wildcard entities</h5>
-<p>When a sentence template contains a slot reference of the form <code>{list_name:slot_name}</code> and that list is a <strong>wildcard</strong> list, a successful match must record the resulting entity under the key <code>slot_name</code> (the alias), not under <code>list_name</code>.</p>
-<p>The captured entity's value must be the matched span of text from the input sentence.</p>
-<p>Example: given a template <code>run {script_name:name}</code> where <code>script_name</code> is a wildcard list, the input <code>run script 1</code> must match and produce a single entity keyed <code>name</code> whose value is <code>script 1</code>.</p>
-<h5>2. Slot name used for unmatched entities</h5>
-<p>When recognition is performed with unmatched entities allowed, and a slot reference of the form <code>{list_name:slot_name}</code> fails to match its list constraints, the resulting unmatched entity must be recorded under the key <code>slot_name</code> (the alias), not under <code>list_name</code>.</p>
-<p>This applies regardless of the underlying list type:</p>
+<h4>Behavior Requirements</h4>
+<h5>1. Matched wildcard entities are keyed by the slot name</h5>
+<p>Take a sentence template containing a slot reference of the form <code>{list_name:slot_name}</code> whose list is a <strong>wildcard</strong> list. Whenever a match against such a template succeeds, the resulting entity must be recorded with <code>slot_name</code> (the alias) as its key — <code>list_name</code> must not serve as the key.</p>
+<p>What the captured entity holds as its value must be the matched span of text from the input sentence.</p>
+<p>Example: with the template <code>run {script_name:name}</code>, where <code>script_name</code> is a wildcard list, the input <code>run script 1</code> must match, and the match must contain a single entity keyed <code>name</code> with <code>script 1</code> as its value.</p>
+<h5>2. Unmatched entities are keyed by the slot name</h5>
+<p>If recognition happens with unmatched entities allowed and a slot reference of the form <code>{list_name:slot_name}</code> fails to satisfy its list's constraints, then the unmatched entity it produces must be recorded with <code>slot_name</code> (the alias) as its key — <code>list_name</code> must not serve as the key.</p>
+<p>The type of list underneath makes no difference here:</p>
 <ul>
-<li><strong>Value lists</strong> (lists defined by an explicit set of values): if the input text at that slot position does not match any of the list's values, the unmatched entity is keyed by the slot name.
+<li><strong>Value lists</strong> (such a list is defined by an explicit set of values): if the input text at that slot position does not match any of the values the list contains, the unmatched entity receives the slot name as its key.
 <ul>
-<li>Example: template <code>run {script_name:name}</code> with <code>script_name</code> a value list; input <code>run missing name</code> produces a single unmatched entity keyed <code>name</code>.</li>
-</ul>
-</li>
-<li><strong>Range lists</strong> (numeric ranges with <code>from</code>/<code>to</code> bounds):
-<ul>
-<li>If the input at the slot position is non-numeric, the unmatched entity is keyed by the slot name.
-<ul>
-<li>Example: template <code>execute script {script_number:number}</code> with <code>script_number</code> a range from 1 to 100; input <code>execute script wrong number</code> produces a single unmatched entity keyed <code>number</code>.</li>
+<li>Example: for the template <code>run {script_name:name}</code> with <code>script_name</code> a value list, the input <code>run missing name</code> produces a single unmatched entity whose key is <code>name</code>.</li>
 </ul>
 </li>
-<li>If the input at the slot position is numeric but falls outside the range bounds, the unmatched entity is likewise keyed by the slot name.
+<li><strong>Range lists</strong> (numeric ranges bounded by <code>from</code>/<code>to</code>):
 <ul>
-<li>Example: same template; input <code>execute script 0</code> (0 is outside 1–100) produces a single unmatched entity keyed <code>number</code>.</li>
+<li>If the input sitting at the slot position is non-numeric, the slot name becomes the key of the unmatched entity.
+<ul>
+<li>Example: the template <code>execute script {script_number:number}</code>, with <code>script_number</code> a range from 1 to 100; the input <code>execute script wrong number</code> produces a single unmatched entity whose key is <code>number</code>.</li>
+</ul>
+</li>
+<li>If the input at the slot position is numeric yet falls outside the bounds of the range, the unmatched entity is keyed by the slot name all the same.
+<ul>
+<li>Example: still the same template; the input <code>execute script 0</code> (0 is outside 1–100) produces a single unmatched entity whose key is <code>number</code>.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 <h4>Public API Surface</h4>
-<p>The following must be importable and callable exactly as described (existing surface — preserve it):</p>
+<p>Everything listed below must remain importable and callable exactly as described (this is the existing surface — it must be preserved):</p>
 <ul>
 <li>
-<p><code>Intents.from_yaml(file)</code> — a classmethod on the <code>Intents</code> class that parses a YAML definition from a file-like object (e.g. an <code>io.StringIO</code>) and returns an <code>Intents</code> instance.</p>
+<p><code>Intents.from_yaml(file)</code> — a classmethod that the <code>Intents</code> class provides; it parses a YAML definition supplied by a file-like object (e.g. an <code>io.StringIO</code>) and returns an <code>Intents</code> instance.</p>
 </li>
 <li>
-<p><code>recognize(sentence, intents, allow_unmatched_entities=False)</code> — a module-level function that attempts to match a sentence string against the given <code>Intents</code>. When <code>allow_unmatched_entities=True</code>, sentences may still match even if some slots do not satisfy their list constraints, with those slots recorded as unmatched entities.</p>
+<p><code>recognize(sentence, intents, allow_unmatched_entities=False)</code> — a function defined at module level; it takes a sentence string and attempts to match it against the <code>Intents</code> provided. Under <code>allow_unmatched_entities=True</code>, a sentence may still match even when some of its slots do not satisfy their list constraints, with such slots recorded as unmatched entities.</p>
 <ul>
-<li>Returns <code>None</code> if no match is found.</li>
-<li>On a successful match, returns a result object with:
+<li><code>None</code> is returned if no match is found.</li>
+<li>If a match succeeds, the function returns a result object that has:
 <ul>
-<li><code>.entities</code> — a mapping (dict-like) from entity key → entity object, where each entity object has a <code>.value</code> attribute (and, for text-based captures, a <code>.text</code> attribute holding the matched input span).</li>
-<li><code>.unmatched_entities</code> — a mapping (dict-like) from unmatched-entity key → unmatched-entity object.</li>
+<li><code>.entities</code> — a mapping (dict-like) from entity key → entity object, in which each entity object has a <code>.value</code> attribute (for text-based captures there is also a <code>.text</code> attribute holding the matched input span).</li>
+<li><code>.unmatched_entities</code> — a dict-like mapping from unmatched-entity key → unmatched-entity object.</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
-<h4>YAML Structure (for reference)</h4>
+<h4>YAML Layout (for reference)</h4>
 <pre><code class="language-yaml">language: &quot;en&quot;
 intents:
   &lt;IntentName&gt;:
@@ -1396,9 +1404,9 @@ lists:
   &lt;wildcard_list&gt;:
     wildcard: true   # wildcard list
 </code></pre>
-<h4>Summary of the Change</h4>
-<p>Wherever an entity (matched or unmatched) is produced from a slot reference that carries an alias (<code>{list_name:slot_name}</code>), the entity must be keyed by the alias (<code>slot_name</code>) rather than by the list name. This must hold for wildcard matches and for all unmatched-entity cases (value lists, non-numeric range inputs, and out-of-range numeric inputs).</p>
-<p>Duplicate fixed/unmatched entities for the same slot must not be recorded more than once — each slot yields at most a single entry under its key.</p>
+<h4>Change Summary</h4>
+<p>Any entity — matched or unmatched — that a slot reference with an alias (<code>{list_name:slot_name}</code>) produces must be keyed by that alias (<code>slot_name</code>), and the list name must not be used as the key. This requirement covers wildcard matches as well as all unmatched-entity cases (value lists, range inputs that are non-numeric, and numeric inputs outside the range).</p>
+<p>Duplicate fixed/unmatched entities within one and the same slot must not be recorded more than once — under its key, each slot accounts for at most a single entry.</p>
 </div>
     </details>
   </div>

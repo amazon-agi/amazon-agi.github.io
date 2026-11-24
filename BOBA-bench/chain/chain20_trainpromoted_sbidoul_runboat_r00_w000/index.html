@@ -74,7 +74,7 @@
       <div><dt>History:</dt><dd><a href="https://github.com/sbidoul/runboat/compare/6885ff6b3c5f94baaf697d9eb63b7635c016ace7...dff8bbed02bbb5120eae8c6406fe58582c3cca0f" target="_blank" rel="noopener" class="mono">6885ff6b3c … dff8bbed02</a> · 165 commits by 2 authors over 3 mo (2021-11-05 to 2022-01-29)</dd></div>
       <div><dt>Window:</dt><dd>requests 1–20 of a run of 20 test-bearing changes · training split</dd></div>
       <div><dt>Size:</dt><dd>1,418 lines of code in 37 files when the chain starts · over the 20 requests the developers added 2,072 and removed 1,193 lines of code, plus 497 lines of tests (60 fail-to-pass tests)</dd></div>
-      <div><dt>Specifications:</dt><dd>6.8k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 9</dd></div>
+      <div><dt>Specifications:</dt><dd>7.4k words · 2 of 20 rewritten during the adequacy audit · later requests touch files of earlier ones to depth 18 and symbols introduced by earlier ones to depth 9</dd></div>
     </dl>
   </header>
 </section>
@@ -144,100 +144,101 @@
     <details class="spec-item" id="request-1">
       <summary class="spec-summary">
         <span class="spec-num">01</span>
-        <span class="spec-title">Implement a module that determines whether a given repository branch is supported and, for supported branches, resolves the appropriate build container image.</span>
-        <span class="spec-meta muted">359 words · source specification
+        <span class="spec-title">Build a module that works out whether a supplied repository branch is supported and, for supported branches, determines the appropriate build container image.</span>
+        <span class="spec-meta muted">396 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-pass" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-pass" title="GLM-5.3-Flash"></i><i class="dot c-pass" title="GLM-5.3"></i><i class="dot c-pass" title="GPT-6.1 Sol"></i><i class="dot c-pass" title="GPT-5.6"></i><i class="dot c-pass" title="Kimi K3"></i><i class="dot c-pass" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Implement a module that determines whether a given repository branch is supported and, for supported branches, resolves the appropriate build container image.</p>
-<h4>Module and API Surface</h4>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Build a module that works out whether a supplied repository branch is supported and, for supported branches, determines the appropriate build container image.</p>
+<h4>Module and Public API</h4>
 <h5><code>runboat/exceptions.py</code></h5>
-<p>Define an exception class:</p>
+<p>Provide an exception class:</p>
 <ul>
-<li><code>BranchNotSupported</code> — an exception (subclass of <code>Exception</code>) raised when an operation is requested for a branch that is not supported.</li>
+<li><code>BranchNotSupported</code> — an exception that is a subclass of <code>Exception</code>, raised when an operation is requested for a branch that is not supported.</li>
 </ul>
 <h5><code>runboat/build_images.py</code></h5>
-<p>Implement the following three public functions.</p>
+<p>The following three public functions must be implemented.</p>
 <h6><code>get_main_branch(branch: str) -&gt; str</code></h6>
-<p>Given a branch name, returns its &quot;main branch&quot; identifier — the leading version portion of the branch name.</p>
+<p>Takes a branch name and returns its &quot;main branch&quot; identifier — that is, the leading version portion of the branch name.</p>
 <ul>
-<li>The main branch is the substring of <code>branch</code> up to (but not including) the first <code>-</code> character. If there is no <code>-</code>, the entire branch name is the main branch.</li>
-<li>The resulting main branch must be one of the supported branches. The supported set includes <code>&quot;15.0&quot;</code>.</li>
-<li>If the resolved main branch is not supported, raise <code>BranchNotSupported</code>.</li>
+<li>The main branch is the substring of <code>branch</code> that runs up to the first <code>-</code> character, with that character left out. If no <code>-</code> is present, the main branch is the entire branch name.</li>
+<li>The main branch that results must be one of the supported branches. <code>&quot;15.0&quot;</code> is part of the supported set.</li>
+<li>If the main branch that gets resolved is not supported, raise <code>BranchNotSupported</code>.</li>
 </ul>
-<p>Examples of required behavior:</p>
+<p>Examples of the required behavior:</p>
 <ul>
 <li><code>get_main_branch(&quot;15.0&quot;)</code> returns <code>&quot;15.0&quot;</code>.</li>
 <li><code>get_main_branch(&quot;15.0-ocabot-merge&quot;)</code> returns <code>&quot;15.0&quot;</code>.</li>
 <li><code>get_main_branch(&quot;8.0&quot;)</code> raises <code>BranchNotSupported</code> (<code>&quot;8.0&quot;</code> is not supported).</li>
 </ul>
 <h6><code>is_branch_supported(branch: str) -&gt; bool</code></h6>
-<p>Given a branch name, returns whether it is supported.</p>
+<p>Takes a branch name and returns whether that branch is supported.</p>
 <ul>
-<li>A branch is supported if its main branch (as defined above — the portion before the first <code>-</code>, or the whole string when no <code>-</code> is present) is in the supported set.</li>
-<li>Returns <code>True</code> when supported, <code>False</code> otherwise. This function must not raise <code>BranchNotSupported</code>.</li>
+<li>A branch counts as supported when its main branch (as defined above — the portion before the first <code>-</code>, or the whole string when there is no <code>-</code>) is in the supported set.</li>
+<li>The return value is <code>True</code> for a supported branch and <code>False</code> otherwise. The function must not raise <code>BranchNotSupported</code>.</li>
 </ul>
-<p>Examples of required behavior:</p>
+<p>Examples of the required behavior:</p>
 <ul>
 <li><code>is_branch_supported(&quot;15.0&quot;)</code> returns <code>True</code>.</li>
 <li><code>is_branch_supported(&quot;15.0-ocabot-merge&quot;)</code> returns <code>True</code>.</li>
 <li><code>is_branch_supported(&quot;8.0&quot;)</code> returns <code>False</code>.</li>
 </ul>
 <h6><code>get_build_image(branch: str) -&gt; str</code></h6>
-<p>Given a branch name, returns the fully-qualified build container image reference for that branch's main branch.</p>
+<p>Takes a branch name and returns, for that branch's main branch, the fully-qualified build container image reference.</p>
 <ul>
-<li>The main branch is resolved as described above (portion before the first <code>-</code>, or the whole string when no <code>-</code> is present).</li>
-<li>If the main branch is not supported, raise <code>BranchNotSupported</code>.</li>
-<li>For a supported main branch with version <code>X.Y</code>, the returned image reference has the form:
+<li>The main branch is determined as explained above (the portion before the first <code>-</code>, or the whole string when no <code>-</code> is present).</li>
+<li>When the main branch is not supported, raise <code>BranchNotSupported</code>.</li>
+<li>For a supported main branch whose version is <code>X.Y</code>, the image reference that is returned has this form:
 <code>ghcr.io/oca/oca-ci/py3.8-odooX.Y:latest</code></li>
 </ul>
-<p>Examples of required behavior:</p>
+<p>Examples of the required behavior:</p>
 <ul>
 <li><code>get_build_image(&quot;15.0&quot;)</code> returns <code>&quot;ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest&quot;</code>.</li>
 <li><code>get_build_image(&quot;15.0-zzz&quot;)</code> returns <code>&quot;ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest&quot;</code>.</li>
 <li><code>get_build_image(&quot;8.0&quot;)</code> raises <code>BranchNotSupported</code>.</li>
 </ul>
-<h4>Supported Branches</h4>
-<p>At minimum, <code>&quot;15.0&quot;</code> must be a supported main branch, and <code>&quot;8.0&quot;</code> must not be supported. The image reference for <code>&quot;15.0&quot;</code> must be exactly <code>ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest</code>.</p>
+<h4>Set of Supported Branches</h4>
+<p>At minimum, <code>&quot;15.0&quot;</code> must be a supported main branch, while <code>&quot;8.0&quot;</code> must not be supported. For <code>&quot;15.0&quot;</code>, the image reference must be exactly <code>ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-2">
       <summary class="spec-summary">
         <span class="spec-num">02</span>
-        <span class="spec-title">Kubernetes Manifest Rendering for Runboat Builds</span>
-        <span class="spec-meta muted">639 words · source specification
+        <span class="spec-title">Rendering of Kubernetes Manifests for Runboat Builds</span>
+        <span class="spec-meta muted">662 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Kubernetes Manifest Rendering for Runboat Builds</h3>
-<h4>Overview</h4>
-<p>Implement functionality in the module <code>runboat.k8s</code> that renders a set of Kubernetes/Kustomize manifest files for a build deployment. The rendering must be driven by a set of deployment variables produced from build metadata.</p>
+      <div class="spec-body"><h3>Task Specification: Rendering of Kubernetes Manifests for Runboat Builds</h3>
+<h4>Summary</h4>
+<p>In the module <code>runboat.k8s</code>, implement functionality that renders a set of Kubernetes/Kustomize manifest files for a build deployment. The rendering must be driven by a set of deployment variables generated from build metadata.</p>
 <h4>Public API</h4>
-<p>All of the following must be importable from <code>runboat.k8s</code>:</p>
+<p>The following must all be importable from <code>runboat.k8s</code>:</p>
 <h5><code>DeploymentMode</code></h5>
-<p>An enumeration with (at least) a member named <code>deployment</code>. It must be usable as <code>DeploymentMode.deployment</code>.</p>
+<p>An enumeration that contains (at least) a member called <code>deployment</code>. It must be usable as <code>DeploymentMode.deployment</code>.</p>
 <h5><code>make_deployment_vars(...)</code></h5>
-<p>A function that builds and returns a collection of deployment variables (the object it returns is passed directly to <code>_render_kubefiles</code>; its internal shape is not otherwise constrained by this task). It must accept the following keyword arguments:</p>
+<p>A function that constructs and returns a collection of deployment variables (the object it returns is passed directly to <code>_render_kubefiles</code>; this task does not otherwise constrain its internal shape). It must accept the following keyword arguments:</p>
 <ul>
 <li><code>mode</code>: a <code>DeploymentMode</code> value.</li>
-<li><code>build_name: str</code> — the logical name of the build (e.g. <code>&quot;build-name&quot;</code>).</li>
-<li><code>slug: str</code> — a short human-friendly identifier for the build (e.g. <code>&quot;build-slug&quot;</code>).</li>
-<li><code>repo: str</code> — the GitHub repository in <code>owner/name</code> form (e.g. <code>&quot;oca/mis-builder&quot;</code>).</li>
-<li><code>target_branch: str</code> — the branch the build targets (e.g. <code>&quot;15.0&quot;</code>).</li>
+<li><code>build_name: str</code> — the build's logical name (e.g. <code>&quot;build-name&quot;</code>).</li>
+<li><code>slug: str</code> — a brief human-friendly identifier for the build (e.g. <code>&quot;build-slug&quot;</code>).</li>
+<li><code>repo: str</code> — the GitHub repository, given in <code>owner/name</code> form (e.g. <code>&quot;oca/mis-builder&quot;</code>).</li>
+<li><code>target_branch: str</code> — the branch targeted by the build (e.g. <code>&quot;15.0&quot;</code>).</li>
 <li><code>pr</code> — the pull request identifier, or <code>None</code> when the build is not for a PR.</li>
-<li><code>git_commit: str</code> — the commit SHA (e.g. <code>&quot;abcdef123456789&quot;</code>).</li>
-<li><code>image: str</code> — a full container image reference including tag, in the form <code>name:tag</code> (e.g. <code>&quot;ghcr.io/oca/oca-ci:py3.8-odoo15.0&quot;</code>). The image name and tag portions must be split on the last <code>:</code> into separate name and tag values used in the rendered output.</li>
+<li><code>git_commit: str</code> — the SHA of the commit (e.g. <code>&quot;abcdef123456789&quot;</code>).</li>
+<li><code>image: str</code> — a complete container image reference that includes the tag, in the form <code>name:tag</code> (e.g. <code>&quot;ghcr.io/oca/oca-ci:py3.8-odoo15.0&quot;</code>). The name and tag portions of the image must be split on the last <code>:</code> into separate name and tag values used in the rendered output.</li>
 </ul>
 <h5><code>_render_kubefiles(deployment_vars)</code></h5>
-<p>A context manager that takes the object returned by <code>make_deployment_vars</code> and, on entry, renders manifest files into a temporary directory. It yields a filesystem path (a <code>pathlib.Path</code>) to that directory. When the context exits, the temporary directory may be cleaned up.</p>
-<p>Within the yielded directory the following must exist as regular files:</p>
+<p>A context manager that receives the object returned by <code>make_deployment_vars</code> and, upon entry, renders manifest files into a temporary directory. It yields a filesystem path (a <code>pathlib.Path</code>) pointing to that directory. On exit from the context, the temporary directory may be cleaned up.</p>
+<p>Inside the yielded directory, the following must exist as regular files:</p>
 <ul>
 <li><code>kustomization.yaml</code></li>
 <li><code>deployment.yaml</code></li>
 <li><code>service.yaml</code></li>
 <li><code>ingress.yaml</code></li>
 </ul>
-<h4>Rendered <code>kustomization.yaml</code> Content</h4>
-<p>The rendered <code>kustomization.yaml</code> must have exactly the following content (byte-for-byte, including blank lines, indentation with two spaces, quoting, and trailing newline):</p>
+<h4>Content of the Rendered <code>kustomization.yaml</code></h4>
+<p>The rendered <code>kustomization.yaml</code> must contain exactly the following content (byte-for-byte, including blank lines, two-space indentation, quoting, and the trailing newline):</p>
 <pre><code>resources:
   - deployment.yaml
   - service.yaml
@@ -294,24 +295,24 @@ vars:
     fieldref:
       fieldpath: data.HOSTNAME
 </code></pre>
-<h5>Value derivation rules (as demonstrated by the required output)</h5>
-<p>Given the inputs, the file content is derived as follows:</p>
+<h5>How the values are derived (as demonstrated by the required output)</h5>
+<p>From the given inputs, the file content is derived as follows:</p>
 <ul>
-<li><strong><code>namePrefix</code></strong>: <code>&quot;&lt;build_name&gt;-&quot;</code> (the build name followed by a hyphen, quoted).</li>
-<li><strong><code>commonLabels.runboat/build</code></strong>: the <code>build_name</code>, quoted.</li>
+<li><strong><code>namePrefix</code></strong>: <code>&quot;&lt;build_name&gt;-&quot;</code> (the build name with a hyphen after it, quoted).</li>
+<li><strong><code>commonLabels.runboat/build</code></strong>: the value of <code>build_name</code>, quoted.</li>
 <li><strong><code>commonAnnotations</code></strong>:
 <ul>
-<li><code>runboat/repo</code>: the <code>repo</code>, quoted.</li>
-<li><code>runboat/target-branch</code>: the <code>target_branch</code>, quoted.</li>
-<li><code>runboat/pr</code>: the <code>pr</code> value, quoted; when <code>pr</code> is <code>None</code> this must render as an empty quoted string (<code>&quot;&quot;</code>).</li>
-<li><code>runboat/git-commit</code>: the <code>git_commit</code>, quoted.</li>
+<li><code>runboat/repo</code>: the <code>repo</code> value, quoted.</li>
+<li><code>runboat/target-branch</code>: the <code>target_branch</code> value, quoted.</li>
+<li><code>runboat/pr</code>: the <code>pr</code> value, quoted; when <code>pr</code> is <code>None</code>, it must render as an empty quoted string (<code>&quot;&quot;</code>).</li>
+<li><code>runboat/git-commit</code>: the <code>git_commit</code> value, quoted.</li>
 </ul>
 </li>
-<li><strong><code>images</code></strong>: a single entry with <code>name: odoo</code>, <code>newName</code> set to the image name portion (everything before the last <code>:</code>) quoted, and <code>newTag</code> set to the image tag portion (everything after the last <code>:</code>) quoted.</li>
-<li><strong><code>secretGenerator</code></strong>: a single <code>odoosecretenv</code> secret containing the literal <code>PGPASSWORD=thepgpassword</code>.</li>
+<li><strong><code>images</code></strong>: one entry with <code>name: odoo</code>, where <code>newName</code> is set to the image name portion (everything before the last <code>:</code>) quoted, and <code>newTag</code> is set to the image tag portion (everything after the last <code>:</code>) quoted.</li>
+<li><strong><code>secretGenerator</code></strong>: a single <code>odoosecretenv</code> secret holding the literal <code>PGPASSWORD=thepgpassword</code>.</li>
 <li><strong><code>configMapGenerator</code></strong>:
 <ul>
-<li><code>odooenv</code> config map with literals in this order:
+<li><code>odooenv</code> config map whose literals appear in this order:
 <ul>
 <li><code>PGDATABASE=&lt;build_name&gt;</code></li>
 <li><code>ADDONS_DIR=/build</code></li>
@@ -319,39 +320,40 @@ vars:
 <li><code>RUNBOAT_GIT_REF=&lt;git_commit&gt;</code></li>
 </ul>
 </li>
-<li><code>runboat-scripts</code> config map referencing the files (in order): <code>runboat-clone-and-install.sh</code>, <code>runboat-initialize.sh</code>, <code>runboat-cleanup.sh</code>, <code>runboat-start.sh</code>.</li>
-<li><code>vars</code> config map with the literal <code>HOSTNAME=&lt;slug&gt;.runboat.odoo-community.org</code>.</li>
+<li><code>runboat-scripts</code> config map that references the files (in order): <code>runboat-clone-and-install.sh</code>, <code>runboat-initialize.sh</code>, <code>runboat-cleanup.sh</code>, <code>runboat-start.sh</code>.</li>
+<li><code>vars</code> config map containing the literal <code>HOSTNAME=&lt;slug&gt;.runboat.odoo-community.org</code>.</li>
 </ul>
 </li>
 <li><strong><code>namespace</code></strong>: the fixed value <code>runboat-builds</code>.</li>
 </ul>
-<p>All other lines (<code>resources</code>, <code>generatorOptions</code>, and the <code>vars</code> section at the end) are fixed as shown above.</p>
+<p>All remaining lines (<code>resources</code>, <code>generatorOptions</code>, and the <code>vars</code> section at the end) are fixed as shown above.</p>
 <h4>Notes</h4>
 <ul>
-<li>The exact textual formatting shown above is authoritative and must be reproduced precisely.</li>
-<li><code>deployment.yaml</code>, <code>service.yaml</code>, and <code>ingress.yaml</code> must be present as files, but this task does not constrain their content.</li>
+<li>The exact textual formatting given above is authoritative and must be reproduced precisely.</li>
+<li><code>deployment.yaml</code>, <code>service.yaml</code>, and <code>ingress.yaml</code> must be present as files, but their content is not constrained by this task.</li>
 </ul>
 <h4>Additional Requirements</h4>
 <ul>
-<li>In <code>kustomization.yaml</code>, include exactly one blank line after <code>      - HOSTNAME=&lt;slug&gt;.runboat.odoo-community.org</code> and before <code>generatorOptions:</code>.</li>
+<li>In <code>kustomization.yaml</code>, insert exactly one blank line after <code>      - HOSTNAME=&lt;slug&gt;.runboat.odoo-community.org</code> and before <code>generatorOptions:</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-3">
       <summary class="spec-summary">
         <span class="spec-num">03</span>
-        <span class="spec-title">Modify the Kubernetes resource file rendering logic so that the generated resource manifest list includes a Persistent Volume Claim (PVC) entry.</span>
-        <span class="spec-meta muted">206 words · source specification
+        <span class="spec-title">Change the logic that renders Kubernetes resource files so that the generated resource manifest list includes a Persistent Volume Claim (PVC) entry.</span>
+        <span class="spec-meta muted">221 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Modify the Kubernetes resource file rendering logic so that the generated resource manifest list includes a Persistent Volume Claim (PVC) entry.</p>
-<h4>Context</h4>
-<p>The module <code>runboat.k8s</code> exposes rendering functionality used to generate Kubernetes configuration files (kubefiles) for a deployment. This includes an internal rendering function <code>_render_kubefiles</code>, along with the public symbols <code>DeploymentMode</code> and <code>make_deployment_vars</code>.</p>
-<p>When kubefiles are rendered, one of the outputs is a resources manifest listing (in YAML) that enumerates the Kubernetes resource files to be applied.</p>
-<h4>Required Change</h4>
-<p>The rendered resources list must include a <code>pvc.yaml</code> entry, and it must appear as the <strong>first</strong> entry in the list, before the existing entries.</p>
-<p>Specifically, the resources listing must be exactly:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Goal</h4>
+<p>Change the logic that renders Kubernetes resource files so that the generated resource manifest list includes a Persistent Volume Claim (PVC) entry.</p>
+<h4>Background</h4>
+<p>Rendering functionality used to generate Kubernetes configuration files (kubefiles) for a deployment is exposed by the module <code>runboat.k8s</code>. This includes an internal rendering function, <code>_render_kubefiles</code>, as well as the public symbols <code>DeploymentMode</code> and <code>make_deployment_vars</code>.</p>
+<p>One of the outputs produced when kubefiles are rendered is a resources manifest listing (in YAML) that enumerates the Kubernetes resource files to be applied.</p>
+<h4>Required Modification</h4>
+<p>A <code>pvc.yaml</code> entry must be included in the rendered resources list, and it must appear as the <strong>first</strong> entry in the list, before the existing entries.</p>
+<p>Concretely, the resources listing must be exactly:</p>
 <pre><code>resources:
   - pvc.yaml
   - deployment.yaml
@@ -359,8 +361,8 @@ vars:
   - ingress.yaml
 </code></pre>
 <ul>
-<li>Each entry is indented with two spaces followed by <code>- </code> (dash and space) before the file name.</li>
-<li>The <code>pvc.yaml</code> entry precedes <code>deployment.yaml</code>, <code>service.yaml</code>, and <code>ingress.yaml</code>, and the relative order of those existing three entries is unchanged.</li>
+<li>Each entry is indented by two spaces, followed by <code>- </code> (dash and space), before the file name.</li>
+<li>The <code>pvc.yaml</code> entry precedes <code>deployment.yaml</code>, <code>service.yaml</code>, and <code>ingress.yaml</code>; the relative order of those existing three entries remains unchanged.</li>
 </ul>
 <h4>API Surface (must remain importable and callable)</h4>
 <p>From <code>runboat.k8s</code>:</p>
@@ -369,72 +371,72 @@ vars:
 <li><code>_render_kubefiles</code></li>
 <li><code>make_deployment_vars</code></li>
 </ul>
-<p>No signatures need to change; only the rendered resources output must be updated to include the new <code>pvc.yaml</code> entry as the first item.</p>
+<p>Signatures do not need to change; the rendered resources output is the only thing that must be updated, so that it includes the new <code>pvc.yaml</code> entry as the first item.</p>
 </div>
     </details>
     <details class="spec-item" id="request-4">
       <summary class="spec-summary">
         <span class="spec-num">04</span>
-        <span class="spec-title">Configurable Filestore Storage Class in Kubernetes File Rendering</span>
-        <span class="spec-meta muted">550 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Making the Filestore Storage Class Configurable in Kubernetes File Rendering</span>
+        <span class="spec-meta muted">608 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Configurable Filestore Storage Class in Kubernetes File Rendering</h3>
-<h4>Overview</h4>
-<p>There is a function responsible for rendering Kubernetes deployment files for a build. As part of this rendering, it produces a <code>kustomization.yaml</code> file in a target directory. Change how that file is generated so that it uses Kustomize <strong>patches</strong> instead of Kustomize <strong>vars</strong> to inject build-specific configuration, and make the filestore storage class configurable.</p>
-<h4>Public API Surface</h4>
-<p>The rendering function must remain importable and callable with its existing invocation contract: given a build and a target output directory represented by a filesystem path, it renders files into that directory. Do not require an additional rendering argument for the storage class.</p>
-<p>After a successful render, the target directory must contain at least:</p>
+      <div class="spec-body"><h3>Task Specification: Making the Filestore Storage Class Configurable in Kubernetes File Rendering</h3>
+<h4>Summary</h4>
+<p>A function renders the Kubernetes deployment files for a build. In the course of this rendering, it writes a <code>kustomization.yaml</code> file into a target directory. Alter the way this file is generated so that build-specific configuration is injected through Kustomize <strong>patches</strong> rather than through Kustomize <strong>vars</strong>, and make the filestore storage class configurable.</p>
+<h4>Public API</h4>
+<p>The rendering function must stay importable and callable under its existing invocation contract: it takes a build and a target output directory given as a filesystem path, and it renders files into that directory. An additional rendering argument for the storage class must not be required.</p>
+<p>After a render succeeds, the target directory must contain at least:</p>
 <ul>
 <li><code>kustomization.yaml</code></li>
 <li><code>deployment.yaml</code></li>
 </ul>
-<p>Only the content of the generated <code>kustomization.yaml</code> changes under this task; the renderer's existing invocation contract and the other rendered resources remain compatible.</p>
-<h4>Configuration Contract</h4>
-<p>The filestore storage class must be obtained from the <code>RUNBOAT_BUILD_TEMPLATE_VARS</code> configuration value. This value is a JSON object, and the renderer must use its case-sensitive <code>storageClassName</code> key as the storage-class patch value.</p>
-<p>For example, this configuration:</p>
+<p>This task changes only the content of the generated <code>kustomization.yaml</code>; the renderer's existing invocation contract and the other rendered resources remain compatible.</p>
+<h4>The Configuration Contract</h4>
+<p>The filestore storage class must be taken from the <code>RUNBOAT_BUILD_TEMPLATE_VARS</code> configuration value. That value is a JSON object, and the renderer must use its case-sensitive <code>storageClassName</code> key as the storage-class patch value.</p>
+<p>For example, with this configuration:</p>
 <pre><code class="language-text">RUNBOAT_BUILD_TEMPLATE_VARS={&quot;storageClassName&quot;:&quot;my-storage-class&quot;}
 </code></pre>
-<p>must cause the storage-class patch to contain:</p>
+<p>the storage-class patch must contain:</p>
 <pre><code class="language-yaml">value: my-storage-class
 </code></pre>
-<p>The value must come from this configuration object rather than from a hard-coded storage-class name or a differently named setting.</p>
-<h4>Required Behavior</h4>
-<h5>1. Remove the <code>vars</code> mechanism</h5>
-<p>The generated <code>kustomization.yaml</code> must no longer contain either of the following:</p>
+<p>The value must originate in this configuration object rather than in a hard-coded storage-class name or a differently named setting.</p>
+<h4>Behavior That Is Required</h4>
+<h5>1. Eliminate the <code>vars</code> mechanism</h5>
+<p>The generated <code>kustomization.yaml</code> must not contain either of the following any longer:</p>
 <ul>
-<li>A <code>configMapGenerator</code> entry named <code>vars</code>, including the config map that previously held the <code>HOSTNAME</code> literal.</li>
-<li>A top-level <code>vars:</code> section.</li>
+<li>A <code>configMapGenerator</code> entry called <code>vars</code>, including the config map that previously held the <code>HOSTNAME</code> literal.</li>
+<li>A <code>vars:</code> section at the top level.</li>
 </ul>
-<p>All other existing <code>configMapGenerator</code> entries and their files or literals must remain as before. The existing generator options must also remain:</p>
+<p>Every other existing <code>configMapGenerator</code> entry, along with its files or literals, must remain as before. The existing generator options must also be kept:</p>
 <pre><code class="language-yaml">generatorOptions:
   disableNameSuffixHash: true
 </code></pre>
-<h5>2. Add an ordered <code>patches</code> section</h5>
-<p>The generated <code>kustomization.yaml</code> must contain a top-level <code>patches:</code> section with exactly two entries, in this order:</p>
+<h5>2. Add a <code>patches</code> section with a fixed order</h5>
+<p>The generated <code>kustomization.yaml</code> must contain a top-level <code>patches:</code> section that has exactly two entries, arranged in this order:</p>
 <ol>
 <li>
-<p><strong>Filestore PVC storage class</strong></p>
+<p><strong>Storage class of the filestore PVC</strong></p>
 <ul>
-<li>Target kind: <code>PersistentVolumeClaim</code></li>
-<li>Target name: <code>odoo-data</code></li>
-<li>Operation: JSON Patch <code>replace</code></li>
+<li>Kind of the target: <code>PersistentVolumeClaim</code></li>
+<li>Name of the target: <code>odoo-data</code></li>
+<li>Operation: a JSON Patch <code>replace</code></li>
 <li>Path: <code>/spec/storageClassName</code></li>
-<li>Value: the <code>storageClassName</code> value from <code>RUNBOAT_BUILD_TEMPLATE_VARS</code></li>
+<li>Value: the <code>storageClassName</code> value taken from <code>RUNBOAT_BUILD_TEMPLATE_VARS</code></li>
 </ul>
 </li>
 <li>
-<p><strong>Ingress host</strong></p>
+<p><strong>Host of the Ingress</strong></p>
 <ul>
-<li>Target kind: <code>Ingress</code></li>
-<li>Target name: <code>odoo</code></li>
-<li>Operation: JSON Patch <code>replace</code></li>
+<li>Kind of the target: <code>Ingress</code></li>
+<li>Name of the target: <code>odoo</code></li>
+<li>Operation: a JSON Patch <code>replace</code></li>
 <li>Path: <code>/spec/rules/0/host</code></li>
-<li>Value: the build hostname</li>
+<li>Value: the hostname of the build</li>
 </ul>
 </li>
 </ol>
-<p>The section must have this structure:</p>
+<p>The section must be structured as follows:</p>
 <pre><code class="language-yaml">patches:
   - target:
       kind: PersistentVolumeClaim
@@ -451,83 +453,83 @@ vars:
         path: /spec/rules/0/host
         value: &lt;hostname-value&gt;
 </code></pre>
-<p>Each <code>patch:</code> value uses YAML block-scalar style (<code>|-</code>) and contains one JSON Patch list with one <code>op: replace</code> operation.</p>
-<h5>3. Configurable storage-class value</h5>
-<p><code>&lt;storage-class-value&gt;</code> must be the exact value configured under <code>RUNBOAT_BUILD_TEMPLATE_VARS.storageClassName</code>. For example, when that key is configured as <code>my-storage-class</code>, the first patch must render <code>value: my-storage-class</code>.</p>
-<h5>4. Build hostname value</h5>
-<p><code>&lt;hostname-value&gt;</code> must be the build's hostname, using the same value that was previously injected through the <code>HOSTNAME</code> var. For example:</p>
+<p>Every <code>patch:</code> value is written in YAML block-scalar style (<code>|-</code>) and holds a single JSON Patch list with a single <code>op: replace</code> operation.</p>
+<h5>3. Configurability of the storage-class value</h5>
+<p><code>&lt;storage-class-value&gt;</code> must be exactly the value configured under <code>RUNBOAT_BUILD_TEMPLATE_VARS.storageClassName</code>. For example, when the configured value of that key is <code>my-storage-class</code>, the first patch must render <code>value: my-storage-class</code>.</p>
+<h5>4. The build hostname value</h5>
+<p><code>&lt;hostname-value&gt;</code> must be the build's hostname and must be the same value that was previously injected through the <code>HOSTNAME</code> var. For example:</p>
 <pre><code class="language-yaml">value: build-slug.runboat.odoo-community.org
 </code></pre>
-<h4>Output Formatting</h4>
+<h4>Formatting of the Output</h4>
 <ul>
-<li>Leading or trailing whitespace around the complete generated file is not significant; an initial or final blank line and a trailing newline are allowed.</li>
-<li>Internal YAML structure and ordering must follow the layout above.</li>
-<li>The PVC patch must precede the ingress patch.</li>
-<li>Both patch bodies must use <code>|-</code> and contain exactly the single replace operation shown for that target.</li>
+<li>Whitespace at the beginning or end of the complete generated file carries no significance; a blank line at the start or the end and a trailing newline are permitted.</li>
+<li>The internal YAML structure and its ordering must match the layout given above.</li>
+<li>The PVC patch must be positioned before the ingress patch.</li>
+<li>Both patch bodies must use <code>|-</code> and must contain exactly the single replace operation shown for the corresponding target.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-5">
       <summary class="spec-summary">
         <span class="spec-num">05</span>
-        <span class="spec-title">Update Kubernetes Manifest Rendering</span>
-        <span class="spec-meta muted">228 words · source specification
+        <span class="spec-title">Modify Kubernetes Manifest Rendering</span>
+        <span class="spec-meta muted">248 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: Update Kubernetes Manifest Rendering</h3>
-<h4>Overview</h4>
-<p>You must modify the Kubernetes manifest rendering logic so that the rendered configuration reflects two specific changes to how Odoo data storage is configured.</p>
-<h4>Context</h4>
-<p>The codebase includes functionality that renders Kubernetes configuration files (kubefiles) for a build. This rendering process produces, among other outputs:</p>
+      <div class="spec-body"><h3>Task Specification: Modify Kubernetes Manifest Rendering</h3>
+<h4>Summary</h4>
+<p>You must change the logic that renders Kubernetes manifests so that the rendered configuration incorporates two specific adjustments to the way Odoo data storage is configured.</p>
+<h4>Background</h4>
+<p>The codebase contains functionality that renders the Kubernetes configuration files (kubefiles) for a build. Among other outputs, this rendering process produces:</p>
 <ol>
-<li>A <code>configMapGenerator</code> entry named <code>odooenv</code> containing environment literals for a build.</li>
-<li>A <code>patches</code> section that targets a <code>PersistentVolumeClaim</code> resource.</li>
+<li>A <code>configMapGenerator</code> entry named <code>odooenv</code> that holds environment literals for a build.</li>
+<li>A <code>patches</code> section whose target is a <code>PersistentVolumeClaim</code> resource.</li>
 </ol>
-<h4>Required Behavior Changes</h4>
-<h5>1. <code>ADDONS_DIR</code> environment literal value</h5>
-<p>Within the <code>odooenv</code> configMapGenerator's <code>literals</code>, the <code>ADDONS_DIR</code> entry must have the value:</p>
+<h4>Required Changes in Behavior</h4>
+<h5>1. Value of the <code>ADDONS_DIR</code> environment literal</h5>
+<p>In the <code>literals</code> of the <code>odooenv</code> configMapGenerator, the <code>ADDONS_DIR</code> entry must be given the value:</p>
 <pre><code>/mnt/data/odoo-data-dir
 </code></pre>
-<p>(Previously this value was <code>/build</code>.)</p>
-<p>The other literals in <code>odooenv</code> remain unchanged, including:</p>
+<p>(The earlier value was <code>/build</code>.)</p>
+<p>The other literals in <code>odooenv</code> stay unchanged, including:</p>
 <ul>
 <li><code>PGDATABASE</code> (e.g. <code>build-name</code>)</li>
 <li><code>RUNBOAT_GIT_REPO</code></li>
 <li><code>RUNBOAT_GIT_REF</code></li>
 </ul>
-<h5>2. PersistentVolumeClaim patch target name</h5>
-<p>Within the <code>patches</code> section, the patch that targets a resource of <code>kind: PersistentVolumeClaim</code> must reference the target <code>name</code>:</p>
+<h5>2. Target name of the PersistentVolumeClaim patch</h5>
+<p>In the <code>patches</code> section, the patch that points at a resource of <code>kind: PersistentVolumeClaim</code> must reference the target <code>name</code>:</p>
 <pre><code>data
 </code></pre>
-<p>(Previously this name was <code>odoo-data</code>.)</p>
-<p>The remainder of that patch — including the <code>op: replace</code> operation on the <code>path: /spec/storageClassName</code> — remains unchanged.</p>
-<h4>Scope</h4>
+<p>(The earlier name was <code>odoo-data</code>.)</p>
+<p>The rest of that patch — including the <code>op: replace</code> operation on the <code>path: /spec/storageClassName</code> — stays unchanged.</p>
+<h4>Scope of the Changes</h4>
 <ul>
-<li>The public API surface used to render kubefiles remains the same; only the rendered output values described above change.</li>
-<li>No other rendered content (other literals, generator options, other patch fields, ordering) should be altered.</li>
-<li>Make the minimal changes necessary so that rendering a build's kubefiles produces the two updated values above.</li>
+<li>The public API surface used to render kubefiles stays the same; the only changes are to the rendered output values described above.</li>
+<li>No other rendered content (other literals, generator options, other patch fields, ordering) should be modified.</li>
+<li>Apply the minimal changes necessary so that rendering a build's kubefiles produces the two updated values above.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-6">
       <summary class="spec-summary">
         <span class="spec-num">06</span>
-        <span class="spec-title">Add the module-level function</span>
-        <span class="spec-meta muted">75 words · source specification
+        <span class="spec-title">Introduce the following module-level function</span>
+        <span class="spec-meta muted">82 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-pass" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Add the module-level function:</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Introduce the following module-level function:</p>
 <pre><code class="language-python">runboat.k8s._split_image_name_tag(image: str) -&gt; tuple[str, str]
 </code></pre>
-<p>The function must split a container image string into an image name and tag:</p>
+<p>When given a container image string, the function must split it into an image name and tag:</p>
 <ul>
-<li>For an image without an explicit tag, return the original image name with the tag <code>&quot;latest&quot;</code>.
+<li>When the image carries no explicit tag, return the original image name together with the tag <code>&quot;latest&quot;</code>.
 <ul>
 <li>Example: <code>&quot;postgres&quot;</code> → <code>(&quot;postgres&quot;, &quot;latest&quot;)</code></li>
 </ul>
 </li>
-<li>For an image with an explicit tag separated by <code>:</code>, return the image name and supplied tag.
+<li>When the image carries an explicit tag separated by <code>:</code>, return the image name together with the supplied tag.
 <ul>
 <li>Example: <code>&quot;postgres:12&quot;</code> → <code>(&quot;postgres&quot;, &quot;12&quot;)</code></li>
 </ul>
@@ -538,127 +540,129 @@ vars:
     <details class="spec-item" id="request-7">
       <summary class="spec-summary">
         <span class="spec-num">07</span>
-        <span class="spec-title">Modify the BuildsDb class in runboat/db.py to support the observer pattern, allowing external listeners to be notified when a build is added, changed, or…</span>
-        <span class="spec-meta muted">448 words · source specification
+        <span class="spec-title">Change the BuildsDb class in runboat/db.py so that it supports the observer pattern, making it possible for external listeners to be notified when a build…</span>
+        <span class="spec-meta muted">476 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Add Observer Support to BuildsDb</h3>
-<h4>Overview</h4>
-<p>Modify the <code>BuildsDb</code> class in <code>runboat/db.py</code> to support the observer pattern, allowing external listeners to be notified when a build is added, changed, or removed from the database.</p>
-<h4>Required Changes</h4>
+      <div class="spec-body"><h3>Task: Add Observer Pattern Support to BuildsDb</h3>
+<h4>Summary</h4>
+<p>Change the <code>BuildsDb</code> class in <code>runboat/db.py</code> so that it supports the observer pattern, making it possible for external listeners to be notified when a build is added, changed, or removed from the database.</p>
+<h4>Required Modifications</h4>
 <h5><code>BuildsDb.register_listener(listener)</code></h5>
-<p>Add a new public method <code>register_listener</code> to the <code>BuildsDb</code> class. It accepts a single <code>listener</code> object and registers it to receive notifications about build changes. Multiple listeners may be registered.</p>
-<p>The <code>listener</code> object is expected to expose a callable attribute named <code>build_updated</code>. When a relevant change occurs, <code>build_updated</code> must be called on each registered listener.</p>
-<h5>Notification behavior</h5>
-<p>Registered listeners' <code>build_updated</code> method must be invoked in the following situations:</p>
+<p>Add a new public method called <code>register_listener</code> to the <code>BuildsDb</code> class. This method accepts a single <code>listener</code> object and registers that listener to receive notifications about build changes. More than one listener may be registered.</p>
+<p>It is expected that the <code>listener</code> object exposes a callable attribute named <code>build_updated</code>. Whenever a relevant change occurs, <code>build_updated</code> must be called on each registered listener.</p>
+<h5>Notification Behavior</h5>
+<p>The <code>build_updated</code> method of registered listeners must be invoked in the following situations:</p>
 <ul>
 <li>
-<p><strong>Adding a new build:</strong> When <code>add(build)</code> is called with a build whose name is not already present, the build is stored and each registered listener's <code>build_updated</code> must be called.</p>
+<p><strong>Adding a new build:</strong> Whenever <code>add(build)</code> is called with a build whose name is not already present, the build is stored, and <code>build_updated</code> must be called on each registered listener.</p>
 </li>
 <li>
-<p><strong>Changing an existing build:</strong> When <code>add(build)</code> is called with a build whose name already exists but whose data differs from the currently stored build (e.g. a different status), the stored build is updated and each registered listener's <code>build_updated</code> must be called.</p>
+<p><strong>Changing an existing build:</strong> Whenever <code>add(build)</code> is called with a build whose name already exists but whose data differs from the currently stored build (e.g. a different status), the stored build is updated, and <code>build_updated</code> must be called on each registered listener.</p>
 </li>
 <li>
-<p><strong>Adding an unchanged build:</strong> When <code>add(build)</code> is called with a build whose name already exists and whose data is identical to the currently stored build, no change is recorded and <code>build_updated</code> must NOT be called.</p>
+<p><strong>Adding an unchanged build:</strong> Whenever <code>add(build)</code> is called with a build whose name already exists and whose data is identical to the currently stored build, no change is recorded, and <code>build_updated</code> must NOT be called.</p>
 </li>
 <li>
-<p><strong>Removing an existing build:</strong> When <code>remove(name)</code> is called with a name that exists in the database, the build is removed and each registered listener's <code>build_updated</code> must be called.</p>
+<p><strong>Removing an existing build:</strong> Whenever <code>remove(name)</code> is called with a name that exists in the database, the build is removed, and <code>build_updated</code> must be called on each registered listener.</p>
 </li>
 <li>
-<p><strong>Removing a non-existent build:</strong> When <code>remove(name)</code> is called with a name that does not exist, nothing is removed and <code>build_updated</code> must NOT be called.</p>
+<p><strong>Removing a non-existent build:</strong> Whenever <code>remove(name)</code> is called with a name that does not exist, nothing is removed, and <code>build_updated</code> must NOT be called.</p>
 </li>
 </ul>
-<h4>Signature Changes</h4>
-<p>The <code>add</code> and <code>remove</code> methods no longer need to return a boolean indicating whether a change occurred; their return values are not used by callers in this task. Their side effects (storing/removing builds and notifying listeners) are what matter.</p>
+<h4>Changes to Signatures</h4>
+<p>The <code>add</code> and <code>remove</code> methods no longer need to return a boolean that indicates whether a change occurred; callers in this task do not use their return values. What matters are their side effects (storing/removing builds and notifying listeners).</p>
 <h4>Existing Behavior That Must Be Preserved</h4>
-<p>All other <code>BuildsDb</code> behavior must remain unchanged, including:</p>
+<p>All other behavior of <code>BuildsDb</code> must remain unchanged, including:</p>
 <ul>
-<li><code>add(build)</code>: stores a build keyed by its <code>name</code>; replaces the stored build only when the new one differs.</li>
-<li><code>remove(name)</code>: removes the build with the given name if present.</li>
+<li><code>add(build)</code>: stores a build keyed by its <code>name</code>; the stored build is replaced only when the new one differs.</li>
+<li><code>remove(name)</code>: removes the build with the given name if that name is present.</li>
 <li><code>get_for_commit(...)</code>: retrieves a build for a given commit.</li>
-<li><code>search(repo)</code>: returns the list of builds matching a repository.</li>
-<li><code>count_by_status(status)</code>: returns the number of builds with the given <code>BuildStatus</code>.</li>
-<li><code>count_by_init_status(init_status)</code>: returns the number of builds with the given <code>BuildInitStatus</code>.</li>
+<li><code>search(repo)</code>: returns the list of builds that match a repository.</li>
+<li><code>count_by_status(status)</code>: returns the number of builds that have the given <code>BuildStatus</code>.</li>
+<li><code>count_by_init_status(init_status)</code>: returns the number of builds that have the given <code>BuildInitStatus</code>.</li>
 <li><code>count_all()</code>: returns the total number of builds.</li>
 </ul>
-<p><code>BuildsDb</code> continues to be constructed with no arguments (<code>BuildsDb()</code>), and a freshly constructed instance has no registered listeners and contains no builds.</p>
-<p>Relevant imports used with this class: <code>from runboat.db import BuildsDb</code> and <code>from runboat.models import Build, BuildInitStatus, BuildStatus</code>.</p>
+<p><code>BuildsDb</code> is still constructed with no arguments (<code>BuildsDb()</code>), and an instance that has just been constructed has no registered listeners and contains no builds.</p>
+<p>Imports used together with this class: <code>from runboat.db import BuildsDb</code> and <code>from runboat.models import Build, BuildInitStatus, BuildStatus</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-8">
       <summary class="spec-summary">
         <span class="spec-num">08</span>
-        <span class="spec-title">You must modify the BuildsDb class (the builds database) to change its listener notification interface and to adjust the return type of its search method.</span>
-        <span class="spec-meta muted">391 words · source specification
+        <span class="spec-title">You must modify the BuildsDb class (the builds database) so that its listener notification interface changes and the return type of its search method is…</span>
+        <span class="spec-meta muted">435 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You must modify the <code>BuildsDb</code> class (the builds database) to change its listener notification interface and to adjust the return type of its search method.</p>
-<h4>Listener Interface Change</h4>
-<p><code>BuildsDb</code> supports registering listener objects via a <code>register_listener(listener)</code> method. Currently, when a build is added or removed and this results in an observable change to the database, the listener is notified by calling a method named <code>build_updated</code> on it.</p>
-<p><strong>Required change:</strong> The notification method invoked on registered listeners must be renamed to <code>on_build_event</code>. It must be called with the same semantics that the previous <code>build_updated</code> method was called with. Specifically:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>You must modify the <code>BuildsDb</code> class (the builds database) so that its listener notification interface changes and the return type of its search method is adjusted.</p>
+<h4>Change to the Listener Interface</h4>
+<p>Registration of listener objects is supported by <code>BuildsDb</code> through the <code>register_listener(listener)</code> method. At present, when a build is added or removed and this produces an observable change to the database, the listener is notified by means of a call to a method named <code>build_updated</code> on it.</p>
+<p><strong>Change required:</strong> The method that is invoked on registered listeners to deliver notifications must be renamed to <code>on_build_event</code>. It must be called with the same semantics that applied when the previous <code>build_updated</code> method was called. Specifically:</p>
 <ul>
 <li>
-<p><strong>On <code>add(build)</code>:</strong></p>
+<p><strong>For <code>add(build)</code>:</strong></p>
 <ul>
-<li>When adding a build that is new (not previously present), each registered listener's <code>on_build_event</code> must be called.</li>
-<li>When adding a build that produces no change to the database (e.g., adding an equivalent build that already exists), listeners' <code>on_build_event</code> must <strong>not</strong> be called.</li>
-<li>When adding a build that changes existing state (e.g., a build whose status differs from what was stored), each registered listener's <code>on_build_event</code> must be called.</li>
+<li>When the build being added is new (not previously present), the <code>on_build_event</code> of each registered listener must be called.</li>
+<li>When the addition of a build produces no change to the database (e.g., adding an equivalent build that already exists), listeners' <code>on_build_event</code> must <strong>not</strong> be called.</li>
+<li>When the build being added changes existing state (e.g., a build whose status differs from what was stored), the <code>on_build_event</code> of each registered listener must be called.</li>
 </ul>
 </li>
 <li>
-<p><strong>On <code>remove(name)</code>:</strong></p>
+<p><strong>For <code>remove(name)</code>:</strong></p>
 <ul>
-<li>When removing a name that does not correspond to any stored build, listeners' <code>on_build_event</code> must <strong>not</strong> be called.</li>
-<li>When removing a build that exists in the database, each registered listener's <code>on_build_event</code> must be called.</li>
+<li>When the name being removed does not correspond to any stored build, listeners' <code>on_build_event</code> must <strong>not</strong> be called.</li>
+<li>When the build being removed exists in the database, the <code>on_build_event</code> of each registered listener must be called.</li>
 </ul>
 </li>
 </ul>
-<p>The <code>build_updated</code> method name must no longer be used for these notifications.</p>
-<h4>Search Method Return Type</h4>
-<p>The <code>search(...)</code> method of <code>BuildsDb</code>:</p>
+<p>The method name <code>build_updated</code> must no longer be used for these notifications.</p>
+<h4>Return Type of the Search Method</h4>
+<p>For the <code>search(...)</code> method of <code>BuildsDb</code>:</p>
 <ul>
-<li>Called with no arguments, returns an iterable of all builds in the database.</li>
-<li>Called with a single positional argument (a repository identifier string, e.g. <code>&quot;oca/repo1&quot;</code>), returns an iterable of the builds matching that repository, preserving the builds that match.</li>
+<li>When called with no arguments, it returns an iterable of all builds in the database.</li>
+<li>When called with a single positional argument (a repository identifier string, for example <code>&quot;oca/repo1&quot;</code>), it returns an iterable of the builds matching that repository, preserving the builds that match.</li>
 </ul>
-<p>The result of <code>search(...)</code> must be iterable such that it can be materialized into a list. When called with no arguments over a database containing two builds, the materialized result contains two elements. When called with a repository identifier that matches exactly one build, the materialized result is a list containing exactly that one matching build.</p>
-<p>The matching/filtering behavior of <code>search</code> itself is otherwise unchanged; only the guarantee is that its return value is iterable (it need not be a list directly, but must yield the correct builds when iterated).</p>
+<p>The result of <code>search(...)</code> must be iterable in such a way that it can be materialized into a list. When the call has no arguments and is made over a database containing two builds, the materialized result contains two elements. When the call passes a repository identifier that matches exactly one build, the materialized result is a list containing exactly that one matching build.</p>
+<p>Apart from this, the matching/filtering behavior of <code>search</code> itself is unchanged; the only guarantee is that its return value is iterable (it need not be a list directly, but when iterated it must yield the correct builds).</p>
 <h4>Constraints</h4>
 <ul>
-<li><code>register_listener</code>, <code>add</code>, <code>remove</code>, and <code>search</code> on <code>BuildsDb</code> retain their existing signatures.</li>
-<li>No other behavior of <code>BuildsDb</code> should change.</li>
+<li>On <code>BuildsDb</code>, <code>register_listener</code>, <code>add</code>, <code>remove</code>, and <code>search</code> retain their existing signatures.</li>
+<li>No other behavior of <code>BuildsDb</code> should be changed.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-9">
       <summary class="spec-summary">
         <span class="spec-num">09</span>
-        <span class="spec-title">Implement a configuration-driven build-settings resolver and extend the in-memory builds database with repository discovery.</span>
-        <span class="spec-meta muted">738 words · rewritten by GPT-5.6-sol
+        <span class="spec-title">Build a resolver for build settings that is driven by configuration, and add repository discovery to the in-memory builds database.</span>
+        <span class="spec-meta muted">814 words · rewritten by GPT-5.6-sol, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>Implement a configuration-driven build-settings resolver and extend the in-memory builds database with repository discovery. This replaces the legacy hardcoded build-image module while preserving unrelated existing behavior.</p>
-<h4>1. Remove the legacy build-images module</h4>
-<p>Delete the <code>runboat.build_images</code> module entirely. Its APIs, including <code>get_build_image</code>, <code>get_main_branch</code>, <code>is_branch_supported</code>, and the module's other helpers, are no longer part of the application. No remaining module may import from <code>runboat.build_images</code>; existing consumers must use the new configuration-driven facilities instead.</p>
-<p>The previous behavior of extracting a version prefix from a branch name must not be retained implicitly. Whether a branch is supported is now determined by the configured branch patterns.</p>
-<h4>2. Configuration-driven build settings in <code>runboat.settings</code></h4>
-<p>Extend <code>runboat.settings</code> with the public model and resolver below. Preserve the module's existing unrelated application settings and its importable settings object.</p>
-<h5><code>RUNBOAT_REPOS</code> configuration</h5>
-<p>Repository build configuration must be accepted from the <code>RUNBOAT_REPOS</code> setting. Its value is JSON with this schema:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<p>Build a resolver for build settings that is driven by configuration, and add repository discovery to the in-memory builds database. This work replaces the legacy hardcoded build-image module, while unrelated existing behavior is preserved.</p>
+<h4>1. Delete the legacy build-images module</h4>
+<p>The <code>runboat.build_images</code> module must be deleted in its entirety. Its APIs — including <code>get_build_image</code>, <code>get_main_branch</code>, <code>is_branch_supported</code>, and the module's other helpers — are no longer part of the application. No module that remains may import from <code>runboat.build_images</code>; existing consumers must instead use the new configuration-driven facilities.</p>
+<p>The prior behavior of extracting a version prefix from a branch name must not be retained implicitly. Support for a branch is now decided by the configured branch patterns.</p>
+<h4>2. Build settings driven by configuration in <code>runboat.settings</code></h4>
+<p>Extend <code>runboat.settings</code> with the public model and resolver described below. The module's existing unrelated application settings and its importable settings object must be preserved.</p>
+<h5>Configuration through <code>RUNBOAT_REPOS</code></h5>
+<p>Repository build configuration must be accepted by way of the <code>RUNBOAT_REPOS</code> setting. Its value is JSON that follows this schema:</p>
 <ul>
-<li>The top-level value is an <strong>ordered array</strong> of rule objects.</li>
-<li>Each rule contains:
+<li>At the top level, the value is an <strong>ordered array</strong> of rule objects.</li>
+<li>Each rule is made up of:
 <ul>
-<li><code>repo</code>: a string regular-expression pattern for repository names;</li>
-<li><code>branch</code>: a string regular-expression pattern for branch names;</li>
-<li><code>builds</code>: an ordered array of build objects.</li>
+<li><code>repo</code>: a regular-expression pattern, given as a string, for repository names;</li>
+<li><code>branch</code>: a regular-expression pattern, given as a string, for branch names;</li>
+<li><code>builds</code>: an ordered array whose entries are build objects.</li>
 </ul>
 </li>
-<li>Each build object contains at least a required string field named <code>image</code>.</li>
+<li>Each build object has at least a required string field named <code>image</code>.</li>
 </ul>
-<p>Rule order is significant. Rules are considered in configuration order, and the first rule whose <code>repo</code> and <code>branch</code> patterns both match supplies the result. Build entries are returned in the order in which they occur in that rule's <code>builds</code> array. Results from multiple matching rules are not merged.</p>
-<p>Repository input is normalized to lowercase before applying the configured <code>repo</code> pattern. Thus a lowercase pattern such as <code>^oca/.*</code> matches a caller-supplied repository such as <code>OCA/mis-builder</code>. This normalization does not make a different owner match: <code>acsone/mis-builder</code> does not match <code>^oca/.*</code>. Branch names are matched against the configured branch pattern; they must not be reduced to a numeric prefix. Patterns can use anchors to require an exact branch name.</p>
-<p>For example, the following JSON value is valid for <code>RUNBOAT_REPOS</code>:</p>
+<p>The order of rules is significant. Rules are evaluated in configuration order, and the result is supplied by the first rule whose <code>repo</code> and <code>branch</code> patterns both match. Build entries are returned in the order in which they appear in that rule's <code>builds</code> array. Results coming from multiple matching rules are not merged.</p>
+<p>Before the configured <code>repo</code> pattern is applied, repository input is normalized to lowercase. A lowercase pattern such as <code>^oca/.*</code> therefore matches a caller-supplied repository such as <code>OCA/mis-builder</code>. This normalization does not cause a different owner to match: <code>acsone/mis-builder</code> does not match <code>^oca/.*</code>. The configured branch pattern is what branch names are matched against; they must not be reduced to a numeric prefix. Anchors can be used in patterns to require an exact branch name.</p>
+<p>By way of example, the JSON value below is valid for <code>RUNBOAT_REPOS</code>:</p>
 <pre><code class="language-json">[
   {
     &quot;repo&quot;: &quot;^oca/.*&quot;,
@@ -671,164 +675,166 @@ vars:
   }
 ]
 </code></pre>
-<p>With this configuration, <code>OCA/mis-builder</code> on <code>15.0</code> is supported, while <code>acsone/mis-builder</code> on <code>15.0</code> and <code>OCA/mis-builder</code> on <code>15.0-stuff</code> are not.</p>
-<h5>Class: <code>BuildSettings</code></h5>
-<p>Provide a data object named <code>BuildSettings</code> in <code>runboat.settings</code> that represents one configured build. It must:</p>
+<p>Under this configuration, <code>OCA/mis-builder</code> on <code>15.0</code> is supported, while <code>acsone/mis-builder</code> on <code>15.0</code> and <code>OCA/mis-builder</code> on <code>15.0-stuff</code> are not.</p>
+<h5>The <code>BuildSettings</code> class</h5>
+<p>In <code>runboat.settings</code>, provide a data object named <code>BuildSettings</code> that represents one configured build. It must:</p>
 <ul>
-<li>be constructible with the keyword argument <code>image</code>, whose value is a string; and</li>
-<li>support value-based equality, so two <code>BuildSettings</code> instances with the same <code>image</code> compare equal.</li>
+<li>be constructible using the keyword argument <code>image</code>, whose value is a string; and</li>
+<li>support value-based equality, so that two <code>BuildSettings</code> instances with the same <code>image</code> compare equal.</li>
 </ul>
-<h5>Function: <code>get_build_settings</code></h5>
-<p>Provide:</p>
+<h5>The <code>get_build_settings</code> function</h5>
+<p>Provide the following function:</p>
 <pre><code class="language-python">get_build_settings(repo: str, branch: str) -&gt; list[BuildSettings]
 </code></pre>
-<p>The function must resolve the supplied repository and branch against <code>RUNBOAT_REPOS</code> as described above and return the selected rule's ordered build list as <code>BuildSettings</code> objects.</p>
-<p>Using the example configuration, this call:</p>
+<p>The function must resolve the repository and branch it is supplied with against <code>RUNBOAT_REPOS</code> as described above, and return the selected rule's ordered build list as <code>BuildSettings</code> objects.</p>
+<p>With the example configuration, the following call:</p>
 <pre><code class="language-python">get_build_settings(&quot;OCA/mis-builder&quot;, &quot;15.0&quot;)
 </code></pre>
 <p>must return exactly:</p>
 <pre><code class="language-python">[BuildSettings(image=&quot;ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest&quot;)]
 </code></pre>
-<p>If no configured rule matches both the repository and branch, the function must raise <code>RepoOrBranchNotSupported</code>. It must not return <code>None</code> or silently treat an unsupported pair as an empty result.</p>
-<h4>3. Exception: <code>RepoOrBranchNotSupported</code></h4>
-<p>In <code>runboat.exceptions</code>, provide <code>RepoOrBranchNotSupported</code> as an <code>Exception</code> subclass. <code>get_build_settings</code> must raise this exception whenever the supplied repository, branch, or repository/branch combination is unsupported by the configuration. Existing unrelated exception types must remain available.</p>
-<h4>4. Repository model</h4>
-<p>Ensure <code>runboat.models</code> provides a <code>Repo</code> model that:</p>
+<p>If there is no configured rule that matches both the repository and the branch, the function must raise <code>RepoOrBranchNotSupported</code>. It must neither return <code>None</code> nor silently treat an unsupported pair as an empty result.</p>
+<h4>3. The <code>RepoOrBranchNotSupported</code> exception</h4>
+<p>In <code>runboat.exceptions</code>, <code>RepoOrBranchNotSupported</code> must be provided as a subclass of <code>Exception</code>. Whenever the supplied repository, branch, or repository/branch combination is unsupported by the configuration, <code>get_build_settings</code> must raise this exception. The existing unrelated exception types must remain available.</p>
+<h4>4. The repository model</h4>
+<p>Ensure <code>runboat.models</code> provides a <code>Repo</code> model which:</p>
 <ul>
-<li>is constructible with the keyword argument <code>name</code>, whose value is a string; and</li>
-<li>supports value-based equality based on <code>name</code>, so two <code>Repo</code> instances with the same name compare equal.</li>
+<li>is constructible through the keyword argument <code>name</code>, whose value is a string; and</li>
+<li>supports value-based equality based on <code>name</code>, so that two <code>Repo</code> instances with the same name compare equal.</li>
 </ul>
-<p>The existing importable names <code>Build</code>, <code>BuildInitStatus</code>, and <code>BuildStatus</code> must remain available from <code>runboat.models</code>, and unrelated existing model behavior must continue to work.</p>
-<h4>5. <code>BuildsDb.repos()</code></h4>
-<p>Add the following method to <code>runboat.db.BuildsDb</code>:</p>
+<p>From <code>runboat.models</code>, the existing importable names <code>Build</code>, <code>BuildInitStatus</code>, and <code>BuildStatus</code> must remain available, and unrelated existing model behavior must continue to work.</p>
+<h4>5. The <code>BuildsDb.repos()</code> method</h4>
+<p>Add the method below to <code>runboat.db.BuildsDb</code>:</p>
 <pre><code class="language-python">repos(self) -&gt; list[Repo]
 </code></pre>
-<p>It must return the distinct repositories represented by builds currently held in the database, with these rules:</p>
+<p>It must return the distinct repositories that the builds currently held in the database represent, under these rules:</p>
 <ul>
-<li>Return one <code>Repo(name=...)</code> object per distinct build <code>repo</code> value.</li>
-<li>Do not emit duplicates when multiple builds have the same repository.</li>
-<li>Preserve the order in which each distinct repository first appeared as builds were added.</li>
-<li>Return an empty list when no builds are held.</li>
+<li>Return one <code>Repo(name=...)</code> object for each distinct build <code>repo</code> value.</li>
+<li>Emit no duplicates when multiple builds have the same repository.</li>
+<li>The order in which each distinct repository first appeared as builds were added must be preserved.</li>
+<li>When no builds are held, return an empty list.</li>
 </ul>
-<p>For example, after adding a build with <code>repo=&quot;oca/repo1&quot;</code> and then one with <code>repo=&quot;oca/repo2&quot;</code>, the method must return:</p>
+<p>As an example, after a build with <code>repo=&quot;oca/repo1&quot;</code> is added and then one with <code>repo=&quot;oca/repo2&quot;</code>, the method must return:</p>
 <pre><code class="language-python">[Repo(name=&quot;oca/repo1&quot;), Repo(name=&quot;oca/repo2&quot;)]
 </code></pre>
-<p>Builds continue to be added through <code>BuildsDb.add(build)</code>, where the accepted build object carries its repository name in a string <code>repo</code> attribute. All existing <code>BuildsDb</code> behavior, including adding and updating builds, removal, lookup and search, counting, and listener notifications, must remain compatible.</p>
+<p>Builds are still added through <code>BuildsDb.add(build)</code>; the accepted build object carries its repository name in a string <code>repo</code> attribute. All existing <code>BuildsDb</code> behavior must remain compatible, including adding and updating builds, removal, lookup and search, counting, and listener notifications.</p>
 </div>
     </details>
     <details class="spec-item" id="request-10">
       <summary class="spec-summary">
         <span class="spec-num">10</span>
-        <span class="spec-title">Extend the search method of the BuildsDb class to support filtering builds by branch, target branch, and pull request number.</span>
-        <span class="spec-meta muted">360 words · source specification
+        <span class="spec-title">Extend the search method of the BuildsDb class so that builds can be filtered by branch, target branch, and pull request number.</span>
+        <span class="spec-meta muted">387 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Objective</h4>
-<p>Extend the <code>search</code> method of the <code>BuildsDb</code> class to support filtering builds by branch, target branch, and pull request number.</p>
-<h4>Context</h4>
-<p>The <code>BuildsDb</code> class manages a collection of <code>Build</code> objects. A <code>Build</code> has (among others) the following relevant attributes:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Goal</h4>
+<p>Extend the <code>search</code> method of the <code>BuildsDb</code> class so that builds can be filtered by branch, target branch, and pull request number.</p>
+<h4>Background</h4>
+<p>A collection of <code>Build</code> objects is managed by the <code>BuildsDb</code> class. Among others, a <code>Build</code> has the following relevant attributes:</p>
 <ul>
-<li><code>name</code>: a string identifier for the build.</li>
-<li><code>repo</code>: a string identifying the repository (e.g. <code>&quot;oca/mis-builder&quot;</code>).</li>
-<li><code>target_branch</code>: a string identifying the branch a build targets (e.g. <code>&quot;15.0&quot;</code>).</li>
-<li><code>pr</code>: an optional integer pull request number, or <code>None</code> when the build is not associated with a pull request.</li>
+<li><code>name</code>: a string that identifies the build.</li>
+<li><code>repo</code>: a string naming the repository (e.g. <code>&quot;oca/mis-builder&quot;</code>).</li>
+<li><code>target_branch</code>: a string naming the branch that a build targets (e.g. <code>&quot;15.0&quot;</code>).</li>
+<li><code>pr</code>: an optional integer pull request number, or <code>None</code> when no pull request is associated with the build.</li>
 </ul>
-<p>Builds are added to a <code>BuildsDb</code> instance via its <code>add</code> method.</p>
-<h4>Required Change</h4>
-<p>Modify the signature and behavior of <code>BuildsDb.search</code> so it accepts the following optional keyword parameters (all defaulting to a value indicating &quot;no filter&quot;, such as <code>None</code>):</p>
+<p>Builds are added to a <code>BuildsDb</code> instance by means of its <code>add</code> method.</p>
+<h4>Required Modification</h4>
+<p>Change the signature and behavior of <code>BuildsDb.search</code> so that it accepts the following optional keyword parameters (all defaulting to a value that indicates &quot;no filter&quot;, such as <code>None</code>):</p>
 <ul>
-<li><code>branch</code>: optional string.</li>
-<li><code>target_branch</code>: optional string.</li>
-<li><code>pr</code>: optional integer.</li>
+<li><code>branch</code>: an optional string.</li>
+<li><code>target_branch</code>: an optional string.</li>
+<li><code>pr</code>: an optional integer.</li>
 </ul>
-<p>(The existing repository-search capability, invoked as a positional argument, must continue to work as before.)</p>
-<h5>Filtering semantics</h5>
-<p>When the corresponding parameter is provided, <code>search</code> must restrict the results as follows:</p>
+<p>(The existing repository-search capability, invoked as a positional argument, must continue working as before.)</p>
+<h5>Filtering behavior</h5>
+<p>If the corresponding parameter is provided, <code>search</code> must restrict the results in the following way:</p>
 <ul>
 <li>
-<p><strong><code>branch</code></strong>: return only builds whose <code>target_branch</code> equals the given value <strong>and</strong> which are <em>not</em> associated with a pull request (i.e. <code>pr</code> is <code>None</code>). Builds that target the branch but belong to a pull request must be excluded.</p>
+<p><strong><code>branch</code></strong>: return only builds whose <code>target_branch</code> equals the given value <strong>and</strong> that are <em>not</em> associated with a pull request (i.e. <code>pr</code> is <code>None</code>). Builds targeting the branch but belonging to a pull request must be excluded.</p>
 </li>
 <li>
-<p><strong><code>target_branch</code></strong>: return builds whose <code>target_branch</code> equals the given value, <strong>including</strong> those associated with pull requests. Both branch-only builds and pull-request builds targeting that branch are included.</p>
+<p><strong><code>target_branch</code></strong>: return builds whose <code>target_branch</code> equals the given value, <strong>including</strong> builds associated with pull requests. Both branch-only builds and pull-request builds that target the branch are included.</p>
 </li>
 <li>
-<p><strong><code>pr</code></strong>: return only builds whose <code>pr</code> equals the given integer value.</p>
+<p><strong><code>pr</code></strong>: return only builds for which <code>pr</code> equals the given integer value.</p>
 </li>
 </ul>
-<h5>Result ordering</h5>
+<h5>Ordering of results</h5>
 <p>Results must be returned in the order in which the matching builds were added to the <code>BuildsDb</code> instance.</p>
-<h5>Return type</h5>
-<p><code>search</code> returns an iterable of <code>Build</code> objects (callers may wrap it in <code>list(...)</code>).</p>
-<h4>Public API Surface</h4>
+<h5>Type of the returned value</h5>
+<p><code>search</code> returns an iterable of <code>Build</code> objects (a caller may wrap it in <code>list(...)</code>).</p>
+<h4>Surface of the Public API</h4>
 <ul>
-<li>Module: <code>db</code> (imported as <code>from db import BuildsDb</code>, etc., consistent with existing usage).</li>
+<li>Module: <code>db</code> (imported as <code>from db import BuildsDb</code> and similar, consistent with existing usage).</li>
 <li>Class: <code>BuildsDb</code></li>
-<li>Method: <code>BuildsDb.search(self, repo=None, *, branch=None, target_branch=None, pr=None)</code> — the exact positional/keyword arrangement must allow calling <code>search(branch=...)</code>, <code>search(target_branch=...)</code>, and <code>search(pr=...)</code> as keyword arguments, while preserving the existing positional repository-search behavior.</li>
+<li>Method: <code>BuildsDb.search(self, repo=None, *, branch=None, target_branch=None, pr=None)</code> — this exact positional/keyword arrangement must allow <code>search(branch=...)</code>, <code>search(target_branch=...)</code>, and <code>search(pr=...)</code> to be called as keyword arguments, while the existing positional repository-search behavior is kept.</li>
 </ul>
-<p>The <code>Build</code> model must support a <code>target_branch</code> attribute (already present) and a <code>pr</code> attribute that may be <code>None</code>.</p>
+<p>The <code>Build</code> model must support a <code>target_branch</code> attribute (one that is already present) and a <code>pr</code> attribute that may be <code>None</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-11">
       <summary class="spec-summary">
         <span class="spec-num">11</span>
-        <span class="spec-title">Modify the Kubernetes manifest rendering logic so that the Odoo addons directory is configured with its own dedicated path, separate from the Odoo data…</span>
-        <span class="spec-meta muted">131 words · source specification
+        <span class="spec-title">Change the logic that renders Kubernetes manifests so that the Odoo addons directory is configured to use a dedicated path of its own, kept separate from…</span>
+        <span class="spec-meta muted">141 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-pass" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>Modify the Kubernetes manifest rendering logic so that the Odoo addons directory is configured with its own dedicated path, separate from the Odoo data directory.</p>
-<h4>Required Change</h4>
-<p>When rendering Kubernetes configuration for a deployment, an environment variable is emitted into a <code>configMapGenerator</code> entry named <code>odooenv</code>. Among the literals in this entry is <code>ADDONS_DIR</code>.</p>
-<p>The value of <code>ADDONS_DIR</code> must be:</p>
+      <div class="spec-body"><h3>Task Description</h3>
+<h4>Summary</h4>
+<p>Change the logic that renders Kubernetes manifests so that the Odoo addons directory is configured to use a dedicated path of its own, kept separate from the Odoo data directory.</p>
+<h4>Change to Implement</h4>
+<p>During the rendering of Kubernetes configuration for a deployment, an environment variable is emitted into a <code>configMapGenerator</code> entry named <code>odooenv</code>. <code>ADDONS_DIR</code> is among the literals in this entry.</p>
+<p><code>ADDONS_DIR</code> must be assigned the value:</p>
 <pre><code>/mnt/data/odoo-addons-dir
 </code></pre>
-<p>Previously this value pointed to <code>/mnt/data/odoo-data-dir</code>; it must now point to <code>/mnt/data/odoo-addons-dir</code>.</p>
+<p>This value used to point to <code>/mnt/data/odoo-data-dir</code>; it must now point to <code>/mnt/data/odoo-addons-dir</code>.</p>
 <h4>Constraints</h4>
 <ul>
-<li>Only the <code>ADDONS_DIR</code> value is affected. All other emitted literals and configuration entries (e.g. <code>PGDATABASE</code>, <code>RUNBOAT_GIT_REPO</code>, <code>RUNBOAT_GIT_REF</code>, and other config map generators such as <code>runboat-scripts</code>) must remain unchanged.</li>
-<li>The overall structure and formatting of the rendered manifest output must remain identical apart from this single value change.</li>
+<li>Only the value of <code>ADDONS_DIR</code> is affected. All other emitted literals and configuration entries (e.g. <code>PGDATABASE</code>, <code>RUNBOAT_GIT_REPO</code>, <code>RUNBOAT_GIT_REF</code>, and other config map generators such as <code>runboat-scripts</code>) must remain unchanged.</li>
+<li>Apart from this single value change, the overall structure and formatting of the rendered manifest output must remain identical.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-12">
       <summary class="spec-summary">
         <span class="spec-num">12</span>
-        <span class="spec-title">Extend the public database search API with configurable build ordering.</span>
-        <span class="spec-meta muted">176 words · source specification
+        <span class="spec-title">Extend the public database search API so that build ordering is configurable.</span>
+        <span class="spec-meta muted">203 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Required change</h4>
-<p>Extend the public database search API with configurable build ordering.</p>
+      <div class="spec-body"><h4>Required modification</h4>
+<p>Extend the public database search API so that build ordering is configurable.</p>
 <h5>Public API</h5>
-<p>In <code>runboat.db</code>:</p>
+<p>Within <code>runboat.db</code>:</p>
 <ul>
-<li>Export a <code>SortOrder</code> type with a public member named <code>asc</code>.</li>
-<li><code>BuildsDb.search(...)</code> must accept an optional keyword argument:<pre><code class="language-python">sort: SortOrder
+<li>Export a <code>SortOrder</code> type that has a public member named <code>asc</code>.</li>
+<li>An optional keyword argument must be accepted by <code>BuildsDb.search(...)</code>:<pre><code class="language-python">sort: SortOrder
 </code></pre>
 </li>
-<li><code>BuildsDb.search()</code> continues to return an iterable of <code>runboat.models.Build</code> objects.</li>
+<li><code>BuildsDb.search()</code> still returns an iterable of <code>runboat.models.Build</code> objects.</li>
 </ul>
 <h5>Ordering behavior</h5>
 <ul>
-<li>Calling <code>BuildsDb.search(sort=SortOrder.asc)</code> returns builds in ascending chronological order, from oldest to newest.</li>
-<li>Calling <code>BuildsDb.search()</code> without <code>sort</code> preserves descending chronological order, from newest to oldest.</li>
-<li>The descending result is the reverse of the ascending result for the same builds.</li>
-<li>No tie-breaking behavior is required beyond existing behavior.</li>
+<li>When <code>BuildsDb.search(sort=SortOrder.asc)</code> is called, builds are returned in ascending chronological order, from oldest to newest.</li>
+<li><code>BuildsDb.search()</code> called without <code>sort</code> preserves descending chronological order, from newest to oldest.</li>
+<li>For the same builds, the descending result is the reverse of the ascending result.</li>
+<li>Beyond the existing behavior, no tie-breaking behavior is required.</li>
 </ul>
-<p>For example, after adding these builds in the listed order:</p>
+<p>As an example, once the following builds have been added in the order listed:</p>
 <ol>
-<li><code>b1</code>, target branch <code>&quot;15.0&quot;</code>, no PR</li>
-<li><code>b2</code>, target branch <code>&quot;15.0&quot;</code>, PR <code>1</code></li>
-<li><code>b3</code>, target branch <code>&quot;14.0&quot;</code>, no PR</li>
-<li><code>b4</code>, target branch <code>&quot;14.0&quot;</code>, PR <code>2</code></li>
-<li><code>b5</code>, target branch <code>&quot;10.0&quot;</code>, PR <code>3</code></li>
+<li><code>b1</code>, whose target branch is <code>&quot;15.0&quot;</code>, with no PR</li>
+<li><code>b2</code>, whose target branch is <code>&quot;15.0&quot;</code>, with PR <code>1</code></li>
+<li><code>b3</code>, whose target branch is <code>&quot;14.0&quot;</code>, with no PR</li>
+<li><code>b4</code>, whose target branch is <code>&quot;14.0&quot;</code>, with PR <code>2</code></li>
+<li><code>b5</code>, whose target branch is <code>&quot;10.0&quot;</code>, with PR <code>3</code></li>
 </ol>
-<p>the returned names must be:</p>
+<p>the names returned must be:</p>
 <ul>
-<li>With <code>sort=SortOrder.asc</code>:<pre><code class="language-text">b2, b4, b5, b3, b1
+<li>Passing <code>sort=SortOrder.asc</code>:<pre><code class="language-text">b2, b4, b5, b3, b1
 </code></pre>
 </li>
-<li>With no <code>sort</code> argument:<pre><code class="language-text">b1, b3, b5, b4, b2
+<li>Passing no <code>sort</code> argument:<pre><code class="language-text">b1, b3, b5, b4, b2
 </code></pre>
 </li>
 </ul>
@@ -837,15 +843,15 @@ vars:
     <details class="spec-item" id="request-13">
       <summary class="spec-summary">
         <span class="spec-num">13</span>
-        <span class="spec-title">Introduce a public commit metadata object and allow builds and Kubernetes deployment variables to consume it.</span>
-        <span class="spec-meta muted">246 words · source specification
+        <span class="spec-title">Provide a public commit metadata object, and allow builds and Kubernetes deployment variables to consume it.</span>
+        <span class="spec-meta muted">274 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Task: Group Git commit metadata in <code>CommitInfo</code></h4>
-<p>Introduce a public commit metadata object and allow builds and Kubernetes deployment variables to consume it.</p>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Task: Bring Git commit metadata together in <code>CommitInfo</code></h4>
+<p>Provide a public commit metadata object, and allow builds and Kubernetes deployment variables to consume it.</p>
+<h5>Public interface</h5>
 <h6><code>runboat.github.CommitInfo</code></h6>
-<p>Expose a class constructible with these keyword arguments:</p>
+<p>Expose a class that can be constructed with the following keyword arguments:</p>
 <pre><code class="language-python">CommitInfo(
     repo: str,
     target_branch: str,
@@ -853,26 +859,26 @@ vars:
     git_commit: str,
 )
 </code></pre>
-<p>Instances must expose the supplied values through the attributes:</p>
+<p>The supplied values must be exposed by each instance through the attributes:</p>
 <ul>
 <li><code>repo</code></li>
 <li><code>target_branch</code></li>
 <li><code>pr</code></li>
 <li><code>git_commit</code></li>
 </ul>
-<p><code>pr=None</code> must be supported.</p>
+<p>Passing <code>pr=None</code> must be supported.</p>
 <h6><code>runboat.models.Build</code></h6>
-<p><code>Build</code> construction must accept a <code>commit_info=CommitInfo(...)</code> argument alongside its existing non-commit-related fields. The supplied object must be available as:</p>
+<p>Constructing a <code>Build</code> must accept a <code>commit_info=CommitInfo(...)</code> argument in addition to its existing non-commit-related fields. The object that is supplied must be available as:</p>
 <pre><code class="language-python">build.commit_info
 </code></pre>
-<p>Commit metadata must therefore be accessible through:</p>
+<p>Consequently, commit metadata must be accessible via:</p>
 <pre><code class="language-python">build.commit_info.repo
 build.commit_info.target_branch
 build.commit_info.pr
 build.commit_info.git_commit
 </code></pre>
-<h5>Database lookup behavior</h5>
-<p>The existing API:</p>
+<h5>Behavior of database lookups</h5>
+<p>The API that already exists:</p>
 <pre><code class="language-python">runboat.db.BuildsDb.get_for_commit(
     repo,
     target_branch,
@@ -880,14 +886,14 @@ build.commit_info.git_commit
     git_commit=git_commit,
 )
 </code></pre>
-<p>must match stored builds using the corresponding values in each build’s <code>commit_info</code>.</p>
-<p>After a build is added with <code>BuildsDb.add(build)</code>:</p>
+<p>must match stored builds by means of the corresponding values in each build's <code>commit_info</code>.</p>
+<p>After a build has been added with <code>BuildsDb.add(build)</code>:</p>
 <ul>
-<li>Passing all four values from <code>build.commit_info</code> must return that build.</li>
-<li>If the repository differs while the branch, PR, and commit hash still match, it must return <code>None</code>.</li>
+<li>Supplying all four values from <code>build.commit_info</code> must return that build.</li>
+<li>If the repository is different while the branch, PR, and commit hash still match, the call must return <code>None</code>.</li>
 </ul>
-<h5>Kubernetes deployment variables</h5>
-<p>The public function <code>runboat.k8s.make_deployment_vars</code> must accept commit metadata through a <code>commit_info</code> keyword argument. This call shape must work:</p>
+<h5>Deployment variables for Kubernetes</h5>
+<p>The public function <code>runboat.k8s.make_deployment_vars</code> must accept commit metadata via a <code>commit_info</code> keyword argument. The following call shape must work:</p>
 <pre><code class="language-python">make_deployment_vars(
     mode=DeploymentMode.deployment,
     build_name=&quot;build-name&quot;,
@@ -901,71 +907,72 @@ build.commit_info.git_commit
     image=&quot;ghcr.io/oca/oca-ci:py3.8-odoo15.0&quot;,
 )
 </code></pre>
-<p>The returned deployment variables must remain accepted by:</p>
+<p>The deployment variables that are returned must continue to be accepted by:</p>
 <pre><code class="language-python">runboat.k8s._render_kubefiles(deployment_vars)
 </code></pre>
-<p>Rendering must continue to produce the same Kubernetes files as before for equivalent metadata, with repository, target branch, PR, and commit hash sourced from the provided <code>CommitInfo</code>.</p>
+<p>For equivalent metadata, rendering must continue to produce the same Kubernetes files as before, with repository, target branch, PR, and commit hash taken from the provided <code>CommitInfo</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-14">
       <summary class="spec-summary">
         <span class="spec-num">14</span>
-        <span class="spec-title">You are working on the runboat package.</span>
-        <span class="spec-meta muted">552 words · source specification
+        <span class="spec-title">The package you are working on is runboat.</span>
+        <span class="spec-meta muted">600 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Overview</h4>
-<p>You are working on the <code>runboat</code> package. This task involves two related pieces of public API surface: a settings object that resolves build configurations for a given repository and branch, and a GitHub webhook HTTP endpoint that dispatches deployment work based on incoming events.</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<h4>Overview</h4>
+<p>The package you are working on is <code>runboat</code>. The task concerns two related pieces of public API surface: on one side a settings object that resolves build configurations for a given repository and branch, on the other a GitHub webhook HTTP endpoint that dispatches deployment work based on incoming events.</p>
 <hr />
 <h4>Part 1: Settings API</h4>
 <h5>Module: <code>runboat.settings</code></h5>
-<p>The module must expose:</p>
+<p>This module must expose:</p>
 <ul>
-<li>A class <code>BuildSettings</code> (dataclass-like / equality-comparable value object) that is constructed with at least the keyword argument <code>image</code> (a string). Two <code>BuildSettings</code> instances must compare equal when their attributes are equal.</li>
-<li>A module-level singleton object named <code>settings</code>.</li>
+<li>A class <code>BuildSettings</code> (a dataclass-like / equality-comparable value object) constructed with at least the keyword argument <code>image</code> (a string). When their attributes are equal, two <code>BuildSettings</code> instances must compare equal.</li>
+<li>A singleton object at module level, named <code>settings</code>.</li>
 </ul>
 <h5><code>settings.get_build_settings(repo: str, target_branch: str) -&gt; list[BuildSettings]</code></h5>
-<p>A method on the <code>settings</code> object that resolves the list of build settings applicable to a repository/branch combination.</p>
-<p>Behavior:</p>
+<p>A method of the <code>settings</code> object whose purpose is to resolve the list of build settings applicable to a repository/branch combination.</p>
+<p>Its behavior:</p>
 <ul>
-<li>For a supported repository and branch, it returns a list of <code>BuildSettings</code> instances describing the builds to run.
+<li>When the repository and branch are supported, it returns a list of <code>BuildSettings</code> instances describing the builds to run.
 <ul>
-<li>Given <code>repo=&quot;OCA/mis-builder&quot;</code> and <code>target_branch=&quot;15.0&quot;</code>, it returns exactly:<pre><code class="language-python">[BuildSettings(image=&quot;ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest&quot;)]
+<li>For <code>repo=&quot;OCA/mis-builder&quot;</code> and <code>target_branch=&quot;15.0&quot;</code>, it returns exactly:<pre><code class="language-python">[BuildSettings(image=&quot;ghcr.io/oca/oca-ci/py3.8-odoo15.0:latest&quot;)]
 </code></pre>
 </li>
 </ul>
 </li>
-<li>If the repository is not supported (e.g. <code>repo=&quot;acsone/mis-builder&quot;</code> with branch <code>&quot;15.0&quot;</code>), it raises <code>RepoOrBranchNotSupported</code>.</li>
-<li>If the branch is not supported for an otherwise-supported repository (e.g. <code>repo=&quot;OCA/mis-builder&quot;</code> with branch <code>&quot;15.0-stuff&quot;</code>), it raises <code>RepoOrBranchNotSupported</code>.</li>
+<li>When the repository is not supported (e.g. <code>repo=&quot;acsone/mis-builder&quot;</code> with branch <code>&quot;15.0&quot;</code>), it raises <code>RepoOrBranchNotSupported</code>.</li>
+<li>When the branch is not supported for a repository that is otherwise supported (e.g. <code>repo=&quot;OCA/mis-builder&quot;</code> with branch <code>&quot;15.0-stuff&quot;</code>), it raises <code>RepoOrBranchNotSupported</code>.</li>
 </ul>
 <h5>Module: <code>runboat.exceptions</code></h5>
-<p>Must expose an exception class <code>RepoOrBranchNotSupported</code> (a subclass of <code>Exception</code>).</p>
+<p>Must expose an exception class <code>RepoOrBranchNotSupported</code> that is a subclass of <code>Exception</code>.</p>
 <hr />
 <h4>Part 2: GitHub Webhook Endpoint</h4>
 <h5>Module: <code>runboat.app</code></h5>
-<p>Must expose a FastAPI application instance named <code>app</code>.</p>
+<p>Must expose a FastAPI application instance called <code>app</code>.</p>
 <h5>Module: <code>runboat.controller</code></h5>
-<p>Must expose a singleton object named <code>controller</code> with a callable attribute <code>deploy_or_start</code>. This callable is the target that the webhook schedules as a background task (it is not invoked synchronously during request handling — it is passed to FastAPI's <code>BackgroundTasks.add_task</code>).</p>
+<p>Must expose a singleton object named <code>controller</code> having a callable attribute <code>deploy_or_start</code>. The webhook schedules this callable as a background task (it is not invoked synchronously while the request is handled — it is passed to FastAPI's <code>BackgroundTasks.add_task</code>).</p>
 <h5>Module: <code>runboat.github</code></h5>
-<p>Must expose a class <code>CommitInfo</code>, an equality-comparable value object constructed with keyword arguments:</p>
+<p>Must expose a class <code>CommitInfo</code>, an equality-comparable value object that is constructed with the keyword arguments:</p>
 <ul>
 <li><code>repo: str</code></li>
 <li><code>target_branch: str</code></li>
 <li><code>pr: int | None</code></li>
 <li><code>git_commit: str</code></li>
 </ul>
-<p>Two <code>CommitInfo</code> instances must compare equal when their attributes are equal.</p>
-<h5>Endpoint: <code>POST /webhooks/github</code></h5>
-<p>Accepts a JSON body and a <code>X-GitHub-Event</code> header. On a successful request it returns a 2xx status (i.e. does not error), and it schedules <code>controller.deploy_or_start</code> as a background task, passing it a single <code>CommitInfo</code> argument built from the request payload.</p>
-<h6>Event: <code>push</code> (header <code>X-GitHub-Event: push</code>)</h6>
-<p>Given a JSON body of the form:</p>
+<p>When their attributes are equal, two <code>CommitInfo</code> instances must compare equal.</p>
+<h5>Route: <code>POST /webhooks/github</code></h5>
+<p>It accepts a JSON body and a <code>X-GitHub-Event</code> header. When a request succeeds, it returns a 2xx status (i.e. it does not error), and it schedules <code>controller.deploy_or_start</code> as a background task, to which it passes a single <code>CommitInfo</code> argument built from the payload of the request.</p>
+<h6>Event <code>push</code> (header <code>X-GitHub-Event: push</code>)</h6>
+<p>For a JSON body of this form:</p>
 <pre><code class="language-json">{
   &quot;repository&quot;: {&quot;full_name&quot;: &quot;oca/mis-builder&quot;},
   &quot;ref&quot;: &quot;refs/heads/15.0&quot;,
   &quot;after&quot;: &quot;abcde&quot;
 }
 </code></pre>
-<p>The scheduled background task must be called as:</p>
+<p>The background task that gets scheduled must be called as:</p>
 <pre><code class="language-python">controller.deploy_or_start(
     CommitInfo(
         repo=&quot;oca/mis-builder&quot;,
@@ -975,16 +982,16 @@ build.commit_info.git_commit
     )
 )
 </code></pre>
-<p>Notes:</p>
+<p>Remarks:</p>
 <ul>
-<li><code>repo</code> comes from <code>repository.full_name</code>.</li>
-<li><code>target_branch</code> is derived from <code>ref</code> by stripping the leading <code>refs/heads/</code> prefix.</li>
-<li><code>pr</code> is <code>None</code> for push events.</li>
-<li><code>git_commit</code> comes from <code>after</code>.</li>
+<li>The value of <code>repo</code> is taken from <code>repository.full_name</code>.</li>
+<li><code>target_branch</code> is obtained from <code>ref</code> by removing the leading <code>refs/heads/</code> prefix.</li>
+<li>For push events, <code>pr</code> is <code>None</code>.</li>
+<li><code>git_commit</code> is taken from <code>after</code>.</li>
 </ul>
-<h6>Event: <code>pull_request</code> (header <code>X-GitHub-Event: pull_request</code>)</h6>
-<p>Applies when the payload <code>action</code> is <code>&quot;opened&quot;</code> or <code>&quot;synchronize&quot;</code>.</p>
-<p>Given a JSON body of the form:</p>
+<h6>Event <code>pull_request</code> (header <code>X-GitHub-Event: pull_request</code>)</h6>
+<p>Applies to the case where the payload <code>action</code> is <code>&quot;opened&quot;</code> or <code>&quot;synchronize&quot;</code>.</p>
+<p>For a JSON body of this form:</p>
 <pre><code class="language-json">{
   &quot;action&quot;: &quot;opened&quot;,
   &quot;repository&quot;: {&quot;full_name&quot;: &quot;oca/mis-builder&quot;},
@@ -995,7 +1002,7 @@ build.commit_info.git_commit
   }
 }
 </code></pre>
-<p>The scheduled background task must be called as:</p>
+<p>The background task that gets scheduled must be called as:</p>
 <pre><code class="language-python">controller.deploy_or_start(
     CommitInfo(
         repo=&quot;oca/mis-builder&quot;,
@@ -1005,17 +1012,17 @@ build.commit_info.git_commit
     )
 )
 </code></pre>
-<p>Notes:</p>
+<p>Remarks:</p>
 <ul>
-<li><code>repo</code> comes from <code>repository.full_name</code>.</li>
-<li><code>target_branch</code> comes from <code>pull_request.base.ref</code>.</li>
-<li><code>pr</code> comes from <code>pull_request.number</code>.</li>
-<li><code>git_commit</code> comes from <code>pull_request.head.sha</code>.</li>
-<li>The behavior is identical for both <code>&quot;opened&quot;</code> and <code>&quot;synchronize&quot;</code> actions.</li>
+<li>The value of <code>repo</code> is taken from <code>repository.full_name</code>.</li>
+<li><code>target_branch</code> is taken from <code>pull_request.base.ref</code>.</li>
+<li><code>pr</code> is taken from <code>pull_request.number</code>.</li>
+<li><code>git_commit</code> is taken from <code>pull_request.head.sha</code>.</li>
+<li>Both <code>&quot;opened&quot;</code> and <code>&quot;synchronize&quot;</code> actions result in identical behavior.</li>
 </ul>
 <hr />
-<h4>Import Summary</h4>
-<p>The following must be importable exactly as named:</p>
+<h4>Summary of Imports</h4>
+<p>It must be possible to import the following exactly as named:</p>
 <ul>
 <li><code>from runboat.exceptions import RepoOrBranchNotSupported</code></li>
 <li><code>from runboat.settings import BuildSettings, settings</code></li>
@@ -1028,44 +1035,44 @@ build.commit_info.git_commit
     <details class="spec-item" id="request-15">
       <summary class="spec-summary">
         <span class="spec-num">15</span>
-        <span class="spec-title">Expose a class at</span>
-        <span class="spec-meta muted">227 words · source specification
+        <span class="spec-title">A class must be exposed at</span>
+        <span class="spec-meta muted">259 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Required changes</h3>
-<h4>Build settings for Kubernetes rendering</h4>
-<p>Expose a class at:</p>
+      <div class="spec-body"><h3>Required modifications</h3>
+<h4>Build settings used for Kubernetes rendering</h4>
+<p>A class must be exposed at:</p>
 <pre><code class="language-python">from runboat.settings import BuildSettings
 </code></pre>
-<p>It must be constructible with an image string:</p>
+<p>It must be possible to construct it with an image string:</p>
 <pre><code class="language-python">BuildSettings(image=&quot;ghcr.io/oca/oca-ci:py3.8-odoo15.0&quot;)
 </code></pre>
-<p>Update the public callable:</p>
+<p>Modify the public callable:</p>
 <pre><code class="language-python">from runboat.k8s import make_deployment_vars
 </code></pre>
-<p>so that its existing arguments can include:</p>
+<p>so that its arguments can include the following in addition to the existing ones:</p>
 <pre><code class="language-python">make_deployment_vars(..., build_settings: BuildSettings)
 </code></pre>
-<p>The image supplied through <code>BuildSettings.image</code> must be used by:</p>
+<p>The image supplied through <code>BuildSettings.image</code> must be the one used by:</p>
 <pre><code class="language-python">from runboat.k8s import _render_kubefiles
 </code></pre>
-<p>when rendering the deployment variables. Calling <code>_render_kubefiles(deployment_vars)</code> as a context manager must continue to yield a temporary path containing the expected Kubernetes files, including <code>kustomization.yaml</code>, with the configured image reflected in the rendered output.</p>
-<h4>GitHub webhook filtering</h4>
-<p>The HTTP endpoint:</p>
+<p>when it renders the deployment variables. When <code>_render_kubefiles(deployment_vars)</code> is called as a context manager, it must continue to yield a temporary path that contains the expected Kubernetes files, including <code>kustomization.yaml</code>, with the rendered output reflecting the configured image.</p>
+<h4>Filtering of GitHub webhooks</h4>
+<p>This HTTP endpoint:</p>
 <pre><code class="language-text">POST /webhooks/github
 </code></pre>
-<p>must silently ignore the following unsupported events while returning a non-error HTTP response.</p>
-<h5>Push to an unsupported repository</h5>
-<p>For an <code>X-GitHub-Event: push</code> request such as:</p>
+<p>must silently ignore the unsupported events that follow while returning a non-error HTTP response.</p>
+<h5>Pushes to a repository that is not supported</h5>
+<p>Given an <code>X-GitHub-Event: push</code> request such as:</p>
 <pre><code class="language-json">{
   &quot;repository&quot;: {&quot;full_name&quot;: &quot;org/not-a-repo&quot;},
   &quot;ref&quot;: &quot;refs/heads/15.0&quot;,
   &quot;after&quot;: &quot;abcde&quot;
 }
 </code></pre>
-<p>where the repository is not configured, the endpoint must not call <code>fastapi.BackgroundTasks.add_task</code>.</p>
-<h5>Pull request targeting an unsupported branch</h5>
-<p>For an <code>X-GitHub-Event: pull_request</code> request to repository <code>oca/mis-builder</code>, with either action <code>&quot;opened&quot;</code> or <code>&quot;synchronize&quot;</code>, such as:</p>
+<p>where the repository in question is not configured, the endpoint must not call <code>fastapi.BackgroundTasks.add_task</code>.</p>
+<h5>Pull request aimed at a branch that is not supported</h5>
+<p>Given an <code>X-GitHub-Event: pull_request</code> request targeting repository <code>oca/mis-builder</code>, with the action being either <code>&quot;opened&quot;</code> or <code>&quot;synchronize&quot;</code>, for example:</p>
 <pre><code class="language-json">{
   &quot;action&quot;: &quot;opened&quot;,
   &quot;repository&quot;: {&quot;full_name&quot;: &quot;oca/mis-builder&quot;},
@@ -1082,18 +1089,18 @@ build.commit_info.git_commit
     <details class="spec-item" id="request-16">
       <summary class="spec-summary">
         <span class="spec-num">16</span>
-        <span class="spec-title">Update the database API at runboat.db.BuildsDb</span>
-        <span class="spec-meta muted">173 words · source specification
+        <span class="spec-title">Modify the database API at runboat.db.BuildsDb</span>
+        <span class="spec-meta muted">182 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Preserve the latest stopped branch build</h4>
-<p>Update the database API at <code>runboat.db.BuildsDb</code>:</p>
+      <div class="spec-body"><h4>Keep the newest stopped branch build</h4>
+<p>Modify the database API at <code>runboat.db.BuildsDb</code>:</p>
 <pre><code class="language-python">def oldest_stopped(self, limit: int) -&gt; list[Build]:
     ...
 </code></pre>
-<p><code>Build</code> and <code>BuildStatus</code> are exposed from <code>runboat.models</code>.</p>
-<p>When selecting stopped builds, the most recent non-PR build for a repository and target branch must be preserved. A build is a non-PR branch build when its <code>pr</code> field is <code>None</code>. Stopped PR builds remain eligible even when they are newer than the preserved branch build.</p>
-<p>For example, given these stopped builds for repository <code>oca/repo1</code> and target branch <code>15.0</code>:</p>
+<p><code>Build</code> and <code>BuildStatus</code> are exposed by <code>runboat.models</code>.</p>
+<p>During the selection of stopped builds, the most recent non-PR build for a repository and target branch must be preserved. A build counts as a non-PR branch build when its <code>pr</code> field is <code>None</code>. Stopped PR builds stay eligible even when they are newer than the preserved branch build.</p>
+<p>As an example, take these stopped builds for repository <code>oca/repo1</code> and target branch <code>15.0</code>:</p>
 <table>
 <thead>
 <tr>
@@ -1124,109 +1131,110 @@ build.commit_info.git_commit
 </tr>
 </tbody>
 </table>
-<p>calling:</p>
+<p>a call to:</p>
 <pre><code class="language-python">db.oldest_stopped(limit=3)
 </code></pre>
 <p>must return the <code>Build</code> objects in this order:</p>
 <pre><code class="language-python">[b1, pr1]
 </code></pre>
-<p>The newer branch build <code>b2</code> is preserved and omitted. The newer PR build <code>pr1</code> is still returned. The result may therefore contain fewer entries than <code>limit</code>.</p>
+<p>The branch build <code>b2</code>, which is newer, is preserved and omitted. The PR build <code>pr1</code>, though newer, is still returned. Consequently, the result may contain fewer entries than <code>limit</code>.</p>
 </div>
     </details>
     <details class="spec-item" id="request-17">
       <summary class="spec-summary">
         <span class="spec-num">17</span>
-        <span class="spec-title">You are implementing changes to an existing Python codebase that manages software builds.</span>
-        <span class="spec-meta muted">423 words · source specification
+        <span class="spec-title">Your task is to implement changes to an existing Python codebase that manages software builds.</span>
+        <span class="spec-meta muted">461 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><p>You are implementing changes to an existing Python codebase that manages software builds. The changes affect two areas: the builds database query API and the webhook controller integration. Below are the exact behaviors required.</p>
-<h4>1. Builds Database — <code>oldest_started</code> query method</h4>
-<p>There is an existing class <code>BuildsDb</code> (imported as <code>BuildsDb</code>) that stores build records in memory via an <code>add(build)</code> method. Each build record has at least the following attributes relevant here:</p>
+      <div class="spec-body"><h3>Specification of the Task</h3>
+<p>Your task is to implement changes to an existing Python codebase that manages software builds. The modifications cover two areas: the builds database query API and the webhook controller integration. The exact behaviors required are laid out below.</p>
+<h4>1. Builds Database — the <code>oldest_started</code> query method</h4>
+<p>An existing class, <code>BuildsDb</code> (imported as <code>BuildsDb</code>), stores build records in memory through an <code>add(build)</code> method. Each build record has, at a minimum, the following attributes relevant here:</p>
 <ul>
-<li><code>name</code>: a string identifier.</li>
-<li><code>status</code>: a build status enum value (available as <code>BuildStatus</code>, with members including <code>BuildStatus.started</code> and <code>BuildStatus.stopped</code>).</li>
-<li><code>last_scaled</code>: a <code>datetime.datetime</code> value.</li>
+<li><code>name</code>: an identifier given as a string.</li>
+<li><code>status</code>: a build status enum value (available as <code>BuildStatus</code>, with members that include <code>BuildStatus.started</code> and <code>BuildStatus.stopped</code>).</li>
+<li><code>last_scaled</code>: a value of type <code>datetime.datetime</code>.</li>
 </ul>
-<p><code>BuildsDb</code> already provides a method <code>oldest_stopped(limit=...)</code>. You must add a companion method with the following signature:</p>
+<p><code>BuildsDb</code> already offers a method <code>oldest_stopped(limit=...)</code>. You must add a companion method with this signature:</p>
 <pre><code class="language-python">def oldest_started(self, limit: int) -&gt; list[...]:
 </code></pre>
-<h5>Required behavior</h5>
-<p><code>oldest_started(limit=N)</code> returns a list of the build records whose <code>status</code> is <code>BuildStatus.started</code>, ordered from oldest to newest by their <code>last_scaled</code> timestamp (ascending). Builds with any status other than <code>started</code> must be excluded from the result.</p>
+<h5>Behavior you must implement</h5>
+<p>When invoked as <code>oldest_started(limit=N)</code>, the method returns a list of the build records whose <code>status</code> is <code>BuildStatus.started</code>, sorted by their <code>last_scaled</code> timestamp from oldest to newest (ascending). Builds having any status other than <code>started</code> must be excluded from the result.</p>
 <ul>
-<li>Only builds with status <code>started</code> are considered.</li>
-<li>The ordering is ascending by <code>last_scaled</code> (earliest timestamp first).</li>
-<li>The <code>limit</code> argument is the maximum number of records to return; if fewer matching builds exist than <code>limit</code>, return all matching builds.</li>
+<li>Only builds whose status is <code>started</code> are taken into consideration.</li>
+<li>The order is ascending by <code>last_scaled</code> (the earliest timestamp comes first).</li>
+<li>The <code>limit</code> argument specifies the maximum number of records to return; when fewer matching builds exist than <code>limit</code>, the method returns all matching builds.</li>
 </ul>
-<p>For example, given three builds — two with status <code>started</code> (timestamps <code>2021-10-11 12:00:00</code> and <code>2021-10-11 12:00:02</code>) and one with status <code>stopped</code> (timestamp <code>2021-10-11 12:00:04</code>) — calling <code>oldest_started(limit=3)</code> returns exactly the two <code>started</code> builds in ascending timestamp order (the one at <code>12:00:00</code> first, then the one at <code>12:00:02</code>); the <code>stopped</code> build is not included.</p>
-<h4>2. Controller — rename webhook entry point to <code>deploy_commit</code></h4>
-<p>There is a controller object (referred to as <code>controller</code>) used by the webhook handling code. The webhook handler, upon receiving GitHub push and pull-request events, schedules/dispatches a callable together with a <code>CommitInfo</code> payload describing the commit.</p>
-<p>Previously, the callable dispatched for these events was <code>controller.deploy_or_start</code>. It must now be <code>controller.deploy_commit</code>.</p>
-<h5>Required behavior</h5>
+<p>By way of example, take three builds — two whose status is <code>started</code> (with timestamps <code>2021-10-11 12:00:00</code> and <code>2021-10-11 12:00:02</code>) and one whose status is <code>stopped</code> (timestamp <code>2021-10-11 12:00:04</code>). Calling <code>oldest_started(limit=3)</code> returns exactly the two <code>started</code> builds, in ascending timestamp order (the one at <code>12:00:00</code> first, followed by the one at <code>12:00:02</code>); the <code>stopped</code> build is not part of the result.</p>
+<h4>2. Controller — the webhook entry point becomes <code>deploy_commit</code></h4>
+<p>The webhook handling code works with a controller object (referred to as <code>controller</code>). Upon receiving GitHub push and pull-request events, the webhook handler schedules/dispatches a callable together with a <code>CommitInfo</code> payload that describes the commit.</p>
+<p>Previously, the callable dispatched for these events was <code>controller.deploy_or_start</code>; now it must be <code>controller.deploy_commit</code>.</p>
+<h5>Behavior you must implement</h5>
 <ul>
-<li>The controller must expose a method/attribute named <code>deploy_commit</code> that plays the role previously played by <code>deploy_or_start</code> — i.e., it is the callable dispatched when a GitHub push or pull-request webhook event is processed.</li>
-<li>When a GitHub push or pull-request event is handled, the webhook code must dispatch <code>controller.deploy_commit</code> together with the constructed <code>CommitInfo</code> object for that commit.</li>
-<li>The <code>CommitInfo</code> payload construction (repository, target branch, and other commit fields derived from the webhook payload) is unchanged; only the dispatched callable's name changes from <code>deploy_or_start</code> to <code>deploy_commit</code>.</li>
+<li>The controller must expose a method/attribute named <code>deploy_commit</code> that fills the role <code>deploy_or_start</code> used to play — that is, it is the callable dispatched when a GitHub push or pull-request webhook event is processed.</li>
+<li>When a GitHub push or pull-request event is handled, the webhook code must dispatch <code>controller.deploy_commit</code> together with the <code>CommitInfo</code> object constructed for that commit.</li>
+<li>How the <code>CommitInfo</code> payload is constructed (repository, target branch, and other commit fields derived from the webhook payload) stays unchanged; the only change is the dispatched callable's name, from <code>deploy_or_start</code> to <code>deploy_commit</code>.</li>
 </ul>
-<p>Ensure the callable is reachable as <code>controller.deploy_commit</code> so that the webhook dispatch references it directly.</p>
+<p>Ensure the callable is reachable as <code>controller.deploy_commit</code>, so that the webhook dispatch references it directly.</p>
 </div>
     </details>
     <details class="spec-item" id="request-18">
       <summary class="spec-summary">
         <span class="spec-num">18</span>
         <span class="spec-title">runboat.db.BuildsDb</span>
-        <span class="spec-meta muted">157 words · source specification
+        <span class="spec-meta muted">174 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h4>Build database status filtering</h4>
-<h5>Public API</h5>
+      <div class="spec-body"><h4>Status filtering for the build database</h4>
+<h5>Public interface</h5>
 <ul>
 <li><code>runboat.db.BuildsDb</code>
 <ul>
 <li><code>add(build)</code>: stores a build.</li>
-<li><code>search(repo: str | None = None, status: BuildStatus | None = None, ...)</code>: returns an iterable of stored builds matching the supplied filters.</li>
+<li><code>search(repo: str | None = None, status: BuildStatus | None = None, ...)</code>: returns an iterable of the stored builds that match the filters which were supplied.</li>
 </ul>
 </li>
 <li><code>runboat.models.BuildStatus</code>
 <ul>
-<li>Relevant enum members: <code>failed</code>, <code>started</code>, and <code>stopped</code>.</li>
+<li>The relevant enum members are <code>failed</code>, <code>started</code>, and <code>stopped</code>.</li>
 </ul>
 </li>
 </ul>
-<h5>Required behavior</h5>
+<h5>Behavior requirements</h5>
 <ul>
-<li><code>BuildsDb.search()</code> with no filters continues to return all stored builds.</li>
-<li>Repository filtering must be available through the <code>repo</code> keyword argument:
+<li><code>BuildsDb.search()</code> continues to return all stored builds when it is called with no filters.</li>
+<li>Filtering by repository must be available via the <code>repo</code> keyword argument:
 <ul>
-<li><code>search(repo=&quot;oca/repo1&quot;)</code> returns only builds whose repository is <code>&quot;oca/repo1&quot;</code>.</li>
+<li><code>search(repo=&quot;oca/repo1&quot;)</code> returns only the builds whose repository is <code>&quot;oca/repo1&quot;</code>.</li>
 </ul>
 </li>
 <li><code>search</code> must accept a <code>status</code> keyword argument containing a <code>BuildStatus</code> value.</li>
-<li>When <code>status</code> is supplied, only builds whose status exactly equals that value are returned.
+<li>Whenever <code>status</code> is supplied, only builds whose status exactly equals the supplied value are returned.
 <ul>
-<li>A failed build is returned by <code>search(status=BuildStatus.failed)</code>.</li>
-<li>A started build is returned by <code>search(status=BuildStatus.started)</code>.</li>
-<li>If no build has the requested status, such as <code>BuildStatus.stopped</code>, the result is an empty iterable.</li>
+<li><code>search(status=BuildStatus.failed)</code> returns a failed build.</li>
+<li><code>search(status=BuildStatus.started)</code> returns a started build.</li>
+<li>When there is no build having the requested status, such as <code>BuildStatus.stopped</code>, the result is an empty iterable.</li>
 </ul>
 </li>
-<li>Search results must contain the stored build objects and be consumable with <code>list(...)</code>.</li>
+<li>The results of a search must contain the stored build objects and must be consumable with <code>list(...)</code>.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-19">
       <summary class="spec-summary">
         <span class="spec-num">19</span>
-        <span class="spec-title">GitHub Pull Request Close Webhook Handling</span>
-        <span class="spec-meta muted">416 words · source specification
+        <span class="spec-title">Handling the GitHub Pull Request Close Webhook</span>
+        <span class="spec-meta muted">455 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task Specification: GitHub Pull Request Close Webhook Handling</h3>
+      <div class="spec-body"><h3>Task Specification: Handling the GitHub Pull Request Close Webhook</h3>
 <h4>Overview</h4>
-<p>The application exposes an HTTP endpoint that receives GitHub webhook events. You must extend the handling of <code>pull_request</code> events so that when a pull request is <strong>closed</strong>, the system schedules the teardown of any deployed builds associated with that pull request.</p>
+<p>The application exposes an HTTP endpoint for receiving GitHub webhook events. You must extend the handling of <code>pull_request</code> events such that, when a pull request is <strong>closed</strong>, the system schedules the teardown of any deployed builds associated with that pull request.</p>
 <h4>Endpoint</h4>
 <p><strong><code>POST /webhooks/github</code></strong></p>
-<p>This endpoint receives GitHub webhook deliveries. GitHub events are identified by the <code>X-GitHub-Event</code> HTTP header. This task concerns the value <code>pull_request</code>.</p>
-<p>The JSON request body for a <code>pull_request</code> event has the following relevant shape:</p>
+<p>GitHub webhook deliveries arrive at this endpoint. GitHub events are identified by way of the <code>X-GitHub-Event</code> HTTP header. The value this task is concerned with is <code>pull_request</code>.</p>
+<p>For a <code>pull_request</code> event, the relevant shape of the JSON request body is the following:</p>
 <pre><code class="language-json">{
   &quot;action&quot;: &quot;&lt;string&gt;&quot;,
   &quot;repository&quot;: {
@@ -1241,97 +1249,97 @@ build.commit_info.git_commit
 }
 </code></pre>
 <h4>Required Behavior</h4>
-<h5>Pull request <code>closed</code> action</h5>
-<p>When a <code>pull_request</code> event arrives with <code>&quot;action&quot;: &quot;closed&quot;</code>:</p>
+<h5>The <code>closed</code> action for pull requests</h5>
+<p>When a <code>pull_request</code> event comes in with <code>&quot;action&quot;: &quot;closed&quot;</code>:</p>
 <ul>
-<li>The endpoint must schedule (as a FastAPI background task) a call to the controller function responsible for undeploying builds.</li>
-<li>The scheduled call must be <code>controller.undeploy_builds</code> invoked with <strong>keyword arguments only</strong>:
+<li>The endpoint must schedule a call to the controller function in charge of undeploying builds, as a FastAPI background task.</li>
+<li>The call that gets scheduled must be <code>controller.undeploy_builds</code>, invoked with <strong>keyword arguments only</strong>:
 <ul>
-<li><code>repo</code> = the value of <code>repository.full_name</code></li>
-<li><code>pr</code> = the value of <code>pull_request.number</code> (an integer)</li>
+<li><code>repo</code> set to the value of <code>repository.full_name</code></li>
+<li><code>pr</code> set to the value of <code>pull_request.number</code> (an integer)</li>
 </ul>
 </li>
-<li>No other positional or keyword arguments are passed.</li>
-<li>The endpoint must respond with a successful (2xx) HTTP status.</li>
+<li>No positional or keyword arguments other than these are passed.</li>
+<li>The endpoint must reply with a successful (2xx) HTTP status.</li>
 </ul>
-<p>For a request such as:</p>
+<p>For a request such as the following:</p>
 <pre><code class="language-json">{
   &quot;action&quot;: &quot;closed&quot;,
   &quot;repository&quot;: {&quot;full_name&quot;: &quot;oca/mis-builder&quot;},
   &quot;pull_request&quot;: {&quot;base&quot;: {&quot;ref&quot;: &quot;15.0&quot;}, &quot;number&quot;: 381}
 }
 </code></pre>
-<p>the background task scheduled must be equivalent to:</p>
+<p>the background task that gets scheduled must be equivalent to:</p>
 <pre><code>controller.undeploy_builds(repo=&quot;oca/mis-builder&quot;, pr=381)
 </code></pre>
-<h5>Branch filtering for the <code>closed</code> action</h5>
-<p>The system supports only certain branches. When a <code>pull_request</code> event with <code>&quot;action&quot;: &quot;closed&quot;</code> refers to a branch that is <strong>not supported</strong> (i.e. the value of <code>pull_request.base.ref</code> is not among the supported branches), no background task may be scheduled. The endpoint must still respond with a successful (2xx) HTTP status.</p>
-<p>This branch-filtering behavior for the <code>closed</code> action must be consistent with the existing filtering already applied to the <code>opened</code> and <code>synchronize</code> actions: an unsupported branch results in no scheduled work regardless of which of these three actions is received.</p>
+<h5>Branch filtering applied to the <code>closed</code> action</h5>
+<p>Only certain branches are supported by the system. When a <code>pull_request</code> event carrying <code>&quot;action&quot;: &quot;closed&quot;</code> relates to a branch that is <strong>not supported</strong> — that is, the value of <code>pull_request.base.ref</code> is not among the supported branches — no background task may be scheduled. Even so, the endpoint must respond with a successful (2xx) HTTP status.</p>
+<p>The branch filtering for the <code>closed</code> action must be consistent with the filtering that already exists for the <code>opened</code> and <code>synchronize</code> actions: an unsupported branch leads to no scheduled work regardless of which of these three actions is received.</p>
 <h4>Public API Surface</h4>
 <ul>
-<li>HTTP route: <code>POST /webhooks/github</code>.</li>
-<li>A controller module (imported in the codebase as <code>controller</code>) must provide a callable:
+<li>The HTTP route is <code>POST /webhooks/github</code>.</li>
+<li>A controller module (imported in the codebase as <code>controller</code>) must supply a callable:
 <ul>
-<li><code>undeploy_builds(*, repo: str, pr: int)</code> — invoked via a FastAPI <code>BackgroundTasks.add_task</code> scheduling call with the keyword arguments <code>repo</code> and <code>pr</code> as described above.</li>
+<li><code>undeploy_builds(*, repo: str, pr: int)</code> — invoked through a FastAPI <code>BackgroundTasks.add_task</code> scheduling call with the keyword arguments <code>repo</code> and <code>pr</code>, as described above.</li>
 </ul>
 </li>
 </ul>
 <h4>Constraints</h4>
 <ul>
-<li>Background work must be scheduled via FastAPI's background-task mechanism (<code>BackgroundTasks.add_task</code>), not executed inline within the request handler.</li>
-<li>Do not change the existing behavior for the <code>opened</code> and <code>synchronize</code> actions beyond ensuring the shared branch-filtering logic also governs the <code>closed</code> action.</li>
+<li>Background work must be scheduled by way of FastAPI's background-task mechanism (<code>BackgroundTasks.add_task</code>); it must not be executed inline within the request handler.</li>
+<li>Apart from ensuring that the shared branch-filtering logic also governs the <code>closed</code> action, do not change the existing behavior for the <code>opened</code> and <code>synchronize</code> actions.</li>
 </ul>
 </div>
     </details>
     <details class="spec-item" id="request-20">
       <summary class="spec-summary">
         <span class="spec-num">20</span>
-        <span class="spec-title">Add a helper function that verifies the signature of an incoming GitHub webhook request against a configured secret, following GitHub&#39;s HMAC-SHA256…</span>
-        <span class="spec-meta muted">302 words · source specification
+        <span class="spec-title">Implement a helper function that verifies whether the signature of an incoming GitHub webhook request matches a configured secret, using GitHub&#39;s…</span>
+        <span class="spec-meta muted">313 words · source specification, reworded by GLM-5.3-Flash
 <i class="dot c-miss" title="Opus 5.5"></i><i class="dot c-miss" title="Opus 5"></i><i class="dot c-miss" title="GPT-6 Astra"></i><i class="dot c-pass" title="Fable 5"></i><i class="dot c-miss" title="GLM-5.3-Flash"></i><i class="dot c-miss" title="GLM-5.3"></i><i class="dot c-miss" title="GPT-6.1 Sol"></i><i class="dot c-miss" title="GPT-5.6"></i><i class="dot c-miss" title="Kimi K3"></i><i class="dot c-miss" title="Opus 4.8"></i>        </span>
       </summary>
-      <div class="spec-body"><h3>Task: Implement GitHub Webhook Signature Verification</h3>
-<h4>Objective</h4>
-<p>Add a helper function that verifies the signature of an incoming GitHub webhook request against a configured secret, following GitHub's HMAC-SHA256 signature scheme.</p>
-<h4>API Surface</h4>
-<p>Create a module at <code>runboat/webhooks.py</code> (if not already present) that exposes the following function:</p>
+      <div class="spec-body"><h3>Task: Add GitHub Webhook Signature Verification</h3>
+<h4>Goal</h4>
+<p>Implement a helper function that verifies whether the signature of an incoming GitHub webhook request matches a configured secret, using GitHub's HMAC-SHA256 signature scheme.</p>
+<h4>API</h4>
+<p>Create the module <code>runboat/webhooks.py</code> (if it is not already present) and expose the following function from it:</p>
 <pre><code class="language-python">def _verify_github_signature(signature: str | None, secret: bytes | None, body: bytes) -&gt; bool
 </code></pre>
 <h5>Parameters</h5>
 <ul>
-<li><code>signature</code>: The value of the incoming request's <code>X-Hub-Signature-256</code> header, or <code>None</code> if the header is absent. When present, it has the form <code>&quot;sha256=&lt;hexdigest&gt;&quot;</code>.</li>
-<li><code>secret</code>: The configured webhook secret as bytes, or <code>None</code> if no secret is configured.</li>
-<li><code>body</code>: The raw request body as bytes.</li>
+<li><code>signature</code>: The value of the incoming request's <code>X-Hub-Signature-256</code> header, or <code>None</code> when the header is absent. When present, its form is <code>&quot;sha256=&lt;hexdigest&gt;&quot;</code>.</li>
+<li><code>secret</code>: The configured webhook secret as bytes, or <code>None</code> when no secret has been configured.</li>
+<li><code>body</code>: The raw bytes of the request body.</li>
 </ul>
 <h5>Return value</h5>
-<p>Returns a <code>bool</code> indicating whether the request should be considered valid.</p>
-<h4>Required Behavior</h4>
-<p>The function must apply the following rules, in effect:</p>
+<p>The returned value is a <code>bool</code> that indicates whether the request should be considered valid.</p>
+<h4>Behavior Requirements</h4>
+<p>In effect, the function must comply with the following rules:</p>
 <ol>
 <li>
-<p><strong>No secret configured</strong> — If <code>secret</code> is <code>None</code>, verification is skipped and the function returns <code>True</code> regardless of the other arguments.</p>
+<p><strong>No secret configured</strong> — When <code>secret</code> is <code>None</code>, verification is skipped and the function returns <code>True</code>, no matter what the other arguments are.</p>
 </li>
 <li>
-<p><strong>Secret configured but no signature provided</strong> — If <code>secret</code> is not <code>None</code> and <code>signature</code> is <code>None</code>, the function returns <code>False</code>.</p>
+<p><strong>Secret configured but no signature given</strong> — When <code>secret</code> is not <code>None</code> but <code>signature</code> is <code>None</code>, the function returns <code>False</code>.</p>
 </li>
 <li>
-<p><strong>Secret configured with a signature provided</strong> — Compute the HMAC-SHA256 of <code>body</code> keyed with <code>secret</code>, and format it as <code>&quot;sha256=&lt;hexdigest&gt;&quot;</code> where <code>&lt;hexdigest&gt;</code> is the lowercase hexadecimal digest. Compare this computed value against the supplied <code>signature</code>:</p>
+<p><strong>Secret configured with a signature supplied</strong> — Compute the HMAC-SHA256 of <code>body</code> keyed by <code>secret</code>, rendered as <code>&quot;sha256=&lt;hexdigest&gt;&quot;</code>, where <code>&lt;hexdigest&gt;</code> is the lowercase hexadecimal digest. Compare this computed value against the <code>signature</code> that was supplied:</p>
 <ul>
-<li>If they match, return <code>True</code>.</li>
-<li>If they do not match, return <code>False</code>.</li>
+<li>On a match, return <code>True</code>.</li>
+<li>On a mismatch, return <code>False</code>.</li>
 </ul>
 </li>
 </ol>
 <h5>Worked example</h5>
-<p>For <code>secret = b&quot;secret&quot;</code> and <code>body = b&quot;body&quot;</code>, the correct HMAC-SHA256 hexdigest is <code>dc46983557fea127b43af721467eb9b3fde2338fe3e14f51952aa8478c13d355</code>. Therefore:</p>
+<p>With <code>secret = b&quot;secret&quot;</code> and <code>body = b&quot;body&quot;</code>, the correct HMAC-SHA256 hexdigest is <code>dc46983557fea127b43af721467eb9b3fde2338fe3e14f51952aa8478c13d355</code>. Thus:</p>
 <ul>
-<li>A <code>signature</code> of <code>&quot;sha256=dc46983557fea127b43af721467eb9b3fde2338fe3e14f51952aa8478c13d355&quot;</code> must yield <code>True</code>.</li>
-<li>A <code>signature</code> of <code>&quot;sha256=invalid-sig&quot;</code> must yield <code>False</code>.</li>
+<li>Passing <code>&quot;sha256=dc46983557fea127b43af721467eb9b3fde2338fe3e14f51952aa8478c13d355&quot;</code> as <code>signature</code> must yield <code>True</code>.</li>
+<li>Passing <code>&quot;sha256=invalid-sig&quot;</code> as <code>signature</code> must yield <code>False</code>.</li>
 </ul>
 <h4>Notes</h4>
 <ul>
-<li>The function name begins with an underscore and is intended for direct import from <code>runboat.webhooks</code>.</li>
-<li>No exceptions should be raised for the input combinations described above; the outcome is always a boolean.</li>
+<li>The function's name starts with an underscore, and it is meant to be imported directly from <code>runboat.webhooks</code>.</li>
+<li>For the input combinations described above, no exceptions should be raised; the outcome is always a boolean.</li>
 </ul>
 </div>
     </details>
